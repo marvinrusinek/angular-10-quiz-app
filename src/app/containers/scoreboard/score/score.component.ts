@@ -18,6 +18,7 @@ import {
 import {
   catchError,
   distinctUntilChanged,
+  map,
   switchMap,
   takeUntil,
 } from 'rxjs/operators';
@@ -66,32 +67,29 @@ export class ScoreComponent implements OnInit, OnDestroy {
     this.subscription = combineLatest([
       this.correctAnswersCount$.pipe(
         takeUntil(this.unsubscribeTrigger$),
-        distinctUntilChanged()
+        distinctUntilChanged(),
       ),
       this.quizService.getAllQuestions().pipe(
-        switchMap((questions) =>
-          combineLatest([of(questions), this.quizService.getTotalQuestions()])
+        switchMap((questions: QuizQuestion[]) =>
+          this.quizService.getTotalQuestions().pipe(
+            map((totalQuestions: number) => [questions, totalQuestions] as [QuizQuestion[], number])
+          )
         ),
-        catchError((error) => {
+        catchError((error: Error) => {
           console.error('Error in getQuestions():', error);
-          return of([]);
+          return of([[], undefined] as [QuizQuestion[], number]);
         })
       ),
-    ]).subscribe(
-      ([correctAnswersCount, [questions, totalQuestions]]) => {
+    ]).subscribe({
+      next: ([correctAnswersCount, [questions, totalQuestions]]: [number, [QuizQuestion[], number]]) => {
         this.correctAnswersCount = correctAnswersCount;
         this.totalQuestions = totalQuestions;
         this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
-        this.ngZone.run(() => {
-          timer(0).subscribe(() => {
-            this.displayNumericalScore();
-          });
-        });
       },
-      (error) => {
+      error: (error) => {
         console.error('Error in ScoreComponent subscription:', error);
-      }
-    );
+      },
+    });    
   }
 
   ngOnDestroy(): void {
