@@ -259,10 +259,12 @@ export class QuizService implements OnDestroy {
     this.loadData();
     this.setupSubscriptions();
 
-    const storedText = localStorage.getItem('correctAnswersCountText') || '';
-    this.correctAnswersCountTextSource = new BehaviorSubject<string>(storedText);
+    const storedText = localStorage.getItem('correctAnswersCountText');
+    if (storedText !== null) {
+      this.correctAnswersCountTextSource.next(storedText);
+    }
   }
-  
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -583,18 +585,9 @@ export class QuizService implements OnDestroy {
     this.questionTextSource.next(newQuestionText);
   }
 
-  /* updateCorrectAnswersCountText(newText: string): void {
-    localStorage.setItem('correctAnswersCountText', newText); // Persist the text in localStorage
-    this.correctAnswersCountTextSource.next(newText); // Update the BehaviorSubject
-  }
-  
-  getCorrectAnswersCountText(): string {
-    // Retrieve the text from localStorage if available, otherwise use the current value
-    return localStorage.getItem('correctAnswersCountText') || this.correctAnswersCountTextSource.getValue();
-  } */
-
-  getStoredCorrectAnswersText(): string {
-    return localStorage.getItem('correctAnswersCountText') || 'Default text';
+  updateCorrectAnswersText(newText: string): void {
+    localStorage.setItem('correctAnswersCountText', newText); // Persist the text
+    this.correctAnswersCountTextSource.next(newText);
   }
   
   private updateCorrectCountForResults(value: number): void {
