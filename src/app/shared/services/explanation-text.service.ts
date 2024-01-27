@@ -200,7 +200,7 @@ export class ExplanationTextService implements OnDestroy {
     this.clearExplanationText();
     this.resetExplanationState();
     this.resetProcessedQuestionsState();
-  }  
+  }
 
   clearExplanationText(): void {
     this.explanationText$.next('');
