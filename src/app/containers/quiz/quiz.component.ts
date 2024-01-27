@@ -538,13 +538,15 @@ export class QuizComponent implements OnInit, OnDestroy {
   
   // Helper function to find a quiz by quizId
   private findQuizByQuizId(quizId: string): Quiz | undefined {
-    for (const item of this.quizData.questions) {
-      if (this.isQuiz(item) && item.quizId === quizId) {
-        return item as Quiz;
+    if (this.quizData && Array.isArray(this.quizData.questions)) {
+      for (const item of this.quizData.questions) {
+        if (this.isQuiz(item) && item.quizId === quizId) {
+          return item as Quiz;
+        }
       }
     }
     return undefined;
-  }
+  }  
 
   // Type guard function to check if an object is of type Quiz
   private isQuiz(item: any): item is Quiz {
