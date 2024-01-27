@@ -102,7 +102,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   formControl: FormControl;
   quiz: Quiz;
   quiz$: Observable<Quiz>;
-  quizData: QuizData;
+  quizData: QuizData[];
   quizId = '';
   quizName$: Observable<string>;
   quizResources: QuizResource[];
@@ -396,7 +396,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.setExplanationTextForCurrentQuestion(currentQuiz, currentQuestionIndex);
   }
   
-  private isValidQuestionIndex(index: number, questions: QuizQuestion[]): boolean {
+  isValidQuestionIndex(index: number, questions: QuizQuestion[] | undefined): boolean {
+    if (!questions) {
+      console.error('Questions array is undefined or null.');
+      return false;
+    }
+  
     console.log(`Validating index: ${index}, Number of questions: ${questions.length}`);
     return index >= 0 && index < questions.length;
   }  
@@ -506,12 +511,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Quiz ID:', this.quizId);
     console.log('Current Question Index:', this.currentQuestionIndex);
   
-    // const currentQuiz = this.findQuizByQuizId(this.quizId);
-    const currentQuiz = this.quizData;
-    console.log('Current Quiz:', currentQuiz);
+    // Find the current quiz object by quizId
+    const currentQuiz = this.quizData.find(quiz => quiz.quizId === this.quizId);
   
-    if (!currentQuiz || !this.isValidQuestionIndex(this.currentQuestionIndex, currentQuiz.questions)) {
-      console.error(`Invalid quiz or question index: Quiz ID ${this.quizId}, Question Index (0-based) ${this.currentQuestionIndex}`);
+    if (!currentQuiz) {
+      console.error(`Quiz not found: Quiz ID ${this.quizId}`);
+      return;
+    }
+    
+    if (!Array.isArray(currentQuiz.questions)) {
+      console.error(`Questions data is invalid or not loaded for Quiz ID ${this.quizId}`);
+      return;
+    }
+  
+    if (!this.isValidQuestionIndex(this.currentQuestionIndex, currentQuiz.questions)) {
+      console.error(`Invalid question index: Quiz ID ${this.quizId}, Question Index (0-based) ${this.currentQuestionIndex}`);
       return;
     }
   
@@ -545,16 +559,17 @@ export class QuizComponent implements OnInit, OnDestroy {
   
   // Helper function to find a quiz by quizId
   private findQuizByQuizId(quizId: string): Quiz | undefined {
-    if (this.quizData && Array.isArray(this.quizData.questions)) {
-      for (const item of this.quizData.questions) {
-        if (this.isQuiz(item) && item.quizId === quizId) {
-          return item as Quiz;
-        }
-      }
+    // Find the quiz by quizId within the quizData array
+    const foundQuiz = this.quizData.find(quiz => quiz.quizId === quizId);
+  
+    // If a quiz is found and it's indeed a Quiz (as checked by this.isQuiz), return it
+    if (foundQuiz && this.isQuiz(foundQuiz)) {
+      return foundQuiz as Quiz;
     }
+  
     return undefined;
-  }  
-
+  }
+  
   // Type guard function to check if an object is of type Quiz
   private isQuiz(item: any): item is Quiz {
     return typeof item === 'object' && 'quizId' in item;
