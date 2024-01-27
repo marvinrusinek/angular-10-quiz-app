@@ -139,17 +139,17 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
-    this.quizService.correctAnswersCount.pipe(takeUntil(this.destroy$)).subscribe((text: string) => {
+    /* this.quizService.correctAnswersCount.pipe(takeUntil(this.destroy$)).subscribe((text: string) => {
       console.log('Received correct answers count text:', text);
       this.displayCorrectAnswersCountText(text);
-    });
+    }); */
 
-    const storedOrLastKnownText = this.quizService.getCorrectAnswersCountText();
-    this.quizService.updateCorrectAnswersCountText(storedOrLastKnownText);
+    //const storedOrLastKnownText = this.quizService.getCorrectAnswersCountText();
+    //this.quizService.updateCorrectAnswersCountText(storedOrLastKnownText);
 
-    this.quizService.updateCorrectAnswersCountText(
+    /* this.quizService.updateCorrectAnswersCountText(
       this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers)
-    );
+    ); */
 
     this.updateQuizStatus();
     this.initializeComponent();
@@ -158,7 +158,7 @@ export class CodelabQuizContentComponent
     this.setupCombinedTextObservable();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+ /*  ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
       const isMultipleAnswer = this.quizStateService.isMultipleAnswer(changes.question.currentValue);
   
@@ -166,13 +166,13 @@ export class CodelabQuizContentComponent
       if (isMultipleAnswer) {
         // Assuming getNumberOfCorrectAnswersText() method returns the desired text
         const newText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(changes.question.currentValue.numberOfCorrectAnswers);
-        this.quizService.updateCorrectAnswersText(newText);
+        this.quizService.updateCorrectAnswersCountText(newText);
       } else {
         // Reset or clear the text if the new question does not allow multiple answers
-        this.quizService.updateCorrectAnswersText('');
+        this.quizService.updateCorrectAnswersCountText('');
       }
     }
-  }  
+  }  */
 
   ngOnDestroy(): void {
     this.destroy$.next();

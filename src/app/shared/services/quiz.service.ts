@@ -583,7 +583,7 @@ export class QuizService implements OnDestroy {
     this.questionTextSource.next(newQuestionText);
   }
 
-  updateCorrectAnswersCountText(newText: string): void {
+  /* updateCorrectAnswersCountText(newText: string): void {
     localStorage.setItem('correctAnswersCountText', newText); // Persist the text in localStorage
     this.correctAnswersCountTextSource.next(newText); // Update the BehaviorSubject
   }
@@ -591,7 +591,7 @@ export class QuizService implements OnDestroy {
   getCorrectAnswersCountText(): string {
     // Retrieve the text from localStorage if available, otherwise use the current value
     return localStorage.getItem('correctAnswersCountText') || this.correctAnswersCountTextSource.getValue();
-  }
+  } */
 
   getStoredCorrectAnswersText(): string {
     return localStorage.getItem('correctAnswersCountText') || 'Default text';
