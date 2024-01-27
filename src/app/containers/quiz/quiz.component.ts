@@ -398,8 +398,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Questions array is undefined or null.');
       return false;
     }
-  
-    console.log(`Validating index: ${index}, Number of questions: ${questions.length}`);
+
     return index >= 0 && index < questions.length;
   }  
   
