@@ -45,16 +45,16 @@ export class StopwatchService {
       .pipe(
         switchMapTo(
           timer(0, 1000).pipe(
-            scan((acc) => acc + 1, 0),
+            scan((acc: number) => acc + 1, 0),
             take(this.timePerQuestion)
           )
         ),
         takeUntil(this.stop$.pipe(skip(1))),
-        repeatWhen((completeSubj) =>
+        repeatWhen((completeSubj: Observable<void>) =>
           completeSubj.pipe(switchMapTo(this.start$.pipe(skip(1), first())))
         )
       )
-      .pipe(tap((value) => this.setElapsed(value)));
+      .pipe(tap((value: number) => this.setElapsed(value)));
   }
 
   setElapsed(time: number): void {
