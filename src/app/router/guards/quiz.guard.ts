@@ -4,6 +4,7 @@ import { Observable, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 
 enum QuizRoutes {
@@ -17,6 +18,7 @@ enum QuizRoutes {
 })
 export class QuizGuard implements CanActivate {
   constructor(
+    private quizService: QuizService,
     private quizDataService: QuizDataService,
     private router: Router
   ) {}
@@ -31,6 +33,10 @@ export class QuizGuard implements CanActivate {
           this.router.navigate(['/select']);
           return of(false);
         }
+
+        // Retrieve and set the stored correct answers text as soon as a quiz is confirmed to be selected
+        const storedText = localStorage.getItem('correctAnswersCountText') || 'Default Correct Answers Text';
+        this.quizService.updateCorrectAnswersText(storedText);
 
         const totalQuestions = selectedQuiz.questions.length;
 
