@@ -60,6 +60,7 @@ export class CodelabQuizContentComponent
   @Input() correctAnswersText: string = '';
   quizId = '';
   questionIndex: number;
+  questionText = '';
   currentQuestionIndexValue: number;
   currentQuestion$: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
@@ -76,9 +77,7 @@ export class CodelabQuizContentComponent
     new BehaviorSubject<string>('0');
   shouldDisplayNumberOfCorrectAnswers: boolean;
   shouldDisplayCorrectAnswers = false;
-  // shouldDisplayCorrectAnswers$: Observable<boolean>;
   private shouldDisplayCorrectAnswersSubject = new BehaviorSubject<boolean>(false);
-  // Expose as an observable for use in the template
   shouldDisplayCorrectAnswers$ = this.shouldDisplayCorrectAnswersSubject.asObservable();
 
   currentQuestionSubscription: Subscription;
@@ -95,9 +94,6 @@ export class CodelabQuizContentComponent
 
   combinedText$: Observable<string>;
 
-  questionText = '';
-  correctAnswersText = '';
-
   displayCorrectAnswers = false;
   isExplanationTextDisplayed = false;
   isExplanationTextDisplayed$: Observable<boolean>;
@@ -110,8 +106,6 @@ export class CodelabQuizContentComponent
   isCurrentQuestionMultipleAnswer: boolean;
   isQuestionActive = false;
   isSingleAnswerQuestion: boolean = false;
-
-  
 
   private destroy$ = new Subject<void>();
 
