@@ -13,7 +13,7 @@ import {
 } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class StopwatchService {
   @Input() selectedAnswer: number;
