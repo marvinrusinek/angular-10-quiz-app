@@ -501,6 +501,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private initializeQuizState(): void {
+    console.log('Quiz Data:', this.quizData);
+    console.log('Quiz ID:', this.quizId);
+    console.log('Current Question Index:', this.currentQuestionIndex);
+  
     const currentQuiz = this.findQuizByQuizId(this.quizId);
   
     if (!currentQuiz || !this.isValidQuestionIndex(this.currentQuestionIndex, currentQuiz.questions)) {
@@ -510,7 +514,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     const currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
     this.setCurrentQuestionState(currentQuestion);
-  }
+  }  
   
   private setCurrentQuestionState(question: QuizQuestion): void {
     if (!question) {
