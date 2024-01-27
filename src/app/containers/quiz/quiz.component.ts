@@ -506,7 +506,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Quiz ID:', this.quizId);
     console.log('Current Question Index:', this.currentQuestionIndex);
   
-    const currentQuiz = this.findQuizByQuizId(this.quizId);
+    // const currentQuiz = this.findQuizByQuizId(this.quizId);
+    const currentQuiz = this.quizData;
     console.log('Current Quiz:', currentQuiz);
   
     if (!currentQuiz || !this.isValidQuestionIndex(this.currentQuestionIndex, currentQuiz.questions)) {
