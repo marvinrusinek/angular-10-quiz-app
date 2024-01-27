@@ -387,8 +387,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           }
 
           this.fetchCorrectAnswersAndText(this.data, this.data.options);
-          this.quizService.setCorrectAnswerOptions(this.correctAnswers);
-
+          
+          if (this.currentOptions && this.correctAnswers) {
+            const correctAnswerOptions: Option[] = this.correctAnswers.map(answerId =>
+              this.currentOptions.find(option => option.optionId === answerId)
+            ).filter(option => option !== undefined) as Option[];
+          
+            this.quizService.setCorrectAnswerOptions(correctAnswerOptions);
+          }
+          
           this.updateQuestionForm();
         } else {
           console.log(
