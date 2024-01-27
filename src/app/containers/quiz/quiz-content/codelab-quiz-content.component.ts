@@ -144,11 +144,10 @@ export class CodelabQuizContentComponent
       this.displayCorrectAnswersCountText(text);
     });
 
-    this.quizService.correctAnswersCountText$.subscribe(text => {
-      // Logic to display the correct answers text
-    });
+    const storedOrLastKnownText = this.quizService.getCorrectAnswersCountText();
+    this.quizService.updateCorrectAnswersCountText(storedOrLastKnownText);
 
-    this.quizService.updateCorrectAnswersText(
+    this.quizService.updateCorrectAnswersCountText(
       this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers)
     );
 
