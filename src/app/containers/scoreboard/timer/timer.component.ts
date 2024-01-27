@@ -50,10 +50,16 @@ export class TimerComponent implements OnInit, OnChanges {
     this.concat$ = concat(
       this.start$.pipe(
         first(),
-        map(value => +value)
+        map((value: unknown) => {
+          const num = +value;
+          return isNaN(num) ? 0 : num;
+        })
       ),
       this.reset$.pipe(
-        map(value => +value)
+        map((value: unknown) => {
+          const num = +value;
+          return isNaN(num) ? 0 : num;
+        })
       )
     ) as Observable<number>;
     this.timeLeft$ = this.countdownService.startCountdown(30);
