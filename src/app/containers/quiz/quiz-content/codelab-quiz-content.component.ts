@@ -163,6 +163,8 @@ export class CodelabQuizContentComponent
    // this.correctAnswersText$ = this.quizService.getCorrectAnswersText();
     this.handleQuestionUpdate(this.question);
 
+  // this.correctAnswersText$ = this.quizService.correctAnswersCountText$;
+
     this.updateQuizStatus();
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();

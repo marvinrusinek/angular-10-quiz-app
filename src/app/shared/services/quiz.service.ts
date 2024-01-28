@@ -212,7 +212,7 @@ export class QuizService implements OnDestroy {
   private questionTextSource = new BehaviorSubject<string>('');
   questionText = this.questionTextSource.asObservable();
   private correctAnswersCountTextSource = new BehaviorSubject<string>('');
-  correctAnswersCount$ = this.correctAnswersCountTextSource.asObservable();
+  correctAnswersCountText$ = this.correctAnswersCountTextSource.asObservable();
 
   private correctAnswersAvailabilitySubject = new BehaviorSubject<boolean>(
     false
@@ -259,7 +259,7 @@ export class QuizService implements OnDestroy {
     this.loadData();
     this.setupSubscriptions();
 
-    const storedText = localStorage.getItem('correctAnswersCountText') || 'Select answers';
+    const storedText = localStorage.getItem('correctAnswersCountText') || 'Select one answer';
     this.correctAnswersCountTextSource.next(storedText);
   }
   
@@ -584,7 +584,7 @@ export class QuizService implements OnDestroy {
   }
 
   updateCorrectAnswersText(newText: string): void {
-    localStorage.setItem('correctAnswersCountText', newText); // Persist new text
+    localStorage.setItem('correctAnswersCountText', newText); // Persist the text
     this.correctAnswersCountTextSource.next(newText); // Update BehaviorSubject
   }
 
