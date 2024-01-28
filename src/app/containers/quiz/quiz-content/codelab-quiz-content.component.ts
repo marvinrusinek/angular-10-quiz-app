@@ -165,7 +165,7 @@ export class CodelabQuizContentComponent
 
     // this.correctAnswersText$ = this.quizService.correctAnswersCountText$;
 
-    this.correctAnswersText$.subscribe(value => console.log("Correct Answers Text: ", value));
+    this.correctAnswersText$.subscribe(value => console.log("Correct Answers Text:::: ", value));
     console.log("Should Display Correct Answers: ", this.shouldDisplayCorrectAnswers);
 
     this.updateQuizStatus();
