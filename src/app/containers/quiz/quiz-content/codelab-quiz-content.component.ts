@@ -130,7 +130,7 @@ export class CodelabQuizContentComponent
     const storedText = localStorage.getItem('correctAnswersCountText') || 'Default Text';
     this.correctAnswersText = storedText;
 
-    this.correctAnswersText$ = this.quizStateService.correctAnswersText$;
+    // this.correctAnswersText$ = this.quizStateService.correctAnswersText$;
   }
 
   ngOnInit(): void {
@@ -161,7 +161,7 @@ export class CodelabQuizContentComponent
     }); */
 
    // this.correctAnswersText$ = this.quizService.getCorrectAnswersText();
-    this.someMethodToUpdateText();
+    // this.someMethodToUpdateText();
 
     this.updateQuizStatus();
     this.initializeComponent();
