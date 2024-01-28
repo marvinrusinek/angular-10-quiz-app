@@ -161,7 +161,7 @@ export class CodelabQuizContentComponent
     }); */
 
    // this.correctAnswersText$ = this.quizService.getCorrectAnswersText();
-    // this.someMethodToUpdateText();
+    this.handleQuestionUpdate(this.question);
 
     this.updateQuizStatus();
     this.initializeComponent();
@@ -196,9 +196,16 @@ export class CodelabQuizContentComponent
     this.explanationTextService.resetStateBetweenQuestions();
   }
 
-  someMethodToUpdateText(): void {
-    const newText = `Select ${this.numberOfCorrectAnswers} answers.`;
-    this.quizStateService.updateCorrectAnswersText(newText);
+  // Example from a component handling question updates
+  handleQuestionUpdate(question: QuizQuestion): void {
+    if (this.quizStateService.isMultipleAnswer(question)) {
+      this.quizService.updateCorrectAnswersText(
+        this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.quizService.numberOfCorrectAnswers)
+      );
+    } else {
+      // Optionally clear the message or set a default message for single-answer questions
+      this.quizService.updateCorrectAnswersText("Select one answer");
+    }
   }
 
   displayCorrectAnswersCountText(text: string): void {
