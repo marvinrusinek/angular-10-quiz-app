@@ -211,7 +211,8 @@ export class QuizService implements OnDestroy {
   badgeText = this.badgeTextSource.asObservable();
   private questionTextSource = new BehaviorSubject<string>('');
   questionText = this.questionTextSource.asObservable();
-  private correctAnswersCountTextSource = new BehaviorSubject<string>('');
+  // private correctAnswersCountTextSource = new BehaviorSubject<string>('');
+  private correctAnswersCountTextSource = new BehaviorSubject<string>('Select answers');
   correctAnswersCountText$ = this.correctAnswersCountTextSource.asObservable();
 
   private correctAnswersAvailabilitySubject = new BehaviorSubject<boolean>(
@@ -259,7 +260,7 @@ export class QuizService implements OnDestroy {
     this.loadData();
     this.setupSubscriptions();
 
-    const storedText = localStorage.getItem('correctAnswersCountText') || 'Select one answer';
+    const storedText = localStorage.getItem('correctAnswersCountText') || 'Select answers';
     this.correctAnswersCountTextSource.next(storedText);
   }
   
@@ -584,12 +585,13 @@ export class QuizService implements OnDestroy {
   }
 
   updateCorrectAnswersText(newText: string): void {
-    localStorage.setItem('correctAnswersCountText', newText); // Persist the text
-    this.correctAnswersCountTextSource.next(newText); // Update BehaviorSubject
+    localStorage.setItem('correctAnswersCountText', newText);
+    this.correctAnswersCountTextSource.next(newText);
   }
 
-  getCorrectAnswersText(): Observable<string> {
-    return this.correctAnswersCountTextSource.asObservable();
+  // New method to get the current text value directly
+  getCurrentCorrectAnswersText(): string {
+    return this.correctAnswersCountTextSource.value;
   }
   
   private updateCorrectCountForResults(value: number): void {
