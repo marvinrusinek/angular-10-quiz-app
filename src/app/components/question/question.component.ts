@@ -137,6 +137,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   questionDataSubscription: Subscription;
   isExplanationTextDisplayed = false;
 
+  isNavigatingToPrevious = false;
+
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -177,6 +179,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
         this.handlePageVisibilityChange(isHidden);
       });
+    
+    this.quizService.getIsNavigatingToPrevious().subscribe(
+      isNavigating => this.isNavigatingToPrevious = isNavigating
+    );
   }
 
   async ngOnInit(): Promise<void> {
@@ -370,7 +376,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               correctAnswersText: '',
               currentOptions: this.data.options,
               currentQuestion: this.currentQuestion,
-              isNavigatingToPrevious: false
+              isNavigatingToPrevious: this.isNavigatingToPrevious
             });
           }
           console.log('CA:', this.correctAnswers);
