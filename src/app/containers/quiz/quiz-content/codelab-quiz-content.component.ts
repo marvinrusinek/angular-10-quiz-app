@@ -529,8 +529,8 @@ export class CodelabQuizContentComponent
       const textToDisplay = shouldDisplayExplanation ? 
         this.explanationToDisplay || '' : this.questionToDisplay || '';
   
-      // this.handleSingleAnswerQuestions(shouldDisplayExplanation, nextQuestion);
-      this.handleQuestionDisplay(shouldDisplayExplanation, nextQuestion);
+      this.handleSingleAnswerQuestions(shouldDisplayExplanation, nextQuestion);
+      // this.handleQuestionDisplay(shouldDisplayExplanation, nextQuestion);
 
       return of(textToDisplay);
     }
@@ -591,6 +591,11 @@ export class CodelabQuizContentComponent
 
     private handleQuestionDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
       this.shouldDisplayCorrectAnswers = question.type === QuestionType.MultipleAnswer && !shouldDisplayExplanation;
+    }
+    
+    private updateShouldDisplayCorrectAnswers(question: QuizQuestion, shouldDisplayExplanation: boolean): void {
+      const isMultipleAnswer = question.type === QuestionType.MultipleAnswer;
+      this.shouldDisplayCorrectAnswers = isMultipleAnswer && !shouldDisplayExplanation;
     }
     
 
