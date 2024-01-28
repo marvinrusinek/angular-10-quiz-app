@@ -226,11 +226,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.initializeQuestionStreams();
     this.createQuestionData();
 
-    this.quizService.getCorrectAnswersText().pipe(
+    /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe((text: string) => {
       this.correctAnswersText = text;
-    });
+    }); */
   }
   
   ngOnDestroy(): void {
