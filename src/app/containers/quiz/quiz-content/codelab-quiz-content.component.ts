@@ -126,6 +126,9 @@ export class CodelabQuizContentComponent
     this.quizService.getIsNavigatingToPrevious().subscribe(
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
+
+    const storedText = localStorage.getItem('correctAnswersCountText') || 'Default Text';
+    this.correctAnswersText = storedText;
   }
 
   ngOnInit(): void {
@@ -148,12 +151,14 @@ export class CodelabQuizContentComponent
       this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers)
     ); */
 
-    this.quizService.getCorrectAnswersText()
+    /* this.quizService.getCorrectAnswersText()
     .pipe(takeUntil(this.destroy$))
     .subscribe((text: string) => {
       console.log('Received correct answers count text:', text);
       this.displayCorrectAnswersCountText(text);
-    });
+    }); */
+
+   // this.correctAnswersText$ = this.quizService.getCorrectAnswersText();
 
     this.updateQuizStatus();
     this.initializeComponent();
