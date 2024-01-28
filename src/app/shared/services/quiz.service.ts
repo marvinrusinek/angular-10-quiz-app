@@ -212,7 +212,7 @@ export class QuizService implements OnDestroy {
   private questionTextSource = new BehaviorSubject<string>('');
   questionText = this.questionTextSource.asObservable();
   private correctAnswersCountTextSource = new BehaviorSubject<string>('');
-  correctAnswersCount = this.correctAnswersCountTextSource.asObservable();
+  correctAnswersCount$ = this.correctAnswersCountTextSource.asObservable();
 
   private correctAnswersAvailabilitySubject = new BehaviorSubject<boolean>(
     false
@@ -259,7 +259,7 @@ export class QuizService implements OnDestroy {
     this.loadData();
     this.setupSubscriptions();
 
-    const storedText = localStorage.getItem('correctAnswersCountText') || '';
+    const storedText = localStorage.getItem('correctAnswersCountText') || 'Select answers';
     this.correctAnswersCountTextSource.next(storedText);
   }
   
@@ -583,11 +583,9 @@ export class QuizService implements OnDestroy {
     this.questionTextSource.next(newQuestionText);
   }
 
-
   updateCorrectAnswersText(newText: string): void {
-    console.log(`Updating correct answers text to: ${newText}`);
-    this.correctAnswersCountTextSource.next(newText);
-    localStorage.setItem('correctAnswersCountText', newText);
+    localStorage.setItem('correctAnswersCountText', newText); // Persist new text
+    this.correctAnswersCountTextSource.next(newText); // Update BehaviorSubject
   }
 
   getCorrectAnswersText(): Observable<string> {
@@ -598,7 +596,6 @@ export class QuizService implements OnDestroy {
     this.correctCount = value;
     this.sendCorrectCountToResults(this.correctCount);
   }
-  
 
   updateCombinedQuestionData(newData: CombinedQuestionDataType): void {
     this.combinedQuestionDataSubject.next(newData);
