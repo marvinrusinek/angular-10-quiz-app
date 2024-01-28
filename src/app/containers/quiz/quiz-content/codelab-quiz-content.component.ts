@@ -529,8 +529,8 @@ export class CodelabQuizContentComponent
       const textToDisplay = shouldDisplayExplanation ? 
         this.explanationToDisplay || '' : this.questionToDisplay || '';
   
-      this.handleSingleAnswerQuestions(shouldDisplayExplanation);
-      // this.handleQuestionDisplay(shouldDisplayExplanation, nextQuestion);
+      // this.handleSingleAnswerQuestions(shouldDisplayExplanation, nextQuestion);
+      this.handleQuestionDisplay(shouldDisplayExplanation, nextQuestion);
 
       return of(textToDisplay);
     }
@@ -571,7 +571,7 @@ export class CodelabQuizContentComponent
     }
   } */
 
-  private handleQuestionDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
+  /* private handleQuestionDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
     switch (question.type) {
       case QuestionType.MultipleAnswer:
         // For multiple-answer questions, display "# of correct answers" text,
@@ -587,8 +587,12 @@ export class CodelabQuizContentComponent
       default:
         // Handle any other types or default case as needed
         this.shouldDisplayCorrectAnswers = false;
+    } */
+
+    private handleQuestionDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
+      this.shouldDisplayCorrectAnswers = question.type === QuestionType.MultipleAnswer && !shouldDisplayExplanation;
     }
-  }  
+    
 
   updateQuizStatus(): void {
     this.questionText = this.question.questionText;
