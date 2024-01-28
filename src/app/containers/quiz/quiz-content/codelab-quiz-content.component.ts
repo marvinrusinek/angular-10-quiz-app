@@ -39,6 +39,12 @@ import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 
+enum QuestionType {
+  SingleAnswer = 'single_answer',
+  MultipleAnswer = 'multiple_answer',
+  TrueFalse = 'true_false'
+}
+
 @Component({
   selector: 'codelab-quiz-content-component',
   templateUrl: './codelab-quiz-content.component.html',
@@ -523,7 +529,8 @@ export class CodelabQuizContentComponent
       const textToDisplay = shouldDisplayExplanation ? 
         this.explanationToDisplay || '' : this.questionToDisplay || '';
   
-      this.handleSingleAnswerQuestions(shouldDisplayExplanation);
+      // this.handleSingleAnswerQuestions(shouldDisplayExplanation);
+      this.handleQuestionDisplay(shouldDisplayExplanation, nextQuestion);
 
       return of(textToDisplay);
     }
@@ -546,6 +553,25 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     }
   }
+
+  private handleQuestionDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
+    switch (question.type) {
+      case QuestionType.MultipleAnswer:
+        // For multiple-answer questions, display "# of correct answers" text,
+        // except when an explanation is being displayed.
+        this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
+        break;
+      case QuestionType.SingleAnswer:
+      case QuestionType.TrueFalse:
+        // For single-answer and true/false questions, adjust the logic as needed.
+        // This example always hides the "# of correct answers" text.
+        this.shouldDisplayCorrectAnswers = false;
+        break;
+      default:
+        // Handle any other types or default case as needed
+        this.shouldDisplayCorrectAnswers = false;
+    }
+  }  
 
   updateQuizStatus(): void {
     this.questionText = this.question.questionText;
