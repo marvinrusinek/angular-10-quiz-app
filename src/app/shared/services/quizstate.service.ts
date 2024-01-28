@@ -21,9 +21,16 @@ export class QuizStateService {
   private resetQuizSubject = new Subject<void>();
   resetQuiz$ = this.resetQuizSubject.asObservable();
 
+  private correctAnswersTextSource = new BehaviorSubject<string>('Default Text');
+  correctAnswersText$ = this.correctAnswersTextSource.asObservable();
+
   private quizQuestionCreated = false;
 
   constructor() {}
+
+  updateCorrectAnswersText(newText: string): void {
+    this.correctAnswersTextSource.next(newText);
+  }
 
   updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
     if (question$ === null || question$ === undefined) {
