@@ -163,6 +163,8 @@ export class CodelabQuizContentComponent
    // this.correctAnswersText$ = this.quizService.getCorrectAnswersText();
     this.handleQuestionUpdate(this.question);
 
+    // this.correctAnswersText$ = this.quizService.correctAnswersCountText$;
+
   // this.correctAnswersText$ = this.quizService.correctAnswersCountText$;
 
     this.updateQuizStatus();
@@ -209,6 +211,7 @@ export class CodelabQuizContentComponent
       this.quizService.updateCorrectAnswersText("Select one answer");
     }
   }
+  
 
   displayCorrectAnswersCountText(text: string): void {
     // Assign the text to the component property
