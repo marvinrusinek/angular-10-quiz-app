@@ -585,7 +585,7 @@ export class QuizService implements OnDestroy {
   }
 
   updateCorrectAnswersText(newText: string): void {
-    localStorage.setItem('correctAnswersCountText', newText);
+    localStorage.setItem('correctAnswersText', newText);
     this.correctAnswersCountTextSource.next(newText);
   }
 
