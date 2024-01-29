@@ -579,7 +579,7 @@ export class CodelabQuizContentComponent
     }
   } */
 
-  private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean, question: QuizQuestion) {
+  /* private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean, question: QuizQuestion) {
     // Check the question type directly
     if (question.type === QuestionType.SingleAnswer) {
       // Logic for single-answer questions
@@ -591,7 +591,19 @@ export class CodelabQuizContentComponent
       // Default case for other types of questions, such as True/False
       this.shouldDisplayCorrectAnswers = false;
     }
+  } */
+
+  private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean, question: QuizQuestion) {
+    // Directly determine the visibility of the "# of correct answers" text
+    // without affecting the display logic for the question content.
+    if (question.type === QuestionType.MultipleAnswer && !shouldDisplayExplanation) {
+      this.shouldDisplayCorrectAnswers = true;
+    } else {
+      this.shouldDisplayCorrectAnswers = false;
+    }
   }
+  
+  
   
 
   /* private handleQuestionDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
