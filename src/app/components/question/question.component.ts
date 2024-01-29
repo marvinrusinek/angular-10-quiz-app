@@ -1080,7 +1080,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     questionIndex: number,
     explanationText: string
   ): void {
+    console.log('Before update - explanationText:', explanationText);
     this.explanationText$.next(explanationText);
+    console.log('After update - explanationText:', explanationText);
     this.updateCombinedQuestionData(
       this.questions[questionIndex],
       explanationText
