@@ -537,6 +537,24 @@ export class CodelabQuizContentComponent
   }
 
   private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean, question: QuizQuestion) {
+    // Default to not displaying the "# of correct answers" text
+    let shouldDisplay = false;
+  
+    if (question.type === QuestionType.MultipleAnswer && !shouldDisplayExplanation) {
+      // Show for multiple-answer questions unless an explanation is being displayed
+      shouldDisplay = true;
+    }
+    // For single-answer questions or other types, `shouldDisplay` remains false
+  
+    // Update the state/UI only if there's a change
+    if (this.shouldDisplayCorrectAnswers !== shouldDisplay) {
+      this.shouldDisplayCorrectAnswers = shouldDisplay;
+      // If using ChangeDetectionStrategy.OnPush, you might need to manually trigger change detection here
+      this.cdRef.detectChanges();
+    }
+  }
+
+  /* private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean, question: QuizQuestion) {
     if (question.type === QuestionType.SingleAnswer) {
       // Logic for single-answer questions
       if (shouldDisplayExplanation) {
@@ -551,7 +569,7 @@ export class CodelabQuizContentComponent
       // Default case for other types of questions, like True/False
       this.shouldDisplayCorrectAnswers = false;
     }
-  }  
+  }  */
 
   // Function to handle displaying correct answers for single-answer questions
   /* private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean) {
