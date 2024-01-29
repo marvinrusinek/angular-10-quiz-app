@@ -941,7 +941,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         );
         this.setExplanationText(questionIndex);
       },
-      error: (error: any) => {
+      error: (error: Error) => {
         console.error('Error fetching questions array:', error);
       }
     });
