@@ -10,7 +10,6 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import {
@@ -631,7 +630,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.options = question.options;
           }
         }),
-        catchError((error: HttpErrorResponse) => {
+        catchError((error: Error) => {
           console.error('Error in currentQuestion$ subscription:', error);
           return of(null);
         })
