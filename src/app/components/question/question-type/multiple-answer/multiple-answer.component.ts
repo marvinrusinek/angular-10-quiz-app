@@ -151,6 +151,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   onOptionClick(option: Option): void {
     super.onOptionClicked(option);
     this.selectedOption = option;
+    option.selected = true;
   }
 
   initializeOptionChecked(): void {
