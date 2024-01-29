@@ -104,5 +104,6 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     super.onOptionClicked(option);
     this.selectedOption = option;
     option.selected = true;
+    console.log('After selection - option.selected:', option.selected);
   }
 }
