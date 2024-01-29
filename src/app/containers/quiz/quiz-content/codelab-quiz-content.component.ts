@@ -562,7 +562,7 @@ export class CodelabQuizContentComponent
   } */
 
   // Function to handle displaying correct answers for single-answer questions
-  private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean) {
+  /* private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean) {
     // Add an if statement to handle single-answer questions
     if (this.isSingleAnswerQuestion) {
       // Check if an explanation is displayed
@@ -577,7 +577,22 @@ export class CodelabQuizContentComponent
       // For all other types of questions, do not display correct answers
       this.shouldDisplayCorrectAnswers = false;
     }
+  } */
+
+  private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean, question: QuizQuestion) {
+    // Check the question type directly
+    if (question.type === QuestionType.SingleAnswer) {
+      // Logic for single-answer questions
+      this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
+    } else if (question.type === QuestionType.MultipleAnswer) {
+      // Always show for multiple-answer questions unless an explanation is displayed
+      this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
+    } else {
+      // Default case for other types of questions, such as True/False
+      this.shouldDisplayCorrectAnswers = false;
+    }
   }
+  
 
   /* private handleQuestionDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
     switch (question.type) {
