@@ -526,11 +526,19 @@ export class CodelabQuizContentComponent
         (!previousQuestion || !previousQuestion.questionText)) {
       return of('');
     } else {
+      if (shouldDisplayExplanation) {
+        shouldDisplayExplanation = true; // Set shouldDisplayExplanation to true
+      }
+
       const textToDisplay = shouldDisplayExplanation ? 
         this.explanationToDisplay || '' : this.questionToDisplay || '';
   
       this.handleSingleAnswerQuestions(shouldDisplayExplanation, nextQuestion);
       // this.handleQuestionDisplay(shouldDisplayExplanation, nextQuestion);
+
+      if (shouldDisplayExplanation && formattedExplanation) {
+        this.explanationToDisplay = formattedExplanation; // Set explanationToDisplay
+      }
 
       return of(textToDisplay);
     }
