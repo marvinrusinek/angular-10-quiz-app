@@ -184,9 +184,6 @@ export class QuizService implements OnDestroy {
   previousQuestionTextSubject = new BehaviorSubject<string>('');
   previousQuestionText$ = this.previousQuestionTextSubject.asObservable();
 
-  private currentQuizSubject = new BehaviorSubject<Quiz>(null);
-  currentQuiz$ = this.currentQuizSubject.asObservable();
-
   private isNavigatingToPrevious = new BehaviorSubject<boolean>(false);
 
   // correctAnswersSubject: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
