@@ -266,8 +266,7 @@ export class QuizService implements OnDestroy {
   }
 
   getQuizData(): Observable<Quiz[]> {
-    const headers = new HttpHeaders().set('Cache-Control', 'no-cache');
-    return this.http.get<Quiz[]>(this.quizUrl, { headers });
+    return this.http.get<Quiz[]>(this.quizUrl);
   }  
 
   setSelectedQuiz(selectedQuiz: Quiz): void {
@@ -295,7 +294,6 @@ export class QuizService implements OnDestroy {
         },
         error: (err) => {
           console.error('Error fetching quiz data:', err);
-          // Handle error appropriately
         }
       });
   }
