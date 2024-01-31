@@ -526,10 +526,6 @@ export class CodelabQuizContentComponent
         (!previousQuestion || !previousQuestion.questionText)) {
       return of('');
     } else {
-      if (shouldDisplayExplanation) {
-        shouldDisplayExplanation = true; // Set shouldDisplayExplanation to true
-      }
-
       const textToDisplay = shouldDisplayExplanation ? 
         this.explanationToDisplay || '' : this.questionToDisplay || '';
   
