@@ -52,10 +52,6 @@ export class ExplanationTextService implements OnDestroy {
     this.destroyed$.complete();
   }
 
-  setExplanationDisplayed(isDisplayed: boolean): void {
-    this.explanationDisplayedSource.next(isDisplayed);
-  }
-
   getExplanationText$(): Observable<string | null> {
     return this.explanationText$.asObservable();
   }
@@ -186,6 +182,10 @@ export class ExplanationTextService implements OnDestroy {
     } catch (error) {
       console.error('Error updating explanation text:', error);
     }
+  }
+
+  setExplanationDisplayed(isDisplayed: boolean): void {
+    this.explanationDisplayedSource.next(isDisplayed);
   }
 
   setIsExplanationTextDisplayed(isDisplayed: boolean): void {
