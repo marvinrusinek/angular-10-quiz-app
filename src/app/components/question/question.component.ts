@@ -879,6 +879,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async checkAndHandleCorrectAnswer(): Promise<void> {
     const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
+    console.log("ISCORRECT", isCorrect);
 
     if (isCorrect) {
       // Stop the timer and provide an empty callback
