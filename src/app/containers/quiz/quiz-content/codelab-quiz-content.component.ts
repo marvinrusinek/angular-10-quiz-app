@@ -598,17 +598,10 @@ export class CodelabQuizContentComponent
   } */
 
   private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean, question: QuizQuestion) {
-    // Directly determine the visibility of the "# of correct answers" text
-    // without affecting the display logic for the question content.
-    if (question.type === QuestionType.MultipleAnswer && !shouldDisplayExplanation) {
-      this.shouldDisplayCorrectAnswers = true;
-    } else {
-      this.shouldDisplayCorrectAnswers = false;
-    }
+    // Determine the visibility of the "# of correct answers" text
+    // based on the question type and whether an explanation is displayed.
+    this.shouldDisplayCorrectAnswers = (question.type === QuestionType.SingleAnswer) && shouldDisplayExplanation;
   }
-  
-  
-  
 
   /* private handleQuestionDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
     switch (question.type) {
