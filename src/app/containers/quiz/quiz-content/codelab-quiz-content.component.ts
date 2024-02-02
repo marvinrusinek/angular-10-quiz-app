@@ -482,7 +482,7 @@ export class CodelabQuizContentComponent
     return of(combinedQuestionData);
   }
 
-  /* handleQuestionDisplayLogic(): void {
+  handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$),
       switchMap(combinedData => {
@@ -501,9 +501,9 @@ export class CodelabQuizContentComponent
       // console.log('Data from combinedQuestionData$:', combinedData);
       this.shouldDisplayCorrectAnswers = isMultipleAnswer;
     });
-  } */
+  }
 
-  handleQuestionDisplayLogic(): void {
+  /* handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$
       .pipe(
         takeUntil(this.destroy$),
@@ -518,7 +518,7 @@ export class CodelabQuizContentComponent
       .subscribe((isMultipleAnswer) => {
         this.shouldDisplayCorrectAnswers = isMultipleAnswer;
       });
-  }
+  } */
   
   
   
