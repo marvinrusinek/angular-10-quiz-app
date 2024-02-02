@@ -503,6 +503,26 @@ export class CodelabQuizContentComponent
     });
   } */
 
+  handleQuestionDisplayLogic(): void {
+    this.combinedQuestionData$
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((combinedData) => {
+          if (combinedData && combinedData.currentQuestion) {
+            return this.quizStateService.isMultipleAnswer(combinedData.currentQuestion);
+          } else {
+            return of(false);
+          }
+        })
+      )
+      .subscribe((isMultipleAnswer) => {
+        this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+      });
+  }
+  
+  
+  
+
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
