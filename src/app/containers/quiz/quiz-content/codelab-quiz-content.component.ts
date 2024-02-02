@@ -450,7 +450,7 @@ export class CodelabQuizContentComponent
     );
   }
   
-  /* private calculateCombinedQuestionData(
+  private calculateCombinedQuestionData(
     currentQuestionData: {
       currentQuestion: QuizQuestion | null;
       currentOptions: Option[];
@@ -480,40 +480,8 @@ export class CodelabQuizContentComponent
     };
   
     return of(combinedQuestionData);
-  } */
-
-  private calculateCombinedQuestionData(
-    currentQuestionData: {
-      currentQuestion: QuizQuestion | null;
-      currentOptions: Option[];
-    },
-    numberOfCorrectAnswers: number | undefined,
-    isExplanationDisplayed: boolean,
-    formattedExplanation: string
-  ): Observable<CombinedQuestionDataType> {
-    const { currentQuestion } = currentQuestionData;
-  
-    let correctAnswersText = '';
-    if (currentQuestion && !isExplanationDisplayed) {
-      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(currentQuestion);
-      if (questionHasMultipleAnswers && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
-        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-      }
-    }
-  
-    const combinedQuestionData: CombinedQuestionDataType = {
-      currentQuestion: currentQuestion,
-      currentOptions: currentQuestionData.currentOptions,
-      questionText: currentQuestion ? currentQuestion.questionText : '',
-      explanationText: currentQuestion ? currentQuestion.explanation : '',
-      formattedExplanation: formattedExplanation,
-      correctAnswersText: correctAnswersText,
-      isNavigatingToPrevious: this.isNavigatingToPrevious,
-    };
-  
-    return of(combinedQuestionData);
   }
-  
+
   /* handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$),
