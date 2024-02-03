@@ -668,6 +668,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   initializeFirstQuestionText(): void {
+    this.resetQuestionState();
+
     this.quizDataService
       .getQuestionsForQuiz(this.quizId)
       .subscribe({
@@ -1292,6 +1294,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       // this.quizService.resetQuiz(); ???
       this.router.navigate([QuizRoutes.RESULTS]);
     });
+  }
+
+  private resetQuestionState(): void {
+    this.currentQuestion = null;
+    this.questionToDisplay = '';
+    this.optionsToDisplay = [];
   }
 
   restartQuiz(): void {
