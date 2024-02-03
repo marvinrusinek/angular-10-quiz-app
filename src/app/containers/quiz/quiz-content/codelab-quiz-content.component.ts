@@ -31,6 +31,7 @@ import {
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
+import { QuestionType } from '../../shared/models/QuestionType.type';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
@@ -78,6 +79,7 @@ export class CodelabQuizContentComponent
   nextQuestion$: Observable<QuizQuestion | null>;
   previousQuestion$: Observable<QuizQuestion | null>;
   isNavigatingToPrevious: boolean;
+  currentQuestionType: QuestionType;
 
   numberOfCorrectAnswers = 0;
   numberOfCorrectAnswers$: BehaviorSubject<string> =
@@ -487,6 +489,7 @@ export class CodelabQuizContentComponent
       takeUntil(this.destroy$),
       switchMap(combinedData => {
         if (combinedData && combinedData.currentQuestion) {
+          this.currentQuestionType = combinedData.currentQuestion.type;
           return this.quizStateService.isMultipleAnswer(combinedData.currentQuestion).pipe(
             map(isMultipleAnswer => ({
               combinedData,
@@ -494,34 +497,18 @@ export class CodelabQuizContentComponent
             }))
           );
         } else {
+          this.currentQuestionType = undefined;
           return of({ combinedData, isMultipleAnswer: false });
         }
       })
     ).subscribe(({ combinedData, isMultipleAnswer }) => {
-      // console.log('Data from combinedQuestionData$:', combinedData);
-      this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+      if (this.currentQuestionType === QuestionType.SingleAnswer) {
+        this.shouldDisplayCorrectAnswers = false;
+      } else {
+        this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+      }
     });
   }
-
-  /* handleQuestionDisplayLogic(): void {
-    this.combinedQuestionData$
-      .pipe(
-        takeUntil(this.destroy$),
-        switchMap((combinedData) => {
-          if (combinedData && combinedData.currentQuestion) {
-            return this.quizStateService.isMultipleAnswer(combinedData.currentQuestion);
-          } else {
-            return of(false);
-          }
-        })
-      )
-      .subscribe((isMultipleAnswer) => {
-        this.shouldDisplayCorrectAnswers = isMultipleAnswer;
-      });
-  } */
-  
-  
-  
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
@@ -550,108 +537,27 @@ export class CodelabQuizContentComponent
         this.explanationToDisplay || '' : this.questionToDisplay || '';
   
       this.handleSingleAnswerQuestions(shouldDisplayExplanation, nextQuestion);
-      // this.handleQuestionDisplay(shouldDisplayExplanation, nextQuestion);
-
+  
       if (shouldDisplayExplanation && formattedExplanation) {
         this.explanationToDisplay = formattedExplanation; // Set explanationToDisplay
       }
-
+  
       return of(textToDisplay);
     }
   }
-
-  /* private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean, question: QuizQuestion) {
-    if (question.type === QuestionType.MultipleAnswer) {
-      this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
-    } else {
-      this.shouldDisplayCorrectAnswers = false; // Explicitly hide for single-answer and other question types
-    }
-  } */
-
-  /* private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean, question: QuizQuestion) {
-    if (question.type === QuestionType.SingleAnswer) {
-      // Logic for single-answer questions
-      if (shouldDisplayExplanation) {
-        this.shouldDisplayCorrectAnswers = false; // Hide for explanations
-      } else {
-        this.shouldDisplayCorrectAnswers = true; // Show otherwise
-      }
-    } else if (question.type === QuestionType.MultipleAnswer) {
-      // Always show for multiple-answer questions unless an explanation is displayed
-      this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
-    } else {
-      // Default case for other types of questions, like True/False
-      this.shouldDisplayCorrectAnswers = false;
-    }
-  } */
-
-  // Function to handle displaying correct answers for single-answer questions
-  /* private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean) {
-    // Add an if statement to handle single-answer questions
-    if (this.isSingleAnswerQuestion) {
-      // Check if an explanation is displayed
-      if (shouldDisplayExplanation) {
-        // Do not display correct answers for single-answer questions with an explanation
-        this.shouldDisplayCorrectAnswers = false;
-      } else {
-        // Display correct answers for single-answer questions without an explanation
-        this.shouldDisplayCorrectAnswers = true;
-      }
-    } else {
-      // For all other types of questions, do not display correct answers
-      this.shouldDisplayCorrectAnswers = false;
-    }
-  } */
-
-  /* private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean, question: QuizQuestion) {
-    // Check the question type directly
-    if (question.type === QuestionType.SingleAnswer) {
-      // Logic for single-answer questions
-      this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
-    } else if (question.type === QuestionType.MultipleAnswer) {
-      // Always show for multiple-answer questions unless an explanation is displayed
-      this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
-    } else {
-      // Default case for other types of questions, such as True/False
-      this.shouldDisplayCorrectAnswers = false;
-    }
-  } */
-
+  
   private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean, question: QuizQuestion) {
-    // Determine the visibility of the "# of correct answers" text
-    // based on the question type and whether an explanation is displayed.
-    this.shouldDisplayCorrectAnswers = (question.type === QuestionType.SingleAnswer) && shouldDisplayExplanation;
+    this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
   }
 
-  
-
-  /* private handleQuestionDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
-    switch (question.type) {
-      case QuestionType.MultipleAnswer:
-        // For multiple-answer questions, display "# of correct answers" text,
-        // except when an explanation is being displayed.
-        this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
-        break;
-      case QuestionType.SingleAnswer:
-      case QuestionType.TrueFalse:
-        // For single-answer and true/false questions, adjust the logic as needed.
-        // This example always hides the "# of correct answers" text.
-        this.shouldDisplayCorrectAnswers = false;
-        break;
-      default:
-        // Handle any other types or default case as needed
-        this.shouldDisplayCorrectAnswers = false;
-    } */
-
-    private handleQuestionDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
-      this.shouldDisplayCorrectAnswers = question.type === QuestionType.MultipleAnswer && !shouldDisplayExplanation;
-    }
+  private handleQuestionDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
+    this.shouldDisplayCorrectAnswers = question.type === QuestionType.MultipleAnswer && !shouldDisplayExplanation;
+  }
     
-    private updateShouldDisplayCorrectAnswers(question: QuizQuestion, shouldDisplayExplanation: boolean): void {
-      const isMultipleAnswer = question.type === QuestionType.MultipleAnswer;
-      this.shouldDisplayCorrectAnswers = isMultipleAnswer && !shouldDisplayExplanation;
-    }
-    
+  private updateShouldDisplayCorrectAnswers(question: QuizQuestion, shouldDisplayExplanation: boolean): void {
+    const isMultipleAnswer = question.type === QuestionType.MultipleAnswer;
+    this.shouldDisplayCorrectAnswers = isMultipleAnswer && !shouldDisplayExplanation;
+  } 
 
   updateQuizStatus(): void {
     this.questionText = this.question.questionText;
