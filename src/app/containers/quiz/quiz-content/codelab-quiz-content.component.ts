@@ -514,7 +514,6 @@ export class CodelabQuizContentComponent
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.previousQuestion$,
-      this.explanationTextService.nextExplanationText$,
       this.explanationTextService.formattedExplanation$,
       this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
@@ -527,8 +526,7 @@ export class CodelabQuizContentComponent
   }
 
   private determineTextToDisplay(
-    [nextQuestion, previousQuestion, nextExplanationText, 
-    formattedExplanation, shouldDisplayExplanation]): Observable<string> {
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
     if ((!nextQuestion || !nextQuestion.questionText) && 
         (!previousQuestion || !previousQuestion.questionText)) {
       return of('');
