@@ -153,26 +153,7 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
-    /* this.quizService.correctAnswersCountText.pipe(takeUntil(this.destroy$)).subscribe((text: string) => {
-      console.log('Received correct answers count text:', text);
-      this.displayCorrectAnswersCountText(text);
-    });
-
-    this.quizService.updateCorrectAnswersText(
-      this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers)
-    ); */
-
-    /* this.quizService.getCorrectAnswersText()
-    .pipe(takeUntil(this.destroy$))
-    .subscribe((text: string) => {
-      console.log('Received correct answers count text:', text);
-      this.displayCorrectAnswersCountText(text);
-    }); */
-
-   // this.correctAnswersText$ = this.quizService.getCorrectAnswersText();
     this.handleQuestionUpdate(this.question);
-
-    // this.correctAnswersText$ = this.quizService.correctAnswersCountText$;
 
     this.correctAnswersText$.subscribe(value => console.log("Correct Answers Text:::: ", value));
     console.log("Should Display Correct Answers: ", this.shouldDisplayCorrectAnswers);
