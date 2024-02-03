@@ -483,10 +483,10 @@ export class CodelabQuizContentComponent
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
-      this.nextQuestion$,
-      this.previousQuestion$,
-      this.explanationTextService.formattedExplanation$,
-      this.explanationTextService.shouldDisplayExplanation$
+      this.nextQuestion$.pipe(startWith(null)),
+      this.previousQuestion$.pipe(startWith(null)),
+      this.explanationTextService.formattedExplanation$.pipe(startWith('')),
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false))
     ]).pipe(
       tap(([next, prev, explanation, shouldDisplay]) => console.log('Quiz Restart Debug:', { next, prev, explanation, shouldDisplay })),
       switchMap(this.determineTextToDisplay.bind(this)),
