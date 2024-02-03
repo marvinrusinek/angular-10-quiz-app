@@ -486,9 +486,8 @@ export class CodelabQuizContentComponent
       this.nextQuestion$.pipe(startWith(null)),
       this.previousQuestion$.pipe(startWith(null)),
       this.explanationTextService.formattedExplanation$.pipe(startWith('')),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false))
+      this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
-      tap(([next, prev, explanation, shouldDisplay]) => console.log('Quiz Restart Debug:', { next, prev, explanation, shouldDisplay })),
       switchMap(this.determineTextToDisplay.bind(this)),
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
       startWith(''),
