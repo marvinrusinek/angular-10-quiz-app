@@ -534,7 +534,8 @@ export class CodelabQuizContentComponent
       const textToDisplay = shouldDisplayExplanation ? 
         this.explanationToDisplay || '' : this.questionToDisplay || '';
   
-      this.updateCorrectAnswersDisplay(shouldDisplayExplanation);
+      this.updateCorrectAnswersDisplay(shouldDisplayExplanation, nextQuestion);
+
   
       if (shouldDisplayExplanation && formattedExplanation) {
         this.explanationToDisplay = formattedExplanation; // Set explanationToDisplay
@@ -544,9 +545,18 @@ export class CodelabQuizContentComponent
     }
   }
   
-  private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
+  /* private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
     this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
+  } */
+
+  private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
+    if (shouldDisplayExplanation || !question) {
+      this.shouldDisplayCorrectAnswers = false;
+    } else {
+      this.shouldDisplayCorrectAnswers = (question.type === QuestionType.MultipleAnswer);
+    }
   }
+  
   
   updateQuizStatus(): void {
     this.questionText = this.question.questionText;
