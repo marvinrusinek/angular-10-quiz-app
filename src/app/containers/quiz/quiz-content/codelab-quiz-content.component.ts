@@ -20,6 +20,7 @@ import {
 } from 'rxjs';
 import {
   catchError,
+  distinctUntilChanged,
   map,
   mergeMap,
   startWith,
@@ -488,9 +489,11 @@ export class CodelabQuizContentComponent
       this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
       switchMap(this.determineTextToDisplay.bind(this)),
+      distinctUntilChanged(),
       startWith(''),
       catchError((error: Error) => {
         console.error('Error in combinedText$ observable:', error);
+        return of('');
       })
     );
   }
