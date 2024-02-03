@@ -153,15 +153,11 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
-    this.handleQuestionUpdate(this.question);
-
-    this.correctAnswersText$.subscribe(value => console.log("Correct Answers Text:::: ", value));
-    console.log("Should Display Correct Answers: ", this.shouldDisplayCorrectAnswers);
-
     this.updateQuizStatus();
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
     this.handleQuestionDisplayLogic();
+    this.handleQuestionUpdate(this.question);
     this.setupCombinedTextObservable();
   }
 
