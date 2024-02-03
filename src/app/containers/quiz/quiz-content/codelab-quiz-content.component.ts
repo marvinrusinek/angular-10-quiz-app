@@ -484,6 +484,32 @@ export class CodelabQuizContentComponent
     return of(combinedQuestionData);
   }
 
+  /* handleQuestionDisplayLogic(): void {
+    this.combinedQuestionData$.pipe(
+      takeUntil(this.destroy$),
+      switchMap(combinedData => {
+        if (combinedData && combinedData.currentQuestion) {
+          this.currentQuestionType = combinedData.currentQuestion.type;
+          return this.quizStateService.isMultipleAnswer(combinedData.currentQuestion).pipe(
+            map(isMultipleAnswer => ({
+              combinedData,
+              isMultipleAnswer
+            }))
+          );
+        } else {
+          this.currentQuestionType = undefined;
+          return of({ combinedData, isMultipleAnswer: false });
+        }
+      })
+    ).subscribe(({ combinedData, isMultipleAnswer }) => {
+      if (this.currentQuestionType === QuestionType.SingleAnswer) {
+        this.shouldDisplayCorrectAnswers = false;
+      } else {
+        this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+      }
+    });
+  } */
+
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$),
@@ -508,7 +534,7 @@ export class CodelabQuizContentComponent
         this.shouldDisplayCorrectAnswers = isMultipleAnswer;
       }
     });
-  }
+  }  
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
