@@ -488,8 +488,9 @@ export class CodelabQuizContentComponent
       this.explanationTextService.formattedExplanation$,
       this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
+      tap(([next, prev, explanation, shouldDisplay]) => console.log('Quiz Restart Debug:', { next, prev, explanation, shouldDisplay })),
       switchMap(this.determineTextToDisplay.bind(this)),
-      distinctUntilChanged(),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
       startWith(''),
       catchError((error: Error) => {
         console.error('Error in combinedText$ observable:', error);
