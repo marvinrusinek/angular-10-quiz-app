@@ -526,7 +526,7 @@ export class CodelabQuizContentComponent
     );
   }
 
-  /* private determineTextToDisplay(
+  private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
     if ((!nextQuestion || !nextQuestion.questionText) && 
         (!previousQuestion || !previousQuestion.questionText)) {
@@ -535,8 +535,7 @@ export class CodelabQuizContentComponent
       const textToDisplay = shouldDisplayExplanation ? 
         this.explanationToDisplay || '' : this.questionToDisplay || '';
   
-      this.updateCorrectAnswersDisplay(shouldDisplayExplanation, nextQuestion);
-
+      this.updateCorrectAnswersDisplay(shouldDisplayExplanation);
   
       if (shouldDisplayExplanation && formattedExplanation) {
         this.explanationToDisplay = formattedExplanation; // Set explanationToDisplay
@@ -544,51 +543,11 @@ export class CodelabQuizContentComponent
   
       return of(textToDisplay);
     }
-  } */
-
-  private determineTextToDisplay(
-    [nextQuestion, previousQuestion, nextExplanationText, 
-    formattedExplanation, shouldDisplayExplanation]): Observable<string> {
-    if ((!nextQuestion || !nextQuestion.questionText) && 
-        (!previousQuestion || !previousQuestion.questionText)) {
-      return of('');
-    } else {
-      const textToDisplay = shouldDisplayExplanation ? 
-        this.explanationToDisplay || '' : this.questionToDisplay || '';
-  
-      if (shouldDisplayExplanation && formattedExplanation) {
-        this.explanationToDisplay = formattedExplanation; // Set explanationToDisplay
-      }
-  
-      return of(textToDisplay).pipe(
-        tap(() => this.updateCorrectAnswersDisplay(shouldDisplayExplanation, nextQuestion))
-      );
-    }
   }
   
-  
-  
-  /* private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
+  private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
     this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
-  } */
-
-  /* private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
-    if (shouldDisplayExplanation || !question) {
-      this.shouldDisplayCorrectAnswers = false;
-    } else {
-      this.shouldDisplayCorrectAnswers = (question.type === QuestionType.MultipleAnswer);
-    }
-  } */
-
-  private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
-    if (shouldDisplayExplanation || !question) {
-      this.shouldDisplayCorrectAnswers = false;
-    } else if (question.type === QuestionType.MultipleAnswer) {
-      this.shouldDisplayCorrectAnswers = true;
-    }
   }
-  
-  
   
   updateQuizStatus(): void {
     this.questionText = this.question.questionText;
