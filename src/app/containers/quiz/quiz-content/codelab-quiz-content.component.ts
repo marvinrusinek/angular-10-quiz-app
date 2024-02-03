@@ -20,7 +20,6 @@ import {
 } from 'rxjs';
 import {
   catchError,
-  distinctUntilChanged,
   map,
   mergeMap,
   startWith,
@@ -139,9 +138,6 @@ export class CodelabQuizContentComponent
 
     const storedText = localStorage.getItem('correctAnswersCountText') || 'Default Text';
     this.correctAnswersText = storedText;
-
-    this.combinedText$ = this.combinedText$.pipe(distinctUntilChanged());
-    this.correctAnswersText$ = this.correctAnswersText$.pipe(distinctUntilChanged());
   }
 
   ngOnInit(): void {
