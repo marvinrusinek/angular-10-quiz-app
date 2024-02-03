@@ -1312,7 +1312,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
     this.answers = null;
-    this.currentQuestion = null;
     this.currentQuestionIndex = 0;
     this.questionIndex = 1;
 
