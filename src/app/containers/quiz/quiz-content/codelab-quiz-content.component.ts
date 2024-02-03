@@ -198,12 +198,6 @@ export class CodelabQuizContentComponent
       this.quizService.updateCorrectAnswersText("Select one answer");
     }
   }
-  
-
-  displayCorrectAnswersCountText(text: string): void {
-    // Assign the text to the component property
-    this.correctAnswersCountText = text;
-  }
       
   private initializeComponent(): void {
     this.initializeQuestionData();
