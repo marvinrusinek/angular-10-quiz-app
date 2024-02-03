@@ -1308,6 +1308,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.currentQuestionIndex = 0;
     this.questionIndex = 1;
 
+    this.quizService.currentQuestionSubject.next(null);
+    this.quizService.previousQuestionSubject.next(null);
+    this.explanationTextService.resetExplanationState();
+
     this.initializeFirstQuestionText();
     this.router.navigate(['/question/', this.quizId, 1]);
     this.resetUI();
