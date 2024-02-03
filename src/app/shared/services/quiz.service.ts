@@ -72,9 +72,11 @@ export class QuizService implements OnDestroy {
   isOptionSelected = false;
   isNavigating = false;
 
+  private currentQuestionSource: Subject<QuizQuestion | null> =
+    new Subject<QuizQuestion | null>();
   currentQuestion: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
-  currentQuestionSubject: BehaviorSubject<QuizQuestion | null> =
+  private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
   public currentQuestion$: Observable<QuizQuestion | null> =
     this.currentQuestionSubject.asObservable();
@@ -163,6 +165,7 @@ export class QuizService implements OnDestroy {
   >(null);
   options$: Observable<Option[]> = this.optionsSource.asObservable();
 
+  nextQuestionSource = new BehaviorSubject<QuizQuestion | null>(null);
   private nextQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   nextQuestion$ = this.nextQuestionSubject.asObservable();
 
@@ -209,8 +212,8 @@ export class QuizService implements OnDestroy {
   correctAnswersAvailability$ =
     this.correctAnswersAvailabilitySubject.asObservable();
 
-  private nextExplanationTextSubject = new BehaviorSubject<string>('');
-  nextExplanationText$ = this.nextExplanationTextSubject.asObservable();
+  private nextExplanationTextSource = new BehaviorSubject<string>('');
+  nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
   answersSubject = new BehaviorSubject<number[]>([0, 0, 0, 0]);
   answers$ = this.answersSubject.asObservable();
@@ -342,7 +345,7 @@ export class QuizService implements OnDestroy {
 
     this.quizResources = QUIZ_RESOURCES || [];
 
-    this.currentQuestion$ = this.currentQuestionSubject.asObservable();
+    this.currentQuestion$ = this.currentQuestionSource.asObservable();
   }
 
   setupSubscriptions(): void {
@@ -850,10 +853,12 @@ export class QuizService implements OnDestroy {
           currentQuestionIndex >= 0 &&
           currentQuestionIndex < currentQuiz.questions.length) {
         const nextQuestion = currentQuiz.questions[currentQuestionIndex];
+        this.nextQuestionSource.next(nextQuestion);
         this.nextQuestionSubject.next(nextQuestion);
         this.setCurrentQuestionAndNext(nextQuestion, '');
         resolve(nextQuestion);
       } else {
+        this.nextQuestionSource.next(null);
         this.nextQuestionSubject.next(null);
         resolve(undefined);
       }
@@ -1220,13 +1225,13 @@ export class QuizService implements OnDestroy {
     explanationText: string
   ): void {
     // Set the next question
-    this.nextQuestionSubject.next(nextQuestion);
+    this.nextQuestionSource.next(nextQuestion);
 
     // Set the current question (effectively the next question)
-    this.currentQuestionSubject.next(nextQuestion);
+    this.currentQuestionSource.next(nextQuestion);
 
     // Set the explanation text for the next question
-    this.nextExplanationTextSubject.next(explanationText);
+    this.nextExplanationTextSource.next(explanationText);
   }
 
   setCurrentOptions(options: Option[]): void {
