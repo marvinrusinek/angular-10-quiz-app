@@ -536,7 +536,7 @@ export class CodelabQuizContentComponent
       const textToDisplay = shouldDisplayExplanation ? 
         this.explanationToDisplay || '' : this.questionToDisplay || '';
   
-      this.handleSingleAnswerQuestions(shouldDisplayExplanation, nextQuestion);
+      this.updateCorrectAnswersDisplay(shouldDisplayExplanation);
   
       if (shouldDisplayExplanation && formattedExplanation) {
         this.explanationToDisplay = formattedExplanation; // Set explanationToDisplay
@@ -546,20 +546,10 @@ export class CodelabQuizContentComponent
     }
   }
   
-  private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean, question: QuizQuestion) {
+  private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
     this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
   }
   
-
-  private handleQuestionDisplay(shouldDisplayExplanation: boolean, question: QuizQuestion) {
-    this.shouldDisplayCorrectAnswers = question.type === QuestionType.MultipleAnswer && !shouldDisplayExplanation;
-  }
-    
-  private updateShouldDisplayCorrectAnswers(question: QuizQuestion, shouldDisplayExplanation: boolean): void {
-    const isMultipleAnswer = question.type === QuestionType.MultipleAnswer;
-    this.shouldDisplayCorrectAnswers = isMultipleAnswer && !shouldDisplayExplanation;
-  } 
-
   updateQuizStatus(): void {
     this.questionText = this.question.questionText;
     this.correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
