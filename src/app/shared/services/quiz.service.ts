@@ -1242,15 +1242,15 @@ export class QuizService implements OnDestroy {
     this.resources = value;
   }
 
-  async fetchQuizQuestions(): Promise<void> {
+  async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
       const quizId = this.quizId;
       const questionObjects: any[] = await this.fetchAndSetQuestions(quizId);
       const questions: QuizQuestion[] = questionObjects[0].questions;
-
+  
       if (!questions || questions.length === 0) {
         console.error('No questions found');
-        return;
+        return [];
       }
   
       // Calculate correct answers
@@ -1264,10 +1264,14 @@ export class QuizService implements OnDestroy {
       this.setCorrectAnswersForQuestions(questions, correctAnswers);
   
       this.correctAnswersLoadedSubject.next(true);
+  
+      return questions;
     } catch (error) {
       console.error('Error fetching quiz questions:', error);
+      return [];
     }
   }
+  
 
   async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
