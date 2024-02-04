@@ -884,7 +884,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.cdRef.detectChanges();
   } */
 
-  async onOptionClicked(option: Option): Promise<void> {
+  async onOptionClicked(option: Option, event?: MouseEvent): Promise<void> {
+    if (event) {
+      event.stopPropagation();
+    }
+    
     this.selectedOption = option;
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.toggleExplanationDisplay(true);
