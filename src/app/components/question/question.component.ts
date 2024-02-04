@@ -328,7 +328,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private async loadQuizQuestions(): Promise<void> {
     this.isLoading = true;
     try {
-      await this.quizService.fetchQuizQuestions();
+      // await this.quizService.fetchQuizQuestions();
+      const questions = await this.quizService.fetchQuizQuestions();
+      this.options = questions[0].options;
     } catch (error) {
       console.error('Error loading questions:', error);
     } finally {
@@ -479,11 +481,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   shouldDisplayOptions(): boolean {
     return this.data?.options && this.data.options.length > 0;
   }
-  
-  shouldHideOptions(): boolean {
-    return this.isLoading || !this.data?.options || this.data.options.length === 0;
-  }
 
+  shouldHideOptions(): boolean {
+    return !this.isLoading && (!this.data?.options || this.data.options.length === 0);
+  }
+  
   shouldDisplayTextContent(): boolean {
     return !!this.data?.questionText || !!this.data?.correctAnswersText;
   }
