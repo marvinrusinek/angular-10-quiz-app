@@ -479,7 +479,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   shouldDisplayOptions(): boolean {
     return this.data?.options && this.data.options.length > 0;
   }
-
+  
   shouldHideOptions(): boolean {
     return this.isLoading || !this.data?.options || this.data.options.length === 0;
   }
