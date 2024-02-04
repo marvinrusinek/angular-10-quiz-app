@@ -232,6 +232,8 @@ export class QuizService implements OnDestroy {
   combinedQuestionDataSubject = new BehaviorSubject<CombinedQuestionDataType | null>(null);
   combinedQuestionData$: Observable<CombinedQuestionDataType> = this.combinedQuestionDataSubject.asObservable();
 
+  currentQuestionPromise: Promise<QuizQuestion>;
+
   destroy$ = new Subject<void>();
   private quizUrl = 'assets/data/quiz.json';
 
