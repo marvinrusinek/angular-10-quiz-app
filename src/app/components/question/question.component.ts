@@ -874,6 +874,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.toggleExplanationDisplay(true);
+    this.cdRef.detectChanges();
   }
   
   private processOptionSelection(
@@ -1150,8 +1151,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.showFeedback = isFeedbackVisible;
   }
 
-  isSelectedOption(option: Option): boolean {
+  /* isSelectedOption(option: Option): boolean {
     return this.selectedOption === option;
+  } */
+
+  isSelectedOption(option: Option): boolean {
+    // Assuming selectedOptions is an array
+    return this.currentQuestion?.selectedOptions?.includes(option);
   }
 
   // not called anywhere...
