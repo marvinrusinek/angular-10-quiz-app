@@ -10,12 +10,9 @@
       <mat-radio-button
         appHighlight
         [appHighlightInputType]="'radio'"
-        [appHighlightReset]="shouldResetBackground"
-        [appResetBackground]="shouldResetBackground"
         [shouldResetBackground]="shouldResetBackground"
-        #highlightDirective
         [checked]="isSelectedOption(option)"
-        (click)="onOptionClick(option)"
+        (change)="onOptionClick(option)"
         [isCorrect]="option.correct"
         [disabled]="option.selected"
       >
