@@ -100,11 +100,16 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     this.destroyed$.complete();
   }
 
-  onOptionClick(option: Option, event: MouseEvent): void {
-    event.stopPropagation();
+  onOptionClick(option: Option, event?: MouseEvent): void {
     super.onOptionClicked(option);
     this.selectedOption = option;
     option.selected = true;
+
+    // Stop event propagation to prevent interference with Angular Material's handling
+    if (event) {
+      event.stopPropagation();
+    }
+
     console.log('After selection - option.selected:', option.selected);
   }
 }
