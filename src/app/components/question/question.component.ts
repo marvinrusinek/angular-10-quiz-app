@@ -106,7 +106,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
-  selectedOption: Option | null;
+  selectedOption: Option | null = null;
   selectedOptions: Option[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
   options$: Observable<Option[]>;
@@ -859,6 +859,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async onOptionClicked(option: Option): Promise<void> {
+    this.selectedOption = option;
     this.quizService.addSelectedOption(option);
 
     this.quizStateService.currentQuestion$
