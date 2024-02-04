@@ -896,8 +896,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.addSelectedOption(option);
   
     try {
-      const currentQuestion = await firstValueFrom(this.quizStateService.currentQuestion$) as QuizQuestion;
-      this.currentQuestion = currentQuestion;
+      const currentQuestion = await firstValueFrom(this.quizStateService.currentQuestion$.pipe(take(1)));
+      this.currentQuestion = currentQuestion as QuizQuestion;
       this.processOptionSelection(this.currentQuestion, option);
   
       // Other updates that don't immediately affect the UI can remain in the asynchronous part
