@@ -1151,14 +1151,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.showFeedback = isFeedbackVisible;
   }
 
-  /* isSelectedOption(option: Option): boolean {
-    return this.selectedOption === option;
-  } */
-
   isSelectedOption(option: Option): boolean {
-    // Assuming selectedOptions is an array
-    return this.currentQuestion?.selectedOptions?.includes(option);
+    return this.selectedOption === option;
   }
+
+  /* isSelectedOption(option: Option): boolean {
+    return this.currentQuestion?.selectedOptions?.includes(option);
+  } */
 
   // not called anywhere...
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
