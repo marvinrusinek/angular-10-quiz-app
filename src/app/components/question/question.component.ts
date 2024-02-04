@@ -329,7 +329,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isLoading = true;
     try {
       // await this.quizService.fetchQuizQuestions();
-      const questions = await this.quizService.fetchQuizQuestions();
+      const questions = await this.quizService.fetchQuizQuestions() || [];
       console.log("Q's", questions);
 
       if (questions && questions.length > 0) {
