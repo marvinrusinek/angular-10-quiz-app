@@ -166,7 +166,6 @@ export class QuizService implements OnDestroy {
   private nextQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   nextQuestion$ = this.nextQuestionSubject.asObservable();
 
-  nextOptionsSource = new BehaviorSubject<Option[]>([]);
   private nextOptionsSubject = new BehaviorSubject<Option[]>(null);
   nextOptions$ = this.nextOptionsSubject.asObservable();
 
@@ -890,14 +889,12 @@ export class QuizService implements OnDestroy {
       const currentOptions = currentQuiz.questions[currentQuestionIndex].options;
   
       // Broadcasting the current options
-      this.nextOptionsSource.next(currentOptions);
       this.nextOptionsSubject.next(currentOptions);
   
       return currentOptions;
     }
   
     // Broadcasting null when index is invalid
-    this.nextOptionsSource.next(null);
     this.nextOptionsSubject.next(null);
   
     return undefined;
