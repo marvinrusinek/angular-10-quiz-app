@@ -5,6 +5,7 @@ import {
   Input,
   OnDestroy,
   OnInit,
+  Renderer2,
   ViewEncapsulation,
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -59,7 +60,8 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     activatedRoute: ActivatedRoute,
     fb: FormBuilder,
     cdRef: ChangeDetectorRef,
-    router: Router
+    router: Router,
+    renderer: Renderer2
   ) {
     super(
       quizService,
@@ -103,6 +105,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   onOptionClick(option: Option, event?: MouseEvent): void {
     super.onOptionClicked(option);
     this.selectedOption = option;
+    this.renderer.setStyle(event.target, 'background-color', '#e0e0e0'); // Directly apply a style
     option.selected = true;
 
     // Stop event propagation to prevent interference with Angular Material's handling
