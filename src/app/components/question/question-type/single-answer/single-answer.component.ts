@@ -61,7 +61,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     fb: FormBuilder,
     cdRef: ChangeDetectorRef,
     router: Router,
-    renderer: Renderer2
+    private renderer: Renderer2
   ) {
     super(
       quizService,
@@ -114,5 +114,5 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     }
 
     console.log('After selection - option.selected:', option.selected);
-  }
+  } 
 }

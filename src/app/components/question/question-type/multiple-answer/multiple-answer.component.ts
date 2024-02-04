@@ -79,7 +79,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     fb: FormBuilder,
     cdRef: ChangeDetectorRef,
     router: Router,
-    renderer: Renderer2
+    private renderer: Renderer2
   ) {
     super(
       quizService,
