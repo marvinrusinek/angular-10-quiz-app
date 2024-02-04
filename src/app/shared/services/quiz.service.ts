@@ -1271,7 +1271,6 @@ export class QuizService implements OnDestroy {
       return [];
     }
   }
-  
 
   async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
