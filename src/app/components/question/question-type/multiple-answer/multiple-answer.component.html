@@ -15,7 +15,7 @@
         [shouldResetBackground]="shouldResetBackground"
         #highlightDirective
         [checked]="isSelectedOption(option)"
-        (click)="onOptionClick(option)"
+        (click)="onOptionClick(option, $event)"
         [isCorrect]="option?.correct"
         [disabled]="option.selected"
       >

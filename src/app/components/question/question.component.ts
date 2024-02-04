@@ -858,7 +858,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  async onOptionClicked(option: Option): Promise<void> {
+  /* async onOptionClicked(option: Option): Promise<void> {
     this.selectedOption = option;
     this.quizService.addSelectedOption(option);
 
@@ -876,7 +876,27 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.toggleExplanationDisplay(true);
     this.cdRef.detectChanges();
+  } */
+
+  async onOptionClicked(option: Option): Promise<void> {
+    this.selectedOption = option;
+    this.cdRef.detectChanges();
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.explanationTextService.toggleExplanationDisplay(true);
+    this.cdRef.detectChanges(); // Force UI update
+  
+    // Now handle asynchronous operations
+    this.quizService.addSelectedOption(option);
+    const currentQuestion = await this.quizStateService.currentQuestion$.pipe(take(1)).toPromise();
+    this.currentQuestion = currentQuestion;
+    this.processOptionSelection(this.currentQuestion, option);
+  
+    // Other updates that don't immediately affect the UI can remain in the asynchronous part
+    this.updateAnswersForOption(option);
+    this.checkAndHandleCorrectAnswer();
+    this.logDebugInformation();
   }
+  
   
   private processOptionSelection(
     currentQuestion: QuizQuestion,
