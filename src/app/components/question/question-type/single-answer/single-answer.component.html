@@ -12,7 +12,7 @@
         [appHighlightInputType]="'radio'"
         [shouldResetBackground]="shouldResetBackground"
         [checked]="isSelectedOption(option)"
-        (change)="onOptionClick(option)"
+        (click)="onOptionClick(option)"
         [isCorrect]="option.correct"
         [disabled]="option.selected"
       >
