@@ -1266,6 +1266,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.highlightDirective.reset();
     this.resetBackgroundService.setShouldResetBackground(true);
     this.explanationTextService.resetExplanationState();
+    this.cdRef.detectChanges();
   }
 
   async calculateAndSetCorrectAnswersText(
