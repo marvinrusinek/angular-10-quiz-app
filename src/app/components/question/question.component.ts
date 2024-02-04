@@ -886,22 +886,29 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async onOptionClicked(option: Option): Promise<void> {
     this.selectedOption = option;
-    this.cdRef.detectChanges();
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.toggleExplanationDisplay(true);
-    this.cdRef.detectChanges(); // Force UI update
+  
+    // Force UI update once after making all synchronous state changes
+    this.cdRef.detectChanges();
   
     // Now handle asynchronous operations
     this.quizService.addSelectedOption(option);
-    const currentQuestion = await this.quizStateService.currentQuestion$.pipe(take(1)).toPromise();
-    this.currentQuestion = currentQuestion;
-    this.processOptionSelection(this.currentQuestion, option);
   
-    // Other updates that don't immediately affect the UI can remain in the asynchronous part
-    this.updateAnswersForOption(option);
-    this.checkAndHandleCorrectAnswer();
-    this.logDebugInformation();
+    try {
+      const currentQuestion = await firstValueFrom(this.quizStateService.currentQuestion$) as QuizQuestion;
+      this.currentQuestion = currentQuestion;
+      this.processOptionSelection(this.currentQuestion, option);
+  
+      // Other updates that don't immediately affect the UI can remain in the asynchronous part
+      this.updateAnswersForOption(option);
+      this.checkAndHandleCorrectAnswer();
+      this.logDebugInformation();
+    } catch (error) {
+      console.error('Error handling option click:', error);
+    }
   }
+  
   
   
   private processOptionSelection(
