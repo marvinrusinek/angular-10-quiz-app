@@ -148,7 +148,8 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.currentOptionsSubscription?.unsubscribe();
   }
 
-  onOptionClick(option: Option): void {
+  onOptionClick(option: Option, event: MouseEvent): void {
+    event.stopPropagation();
     super.onOptionClicked(option);
     this.selectedOption = option;
     option.selected = true;
