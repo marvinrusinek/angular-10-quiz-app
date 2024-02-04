@@ -330,7 +330,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     try {
       await this.quizService.fetchQuizQuestions();
     } catch (error) {
-      console.error('Failed to load questions:', error);
+      console.error('Error loading questions:', error);
     } finally {
       this.isLoading = false;
     }
