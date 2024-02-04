@@ -36,7 +36,7 @@
     </ng-container>
 
     <ng-template #questionTemplate let-type>
-      <ng-container *ngIf="shouldDisplayOptions()">
+      <ng-container *ngIf="shouldDisplayOptions(); else noOptions">
         <ng-container [ngSwitch]="type">
           <codelab-question-multiple-answer *ngSwitchCase="'multiple'"
             [form]="questionForm"
@@ -70,9 +70,11 @@
         </ng-container>
       </ng-container>
 
-      <ng-container *ngIf="shouldHideOptions()">
-        No options found for the current question.
-      </ng-container>
+      <ng-template #noOptions>
+        <ng-container *ngIf="data">
+          No options found for the current question.
+        </ng-container>
+      </ng-template>
     </ng-template>
   </ng-container>
 </form>

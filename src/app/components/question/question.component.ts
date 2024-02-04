@@ -145,6 +145,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   sharedVisibilitySubscription: Subscription;
 
   isPaused = false;
+  isLoading = true;
 
   constructor(
     protected quizService: QuizService,
@@ -325,7 +326,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private async loadQuizQuestions(): Promise<void> {
-    this.quizService.fetchQuizQuestions();
+    this.isLoading = true;
+    await this.quizService.fetchQuizQuestions();
+    this.isLoading = false;
   }
 
   /* private initializeCorrectAnswerOptions(): void {
@@ -473,7 +476,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   shouldHideOptions(): boolean {
-    return !this.data?.options || this.data.options.length === 0;
+    return this.isLoading || !this.data?.options || this.data.options.length === 0;
   }
 
   shouldDisplayTextContent(): boolean {
