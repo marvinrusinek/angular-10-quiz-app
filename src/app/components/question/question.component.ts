@@ -327,9 +327,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async loadQuizQuestions(): Promise<void> {
     this.isLoading = true;
-    await this.quizService.fetchQuizQuestions();
-    this.isLoading = false;
-  }
+    try {
+      await this.quizService.fetchQuizQuestions();
+    } catch (error) {
+      console.error('Failed to load questions:', error);
+    } finally {
+      this.isLoading = false;
+    }
+  }  
 
   /* private initializeCorrectAnswerOptions(): void {
     this.quizService.setCorrectAnswerOptions(this.correctAnswers);

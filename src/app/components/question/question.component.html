@@ -71,7 +71,7 @@
       </ng-container>
 
       <ng-template #noOptions>
-        <ng-container *ngIf="data">
+        <ng-container *ngIf="shouldHideOptions() && !isLoading">
           No options found for the current question.
         </ng-container>
       </ng-template>
