@@ -325,20 +325,26 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe();
   }
 
-  /* private async loadQuizQuestions(): Promise<void> {
+  private async loadQuizQuestions(): Promise<void> {
     this.isLoading = true;
     try {
       // await this.quizService.fetchQuizQuestions();
       const questions = await this.quizService.fetchQuizQuestions();
-      this.options = questions[0].options;
+      console.log("Q's", questions);
+
+      if (questions && questions.length > 0) {
+        this.options = questions[0].options;
+      } else {
+        console.error('No questions returned from the service');
+      }
     } catch (error) {
       console.error('Error loading questions:', error);
     } finally {
       this.isLoading = false;
     }
-  } */
-  
-  private async loadQuizQuestions(): Promise<void> {
+  }
+
+  /* private async loadQuizQuestions(): Promise<void> {
     this.isLoading = true;
     try {
       // Simulate fetching questions with a delay
@@ -354,7 +360,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Error loading questions:', error);
       this.isLoading = false; // Ensure isLoading is set to false even on error
     }
-  }
+  } */
   
   
 
