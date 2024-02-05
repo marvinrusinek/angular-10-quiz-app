@@ -153,7 +153,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   onOptionClick(option: Option, event?: MouseEvent): void {
     super.onOptionClicked(option);
     this.selectedOption = option;
-    this.renderer.setStyle(event.target, 'background-color', '#e0e0e0'); // Directly apply a style
     option.selected = true;
 
     // Stop event propagation to prevent interference with Angular Material's handling
