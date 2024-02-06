@@ -113,6 +113,6 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     } */
 
     console.log('After selection - option.selected:', option.selected);
-    this.cdRef.detectChanges();
+    this.cdRef.markForCheck();
   } 
 }

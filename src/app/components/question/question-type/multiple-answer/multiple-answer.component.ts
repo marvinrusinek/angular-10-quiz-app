@@ -180,7 +180,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     } */
 
     console.log('After selection - option.selected:', option.selected);
-    this.cdRef.detectChanges();
+    this.cdRef.markForCheck();
   }
 
   initializeOptionChecked(): void {
