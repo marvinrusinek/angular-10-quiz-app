@@ -271,9 +271,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   getDisplayOptions(): Option[] {
-    return this.optionsToDisplay && this.optionsToDisplay.length > 0
+    const displayOptions = this.optionsToDisplay && this.optionsToDisplay.length > 0
       ? this.optionsToDisplay
       : this.data?.options;
+  
+    return displayOptions;
   }
 
   private logInitialData(): void {
@@ -342,27 +344,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } finally {
       this.isLoading = false;
     }
-  }
-
-  /* private async loadQuizQuestions(): Promise<void> {
-    this.isLoading = true;
-    try {
-      // Simulate fetching questions with a delay
-      const questions = await this.quizService.fetchQuizQuestions();
-      // Assuming the first question's options are what you want to display
-      this.options = questions[0].options;
-      
-      // Introduce a slight delay before setting isLoading to false
-      setTimeout(() => {
-        this.isLoading = false;
-      }, 300); // Adjust the delay as needed, 300ms is just an example
-    } catch (error) {
-      console.error('Error loading questions:', error);
-      this.isLoading = false; // Ensure isLoading is set to false even on error
-    }
-  } */
-  
-  
+  }  
 
   /* private initializeCorrectAnswerOptions(): void {
     this.quizService.setCorrectAnswerOptions(this.correctAnswers);
