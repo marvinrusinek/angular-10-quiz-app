@@ -126,23 +126,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.initializeOptionChecked();
   }
 
-  /* ngOnChanges(changes: SimpleChanges): void {
-    if (changes.question) {
-      this.options = this.question?.options;
-      this.resetState();
-    }
-    if (
-      changes.selectedOptions &&
-      !changes.selectedOptions.firstChange &&
-      changes.selectedOptions.currentValue
-    ) {
-      const selectedOptions = changes.selectedOptions.currentValue;
-      this.options.forEach((option: Option) => {
-        option.selected = selectedOptions.includes(option.value);
-      });
-    }
-  } */
-
   ngOnChanges(changes: SimpleChanges): void {
     this.quizService.handleQuestionChange(
       changes.question ? this.question : null,
@@ -168,11 +151,12 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.selectedOption = option;
     option.selected = true;
     this.showFeedback = true;
+    
 
     // Stop event propagation to prevent interference with Angular Material's handling
-    /* if (event) {
+    if (event) {
       event.stopPropagation();
-    } */
+    }
 
     console.log('After selection - option.selected:', option.selected);
     this.cdRef.markForCheck();
