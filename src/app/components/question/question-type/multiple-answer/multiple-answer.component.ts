@@ -62,7 +62,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   isMultiple = true;
   showExplanation = false;
   showFeedback = false;
-  optionClicked = false;
   private destroyed$ = new Subject<void>();
 
   constructor(
@@ -174,7 +173,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.selectedOption = option;
     option.selected = true;
     this.showFeedback = true;
-    this.optionClicked = !this.optionClicked;
 
     // Stop event propagation to prevent interference with Angular Material's handling
     /* if (event) {
@@ -182,7 +180,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     } */
 
     console.log('After selection - option.selected:', option.selected);
-    this.cdRef.detectChanges();
+    this.cdRef.markForCheck();
   }
 
   initializeOptionChecked(): void {
