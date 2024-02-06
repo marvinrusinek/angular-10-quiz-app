@@ -129,6 +129,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question) {
       this.options = this.question?.options;
+      this.resetState();
     }
     if (
       changes.selectedOptions &&
@@ -140,6 +141,11 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
         option.selected = selectedOptions.includes(option.value);
       });
     }
+  }
+
+  resetState() {
+    this.selectedOption = null;
+    this.showFeedback = false;
   }
 
   ngOnDestroy(): void {
