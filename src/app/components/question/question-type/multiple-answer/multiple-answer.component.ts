@@ -144,17 +144,12 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   } */
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.question) {
-      this.options = this.question?.options;
-      this.resetState(); // Reset component state for new question
-    }
-  
-    if (changes.selectedOptions && !changes.selectedOptions.firstChange) {
-      const selectedOptions = changes.selectedOptions.currentValue;
-      this.options?.forEach((option: Option) => {
-        option.selected = selectedOptions.includes(option.value);
-      });
-    }
+    this.quizService.handleQuestionChange(
+      changes.question ? this.question : null,
+      changes.selectedOptions && !changes.selectedOptions.firstChange ? 
+        changes.selectedOptions.currentValue : null,
+      this.options
+    );
   }
 
   resetState() {

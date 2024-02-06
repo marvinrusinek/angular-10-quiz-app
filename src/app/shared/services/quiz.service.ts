@@ -258,6 +258,18 @@ export class QuizService implements OnDestroy {
     this.destroy$.complete();
   }
 
+  handleQuestionChange(question: any, selectedOptions: any[], options: Option[]): void {
+    if (question) {
+      options = question.options;
+    }
+
+    if (selectedOptions) {
+      options?.forEach((option: Option) => {
+        option.selected = selectedOptions.includes(option.value);
+      });
+    }
+  }
+
   get quizData$(): Observable<Quiz[]> {
     return this._quizData$.asObservable();
   }
