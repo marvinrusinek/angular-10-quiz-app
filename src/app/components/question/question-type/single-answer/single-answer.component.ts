@@ -108,9 +108,9 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     this.showFeedback = true;
 
     // Stop event propagation to prevent interference with Angular Material's handling
-    if (event) {
+    /* if (event) {
       event.stopPropagation();
-    }
+    } */
 
     console.log('After selection - option.selected:', option.selected);
     this.cdRef.detectChanges();
