@@ -147,19 +147,18 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   }
 
   onOptionClick(option: Option, event?: MouseEvent): void {
-    super.onOptionClicked(option);
-    this.selectedOption = option;
-    option.selected = true;
-    this.showFeedback = true;
-    
-
     // Stop event propagation to prevent interference with Angular Material's handling
     if (event) {
       event.stopPropagation();
     }
 
+    super.onOptionClicked(option);
+    this.selectedOption = option;
+    option.selected = true;
+    this.showFeedback = true;
+
     console.log('After selection - option.selected:', option.selected);
-    this.cdRef.markForCheck();
+    this.cdRef.detectChanges();
   }
 
   initializeOptionChecked(): void {
