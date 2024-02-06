@@ -643,7 +643,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return (option as Option).optionId !== undefined;
   }
 
-  private getSelectedOption(): Option | null {
+  /* private getSelectedOption(): Option | null {
     const option = this.selectedOptions.find(
       (option: Option): option is Option => {
         return (
@@ -652,6 +652,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     ) as Option | undefined;
     return option ?? null;
+  } */
+
+  private getSelectedOption(): Option | null {
+    return this.selectedOptions.find(option => 'correct' in option && 'text' in option) ?? null;
   }
 
   subscriptionToQuestion(): void {
