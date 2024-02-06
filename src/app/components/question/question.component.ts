@@ -864,26 +864,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* async onOptionClicked(option: Option): Promise<void> {
-    this.selectedOption = option;
-    this.quizService.addSelectedOption(option);
-
-    this.quizStateService.currentQuestion$
-      .pipe(take(1))
-      .subscribe((currentQuestion: QuizQuestion) => {
-        this.currentQuestion = currentQuestion;
-        this.processOptionSelection(this.currentQuestion, option);
-      });
-
-    this.updateAnswersForOption(option);
-    this.checkAndHandleCorrectAnswer();
-    this.logDebugInformation();
-
-    this.explanationTextService.setShouldDisplayExplanation(true);
-    this.explanationTextService.toggleExplanationDisplay(true);
-    this.cdRef.detectChanges();
-  } */
-
   async onOptionClicked(option: Option, event?: MouseEvent): Promise<void> {
     if (event) {
       event.stopPropagation();
