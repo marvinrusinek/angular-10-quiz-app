@@ -62,7 +62,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   isMultiple = true;
   showExplanation = false;
   showFeedback = false;
-  showOptionFeedback: boolean;
   private destroyed$ = new Subject<void>();
 
   constructor(
@@ -153,7 +152,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     super.onOptionClicked(option);
     this.selectedOption = option;
     option.selected = true;
-    this.showOptionFeedback = true;
+    this.showFeedback = true;
 
     // Stop event propagation to prevent interference with Angular Material's handling
     if (event) {
