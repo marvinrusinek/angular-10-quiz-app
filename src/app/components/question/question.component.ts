@@ -186,6 +186,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    this.resetStateForNewQuestion();
     this.options = this.getOptionsForQuestion();
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
   
