@@ -890,6 +890,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
     
     this.selectedOption = option;
+    this.showFeedback = true;
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.toggleExplanationDisplay(true);
   
@@ -912,8 +913,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Error handling option click:', error);
     }
   }
-  
-  
   
   private processOptionSelection(
     currentQuestion: QuizQuestion,
