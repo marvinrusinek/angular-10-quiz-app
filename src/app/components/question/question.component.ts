@@ -270,13 +270,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  getDisplayOptions(): Option[] {
+  /* getDisplayOptions(): Option[] {
     const displayOptions = this.optionsToDisplay && this.optionsToDisplay.length > 0
       ? this.optionsToDisplay
       : this.data?.options;
   
     return displayOptions;
+  } */
+
+  getDisplayOptions(): Option[] {
+    return this.data?.options ?? [];
   }
+  
 
   private logInitialData(): void {
     console.log('this.questionData:', this.questionData);
