@@ -204,17 +204,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (
-      (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
-      (changes.selectedOptions && !changes.selectedOptions.firstChange)
-    ) {
+    // Existing logic for handling changes
+    if ((changes.correctAnswers && !changes.correctAnswers.firstChange) ||
+        (changes.selectedOptions && !changes.selectedOptions.firstChange)) {
       this.getCorrectAnswers();
       this.correctMessage = this.quizService.setCorrectMessage(
         this.quizService.correctAnswerOptions,
         this.data.options
       );
-      this.cdRef.detectChanges();
     }
+  
+    if (changes.data && !changes.data.firstChange) {
+      this.resetStateForNewQuestion();
+    }
+  
+    this.cdRef.detectChanges();
   }
 
   ngOnDestroy(): void {
@@ -228,6 +232,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   trackByFn(option: Option) {
     return option.optionId;
+  }
+
+  resetStateForNewQuestion() {
+    this.selectedOption = null;
+    this.showFeedback = false;
   }
   
   private async initializeQuiz(): Promise<void> {
