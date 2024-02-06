@@ -11,9 +11,13 @@ The Angular Codelab Quiz App is more than just a quiz; it's your interactive gat
 Experience the cutting edge of web development:
 
 Angular: Dive into dynamic and responsive user interfaces.
+
 TypeScript: Enjoy the robustness of typed JavaScript, ensuring a smoother development experience.
+
 RxJS: Harness the power of reactive programming to manage data streams and propagation of change.
+
 Angular Material: Delight in the sleek and modern UI components that elevate the app's aesthetics and usability.
+
 🌟 What's in Store
 
 The Angular Quiz App is a living project, constantly evolving with new features and updates to enrich your learning journey. Keep an eye out for the latest enhancements that promise to keep the experience engaging and educational.
