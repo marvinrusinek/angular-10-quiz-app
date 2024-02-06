@@ -10,10 +10,12 @@
       <mat-checkbox
         appHighlight
         [appHighlightInputType]="'checkbox'"
+        [appHighlightReset]="shouldResetBackground"
+        [appResetBackground]="shouldResetBackground"
         [shouldResetBackground]="shouldResetBackground"
         #highlightDirective
         [checked]="isSelectedOption(option)"
-        (click)="onOptionClick(option, $event)"
+        (click)="onOptionClick(option)"
         [isCorrect]="option?.correct"
         [disabled]="option.selected"
       >
