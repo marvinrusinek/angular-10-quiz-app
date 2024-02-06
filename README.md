@@ -10,7 +10,7 @@ The Angular Codelab Quiz App is more than just a quiz; it's your interactive gat
 
 Experience the cutting edge of web development:
 
-Angular: Dive into dynamic and responsive user interfaces.
+<b>Angular:</b> Dive into dynamic and responsive user interfaces.
 
 TypeScript: Enjoy the robustness of typed JavaScript, ensuring a smoother development experience.
 
