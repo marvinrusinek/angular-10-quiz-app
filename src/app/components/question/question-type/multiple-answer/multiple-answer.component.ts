@@ -126,7 +126,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.initializeOptionChecked();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     if (changes.question) {
       this.options = this.question?.options;
       this.resetState();
@@ -138,6 +138,20 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     ) {
       const selectedOptions = changes.selectedOptions.currentValue;
       this.options.forEach((option: Option) => {
+        option.selected = selectedOptions.includes(option.value);
+      });
+    }
+  } */
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.question) {
+      this.options = this.question?.options;
+      this.resetState(); // Reset component state for new question
+    }
+  
+    if (changes.selectedOptions && !changes.selectedOptions.firstChange) {
+      const selectedOptions = changes.selectedOptions.currentValue;
+      this.options?.forEach((option: Option) => {
         option.selected = selectedOptions.includes(option.value);
       });
     }
