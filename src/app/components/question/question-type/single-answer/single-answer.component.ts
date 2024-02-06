@@ -5,8 +5,7 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Renderer2,
-  ViewEncapsulation,
+  ViewEncapsulation
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FormBuilder } from '@angular/forms';
@@ -44,6 +43,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   @Input() selected: string;
   options$: Observable<Option[]>;
   optionChecked: { [optionId: number]: boolean } = {};
+  showOptionFeedback: boolean;
 
   private destroyed$ = new Subject<void>();
 
@@ -60,8 +60,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     activatedRoute: ActivatedRoute,
     fb: FormBuilder,
     cdRef: ChangeDetectorRef,
-    router: Router,
-    private renderer: Renderer2
+    router: Router
   ) {
     super(
       quizService,
@@ -106,6 +105,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     super.onOptionClicked(option);
     this.selectedOption = option;
     option.selected = true;
+    this.showOptionFeedback = true;
 
     // Stop event propagation to prevent interference with Angular Material's handling
     if (event) {
