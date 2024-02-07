@@ -492,30 +492,25 @@ export class CodelabQuizContentComponent
 
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
-      startWith(null), // Emit a null value initially to capture the first emission
       takeUntil(this.destroy$)
     ).subscribe(combinedData => {
       if (!combinedData || !combinedData.currentQuestion) {
-        // Reset the flag if there's no current question
-        this.shouldDisplayCorrectAnswers = false;
+        this.shouldDisplayCorrectAnswers = false; // Reset the flag if there's no current question
         return;
       }
   
       const currentQuestionType = combinedData.currentQuestion.type;
   
       if (currentQuestionType === QuestionType.SingleAnswer) {
-        // For single-answer questions, set the flag to false with a short delay
-        setTimeout(() => {
-          this.shouldDisplayCorrectAnswers = false;
-        }, 10); // Introduce a delay of 10 milliseconds
+        this.shouldDisplayCorrectAnswers = false;
       } else {
-        // For multiple-answer questions, set the flag based on the isMultipleAnswer value
-        this.quizStateService.isMultipleAnswer(combinedData.currentQuestion).subscribe(isMultipleAnswer => {
-          this.shouldDisplayCorrectAnswers = isMultipleAnswer;
-        });
+        // For multiple-answer questions, set the flag to display correct answers
+        this.shouldDisplayCorrectAnswers = true;
       }
     });
   }
+  
+  
   
   
   
@@ -558,7 +553,7 @@ export class CodelabQuizContentComponent
   
   private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
     this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
-  }
+  }  
   
   updateQuizStatus(): void {
     this.questionText = this.question.questionText;
