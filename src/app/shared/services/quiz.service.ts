@@ -1411,10 +1411,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  updateQuestion(question: QuizQuestion): void {
-    this.currentQuestion.next({ ...question });
-  }
-
   updateCurrentQuestion(): void {
     if (
       this.currentQuestionIndex >= 0 &&
