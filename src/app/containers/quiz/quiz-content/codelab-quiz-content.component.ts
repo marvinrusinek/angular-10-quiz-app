@@ -21,6 +21,8 @@ import {
 } from 'rxjs';
 import {
   catchError,
+  debounceTime,
+  delay,
   distinctUntilChanged,
   filter,
   first,
@@ -488,36 +490,28 @@ export class CodelabQuizContentComponent
   } */
 
   handleQuestionDisplayLogic(): void {
-    let isFirstQuestion = true; // Track if it's the first question
-  
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$),
-      switchMap(combinedData => {
-        if (!combinedData || !combinedData.currentQuestion) {
-          // Reset the flag if there's no current question
-          this.shouldDisplayCorrectAnswers = false;
-          return of(false);
-        } else {
-          this.currentQuestionType = combinedData.currentQuestion.type;
-          return this.quizStateService.isMultipleAnswer(combinedData.currentQuestion);
-        }
-      })
-    ).subscribe(isMultipleAnswer => {
-      // Update shouldDisplayCorrectAnswers based on the question's type
-      if (isFirstQuestion) {
-        // For the first question, always set the flag based on its type
-        isFirstQuestion = false;
-        this.shouldDisplayCorrectAnswers = this.currentQuestionType !== QuestionType.SingleAnswer;
+      debounceTime(100) // Introduce a debounce time of 100 milliseconds
+    ).subscribe(combinedData => {
+      if (!combinedData || !combinedData.currentQuestion) {
+        this.shouldDisplayCorrectAnswers = false; // Reset the flag if there's no current question
+        return;
+      }
+  
+      const currentQuestionType = combinedData.currentQuestion.type;
+  
+      if (currentQuestionType === QuestionType.SingleAnswer) {
+        this.shouldDisplayCorrectAnswers = false; // For single-answer questions, set the flag to false
       } else {
-        // For subsequent questions, only update the flag if it's a multiple-answer question
-        if (this.currentQuestionType === QuestionType.SingleAnswer) {
-          this.shouldDisplayCorrectAnswers = false;
-        } else {
-          this.shouldDisplayCorrectAnswers = isMultipleAnswer;
-        }
+        this.quizStateService.isMultipleAnswer(combinedData.currentQuestion).subscribe(isMultipleAnswer => {
+          this.shouldDisplayCorrectAnswers = isMultipleAnswer; // For multiple-answer questions, set the flag based on the isMultipleAnswer value
+        });
       }
     });
   }
+  
+  
   
   
   
