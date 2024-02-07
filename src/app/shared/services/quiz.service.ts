@@ -1399,6 +1399,18 @@ export class QuizService implements OnDestroy {
     this.correctAnswersCountSubject.next(value);
   }
 
+  handleQuestionChange(question: any, selectedOptions: any[], options: Option[]): void {
+    if (question) {
+      options = question.options;
+    }
+
+    if (selectedOptions) {
+      options?.forEach((option: Option) => {
+        option.selected = selectedOptions.includes(option.value);
+      });
+    }
+  }
+
   updateQuestion(question: QuizQuestion): void {
     this.currentQuestion.next({ ...question });
   }
