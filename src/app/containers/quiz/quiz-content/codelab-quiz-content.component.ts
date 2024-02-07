@@ -488,7 +488,7 @@ export class CodelabQuizContentComponent
   } */
 
   handleQuestionDisplayLogic(): void {
-    let isFirstMultipleAnswerQuestion = true;
+    let isFirstQuestion = true; // Track if it's the first question
   
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$),
@@ -504,18 +504,23 @@ export class CodelabQuizContentComponent
       })
     ).subscribe(isMultipleAnswer => {
       // Update shouldDisplayCorrectAnswers based on the question's type
-      if (isMultipleAnswer) {
-        if (isFirstMultipleAnswerQuestion) {
-          this.shouldDisplayCorrectAnswers = true;
-          isFirstMultipleAnswerQuestion = false;
-        } else {
-          this.shouldDisplayCorrectAnswers = this.currentQuestionType === QuestionType.MultipleAnswer;
-        }
+      if (isFirstQuestion) {
+        // For the first question, always set the flag based on its type
+        isFirstQuestion = false;
+        this.shouldDisplayCorrectAnswers = this.currentQuestionType !== QuestionType.SingleAnswer;
       } else {
-        this.shouldDisplayCorrectAnswers = false;
+        // For subsequent questions, only update the flag if it's a multiple-answer question
+        if (this.currentQuestionType === QuestionType.SingleAnswer) {
+          this.shouldDisplayCorrectAnswers = false;
+        } else {
+          this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+        }
       }
     });
   }
+  
+  
+  
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
