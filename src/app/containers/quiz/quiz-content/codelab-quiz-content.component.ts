@@ -489,32 +489,25 @@ export class CodelabQuizContentComponent
       }
     });
   } */
-
+  
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(combinedData => {
       if (!combinedData || !combinedData.currentQuestion) {
-        this.shouldDisplayCorrectAnswers = false; // Reset the flag if there's no current question
+        // Reset the flag if there's no current question
+        this.shouldDisplayCorrectAnswers = false;
         return;
       }
   
       const currentQuestionType = combinedData.currentQuestion.type;
   
-      if (currentQuestionType === QuestionType.SingleAnswer) {
-        this.shouldDisplayCorrectAnswers = false;
-      } else {
-        // For multiple-answer questions, set the flag to display correct answers
-        this.shouldDisplayCorrectAnswers = true;
-      }
+      // Set the flag based on the current question type
+      this.shouldDisplayCorrectAnswers = currentQuestionType !== QuestionType.SingleAnswer;
     });
   }
   
   
-  
-  
-  
-
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
       this.nextQuestion$.pipe(startWith(null)),
