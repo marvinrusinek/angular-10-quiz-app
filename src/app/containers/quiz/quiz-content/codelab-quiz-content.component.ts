@@ -20,6 +20,7 @@ import {
   timer
 } from 'rxjs';
 import {
+  bufferTime,
   catchError,
   debounceTime,
   delay,
@@ -491,27 +492,30 @@ export class CodelabQuizContentComponent
 
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
-      takeUntil(this.destroy$),
-      debounceTime(100) // Introduce a debounce time of 100 milliseconds
+      startWith(null), // Emit a null value initially to capture the first emission
+      takeUntil(this.destroy$)
     ).subscribe(combinedData => {
       if (!combinedData || !combinedData.currentQuestion) {
-        this.shouldDisplayCorrectAnswers = false; // Reset the flag if there's no current question
+        // Reset the flag if there's no current question
+        this.shouldDisplayCorrectAnswers = false;
         return;
       }
   
       const currentQuestionType = combinedData.currentQuestion.type;
   
       if (currentQuestionType === QuestionType.SingleAnswer) {
-        this.shouldDisplayCorrectAnswers = false; // For single-answer questions, set the flag to false
+        // For single-answer questions, set the flag to false with a short delay
+        setTimeout(() => {
+          this.shouldDisplayCorrectAnswers = false;
+        }, 10); // Introduce a delay of 10 milliseconds
       } else {
+        // For multiple-answer questions, set the flag based on the isMultipleAnswer value
         this.quizStateService.isMultipleAnswer(combinedData.currentQuestion).subscribe(isMultipleAnswer => {
-          this.shouldDisplayCorrectAnswers = isMultipleAnswer; // For multiple-answer questions, set the flag based on the isMultipleAnswer value
+          this.shouldDisplayCorrectAnswers = isMultipleAnswer;
         });
       }
     });
   }
-  
-  
   
   
   
