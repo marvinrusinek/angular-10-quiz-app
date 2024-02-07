@@ -1138,6 +1138,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Update the state in QuizStateService
         this.quizStateService.updateCurrentQuestion(previousQuestion);
 
+        await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+
         this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
 
         this.resetUI();
