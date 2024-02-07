@@ -465,7 +465,7 @@ export class CodelabQuizContentComponent
     return of(combinedQuestionData);
   }
 
-  /* handleQuestionDisplayLogic(): void {
+  handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$),
       switchMap(combinedData => {
@@ -489,25 +489,7 @@ export class CodelabQuizContentComponent
         this.shouldDisplayCorrectAnswers = isMultipleAnswer;
       }
     });
-  } */
-  
-  handleQuestionDisplayLogic(): void {
-    this.combinedQuestionData$.pipe(
-      takeUntil(this.destroy$),
-      filter(combinedData => !!combinedData && !!combinedData.currentQuestion), // Ensure combinedData and currentQuestion are not null
-      distinctUntilChanged((prev, curr) => prev.currentQuestion === curr.currentQuestion), // Ensure question change before processing
-      map(combinedData => combinedData.currentQuestion.type === QuestionType.MultipleAnswer), // Map to boolean indicating if it's a multiple-answer question
-      tap(isMultipleAnswer => {
-        if (!isMultipleAnswer) {
-          this.shouldDisplayCorrectAnswers = false; // Set the flag to false for single-answer questions
-        }
-      })
-    ).subscribe(isMultipleAnswer => {
-      this.shouldDisplayCorrectAnswers = isMultipleAnswer; // Set the flag based on whether it's a multiple-answer question
-    });
   }
-  
-  
   
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
