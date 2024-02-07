@@ -544,11 +544,11 @@ export class CodelabQuizContentComponent
     }
   }
   
-  /* private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
-    this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
-  }  */
-
   private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
+    this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
+  }
+
+  /* private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
     // Ensure we only display correct answers for multiple-answer questions
     // and when an explanation is not being displayed.
     if (!shouldDisplayExplanation && this.currentQuestionType === QuestionType.MultipleAnswer) { // Assuming 'MultipleAnswer' is the correct identifier for multiple-answer questions
@@ -556,7 +556,7 @@ export class CodelabQuizContentComponent
     } else {
       this.shouldDisplayCorrectAnswers = false;
     }
-  }
+  } */
   
   updateQuizStatus(): void {
     this.questionText = this.question.questionText;
