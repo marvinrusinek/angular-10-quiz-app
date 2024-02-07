@@ -16,11 +16,14 @@ import {
   Observable,
   of,
   Subject,
-  Subscription
+  Subscription,
+  timer
 } from 'rxjs';
 import {
   catchError,
   distinctUntilChanged,
+  filter,
+  first,
   map,
   mergeMap,
   startWith,
@@ -142,6 +145,8 @@ export class CodelabQuizContentComponent
   }
 
   ngOnInit(): void {
+    this.shouldDisplayCorrectAnswers = true;
+
     this.quizService.getCurrentQuestionIndexObservable()
       .pipe(takeUntil(this.destroy$))
       .subscribe((index: number) => {
@@ -177,6 +182,7 @@ export class CodelabQuizContentComponent
   }  
 
   ngOnDestroy(): void {
+    this.shouldDisplayCorrectAnswers = false;
     this.destroy$.next();
     this.destroy$.complete();
     this.currentQuestionSubscription?.unsubscribe();
@@ -455,7 +461,7 @@ export class CodelabQuizContentComponent
     return of(combinedQuestionData);
   }
 
-  handleQuestionDisplayLogic(): void {
+  /* handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$),
       switchMap(combinedData => {
@@ -477,6 +483,36 @@ export class CodelabQuizContentComponent
         this.shouldDisplayCorrectAnswers = false;
       } else {
         this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+      }
+    });
+  } */
+
+  handleQuestionDisplayLogic(): void {
+    let isFirstMultipleAnswerQuestion = true;
+  
+    this.combinedQuestionData$.pipe(
+      takeUntil(this.destroy$),
+      switchMap(combinedData => {
+        if (!combinedData || !combinedData.currentQuestion) {
+          // Reset the flag if there's no current question
+          this.shouldDisplayCorrectAnswers = false;
+          return of(false);
+        } else {
+          this.currentQuestionType = combinedData.currentQuestion.type;
+          return this.quizStateService.isMultipleAnswer(combinedData.currentQuestion);
+        }
+      })
+    ).subscribe(isMultipleAnswer => {
+      // Update shouldDisplayCorrectAnswers based on the question's type
+      if (isMultipleAnswer) {
+        if (isFirstMultipleAnswerQuestion) {
+          this.shouldDisplayCorrectAnswers = true;
+          isFirstMultipleAnswerQuestion = false;
+        } else {
+          this.shouldDisplayCorrectAnswers = this.currentQuestionType === QuestionType.MultipleAnswer;
+        }
+      } else {
+        this.shouldDisplayCorrectAnswers = false;
       }
     });
   }
