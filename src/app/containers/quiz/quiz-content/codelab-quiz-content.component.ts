@@ -492,20 +492,20 @@ export class CodelabQuizContentComponent
   
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(combinedData => {
-      if (!combinedData || !combinedData.currentQuestion) {
-        // Reset the flag if there's no current question
-        this.shouldDisplayCorrectAnswers = false;
-        return;
-      }
-  
-      const currentQuestionType = combinedData.currentQuestion.type;
-  
-      // Set the flag based on the current question type
-      this.shouldDisplayCorrectAnswers = currentQuestionType !== QuestionType.SingleAnswer;
+      takeUntil(this.destroy$),
+      filter(combinedData => !!combinedData && !!combinedData.currentQuestion), // Ensure combinedData and currentQuestion are not null
+      distinctUntilChanged((prev, curr) => prev.currentQuestion === curr.currentQuestion), // Ensure question change before processing
+      map(combinedData => combinedData.currentQuestion.type === QuestionType.MultipleAnswer), // Map to boolean indicating if it's a multiple-answer question
+      tap(isMultipleAnswer => {
+        if (!isMultipleAnswer) {
+          this.shouldDisplayCorrectAnswers = false; // Set the flag to false for single-answer questions
+        }
+      })
+    ).subscribe(isMultipleAnswer => {
+      this.shouldDisplayCorrectAnswers = isMultipleAnswer; // Set the flag based on whether it's a multiple-answer question
     });
   }
+  
   
   
   private setupCombinedTextObservable(): void {
@@ -544,9 +544,19 @@ export class CodelabQuizContentComponent
     }
   }
   
-  private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
+  /* private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
     this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
-  }  
+  }  */
+
+  private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
+    // Ensure we only display correct answers for multiple-answer questions
+    // and when an explanation is not being displayed.
+    if (!shouldDisplayExplanation && this.currentQuestionType === QuestionType.MultipleAnswer) { // Assuming 'MultipleAnswer' is the correct identifier for multiple-answer questions
+      this.shouldDisplayCorrectAnswers = true;
+    } else {
+      this.shouldDisplayCorrectAnswers = false;
+    }
+  }
   
   updateQuizStatus(): void {
     this.questionText = this.question.questionText;
