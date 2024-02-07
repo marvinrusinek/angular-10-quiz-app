@@ -106,7 +106,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
-  selectedOption: Option | null = null;
+  selectedOption: Option | null;
   selectedOptions: Option[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
   options$: Observable<Option[]>;
@@ -145,7 +145,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   sharedVisibilitySubscription: Subscription;
 
   isPaused = false;
-  isLoading = true;
 
   constructor(
     protected quizService: QuizService,
@@ -186,7 +185,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.resetStateForNewQuestion();
     this.options = this.getOptionsForQuestion();
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
   
@@ -205,21 +203,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Existing logic for handling changes
-    if ((changes.correctAnswers && !changes.correctAnswers.firstChange) ||
-        (changes.selectedOptions && !changes.selectedOptions.firstChange)) {
+    if (
+      (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
+      (changes.selectedOptions && !changes.selectedOptions.firstChange)
+    ) {
       this.getCorrectAnswers();
       this.correctMessage = this.quizService.setCorrectMessage(
         this.quizService.correctAnswerOptions,
         this.data.options
       );
+      this.cdRef.detectChanges();
     }
-  
-    if (changes.data && !changes.data.firstChange) {
-      this.resetStateForNewQuestion();
-    }
-  
-    this.cdRef.detectChanges();
   }
 
   ngOnDestroy(): void {
@@ -233,11 +227,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   trackByFn(option: Option) {
     return option.optionId;
-  }
-
-  resetStateForNewQuestion() {
-    this.selectedOption = null;
-    this.showFeedback = false;
   }
   
   private async initializeQuiz(): Promise<void> {
@@ -280,18 +269,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* getDisplayOptions(): Option[] {
-    const displayOptions = this.optionsToDisplay && this.optionsToDisplay.length > 0
+  getDisplayOptions(): Option[] {
+    return this.optionsToDisplay && this.optionsToDisplay.length > 0
       ? this.optionsToDisplay
       : this.data?.options;
-  
-    return displayOptions;
-  } */
-
-  getDisplayOptions(): Option[] {
-    return this.data?.options ?? [];
   }
-  
 
   private logInitialData(): void {
     console.log('this.questionData:', this.questionData);
@@ -343,23 +325,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private async loadQuizQuestions(): Promise<void> {
-    this.isLoading = true;
-    try {
-      // await this.quizService.fetchQuizQuestions();
-      const questions = await this.quizService.fetchQuizQuestions() || [];
-      console.log("Q's", questions);
-
-      if (questions && questions.length > 0) {
-        this.options = questions[0].options;
-      } else {
-        console.error('No questions returned from the service');
-      }
-    } catch (error) {
-      console.error('Error loading questions:', error);
-    } finally {
-      this.isLoading = false;
-    }
-  }  
+    this.quizService.fetchQuizQuestions();
+  }
 
   /* private initializeCorrectAnswerOptions(): void {
     this.quizService.setCorrectAnswerOptions(this.correctAnswers);
@@ -506,9 +473,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   shouldHideOptions(): boolean {
-    return !this.isLoading && (!this.data?.options || this.data.options.length === 0);
+    return !this.data?.options || this.data.options.length === 0;
   }
-  
+
   shouldDisplayTextContent(): boolean {
     return !!this.data?.questionText || !!this.data?.correctAnswersText;
   }
@@ -643,7 +610,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return (option as Option).optionId !== undefined;
   }
 
-  /* private getSelectedOption(): Option | null {
+  private getSelectedOption(): Option | null {
     const option = this.selectedOptions.find(
       (option: Option): option is Option => {
         return (
@@ -652,10 +619,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     ) as Option | undefined;
     return option ?? null;
-  } */
-
-  private getSelectedOption(): Option | null {
-    return this.selectedOptions.find(option => 'correct' in option && 'text' in option) ?? null;
   }
 
   subscriptionToQuestion(): void {
@@ -865,36 +828,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  async onOptionClicked(option: Option, event?: MouseEvent): Promise<void> {
-    if (event) {
-      event.stopPropagation();
-    }
-    
-    this.selectedOption = option;
-    this.showFeedback = true;
+  async onOptionClicked(option: Option): Promise<void> {
+    this.quizService.addSelectedOption(option);
+
+    this.quizStateService.currentQuestion$
+      .pipe(take(1))
+      .subscribe((currentQuestion: QuizQuestion) => {
+        this.currentQuestion = currentQuestion;
+        this.processOptionSelection(this.currentQuestion, option);
+      });
+
+    this.updateAnswersForOption(option);
+    this.checkAndHandleCorrectAnswer();
+    this.logDebugInformation();
+
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.toggleExplanationDisplay(true);
-  
-    // Force UI update once after making all synchronous state changes
-    this.cdRef.detectChanges();
-  
-    // Now handle asynchronous operations
-    this.quizService.addSelectedOption(option);
-  
-    try {
-      const currentQuestion = await firstValueFrom(this.quizStateService.currentQuestion$.pipe(take(1)));
-      this.currentQuestion = currentQuestion as QuizQuestion;
-      this.processOptionSelection(this.currentQuestion, option);
-  
-      // Other updates that don't immediately affect the UI can remain in the asynchronous part
-      this.updateAnswersForOption(option);
-      this.checkAndHandleCorrectAnswer();
-      this.logDebugInformation();
-    } catch (error) {
-      console.error('Error handling option click:', error);
-    }
   }
-  
+
   private processOptionSelection(
     currentQuestion: QuizQuestion,
     option: Option
@@ -1172,10 +1123,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isSelectedOption(option: Option): boolean {
     return this.selectedOption === option;
   }
-
-  /* isSelectedOption(option: Option): boolean {
-    return this.currentQuestion?.selectedOptions?.includes(option);
-  } */
 
   // not called anywhere...
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
