@@ -19,8 +19,7 @@
         [isCorrect]="option?.correct"
         [disabled]="option.selected"
       >
-        <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
-        <span class="option-text">{{ option?.text }}</span>
+        <span>{{ i + 1 }}.  {{ option?.text }}</span>
       </mat-checkbox>
 
       <codelab-quiz-option-feedback
