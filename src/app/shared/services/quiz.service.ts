@@ -121,7 +121,6 @@ export class QuizService implements OnDestroy {
   multipleAnswer = false;
 
   currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
-  private currentOptionsSource = new BehaviorSubject<Option[]>([]);
   currentOptions$: Observable<Option[]> =
     this.currentOptionsSubject.asObservable();
 
@@ -159,11 +158,10 @@ export class QuizService implements OnDestroy {
   private questionSource = new BehaviorSubject<QuizQuestion>(null);
   question$ = this.questionSource.asObservable();
 
-  private optionsSource: Subject<Option[]> = new Subject<Option[]>();
   optionsSubject: BehaviorSubject<Option[] | null> = new BehaviorSubject<
     Option[] | null
   >(null);
-  options$: Observable<Option[]> = this.optionsSource.asObservable();
+  options$: Observable<Option[]> = this.optionsSubject.asObservable();
 
   nextQuestionSource = new BehaviorSubject<QuizQuestion | null>(null);
   private nextQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
@@ -1210,7 +1208,7 @@ export class QuizService implements OnDestroy {
           text: option.text
         }));
 
-        this.optionsSource.next(options);
+        this.optionsSubject.next(options);
       } else {
         console.error('Invalid next question:', nextQuestion);
       }
@@ -1427,12 +1425,10 @@ export class QuizService implements OnDestroy {
   updateCurrentOptions(options: Option[]): void {
     if (options) {
       this.optionsSubject.next(options);
-      this.optionsSource.next(options);
-      this.currentOptionsSource.next(options);
+      this.currentOptionsSubject.next(options);
     } else {
       this.optionsSubject.next(null);
-      this.optionsSource.next(null);
-      this.currentOptionsSource.next(null);
+      this.currentOptionsSubject.next(null);
     }
   }
 
