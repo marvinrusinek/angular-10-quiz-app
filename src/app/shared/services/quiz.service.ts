@@ -208,8 +208,8 @@ export class QuizService implements OnDestroy {
   correctAnswersAvailability$ =
     this.correctAnswersAvailabilitySubject.asObservable();
 
-  private nextExplanationTextSource = new BehaviorSubject<string>('');
-  nextExplanationText$ = this.nextExplanationTextSource.asObservable();
+  private nextExplanationTextSubject = new BehaviorSubject<string>('');
+  nextExplanationText$ = this.nextExplanationTextSubject.asObservable();
 
   answersSubject = new BehaviorSubject<number[]>([0, 0, 0, 0]);
   answers$ = this.answersSubject.asObservable();
@@ -1217,13 +1217,13 @@ export class QuizService implements OnDestroy {
     explanationText: string
   ): void {
     // Set the next question
-    this.nextQuestionSource.next(nextQuestion);
+    this.nextQuestionSubject.next(nextQuestion);
 
     // Set the current question (effectively the next question)
     this.currentQuestionSubject.next(nextQuestion);
 
     // Set the explanation text for the next question
-    this.nextExplanationTextSource.next(explanationText);
+    this.nextExplanationTextSubject.next(explanationText);
   }
 
   setCurrentOptions(options: Option[]): void {
