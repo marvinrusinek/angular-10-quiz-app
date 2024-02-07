@@ -72,6 +72,8 @@ export class QuizService implements OnDestroy {
   isOptionSelected = false;
   isNavigating = false;
 
+  currentQuestionPromise: Promise<QuizQuestion>;
+
   private currentQuestionSource: Subject<QuizQuestion | null> =
     new Subject<QuizQuestion | null>();
   currentQuestion: BehaviorSubject<QuizQuestion | null> =
@@ -1425,6 +1427,21 @@ export class QuizService implements OnDestroy {
       this.optionsSubject.next(null);
       this.optionsSource.next(null);
       this.currentOptionsSource.next(null);
+    }
+  }
+
+  handleQuestionChange(question: any, selectedOptions: any[], options: Option[]): void {
+    // Logic to update options based on the question
+    if (question) {
+      options = question.options; // Assuming 'options' is a mutable array reference passed from the component
+      // Reset state logic here, if it's generic enough to be shared
+    }
+
+    // Logic to mark options as selected based on selectedOptions array
+    if (selectedOptions) {
+      options?.forEach((option: Option) => {
+        option.selected = selectedOptions.includes(option.value);
+      });
     }
   }
 
