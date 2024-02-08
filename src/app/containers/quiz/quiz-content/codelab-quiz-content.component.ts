@@ -161,7 +161,7 @@ export class CodelabQuizContentComponent
     this.setupCombinedTextObservable();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
       const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(changes.question.currentValue);
   
@@ -175,7 +175,23 @@ export class CodelabQuizContentComponent
         this.quizService.updateCorrectAnswersText('');
       }
     }
-  }  
+  }  */
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.question && changes.question.currentValue) {
+      const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(changes.question.currentValue);
+  
+      if (!isMultipleAnswer) {
+        // Immediately clear the text for single-answer questions
+        this.quizService.updateCorrectAnswersText('');
+      } else {
+        // Proceed with updating the text for multiple-answer questions
+        const newText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(changes.question.currentValue.numberOfCorrectAnswers);
+        this.quizService.updateCorrectAnswersText(newText);
+      }
+    }
+  }
+  
 
   ngOnDestroy(): void {
     this.shouldDisplayCorrectAnswers = false;
