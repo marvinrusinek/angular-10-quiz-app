@@ -20,19 +20,13 @@ import {
   timer
 } from 'rxjs';
 import {
-  bufferTime,
   catchError,
-  debounceTime,
-  delay,
   distinctUntilChanged,
-  filter,
-  first,
   map,
   mergeMap,
   startWith,
   switchMap,
   take,
-  tap,
   takeUntil,
   withLatestFrom
 } from 'rxjs/operators';
