@@ -1130,13 +1130,13 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestionIndex--;
         this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
 
-        await this.fetchAndSetQuestionData(this.currentQuestionIndex);
-
         // Fetch the previous question details
         const previousQuestion = await this.fetchQuestionDetails(this.currentQuestionIndex);
 
         // Update the state in QuizStateService
         this.quizStateService.updateCurrentQuestion(previousQuestion);
+
+        await this.fetchAndSetQuestionData(this.currentQuestionIndex);
 
         this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
 
