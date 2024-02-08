@@ -129,7 +129,7 @@ export class CodelabQuizContentComponent
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
     private activatedRoute: ActivatedRoute,
-    cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
@@ -179,11 +179,37 @@ export class CodelabQuizContentComponent
     }
   }  */
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
       this.updateDisplayForCorrectAnswers();
     }
+  } */
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.currentQuestion) {
+      this.setDisplayStateForCorrectAnswers(changes.currentQuestion.currentValue);
+    }
   }
+
+  private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
+    const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
+  
+    if (isMultipleAnswer) {
+      // Assuming 'getNumberOfCorrectAnswersText()' expects the number of correct answers as its argument
+      // and 'question.options' is an array of question options where 'correct' indicates if the option is correct
+      const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
+      const displayText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+  
+      this.quizService.updateCorrectAnswersText(displayText);
+    } else {
+      // Clear the text for single-answer questions to prevent flickering
+      this.quizService.updateCorrectAnswersText('');
+    }
+  
+    // Trigger change detection to ensure the UI updates immediately
+    this.cdRef.detectChanges();
+  }
+  
 
   private updateDisplayForCorrectAnswers(): void {
     const question = this.currentQuestion.value; // Get the current value from BehaviorSubject
@@ -201,9 +227,6 @@ export class CodelabQuizContentComponent
       this.cdRef.detectChanges();
     }
   }
-  
-  
-  
 
   ngOnDestroy(): void {
     this.shouldDisplayCorrectAnswers = false;
