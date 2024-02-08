@@ -1179,7 +1179,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
 
-      if (this.currentQuestion && this.quizStateService.isMultipleAnswer(this.currentQuestion)) {
+      if (this.currentQuestion && this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)) {
         const newText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
         this.quizService.updateCorrectAnswersText(newText);
       }
@@ -1273,7 +1273,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     question: QuizQuestion,
     options: Option[]
   ): Promise<void> {
-    const multipleAnswers = this.quizStateService.isMultipleAnswer(question);
+    const multipleAnswers = this.quizStateService.isMultipleAnswerQuestion(question);
     if (multipleAnswers) {
       const numCorrectAnswers =
         this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(

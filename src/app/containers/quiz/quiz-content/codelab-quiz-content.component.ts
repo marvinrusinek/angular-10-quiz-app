@@ -164,7 +164,7 @@ export class CodelabQuizContentComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
-      const isMultipleAnswer = this.quizStateService.isMultipleAnswer(changes.question.currentValue);
+      const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(changes.question.currentValue);
   
       // Only update the text if the question allows multiple answers
       if (isMultipleAnswer) {
@@ -191,7 +191,7 @@ export class CodelabQuizContentComponent
 
   // Example from a component handling question updates
   handleQuestionUpdate(question: QuizQuestion): void {
-    if (this.quizStateService.isMultipleAnswer(question)) {
+    if (this.quizStateService.isMultipleAnswerQuestion(question)) {
       this.quizService.updateCorrectAnswersText(
         this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.quizService.numberOfCorrectAnswers)
       );
@@ -293,7 +293,7 @@ export class CodelabQuizContentComponent
   
   // Function to handle the display of correct answers
   private handleCorrectAnswersDisplay(question: QuizQuestion): void {
-    const isMultipleAnswer$ = this.quizStateService.isMultipleAnswer(question);
+    const isMultipleAnswer$ = this.quizStateService.isMultipleAnswerQuestion(question);
     const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$;
   
     combineLatest([isMultipleAnswer$, isExplanationDisplayed$])
@@ -439,7 +439,7 @@ export class CodelabQuizContentComponent
   
     let correctAnswersText = '';
     if (currentQuestion && !isExplanationDisplayed && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
-      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(currentQuestion);
+      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
       if (questionHasMultipleAnswers) {
         correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
       }
@@ -464,7 +464,7 @@ export class CodelabQuizContentComponent
       switchMap(combinedData => {
         if (combinedData && combinedData.currentQuestion) {
           this.currentQuestionType = combinedData.currentQuestion.type;
-          return this.quizStateService.isMultipleAnswer(combinedData.currentQuestion).pipe(
+          return this.quizStateService.isMultipleAnswerQuestion(combinedData.currentQuestion).pipe(
             map(isMultipleAnswer => ({
               combinedData,
               isMultipleAnswer

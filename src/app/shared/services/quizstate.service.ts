@@ -70,7 +70,7 @@ export class QuizStateService {
     this.currentOptions$ = of(options);
   }
 
-  isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
+  isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
     try {
       let correctAnswersCount: number;
       if (question && Array.isArray(question.options)) {
