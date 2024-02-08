@@ -306,7 +306,6 @@ export class CodelabQuizContentComponent
       .pipe(
         take(1),
         switchMap(([isMultipleAnswer, isExplanationDisplayed]) => {
-          console.log(`Is Multiple Answer: ${isMultipleAnswer}, Is Explanation Displayed: ${isExplanationDisplayed}`);
           if (this.isSingleAnswerWithExplanation(isMultipleAnswer, isExplanationDisplayed)) {
             // For single-answer questions with an explanation, do not display correct answers
             return of(false);
