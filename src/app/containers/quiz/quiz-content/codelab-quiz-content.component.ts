@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Input,
   OnChanges,
@@ -127,7 +128,8 @@ export class CodelabQuizContentComponent
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    cdRef: ChangeDetectorRef
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
@@ -179,18 +181,28 @@ export class CodelabQuizContentComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
-      const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(changes.question.currentValue);
-  
-      if (!isMultipleAnswer) {
-        // Immediately clear the text for single-answer questions
-        this.quizService.updateCorrectAnswersText('');
-      } else {
-        // Proceed with updating the text for multiple-answer questions
-        const newText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(changes.question.currentValue.numberOfCorrectAnswers);
-        this.quizService.updateCorrectAnswersText(newText);
-      }
+      this.updateDisplayForCorrectAnswers();
     }
   }
+
+  private updateDisplayForCorrectAnswers(): void {
+    const question = this.currentQuestion.value; // Get the current value from BehaviorSubject
+    const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
+    const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
+
+    if (!isMultipleAnswer) {
+      this.quizService.updateCorrectAnswersText(''); // Clear text for single-answer questions
+      this.cdRef.detectChanges(); // Trigger change detection immediately to update the view
+    } else {
+      // Logic for multiple-answer questions, possibly involving asynchronous operations
+      // Make sure to call cdRef.detectChanges() after async operations are complete to update the view
+      const newText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+      this.quizService.updateCorrectAnswersText(newText);
+      this.cdRef.detectChanges();
+    }
+  }
+  
+  
   
 
   ngOnDestroy(): void {
