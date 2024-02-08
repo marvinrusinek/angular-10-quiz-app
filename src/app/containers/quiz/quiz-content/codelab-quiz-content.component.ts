@@ -16,8 +16,7 @@ import {
   Observable,
   of,
   Subject,
-  Subscription,
-  timer
+  Subscription
 } from 'rxjs';
 import {
   catchError,
