@@ -153,7 +153,6 @@ export class CodelabQuizContentComponent
 
     this.updateQuizStatus();
     this.initializeComponent();
-    this.subscribeToFormattedExplanationChanges();
     this.handleQuestionDisplayLogic();
     this.handleQuestionUpdate(this.question);
     this.setupCombinedTextObservable();
@@ -192,15 +191,6 @@ export class CodelabQuizContentComponent
   private initializeComponent(): void {
     this.initializeQuestionData();
     this.initializeCombinedQuestionData();
-  }
-
-  private subscribeToFormattedExplanationChanges(): void {
-    this.formattedExplanationSubscription = 
-      this.explanationTextService.formattedExplanation$.subscribe(
-        (formattedExplanation) => {
-          this.explanationToDisplay = formattedExplanation;
-        }
-    );    
   }
 
   private initializeQuestionData(): void {
