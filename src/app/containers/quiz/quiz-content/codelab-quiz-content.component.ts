@@ -105,9 +105,7 @@ export class CodelabQuizContentComponent
   shouldDisplayCorrectAnswers$ = this.shouldDisplayCorrectAnswersSubject.asObservable();
 
   currentQuestionSubscription: Subscription;
-  nextQuestionSubscription: Subscription;
   formattedExplanationSubscription: Subscription;
-  private questionStateSubscription: Subscription = new Subscription();
 
   private correctAnswersTextSource = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
@@ -175,9 +173,7 @@ export class CodelabQuizContentComponent
     this.destroy$.next();
     this.destroy$.complete();
     this.currentQuestionSubscription?.unsubscribe();
-    this.nextQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
-    this.questionStateSubscription?.unsubscribe();
     this.explanationTextService.resetStateBetweenQuestions();
   }
 
