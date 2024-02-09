@@ -12,6 +12,7 @@ import {
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
   ActivatedRoute,
+  Event as RouterEvent,
   NavigationEnd,
   ParamMap,
   Router
@@ -579,7 +580,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Subscribe to router events
     this.routerSubscription = this.router.events.pipe(
-      filter((event: Event) => event instanceof NavigationEnd),
+      filter((event: RouterEvent): event is NavigationEnd => event instanceof NavigationEnd),
       switchMap(() => {
         this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
         return this.activatedRoute.paramMap;
