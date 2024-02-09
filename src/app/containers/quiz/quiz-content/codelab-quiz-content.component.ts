@@ -1,6 +1,5 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Input,
   OnChanges,
@@ -84,6 +83,19 @@ export class CodelabQuizContentComponent
   isNavigatingToPrevious: boolean;
   currentQuestionType: QuestionType;
 
+  displayCorrectAnswers = false;
+  isExplanationTextDisplayed = false;
+  isExplanationTextDisplayed$: Observable<boolean>;
+  isExplanationDisplayed = false;
+  nextExplanationText = '';
+  formattedExplanation = '';
+  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  displayCorrectAnswersText = false;
+  explanationDisplayed = false;
+  isQuestionActive = false;
+  isSingleAnswerQuestion = false;
+  correctAnswersCountText = '';
+
   numberOfCorrectAnswers = 0;
   numberOfCorrectAnswers$: BehaviorSubject<string> =
     new BehaviorSubject<string>('0');
@@ -104,23 +116,10 @@ export class CodelabQuizContentComponent
   explanationText$ = this.explanationTextSource.asObservable();
   explanationText: string | null = null;
 
-  combinedText$: Observable<string>;
-
-  displayCorrectAnswers = false;
-  isExplanationTextDisplayed = false;
-  isExplanationTextDisplayed$: Observable<boolean>;
-  isExplanationDisplayed = false;
-  nextExplanationText = '';
-  formattedExplanation = '';
-  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  displayCorrectAnswersText = false;
-  explanationDisplayed = false;
-  isQuestionActive = false;
-  isSingleAnswerQuestion = false;
-  correctAnswersCountText = '';
-
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
+
+  combinedText$: Observable<string>;
 
   private destroy$ = new Subject<void>();
 
@@ -131,8 +130,7 @@ export class CodelabQuizContentComponent
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
-    private activatedRoute: ActivatedRoute,
-    private cdRef: ChangeDetectorRef
+    private activatedRoute: ActivatedRoute
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
@@ -140,9 +138,6 @@ export class CodelabQuizContentComponent
     this.quizService.getIsNavigatingToPrevious().subscribe(
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
-
-    const storedText = localStorage.getItem('correctAnswersCountText') || 'Default Text';
-    this.correctAnswersText = storedText;
   }
 
   ngOnInit(): void {
