@@ -565,120 +565,6 @@ export class CodelabQuizContentComponent
     );
   }
 
-  /* private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
-    const textToDisplay = shouldDisplayExplanation ? 
-      formattedExplanation || this.explanationToDisplay || '' : 
-      this.questionToDisplay || '';
-  
-    return of(textToDisplay);
-  } */
-
-  /* private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
-    // This function now only determines what main text to display: question text or explanation
-    const textToDisplay = shouldDisplayExplanation ? formattedExplanation || '' : this.questionToDisplay || '';
-    return of(textToDisplay);
-  } */
-
-  /* private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
-    if ((!nextQuestion || !nextQuestion.questionText) && 
-        (!previousQuestion || !previousQuestion.questionText)) {
-      return of('');
-    } else {
-      const textToDisplay = shouldDisplayExplanation ? 
-        this.explanationToDisplay || '' : this.questionToDisplay || '';
-  
-      //this.updateCorrectAnswersDisplay(shouldDisplayExplanation);
-  
-      if (shouldDisplayExplanation && formattedExplanation) {
-        this.explanationToDisplay = formattedExplanation; // Set explanationToDisplay
-      }
-  
-      return of(textToDisplay);
-    }
-  } */
-
-  /* private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]
-  ): Observable<string> {
-    if ((!nextQuestion || !nextQuestion.questionText) &&
-        (!previousQuestion || !previousQuestion.questionText)) {
-      return of('');
-    } else {
-      const textToDisplay = shouldDisplayExplanation ?
-        formattedExplanation || this.explanationToDisplay || '' :
-        this.questionToDisplay || '';
-  
-      // Check if the explanation text is not empty and the correct answers text is not being displayed
-      if (shouldDisplayExplanation && formattedExplanation && !this.shouldDisplayCorrectAnswers) {
-        this.explanationToDisplay = formattedExplanation; // Set explanationToDisplay
-      }
-  
-      return of(textToDisplay);
-    }
-  } */
-
-  /* private determineTextToDisplay([nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
-    if ((!nextQuestion || !nextQuestion.questionText) && 
-        (!previousQuestion || !previousQuestion.questionText)) {
-      return of('');
-    } else {
-      let textToDisplay = '';
-  
-      if (shouldDisplayExplanation && formattedExplanation) {
-        textToDisplay = formattedExplanation;
-      } else {
-        textToDisplay = this.questionToDisplay || '';
-      }
-  
-      // Check if the explanation text is not empty and the correct answers text is not being displayed
-      if (shouldDisplayExplanation && formattedExplanation && !this.shouldDisplayCorrectAnswers) {
-        textToDisplay = formattedExplanation; // Set explanationToDisplay
-      }
-  
-      return of(textToDisplay);
-    }
-  } */
-  
-  /* private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]
-  ): Observable<string> {
-    if ((!nextQuestion || !nextQuestion.questionText) && 
-        (!previousQuestion || !previousQuestion.questionText)) {
-      return of('');
-    } else {
-      let textToDisplay = '';
-  
-      if (shouldDisplayExplanation && formattedExplanation) {
-        textToDisplay = formattedExplanation;
-      } else {
-        textToDisplay = this.questionToDisplay || '';
-      }
-  
-      return of(textToDisplay);
-    }
-  } */
-
-  /* private determineTextToDisplay([nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
-    if ((!nextQuestion || !nextQuestion.questionText) && (!previousQuestion || !previousQuestion.questionText)) {
-        return of('');
-    } else {
-      let textToDisplay = '';
-
-      if (shouldDisplayExplanation && formattedExplanation) {
-        textToDisplay = formattedExplanation;
-        this.shouldDisplayCorrectAnswers = false; // Don't display correct answers if explanation is shown
-      } else {
-        textToDisplay = this.questionToDisplay || '';
-        this.shouldDisplayCorrectAnswers = true; // Display correct answers for questions without explanation
-      }
-
-      return of(textToDisplay);
-    }
-  } */
-
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]
   ): Observable<string> {
@@ -715,10 +601,6 @@ export class CodelabQuizContentComponent
     }
   }
 
-  private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
-    this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
-  }
-
   private updateCorrectAnswersDisplayState(): void {
     // Assuming 'isExplanationDisplayed' is a boolean indicating if the explanation is currently shown
     // and is updated elsewhere in your component based on whether the explanation is being displayed
@@ -731,7 +613,7 @@ export class CodelabQuizContentComponent
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
       take(1), // Take the first value emitted and then complete
-      switchMap(question => 
+      switchMap((question: QuizQuestion) => 
         question ? this.quizStateService.isMultipleAnswerQuestion(question) : of(false)
       )
     );
