@@ -1336,7 +1336,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Update the explanation text to display based on whether a formatted explanation exists
       if (formattedExplanation) {
         this.explanationTextService.shouldDisplayExplanationSource.next(true); // Signal to display explanation
-        this.explanationTextService.formattedExplanation$.next(formattedExplanation);
+        this.explanationTextService.formattedExplanation$.next(formattedExplanation.toString());
       } else {
         this.explanationTextService.shouldDisplayExplanationSource.next(false); // Signal not to display explanation
         this.explanationTextService.formattedExplanation$.next(''); // Clear explanation text
