@@ -31,7 +31,8 @@ import {
   map,
   switchMap,
   take,
-  takeUntil
+  takeUntil,
+  tap
 } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
@@ -1304,7 +1305,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationToDisplay = '';
   }
 
-  restartQuiz(): void {
+  /* restartQuiz(): void {
     this.quizService.resetAll();
     this.quizService.resetQuestions();
     this.timerService.stopTimer((elapsedTime: number) => {
@@ -1322,7 +1323,38 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.resetUI();
 
     this.setDisplayStateForExplanation();
+  } */
+
+  restartQuiz(): void {
+    this.quizService.resetAll();
+    of(null).pipe(
+      switchMap(() => {
+        this.quizService.resetQuestions();
+        return of(null); // Emit a null value to continue the observable chain
+      }),
+      tap(() => {
+        // Stop timer and other reset operations
+        this.timerService.stopTimer((elapsedTime: number) => {
+          this.elapsedTimeDisplay = elapsedTime;
+        });
+        this.timerService.resetTimer();
+        this.timerService.elapsedTimes = [];
+        this.timerService.completionTime = 0;
+        this.answers = null;
+        this.currentQuestionIndex = 0;
+        this.questionIndex = 1;
+
+        // Initialize UI components
+        this.initializeFirstQuestionText();
+        this.router.navigate(['/question/', this.quizId, 1]);
+        this.resetUI();
+
+        // Set display state for explanation after all reset operations are completed
+        this.setDisplayStateForExplanation();
+      })
+    ).subscribe();
   }
+
 
   setDisplayStateForExplanation(): void {
     // Subscribe to the current question index observable
