@@ -1320,6 +1320,25 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.initializeFirstQuestionText();
     this.router.navigate(['/question/', this.quizId, 1]);
     this.resetUI();
+
+    this.setDisplayStateForExplanation();
+  }
+
+  setDisplayStateForExplanation(): void {
+    // Get the current question ID
+    const currentQuestionId = this.quizService.getCurrentQuestionId();
+
+    // Check if there is a stored explanation for the current question ID
+    const formattedExplanation = this.explanationTextService.formattedExplanations[currentQuestionId];
+
+    // Update the explanation text to display based on whether a formatted explanation exists
+    if (formattedExplanation) {
+        this.explanationTextService.shouldDisplayExplanationSource.next(true); // Signal to display explanation
+        this.explanationTextService.formattedExplanation$.next(formattedExplanation);
+    } else {
+        this.explanationTextService.shouldDisplayExplanationSource.next(false); // Signal not to display explanation
+        this.explanationTextService.formattedExplanation$.next(''); // Clear explanation text
+    }
   }
 
   /* sendValuesToQuizService(): void {
