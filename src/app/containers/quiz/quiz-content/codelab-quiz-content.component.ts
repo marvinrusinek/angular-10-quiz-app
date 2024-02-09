@@ -198,21 +198,6 @@ export class CodelabQuizContentComponent
     }
   }
 
-  /* private async setDisplayStateForCorrectAnswers(question: QuizQuestion): Promise<void> {
-    const isMultipleAnswer = await this.quizStateService.isMultipleAnswerQuestion(question);
-  
-    if (isMultipleAnswer) {
-      const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
-      const displayText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-  
-      this.quizService.updateCorrectAnswersText(displayText);
-    } else {
-      this.quizService.updateCorrectAnswersText('');
-    }
-  
-    this.cdRef.detectChanges(); // Ensure UI updates immediately
-  } */
-
   private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
     const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
   
@@ -224,7 +209,6 @@ export class CodelabQuizContentComponent
     }
   }
   
-
   private updateDisplayForCorrectAnswers(): void {
     const question = this.currentQuestion.value; // Get the current value from BehaviorSubject
     const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
