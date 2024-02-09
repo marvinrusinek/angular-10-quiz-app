@@ -1326,17 +1326,21 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   restartQuiz(): void {
+    // Reset all quiz-related data
     this.quizService.resetAll();
     of(null).pipe(
       switchMap(() => {
+        // Reset questions and perform other reset operations
         this.quizService.resetQuestions();
-        return of(null); // Emit a null value to continue the observable chain
+        // Stop the timer
+        return of(this.timerService.stopTimer(() => {
+          // Callback function
+          // This function will be executed when the timer is stopped
+          // Perform any additional reset operations here if needed
+        }));
       }),
       tap(() => {
-        // Stop timer and other reset operations
-        this.timerService.stopTimer((elapsedTime: number) => {
-          this.elapsedTimeDisplay = elapsedTime;
-        });
+        // Reset timer and other state variables
         this.timerService.resetTimer();
         this.timerService.elapsedTimes = [];
         this.timerService.completionTime = 0;
@@ -1348,34 +1352,46 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.initializeFirstQuestionText();
         this.router.navigate(['/question/', this.quizId, 1]);
         this.resetUI();
-
+      }),
+      switchMap(() => {
         // Set display state for explanation after all reset operations are completed
-        this.setDisplayStateForExplanation();
+        return this.setDisplayStateForExplanation().pipe(
+          map(() => null) // Return null as we don't have any meaningful value to emit
+        );
       })
     ).subscribe();
   }
 
+  setDisplayStateForExplanation(): Observable<void> {
+    return new Observable<void>(observer => {
+      // Subscribe to the current question index observable
+      const subscription = this.quizService.getCurrentQuestionIndexObservable().subscribe(currentIndex => {
+        // Get the current question ID based on the index
+        const currentQuestionId = this.quizService.getQuestionIdAtIndex(currentIndex);
 
-  setDisplayStateForExplanation(): void {
-    // Subscribe to the current question index observable
-    this.quizService.getCurrentQuestionIndexObservable().subscribe(currentIndex => {
-      // Get the current question ID based on the index
-      const currentQuestionId = this.quizService.getQuestionIdAtIndex(currentIndex);
+        // Check if there is a stored explanation for the current question ID
+        const formattedExplanation = this.explanationTextService.formattedExplanations[currentQuestionId];
 
-      // Check if there is a stored explanation for the current question ID
-      const formattedExplanation = this.explanationTextService.formattedExplanations[currentQuestionId];
+        // Update the explanation text to display based on whether a formatted explanation exists
+        if (formattedExplanation) {
+          this.explanationTextService.shouldDisplayExplanationSource.next(true); // Signal to display explanation
+          this.explanationTextService.formattedExplanation$.next(formattedExplanation.toString());
+        } else {
+          this.explanationTextService.shouldDisplayExplanationSource.next(false); // Signal not to display explanation
+          this.explanationTextService.formattedExplanation$.next(''); // Clear explanation text
+        }
 
-      // Update the explanation text to display based on whether a formatted explanation exists
-      if (formattedExplanation) {
-        this.explanationTextService.shouldDisplayExplanationSource.next(true); // Signal to display explanation
-        this.explanationTextService.formattedExplanation$.next(formattedExplanation.toString());
-      } else {
-        this.explanationTextService.shouldDisplayExplanationSource.next(false); // Signal not to display explanation
-        this.explanationTextService.formattedExplanation$.next(''); // Clear explanation text
-      }
+        // Complete the observable once the explanation state is set
+        observer.next();
+        observer.complete();
+      });
+
+      // Clean up subscription when the observable is unsubscribed
+      return () => {
+        subscription.unsubscribe();
+      };
     });
   }
-
 
   /* sendValuesToQuizService(): void {
     this.sendQuizQuestionToQuizService();
