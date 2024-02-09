@@ -31,7 +31,7 @@ export class ExplanationTextService implements OnDestroy {
   isExplanationTextDisplayed$: Observable<boolean> =
     this.isExplanationTextDisplayedSource.asObservable();
 
-  private shouldDisplayExplanationSource = new BehaviorSubject<boolean>(false);
+  shouldDisplayExplanationSource = new BehaviorSubject<boolean>(false);
   shouldDisplayExplanation$ =
     this.shouldDisplayExplanationSource.asObservable();
 
