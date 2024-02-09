@@ -599,7 +599,7 @@ export class CodelabQuizContentComponent
     }
   } */
 
-  private determineTextToDisplay(
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]
   ): Observable<string> {
     if ((!nextQuestion || !nextQuestion.questionText) &&
@@ -617,7 +617,53 @@ export class CodelabQuizContentComponent
   
       return of(textToDisplay);
     }
+  } */
+
+  /* private determineTextToDisplay([nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
+    if ((!nextQuestion || !nextQuestion.questionText) && 
+        (!previousQuestion || !previousQuestion.questionText)) {
+      return of('');
+    } else {
+      let textToDisplay = '';
+  
+      if (shouldDisplayExplanation && formattedExplanation) {
+        textToDisplay = formattedExplanation;
+      } else {
+        textToDisplay = this.questionToDisplay || '';
+      }
+  
+      // Check if the explanation text is not empty and the correct answers text is not being displayed
+      if (shouldDisplayExplanation && formattedExplanation && !this.shouldDisplayCorrectAnswers) {
+        textToDisplay = formattedExplanation; // Set explanationToDisplay
+      }
+  
+      return of(textToDisplay);
+    }
+  } */
+  
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]
+  ): Observable<string> {
+    if ((!nextQuestion || !nextQuestion.questionText) && 
+        (!previousQuestion || !previousQuestion.questionText)) {
+      return of('');
+    } else {
+      let textToDisplay = '';
+  
+      if (shouldDisplayExplanation && formattedExplanation) {
+        textToDisplay = formattedExplanation;
+      } else {
+        textToDisplay = this.questionToDisplay || '';
+      }
+  
+      return of(textToDisplay);
+    }
   }
+  
+  
+  
+  
+
   
 
   private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
