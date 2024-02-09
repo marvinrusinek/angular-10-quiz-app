@@ -1321,7 +1321,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.router.navigate(['/question/', this.quizId, 1]);
     this.resetUI();
 
-    this.setDisplayStateForExplanation();
+    // this.setDisplayStateForExplanation();
   }
 
   setDisplayStateForExplanation(): void {
