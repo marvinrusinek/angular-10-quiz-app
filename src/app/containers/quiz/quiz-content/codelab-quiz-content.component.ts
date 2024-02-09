@@ -529,13 +529,6 @@ export class CodelabQuizContentComponent
     }
   }
 
-  private updateCorrectAnswersDisplayState(): void {
-    this.isCurrentQuestionMultipleAnswer().subscribe(isMultiple => {
-      const shouldDisplayCorrectAnswers = isMultiple && !this.isExplanationDisplayed;
-      this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-    });
-  }
-  
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
       take(1), // Take the first value emitted and then complete
@@ -554,6 +547,13 @@ export class CodelabQuizContentComponent
     } else {
       this.correctAnswersDisplaySubject.next(false);
     }
+  }
+
+  private updateCorrectAnswersDisplayState(): void {
+    this.isCurrentQuestionMultipleAnswer().subscribe(isMultiple => {
+      const shouldDisplayCorrectAnswers = isMultiple && !this.isExplanationDisplayed;
+      this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+    });
   }
 
   updateQuizStatus(): void {
