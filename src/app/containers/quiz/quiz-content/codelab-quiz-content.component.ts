@@ -580,7 +580,7 @@ export class CodelabQuizContentComponent
     return of(textToDisplay);
   } */
 
-  private determineTextToDisplay(
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
     if ((!nextQuestion || !nextQuestion.questionText) && 
         (!previousQuestion || !previousQuestion.questionText)) {
@@ -597,7 +597,28 @@ export class CodelabQuizContentComponent
   
       return of(textToDisplay);
     }
+  } */
+
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]
+  ): Observable<string> {
+    if ((!nextQuestion || !nextQuestion.questionText) &&
+        (!previousQuestion || !previousQuestion.questionText)) {
+      return of('');
+    } else {
+      const textToDisplay = shouldDisplayExplanation ?
+        formattedExplanation || this.explanationToDisplay || '' :
+        this.questionToDisplay || '';
+  
+      // Check if the explanation text is not empty and the correct answers text is not being displayed
+      if (shouldDisplayExplanation && formattedExplanation && !this.shouldDisplayCorrectAnswers) {
+        this.explanationToDisplay = formattedExplanation; // Set explanationToDisplay
+      }
+  
+      return of(textToDisplay);
+    }
   }
+  
 
   private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
     this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
