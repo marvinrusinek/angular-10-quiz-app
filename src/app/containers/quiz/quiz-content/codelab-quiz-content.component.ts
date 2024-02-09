@@ -641,7 +641,7 @@ export class CodelabQuizContentComponent
     }
   } */
   
-  private determineTextToDisplay(
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]
   ): Observable<string> {
     if ((!nextQuestion || !nextQuestion.questionText) && 
@@ -658,7 +658,26 @@ export class CodelabQuizContentComponent
   
       return of(textToDisplay);
     }
+  } */
+
+  private determineTextToDisplay([nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
+    if ((!nextQuestion || !nextQuestion.questionText) && (!previousQuestion || !previousQuestion.questionText)) {
+        return of('');
+    } else {
+      let textToDisplay = '';
+
+      if (shouldDisplayExplanation && formattedExplanation) {
+        textToDisplay = formattedExplanation;
+        this.shouldDisplayCorrectAnswers = false; // Don't display correct answers if explanation is shown
+      } else {
+        textToDisplay = this.questionToDisplay || '';
+        this.shouldDisplayCorrectAnswers = true; // Display correct answers for questions without explanation
+      }
+
+      return of(textToDisplay);
+    }
   }
+
   
   
   
