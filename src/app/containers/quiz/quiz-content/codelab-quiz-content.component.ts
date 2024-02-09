@@ -193,6 +193,7 @@ export class CodelabQuizContentComponent
       // Ensure the current question is unwrapped from the BehaviorSubject
       const currentQuestionValue = changes.currentQuestion.currentValue.value;
       this.setDisplayStateForCorrectAnswers(currentQuestionValue);
+      this.updateCorrectAnswersDisplayState();
     }
   }
 
@@ -563,13 +564,61 @@ export class CodelabQuizContentComponent
     );
   }
 
-  private determineTextToDisplay(
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
     const textToDisplay = shouldDisplayExplanation ? 
       formattedExplanation || this.explanationToDisplay || '' : 
       this.questionToDisplay || '';
   
     return of(textToDisplay);
+  } */
+
+  /* private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
+    // This function now only determines what main text to display: question text or explanation
+    const textToDisplay = shouldDisplayExplanation ? formattedExplanation || '' : this.questionToDisplay || '';
+    return of(textToDisplay);
+  } */
+
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
+    if ((!nextQuestion || !nextQuestion.questionText) && 
+        (!previousQuestion || !previousQuestion.questionText)) {
+      return of('');
+    } else {
+      const textToDisplay = shouldDisplayExplanation ? 
+        this.explanationToDisplay || '' : this.questionToDisplay || '';
+  
+      //this.updateCorrectAnswersDisplay(shouldDisplayExplanation);
+  
+      if (shouldDisplayExplanation && formattedExplanation) {
+        this.explanationToDisplay = formattedExplanation; // Set explanationToDisplay
+      }
+  
+      return of(textToDisplay);
+    }
+  }
+
+  private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
+    this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
+  }
+
+  private updateCorrectAnswersDisplayState(): void {
+    // Assuming 'isExplanationDisplayed' is a boolean indicating if the explanation is currently shown
+    // and is updated elsewhere in your component based on whether the explanation is being displayed
+    this.isCurrentQuestionMultipleAnswer().subscribe(isMultiple => {
+      const shouldDisplayCorrectAnswers = isMultiple && !this.isExplanationDisplayed;
+      this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+    });
+  }
+  
+  isCurrentQuestionMultipleAnswer(): Observable<boolean> {
+    return this.currentQuestion.pipe(
+      take(1), // Take the first value emitted and then complete
+      switchMap(question => 
+        question ? this.quizStateService.isMultipleAnswerQuestion(question) : of(false)
+      )
+    );
   }
 
   updateQuizStatus(): void {
