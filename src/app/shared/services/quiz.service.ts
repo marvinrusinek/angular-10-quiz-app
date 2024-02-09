@@ -416,6 +416,14 @@ export class QuizService implements OnDestroy {
     return undefined;
   }
 
+  getQuestionIdAtIndex(index: number): number {
+    if (index >= 0 && index < this.questions.length) {
+      return index;
+    } else {
+      return -1;
+    }
+  }
+
   getQuizName(segments: any[]): string {
     return segments[1].toString();
   }

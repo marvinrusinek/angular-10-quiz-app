@@ -1325,21 +1325,25 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   setDisplayStateForExplanation(): void {
-    // Get the current question ID
-    const currentQuestionId = this.quizService.getCurrentQuestionId();
+    // Subscribe to the current question index observable
+    this.quizService.getCurrentQuestionIndexObservable().subscribe(currentIndex => {
+      // Get the current question ID based on the index
+      const currentQuestionId = this.quizService.getQuestionIdAtIndex(currentIndex);
 
-    // Check if there is a stored explanation for the current question ID
-    const formattedExplanation = this.explanationTextService.formattedExplanations[currentQuestionId];
+      // Check if there is a stored explanation for the current question ID
+      const formattedExplanation = this.explanationTextService.formattedExplanations[currentQuestionId];
 
-    // Update the explanation text to display based on whether a formatted explanation exists
-    if (formattedExplanation) {
+      // Update the explanation text to display based on whether a formatted explanation exists
+      if (formattedExplanation) {
         this.explanationTextService.shouldDisplayExplanationSource.next(true); // Signal to display explanation
         this.explanationTextService.formattedExplanation$.next(formattedExplanation);
-    } else {
+      } else {
         this.explanationTextService.shouldDisplayExplanationSource.next(false); // Signal not to display explanation
         this.explanationTextService.formattedExplanation$.next(''); // Clear explanation text
-    }
+      }
+    });
   }
+
 
   /* sendValuesToQuizService(): void {
     this.sendQuizQuestionToQuizService();
