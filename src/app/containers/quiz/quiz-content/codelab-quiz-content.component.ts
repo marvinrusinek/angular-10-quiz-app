@@ -191,7 +191,7 @@ export class CodelabQuizContentComponent
     }
   }
 
-  private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
+  /* private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
     const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
   
     if (isMultipleAnswer) {
@@ -208,7 +208,20 @@ export class CodelabQuizContentComponent
   
     // Trigger change detection to ensure the UI updates immediately
     this.cdRef.detectChanges();
+  } */
+
+  private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
+    const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
+  
+    if (isMultipleAnswer) {
+      const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
+      const displayText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+      this.correctAnswersText$.next(displayText);
+    } else {
+      this.correctAnswersText$.next(''); // Clear for single-answer questions
+    }
   }
+  
   
 
   private updateDisplayForCorrectAnswers(): void {
