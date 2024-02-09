@@ -167,62 +167,12 @@ export class CodelabQuizContentComponent
     this.setupCombinedTextObservable();
   }
 
-  /* ngOnChanges(changes: SimpleChanges): void {
-    if (changes.question && changes.question.currentValue) {
-      const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(changes.question.currentValue);
-  
-      // Only update the text if the question allows multiple answers
-      if (isMultipleAnswer) {
-        // Assuming getNumberOfCorrectAnswersText() method returns the desired text
-        const newText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(changes.question.currentValue.numberOfCorrectAnswers);
-        this.quizService.updateCorrectAnswersText(newText);
-      } else {
-        // Reset or clear the text if the new question does not allow multiple answers
-        this.quizService.updateCorrectAnswersText('');
-      }
-    }
-  }  */
-
-  /* ngOnChanges(changes: SimpleChanges): void {
-    if (changes.question && changes.question.currentValue) {
-      this.updateDisplayForCorrectAnswers();
-    }
-  } */
-
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.currentQuestion && changes.currentQuestion.currentValue) {
       // Ensure the current question is unwrapped from the BehaviorSubject
       const currentQuestionValue = changes.currentQuestion.currentValue.value;
       this.setDisplayStateForCorrectAnswers(currentQuestionValue);
       this.updateCorrectAnswersDisplayState();
-    }
-  }
-
-  private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
-    const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
-  
-    // Push the new state into the debounced subject
-    if (isMultipleAnswer) {
-      this.correctAnswersDisplaySubject.next(true);
-    } else {
-      this.correctAnswersDisplaySubject.next(false);
-    }
-  }
-  
-  private updateDisplayForCorrectAnswers(): void {
-    const question = this.currentQuestion.value; // Get the current value from BehaviorSubject
-    const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
-    const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
-
-    if (!isMultipleAnswer) {
-      this.quizService.updateCorrectAnswersText(''); // Clear text for single-answer questions
-      this.cdRef.detectChanges(); // Trigger change detection immediately to update the view
-    } else {
-      // Logic for multiple-answer questions, possibly involving asynchronous operations
-      // Make sure to call cdRef.detectChanges() after async operations are complete to update the view
-      const newText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-      this.quizService.updateCorrectAnswersText(newText);
-      this.cdRef.detectChanges();
     }
   }
 
@@ -586,8 +536,6 @@ export class CodelabQuizContentComponent
   }
 
   private updateCorrectAnswersDisplayState(): void {
-    // Assuming 'isExplanationDisplayed' is a boolean indicating if the explanation is currently shown
-    // and is updated elsewhere in your component based on whether the explanation is being displayed
     this.isCurrentQuestionMultipleAnswer().subscribe(isMultiple => {
       const shouldDisplayCorrectAnswers = isMultiple && !this.isExplanationDisplayed;
       this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
@@ -601,6 +549,17 @@ export class CodelabQuizContentComponent
         question ? this.quizStateService.isMultipleAnswerQuestion(question) : of(false)
       )
     );
+  }
+
+  private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
+    const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
+  
+    // Push the new state into the debounced subject
+    if (isMultipleAnswer) {
+      this.correctAnswersDisplaySubject.next(true);
+    } else {
+      this.correctAnswersDisplaySubject.next(false);
+    }
   }
 
   updateQuizStatus(): void {
