@@ -21,7 +21,6 @@ import {
 } from 'rxjs';
 import {
   catchError,
-  debounceTime,
   distinctUntilChanged,
   map,
   mergeMap,
@@ -121,7 +120,7 @@ export class CodelabQuizContentComponent
   correctAnswersCountText = '';
 
   private correctAnswersDisplaySubject = new Subject<boolean>();
-  correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable().pipe(debounceTime(300));
+  correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
 
   private destroy$ = new Subject<void>();
 
