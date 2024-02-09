@@ -191,35 +191,20 @@ export class CodelabQuizContentComponent
     }
   }
 
-  /* private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
-    const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
-  
-    if (isMultipleAnswer) {
-      // Assuming 'getNumberOfCorrectAnswersText()' expects the number of correct answers as its argument
-      // and 'question.options' is an array of question options where 'correct' indicates if the option is correct
-      const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
-      const displayText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-  
-      this.quizService.updateCorrectAnswersText(displayText);
-    } else {
-      // Clear the text for single-answer questions to prevent flickering
-      this.quizService.updateCorrectAnswersText('');
-    }
-  
-    // Trigger change detection to ensure the UI updates immediately
-    this.cdRef.detectChanges();
-  } */
-
   private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
     const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
   
     if (isMultipleAnswer) {
       const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
       const displayText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-      this.correctAnswersText$.next(displayText);
+  
+      this.quizService.updateCorrectAnswersText(displayText);
     } else {
-      this.correctAnswersText$.next(''); // Clear for single-answer questions
+      this.quizService.updateCorrectAnswersText('');
     }
+  
+    // Trigger change detection to ensure the UI updates immediately
+    this.cdRef.detectChanges();
   }
   
   
