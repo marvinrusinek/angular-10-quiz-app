@@ -660,7 +660,7 @@ export class CodelabQuizContentComponent
     }
   } */
 
-  private determineTextToDisplay([nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
+  /* private determineTextToDisplay([nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
     if ((!nextQuestion || !nextQuestion.questionText) && (!previousQuestion || !previousQuestion.questionText)) {
         return of('');
     } else {
@@ -676,8 +676,47 @@ export class CodelabQuizContentComponent
 
       return of(textToDisplay);
     }
-  }
+  } */
 
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]
+  ): Observable<string> {
+    if ((!nextQuestion || !nextQuestion.questionText) &&
+        (!previousQuestion || !previousQuestion.questionText)) {
+      return of('');
+    } else {
+      let textToDisplay = '';
+  
+      // Determine whether to display the explanation text or the question text
+      if (shouldDisplayExplanation && formattedExplanation) {
+        textToDisplay = formattedExplanation;
+        this.shouldDisplayCorrectAnswers = false; // Don't display correct answers if explanation is shown
+      } else {
+        // Display question text for single-answer questions or when explanation is not shown
+        textToDisplay = shouldDisplayExplanation ? formattedExplanation : this.questionToDisplay || '';
+  
+        // Only display correct answers for multiple-answer questions without explanation
+        if (!shouldDisplayExplanation && this.isCurrentQuestionMultipleAnswer()) {
+          this.shouldDisplayCorrectAnswers = true;
+        } else {
+          this.shouldDisplayCorrectAnswers = false;
+        }
+      }
+  
+      return of(textToDisplay).pipe(
+        tap(() => {
+          // Reset the correct answers display state if explanation is not displayed
+          if (!shouldDisplayExplanation) {
+            this.shouldDisplayCorrectAnswers = false;
+          }
+        })
+      );
+    }
+  }
+  
+  
+  
+  
   
   
   
