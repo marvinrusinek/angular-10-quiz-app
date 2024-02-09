@@ -29,6 +29,7 @@ import {
   switchMap,
   take,
   takeUntil,
+  tap,
   withLatestFrom
 } from 'rxjs/operators';
 
@@ -713,16 +714,6 @@ export class CodelabQuizContentComponent
       );
     }
   }
-  
-  
-  
-  
-  
-  
-  
-  
-
-  
 
   private updateCorrectAnswersDisplay(shouldDisplayExplanation: boolean) {
     this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
