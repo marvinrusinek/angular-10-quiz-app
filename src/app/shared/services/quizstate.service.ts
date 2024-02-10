@@ -47,10 +47,6 @@ export class QuizStateService {
     this.questionStates.set(questionId, state);
   }
 
-  updateCorrectAnswersText(newText: string): void {
-    this.correctAnswersTextSource.next(newText);
-  }
-
   updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
     if (question$ === null || question$ === undefined) {
       throwError('Question$ is null or undefined.');
@@ -75,6 +71,10 @@ export class QuizStateService {
         console.log('No options found.');
       }
     });
+  }
+
+  updateCorrectAnswersText(newText: string): void {
+    this.correctAnswersTextSource.next(newText);
   }
       
   getCurrentQuestion(): Observable<QuizQuestion> {
