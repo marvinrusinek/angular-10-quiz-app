@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
   EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute, Event as RouterEvent, NavigationEnd ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
@@ -1308,6 +1308,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         this.explanationTextService.shouldDisplayExplanationSource.next(true);
         this.explanationTextService.formattedExplanation$.next("Test explanation text");
+        this.explanationTextService.resetExplanationText();
 
         // Initialize UI components
         this.initializeFirstQuestionText();
