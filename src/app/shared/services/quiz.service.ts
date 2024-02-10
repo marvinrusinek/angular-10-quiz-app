@@ -402,6 +402,15 @@ export class QuizService implements OnDestroy {
     return '';
   }
 
+  getQuestionAtIndex(index: number): QuizQuestion | null {
+    // Check if the index is within the bounds of the questions array
+    if (index >= 0 && index < this.questions.length) {
+      return this.questions[index];
+    } else {
+      return null;
+    }
+  }
+  
   getQuestionTextForIndex(index: number): string | undefined {
     const currentQuiz = this.getCurrentQuiz();
     if (

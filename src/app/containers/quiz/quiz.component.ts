@@ -1356,7 +1356,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }),
       switchMap(() => {
         // Set display state for explanation after all reset operations are completed
-        return this.setDisplayStateForExplanation().pipe(
+        return this.setDisplayStateForExplanationsAfterRestart().pipe(
           map(() => null) // Return null as we don't have any meaningful value to emit
         );
       })
@@ -1422,6 +1422,31 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
   
+  setDisplayStateForExplanationsAfterRestart(): void {
+    // Reset necessary parts of the quiz before setting the explanation states
+    this.quizService.resetQuestions(); // Assuming this resets the questions to their initial state
+    this.timerService.resetTimer(); // Reset the timer if applicable
+    
+    this.quizService.getTotalQuestions().subscribe(totalQuestions => {
+      for (let index = 0; index < totalQuestions; index++) {
+        // Directly using the index to fetch the question and its explanation
+        const question = this.quizService.getQuestionAtIndex(index);
+        if (question) {
+          const formattedExplanation = this.explanationTextService.formattedExplanations[index];
+  
+          if (formattedExplanation) {
+            // If there's a formatted explanation, set the state to display the explanation
+            this.explanationTextService.shouldDisplayExplanationSource.next(true);
+            this.explanationTextService.formattedExplanation$.next(formattedExplanation.toString());
+          } else {
+            // handle the case where there's no explanation for the question
+          }
+        }
+      }
+  
+      this.router.navigate(['/question/', this.quizId, 1]);
+    });
+  }
 
   /* sendValuesToQuizService(): void {
     this.sendQuizQuestionToQuizService();
