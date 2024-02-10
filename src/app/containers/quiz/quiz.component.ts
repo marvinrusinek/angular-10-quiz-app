@@ -29,6 +29,7 @@ import {
 import {
   catchError,
   filter,
+  forkJoin,
   map,
   switchMap,
   take,
@@ -37,6 +38,7 @@ import {
 } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
+import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -1422,7 +1424,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
   
-  setDisplayStateForExplanationsAfterRestart(): void {
+  /* setDisplayStateForExplanationsAfterRestart(): void {
     // Reset necessary parts of the quiz before setting the explanation states
     this.quizService.resetQuestions(); // Assuming this resets the questions to their initial state
     this.timerService.resetTimer(); // Reset the timer if applicable
@@ -1446,6 +1448,51 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       this.router.navigate(['/question/', this.quizId, 1]);
     });
+  } */
+
+  setDisplayStateForExplanationsAfterRestart(): void {
+    this.quizService.resetQuestions();
+    this.timerService.resetTimer();
+  
+    this.quizService.getTotalQuestions().subscribe(totalQuestions => {
+      const explanationSetups = [];
+  
+      for (let index = 0; index < totalQuestions; index++) {
+        // Fetch the explanation text for the question at the given index.
+        // Ensure you have a method or logic here to obtain the actual explanation text for each question.
+        const explanationText = this.getExplanationTextForQuestion(index); // Implement this based on your data structure.
+  
+        // Now, pass both the index and the explanation text to setExplanationForQuestion.
+        const explanationSetup = this.setExplanationForQuestion(index, explanationText);
+        explanationSetups.push(explanationSetup);
+      }
+  
+      // Use forkJoin to wait for all explanation setup operations to complete.
+      forkJoin(explanationSetups).subscribe(() => {
+        // Once all explanations are set, navigate to the first question or the appropriate page.
+        this.router.navigate(['/question/', this.quizId, 1]);
+      });
+    });
+  }
+
+  setExplanationForQuestion(index: number, explanationText: string): Observable<void> {
+    const formattedExplanation: FormattedExplanation = {
+      questionIndex: index,
+      explanation: explanationText
+    };
+  
+    // Now, assign the fully compatible object
+    this.explanationTextService.formattedExplanations[index] = formattedExplanation;
+  
+    return of(null); // Complete the observable
+  }
+  
+  
+  // Method to fetch the explanation text for a question by its index.
+  // You need to implement this method according to how your explanations are stored and associated with questions.
+  getExplanationTextForQuestion(index: number): string {
+    // Example: Return a placeholder or fetch the actual explanation text for the question at the given index.
+    return 'Placeholder explanation text'; // Replace this with the actual logic to fetch the explanation.
   }
 
   /* sendValuesToQuizService(): void {
