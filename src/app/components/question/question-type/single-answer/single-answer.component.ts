@@ -119,7 +119,6 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   
     super.onOptionClicked(option, index);
     this.selectedOption = option;
-    option.selected = !option.selected;
     this.showFeedback = true;
   }
 }

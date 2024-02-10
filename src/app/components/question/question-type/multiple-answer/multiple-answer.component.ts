@@ -153,7 +153,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   
     super.onOptionClicked(option, index);
     this.selectedOption = option;
-    option.selected = !option.selected;
     this.showFeedback = true;
   }
 
