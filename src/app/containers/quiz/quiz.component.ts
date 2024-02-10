@@ -1406,37 +1406,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
-  /* setDisplayStateForExplanation(): Observable<void> {
-    return new Observable<void>(observer => {
-      // Subscribe to the current question index observable
-      const subscription = this.quizService.getCurrentQuestionIndexObservable().subscribe(currentIndex => {
-        // Get the current question ID based on the index
-        const currentQuestionId = this.quizService.getQuestionIdAtIndex(currentIndex);
-
-        // Check if there is a stored explanation for the current question ID
-        const formattedExplanation = this.explanationTextService.formattedExplanations[currentQuestionId];
-
-        // Update the explanation text to display based on whether a formatted explanation exists
-        if (formattedExplanation) {
-          this.explanationTextService.shouldDisplayExplanationSource.next(true); // Signal to display explanation
-          this.explanationTextService.formattedExplanation$.next(formattedExplanation.toString());
-        } else {
-          this.explanationTextService.shouldDisplayExplanationSource.next(false); // Signal not to display explanation
-          this.explanationTextService.formattedExplanation$.next(''); // Clear explanation text
-        }
-
-        // Complete the observable once the explanation state is set
-        observer.next();
-        observer.complete();
-      });
-
-      // Clean up subscription when the observable is unsubscribed
-      return () => {
-        subscription.unsubscribe();
-      };
-    });
-  } */
-
   setDisplayStateForExplanation(): Observable<void> {
     return new Observable<void>(observer => {
       // Assuming getCurrentQuestionIndexObservable returns the index of the currently answered question
@@ -1465,57 +1434,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
   
-  /* setDisplayStateForExplanationsAfterRestart(): void {
-    // Reset necessary parts of the quiz before setting the explanation states
-    this.quizService.resetQuestions(); // Assuming this resets the questions to their initial state
-    this.timerService.resetTimer(); // Reset the timer if applicable
-    
-    this.quizService.getTotalQuestions().subscribe(totalQuestions => {
-      for (let index = 0; index < totalQuestions; index++) {
-        // Directly using the index to fetch the question and its explanation
-        const question = this.quizService.getQuestionAtIndex(index);
-        if (question) {
-          const formattedExplanation = this.explanationTextService.formattedExplanations[index];
-  
-          if (formattedExplanation) {
-            // If there's a formatted explanation, set the state to display the explanation
-            this.explanationTextService.shouldDisplayExplanationSource.next(true);
-            this.explanationTextService.formattedExplanation$.next(formattedExplanation.toString());
-          } else {
-            // handle the case where there's no explanation for the question
-          }
-        }
-      }
-  
-      this.router.navigate(['/question/', this.quizId, 1]);
-    });
-  } */
-
-  /* setDisplayStateForExplanationsAfterRestart(): void {
-    this.quizService.resetQuestions();
-    this.timerService.resetTimer();
-  
-    this.quizService.getTotalQuestions().subscribe(totalQuestions => {
-      const explanationSetups = [];
-  
-      for (let index = 0; index < totalQuestions; index++) {
-        // Fetch the explanation text for the question at the given index.
-        // Ensure you have a method or logic here to obtain the actual explanation text for each question.
-        const explanationText = this.getExplanationTextForQuestion(index); // Implement this based on your data structure.
-  
-        // Now, pass both the index and the explanation text to setExplanationForQuestion.
-        const explanationSetup = this.setExplanationForQuestion(index, explanationText);
-        explanationSetups.push(explanationSetup);
-      }
-  
-      // Use forkJoin to wait for all explanation setup operations to complete.
-      forkJoin(explanationSetups).subscribe(() => {
-        // Once all explanations are set, navigate to the first question or the appropriate page.
-        this.router.navigate(['/question/', this.quizId, 1]);
-      });
-    });
-  } */
-
   setDisplayStateForExplanationsAfterRestart(): Observable<void> {
     return new Observable<void>(observer => {
       this.quizService.resetQuestions(); // Resetting questions
@@ -1542,8 +1460,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
     });
   }
-  
-  
 
   setExplanationForQuestion(index: number, explanationText: string): Observable<void> {
     const formattedExplanation: FormattedExplanation = {
@@ -1571,8 +1487,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       return 'Question index out of bounds or no explanation available';
     }
   }
-  
-  
 
   /* sendValuesToQuizService(): void {
     this.sendQuizQuestionToQuizService();
