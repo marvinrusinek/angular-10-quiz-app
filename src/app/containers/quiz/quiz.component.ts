@@ -1351,6 +1351,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestionIndex = 0;
         this.questionIndex = 1;
 
+        this.explanationTextService.shouldDisplayExplanationSource.next(true);
+        this.explanationTextService.formattedExplanation$.next("Test explanation text");
+
         // Initialize UI components
         this.initializeFirstQuestionText();
         this.router.navigate(['/question/', this.quizId, 1]);
