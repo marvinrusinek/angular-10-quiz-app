@@ -156,7 +156,7 @@ export class CodelabQuizContentComponent
     this.explanationTextService.shouldDisplayExplanationSource.subscribe(shouldDisplay => {
       this.quizService.shouldDisplayExplanation = shouldDisplay
     });
-  
+
     this.formattedExplanationSubscription = this.explanationTextService.formattedExplanation$.subscribe(explanationText => {
       this.explanationText = explanationText;
       this.cdRef.detectChanges();
@@ -206,7 +206,7 @@ export class CodelabQuizContentComponent
       this.quizService.updateCorrectAnswersText("Select one answer");
     }
   }
-      
+
   private initializeComponent(): void {
     this.initializeQuestionData();
     this.initializeCombinedQuestionData();
@@ -215,7 +215,7 @@ export class CodelabQuizContentComponent
   private initializeQuestionData(): void {
     this.activatedRoute.paramMap
       .pipe(
-        switchMap((params: ParamMap) => 
+        switchMap((params: ParamMap) =>
           this.fetchQuestionsAndExplanationTexts(params)),
         takeUntil(this.destroy$)
       )
@@ -223,14 +223,14 @@ export class CodelabQuizContentComponent
         if (!questions) {
           return;
         }
-  
+
         this.initializeCurrentQuestionIndex();
         this.setQuestions(questions);
         this.subscribeToCurrentQuestion();
       });
   }
-  
-  private fetchQuestionsAndExplanationTexts(params: ParamMap): 
+
+  private fetchQuestionsAndExplanationTexts(params: ParamMap):
     Observable<[QuizQuestion[] | null, string[]]> {
     this.quizId = params.get('quizId');
     if (this.quizId) {
@@ -244,12 +244,12 @@ export class CodelabQuizContentComponent
       return of([null, []]);
     }
   }
-  
+
   private initializeCurrentQuestionIndex(): void {
     this.quizService.currentQuestionIndex = 0;
     this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
   }
-  
+
   private setQuestions(questions: QuizQuestion[]): void {
     this.questions = questions;
     this.quizService.currentQuestionIndex$
@@ -258,7 +258,7 @@ export class CodelabQuizContentComponent
         this.currentQuestionIndexValue = index;
       });
   }
-  
+
   private subscribeToCurrentQuestion(): void {
     this.currentQuestionSubscription = this.quizStateService.currentQuestion$
       .pipe(
@@ -270,29 +270,29 @@ export class CodelabQuizContentComponent
       )
       .subscribe();
   }
-  
+
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     // Update question details and display correct answers
     this.updateQuestionDetailsAndDisplayCorrectAnswers(question);
-  
+
     // Fetch and display explanation for the question
     await this.fetchAndDisplayExplanationText(question);
-  
+
     // Determine if correct answers count should be displayed
     this.handleCorrectAnswersDisplay(question);
   }
-  
+
   // Function to update question details and display correct answers
   private updateQuestionDetailsAndDisplayCorrectAnswers(question: QuizQuestion): void {
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
   }
-  
+
   // Function to handle the display of correct answers
   private handleCorrectAnswersDisplay(question: QuizQuestion): void {
     const isMultipleAnswer$ = this.quizStateService.isMultipleAnswerQuestion(question);
     const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$;
-  
+
     combineLatest([isMultipleAnswer$, isExplanationDisplayed$])
       .pipe(
         take(1),
@@ -310,47 +310,47 @@ export class CodelabQuizContentComponent
         this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
       });
   }
-  
+
   // Function to check if it's a single-answer question with an explanation
   private isSingleAnswerWithExplanation(isMultipleAnswer: boolean, isExplanationDisplayed: boolean): boolean {
     return !isMultipleAnswer && isExplanationDisplayed;
   }
-  
-  
+
+
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
     // Calculate the number of correct answers
     this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
       this.quizStateService.currentQuestion.value.options
     );
-  
+
     // Get the text for the number of correct answers
     const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
       this.numberOfCorrectAnswers
     );
-  
+
     // Update the correct answers text source
     this.correctAnswersTextSource.next(correctAnswersText);
   }
-  
+
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
       console.error('Question is undefined or missing questionText');
       return;
     }
-  
+
     const questions: QuizQuestion[] = await firstValueFrom(
       this.quizDataService.getQuestionsForQuiz(this.quizId)
     );
-  
+
     const questionIndex = questions.findIndex((q) =>
       q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
     );
-  
+
     if (questionIndex === -1) {
       console.error('Current question not found in the questions array.');
       return;
     }
-    
+
     if (questionIndex < questions.length - 1) {
       const nextQuestion = questions[questionIndex + 1];
       if (nextQuestion) {
@@ -364,10 +364,10 @@ export class CodelabQuizContentComponent
     } else {
       // console.warn('Current question is the last question in the array.');
     }
-      
+
     this.explanationTextService.setIsExplanationTextDisplayed(true);
-  }  
-  
+  }
+
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
     this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, nextExplanationText);
@@ -399,7 +399,7 @@ export class CodelabQuizContentComponent
     const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
     this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
-  
+
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
@@ -411,9 +411,9 @@ export class CodelabQuizContentComponent
       )
     );
   }
-  
-  private combineCurrentQuestionAndOptions(): 
-    Observable<{ currentQuestion: QuizQuestion | null, 
+
+  private combineCurrentQuestionAndOptions():
+    Observable<{ currentQuestion: QuizQuestion | null,
                  currentOptions: Option[] }> {
     return this.quizStateService.currentQuestion$.pipe(
       withLatestFrom(this.currentOptions$),
@@ -422,7 +422,7 @@ export class CodelabQuizContentComponent
       }))
     );
   }
-  
+
   private calculateCombinedQuestionData(
     currentQuestionData: {
       currentQuestion: QuizQuestion | null;
@@ -433,7 +433,7 @@ export class CodelabQuizContentComponent
     formattedExplanation: string
   ): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
-  
+
     let correctAnswersText = '';
     if (currentQuestion && !isExplanationDisplayed && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
@@ -441,7 +441,7 @@ export class CodelabQuizContentComponent
         correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
       }
     }
-  
+
     const combinedQuestionData: CombinedQuestionDataType = {
       currentQuestion: currentQuestion,
       currentOptions: currentOptions,
@@ -451,7 +451,7 @@ export class CodelabQuizContentComponent
       correctAnswersText: correctAnswersText,
       isNavigatingToPrevious: this.isNavigatingToPrevious
     };
-  
+
     return of(combinedQuestionData);
   }
 
@@ -480,7 +480,7 @@ export class CodelabQuizContentComponent
       }
     });
   }
-  
+
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
       this.nextQuestion$.pipe(startWith(null)),
@@ -506,7 +506,7 @@ export class CodelabQuizContentComponent
       return of('');
     } else {
       let textToDisplay = '';
-  
+
       // Determine whether to display the explanation text or the question text
       if (shouldDisplayExplanation && formattedExplanation) {
         textToDisplay = formattedExplanation;
@@ -514,7 +514,7 @@ export class CodelabQuizContentComponent
       } else {
         // Display question text for single-answer questions or when explanation is not shown
         textToDisplay = shouldDisplayExplanation ? formattedExplanation : this.questionToDisplay || '';
-  
+
         // Only display correct answers for multiple-answer questions without explanation
         if (!shouldDisplayExplanation && this.isCurrentQuestionMultipleAnswer()) {
           this.shouldDisplayCorrectAnswers = true;
@@ -522,7 +522,7 @@ export class CodelabQuizContentComponent
           this.shouldDisplayCorrectAnswers = false;
         }
       }
-  
+
       return of(textToDisplay).pipe(
         tap(() => {
           // Reset the correct answers display state if explanation is not displayed
@@ -537,7 +537,7 @@ export class CodelabQuizContentComponent
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
       take(1), // Take the first value emitted and then complete
-      switchMap((question: QuizQuestion) => 
+      switchMap((question: QuizQuestion) =>
         question ? this.quizStateService.isMultipleAnswerQuestion(question) : of(false)
       )
     );
@@ -545,7 +545,7 @@ export class CodelabQuizContentComponent
 
   private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
     const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
-  
+
     // Push the new state into the debounced subject
     if (isMultipleAnswer) {
       this.correctAnswersDisplaySubject.next(true);
