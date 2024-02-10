@@ -671,33 +671,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* initializeFirstQuestionText(): void {
-    this.resetQuestionState();
-
-    this.quizDataService
-      .getQuestionsForQuiz(this.quizId)
-      .subscribe({
-        next: (questions: QuizQuestion[]) => {
-          if (questions && questions.length > 0) {
-            this.questions = questions;
-            this.currentQuestion = questions[0];
-            this.questionToDisplay = this.currentQuestion.questionText;
-            this.optionsToDisplay = this.currentQuestion.options;
-          } else {
-            this.questions = [];
-            this.currentQuestion = null;
-            this.questionToDisplay = 'No questions available.';
-            this.optionsToDisplay = [];
-          }
-        },
-        error: (err) => {
-          console.error('Error fetching questions:', err);
-          this.questionToDisplay = 'Error loading questions.';
-          this.optionsToDisplay = [];
-        }
-      });
-  } */
-
   initializeFirstQuestionText(): void {
     this.resetQuestionState();
   
@@ -711,8 +684,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.questionToDisplay = this.currentQuestion.questionText;
           this.optionsToDisplay = this.currentQuestion.options;
   
-          // Prepare the explanation for the first question (if needed right away)
-          // This might be based on some condition, e.g., if the question was previously answered
           if (this.shouldDisplayExplanationForQuestion(this.currentQuestion)) {
             this.explanationToDisplay = this.getExplanationTextForQuestion(0);
           }
@@ -1349,26 +1320,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationToDisplay = '';
   }
 
-  /* restartQuiz(): void {
-    this.quizService.resetAll();
-    this.quizService.resetQuestions();
-    this.timerService.stopTimer((elapsedTime: number) => {
-      this.elapsedTimeDisplay = elapsedTime;
-    });
-    this.timerService.resetTimer();
-    this.timerService.elapsedTimes = [];
-    this.timerService.completionTime = 0;
-    this.answers = null;
-    this.currentQuestionIndex = 0;
-    this.questionIndex = 1;
-
-    this.initializeFirstQuestionText();
-    this.router.navigate(['/question/', this.quizId, 1]);
-    this.resetUI();
-
-    this.setDisplayStateForExplanation();
-  } */
-
   restartQuiz(): void {
     // Reset all quiz-related data
     this.quizService.resetAll();
@@ -1378,8 +1329,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.resetQuestions();
         // Stop the timer
         return of(this.timerService.stopTimer(() => {
-          // Callback function
-          // This function will be executed when the timer is stopped
+          // Callback function, will be executed when the timer is stopped
           // Perform any additional reset operations here if needed
         }));
       }),
