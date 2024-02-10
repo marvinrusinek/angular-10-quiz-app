@@ -830,33 +830,31 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
     this.quizService.addSelectedOption(option);
-
+  
     const currentQuestion = await firstValueFrom(this.quizStateService.currentQuestion$.pipe(take(1)));
     if (this.quizService.isQuizQuestion(currentQuestion)) {
       this.currentQuestion = currentQuestion;
     } else {
       console.error('Received value does not match QuizQuestion structure:', currentQuestion);
+      return;
     }
+  
     this.processOptionSelection(this.currentQuestion, option);
-
+  
     this.updateAnswersForOption(option);
     this.checkAndHandleCorrectAnswer();
     this.logDebugInformation();
-
-    if (typeof option.optionId !== 'undefined') {
-      const optionId = option.optionId ?? index;
-      this.quizStateService.updateQuestionState(
-        this.currentQuestionIndex,
-        optionId.toString(),
-        option.correct ?? false
-      );
-    } else {
-      console.error('Option ID is undefined', option);
-    }
-
+  
+    const optionId = option.optionId ?? index;
+    this.quizStateService.updateQuestionState(
+      this.currentQuestionIndex,
+      optionId.toString(),
+      option.correct ?? false
+    );
+  
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.toggleExplanationDisplay(true);
-  }
+  }  
 
   private processOptionSelection(
     currentQuestion: QuizQuestion,
