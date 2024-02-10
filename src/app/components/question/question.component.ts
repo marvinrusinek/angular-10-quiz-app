@@ -830,7 +830,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
     this.quizService.addSelectedOption(option);
-  
+
     const currentQuestion = await firstValueFrom(this.quizStateService.currentQuestion$.pipe(take(1)));
     if (this.quizService.isQuizQuestion(currentQuestion)) {
       this.currentQuestion = currentQuestion;
@@ -838,23 +838,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Received value does not match QuizQuestion structure:', currentQuestion);
       return;
     }
-  
+
     this.processOptionSelection(this.currentQuestion, option);
-  
+
     this.updateAnswersForOption(option);
     this.checkAndHandleCorrectAnswer();
     this.logDebugInformation();
-  
+
     const optionId = option.optionId ?? index;
     this.quizStateService.updateQuestionState(
       this.currentQuestionIndex,
-      optionId.toString(),
+      optionId,
       option.correct ?? false
     );
-  
+
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.toggleExplanationDisplay(true);
-  }  
+  }
 
   private processOptionSelection(
     currentQuestion: QuizQuestion,
