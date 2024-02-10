@@ -151,6 +151,14 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
+    this.explanationTextService.formattedExplanation$.subscribe(explanationText => {
+      this.currentExplanationText = explanationText;
+    });
+  
+    this.explanationTextService.shouldDisplayExplanationSource.subscribe(shouldDisplay => {
+      this.quizService.shouldDisplayExplanation = shouldDisplay;
+    });
+
     this.updateQuizStatus();
     this.initializeComponent();
     this.handleQuestionDisplayLogic();
