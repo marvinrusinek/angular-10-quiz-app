@@ -1,41 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  HostListener,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
+  EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import {
-  ActivatedRoute,
-  Event as RouterEvent,
-  NavigationEnd,
-  ParamMap,
-  Router
-} from '@angular/router';
-import {
-  BehaviorSubject,
-  combineLatest,
-  firstValueFrom,
-  forkJoin,
-  Observable,
-  of,
-  Subject,
-  Subscription
-} from 'rxjs';
-import {
-  catchError,
-  filter,
-  map,
-  switchMap,
-  take,
-  takeUntil,
-  tap
-} from 'rxjs/operators';
+import { ActivatedRoute, Event as RouterEvent, NavigationEnd ParamMap, Router } from '@angular/router';
+import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription } from 'rxjs';
+import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
