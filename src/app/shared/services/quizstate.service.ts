@@ -16,7 +16,7 @@ interface QuestionState {
   providedIn: 'root'
 })
 export class QuizStateService {
-  currentQuestion: BehaviorSubject<QuizQuestion | null> 
+  currentQuestion: BehaviorSubject<QuizQuestion | null>
     = new BehaviorSubject<QuizQuestion | null>(null);
   private currentQuestionSource = new Subject<QuizQuestion>();
   private currentQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
@@ -47,7 +47,12 @@ export class QuizStateService {
     this.questionStates.set(questionId, state);
   }
 
-  updateQuestionState(questionId: number, selectedOptionId: string, isCorrect: boolean) {
+  updateQuestionState(questionId: number, selectedOptionId: number, isCorrect: boolean) {
+    if (typeof selectedOptionId === 'undefined') {
+      console.error('SelectedOptionId is undefined', { questionId, isCorrect });
+      return;
+    }
+
     // Retrieve the current state for the question
     let currentState = this.getQuestionState(questionId) || {
       isAnswered: false,
@@ -55,24 +60,24 @@ export class QuizStateService {
       selectedOptions: [],
       explanationDisplayed: false
     };
-  
+
     // Update the state based on the user's action
-    currentState.selectedOptions.push(selectedOptionId);
+    currentState.selectedOptions.push(selectedOptionId.toString());
     if (isCorrect) {
       currentState.numberOfCorrectAnswers++;
     }
     currentState.isAnswered = true; // Mark as answered
-  
+
     // Save the updated state
     this.setQuestionState(questionId, currentState);
-  }  
+  }
 
   updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
     if (question$ === null || question$ === undefined) {
       throwError('Question$ is null or undefined.');
       return;
     }
-  
+
     question$.pipe(
       catchError((error: any) => {
         console.error(error);
@@ -96,13 +101,13 @@ export class QuizStateService {
   updateCorrectAnswersText(newText: string): void {
     this.correctAnswersTextSource.next(newText);
   }
-      
+
   getCurrentQuestion(): Observable<QuizQuestion> {
     return this.currentQuestion$;
   }
 
   updateCurrentQuestion(newQuestion: QuizQuestion): void {
-    this.currentQuestionSubject.next(newQuestion); 
+    this.currentQuestionSubject.next(newQuestion);
   }
 
   setCurrentOptions(options: Option[]): void {
