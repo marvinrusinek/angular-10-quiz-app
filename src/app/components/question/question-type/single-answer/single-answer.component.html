@@ -2,7 +2,7 @@
   <div
     *ngFor="
       let option of getDisplayOptions();
-      let i = index;
+      let idx = index;
       trackBy: trackByFn
     "
   >
@@ -15,11 +15,11 @@
         [shouldResetBackground]="shouldResetBackground"
         #highlightDirective
         [checked]="isSelectedOption(option)"
-        (click)="onOptionClick(option, i, $event)"
+        (click)="onOptionClick(option, idx, $event)"
         [isCorrect]="option.correct"
         [disabled]="option.selected"
       >
-        <span>{{ i + 1 }}.  {{ option?.text }}</span>
+        <span>{{ idx + 1 }}.  {{ option?.text }}</span>
       </mat-radio-button>
 
       <codelab-quiz-option-feedback
