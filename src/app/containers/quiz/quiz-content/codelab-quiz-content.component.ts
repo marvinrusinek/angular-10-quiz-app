@@ -157,7 +157,7 @@ export class CodelabQuizContentComponent
       this.quizService.shouldDisplayExplanation = shouldDisplay
     });
   
-    this.explanationTextService.formattedExplanation$.subscribe(explanationText => {
+    this.formattedExplanationSubscription = this.explanationTextService.formattedExplanation$.subscribe(explanationText => {
       this.explanationText = explanationText;
       this.cdRef.detectChanges();
     });
