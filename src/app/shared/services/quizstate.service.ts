@@ -5,6 +5,13 @@ import { catchError, distinctUntilChanged, throwError } from 'rxjs/operators';
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
+interface QuestionState {
+  isAnswered: boolean;
+  numberOfCorrectAnswers: number;
+  selectedOptions: string[];
+  explanationDisplayed?: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -26,7 +33,19 @@ export class QuizStateService {
 
   private quizQuestionCreated = false;
 
+  private questionStates = new Map<number, QuestionState>();
+
   constructor() {}
+
+  // Method to get the state of a question by its ID
+  getQuestionState(questionId: number): QuestionState | undefined {
+    return this.questionStates.get(questionId);
+  }
+
+  // Method to set or update the state for a question
+  setQuestionState(questionId: number, state: QuestionState): void {
+    this.questionStates.set(questionId, state);
+  }
 
   updateCorrectAnswersText(newText: string): void {
     this.correctAnswersTextSource.next(newText);

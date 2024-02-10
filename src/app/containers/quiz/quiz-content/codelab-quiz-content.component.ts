@@ -162,6 +162,14 @@ export class CodelabQuizContentComponent
       this.cdRef.detectChanges();
     });
 
+    const questionState = this.quizStateService.getQuestionState(this.currentQuestionIndexValue);
+
+    if (questionState) {
+      this.quizService.isAnswered = questionState.isAnswered;
+      this.numberOfCorrectAnswers = questionState.numberOfCorrectAnswers;
+      // Restore other parts of the question state as needed
+    }
+
     this.updateQuizStatus();
     this.initializeComponent();
     this.handleQuestionDisplayLogic();
