@@ -33,7 +33,7 @@ export class QuizStateService {
 
   private quizQuestionCreated = false;
 
-  private questionStates = new Map<number, QuestionState>();
+  private questionStates: Map<number, QuestionState> = new Map();
 
   constructor() {
     this.questionStates = new Map<number, QuestionState>();
@@ -41,11 +41,14 @@ export class QuizStateService {
 
   // Method to get the state of a question by its ID
   getQuestionState(questionId: number): QuestionState | undefined {
+    console.log(`Getting state for questionId ${questionId}`);
+    console.log(`Current question states:`, Array.from(this.questionStates.entries()));
     return this.questionStates.get(questionId);
   }
 
   // Method to set or update the state for a question
   setQuestionState(questionId: number, state: QuestionState): void {
+    console.log(`Setting state for questionId ${questionId}:`, state);
     this.questionStates.set(questionId, state);
   }
 

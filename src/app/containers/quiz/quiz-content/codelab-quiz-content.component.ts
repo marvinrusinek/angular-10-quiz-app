@@ -164,7 +164,7 @@ export class CodelabQuizContentComponent
 
     console.log("CQIV", this.currentQuestionIndexValue);
     const questionState = this.quizStateService.getQuestionState(this.currentQuestionIndexValue);
-    console.log("QS", questionState);
+    console.log("QS", questionState, "for questionId", this.currentQuestionIndexValue);
     if (questionState) {
       const isQuestionAnswered = questionState.isAnswered;
       console.log("iQA", isQuestionAnswered);
