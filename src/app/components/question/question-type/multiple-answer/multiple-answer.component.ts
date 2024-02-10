@@ -151,14 +151,10 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
       event.stopPropagation();
     }
   
-    console.log('Option clicked:', option);
     super.onOptionClicked(option, index);
     this.selectedOption = option;
     option.selected = !option.selected;
     this.showFeedback = true;
-  
-    console.log('After selection - option.selected:', option.selected, 'showFeedback:', this.showFeedback);
-    this.cdRef.detectChanges();
   }
 
   initializeOptionChecked(): void {
