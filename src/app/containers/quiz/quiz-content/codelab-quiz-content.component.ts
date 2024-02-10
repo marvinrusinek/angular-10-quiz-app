@@ -162,9 +162,12 @@ export class CodelabQuizContentComponent
       this.cdRef.detectChanges();
     });
 
+    console.log("CQIV", this.currentQuestionIndexValue);
     const questionState = this.quizStateService.getQuestionState(this.currentQuestionIndexValue);
+    console.log("QS", questionState);
     if (questionState) {
       const isQuestionAnswered = questionState.isAnswered;
+      console.log("iQA", isQuestionAnswered);
 
       if (isQuestionAnswered) {
         this.quizService.displayExplanation = true;

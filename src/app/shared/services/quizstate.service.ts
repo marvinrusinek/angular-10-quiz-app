@@ -35,7 +35,9 @@ export class QuizStateService {
 
   private questionStates = new Map<number, QuestionState>();
 
-  constructor() {}
+  constructor() {
+    this.questionStates = new Map<number, QuestionState>();
+  }
 
   // Method to get the state of a question by its ID
   getQuestionState(questionId: number): QuestionState | undefined {
