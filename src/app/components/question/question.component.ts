@@ -841,7 +841,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.updateAnswersForOption(option);
     this.checkAndHandleCorrectAnswer();
     this.logDebugInformation();
-    this.quizStateService.updateQuestionState(this.currentQuestionIndex, option.optionId, this.quizDataService.isCorrect);
+
+    this.quizStateService.updateQuestionState(
+      this.currentQuestionIndex,
+      option.optionId.toString(),
+      option.correct
+    );
+    
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.toggleExplanationDisplay(true);
   }
