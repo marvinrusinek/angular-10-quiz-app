@@ -21,6 +21,7 @@ import {
   BehaviorSubject,
   combineLatest,
   firstValueFrom,
+  forkJoin,
   Observable,
   of,
   Subject,
@@ -29,7 +30,6 @@ import {
 import {
   catchError,
   filter,
-  forkJoin,
   map,
   switchMap,
   take,
@@ -1357,10 +1357,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.resetUI();
       }),
       switchMap(() => {
-        // Set display state for explanation after all reset operations are completed
-        return this.setDisplayStateForExplanationsAfterRestart().pipe(
-          map(() => null) // Return null as we don't have any meaningful value to emit
-        );
+        return this.setDisplayStateForExplanationsAfterRestart();
       })
     ).subscribe();
   }
