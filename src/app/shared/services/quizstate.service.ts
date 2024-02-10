@@ -47,6 +47,26 @@ export class QuizStateService {
     this.questionStates.set(questionId, state);
   }
 
+  updateQuestionState(questionId: number, selectedOptionId: string, isCorrect: boolean) {
+    // Retrieve the current state for the question
+    let currentState = this.getQuestionState(questionId) || {
+      isAnswered: false,
+      numberOfCorrectAnswers: 0,
+      selectedOptions: [],
+      explanationDisplayed: false
+    };
+  
+    // Update the state based on the user's action
+    currentState.selectedOptions.push(selectedOptionId);
+    if (isCorrect) {
+      currentState.numberOfCorrectAnswers++;
+    }
+    currentState.isAnswered = true; // Mark as answered
+  
+    // Save the updated state
+    this.setQuestionState(questionId, currentState);
+  }  
+
   updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
     if (question$ === null || question$ === undefined) {
       throwError('Question$ is null or undefined.');
