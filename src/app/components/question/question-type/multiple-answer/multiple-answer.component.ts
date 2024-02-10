@@ -150,18 +150,14 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     if (event) {
       event.stopPropagation();
     }
-
-    if (typeof option.optionId === 'undefined') {
-      console.error('Option ID is undefined for option:', option);
-      return;
-    }
-
+  
+    console.log('Option clicked:', option);
     super.onOptionClicked(option, index);
     this.selectedOption = option;
-    option.selected = true;
+    option.selected = !option.selected;
     this.showFeedback = true;
-
-    console.log('After selection - option.selected:', option.selected);
+  
+    console.log('After selection - option.selected:', option.selected, 'showFeedback:', this.showFeedback);
     this.cdRef.detectChanges();
   }
 
