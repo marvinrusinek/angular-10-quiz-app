@@ -1450,7 +1450,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  setDisplayStateForExplanationsAfterRestart(): void {
+  /* setDisplayStateForExplanationsAfterRestart(): void {
     this.quizService.resetQuestions();
     this.timerService.resetTimer();
   
@@ -1473,7 +1473,36 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.router.navigate(['/question/', this.quizId, 1]);
       });
     });
+  } */
+
+  setDisplayStateForExplanationsAfterRestart(): Observable<void> {
+    return new Observable<void>(observer => {
+      this.quizService.resetQuestions(); // Resetting questions
+      this.timerService.resetTimer(); // Resetting the timer
+  
+      // Subscribe to getTotalQuestions() within the new Observable
+      this.quizService.getTotalQuestions().subscribe(totalQuestions => {
+        for (let index = 0; index < totalQuestions; index++) {
+          // Logic to set explanations for each question
+          const explanation = this.getExplanationTextForQuestion(index); // Adjust based on your actual method to get explanations
+          if (explanation) {
+            this.explanationTextService.shouldDisplayExplanationSource.next(true);
+            this.explanationTextService.formattedExplanation$.next(explanation);
+          }
+        }
+  
+        // Navigation after setting up all explanations
+        this.router.navigate(['/question/', this.quizId, 1]);
+  
+        observer.next(); // Indicate that the Observable has successfully completed
+        observer.complete();
+      }, error => {
+        observer.error(error); // Propagate any errors
+      });
+    });
   }
+  
+  
 
   setExplanationForQuestion(index: number, explanationText: string): Observable<void> {
     const formattedExplanation: FormattedExplanation = {
@@ -1487,13 +1516,22 @@ export class QuizComponent implements OnInit, OnDestroy {
     return of(null); // Complete the observable
   }
   
-  
-  // Method to fetch the explanation text for a question by its index.
-  // You need to implement this method according to how your explanations are stored and associated with questions.
   getExplanationTextForQuestion(index: number): string {
-    // Example: Return a placeholder or fetch the actual explanation text for the question at the given index.
-    return 'Placeholder explanation text'; // Replace this with the actual logic to fetch the explanation.
+    // Convert the record's keys to an array of numbers and check if the index is a valid key
+    const keys = Object.keys(this.explanationTextService.formattedExplanations).map(Number);
+    
+    if (keys.includes(index)) {
+      // Retrieve the formatted explanation using the index
+      const formattedExplanation = this.explanationTextService.formattedExplanations[index];
+      
+      // Return the explanation text, or a default message if it's not available
+      return formattedExplanation ? formattedExplanation.explanation : 'No explanation available';
+    } else {
+      return 'Question index out of bounds or no explanation available';
+    }
   }
+  
+  
 
   /* sendValuesToQuizService(): void {
     this.sendQuizQuestionToQuizService();
