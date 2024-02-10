@@ -178,7 +178,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
         this.handlePageVisibilityChange(isHidden);
       });
-    
+
     this.quizService.getIsNavigatingToPrevious().subscribe(
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
@@ -187,15 +187,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.options = this.getOptionsForQuestion();
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
-  
+
     this.logInitialData();
     this.initializeQuizQuestion();
     this.subscribeToRouterEvents();
-  
+
     if (!this.initialized) {
       await this.initializeQuiz();
     }
-  
+
     this.subscribeToAnswers();
     this.subscribeToSelectionMessage();
     this.subscriptionToOptions();
@@ -228,13 +228,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   trackByFn(option: Option) {
     return option.optionId;
   }
-  
+
   private async initializeQuiz(): Promise<void> {
     this.initialized = true;
     this.initializeSelectedQuiz();
     this.initializeSelectedOption();
     this.subscribeToActivatedRouteParams();
-  
+
     try {
       await this.loadQuizQuestions();
       this.subscribeToCorrectAnswersAndData();
@@ -245,13 +245,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Error getting current question:', error);
     }
   }
-  
+
   private subscribeToActivatedRouteParams(): void {
     this.activatedRoute.params.subscribe(params => {
       this.quizId = params['quizId'];
     });
   }
-  
+
   private subscribeToAnswers(): void {
     this.quizService.answers$.subscribe(answers => {
       this.answers = answers;
@@ -336,7 +336,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.combinedQuestionData$.subscribe(value => {
       console.log('CQD::', value);
     });
-    
+
     combineLatest([
       this.quizService.correctAnswers$,
       this.quizService.combinedQuestionData$.pipe(filter(data => data !== null))
@@ -392,15 +392,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           }
 
           this.fetchCorrectAnswersAndText(this.data, this.data.options);
-          
+
           if (this.currentOptions && this.correctAnswers) {
             const correctAnswerOptions: Option[] = this.correctAnswers.map(answerId =>
               this.currentOptions.find(option => option.optionId === answerId)
             ).filter(option => option !== undefined) as Option[];
-          
+
             this.quizService.setCorrectAnswerOptions(correctAnswerOptions);
           }
-          
+
           this.updateQuestionForm();
         } else {
           console.log(
@@ -507,7 +507,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private loadQuestionsForQuiz(quizId: string): void {
     this.logStartOfLoadingQuestions(quizId);
     if (!this.isValidQuizId(quizId)) return;
-  
+
     this.quizDataService.getQuestionsForQuiz(quizId)
       .pipe(
         tap(questions => this.processFetchedQuestions(questions, quizId)),
@@ -518,16 +518,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         error: error => console.error('Error while loading quiz questions:', error),
         complete: () => console.log('Subscription complete handler')
       });
-  
+
     this.subscribeToCorrectMessage();
   }
-  
+
   private logStartOfLoadingQuestions(quizId: string): void {
     console.log('start of loadQuestionsForQuiz');
     console.log('Quiz ID:', quizId);
     console.log('Current Question Index:', this.currentQuestionIndex);
   }
-  
+
   private isValidQuizId(quizId: string): boolean {
     if (!quizId) {
       console.error('quizId is null or undefined.');
@@ -535,7 +535,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
     return true;
   }
-  
+
   private processFetchedQuestions(questions: QuizQuestion[], quizId: string): void {
     if (questions && questions.length > 0) {
       this.currentQuestion = questions[0];
@@ -544,7 +544,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('No questions found for quiz with ID:', quizId);
     }
   }
-  
+
   private handleQuestionsSwitchMap(questions: QuizQuestion[]): Observable<any> {
     if (questions && questions.length > 0) {
       return this.processCombinedQuestionData(this.currentQuestion);
@@ -552,7 +552,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return of(undefined);
     }
   }
-  
+
   private processCombinedQuestionData(question: QuizQuestion): Observable<any> {
     // Fetch all quizzes and find the one containing the question
     return this.quizService.getQuizData().pipe(
@@ -561,16 +561,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         if (!relatedQuiz) {
           throw new Error(`Quiz containing the question not found`);
         }
-  
+
         // Find the index of the question in the quiz
         const questionIndex = relatedQuiz.questions.findIndex(q => q.questionText === question.questionText);
-  
+
         // If additional data is needed, like specific question details
         const questionData = this.quizService.getQuestionData(relatedQuiz.quizId, questionIndex);
         if (!questionData) {
           throw new Error('Question data not found');
         }
-  
+
         // Combine the question with its related quiz and additional data
         return {
           question: question,
@@ -584,27 +584,27 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         return throwError(error);
       })
     );
-  }  
-  
+  }
+
   private updateCurrentQuestionAndCorrectAnswers(question: QuizQuestion): void {
     this.updateCurrentQuestion(question);
     this.checkAndUpdateCorrectAnswers(question);
   }
-  
+
   private checkAndUpdateCorrectAnswers(question: QuizQuestion): void {
     const currentCorrectAnswers = this.quizService.correctAnswers.get(question.questionText);
     if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
       this.quizService.setCorrectAnswers(question, question.options);
     }
   }
-  
+
   private subscribeToCorrectMessage(): void {
     this.quizService.correctMessage$.subscribe(message => {
       console.log('Correct Message Updated:', message);
       this.correctMessage = message;
     });
   }
-  
+
 
   isOption(option: Option | string): option is Option {
     return (option as Option).optionId !== undefined;
@@ -702,7 +702,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   /* private subscribeToCorrectAnswers(): void {
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {
       const currentCorrectAnswers = correctAnswers.get(this.question.questionText);
-  
+
       if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
         this.correctAnswers = currentCorrectAnswers;
         this.setCorrectMessage();
@@ -831,24 +831,29 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async onOptionClicked(option: Option): Promise<void> {
     this.quizService.addSelectedOption(option);
 
-    this.quizStateService.currentQuestion$
-      .pipe(take(1))
-      .subscribe((currentQuestion: QuizQuestion) => {
-        this.currentQuestion = currentQuestion;
-        this.processOptionSelection(this.currentQuestion, option);
-      });
+    const currentQuestion = await firstValueFrom(this.quizStateService.currentQuestion$.pipe(take(1)));
+    if (this.quizService.isQuizQuestion(currentQuestion)) {
+      this.currentQuestion = currentQuestion;
+    } else {
+      console.error('Received value does not match QuizQuestion structure:', currentQuestion);
+    }
+    this.processOptionSelection(this.currentQuestion, option);
 
     this.updateAnswersForOption(option);
     this.checkAndHandleCorrectAnswer();
     this.logDebugInformation();
 
-    const optionId = option.optionId;
-    this.quizStateService.updateQuestionState(
-      this.currentQuestionIndex,
-      optionId.toString() ?? '',
-      option.correct
-    );
-    
+    if (typeof option.optionId !== 'undefined') {
+      const optionId = option.optionId.toString();
+      this.quizStateService.updateQuestionState(
+        this.currentQuestionIndex,
+        optionId,
+        option.correct ?? false
+      );
+    } else {
+      console.error('Option ID is undefined', option);
+    }
+
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.toggleExplanationDisplay(true);
   }
@@ -942,7 +947,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           console.error('Error in isMultipleAnswer subscription:', error);
         },
       });
-  }  
+  }
 
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
     this.questions.subscribe({
