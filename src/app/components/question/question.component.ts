@@ -842,11 +842,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.checkAndHandleCorrectAnswer();
     this.logDebugInformation();
 
-    this.quizStateService.updateQuestionState(
-      this.currentQuestionIndex,
-      option.optionId.toString() ?? '',
-      option.correct
-    );
+    if (typeof option.optionId !== 'undefined') {
+      this.quizStateService.updateQuestionState(
+        this.currentQuestionIndex,
+        option.optionId.toString() ?? '',
+        option.correct
+      );
+    } else {
+      console.error('Option ID is undefined', option);
+    }
     
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.toggleExplanationDisplay(true);
