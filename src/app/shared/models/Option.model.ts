@@ -1,7 +1,7 @@
 import { Answer } from './Answer.type';
 
 export interface Option {
-  optionId?: number;
+  optionId: number;
   text: string;
   correct?: boolean;
   value?: number;
