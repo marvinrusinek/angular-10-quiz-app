@@ -256,10 +256,14 @@ export class QuizService implements OnDestroy {
     const initialText = localStorage.getItem('correctAnswersText') || 'Please select an answer';
     this.correctAnswersCountTextSource.next(initialText);
   }
-  
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  isQuizQuestion(obj: any): obj is QuizQuestion {
+    return obj && 'questionText' in obj && 'options' in obj && 'explanation' in obj;
   }
 
   get quizData$(): Observable<Quiz[]> {
@@ -268,7 +272,7 @@ export class QuizService implements OnDestroy {
 
   getQuizData(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl);
-  }  
+  }
 
   setSelectedQuiz(selectedQuiz: Quiz): void {
     this.selectedQuiz$.next(selectedQuiz);
@@ -322,7 +326,7 @@ export class QuizService implements OnDestroy {
           console.error('Error with route parameters:', err);
         }
       });
-  }  
+  }
 
   private processQuizId(): void {
     this.indexOfQuizId = this.quizData.findIndex(
@@ -410,7 +414,7 @@ export class QuizService implements OnDestroy {
       return null;
     }
   }
-  
+
   getQuestionTextForIndex(index: number): string | undefined {
     const currentQuiz = this.getCurrentQuiz();
     if (
@@ -478,29 +482,29 @@ export class QuizService implements OnDestroy {
 
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
-  
+
     const foundQuiz = await this.fetchAndFindQuiz(this.quizId);
     if (!foundQuiz) {
       return false;
     }
     this.quiz = foundQuiz;
-  
+
     if (!this.validateAndSetCurrentQuestion(this.quiz, this.currentQuestionIndex)) {
       return false;
     }
-  
+
     const currentQuestionValue = this.currentQuestion.getValue();
     const answers = this.answers;
-  
+
     // Check if currentQuestionValue and answers are defined and not empty
     if (!currentQuestionValue || !answers || answers.length === 0) {
       return false;
     }
-  
+
     if (!this.validateAnswers(currentQuestionValue, answers)) {
       return false;
     }
-  
+
     const correctAnswerFound = await this.determineCorrectAnswer(currentQuestionValue, answers);
 
     if (correctAnswerFound.includes(true)) {
@@ -510,12 +514,12 @@ export class QuizService implements OnDestroy {
       // The answer is incorrect, update the score accordingly
       this.incrementScore(this.answers, false, this.multipleAnswer);
     }
-      
+
     // ...rest of function logic...
     // Process user answers, update score, etc.
-  
+
     return correctAnswerFound.includes(true);
-  }  
+  }
 
   async fetchAndFindQuiz(quizId: string): Promise<Quiz | null> {
     try {
@@ -597,7 +601,7 @@ export class QuizService implements OnDestroy {
   getCurrentCorrectAnswersText(): string {
     return this.correctAnswersCountTextSource.value;
   }
-  
+
   private updateCorrectCountForResults(value: number): void {
     this.correctCount = value;
     this.sendCorrectCountToResults(this.correctCount);
@@ -610,31 +614,31 @@ export class QuizService implements OnDestroy {
   isQuestionAnswered(): boolean {
     return this.isOptionSelected;
   }
-  
+
   async setCurrentQuestionIndex(index: number): Promise<void> {
     try {
       if (!this.quizId) {
         console.error('Quiz ID is not available.');
         return;
       }
-  
+
       const response: any = await firstValueFrom(
         this.getQuestionsForQuiz(this.quizId)
       );
-  
+
       // Check if response has 'questions' property and is an array
       if (!response || !response.questions || !Array.isArray(response.questions)) {
         console.error('Invalid format of questions response:', response);
         return;
       }
-  
+
       // Check if 'questions' property is defined and is an array
       const questions = response.questions[0]?.questions;
       if (!questions || !Array.isArray(questions)) {
         console.error('Invalid format of questions array:', questions);
         return;
       }
-  
+
       // Validate the index
       if (index >= 0 && index < questions.length) {
         this.currentQuestionIndex = index;
@@ -651,7 +655,7 @@ export class QuizService implements OnDestroy {
   getCurrentQuestionIndexObservable(): Observable<number> {
     return this.currentQuestionIndexSubject.asObservable();
   }
-    
+
   getCurrentQuizId(): string {
     return this.quizId;
   }
@@ -693,7 +697,7 @@ export class QuizService implements OnDestroy {
         (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
       )
     );
-  } 
+  }
 
   updateCorrectMessageText(message: string): void {
     this.correctMessage$.next(message);
@@ -839,10 +843,10 @@ export class QuizService implements OnDestroy {
     this.quizScore = quizScore;
     return this.http.post<void>(`${this.quizUrl}/quiz/scores`, quizScore);
   }
-  
+
   calculateTotalCorrectAnswers(userAnswers: number[]): number {
     let totalCorrect = 0;
-  
+
     // Assuming `userAnswers` contains the user's answers, you can compare them to correct answers
     for (let i = 0; i < this.questions.length; i++) {
       const correctAnswers = this.correctAnswers.get(i.toString()); // Get correct answers for each question
@@ -855,7 +859,7 @@ export class QuizService implements OnDestroy {
         }
       }
     }
-  
+
     return totalCorrect;
   }
 
@@ -866,8 +870,8 @@ export class QuizService implements OnDestroy {
   getNextQuestion(currentQuestionIndex: number): Promise<QuizQuestion | undefined> {
     return new Promise((resolve) => {
       const currentQuiz = this.getCurrentQuiz();
-  
-      if (currentQuiz && 
+
+      if (currentQuiz &&
           currentQuiz.questions &&
           currentQuestionIndex >= 0 &&
           currentQuestionIndex < currentQuiz.questions.length) {
@@ -882,13 +886,13 @@ export class QuizService implements OnDestroy {
         resolve(undefined);
       }
     });
-  }  
+  }
 
   getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
     return new Promise((resolve) => {
       const currentQuiz = this.getCurrentQuiz();
       const previousIndex = questionIndex - 1;
-  
+
       if (currentQuiz &&
           currentQuiz.questions &&
           previousIndex >= 0 &&
@@ -899,10 +903,10 @@ export class QuizService implements OnDestroy {
       }
     });
   }
-  
+
   getNextOptions(currentQuestionIndex: number): Option[] | undefined {
     const currentQuiz = this.getCurrentQuiz();
-  
+
     if (
       currentQuiz &&
       currentQuiz.questions &&
@@ -910,21 +914,21 @@ export class QuizService implements OnDestroy {
       currentQuestionIndex < currentQuiz.questions.length
     ) {
       const currentOptions = currentQuiz.questions[currentQuestionIndex].options;
-  
+
       // Broadcasting the current options
       this.nextOptionsSource.next(currentOptions);
       this.nextOptionsSubject.next(currentOptions);
-  
+
       return currentOptions;
     }
-  
+
     // Broadcasting null when index is invalid
     this.nextOptionsSource.next(null);
     this.nextOptionsSubject.next(null);
-  
+
     return undefined;
   }
-  
+
   async getPreviousOptions(questionIndex: number): Promise<Option[] | undefined> {
     try {
       const previousQuestion = await this.getPreviousQuestion(questionIndex);
@@ -942,7 +946,7 @@ export class QuizService implements OnDestroy {
 
   getCurrentQuestion(): Observable<QuizQuestion> {
     const quizId = this.getCurrentQuizId();
-  
+
     return this.getQuestionsForQuiz(quizId).pipe(
       tap((questions: QuizQuestion[]) => {
         this.questions = questions;
@@ -982,7 +986,7 @@ export class QuizService implements OnDestroy {
       return null;
     }
   }
-  
+
   /* getCorrectAnswers(question: QuizQuestion): number[] {
     if (question && question.options) {
       return question.options
@@ -1003,14 +1007,14 @@ export class QuizService implements OnDestroy {
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
     const correctAnswers = this.correctAnswersCountSubject.getValue();
     const totalQuestions = this.totalQuestions;
-  
+
     if (totalQuestions === 0) {
       return 0; // Handle division by zero
     }
-  
+
     return Math.round((correctAnswers / totalQuestions) * 100);
   }
-  
+
   saveHighScores(): void {
     this.quizScore = {
       quizId: this.quizId,
@@ -1066,7 +1070,7 @@ export class QuizService implements OnDestroy {
     this.previousOptionsSubject.next(this.nextOptionsSubject.getValue());
     this.nextOptionsSubject.next(options);
   }
-  
+
   setCorrectAnswers(
     question: QuizQuestion,
     options: Option[]
@@ -1258,7 +1262,7 @@ export class QuizService implements OnDestroy {
     this.data.currentOptions = options;
     this.currentOptionsSubject.next(options);
   }
-  
+
   setChecked(value: boolean): void {
     this.checkedShuffle = value;
   }
@@ -1277,17 +1281,17 @@ export class QuizService implements OnDestroy {
         console.error('No questions found');
         return;
       }
-  
+
       // Calculate correct answers
       const correctAnswers = this.calculateCorrectAnswers(questions);
       this.correctAnswersSubject.next(correctAnswers);
-  
+
       // Initialize combined question data
       await this.initializeCombinedQuestionData();
-  
+
       // Set correct answers for questions
       this.setCorrectAnswersForQuestions(questions, correctAnswers);
-  
+
       this.correctAnswersLoadedSubject.next(true);
     } catch (error) {
       console.error('Error fetching quiz questions:', error);
@@ -1327,7 +1331,7 @@ export class QuizService implements OnDestroy {
         const combinedQuestionData: CombinedQuestionDataType = {
           questionText: currentQuestion.questionText,
           correctAnswersText: '',
-          currentQuestion: currentQuestion, 
+          currentQuestion: currentQuestion,
           currentOptions: this.data.currentOptions,
           isNavigatingToPrevious: false,
           explanationText: '',
@@ -1486,7 +1490,7 @@ export class QuizService implements OnDestroy {
       this.quizData = null;
       this.questions = [];
     }
-  }  
+  }
 
   resetUserSelection(): void {
     this.selectedOption$.next('');
@@ -1507,7 +1511,7 @@ export class QuizService implements OnDestroy {
     this.correctSound = this.loadSound('http://www.marvinrusinek.com/sound-correct.mp3', 'Correct');
     this.incorrectSound = this.loadSound('http://www.marvinrusinek.com/sound-incorrect.mp3', 'Incorrect');
   }
-  
+
   loadSound(url, soundName) {
     return new Howl({
       src: [url],
@@ -1525,12 +1529,12 @@ export class QuizService implements OnDestroy {
     if (!this.correctSound || !this.incorrectSound) {
       this.initializeSounds();
     }
-  
+
     // Play the appropriate sound based on the answer correctness
     if (isCorrect) {
       this.correctSound.play();
     } else {
       this.incorrectSound.play();
     }
-  }  
+  }
 }
