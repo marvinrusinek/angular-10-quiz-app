@@ -146,13 +146,21 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.currentOptionsSubscription?.unsubscribe();
   }
 
-  onOptionClick(option: Option, event?: MouseEvent): void {
-    // Stop event propagation to prevent interference with Angular Material's handling
+  onOptionClick(option: Option, event: MouseEvent): void {
+    // Stop event propagation to prevent interference with Angular Material's handling or similar UI frameworks
     if (event) {
       event.stopPropagation();
     }
 
-    super.onOptionClicked(option);
+    // Check if optionId is defined
+    if (typeof option.optionId === 'undefined') {
+      console.error('Option ID is undefined for option:', option);
+      // Optionally, handle the undefined optionId case here, e.g., return early or show an error message to the user
+      return;
+    }
+
+    // If optionId is defined, proceed with the rest of the method
+    super.onOptionClicked(option, event);
     this.selectedOption = option;
     option.selected = true;
     this.showFeedback = true;
