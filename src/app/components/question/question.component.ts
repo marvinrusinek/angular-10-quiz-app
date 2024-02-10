@@ -828,7 +828,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  async onOptionClicked(option: Option): Promise<void> {
+  async onOptionClicked(option: Option, index: number): Promise<void> {
     this.quizService.addSelectedOption(option);
 
     const currentQuestion = await firstValueFrom(this.quizStateService.currentQuestion$.pipe(take(1)));
@@ -844,10 +844,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.logDebugInformation();
 
     if (typeof option.optionId !== 'undefined') {
-      const optionId = option.optionId.toString();
+      const optionId = option.optionId ?? index;
       this.quizStateService.updateQuestionState(
         this.currentQuestionIndex,
-        optionId,
+        optionId.toString(),
         option.correct ?? false
       );
     } else {
