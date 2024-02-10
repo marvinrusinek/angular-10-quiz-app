@@ -671,7 +671,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  initializeFirstQuestionText(): void {
+  /* initializeFirstQuestionText(): void {
     this.resetQuestionState();
 
     this.quizDataService
@@ -696,8 +696,49 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.optionsToDisplay = [];
         }
       });
-  }
+  } */
+
+  initializeFirstQuestionText(): void {
+    this.resetQuestionState();
   
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: (questions: QuizQuestion[]) => {
+        if (questions && questions.length > 0) {
+          this.questions = questions;
+          this.currentQuestion = questions[0];
+  
+          // Set the question and options to display
+          this.questionToDisplay = this.currentQuestion.questionText;
+          this.optionsToDisplay = this.currentQuestion.options;
+  
+          // Prepare the explanation for the first question (if needed right away)
+          // This might be based on some condition, e.g., if the question was previously answered
+          if (this.shouldDisplayExplanationForQuestion(this.currentQuestion)) {
+            this.explanationToDisplay = this.getExplanationTextForQuestion(0);
+          }
+        } else {
+          // Handle the case with no questions available
+          this.questions = [];
+          this.currentQuestion = null;
+          this.questionToDisplay = 'No questions available.';
+          this.optionsToDisplay = [];
+          this.explanationToDisplay = '';
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching questions:', err);
+        this.questionToDisplay = 'Error loading questions.';
+        this.optionsToDisplay = [];
+        this.explanationToDisplay = 'Error loading explanation.'; // Handle explanation in case of error
+      }
+    });
+  }
+
+  shouldDisplayExplanationForQuestion(question: QuizQuestion): boolean {
+    // Assuming `selectedOptions` is an array. The question is considered answered if there are any selected options.
+    return question.selectedOptions && question.selectedOptions.length > 0;
+  }
+    
   initializeQuestionStreams(): void {
     // Initialize questions stream
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
