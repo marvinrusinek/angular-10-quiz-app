@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Input,
   OnChanges,
@@ -128,7 +129,8 @@ export class CodelabQuizContentComponent
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private cdRef: ChangeDetectorRef
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
@@ -157,6 +159,7 @@ export class CodelabQuizContentComponent
   
     this.explanationTextService.formattedExplanation$.subscribe(explanationText => {
       this.explanationText = explanationText;
+      this.cdRef.detectChanges();
     });
 
     this.updateQuizStatus();
