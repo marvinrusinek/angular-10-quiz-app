@@ -56,7 +56,7 @@ export class QuizStateService {
     this.questionStates.set(questionId, state);
   }
 
-  updateQuestionState(questionId: number, selectedOptionId: number, isCorrect: boolean) {
+  updateQuestionState(questionId: number, selectedOptionId: number, isCorrect: boolean, totalCorrectAnswers: number) {
     if (typeof selectedOptionId === 'undefined') {
       console.error('SelectedOptionId is undefined', { questionId, isCorrect });
       return;
@@ -73,7 +73,7 @@ export class QuizStateService {
     if (!currentState.selectedOptions.includes(selectedOptionId.toString())) {
       currentState.selectedOptions.push(selectedOptionId.toString());
 
-      if (isCorrect) {
+      if (isCorrect && currentState.numberOfCorrectAnswers < totalCorrectAnswers) {
         currentState.numberOfCorrectAnswers++;
       }
     }
