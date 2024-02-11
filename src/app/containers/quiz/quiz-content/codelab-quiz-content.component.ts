@@ -162,24 +162,7 @@ export class CodelabQuizContentComponent
       this.cdRef.detectChanges();
     });
 
-    console.log("CQIV", this.currentQuestionIndexValue);
-    const questionState = this.quizStateService.getQuestionState(this.currentQuestionIndexValue);
-    console.log("QS", questionState, "for questionId", this.currentQuestionIndexValue);
-    if (questionState) {
-      const isQuestionAnswered = questionState.isAnswered;
-      console.log("iQA", isQuestionAnswered);
-
-      if (isQuestionAnswered) {
-        this.quizService.displayExplanation = true;
-        this.explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndexValue);
-        console.log('Restored Explanation Text:', this.explanationText);
-      }
-
-      this.numberOfCorrectAnswers = questionState.numberOfCorrectAnswers;
-      // Restore other parts of the question state as needed
-      this.cdRef.detectChanges();
-    }
-
+    this.restoreQuestionState();
     this.updateQuizStatus();
     this.initializeComponent();
     this.handleQuestionDisplayLogic();
@@ -204,7 +187,28 @@ export class CodelabQuizContentComponent
     this.formattedExplanationSubscription?.unsubscribe();
     this.explanationTextService.resetStateBetweenQuestions();
   }
-
+  
+  restoreQuestionState(): void {
+    console.log("CQIV", this.currentQuestionIndexValue);
+    const questionState = this.quizStateService.getQuestionState(this.currentQuestionIndexValue);
+    console.log("QS", questionState, "for questionId", this.currentQuestionIndexValue);
+    
+    if (questionState) {
+      const isQuestionAnswered = questionState.isAnswered;
+      console.log("iQA", isQuestionAnswered);
+  
+      if (isQuestionAnswered) {
+        this.quizService.displayExplanation = true;
+        this.explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndexValue);
+        console.log('Restored Explanation Text:', this.explanationText);
+      }
+  
+      this.numberOfCorrectAnswers = questionState.numberOfCorrectAnswers;
+      // Restore other parts of the question state as needed
+      this.cdRef.detectChanges();
+    }
+  }
+  
   // Example from a component handling question updates
   handleQuestionUpdate(question: QuizQuestion): void {
     if (this.quizStateService.isMultipleAnswerQuestion(question)) {
