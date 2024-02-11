@@ -46,13 +46,7 @@ export class QuizStateService {
     const state = this.questionStates.get(questionId);
     if (!state) {
       console.warn(`No state found for questionId ${questionId}, returning default state.`);
-      // Return a default state
-      return {
-        isAnswered: false,
-        numberOfCorrectAnswers: 0,
-        selectedOptions: [],
-        explanationDisplayed: false
-      };
+      return this.createDefaultQuestionState();
     }
     return state;
   }
@@ -83,9 +77,26 @@ export class QuizStateService {
       currentState.numberOfCorrectAnswers++;
     }
     currentState.isAnswered = true; // Mark as answered
+    currentState.explanationDisplayed = true; // Set explanation to be displayed when updating state
 
     // Save the updated state
     this.setQuestionState(questionId, currentState);
+  }
+
+  showExplanationForQuestion(questionId: number) {
+    let currentState = this.getQuestionState(questionId) || this.createDefaultQuestionState();
+    currentState.explanationDisplayed = true; // Explicitly set explanation to be displayed
+  
+    this.setQuestionState(questionId, currentState); // Save the updated state
+  }  
+
+  createDefaultQuestionState(): QuestionState {
+    return {
+      isAnswered: false,
+      numberOfCorrectAnswers: 0,
+      selectedOptions: [],
+      explanationDisplayed: false
+    };
   }
 
   updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
