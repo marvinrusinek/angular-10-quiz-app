@@ -1310,11 +1310,11 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.explanationTextService.formattedExplanation$.next("Test explanation text");
         this.explanationTextService.resetExplanationText();
 
-        this.questions.forEach(question => {
+        this.questions.forEach((question, index) => {
           const defaultState = this.quizStateService.createDefaultQuestionState();
-          this.quizStateService.setQuestionState(this.currentQuestionIndex, defaultState);
+          this.quizStateService.setQuestionState(index, defaultState);
         });
-        
+                
         // Initialize UI components
         this.initializeQuestionStreams();
         this.initializeFirstQuestionText();
