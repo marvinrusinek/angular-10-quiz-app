@@ -1357,7 +1357,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           const defaultState = this.quizStateService.createDefaultQuestionState();
           this.quizStateService.setQuestionState(index, defaultState);
         });
-                
+
         // Initialize UI components
         this.initializeQuestionStreams();
         this.initializeFirstQuestionText();
