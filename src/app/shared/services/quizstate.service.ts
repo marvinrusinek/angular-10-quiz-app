@@ -40,12 +40,23 @@ export class QuizStateService {
   }
 
   // Method to get the state of a question by its ID
-  getQuestionState(questionId: number): QuestionState | undefined {
+  getQuestionState(questionId: number): QuestionState {
     console.log(`Getting state for questionId ${questionId}`);
     console.log(`Current question states:`, Array.from(this.questionStates.entries()));
-    return this.questionStates.get(questionId);
+    const state = this.questionStates.get(questionId);
+    if (!state) {
+      console.warn(`No state found for questionId ${questionId}, returning default state.`);
+      // Return a default state
+      return {
+        isAnswered: false,
+        numberOfCorrectAnswers: 0,
+        selectedOptions: [],
+        explanationDisplayed: false
+      };
+    }
+    return state;
   }
-
+  
   // Method to set or update the state for a question
   setQuestionState(questionId: number, state: QuestionState): void {
     console.log(`Setting state for questionId ${questionId}:`, state);
