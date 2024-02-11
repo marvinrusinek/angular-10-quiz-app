@@ -57,7 +57,7 @@ export class QuizStateService {
     this.questionStates.set(questionId, state);
   }
 
-  updateQuestionState(questionId: number, selectedOptionId: number, isCorrect: boolean) {
+  updateQuestionState(questionId: number, selectedOptionId: number, isCorrect: boolean, totalCorrectAnswers: number) {
     if (typeof selectedOptionId === 'undefined') {
       console.error('SelectedOptionId is undefined', { questionId, isCorrect });
       return;
@@ -71,15 +71,17 @@ export class QuizStateService {
       explanationDisplayed: false
     };
 
-    // Update the state based on the user's action
-    currentState.selectedOptions.push(selectedOptionId.toString());
-    if (isCorrect) {
-      currentState.numberOfCorrectAnswers++;
-    }
-    currentState.isAnswered = true; // Mark as answered
-    currentState.explanationDisplayed = true; // Set explanation to be displayed when updating state
+    if (!currentState.selectedOptions.includes(selectedOptionId.toString())) {
+      currentState.selectedOptions.push(selectedOptionId.toString());
 
-    // Save the updated state
+      if (isCorrect && currentState.numberOfCorrectAnswers < totalCorrectAnswers) {
+        currentState.numberOfCorrectAnswers++;
+      }
+    }
+
+    currentState.isAnswered = true;
+    currentState.explanationDisplayed = true;
+
     this.setQuestionState(questionId, currentState);
   }
 
