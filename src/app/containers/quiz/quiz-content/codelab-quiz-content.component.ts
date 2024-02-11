@@ -114,6 +114,7 @@ export class CodelabQuizContentComponent
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
   explanationText: string | null = null;
+  explanationTexts: string[] = [];
 
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
@@ -238,8 +239,9 @@ export class CodelabQuizContentComponent
           return;
         }
 
-        this.initializeCurrentQuestionIndex();
         this.setQuestions(questions);
+        this.explanationTexts = explanationTexts;
+        this.initializeCurrentQuestionIndex();
         this.subscribeToCurrentQuestion();
       });
   }
