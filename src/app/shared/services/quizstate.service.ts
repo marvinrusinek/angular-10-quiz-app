@@ -43,10 +43,11 @@ export class QuizStateService {
   getQuestionState(questionId: number): QuestionState {
     console.log(`Getting state for questionId ${questionId}`);
     console.log(`Current question states:`, Array.from(this.questionStates.entries()));
-    const state = this.questionStates.get(questionId);
+    let state = this.questionStates.get(questionId);
     if (!state) {
       console.warn(`No state found for questionId ${questionId}, returning default state.`);
-      return this.createDefaultQuestionState();
+      state = this.createDefaultQuestionState();
+      this.questionStates.set(questionId, state);
     }
     return state;
   }
