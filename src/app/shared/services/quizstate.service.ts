@@ -18,7 +18,6 @@ interface QuestionState {
 export class QuizStateService {
   currentQuestion: BehaviorSubject<QuizQuestion | null>
     = new BehaviorSubject<QuizQuestion | null>(null);
-  private currentQuestionSource = new Subject<QuizQuestion>();
   private currentQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestion$: Observable<QuizQuestion> = this.currentQuestionSubject.asObservable();
 
@@ -116,7 +115,6 @@ export class QuizStateService {
     ).subscribe((question: QuizQuestion) => {
       this.currentQuestion.next(question);
       this.currentQuestionSubject.next(question);
-      this.currentQuestionSource.next(question);
 
       if (question && question.options) {
         this.currentQuestion.next(question);
