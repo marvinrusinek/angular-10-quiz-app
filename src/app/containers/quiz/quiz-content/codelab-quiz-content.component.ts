@@ -164,6 +164,7 @@ export class CodelabQuizContentComponent
     });
 
     this.restoreQuestionState();
+    this.subscribeToQuestionState();
     this.updateQuizStatus();
     this.initializeComponent();
     this.handleQuestionDisplayLogic();
@@ -188,28 +189,40 @@ export class CodelabQuizContentComponent
     this.formattedExplanationSubscription?.unsubscribe();
     this.explanationTextService.resetStateBetweenQuestions();
   }
-  
+
   restoreQuestionState(): void {
     console.log("CQIV", this.currentQuestionIndexValue);
     const questionState = this.quizStateService.getQuestionState(this.currentQuestionIndexValue);
     console.log("QS", questionState, "for questionId", this.currentQuestionIndexValue);
-    
+
     if (questionState) {
       const isQuestionAnswered = questionState.isAnswered;
       console.log("iQA", isQuestionAnswered);
-  
+
       if (isQuestionAnswered) {
         this.quizService.displayExplanation = true;
         this.explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndexValue);
         console.log('Restored Explanation Text:', this.explanationText);
       }
-  
+
       this.numberOfCorrectAnswers = questionState.numberOfCorrectAnswers;
       // Restore other parts of the question state as needed
       this.cdRef.detectChanges();
     }
   }
-  
+
+  subscribeToQuestionState(): void {
+    this.quizService.getCurrentQuestionIndexObservable().subscribe(currentIndex => {
+      const state = this.quizStateService.getQuestionState(this.quizService.getQuestionIdAtIndex(currentIndex));
+
+      if (state && state.isAnswered) {
+        this.explanationToDisplay = this.explanationTexts[currentIndex]; // Access the stored explanation text
+      } else {
+        this.explanationToDisplay = '';
+      }
+    });
+  }
+
   // Example from a component handling question updates
   handleQuestionUpdate(question: QuizQuestion): void {
     if (this.quizStateService.isMultipleAnswerQuestion(question)) {
