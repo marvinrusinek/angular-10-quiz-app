@@ -1150,13 +1150,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOption: selectedOption
     });
 
-    if (this.currentQuestionIndex === this.selectedQuiz.questions.length - 1) {
-      await firstValueFrom(this.quizDataService.submitQuiz(this.selectedQuiz));
+    const currentQuiz: Quiz = await firstValueFrom(this.selectedQuiz);
+    if (this.currentQuestionIndex === currentQuiz.questions.length - 1) {
+      await firstValueFrom(this.quizDataService.submitQuiz(this.quizService.selectedQuiz));
       this.router.navigate(['quiz', 'result']); // or just results?
     } else {
       this.currentQuestionIndex++;
-      this.currentQuestion =
-        this.selectedQuiz.questions[this.currentQuestionIndex];
+      this.currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
     }
   }
 
