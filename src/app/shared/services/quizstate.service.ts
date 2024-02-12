@@ -38,6 +38,18 @@ export class QuizStateService {
     this.questionStates = new Map<number, QuestionState>();
   }
 
+  saveState(quizId: string, state: any): void {
+    localStorage.setItem(`quizState_${quizId}`, JSON.stringify(state));
+  }
+
+  getStoredState(quizId: string): any {
+    const stateJSON = localStorage.getItem(`quizState_${quizId}`);
+    if (stateJSON) {
+      return JSON.parse(stateJSON);
+    }
+    return null;
+  }
+
   // Method to get the state of a question by its ID
   getQuestionState(questionId: number): QuestionState {
     console.log(`Getting state for questionId ${questionId}`);
