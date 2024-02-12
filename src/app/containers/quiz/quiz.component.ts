@@ -313,18 +313,37 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private initializeQuiz(): void {
-    this.setupInitialState();
-    this.subscribeToRouteParams();
+    this.prepareQuizSession();
     this.initializeQuizDependencies();
+    this.subscribeToRouteParams();
   }
 
-  private setupInitialState(): void {
+  private prepareQuizSession(): void {
+    // Set up initial state
     this.currentQuestionIndex = 0;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.setCurrentQuizForQuizId(this.quizId);
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.explanationTextService.resetProcessedQuestionsState();
+
+    // Load and apply stored state
+    const storedState = this.quizStateService.getStoredState(this.quizId);
+    if (storedState) {
+      storedState.forEach((state, questionId) => {
+        if (state.isAnswered) {
+          // Logic to display explanation text for the answered question
+          // Make sure to define how you plan to display the explanation text,
+          // for example, updating a property that is bound to your template
+          this.displayExplanation(questionId, state.explanationText);
+        }
+      });
+    }
   }
+
+  private displayExplanation(questionId: number, explanationText: string): void {
+    this.explanations[questionId] = explanationText;
+  }
+
 
   private subscribeToRouteParams(): void {
     this.activatedRoute.paramMap
