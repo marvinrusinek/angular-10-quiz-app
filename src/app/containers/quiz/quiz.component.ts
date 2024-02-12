@@ -748,6 +748,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.options = options.map(
       (option) =>
         ({
+          optionId: option.optionId,
           value: option.value,
           text: option.text,
           isCorrect: option.correct,
