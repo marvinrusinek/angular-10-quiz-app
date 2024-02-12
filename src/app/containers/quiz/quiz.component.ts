@@ -1468,5 +1468,5 @@ export class QuizComponent implements OnInit, OnDestroy {
   // not called anywhere...
   private sendContinueQuizIdToQuizService(): void {
     this.quizService.setContinueQuizId(this.quizId);
-  }
+  } 
 }
