@@ -25,7 +25,7 @@
 </form>-->
 
 
-<form [formGroup]="questionForm" [ngSwitch]="multipleAnswer">
+<form [formGroup]="questionForm" [ngSwitch]="multipleAnswer" (ngSubmit)="onSubmit()">
   <ng-container *ngIf="shouldDisplayTextContent()">
     <ng-container *ngSwitchCase="multipleAnswer">
       <ng-container *ngTemplateOutlet="questionTemplate; context: {$implicit: 'multiple'}"></ng-container>
