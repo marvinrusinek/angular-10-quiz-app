@@ -319,24 +319,33 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private async prepareQuizSession(): Promise<void> {
-    // Set up initial state
     this.currentQuestionIndex = 0;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    await this.setCurrentQuizForQuizId(this.quizId); // Ensure quiz is set, might need to be async
+    await this.setCurrentQuizForQuizId(this.quizId);
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.explanationTextService.resetProcessedQuestionsState();
 
     // Load and apply stored state
     const storedState = this.quizStateService.getStoredState(this.quizId);
     if (storedState) {
-        Object.entries(storedState).forEach(([questionId, state]) => {
-            const questionState = state as QuestionState; // Cast to your QuestionState type
-            if (questionState.isAnswered && questionState.explanationText) {
-                this.storeExplanationText(+questionId, questionState.explanationText);
-            }
-        });
+      Object.entries(storedState).forEach(([questionId, state]) => {
+        const questionState = state as QuestionState;
+        if (questionState.explanationDisplayed) {
+          // Retrieve the explanation text for the question
+          const explanationText = this.getExplanationTextForQuestion(+questionId);
+          // Store or display the explanation text as needed
+          this.storeExplanationText(+questionId, explanationText);
+        }
+      });
     }
   }
+
+  private getExplanationTextForQuestion(questionId: number): string {
+      // Retrieve and return the explanation text for the given questionId
+      // This might involve fetching the text from the question data or from a separate explanation service
+      return ""; // Placeholder return, adjust based on your data structure
+  }
+
 
   storeExplanationText(questionId: number, explanationText: string): void {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
