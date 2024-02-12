@@ -1339,20 +1339,14 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   setDisplayStateForExplanation(): Observable<void> {
     return new Observable<void>(observer => {
-      // Assuming getCurrentQuestionIndexObservable returns the index of the currently answered question
       const subscription = this.quizService.getCurrentQuestionIndexObservable().subscribe(currentIndex => {
         const currentQuestionId = this.quizService.getQuestionIdAtIndex(currentIndex);
         const formattedExplanation = this.explanationTextService.formattedExplanations[currentQuestionId];
 
         if (formattedExplanation) {
-          // If there's a formatted explanation, we assume the question has been answered
-          // and set to display the explanation text.
           this.explanationTextService.shouldDisplayExplanationSource.next(true);
           this.explanationTextService.formattedExplanation$.next(formattedExplanation.toString());
         } else {
-          // If no explanation is available, keep or set the state to not display it.
-          // You might adjust this part depending on how you want to handle unanswered questions
-          // or questions without explanations.
           this.explanationTextService.shouldDisplayExplanationSource.next(false);
           this.explanationTextService.formattedExplanation$.next('');
         }
@@ -1374,7 +1368,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.getTotalQuestions().subscribe(totalQuestions => {
         for (let index = 0; index < totalQuestions; index++) {
           // Logic to set explanations for each question
-          const explanation = this.getExplanationTextForQuestion(index); // Adjust based on your actual method to get explanations
+          const explanation = this.getExplanationTextForQuestion(index);
           if (explanation) {
             this.explanationTextService.shouldDisplayExplanationSource.next(true);
             this.explanationTextService.formattedExplanation$.next(explanation);
