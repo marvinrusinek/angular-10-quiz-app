@@ -5,6 +5,10 @@ import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router }
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
+import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
+import { QuizStatus } from '../../shared/models/quiz-status.enum';
+import { QuestionType } from '../../shared/models/question-type.enum';
+
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
@@ -30,24 +34,6 @@ type AnimationState = 'animationStarted' | 'none';
 interface QuizData {
   quizId: string;
   questions: QuizQuestion[];
-}
-
-enum QuizRoutes {
-  INTRO = 'intro/',
-  QUESTION = 'question/',
-  RESULTS = 'results/'
-}
-
-enum QuizStatus {
-  STARTED = 'started',
-  CONTINUE = 'continue',
-  COMPLETED = 'completed'
-}
-
-enum QuestionType {
-  SingleAnswer = 'single_answer',
-  MultipleAnswer = 'multiple_answer',
-  TrueFalse = 'true_false'
 }
 
 @Component({
