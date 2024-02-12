@@ -137,6 +137,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isExplanationTextDisplayed = false;
 
   isNavigatingToPrevious = false;
+  isLoading = true;
 
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
@@ -325,7 +326,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private async loadQuizQuestions(): Promise<void> {
-    this.quizService.fetchQuizQuestions();
+    // Assuming fetchQuizQuestions now returns a Promise of the questions
+    const questions = await this.quizService.fetchQuizQuestions();
+    // Use the fetched questions to update your component's state here
+    // For example, this.currentQuestions = questions;
+    this.isLoading = false;
   }
 
   /* private initializeCorrectAnswerOptions(): void {
