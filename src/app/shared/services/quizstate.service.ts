@@ -33,6 +33,7 @@ export class QuizStateService {
   private quizQuestionCreated = false;
 
   private questionStates: Map<number, QuestionState> = new Map();
+  // private questionStates: Map<number, { answered: boolean; explanation: string }> = new Map();
 
   constructor() {
     this.questionStates = new Map<number, QuestionState>();

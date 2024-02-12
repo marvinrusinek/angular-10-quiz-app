@@ -1139,22 +1139,38 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (this.questionForm.invalid) {
       return;
     }
+
     const selectedOption = this.questionForm.get('selectedOption').value;
     if (selectedOption === null) {
       return;
     }
 
+    // Add the selected option and question information to the answers array
     this.answers.push({
       question: this.currentQuestion,
       questionIndex: this.currentQuestionIndex,
       selectedOption: selectedOption
     });
 
+    // Use the checkIfAnsweredCorrectly method from QuizService to determine if the selected answer is correct
+    const isCorrect = this.quizService.checkIfAnsweredCorrectly(this.currentQuestion, selectedOption);
+
+    // Assuming each question has an explanationText property
+    const explanationText = this.currentQuestion.explanationText;
+
+    // Use your QuizStateService to update the state for the current question
+    this.quizStateService.setQuestionState(this.currentQuestionIndex, true, isCorrect, explanationText);
+
+    // Fetch the current quiz to determine the next steps
     const currentQuiz: Quiz = await firstValueFrom(this.selectedQuiz);
+
+    // Check if this is the last question
     if (this.currentQuestionIndex === currentQuiz.questions.length - 1) {
-      await firstValueFrom(this.quizDataService.submitQuiz(this.quizService.selectedQuiz));
-      this.router.navigate(['quiz', 'result']); // or just results?
+      // Submit the quiz and navigate to the results page
+      await firstValueFrom(this.quizDataService.submitQuiz(currentQuiz));
+      this.router.navigate(['quiz', 'result']); // Adjust the route as needed
     } else {
+      // Move to the next question
       this.currentQuestionIndex++;
       this.currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
     }
