@@ -1273,31 +1273,31 @@ export class QuizService implements OnDestroy {
 
   async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
-        const quizId = this.quizId;
-        const questionObjects: any[] = await this.fetchAndSetQuestions(quizId);
-        const questions: QuizQuestion[] = questionObjects[0].questions;
+      const quizId = this.quizId;
+      const questionObjects: any[] = await this.fetchAndSetQuestions(quizId);
+      const questions: QuizQuestion[] = questionObjects[0].questions;
 
-        if (!questions || questions.length === 0) {
-            console.error('No questions found');
-            return []; // Return an empty array to indicate no questions were found
-        }
+      if (!questions || questions.length === 0) {
+        console.error('No questions found');
+        return [];
+      }
 
-        // Calculate correct answers
-        const correctAnswers = this.calculateCorrectAnswers(questions);
-        this.correctAnswersSubject.next(correctAnswers);
+      // Calculate correct answers
+      const correctAnswers = this.calculateCorrectAnswers(questions);
+      this.correctAnswersSubject.next(correctAnswers);
 
-        // Initialize combined question data
-        await this.initializeCombinedQuestionData();
+      // Initialize combined question data
+      await this.initializeCombinedQuestionData();
 
-        // Set correct answers for questions
-        this.setCorrectAnswersForQuestions(questions, correctAnswers);
+      // Set correct answers for questions
+      this.setCorrectAnswersForQuestions(questions, correctAnswers);
 
-        this.correctAnswersLoadedSubject.next(true);
+      this.correctAnswersLoadedSubject.next(true);
 
-        return questions; // Return the prepared questions
+      return questions;
     } catch (error) {
-        console.error('Error fetching quiz questions:', error);
-        return []; // Return an empty array in case of an error
+      console.error('Error fetching quiz questions:', error);
+      return [];
     }
   }
 

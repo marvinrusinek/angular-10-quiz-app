@@ -326,7 +326,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private async loadQuizQuestions(): Promise<void> {
+    this.isLoading = true;
     const questions = await this.quizService.fetchQuizQuestions();
+    
+    if (questions.length > 0) {
+        // Update component's state with the fetched questions, for example, this.questions = questions;
+
+        // Display explanation texts for previously answered questions, if applicable
+        questions.forEach((question, index) => {
+          const state = this.quizStateService.getQuestionState(question.id);
+          if (state?.isAnswered) {
+            // Logic to display the explanation text for this question
+            // For example, this.explanations[index] = question.explanationText;
+          }
+        });
+    } else {
+      console.error('No questions were loaded');
+    }
     this.isLoading = false;
   }
 
