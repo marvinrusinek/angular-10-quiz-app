@@ -55,6 +55,7 @@
           ></codelab-question-multiple-answer>
 
           <codelab-question-single-answer *ngSwitchCase="'single'"
+            [form]="questionForm"
             [data]="data"
             [question]="questionToDisplay"
             [questions]="questions"
