@@ -172,6 +172,19 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanation$.next(newExplanation);
   }
 
+  getFormattedExplanation(questionId: number): string {
+    const explanation = this.formattedExplanations[questionId];
+    if (explanation) {
+      return explanation.toString();
+    }
+    return 'No explanation available.';
+  }
+
+  updateActiveFormattedExplanation(questionId: number): void {
+    const explanationText = this.getFormattedExplanation(questionId);
+    this.formattedExplanation$.next(explanationText);
+  }
+
   toggleExplanationDisplay(shouldDisplay: boolean): void {
     this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
