@@ -581,7 +581,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-
   updateQuestionDisplay(questionIndex: number): void {
     // Check if the index is within the bounds of the questions array
     if (this.questions && questionIndex >= 0 && questionIndex < this.questions.length) {
