@@ -331,19 +331,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (storedState) {
       storedState.forEach((state, questionId) => {
         if (state.isAnswered) {
-          // Logic to display explanation text for the answered question
-          // Make sure to define how you plan to display the explanation text,
-          // for example, updating a property that is bound to your template
-          this.displayExplanation(questionId, state.explanationText);
+          this.storeExplanationText(questionId, state.explanationText);
         }
       });
     }
   }
 
-  private displayExplanation(questionId: number, explanationText: string): void {
-    this.explanations[questionId] = explanationText;
+  storeExplanationText(questionId: number, explanationText: string): void {
+    this.explanationTextService.explanationTexts[questionId] = explanationText;
   }
-
 
   private subscribeToRouteParams(): void {
     this.activatedRoute.paramMap
