@@ -1135,6 +1135,31 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return this.selectedOption === option;
   }
 
+  async onSubmit(): Promise<void> {
+    if (this.questionForm.invalid) {
+      return;
+    }
+    const selectedOption = this.questionForm.get('selectedOption').value;
+    if (selectedOption === null) {
+      return;
+    }
+
+    this.answers.push({
+      question: this.currentQuestion,
+      questionIndex: this.currentQuestionIndex,
+      selectedOption: selectedOption
+    });
+
+    if (this.currentQuestionIndex === this.selectedQuiz.questions.length - 1) {
+      await firstValueFrom(this.quizDataService.submitQuiz(this.selectedQuiz));
+      this.router.navigate(['quiz', 'result']); // or just results?
+    } else {
+      this.currentQuestionIndex++;
+      this.currentQuestion =
+        this.selectedQuiz.questions[this.currentQuestionIndex];
+    }
+  }
+
   // not called anywhere...
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
