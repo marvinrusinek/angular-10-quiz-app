@@ -8,7 +8,7 @@ import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/o
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuizStatus } from '../../shared/models/quiz-status.enum';
 import { QuestionType } from '../../shared/models/question-type.enum';
-
+import { QuestionState } from '../../shared/models/QuestionState.model';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
@@ -318,22 +318,23 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.subscribeToRouteParams();
   }
 
-  private prepareQuizSession(): void {
+  private async prepareQuizSession(): Promise<void> {
     // Set up initial state
     this.currentQuestionIndex = 0;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.setCurrentQuizForQuizId(this.quizId);
+    await this.setCurrentQuizForQuizId(this.quizId); // Ensure quiz is set, might need to be async
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.explanationTextService.resetProcessedQuestionsState();
 
     // Load and apply stored state
     const storedState = this.quizStateService.getStoredState(this.quizId);
     if (storedState) {
-      storedState.forEach((state, questionId) => {
-        if (state.isAnswered) {
-          this.storeExplanationText(questionId, state.explanationText);
-        }
-      });
+        Object.entries(storedState).forEach(([questionId, state]) => {
+            const questionState = state as QuestionState; // Cast to your QuestionState type
+            if (questionState.isAnswered && questionState.explanationText) {
+                this.storeExplanationText(+questionId, questionState.explanationText);
+            }
+        });
     }
   }
 

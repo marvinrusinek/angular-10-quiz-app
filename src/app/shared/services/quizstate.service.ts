@@ -2,15 +2,9 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, throwError } from 'rxjs/operators';
 
+import { QuestionState } from '../../shared/models/QuestionState.model';
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-
-interface QuestionState {
-  isAnswered: boolean;
-  numberOfCorrectAnswers: number;
-  selectedOptions: string[];
-  explanationDisplayed?: boolean;
-}
 
 @Injectable({
   providedIn: 'root'
