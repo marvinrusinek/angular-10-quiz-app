@@ -660,15 +660,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     return question.selectedOptions && question.selectedOptions.length > 0;
   }
 
-  /* initializeQuestionStreams(): void {
-    // Initialize questions stream
-    this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
-
-    // Initialize next question and options streams (utilized in binding to the template)
-    const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
-    const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
-  } */
-
   initializeQuestionStreams(): void {
     // Initialize questions stream
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
@@ -677,21 +668,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (questions) {
         // Reset and set initial state for each question
         questions.forEach((question, index) => {
-          // Assuming you have a method to create a default state for a question
           const defaultState = this.quizStateService.createDefaultQuestionState();
-
-          // Optionally, include logic to set the explanation text in the default state
-          // For instance, if your default state includes a field for explanation text, you might do:
-          // defaultState.explanationText = this.quizDataService.getExplanationTextForQuestion(question.id or index);
-
-          // Use the question index as a unique identifier if there's no 'id' field
           this.quizStateService.setQuestionState(index, defaultState);
         });
 
-        // Additional initialization logic if needed
-        // For example, setting the first question and options to be displayed
-        this.currentQuestionIndex = 0; // Reset to the first question
-        this.setNextQuestionAndOptions(); // Method to update UI with the next question and options
+        this.currentQuestionIndex = 0;
+        this.setNextQuestionAndOptions();
       }
     });
 
