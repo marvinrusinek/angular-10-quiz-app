@@ -650,13 +650,12 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', err);
         this.questionToDisplay = 'Error loading questions.';
         this.optionsToDisplay = [];
-        this.explanationToDisplay = 'Error loading explanation.'; // Handle explanation in case of error
+        this.explanationToDisplay = 'Error loading explanation.';
       }
     });
   }
 
   shouldDisplayExplanationForQuestion(question: QuizQuestion): boolean {
-    // Assuming `selectedOptions` is an array. The question is considered answered if there are any selected options.
     return question.selectedOptions && question.selectedOptions.length > 0;
   }
 
