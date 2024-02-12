@@ -408,10 +408,18 @@ export class QuizService implements OnDestroy {
 
   getQuestionAtIndex(index: number): QuizQuestion | null {
     // Check if the index is within the bounds of the questions array
-    if (index >= 0 && index < this.questions.length) {
+    if (this.questions && index >= 0 && index < this.questions.length) {
       return this.questions[index];
     } else {
       return null;
+    }
+  }
+
+  getQuestionIdAtIndex(index: number): number {
+    if (this.questions && index >= 0 && index < this.questions.length) {
+      return index;
+    } else {
+      return -1;
     }
   }
 
@@ -427,14 +435,6 @@ export class QuizService implements OnDestroy {
       return questionText;
     }
     return undefined;
-  }
-
-  getQuestionIdAtIndex(index: number): number {
-    if (index >= 0 && index < this.questions.length) {
-      return index;
-    } else {
-      return -1;
-    }
   }
 
   getQuizName(segments: any[]): string {
