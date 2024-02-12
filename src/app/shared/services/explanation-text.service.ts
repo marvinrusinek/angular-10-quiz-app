@@ -175,7 +175,7 @@ export class ExplanationTextService implements OnDestroy {
   getFormattedExplanation(questionId: number): string {
     const explanation = this.formattedExplanations[questionId];
     if (explanation) {
-      return explanation.toString();
+      return explanation.explanation;
     }
     return 'No explanation available.';
   }
