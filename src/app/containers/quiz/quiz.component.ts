@@ -13,7 +13,6 @@ import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDa
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
-import { QuizData } from '../../shared/models/quiz-data.interface';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { Resource } from '../../shared/models/Resource.model';
@@ -32,6 +31,10 @@ import { ChangeRouteAnimation } from '../../animations/animations';
 
 type AnimationState = 'animationStarted' | 'none';
 
+interface QuizData {
+  quizId: string;
+  questions: QuizQuestion[];
+}
 
 @Component({
   selector: 'codelab-quiz-component',
