@@ -1173,7 +1173,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizStateService.setQuestionState(this.currentQuestionIndex, {
       isAnswered: true,
       isCorrect: isCorrect,
-      explanationText: explanationText
+      explanationText: explanationText,
+      selectedOptions: [],
+      numberOfCorrectAnswers: 0
     });
 
     // Fetch the current quiz to determine the next steps
