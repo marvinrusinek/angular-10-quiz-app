@@ -484,11 +484,18 @@ export class QuizService implements OnDestroy {
   isAnswered(questionIndex: number): boolean {
     const answer = this.answers[questionIndex];
     // For multiple-answer questions, check if any options have been selected
-    if (answer && typeof answer === 'object' && 'questionType' in answer && answer?.questionType === QuestionType.MultipleAnswer) {
+    if (
+      isAnswerValid(answer) &&
+      answer.questionType === QuestionType.MultipleAnswer
+  ) {
       return answer.selectedOptions && answer.selectedOptions.length > 0;
     }
     // For other question types, the existing check might suffice
     return !!answer;
+  }
+
+  isAnswerValid(answer: any): answer is { questionType: string } {
+    return answer !== null && typeof answer === 'object' && 'questionType' in answer;
   }
 
   async checkIfAnsweredCorrectly(): Promise<boolean> {
