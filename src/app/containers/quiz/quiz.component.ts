@@ -334,13 +334,13 @@ export class QuizComponent implements OnInit, OnDestroy {
           // Retrieve the explanation text for the question
           const explanationText = this.explanationTextService.getFormattedExplanation(+questionId);
           // Store or display the explanation text as needed
-          this.storeExplanationText(+questionId, explanationText);
+          this.storeFormattedExplanationText(+questionId, explanationText);
         }
       });
     }
   }
 
-  storeExplanationText(questionId: number, explanationText: string): void {
+  storeFormattedExplanationText(questionId: number, explanationText: string): void {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
   }
 
