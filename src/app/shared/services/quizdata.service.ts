@@ -1,39 +1,14 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
-import {
-  BehaviorSubject,
-  combineLatest,
-  firstValueFrom,
-  Observable,
-  of,
-  ReplaySubject,
-  Subject
-} from 'rxjs';
-import {
-  catchError,
-  delay,
-  distinctUntilChanged,
-  filter,
-  map,
-  retryWhen,
-  shareReplay,
-  switchMap,
-  take,
-  takeUntil,
-  tap
-} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { catchError, delay, distinctUntilChanged, filter, map, retryWhen, shareReplay, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
+import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-
-enum QuestionType {
-  SingleAnswer = 'single_answer',
-  MultipleAnswer = 'multiple_answer',
-  TrueFalse = 'true_false'
-}
 
 @Injectable({
   providedIn: 'root'
