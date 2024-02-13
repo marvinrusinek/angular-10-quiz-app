@@ -156,7 +156,8 @@ export class QuizStateService {
     return this.quizQuestionCreated;
   }
 
+  /* not being used, potentially remove...
   updateCorrectAnswersText(newText: string): void {
     this.correctAnswersTextSource.next(newText);
-  }
+  } */
 }
