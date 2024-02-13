@@ -40,6 +40,12 @@ export class QuizStateService {
     return stateJSON ? JSON.parse(stateJSON) as QuestionState : null;
   }
 
+  // Method to set or update the state for a question
+  setQuestionState(questionId: number, state: QuestionState): void {
+    console.log(`Setting state for questionId ${questionId}:`, state);
+    this.questionStates.set(questionId, state);
+  }
+
   // Method to get the state of a question by its ID
   getQuestionState(questionId: number): QuestionState {
     console.log(`Getting state for questionId ${questionId}`);
@@ -52,12 +58,6 @@ export class QuizStateService {
     return state;
   }
   
-  // Method to set or update the state for a question
-  setQuestionState(questionId: number, state: QuestionState): void {
-    console.log(`Setting state for questionId ${questionId}:`, state);
-    this.questionStates.set(questionId, state);
-  }
-
   updateQuestionState(
     questionId: number,
     selectedOptionId: number,
