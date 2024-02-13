@@ -26,6 +26,7 @@ import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
+import { QuestionDataType } from '../../shared/models/QuestionType.model';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -483,8 +484,8 @@ export class QuizService implements OnDestroy {
   isAnswered(questionIndex: number): boolean {
     const answer = this.answers[questionIndex];
     // For multiple-answer questions, check if any options have been selected
-    if (answer && answer.questionType === 'multiple-answer') {
-        return answer.selectedOptions && answer.selectedOptions.length > 0;
+    if (answer && answer.questionType === QuestionType.MultipleAnswer) {
+      return answer.selectedOptions && answer.selectedOptions.length > 0;
     }
     // For other question types, the existing check might suffice
     return !!answer;
