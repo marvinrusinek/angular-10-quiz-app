@@ -113,8 +113,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   quiz: Quiz;
   questionsObservableSubscription: Subscription;
   currentQuestionSubscription: Subscription;
-  currentQuestionSource: BehaviorSubject<QuizQuestion | null> =
-    new BehaviorSubject<QuizQuestion | null>(null);
   questionForm: FormGroup = new FormGroup({});
   selectedQuiz = new ReplaySubject<Quiz>(1);
   currentOptions: Option[] | undefined;
@@ -128,13 +126,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   shuffledOptions: Option[];
   explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   displayExplanation = false;
-  isChangeDetected = false;
-  feedbackDisplayed = false;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectionMessage$: Observable<string>;
   correctAnswersLoaded = false;
-  questionDataSubscription: Subscription;
-  multipleAnswerSubscription: Subscription;
   sharedVisibilitySubscription: Subscription;
   isExplanationTextDisplayed = false;
   isNavigatingToPrevious = false;
@@ -219,7 +213,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.destroy$.complete();
     this.questionsObservableSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
-    this.multipleAnswerSubscription?.unsubscribe();
     this.sharedVisibilitySubscription?.unsubscribe();
   }
 
