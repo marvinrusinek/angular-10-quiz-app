@@ -1401,26 +1401,32 @@ export class QuizComponent implements OnInit, OnDestroy {
     return new Observable<void>(observer => {
       this.quizService.resetQuestions(); // Resetting questions
       this.timerService.resetTimer(); // Resetting the timer
-
+  
       // Subscribe to getTotalQuestions() within the new Observable
-      this.quizService.getTotalQuestions().subscribe(totalQuestions => {
-        for (let index = 0; index < totalQuestions; index++) {
-          // Logic to set explanations for each question
-          const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
-          if (explanation) {
-            this.explanationTextService.shouldDisplayExplanationSource.next(true);
-            this.explanationTextService.formattedExplanation$.next(explanation);
+      const subscription = this.quizService.getTotalQuestions().subscribe({
+        next: totalQuestions => {
+          for (let index = 0; index < totalQuestions; index++) {
+            // Logic to set explanations for each question
+            const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
+            if (explanation) {
+              this.explanationTextService.shouldDisplayExplanationSource.next(true);
+              this.explanationTextService.formattedExplanation$.next(explanation);
+            }
           }
+  
+          // Navigation after setting up all explanations
+          this.router.navigate(['/question/', this.quizId, 1]);
+  
+          observer.next(); // Indicate that the Observable has successfully completed
+          observer.complete();
+        },
+        error: error => {
+          observer.error(error); // Propagate any errors
         }
-
-        // Navigation after setting up all explanations
-        this.router.navigate(['/question/', this.quizId, 1]);
-
-        observer.next(); // Indicate that the Observable has successfully completed
-        observer.complete();
-      }, error => {
-        observer.error(error); // Propagate any errors
       });
+  
+      // Returning a function to unsubscribe
+      return () => subscription.unsubscribe();
     });
   }
 
