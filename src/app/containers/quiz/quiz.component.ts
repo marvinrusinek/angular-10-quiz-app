@@ -681,7 +681,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.optionsToDisplay = this.currentQuestion.options;
 
           if (this.shouldDisplayExplanationForQuestion(this.currentQuestion)) {
-            this.explanationToDisplay = this.getExplanationTextForQuestion(0);
+            this.explanationToDisplay = this.getFormattedExplanationTextForQuestion(0);
           }
         } else {
           // Handle the case with no questions available
@@ -1247,7 +1247,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const options = this.quizService.getNextOptions(questionIndex) || [];
 
     // Fetch the explanation text
-    const explanation = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+    const explanation = this.getFormattedExplanationTextForQuestion(questionIndex);
 
     let question: QuizQuestion = { questionText, options, explanation, type: null };
     this.quizDataService.setQuestionType(question);
@@ -1406,7 +1406,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.getTotalQuestions().subscribe(totalQuestions => {
         for (let index = 0; index < totalQuestions; index++) {
           // Logic to set explanations for each question
-          const explanation = this.getExplanationTextForQuestion(index);
+          const explanation = this.getFormattedExplanationTextForQuestion(index);
           if (explanation) {
             this.explanationTextService.shouldDisplayExplanationSource.next(true);
             this.explanationTextService.formattedExplanation$.next(explanation);
@@ -1436,7 +1436,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return of(null); // Complete the observable
   }
 
-  getExplanationTextForQuestion(index: number): string {
+  getFormattedExplanationTextForQuestion(index: number): string {
     // Convert the record's keys to an array of numbers and check if the index is a valid key
     const keys = Object.keys(this.explanationTextService.formattedExplanations).map(Number);
 
