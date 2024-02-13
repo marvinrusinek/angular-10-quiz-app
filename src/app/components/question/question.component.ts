@@ -1174,22 +1174,28 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     // Use the checkIfAnsweredCorrectly method from QuizService to determine if the selected answer is correct
-    const isCorrect = this.quizService.checkIfAnsweredCorrectly(this.currentQuestion, selectedOption);
+    const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
 
     // Assuming each question has an explanationText property
     const explanationText = this.currentQuestion.explanation;
 
     // Use your QuizStateService to update the state for the current question
-    this.quizStateService.setQuestionState(this.currentQuestionIndex, true, isCorrect, explanationText);
+    this.quizStateService.setQuestionState(this.currentQuestionIndex, {
+      isAnswered: true,
+      isCorrect: isCorrect,
+      explanationText: explanationText
+    });
 
     // Fetch the current quiz to determine the next steps
     const currentQuiz: Quiz = await firstValueFrom(this.selectedQuiz);
 
     // Check if this is the last question
     if (this.currentQuestionIndex === currentQuiz.questions.length - 1) {
-      // Submit the quiz and navigate to the results page
-      await firstValueFrom(this.quizDataService.submitQuiz(currentQuiz));
-      this.router.navigate(['quiz', 'result']); // Adjust the route as needed
+      // Submit the quiz score and navigate to the results page
+      this.quizService.submitQuizScore(this.answers).subscribe(() => {
+        // Handle the completion logic, like navigating to the results page
+        this.router.navigate(['quiz', 'result']); // Adjust the route as needed
+      });
     } else {
       // Move to the next question
       this.currentQuestionIndex++;

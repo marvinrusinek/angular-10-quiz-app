@@ -837,7 +837,7 @@ export class QuizService implements OnDestroy {
     return this.shouldDisplayExplanation;
   }
 
-  submitQuiz(userAnswers: number[]): Observable<void> {
+  submitQuizScore(userAnswers: number[]): Observable<void> {
     const quizScore: QuizScore = {
       quizId: this.selectedQuiz.quizId,
       attemptDateTime: new Date(),
