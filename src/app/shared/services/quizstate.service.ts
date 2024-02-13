@@ -124,6 +124,10 @@ export class QuizStateService {
     };
   }
 
+  updateCurrentQuestion(newQuestion: QuizQuestion): void {
+    this.currentQuestionSubject.next(newQuestion);
+  }
+
   isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
     try {
       let correctAnswersCount: number;
