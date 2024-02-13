@@ -837,25 +837,6 @@ export class QuizService implements OnDestroy {
     return this.shouldDisplayExplanation;
   }
 
-  /* submitQuiz(): Observable<void> {
-    const quizScore: QuizScore = {
-      quizId: this.selectedQuiz.quizId,
-      attemptDateTime: new Date(),
-      score: this.calculateTotalCorrectAnswers(),
-      totalQuestions: this.questions.length
-    };
-    this.quizScore = quizScore;
-    return this.http.post<void>(`${this.quizUrl}/quiz/scores`, quizScore);
-  } */
-
-  /* calculateTotalCorrectAnswers(): number {
-    let totalCorrect = 0;
-    for (const answerArray of this.correctAnswers.values()) {
-      totalCorrect += answerArray.length;
-    }
-    return totalCorrect;
-  } */
-
   submitQuiz(userAnswers: number[]): Observable<void> {
     const quizScore: QuizScore = {
       quizId: this.selectedQuiz.quizId,
