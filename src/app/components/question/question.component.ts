@@ -336,7 +336,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         questions.forEach((question, index) => {
           const state = this.quizStateService.getQuestionState(index);
           if (state?.isAnswered) {
-            const formattedExplanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
+            const formattedExplanationText: FormattedExplanation = {
+              questionIndex: this.currentQuestionIndex,
+              explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
+            };
             this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
           }
         });
