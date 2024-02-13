@@ -739,6 +739,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Function to load all questions for the current quiz
   private loadQuizQuestions(): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
       this.questions = questions;
@@ -772,6 +773,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   }
 
+  // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
     this.questionSubscription = this.quizService.getCurrentQuestionObservable()
       .pipe(filter((question: QuizQuestion) => question !== null))
