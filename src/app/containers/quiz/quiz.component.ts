@@ -332,20 +332,13 @@ export class QuizComponent implements OnInit, OnDestroy {
         const questionState = state as QuestionState;
         if (questionState.explanationDisplayed) {
           // Retrieve the explanation text for the question
-          const explanationText = this.getExplanationTextForQuestion(+questionId);
+          const explanationText = this.explanationTextService.getFormattedExplanation(+questionId);
           // Store or display the explanation text as needed
           this.storeExplanationText(+questionId, explanationText);
         }
       });
     }
   }
-
-  private getExplanationTextForQuestion(questionId: number): string {
-      // Retrieve and return the explanation text for the given questionId
-      // This might involve fetching the text from the question data or from a separate explanation service
-      return ""; // Placeholder return, adjust based on your data structure
-  }
-
 
   storeExplanationText(questionId: number, explanationText: string): void {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
