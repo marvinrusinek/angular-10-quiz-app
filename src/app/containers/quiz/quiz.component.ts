@@ -167,15 +167,33 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
-    this.checkAndDisplayCorrectAnswers();
-  }
-
-  checkAndDisplayCorrectAnswers(): void {
-    if (this.currentQuestionType === 'multiple-answer' && this.quizService.isAnswered()) {
-      this.shouldDisplayNumberOfCorrectAnswers = true;
+    if (!this.quizService.isAnswered()) {
+      this.checkAndDisplayCorrectAnswers();
     }
   }
 
+  checkAndDisplayCorrectAnswers(): void {
+    // Assuming you have a way to determine the index of the current multiple-answer question
+    const multipleAnswerQuestionIndex = this.findCurrentMultipleAnswerQuestionIndex();
+    if (this.quizService.isAnswered(multipleAnswerQuestionIndex)) {
+        this.shouldDisplayNumberOfCorrectAnswers = true;
+    }
+  }
+
+  findCurrentMultipleAnswerQuestionIndex(): number {
+    if (!this.questions || this.questions.length === 0) {
+      console.error('No questions available');
+      return -1;
+    }
+
+    const currentQuestion = this.questions[this.currentQuestionIndex];
+    if (currentQuestion && currentQuestion.type === QuestionType.MultipleAnswer) {
+      return this.currentQuestionIndex;
+    }
+
+    return -1;
+  }
+  
   ngOnInit(): void {
     // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
@@ -191,6 +209,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.initializeQuestionStreams();
     this.createQuestionData();
+
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
+      this.questions = questions;
+    });
 
     this.questionSubscription = this.quizService.getCurrentQuestionObservable().subscribe(question => {
       this.currentQuestionType = question.type;
