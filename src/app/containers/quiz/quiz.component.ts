@@ -167,7 +167,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
-      this.checkAndDisplayCorrectAnswers();
+    this.checkAndDisplayCorrectAnswers();
   }
 
   checkAndDisplayCorrectAnswers(): void {
@@ -209,6 +209,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuiz$.next(null);
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription.unsubscribe();
+    this.questionSubscription.unsubscribe();
     this.timerService.stopTimer(null);
   }
 
