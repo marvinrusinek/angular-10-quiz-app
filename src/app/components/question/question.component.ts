@@ -134,18 +134,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   selectionMessage$: Observable<string>;
   correctAnswersLoaded = false;
   questionDataSubscription: Subscription;
-  isExplanationTextDisplayed = false;
-
-  isNavigatingToPrevious = false;
-  isLoading = true;
-
-  private initialized = false;
-  private destroy$: Subject<void> = new Subject<void>();
-
   multipleAnswerSubscription: Subscription;
   sharedVisibilitySubscription: Subscription;
-
+  isExplanationTextDisplayed = false;
+  isNavigatingToPrevious = false;
+  isLoading = true;
   isPaused = false;
+  private initialized = false;
+  
+  private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
     protected quizService: QuizService,
