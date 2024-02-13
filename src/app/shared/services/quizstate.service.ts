@@ -120,22 +120,6 @@ export class QuizStateService {
     };
   }
 
-  updateCorrectAnswersText(newText: string): void {
-    this.correctAnswersTextSource.next(newText);
-  }
-
-  getCurrentQuestion(): Observable<QuizQuestion> {
-    return this.currentQuestion$;
-  }
-
-  updateCurrentQuestion(newQuestion: QuizQuestion): void {
-    this.currentQuestionSubject.next(newQuestion);
-  }
-
-  setCurrentOptions(options: Option[]): void {
-    this.currentOptions$ = of(options);
-  }
-
   isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
     try {
       let correctAnswersCount: number;
@@ -162,5 +146,9 @@ export class QuizStateService {
 
   getQuizQuestionCreated(): boolean {
     return this.quizQuestionCreated;
+  }
+
+  updateCorrectAnswersText(newText: string): void {
+    this.correctAnswersTextSource.next(newText);
   }
 }
