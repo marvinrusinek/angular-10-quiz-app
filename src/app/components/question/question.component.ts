@@ -1177,7 +1177,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const isCorrect = this.quizService.checkIfAnsweredCorrectly(this.currentQuestion, selectedOption);
 
     // Assuming each question has an explanationText property
-    const explanationText = this.currentQuestion.explanationText;
+    const explanationText = this.currentQuestion.explanation;
 
     // Use your QuizStateService to update the state for the current question
     this.quizStateService.setQuestionState(this.currentQuestionIndex, true, isCorrect, explanationText);
