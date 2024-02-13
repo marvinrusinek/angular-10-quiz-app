@@ -26,6 +26,7 @@ import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
+import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
@@ -37,12 +38,6 @@ import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.mod
 import { Resource } from '../../shared/models/Resource.model';
 
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
-
-enum QuizRoutes {
-  INTRO = '/intro/',
-  QUESTION = '/question/',
-  RESULTS = '/results/'
-}
 
 @Injectable({
   providedIn: 'root'
