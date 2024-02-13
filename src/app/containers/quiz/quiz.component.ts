@@ -216,7 +216,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.questionSubscription = this.quizService.getCurrentQuestionObservable()
       .pipe(filter(question => question !== null))
-      .subscribe(question => {
+      .subscribe((question: QuizQuestion) => {
         this.currentQuestionType = question.type;
       });
 
