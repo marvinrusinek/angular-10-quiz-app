@@ -37,10 +37,7 @@ export class QuizStateService {
 
   getStoredState(quizId: string): any {
     const stateJSON = localStorage.getItem(`quizState_${quizId}`);
-    if (stateJSON) {
-      return JSON.parse(stateJSON);
-    }
-    return null;
+    return stateJSON ? JSON.parse(stateJSON) : null;
   }
 
   // Method to get the state of a question by its ID
