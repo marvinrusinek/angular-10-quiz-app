@@ -681,7 +681,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.optionsToDisplay = this.currentQuestion.options;
 
           if (this.shouldDisplayExplanationForQuestion(this.currentQuestion)) {
-            this.explanationToDisplay = this.getFormattedExplanationTextForQuestion(0);
+            this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(0);
           }
         } else {
           // Handle the case with no questions available
@@ -1247,7 +1247,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const options = this.quizService.getNextOptions(questionIndex) || [];
 
     // Fetch the explanation text
-    const explanation = this.getFormattedExplanationTextForQuestion(questionIndex);
+    const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
 
     let question: QuizQuestion = { questionText, options, explanation, type: null };
     this.quizDataService.setQuestionType(question);
@@ -1406,7 +1406,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.getTotalQuestions().subscribe(totalQuestions => {
         for (let index = 0; index < totalQuestions; index++) {
           // Logic to set explanations for each question
-          const explanation = this.getFormattedExplanationTextForQuestion(index);
+          const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
           if (explanation) {
             this.explanationTextService.shouldDisplayExplanationSource.next(true);
             this.explanationTextService.formattedExplanation$.next(explanation);
@@ -1434,21 +1434,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.formattedExplanations[index] = formattedExplanation;
 
     return of(null); // Complete the observable
-  }
-
-  getFormattedExplanationTextForQuestion(index: number): string {
-    // Convert the record's keys to an array of numbers and check if the index is a valid key
-    const keys = Object.keys(this.explanationTextService.formattedExplanations).map(Number);
-
-    if (keys.includes(index)) {
-      // Retrieve the formatted explanation using the index
-      const formattedExplanation = this.explanationTextService.formattedExplanations[index];
-
-      // Return the explanation text, or a default message if it's not available
-      return formattedExplanation ? formattedExplanation.explanation : 'No explanation available';
-    } else {
-      return 'Question index out of bounds or no explanation available';
-    }
   }
 
   /* sendValuesToQuizService(): void {
