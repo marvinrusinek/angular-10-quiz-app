@@ -206,10 +206,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.initializeQuiz();
 
     // Fetch and display the current question
-    this.getQuestion();
     this.initializeQuestionStreams();
     this.loadQuizQuestions();
     this.createQuestionData();
+    this.getQuestion();
     this.subscribeToCurrentQuestion();
 
     /* this.quizService.getCorrectAnswersText().pipe(
