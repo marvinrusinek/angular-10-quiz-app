@@ -62,7 +62,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   isMultiple = true;
   showExplanation = false;
   showFeedback = false;
-  displayOptions: Option[];
   private destroyed$ = new Subject<void>();
 
   constructor(
@@ -113,8 +112,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
       this.question
     );
     console.log('CodelabQuizMultipleAnswerComponent - Options:', this.options);
-
-    this.displayOptions = this.getDisplayOptions();
 
     if (this.currentQuestion && !this.currentQuestion.selectedOptions) {
       this.currentQuestion.selectedOptions = [];

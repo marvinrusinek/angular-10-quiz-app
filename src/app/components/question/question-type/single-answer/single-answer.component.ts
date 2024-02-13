@@ -46,7 +46,6 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   options$: Observable<Option[]>;
   optionChecked: { [optionId: number]: boolean } = {};
   showFeedback = false;
-  displayOptions: Option[];
 
   private destroyed$ = new Subject<void>();
 
@@ -91,8 +90,6 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
 
   async ngOnInit(): Promise<void> {
     console.log('options in codelab-question-single-answer', this.options); // not working
-
-    this.displayOptions = this.getDisplayOptions();
 
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
