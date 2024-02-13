@@ -1567,5 +1567,5 @@ export class QuizService implements OnDestroy {
     } else {
       this.incorrectSound.play();
     }
-  }
+  } 
 }
