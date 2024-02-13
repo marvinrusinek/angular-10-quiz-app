@@ -193,7 +193,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     return -1;
   }
-  
+
   ngOnInit(): void {
     // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
@@ -214,9 +214,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questions = questions;
     });
 
-    this.questionSubscription = this.quizService.getCurrentQuestionObservable().subscribe(question => {
-      this.currentQuestionType = question.type;
-    });
+    this.questionSubscription = this.quizService.getCurrentQuestionObservable()
+      .pipe(filter(question => question !== null))
+      .subscribe(question => {
+        this.currentQuestionType = question.type;
+      });
 
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
