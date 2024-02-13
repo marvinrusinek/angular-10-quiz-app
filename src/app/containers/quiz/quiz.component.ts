@@ -362,7 +362,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         if (questionState.explanationDisplayed) {
           // Retrieve the explanation text for the question
           const explanationText = this.explanationTextService.getFormattedExplanation(+questionId);
-          // Store or display the explanation text as needed
+          // Store the explanation text
           this.storeFormattedExplanationText(+questionId, explanationText);
         }
       });
