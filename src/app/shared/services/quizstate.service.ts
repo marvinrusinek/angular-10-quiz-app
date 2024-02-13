@@ -86,22 +86,6 @@ export class QuizStateService {
     this.setQuestionState(questionId, currentState);
   }
 
-  showExplanationForQuestion(questionId: number) {
-    let currentState = this.getQuestionState(questionId) || this.createDefaultQuestionState();
-    currentState.explanationDisplayed = true; // Explicitly set explanation to be displayed
-  
-    this.setQuestionState(questionId, currentState); // Save the updated state
-  }  
-
-  createDefaultQuestionState(): QuestionState {
-    return {
-      isAnswered: false,
-      numberOfCorrectAnswers: 0,
-      selectedOptions: [],
-      explanationDisplayed: false
-    };
-  }
-
   updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
     if (question$ === null || question$ === undefined) {
       throwError('Question$ is null or undefined.');
@@ -125,6 +109,15 @@ export class QuizStateService {
         console.log('No options found.');
       }
     });
+  }
+
+  createDefaultQuestionState(): QuestionState {
+    return {
+      isAnswered: false,
+      numberOfCorrectAnswers: 0,
+      selectedOptions: [],
+      explanationDisplayed: false
+    };
   }
 
   updateCorrectAnswersText(newText: string): void {
