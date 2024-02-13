@@ -70,12 +70,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuestion$!: Observable<QuizQuestion | null>;
   currentQuestionWithOptions$: Observable<QuizQuestion>;
   currentQuestionText: string = '';
+  currentQuestionType: string;
   currentOptions: Option[] = [];
   options$: Observable<Option[]>;
   currentQuiz: Quiz;
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject(null);
   selectedQuizSubscription: Subscription;
   routerSubscription: Subscription;
+  questionSubscription: Subscription;
   resources: Resource[];
   answers = [];
   answered = false;
@@ -163,10 +165,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  /* @HostListener('window:focus', ['$event'])
+  @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
-    console.log('Tab focused. Current question:', this.currentQuestion);
-  } */
+      this.checkAndDisplayCorrectAnswers();
+  }
+
+  checkAndDisplayCorrectAnswers(): void {
+    if (this.currentQuestionType === 'multiple-answer' && this.quizService.isAnswered()) {
+      this.shouldDisplayNumberOfCorrectAnswers = true;
+    }
+  }
 
   ngOnInit(): void {
     // Subscribe to router events and initialize
@@ -183,6 +191,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.initializeQuestionStreams();
     this.createQuestionData();
+
+    this.questionSubscription = this.quizService.getCurrentQuestionObservable().subscribe(question => {
+      this.currentQuestionType = question.type;
+    });
 
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)

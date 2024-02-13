@@ -652,6 +652,10 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  getCurrentQuestionObservable(): Observable<QuizQuestion> {
+    return this.currentQuestion.asObservable();
+  }
+
   getCurrentQuestionIndexObservable(): Observable<number> {
     return this.currentQuestionIndexSubject.asObservable();
   }
