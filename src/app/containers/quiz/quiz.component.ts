@@ -208,17 +208,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Fetch and display the current question
     this.getQuestion();
     this.initializeQuestionStreams();
+    this.loadQuizQuestions();
     this.createQuestionData();
-
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
-      this.questions = questions;
-    });
-
-    this.questionSubscription = this.quizService.getCurrentQuestionObservable()
-      .pipe(filter((question: QuizQuestion) => question !== null))
-      .subscribe((question: QuizQuestion) => {
-        this.currentQuestionType = question.type;
-      });
+    this.subscribeToCurrentQuestion();
 
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
@@ -747,6 +739,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
+  private loadQuizQuestions(): void {
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
+      this.questions = questions;
+    });
+  }
+
   createQuestionData(): void {
     const createQuestionData = (question: QuizQuestion | null, options: Option[] | null) => ({
       questionText: question?.questionText ?? null,
@@ -772,6 +770,14 @@ export class QuizComponent implements OnInit, OnDestroy {
             )
       )
     );
+  }
+
+  private subscribeToCurrentQuestion(): void {
+    this.questionSubscription = this.quizService.getCurrentQuestionObservable()
+      .pipe(filter((question: QuizQuestion) => question !== null))
+      .subscribe((question: QuizQuestion) => {
+        this.currentQuestionType = question.type;
+      });
   }
 
   handleOptions(options: Option[]): void {
