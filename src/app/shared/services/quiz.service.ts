@@ -485,18 +485,18 @@ export class QuizService implements OnDestroy {
     const answer = this.answers[questionIndex];
     // For multiple-answer questions, check if any options have been selected
     if (
-        this.isAnswerValid(answer) &&
-        answer?.questionType === QuestionType.MultipleAnswer
+      this.isAnswerValid(answer) &&
+      answer?.questionType === QuestionType.MultipleAnswer
     ) {
-        const selectedOptionsArray = this.selectedOptions[questionIndex] as unknown as any[];
-        return !!(
-            answer &&
-            this.selectedOptions &&
-            Array.isArray(selectedOptionsArray) &&
-            selectedOptionsArray.length > 0
-        );
+      const selectedOptionsArray = this.selectedOptions[questionIndex] as unknown as any[];
+      return !!(
+        answer &&
+        this.selectedOptions &&
+        Array.isArray(selectedOptionsArray) &&
+        selectedOptionsArray.length > 0
+      );
     }
-    // For other question types, the existing check might suffice
+    
     return !!answer;
   }
 
