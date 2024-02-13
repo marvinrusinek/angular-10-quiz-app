@@ -1313,14 +1313,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  submitQuiz() {
-    this.quizDataService.submitQuiz(this.quiz).subscribe(() => {
-      this.status = QuizStatus.COMPLETED;
-      // this.quizService.resetQuiz(); ???
-      this.router.navigate([QuizRoutes.RESULTS]);
-    });
-  }
-
   private resetQuestionState(): void {
     this.currentQuestion = null;
     this.questionToDisplay = '';
