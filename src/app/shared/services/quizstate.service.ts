@@ -31,13 +31,13 @@ export class QuizStateService {
     this.questionStates = new Map<number, QuestionState>();
   }
 
-  saveState(quizId: string, state: any): void {
+  saveState(quizId: string, state: QuestionState): void {
     localStorage.setItem(`quizState_${quizId}`, JSON.stringify(state));
   }
 
-  getStoredState(quizId: string): any {
+  getStoredState(quizId: string): QuestionState | null {
     const stateJSON = localStorage.getItem(`quizState_${quizId}`);
-    return stateJSON ? JSON.parse(stateJSON) : null;
+    return stateJSON ? JSON.parse(stateJSON) as QuestionState : null;
   }
 
   // Method to get the state of a question by its ID
