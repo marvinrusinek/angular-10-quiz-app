@@ -3,8 +3,7 @@ import {
   Component,
   Input,
   OnInit,
-  OnDestroy,
-  NgZone,
+  OnDestroy
 } from '@angular/core';
 import {
   BehaviorSubject,
@@ -12,15 +11,14 @@ import {
   Observable,
   of,
   Subject,
-  Subscription,
-  timer,
+  Subscription
 } from 'rxjs';
 import {
   catchError,
   distinctUntilChanged,
   map,
   switchMap,
-  takeUntil,
+  takeUntil
 } from 'rxjs/operators';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -46,18 +44,14 @@ export class ScoreComponent implements OnInit, OnDestroy {
   isPercentage = false;
   percentage = 0;
 
-  currentScore = '';
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>(
     this.numericalScore
-  );
-  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
-    ''
   );
   subscription: Subscription;
 
   private unsubscribeTrigger$: Subject<void> = new Subject<void>();
 
-  constructor(private quizService: QuizService, private ngZone: NgZone) {
+  constructor(private quizService: QuizService) {
     this.totalQuestions$ = this.quizService.getTotalQuestions();
   }
 
@@ -67,7 +61,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
     this.subscription = combineLatest([
       this.correctAnswersCount$.pipe(
         takeUntil(this.unsubscribeTrigger$),
-        distinctUntilChanged(),
+        distinctUntilChanged()
       ),
       this.quizService.getAllQuestions().pipe(
         switchMap((questions: QuizQuestion[]) =>
