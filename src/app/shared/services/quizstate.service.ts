@@ -31,13 +31,18 @@ export class QuizStateService {
     this.questionStates = new Map<number, QuestionState>();
   }
 
-  saveState(quizId: string, state: QuestionState): void {
-    localStorage.setItem(`quizState_${quizId}`, JSON.stringify(state));
+  saveState(quizId: string): void {
+    const stateObject = Object.fromEntries(this.questionStates);
+    localStorage.setItem(`quizState_${quizId}`, JSON.stringify(stateObject));
   }
 
-  getStoredState(quizId: string): QuestionState | null {
+  getStoredState(quizId: string): Map<number, QuestionState> | null {
     const stateJSON = localStorage.getItem(`quizState_${quizId}`);
-    return stateJSON ? JSON.parse(stateJSON) as QuestionState : null;
+    if (stateJSON) {
+      const stateObject = JSON.parse(stateJSON);
+      return new Map(Object.entries(stateObject).map(([key, value]) => [Number(key), value]));
+    }
+    return null;
   }
 
   // Method to set or update the state for a question
