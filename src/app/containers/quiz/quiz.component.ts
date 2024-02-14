@@ -339,6 +339,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private async prepareQuizSession(): Promise<void> {
+    console.log("prepareQuizSession() called");
     this.currentQuestionIndex = 0;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.setCurrentQuizForQuizId(this.quizId);
@@ -346,7 +347,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.resetProcessedQuestionsState();
 
     // Load and apply stored state
+    console.log("Quiz ID:", this.quizId);
     const storedState = this.quizStateService.getStoredState(this.quizId);
+    console.log("Retrieved stored state:", storedState);
     if (storedState) {
       Object.entries(storedState).forEach(([questionId, state]) => {
         const questionState = state as QuestionState;
@@ -359,6 +362,8 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.storeFormattedExplanationText(+questionId, explanationText);
         }
       });
+    } else {
+      console.log("No stored state found for quizId:", this.quizId);
     }
   }
 
