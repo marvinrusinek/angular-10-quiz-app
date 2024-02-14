@@ -495,6 +495,10 @@ export class QuizService implements OnDestroy {
   } */
 
   isAnswered(questionIndex: number): boolean {
+    if (!this.answers || questionIndex < 0 || questionIndex >= this.answers.length) {
+      return false;  // Answers array is not initialized or index is out of bounds
+    }
+
     const answer = this.answers[questionIndex];
     // For multiple-answer questions, check if any options have been selected
     if (
