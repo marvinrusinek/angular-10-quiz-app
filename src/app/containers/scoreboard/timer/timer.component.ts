@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { concat, Observable } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
@@ -15,14 +8,14 @@ import { StopwatchService } from '../../../shared/services/stopwatch.service';
 
 enum TimerType {
   Countdown = 'countdown',
-  Stopwatch = 'stopwatch',
+  Stopwatch = 'stopwatch'
 }
 
 @Component({
   selector: 'codelab-scoreboard-timer',
   templateUrl: './timer.component.html',
   styleUrls: ['./timer.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimerComponent implements OnInit, OnChanges {
   @Input() selectedAnswer: number;
@@ -69,7 +62,7 @@ export class TimerComponent implements OnInit, OnChanges {
     }
   }
 
-  setTimerType(type: TimerType) {
+  setTimerType(type: TimerType): void {
     switch (type) {
       case TimerType.Countdown:
         this.timeLeft$ = this.countdownService.startCountdown();
