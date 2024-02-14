@@ -918,7 +918,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return numberOfCorrectAnswers;
   }
 
-  loadExplanationTextForCurrentQuestion(): void { // move to ETService??
+  loadExplanationTextForCurrentQuestion(): void {
     this.explanationText = '';
     const currentQuestion = this.quizData[this.currentQuestionIndex];
 
