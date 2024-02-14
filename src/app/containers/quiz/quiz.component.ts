@@ -345,16 +345,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.setCurrentQuizForQuizId(this.quizId);
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.explanationTextService.resetProcessedQuestionsState();
-
+  
     // Load and apply stored state
     console.log("Quiz ID:", this.quizId);
-    const storedState = this.quizStateService.getStoredState(this.quizId);
-    console.log("Retrieved stored state:", storedState);
-    if (storedState) {
-      Object.entries(storedState).forEach(([questionId, state]) => {
-        const questionState = state as QuestionState;
-        console.log(`Restoring state for question ${questionId}`, questionState);
-        if (questionState.isAnswered && questionState.explanationDisplayed) {
+    const storedStates = this.quizStateService.getStoredState(this.quizId);
+    console.log("Retrieved stored state:", storedStates);
+    if (storedStates) {
+      storedStates.forEach((state, questionId) => {
+        this.quizStateService.setQuestionState(questionId, state);
+        console.log(`Restoring state for question ${questionId}`, state);
+        if (state.isAnswered && state.explanationDisplayed) {
           // Retrieve the explanation text for the question
           const explanationText = this.explanationTextService.getFormattedExplanation(+questionId);
           console.log(`Restoring explanation for question ${questionId}: ${explanationText}`);
