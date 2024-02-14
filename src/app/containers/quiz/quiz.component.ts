@@ -350,7 +350,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (storedState) {
       Object.entries(storedState).forEach(([questionId, state]) => {
         const questionState = state as QuestionState;
+        console.log(`Restoring state for question ${questionId}`, questionState);
         if (questionState.isAnswered && questionState.explanationDisplayed) {
+          console.log(`Restoring explanation for question ${questionId}: ${explanationText}`);
           // Retrieve the explanation text for the question
           const explanationText = this.explanationTextService.getFormattedExplanation(+questionId);
           // Store the explanation text
