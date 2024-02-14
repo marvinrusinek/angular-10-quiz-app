@@ -896,17 +896,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Options after setting:', options);
   }
 
-  // not called anywhere...
-  updateCardFooterClass(): void {
-    if (this.multipleAnswer && !this.isQuestionAnswered()) {
-      this.cardFooterClass = 'multiple-unanswered';
-    } else if (!this.multipleAnswer && !this.isQuestionAnswered()) {
-      this.cardFooterClass = 'single-unanswered';
-    } else {
-      this.cardFooterClass = '';
-    }
-  }
-
   private updateProgressValue(): void {
     if (this.questionIndex !== 0 && this.totalQuestions !== 0) {
       this.progressValue = Math.round(
