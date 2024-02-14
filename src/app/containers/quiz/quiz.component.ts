@@ -483,13 +483,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* potentially remove: not being used...
-  onSelectionChange(questionIndex: number, answerIndex: number): void {
-    this.selectedAnswerIndex = answerIndex;
-    this.answers[questionIndex] =
-      this.questions[questionIndex].options[answerIndex];
-  } */
-
   setCurrentQuizForQuizId(quizId: string): void {
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     this.quizDataService.currentQuizId = quizId;
