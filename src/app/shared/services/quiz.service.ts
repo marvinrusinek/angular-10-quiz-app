@@ -337,6 +337,24 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  // Helper function to find a quiz by quizId
+  private findQuizByQuizId(quizId: string): Quiz | undefined {
+    // Find the quiz by quizId within the quizData array
+    const foundQuiz = this.quizData.find(quiz => quiz.quizId === quizId);
+
+    // If a quiz is found and it's indeed a Quiz (as checked by this.isQuiz), return it
+    if (foundQuiz && this.isQuiz(foundQuiz)) {
+      return foundQuiz as Quiz;
+    }
+
+    return undefined;
+  }
+
+  // Type guard function to check if an object is of type Quiz
+  private isQuiz(item: any): item is Quiz {
+    return typeof item === 'object' && 'quizId' in item;
+  }
+
   initializeData(): void {
     this.quizData = QUIZ_DATA || [];
     if (QUIZ_DATA) {

@@ -64,7 +64,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   questions$: Observable<QuizQuestion[]>;
   currentQuestion: QuizQuestion;
   currentQuestion$!: Observable<QuizQuestion | null>;
-  currentQuestionText: string = '';
   currentQuestionType: string;
   currentOptions: Option[] = [];
   options$: Observable<Option[]>;
@@ -503,7 +502,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private initializeQuizState(): void {
     // Find the current quiz object by quizId
-    const currentQuiz = this.findQuizByQuizId(this.quizId);
+    const currentQuiz = this.quizService.findQuizByQuizId(this.quizId);
     if (!currentQuiz) {
       console.error(`Quiz not found: Quiz ID ${this.quizId}`);
       return;
@@ -545,24 +544,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedOption$.next(null);
     this.explanationTextService.explanationText$.next('');
     this.cdRef.detectChanges();
-  }
-
-  // Helper function to find a quiz by quizId
-  private findQuizByQuizId(quizId: string): Quiz | undefined {
-    // Find the quiz by quizId within the quizData array
-    const foundQuiz = this.quizData.find(quiz => quiz.quizId === quizId);
-
-    // If a quiz is found and it's indeed a Quiz (as checked by this.isQuiz), return it
-    if (foundQuiz && this.isQuiz(foundQuiz)) {
-      return foundQuiz as Quiz;
-    }
-
-    return undefined;
-  }
-
-  // Type guard function to check if an object is of type Quiz
-  private isQuiz(item: any): item is Quiz {
-    return typeof item === 'object' && 'quizId' in item;
   }
 
   subscribeRouterAndInit(): void {
