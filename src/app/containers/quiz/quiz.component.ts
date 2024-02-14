@@ -64,14 +64,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   questions$: Observable<QuizQuestion[]>;
   currentQuestion: QuizQuestion;
   currentQuestion$!: Observable<QuizQuestion | null>;
-  currentQuestionWithOptions$: Observable<QuizQuestion>;
   currentQuestionText: string = '';
   currentQuestionType: string;
   currentOptions: Option[] = [];
   options$: Observable<Option[]>;
   currentQuiz: Quiz;
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject(null);
-  selectedQuizSubscription: Subscription;
   routerSubscription: Subscription;
   questionSubscription: Subscription;
   resources: Resource[];
@@ -169,7 +167,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   checkAndDisplayCorrectAnswers(): void {
-    // Assuming you have a way to determine the index of the current multiple-answer question
     const multipleAnswerQuestionIndex = this.findCurrentMultipleAnswerQuestionIndex();
     if (this.quizService.isAnswered(multipleAnswerQuestionIndex)) {
         this.shouldDisplayNumberOfCorrectAnswers = true;
@@ -219,7 +216,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
     this.selectedQuiz$.next(null);
-    this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription.unsubscribe();
     this.questionSubscription.unsubscribe();
     this.timerService.stopTimer(null);
