@@ -1148,7 +1148,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async onSubmit(): Promise<void> {
     if (!this.validateForm()) {
-        return; // Early return if form validation fails
+      return; // Early return if form validation fails
     }
 
     const selectedOption = this.questionForm.get('selectedOption').value;
@@ -1157,9 +1157,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const currentQuiz: Quiz = await firstValueFrom(this.selectedQuiz);
 
     if (this.currentQuestionIndex === currentQuiz.questions.length - 1) {
-        this.handleQuizCompletion();
+      this.handleQuizCompletion();
     } else {
-        this.goToNextQuestion();
+      this.goToNextQuestion();
     }
   }
 
@@ -1180,20 +1180,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async processAnswer(selectedOption: any): Promise<boolean> {
     this.answers.push({
-        question: this.currentQuestion,
-        questionIndex: this.currentQuestionIndex,
-        selectedOption: selectedOption
+      question: this.currentQuestion,
+      questionIndex: this.currentQuestionIndex,
+      selectedOption: selectedOption
     });
 
     const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
     const explanationText = this.currentQuestion.explanation;
 
     this.quizStateService.setQuestionState(this.currentQuestionIndex, {
-        isAnswered: true,
-        isCorrect: isCorrect,
-        explanationText: explanationText,
-        selectedOptions: [],
-        numberOfCorrectAnswers: 0
+      isAnswered: true,
+      isCorrect: isCorrect,
+      explanationText: explanationText,
+      selectedOptions: [],
+      numberOfCorrectAnswers: 0
     });
 
     return isCorrect;
@@ -1201,13 +1201,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private handleQuizCompletion(): void {
     this.quizService.submitQuizScore(this.answers).subscribe(() => {
-        this.router.navigate(['quiz', 'result']); // Adjust the route as needed
+      this.router.navigate(['quiz', 'result']);
     });
   }
 
   private async goToNextQuestion(): Promise<void> {
     this.currentQuestionIndex++;
-    const currentQuiz: Quiz = await firstValueFrom(this.selectedQuiz); // Make sure this is awaited at the right place
+    const currentQuiz: Quiz = await firstValueFrom(this.selectedQuiz);
     this.currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
   }
 
