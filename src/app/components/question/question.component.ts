@@ -1159,20 +1159,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (this.currentQuestionIndex === currentQuiz.questions.length - 1) {
       this.handleQuizCompletion();
     } else {
-      this.goToNextQuestion();
+      this.moveToNextQuestion();
     }
   }
 
   private validateForm(): boolean {
     if (this.questionForm.invalid) {
-        console.log("Form is invalid");
-        return false;
+      console.log("Form is invalid");
+      return false;
     }
 
     const selectedOption = this.questionForm.get('selectedOption').value;
     if (selectedOption === null) {
-        console.log("No option selected");
-        return false;
+      console.log("No option selected");
+      return false;
     }
 
     return true; // Form is valid and option is selected
@@ -1205,7 +1205,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private async goToNextQuestion(): Promise<void> {
+  private async moveToNextQuestion(): Promise<void> {
     this.currentQuestionIndex++;
     const currentQuiz: Quiz = await firstValueFrom(this.selectedQuiz);
     this.currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
