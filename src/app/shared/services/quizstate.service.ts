@@ -40,7 +40,9 @@ export class QuizStateService {
     const stateJSON = localStorage.getItem(`quizState_${quizId}`);
     if (stateJSON) {
       const stateObject = JSON.parse(stateJSON);
-      return new Map(Object.entries(stateObject).map(([key, value]) => [Number(key), value]));
+      return new Map<number, QuestionState>(
+        Object.entries(stateObject).map(([key, value]): [number, QuestionState] => [Number(key), value as QuestionState])
+      );
     }
     return null;
   }
