@@ -1347,28 +1347,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
-  setDisplayStateForExplanation(): Observable<void> {
-    return new Observable<void>(observer => {
-      const subscription = this.quizService.getCurrentQuestionIndexObservable().subscribe(currentIndex => {
-        const currentQuestionId = this.quizService.getQuestionIdAtIndex(currentIndex);
-        const formattedExplanation = this.explanationTextService.formattedExplanations[currentQuestionId];
-
-        if (formattedExplanation) {
-          this.explanationTextService.shouldDisplayExplanationSource.next(true);
-          this.explanationTextService.formattedExplanation$.next(formattedExplanation.toString());
-        } else {
-          this.explanationTextService.shouldDisplayExplanationSource.next(false);
-          this.explanationTextService.formattedExplanation$.next('');
-        }
-
-        observer.next();
-        observer.complete();
-      });
-
-      return () => subscription.unsubscribe();
-    });
-  }
-
   setDisplayStateForExplanationsAfterRestart(): Observable<void> {
     return new Observable<void>(observer => {
       this.quizService.resetQuestions(); // Resetting questions
