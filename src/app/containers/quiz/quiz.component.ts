@@ -1164,7 +1164,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   advanceToResults(): void {
     this.quizService.resetAll();
     this.timerService.stopTimer((elapsedTime: number) => {
-        this.elapsedTimeDisplay = elapsedTime;
+      this.elapsedTimeDisplay = elapsedTime;
     });
     this.timerService.resetTimer();
 
