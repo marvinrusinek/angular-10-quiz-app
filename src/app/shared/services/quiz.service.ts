@@ -338,7 +338,7 @@ export class QuizService implements OnDestroy {
   }
 
   // Helper function to find a quiz by quizId
-  private findQuizByQuizId(quizId: string): Quiz | undefined {
+  findQuizByQuizId(quizId: string): Quiz | undefined {
     // Find the quiz by quizId within the quizData array
     const foundQuiz = this.quizData.find(quiz => quiz.quizId === quizId);
 
