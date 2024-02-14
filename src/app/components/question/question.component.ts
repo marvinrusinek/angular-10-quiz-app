@@ -1147,52 +1147,68 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async onSubmit(): Promise<void> {
+    if (!this.validateForm()) {
+        return; // Early return if form validation fails
+    }
+
+    const selectedOption = this.questionForm.get('selectedOption').value;
+    await this.processAnswer(selectedOption);
+
+    const currentQuiz: Quiz = await firstValueFrom(this.selectedQuiz);
+
+    if (this.currentQuestionIndex === currentQuiz.questions.length - 1) {
+        this.handleQuizCompletion();
+    } else {
+        this.goToNextQuestion();
+    }
+  }
+
+  private validateForm(): boolean {
     if (this.questionForm.invalid) {
-      return;
+        console.log("Form is invalid");
+        return false;
     }
 
     const selectedOption = this.questionForm.get('selectedOption').value;
     if (selectedOption === null) {
-      return;
+        console.log("No option selected");
+        return false;
     }
 
-    // Add the selected option and question information to the answers array
+    return true; // Form is valid and option is selected
+  }
+
+  private async processAnswer(selectedOption: any): Promise<boolean> {
     this.answers.push({
-      question: this.currentQuestion,
-      questionIndex: this.currentQuestionIndex,
-      selectedOption: selectedOption
+        question: this.currentQuestion,
+        questionIndex: this.currentQuestionIndex,
+        selectedOption: selectedOption
     });
 
-    // Use the checkIfAnsweredCorrectly method from QuizService to determine if the selected answer is correct
     const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
-
-    // Assuming each question has an explanationText property
     const explanationText = this.currentQuestion.explanation;
 
-    // Use your QuizStateService to update the state for the current question
     this.quizStateService.setQuestionState(this.currentQuestionIndex, {
-      isAnswered: true,
-      isCorrect: isCorrect,
-      explanationText: explanationText,
-      selectedOptions: [],
-      numberOfCorrectAnswers: 0
+        isAnswered: true,
+        isCorrect: isCorrect,
+        explanationText: explanationText,
+        selectedOptions: [],
+        numberOfCorrectAnswers: 0
     });
 
-    // Fetch the current quiz to determine the next steps
-    const currentQuiz: Quiz = await firstValueFrom(this.selectedQuiz);
+    return isCorrect;
+  }
 
-    // Check if this is the last question
-    if (this.currentQuestionIndex === currentQuiz.questions.length - 1) {
-      // Submit the quiz score and navigate to the results page
-      this.quizService.submitQuizScore(this.answers).subscribe(() => {
-        // Handle the completion logic, like navigating to the results page
+  private handleQuizCompletion(): void {
+    this.quizService.submitQuizScore(this.answers).subscribe(() => {
         this.router.navigate(['quiz', 'result']); // Adjust the route as needed
-      });
-    } else {
-      // Move to the next question
-      this.currentQuestionIndex++;
-      this.currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
-    }
+    });
+  }
+
+  private async goToNextQuestion(): Promise<void> {
+    this.currentQuestionIndex++;
+    const currentQuiz: Quiz = await firstValueFrom(this.selectedQuiz); // Make sure this is awaited at the right place
+    this.currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
   }
 
   // not called anywhere...
