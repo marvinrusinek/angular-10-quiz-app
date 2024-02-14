@@ -448,16 +448,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuizById(this.quizId).subscribe({
       next: (quiz: Quiz) => {
         this.selectedQuiz = quiz;
-        // Assuming you have a way to determine the current question, e.g., this.currentQuestionIndex
         const currentQuestionOptions = this.selectedQuiz.questions[this.currentQuestionIndex].options;
-        this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(currentQuestionOptions);
+        this.numberOfCorrectAnswers = 
+          this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(currentQuestionOptions);
       },
       error: (error: any) => {
         console.error(error);
       }
     });
   }
-  
 
   private initializeObservables(): void {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
