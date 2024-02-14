@@ -1382,41 +1382,43 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   setDisplayStateForExplanationsAfterRestart(): Observable<void> {
     return new Observable<void>(observer => {
-      // Resetting questions and the timer as part of quiz restart
+      // Ensure questions and the timer are reset
       this.quizService.resetQuestions();
       this.timerService.resetTimer();
   
-      // Assuming getTotalQuestions() returns an Observable<number> with the total number of questions
-      this.quizService.getTotalQuestions().subscribe(totalQuestions => {
-        // Loop through all questions to set their display state
-        for (let index = 0; index < totalQuestions; index++) {
-          // Retrieve any stored state for the question (if it exists)
-          const questionState = this.quizStateService.getQuestionState(index);
-  
-          // Check if the question was answered and if the explanation was displayed
-          if (questionState.isAnswered && questionState.explanationDisplayed) {
-            // If so, retrieve the formatted explanation text for the question
-            const explanationText = this.explanationTextService.getFormattedExplanation(index);
-  
-            // Update the service to indicate that the explanation should be displayed
-            // and set the actual explanation text to be displayed
-            this.explanationTextService.shouldDisplayExplanationSource.next(true);
-            this.explanationTextService.formattedExplanation$.next(explanationText);
+      // Assuming getTotalQuestions() returns the total number of questions correctly
+      this.quizService.getTotalQuestions().subscribe({
+        next: (totalQuestions) => {
+          for (let index = 0; index < totalQuestions; index++) {
+            // Logic to set explanations for each question
+            const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
+            if (explanation) {
+              this.explanationTextService.shouldDisplayExplanationSource.next(true);
+              this.explanationTextService.formattedExplanation$.next(explanation);
+            }
           }
+      
+          // Navigation after setting up all explanations
+          this.router.navigate(['/question/', this.quizId, 1]);
+        },
+        error: (error) => {
+          // Handle any errors
+          console.error('Error getting total questions:', error);
+        },
+        complete: () => {
+          // Optional: Any cleanup or final operations after the observable completes
         }
-  
-        // Navigate to the first question after setting up all explanations
-        this.router.navigate(['/question/', this.quizId, 1]);
-  
-        // Indicate that the Observable has completed its work
-        observer.next();
-        observer.complete();
-      }, error => {
-        // Handle any errors that occur during the process
-        observer.error(error);
       });
+  
+      // Cleanup if the observable is unsubscribed
+      return {
+        unsubscribe() {
+          // Add any necessary cleanup logic here
+        }
+      };
     });
   }
+  
   
 
   setExplanationForQuestion(index: number, explanationText: string): Observable<void> {
