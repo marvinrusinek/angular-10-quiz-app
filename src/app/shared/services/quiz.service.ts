@@ -836,10 +836,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  updateTotalQuestions(totalQuestions: number): void {
-    this.totalQuestionsSubject.next(totalQuestions);
-  }
-
   getTotalQuestions(): Observable<number> {
     return this.getQuizData().pipe(
       map((data: any) => {
@@ -849,6 +845,10 @@ export class QuizService implements OnDestroy {
         return quizLength || 0;
       })
     );
+  }
+
+  updateTotalQuestions(totalQuestions: number): void {
+    this.totalQuestionsSubject.next(totalQuestions);
   }
 
   displayExplanationText(show: boolean): void {
@@ -868,25 +868,6 @@ export class QuizService implements OnDestroy {
     };
     this.quizScore = quizScore;
     return this.http.post<void>(`${this.quizUrl}/quiz/scores`, quizScore);
-  }
-
-  calculateTotalCorrectAnswers(userAnswers: number[]): number {
-    let totalCorrect = 0;
-
-    // Assuming `userAnswers` contains the user's answers, you can compare them to correct answers
-    for (let i = 0; i < this.questions.length; i++) {
-      const correctAnswers = this.correctAnswers.get(i.toString()); // Get correct answers for each question
-      if (correctAnswers) {
-        // Compare user's answer to correct answers
-        for (const userAnswer of userAnswers) {
-          if (correctAnswers.includes(userAnswer)) {
-            totalCorrect++;
-          }
-        }
-      }
-    }
-
-    return totalCorrect;
   }
 
   getQuizLength(): number {
