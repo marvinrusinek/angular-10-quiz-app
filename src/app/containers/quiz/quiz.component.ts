@@ -165,27 +165,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  checkAndDisplayCorrectAnswers(): void {
-    const multipleAnswerQuestionIndex = this.findCurrentMultipleAnswerQuestionIndex();
-    if (this.quizService.isAnswered(multipleAnswerQuestionIndex)) {
-        this.shouldDisplayNumberOfCorrectAnswers = true;
-    }
-  }
-
-  findCurrentMultipleAnswerQuestionIndex(): number {
-    if (!this.questions || this.questions.length === 0) {
-      console.error('No questions available');
-      return -1;
-    }
-
-    const currentQuestion = this.questions[this.currentQuestionIndex];
-    if (currentQuestion && currentQuestion.type === QuestionType.MultipleAnswer) {
-      return this.currentQuestionIndex;
-    }
-
-    return -1;
-  }
-
   ngOnInit(): void {
     // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
@@ -218,6 +197,27 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.routerSubscription.unsubscribe();
     this.currentQuestionSubscriptions.unsubscribe();
     this.timerService.stopTimer(null);
+  }
+
+  checkAndDisplayCorrectAnswers(): void {
+    const multipleAnswerQuestionIndex = this.findCurrentMultipleAnswerQuestionIndex();
+    if (this.quizService.isAnswered(multipleAnswerQuestionIndex)) {
+        this.shouldDisplayNumberOfCorrectAnswers = true;
+    }
+  }
+
+  findCurrentMultipleAnswerQuestionIndex(): number {
+    if (!this.questions || this.questions.length === 0) {
+      console.error('No questions available');
+      return -1;
+    }
+
+    const currentQuestion = this.questions[this.currentQuestionIndex];
+    if (currentQuestion && currentQuestion.type === QuestionType.MultipleAnswer) {
+      return this.currentQuestionIndex;
+    }
+
+    return -1;
   }
 
   updateComponentState(): void {
