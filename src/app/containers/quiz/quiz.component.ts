@@ -70,7 +70,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuiz: Quiz;
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject(null);
   routerSubscription: Subscription;
-  questionSubscription: Subscription;
+  private currentQuestionSubscriptions = new Subscription();
   resources: Resource[];
   answers = [];
   answered = false;
@@ -216,7 +216,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
     this.selectedQuiz$.next(null);
     this.routerSubscription.unsubscribe();
-    this.questionSubscription.unsubscribe();
+    this.currentQuestionSubscriptions.unsubscribe();
     this.timerService.stopTimer(null);
   }
 
@@ -345,7 +345,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.setCurrentQuizForQuizId(this.quizId);
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.explanationTextService.resetProcessedQuestionsState();
-  
+
     // Load and apply stored state
     console.log("Quiz ID:", this.quizId);
     const storedStates = this.quizStateService.getStoredState(this.quizId);
@@ -421,10 +421,31 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private initializeQuizDependencies(): void {
-    this.getExplanationText();
-    this.fetchQuestionAndOptions();
     this.initializeSelectedQuiz();
     this.initializeObservables();
+    this.fetchQuestionAndOptions();
+  }
+
+  private initializeSelectedQuiz(): void {
+    this.quizDataService.getQuizById(this.quizId).subscribe({
+      next: (quiz: Quiz) => {
+        this.selectedQuiz = quiz;
+        const currentQuestionOptions = this.selectedQuiz.questions[this.currentQuestionIndex].options;
+        this.numberOfCorrectAnswers =
+          this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(currentQuestionOptions);
+      },
+      error: (error: any) => {
+        console.error(error);
+      }
+    });
+  }
+
+  private initializeObservables(): void {
+    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.quizDataService.setSelectedQuizById(quizId);
+    this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
+      this.selectedQuiz = quiz;
+    });
   }
 
   private fetchQuestionAndOptions(): void {
@@ -442,28 +463,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.log('Question or options not found');
         }
       });
-  }
-
-  private initializeSelectedQuiz(): void {
-    this.quizDataService.getQuizById(this.quizId).subscribe({
-      next: (quiz: Quiz) => {
-        this.selectedQuiz = quiz;
-        const currentQuestionOptions = this.selectedQuiz.questions[this.currentQuestionIndex].options;
-        this.numberOfCorrectAnswers = 
-          this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(currentQuestionOptions);
-      },
-      error: (error: any) => {
-        console.error(error);
-      }
-    });
-  }
-
-  private initializeObservables(): void {
-    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.quizDataService.setSelectedQuizById(quizId);
-    this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
-      this.selectedQuiz = quiz;
-    });
   }
 
   async getNextQuestion(): Promise<void> {
@@ -495,13 +494,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  getExplanationText(): void {
-    this.explanationTextService.getExplanationText$()
-      .subscribe((explanationText: string | null) => {
-        this.explanationText = explanationText;
-      });
-  }
-
   private initializeQuizState(): void {
     // Find the current quiz object by quizId
     const currentQuiz = this.quizService.findQuizByQuizId(this.quizId);
@@ -521,27 +513,19 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     const currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
-    this.setCurrentQuestionState(currentQuestion);
+    this.updateQuizUIForNewQuestion(currentQuestion);
   }
 
-  private setCurrentQuestionState(question: QuizQuestion): void {
+  private updateQuizUIForNewQuestion(question: QuizQuestion): void {
     if (!question) {
       console.error('Invalid question:', question);
       return;
     }
 
-    this.currentQuestion = question;
-    this.options = question.options;
+    this.quizService.setCurrentQuestion(question);
+
+    // Reset UI elements and messages as needed
     this.selectionMessageService.updateSelectionMessage('');
-
-    if (question.options && question.options.length > 0) {
-      this.quizService.correctOptions = question.options
-        .filter(option => option.correct && option.value !== undefined)
-        .map(option => option.value?.toString());
-    } else {
-      console.error('Invalid question options:', question);
-    }
-
     this.quizService.showQuestionText$ = of(true);
     this.selectedOption$.next(null);
     this.explanationTextService.explanationText$.next('');
@@ -750,11 +734,20 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
-    this.questionSubscription = this.quizService.getCurrentQuestionObservable()
-      .pipe(filter((question: QuizQuestion) => question !== null))
-      .subscribe((question: QuizQuestion) => {
-        this.currentQuestionType = question.type;
-      });
+    this.currentQuestionSubscriptions.add(
+      this.quizService.getCurrentQuestionObservable()
+        .pipe(filter((question: QuizQuestion) => question !== null))
+        .subscribe((question: QuizQuestion) => {
+          this.currentQuestionType = question.type;
+        })
+    );
+
+    this.currentQuestionSubscriptions.add(
+      this.quizStateService.currentQuestion$.subscribe(question => {
+        this.currentQuestion = question;
+        this.options = question.options;
+      })
+    );
   }
 
   handleOptions(options: Option[]): void {
@@ -1321,7 +1314,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return new Observable<void>(observer => {
       this.quizService.resetQuestions(); // Resetting questions
       this.timerService.resetTimer(); // Resetting the timer
-  
+
       // Subscribe to getTotalQuestions() within the new Observable
       const subscription = this.quizService.getTotalQuestions().subscribe({
         next: totalQuestions => {
@@ -1333,10 +1326,10 @@ export class QuizComponent implements OnInit, OnDestroy {
               this.explanationTextService.formattedExplanation$.next(explanation);
             }
           }
-  
+
           // Navigation after setting up all explanations
           this.router.navigate(['/question/', this.quizId, 1]);
-  
+
           observer.next(); // Indicate that the Observable has successfully completed
           observer.complete();
         },
@@ -1344,7 +1337,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           observer.error(error); // Propagate any errors
         }
       });
-  
+
       // Returning a function to unsubscribe
       return () => subscription.unsubscribe();
     });
@@ -1355,7 +1348,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Ensure questions and the timer are reset
       this.quizService.resetQuestions();
       this.timerService.resetTimer();
-  
+
       // Assuming getTotalQuestions() returns the total number of questions correctly
       this.quizService.getTotalQuestions().subscribe({
         next: (totalQuestions) => {
@@ -1367,7 +1360,7 @@ export class QuizComponent implements OnInit, OnDestroy {
               this.explanationTextService.formattedExplanation$.next(explanation);
             }
           }
-      
+
           // Navigation after setting up all explanations
           this.router.navigate(['/question/', this.quizId, 1]);
         },
@@ -1379,7 +1372,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           // Optional: Any cleanup or final operations after the observable completes
         }
       });
-  
+
       // Cleanup if the observable is unsubscribed
       return {
         unsubscribe() {
@@ -1388,8 +1381,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       };
     });
   }
-  
-  
+
+
 
   setExplanationForQuestion(index: number, explanationText: string): Observable<void> {
     const formattedExplanation: FormattedExplanation = {
@@ -1468,5 +1461,5 @@ export class QuizComponent implements OnInit, OnDestroy {
   // not called anywhere...
   private sendContinueQuizIdToQuizService(): void {
     this.quizService.setContinueQuizId(this.quizId);
-  } 
+  }
 }
