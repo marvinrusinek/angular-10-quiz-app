@@ -1310,12 +1310,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  clearSelectedOptions(): void {
-    this.selectedOptions = [];
+  initializeQuestionState(): void {
+    this.quizStateService.questionStates = this.questions.map(() => ({
+      selectedOption: null
+    }));
+  }
 
-    this.questions.forEach((question, index) => {
-        this.quizStateService.questionStates[index].selectedOption = null;
-    });
+  clearSelectedOptions(): void {
+    if (this.quizStateService.questionStates && this.quizStateService.questionStates.length) {
+      this.quizStateService.questionStates.forEach((state) => {
+        state.selectedOption = null; // Reset the selected option for each question
+      });
+    } else {
+      console.warn('questionsState is not initialized.');
+    }
   }
 
   setDisplayStateForExplanationsAfterRestart(): Observable<void> {
