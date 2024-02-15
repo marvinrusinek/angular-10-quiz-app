@@ -79,16 +79,23 @@ export class QuizStateService {
     let currentState = this.getQuestionState(questionId) || {
       isAnswered: false,
       numberOfCorrectAnswers: 0,
-      selectedOptions: [],
+      selectedOptions: [], // Ensured it's initialized as an array
       explanationDisplayed: false
     };
 
-    if (!currentState.selectedOptions.includes(selectedOptionId.toString())) {
-      currentState.selectedOptions.push(selectedOptionId.toString());
+    // Ensure selectedOptions is an array before using includes and push
+    if (Array.isArray(currentState.selectedOptions)) {
+      if (!currentState.selectedOptions.includes(selectedOptionId.toString())) {
+        currentState.selectedOptions.push(selectedOptionId.toString());
 
-      if (isCorrect && currentState.numberOfCorrectAnswers < totalCorrectAnswers) {
-        currentState.numberOfCorrectAnswers++;
+        if (isCorrect && currentState.numberOfCorrectAnswers < totalCorrectAnswers) {
+          currentState.numberOfCorrectAnswers++;
+        }
       }
+    } else {
+      console.error('selectedOptions is not an array', { currentState });
+      // Initialize selectedOptions as an array if it's not already
+      currentState.selectedOptions = [selectedOptionId.toString()];
     }
 
     currentState.isAnswered = true;

@@ -1313,7 +1313,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const questionStates = new Map<number, QuestionState>();
     this.questions.forEach((question, index) => {
       questionStates.set(index, {
-        selectedOptions: null,
+        selectedOptions: [],
         isAnswered: false,
         numberOfCorrectAnswers: 0
       });
