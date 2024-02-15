@@ -1348,7 +1348,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   clearSelectedOptions(): void {
     this.quizStateService.questionStates.forEach((value, key) => {
-      value.selectedOptions = null;
+        value.selectedOptions = [];
     });
   }
 
