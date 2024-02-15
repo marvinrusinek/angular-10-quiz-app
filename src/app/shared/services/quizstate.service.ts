@@ -24,7 +24,7 @@ export class QuizStateService {
   private correctAnswersTextSource = new BehaviorSubject<string>('Default Text');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
 
-  private questionStates: Map<number, QuestionState> = new Map();
+  questionStates: Map<number, QuestionState> = new Map();
   private quizQuestionCreated = false;
 
   constructor() {
