@@ -9,7 +9,7 @@ import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuizStatus } from '../../shared/models/quiz-status.enum';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { QuizData } from '../../shared/models/QuizData.model';
-
+import { QuestionState } from '../../shared/models/QuestionState.model';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -1311,19 +1311,22 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   initializeQuestionState(): void {
-    this.quizStateService.questionStates = this.questions.map(() => ({
-      selectedOption: null
-    }));
+    const questionStates = new Map<number, QuestionState>();
+    this.questions.forEach((question, index) => {
+      questionStates.set(index, {
+        selectedOptions: null,
+        isAnswered: false,
+        numberOfCorrectAnswers: 0
+      });
+    });
+
+    this.quizStateService.questionStates = questionStates;
   }
 
   clearSelectedOptions(): void {
-    if (this.quizStateService.questionStates && this.quizStateService.questionStates.length) {
-      this.quizStateService.questionStates.forEach((state) => {
-        state.selectedOption = null; // Reset the selected option for each question
-      });
-    } else {
-      console.warn('questionsState is not initialized.');
-    }
+    this.quizStateService.questionStates.forEach((value, key) => {
+      value.selectedOptions = null;
+    });
   }
 
   setDisplayStateForExplanationsAfterRestart(): Observable<void> {
