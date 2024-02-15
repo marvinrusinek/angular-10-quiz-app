@@ -1043,6 +1043,41 @@ export class QuizService implements OnDestroy {
     this.highScores = this.highScoresLocal;
   }
 
+  shuffleQuestions(): void {
+    const quizQuestion = this.quizData[this.indexOfQuizId];
+
+    if (quizQuestion && Array.isArray(quizQuestion)) {
+      if (this.checkedShuffle) {
+        this.shuffle(quizQuestion);
+      }
+    } else {
+      console.error('Invalid data structure.');
+    }
+  }
+
+  shuffleAnswers(): void {
+    const quizQuestion = this.quizData[this.indexOfQuizId];
+
+    if (
+      quizQuestion &&
+      Array.isArray(quizQuestion) &&
+      this.currentQuestionIndex < quizQuestion.length
+    ) {
+      const currentQuestion =
+        quizQuestion[this.currentQuestionIndex];
+
+      if (currentQuestion && currentQuestion.questions) {
+        if (this.checkedShuffle) {
+          this.shuffle(currentQuestion.questions.options);
+        }
+      } else {
+        console.error('Questions property is missing or undefined.');
+      }
+    } else {
+      console.error('Invalid data structure or index out of bounds.');
+    }
+  }
+
   // generically shuffle arrays in-place using Durstenfeld's shuffling algorithm
   shuffle<T>(arg: T[]): T[] {
     if (!arg || arg.length === 0) {
