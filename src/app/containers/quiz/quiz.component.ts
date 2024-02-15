@@ -11,7 +11,6 @@ import { QuestionType } from '../../shared/models/question-type.enum';
 import { QuizData } from '../../shared/models/QuizData.model';
 
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
-import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';

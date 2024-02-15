@@ -49,14 +49,14 @@ export class QuizStateService {
 
   // Method to set or update the state for a question
   setQuestionState(questionId: number, state: QuestionState): void {
-    console.log(`Setting state for questionId ${questionId}:`, state);
+    // console.log(`Setting state for questionId ${questionId}:`, state);
     this.questionStates.set(questionId, state);
   }
 
   // Method to get the state of a question by its ID
   getQuestionState(questionId: number): QuestionState {
-    console.log(`Getting state for questionId ${questionId}`);
-    console.log(`Current question states:`, Array.from(this.questionStates.entries()));
+    // console.log(`Getting state for questionId ${questionId}`);
+    // console.log(`Current question states:`, Array.from(this.questionStates.entries()));
     let state = this.questionStates.get(questionId);
     if (!state) {
       state = this.createDefaultQuestionState();
