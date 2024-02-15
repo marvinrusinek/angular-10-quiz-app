@@ -1352,20 +1352,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-
-
-  setExplanationForQuestion(index: number, explanationText: string): Observable<void> {
-    const formattedExplanation: FormattedExplanation = {
-      questionIndex: index,
-      explanation: explanationText
-    };
-
-    // Now, assign the fully compatible object
-    this.explanationTextService.formattedExplanations[index] = formattedExplanation;
-
-    return of(null); // Complete the observable
-  }
-
   /* sendValuesToQuizService(): void {
     this.sendQuizQuestionToQuizService();
     this.sendQuizQuestionsToQuizService();
