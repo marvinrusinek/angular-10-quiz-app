@@ -744,10 +744,15 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.currentQuestionSubscriptions.add(
       this.quizStateService.currentQuestion$.subscribe(question => {
-        this.currentQuestion = question;
-        this.options = question.options;
+        if (question) {
+          this.currentQuestion = question;
+          this.options = question.options;
+        } else {
+          this.currentQuestion = null;
+          this.options = [];
+        }
       })
-    );
+    );    
   }
 
   handleOptions(options: Option[]): void {
