@@ -858,6 +858,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     const totalCorrectAnswers = currentQuestion.options.filter(option => option.correct).length;
 
+    // Update the state to reflect the selected option
     const optionId = option.optionId ?? index;
     this.quizStateService.updateQuestionState(
       this.currentQuestionIndex,
@@ -866,8 +867,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       totalCorrectAnswers
     );
 
+    // Decide whether to show the explanation
+    this.maybeShowExplanation(this.currentQuestionIndex);
+
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.toggleExplanationDisplay(true);
+  }
+
+  maybeShowExplanation(questionIndex: number): void {
+    const questionState = this.quizStateService.getQuestionState(questionIndex);
+    if (questionState.isAnswered) {
+      const explanation = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+      this.explanationTextService.setExplanationText(explanation);
+    }
   }
 
   private processOptionSelection(

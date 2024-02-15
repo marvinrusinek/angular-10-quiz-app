@@ -1353,16 +1353,16 @@ export class QuizComponent implements OnInit, OnDestroy {
             this.currentQuestionIndex = 0;
             this.questionIndex = 1;
 
-            // Ensure explanation-related states are reset
-            this.explanationTextService.shouldDisplayExplanationSource.next(true);
-            this.explanationTextService.formattedExplanation$.next("Test explanation text");
+            // Reset explanation-related states
+            this.explanationTextService.shouldDisplayExplanationSource.next(false);
+            this.explanationTextService.formattedExplanation$.next(null);
             this.explanationTextService.resetExplanationText();
 
             // Initialize question states
-            this.initializeQuestionState(); // Call initializeQuestionState() here
+            this.initializeQuestionState();
 
             // Clear selected options
-            this.clearSelectedOptions(); // Ensure this method clears selected options correctly
+            this.clearSelectedOptions();
 
             // Initialize UI components
             this.initializeQuestionStreams();
@@ -1378,6 +1378,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }),
         switchMap(() => {
             // Set display state for explanations after restart
+            // Ensure this function is correctly implemented to set up explanations based on the current state
             return this.setDisplayStateForExplanationsAfterRestart();
         })
     ).subscribe({
@@ -1400,8 +1401,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedOptions(): void {
-    this.quizStateService.questionStates.forEach((value, key) => {
-      value.selectedOptions = [];
+    this.quizStateService.questionStates.forEach((state, key) => {
+      state.selectedOptions = [];
     });
   }
 
