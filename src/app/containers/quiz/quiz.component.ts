@@ -1280,64 +1280,43 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   restartQuiz(): void {
-    // Reset all quiz-related data
     this.quizService.resetAll();
+    this.currentQuestionIndex = 0; // Assuming 0-based indexing
+    this.clearSelectedOptions(); // Ensure this function exists and clears the selection state
 
-    // Begin the sequence of operations
     of(null).pipe(
-        // Step 1: Reset questions and other reset operations
-        switchMap(() => {
-            this.quizService.resetQuestions();
-            // Assuming stopTimer() returns an Observable, we directly return it for the next step
-            // If stopTimer is not asynchronous, you may not need to use it in a switchMap
-            return this.timerService.stopTimer(); // Ensure this returns an Observable
-        }),
-        // Step 2: Reset timer, state variables, and UI components
         tap(() => {
-            this.timerService.resetTimer();
-            this.timerService.elapsedTimes = [];
-            this.timerService.completionTime = 0;
-            this.answers = null;
-            this.currentQuestionIndex = 0;
-            this.questionIndex = 1;
-
-            // Reset explanation texts and states
-            this.explanationTextService.resetExplanationText(); // Ensure this clears all necessary explanation-related states
-
-            // Reset question states
-            this.questions.forEach((question, index) => {
-                const defaultState = this.quizStateService.createDefaultQuestionState();
-                this.quizStateService.setQuestionState(index, defaultState);
-            });
-
-            // Re-initialize UI components for a fresh start
-            this.initializeQuestionStreams();
-            this.initializeFirstQuestionText();
-            // It's better to navigate after all reset operations are completed, so this line is moved to the last tap()
+            // Reset any additional state here
         }),
-        // Step 3: Set display state for explanations after restart
-        // This switchMap is used if setDisplayStateForExplanationsAfterRestart returns an Observable
-        // If it doesn't, consider using tap() instead
         switchMap(() => {
-            return this.setDisplayStateForExplanationsAfterRestart(); // Ensure this method properly sets up explanations for the restart
+            // If resetting questions and stopping the timer are async, ensure they complete
+            return combineLatest([
+                this.quizService.resetQuestions(),
+                this.timerService.stopTimer()
+            ]);
         }),
-        // Final step: Navigate to the first question and perform any remaining UI resets
+        switchMap(() => {
+            // Re-fetch or re-initialize questions and explanations as needed
+            return this.initializeQuiz(); // Ensure this function returns an Observable
+        }),
         tap(() => {
             this.router.navigate(['/question/', this.quizId, 1]);
-            this.resetUI(); // Ensure this method resets any additional UI components as needed
+            // Optionally, force a component refresh if needed
+            // this.changeDetectorRef.detectChanges();
         })
     ).subscribe({
-        error: (err) => {
-            console.error('Error during quiz restart:', err);
-            // Handle errors, possibly showing a user-friendly message or taking other corrective actions
-        },
-        complete: () => {
-            console.log('Quiz restart sequence completed successfully.');
-            // Any final completion actions can go here
-        }
+        error: (err) => console.error('Error during quiz restart:', err),
+        complete: () => console.log('Quiz restart sequence completed successfully.')
     });
   }
 
+  clearSelectedOptions(): void {
+    this.selectedOptions = [];
+
+    this.questions.forEach((question, index) => {
+        this.quizStateService.questionStates[index].selectedOption = null;
+    });
+  }
 
   setDisplayStateForExplanationsAfterRestart(): Observable<void> {
     return new Observable<void>(observer => {
