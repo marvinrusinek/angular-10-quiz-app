@@ -1280,29 +1280,28 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   restartQuiz(): void {
+    // Initial reset actions
     this.quizService.resetAll();
-    this.currentQuestionIndex = 0; // Assuming 0-based indexing
-    this.clearSelectedOptions(); // Ensure this function exists and clears the selection state
 
     of(null).pipe(
-        tap(() => {
-            // Reset any additional state here
+        switchMap(() => {
+            // Assuming resetQuestions is an async operation that returns an Observable
+            return this.quizService.resetQuestions() || of(null); // Fallback to of(null) if undefined is returned
         }),
         switchMap(() => {
-            // If resetting questions and stopping the timer are async, ensure they complete
-            return combineLatest([
-                this.quizService.resetQuestions(),
-                this.timerService.stopTimer()
-            ]);
+            // If stopTimer is async and returns an Observable, ensure it always returns something
+            return this.timerService.stopTimer() || of(null); // Fallback to of(null)
         }),
         switchMap(() => {
-            // Re-fetch or re-initialize questions and explanations as needed
-            return this.initializeQuiz(); // Ensure this function returns an Observable
+            // Ensure initializeQuestionState or similar function returns an Observable
+            // If the function is synchronous, wrap its call with of()
+            this.initializeQuestionState();
+            return of(null); // Proceed after initialization
         }),
+        // Add more steps as needed, ensuring each returns an Observable
         tap(() => {
+            // Synchronous operations like UI updates can go in tap, no need for Observable wrapping here
             this.router.navigate(['/question/', this.quizId, 1]);
-            // Optionally, force a component refresh if needed
-            // this.changeDetectorRef.detectChanges();
         })
     ).subscribe({
         error: (err) => console.error('Error during quiz restart:', err),
