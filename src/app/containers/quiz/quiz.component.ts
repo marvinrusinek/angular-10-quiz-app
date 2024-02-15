@@ -1280,28 +1280,52 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   restartQuiz(): void {
-    // Initial reset actions
+    // Reset all quiz-related data
     this.quizService.resetAll();
 
     of(null).pipe(
         switchMap(() => {
-            // Assuming resetQuestions is an async operation that returns an Observable
-            return this.quizService.resetQuestions() || of(null); // Fallback to of(null) if undefined is returned
+            // Reset questions and perform other reset operations
+            this.quizService.resetQuestions();
+            // Stop the timer
+            return of(this.timerService.stopTimer());
         }),
-        switchMap(() => {
-            // If stopTimer is async and returns an Observable, ensure it always returns something
-            return this.timerService.stopTimer() || of(null); // Fallback to of(null)
-        }),
-        switchMap(() => {
-            // Ensure initializeQuestionState or similar function returns an Observable
-            // If the function is synchronous, wrap its call with of()
-            this.initializeQuestionState();
-            return of(null); // Proceed after initialization
-        }),
-        // Add more steps as needed, ensuring each returns an Observable
         tap(() => {
-            // Synchronous operations like UI updates can go in tap, no need for Observable wrapping here
-            this.router.navigate(['/question/', this.quizId, 1]);
+            // Reset timer and other state variables
+            this.timerService.resetTimer();
+            this.timerService.elapsedTimes = [];
+            this.timerService.completionTime = 0;
+            this.answers = null;
+            this.currentQuestionIndex = 0;
+            this.questionIndex = 1;
+
+            // Ensure explanation-related states are reset
+            this.explanationTextService.shouldDisplayExplanationSource.next(true);
+            this.explanationTextService.formattedExplanation$.next("Test explanation text");
+            this.explanationTextService.resetExplanationText();
+
+            // Clear selected options and reset question states
+            this.clearSelectedOptions(); // Call the method to clear selected options
+            this.questions.forEach((question, index) => {
+                const defaultState = this.quizStateService.createDefaultQuestionState();
+                this.quizStateService.setQuestionState(index, defaultState);
+            });
+
+            // Initialize UI components
+            this.initializeQuestionStreams();
+            this.initializeFirstQuestionText();
+        }),
+        switchMap(() => {
+            // Navigate to the first question and perform UI reset
+            return this.router.navigate(['/question/', this.quizId, 1]);
+        }),
+        tap(() => {
+            // Additional UI reset if needed after navigation
+            this.resetUI();
+        }),
+        switchMap(() => {
+            // Set display state for explanations after restart
+            return this.setDisplayStateForExplanationsAfterRestart();
         })
     ).subscribe({
         error: (err) => console.error('Error during quiz restart:', err),
