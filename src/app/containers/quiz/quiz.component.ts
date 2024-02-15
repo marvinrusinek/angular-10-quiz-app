@@ -1285,9 +1285,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Ensure questions and the timer are reset
       this.quizService.resetQuestions();
       this.timerService.resetTimer();
-
-      // Assuming getTotalQuestions() returns the total number of questions correctly
-      this.quizService.getTotalQuestions().subscribe({
+  
+      const totalQuestionsSubscription = this.quizService.getTotalQuestions().subscribe({
         next: (totalQuestions) => {
           for (let index = 0; index < totalQuestions; index++) {
             // Logic to set explanations for each question
@@ -1297,28 +1296,29 @@ export class QuizComponent implements OnInit, OnDestroy {
               this.explanationTextService.formattedExplanation$.next(explanation);
             }
           }
-
+  
           // Navigation after setting up all explanations
           this.router.navigate(['/question/', this.quizId, 1]);
+          observer.complete();
         },
         error: (error) => {
-          // Handle any errors
           console.error('Error getting total questions:', error);
+          observer.error(error); // Pass the error along to the observer
         },
         complete: () => {
-          // Optional: Any cleanup or final operations after the observable completes
+          observer.complete();
         }
       });
-
+  
       // Cleanup if the observable is unsubscribed
       return {
         unsubscribe() {
-          // Add any necessary cleanup logic here
+          totalQuestionsSubscription.unsubscribe();
         }
       };
     });
   }
-
+  
   /* sendValuesToQuizService(): void {
     this.sendQuizQuestionToQuizService();
     this.sendQuizQuestionsToQuizService();
