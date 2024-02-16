@@ -79,7 +79,7 @@ export class QuizStateService {
     let currentState = this.getQuestionState(questionId) || {
       isAnswered: false,
       numberOfCorrectAnswers: 0,
-      selectedOptions: [], // Ensured it's initialized as an array
+      selectedOptions: [],
       explanationDisplayed: false
     };
 
