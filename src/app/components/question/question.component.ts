@@ -189,14 +189,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.initializeQuiz();
     }
 
-    /* this.questions.subscribe(questions => {
-      this.questionsArray = questions;
-    }); */
-
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
-      this.questionsArray = questions;
-    });
-
     this.subscribeToAnswers();
     this.subscribeToSelectionMessage();
     this.subscriptionToOptions();
@@ -884,6 +876,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   maybeShowExplanation(questionIndex: number): void {
+    this.questionsArray = this.quizDataService.getQuestionsForQuiz(this.quizId);
     // Guard clause to handle undefined or empty questionsArray
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.warn('Questions array is not initialized or empty.');
