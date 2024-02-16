@@ -189,8 +189,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.initializeQuiz();
     }
 
-    this.questions.subscribe(questions => {
-      this.questionsArray = questions; // Assuming you have a property called questionsArray to hold the actual array
+    /* this.questions.subscribe(questions => {
+      this.questionsArray = questions;
+    }); */
+
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
+      this.questionsArray = questions;
     });
 
     this.subscribeToAnswers();
