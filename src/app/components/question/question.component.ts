@@ -891,7 +891,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     if (questionState && questionState.isAnswered) {
       console.log(`Question is answered, preparing to show explanation.`);
-      const explanationText = this.questions[questionIndex].explanation;
+      const explanationText = this.questionsArray[questionIndex].explanation;
       console.log(`Setting explanation text: ${explanationText}`);
       this.explanationTextService.setExplanationText(explanationText);
     } else {
