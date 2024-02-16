@@ -1390,36 +1390,26 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   restartQuiz(): void {
-    // Reset all quiz-related data
+    // Reset quiz-specific states
     this.quizService.resetAll();
-
-    // Ensure to reset and fetch questions here if necessary
-    this.fetchAndInitializeQuestions(); // Assuming this method fetches and sets up this.questionsArray
-
-    // Reset quiz state variables
-    this.timerService.resetTimer();
-    this.currentQuestionIndex = 0; // Reset to the first question
+    this.currentQuestionIndex = 0;
     this.questionIndex = 1;
-
-    // Reset explanation-related states
-    this.explanationTextService.resetExplanationText(); // Make sure this clears the explanation text and any flags
-
-    // Additional resets as needed (e.g., selected options)
-    this.clearSelectedOptions();
-
-    // Navigate to the first question
+    this.explanationTextService.resetExplanationText(); // Reset explanation texts and any flags
+    
+    // Refetch questions and reinitialize states related to questions and explanations
+    this.fetchAndInitializeQuestions();
+    
+    // Navigate to the first question after ensuring all resets and initializations are complete
     this.router.navigate(['/question/', this.quizId, 1]).then(() => {
-        // Initialize UI components and states after navigation if needed
-        this.resetUI();
-        this.initializeQuestionStreams();
-        this.initializeFirstQuestionText();
+      this.resetUI();
     });
   }
 
   fetchAndInitializeQuestions(): void {
     this.quizDataService.getQuestionsForQuiz(this.quizService.quizId).subscribe({
       next: (questionsArray: QuizQuestion[]) => {
-        this.questionsArray = questionsArray;  
+        this.questionsArray = questionsArray; 
+        this.initializeQuestionState(); 
       },
       error: (error) => console.error('Error fetching questions:', error)
     });
