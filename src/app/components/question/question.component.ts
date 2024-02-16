@@ -876,30 +876,35 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   maybeShowExplanation(questionIndex: number): void {
-    this.questionsArray = this.quizDataService.getQuestionsForQuiz(this.quizId);
-    // Guard clause to handle undefined or empty questionsArray
-    if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.warn('Questions array is not initialized or empty.');
-      return; // Exit the function if questionsArray is not ready
-    }
-    console.log(`maybeShowExplanation called for questionIndex: ${questionIndex}`);
+    // Subscribe to the Observable to get the questions array
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
+      this.questionsArray = questions;
 
-    if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
-      console.error(`Invalid questionIndex: ${questionIndex}`);
-      return;
-    }
+      // Now that we have the questions, we can check if the questionsArray is initialized and not empty
+      if (!this.questionsArray || this.questionsArray.length === 0) {
+        console.warn('Questions array is not initialized or empty.');
+        return;
+      }
 
-    const questionState = this.quizStateService.getQuestionState(questionIndex);
-    console.log(`Question State:`, questionState);
+      console.log(`maybeShowExplanation called for questionIndex: ${questionIndex}`);
 
-    if (questionState && questionState.isAnswered) {
-      console.log(`Question is answered, preparing to show explanation.`);
-      const explanationText = this.questionsArray[questionIndex].explanation;
-      console.log(`Setting explanation text: ${explanationText}`);
-      this.explanationTextService.setExplanationText(explanationText);
-    } else {
-      console.log(`Conditions for showing explanation not met.`);
-    }
+      if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
+        console.error(`Invalid questionIndex: ${questionIndex}`);
+        return;
+      }
+
+      const questionState = this.quizStateService.getQuestionState(questionIndex);
+      console.log(`Question State:`, questionState);
+
+      if (questionState && questionState.isAnswered) {
+        console.log(`Question is answered, preparing to show explanation.`);
+        const explanationText = this.questionsArray[questionIndex].explanation;
+        console.log(`Setting explanation text: ${explanationText}`);
+        // Here, use the explanationText to update the UI or state as needed
+      } else {
+        console.log(`Conditions for showing explanation not met.`);
+      }
+    });
   }
 
   private processOptionSelection(
