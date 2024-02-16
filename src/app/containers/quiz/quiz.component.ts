@@ -124,6 +124,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   optionsToDisplay: Option[] = [];
   explanationToDisplay = '';
 
+  questionsArray: QuizQuestion[] = [];
+
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
 
@@ -1333,7 +1335,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  restartQuiz(): void {
+  /* restartQuiz(): void {
     // Reset all quiz-related data
     this.quizService.resetAll();
 
@@ -1384,6 +1386,42 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe({
         error: (err) => console.error('Error during quiz restart:', err),
         complete: () => console.log('Quiz restart sequence completed successfully.')
+    });
+  } */
+
+  restartQuiz(): void {
+    // Reset all quiz-related data
+    this.quizService.resetAll();
+
+    // Ensure to reset and fetch questions here if necessary
+    this.fetchAndInitializeQuestions(); // Assuming this method fetches and sets up this.questionsArray
+
+    // Reset quiz state variables
+    this.timerService.resetTimer();
+    this.currentQuestionIndex = 0; // Reset to the first question
+    this.questionIndex = 1;
+
+    // Reset explanation-related states
+    this.explanationTextService.resetExplanationText(); // Make sure this clears the explanation text and any flags
+
+    // Additional resets as needed (e.g., selected options)
+    this.clearSelectedOptions();
+
+    // Navigate to the first question
+    this.router.navigate(['/question/', this.quizId, 1]).then(() => {
+        // Initialize UI components and states after navigation if needed
+        this.resetUI();
+        this.initializeQuestionStreams();
+        this.initializeFirstQuestionText();
+    });
+  }
+
+  fetchAndInitializeQuestions(): void {
+    this.quizDataService.getQuestionsForQuiz(this.quizService.quizId).subscribe({
+      next: (questionsArray: QuizQuestion[]) => {
+        this.questionsArray = questionsArray;  
+      },
+      error: (error) => console.error('Error fetching questions:', error)
     });
   }
 
