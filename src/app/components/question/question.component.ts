@@ -876,30 +876,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   conditionallyShowExplanation(questionIndex: number): void {
-    // Subscribe to the Observable to get the questions array
-    this.quizDataService.getQuestionsForQuiz(this.quizService.quizId).subscribe(questions => {
-      this.questionsArray = questions;
-      if (!this.questionsArray || this.questionsArray.length === 0) {
-        console.warn('Questions array is not initialized or empty.');
-        return;
-      }
+    if (!this.questionsArray || this.questionsArray.length === 0) {
+      console.warn('Questions array is not initialized or empty.');
+      return;
+    }
 
-      if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
-        console.error(`Invalid questionIndex: ${questionIndex}`);
-        return;
-      }
+    if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
+      console.error(`Invalid questionIndex: ${questionIndex}`);
+      return;
+    }
 
-      const questionState = this.quizStateService.getQuestionState(questionIndex);
-      console.log(`Question State:`, questionState);
-
-      if (questionState && questionState.isAnswered) {
-        const explanationText = this.explanationTextService.getFormattedExplanation(questionIndex);
-        this.explanationTextService.setExplanationText(explanationText);
-        this.explanationTextService.setShouldDisplayExplanation(true);
-      } else {
-        console.log(`Conditions for showing explanation not met.`);
-      }
-    });
+    const questionState = this.quizStateService.getQuestionState(questionIndex);
+    if (questionState && questionState.isAnswered) {
+      const explanationText = this.explanationTextService.getFormattedExplanation(questionIndex);
+      this.explanationTextService.setExplanationText(explanationText);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+    } else {
+      console.log(`Conditions for showing explanation not met.`);
+    }
   }
 
   private processOptionSelection(
