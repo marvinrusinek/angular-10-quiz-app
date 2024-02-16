@@ -135,7 +135,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isLoading = true;
   isPaused = false;
   private initialized = false;
-  questionsArray: QuizQuestion[];
+  questionsArray: QuizQuestion[] = [];
   
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -880,7 +880,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   maybeShowExplanation(questionIndex: number): void {
+    // Guard clause to handle undefined or empty questionsArray
+    if (!this.questionsArray || this.questionsArray.length === 0) {
+      console.warn('Questions array is not initialized or empty.');
+      return; // Exit the function if questionsArray is not ready
+    }
     console.log(`maybeShowExplanation called for questionIndex: ${questionIndex}`);
+
     if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
       console.error(`Invalid questionIndex: ${questionIndex}`);
       return;
