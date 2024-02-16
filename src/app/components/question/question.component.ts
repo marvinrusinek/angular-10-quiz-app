@@ -136,7 +136,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isPaused = false;
   private initialized = false;
   questionsArray: QuizQuestion[] = [];
-  
+
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -319,7 +319,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private async loadQuizQuestions(): Promise<void> {
     this.isLoading = true;
     const questions = await this.quizService.fetchQuizQuestions();
-    
+
     if (questions.length > 0) {
         // Update component's state with the fetched questions, for example, this.questions = questions;
 
@@ -869,24 +869,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     );
 
     // Decide whether to show the explanation
-    this.maybeShowExplanation(this.currentQuestionIndex);
+    this.conditionallyShowExplanation(this.currentQuestionIndex);
 
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.toggleExplanationDisplay(true);
   }
 
-  maybeShowExplanation(questionIndex: number): void {
+  conditionallyShowExplanation(questionIndex: number): void {
     // Subscribe to the Observable to get the questions array
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
+    this.quizDataService.getQuestionsForQuiz(this.quizService.quizId).subscribe(questions => {
       this.questionsArray = questions;
-
-      // Now that we have the questions, we can check if the questionsArray is initialized and not empty
       if (!this.questionsArray || this.questionsArray.length === 0) {
         console.warn('Questions array is not initialized or empty.');
         return;
       }
-
-      console.log(`maybeShowExplanation called for questionIndex: ${questionIndex}`);
 
       if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
         console.error(`Invalid questionIndex: ${questionIndex}`);
@@ -898,9 +894,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
       if (questionState && questionState.isAnswered) {
         console.log(`Question is answered, preparing to show explanation.`);
-        const explanationText = this.questionsArray[questionIndex].explanation;
+        const explanationText = this.explanationTextService.getFormattedExplanation(questionIndex);
         console.log(`Setting explanation text: ${explanationText}`);
-        // Here, use the explanationText to update the UI or state as needed
       } else {
         console.log(`Conditions for showing explanation not met.`);
       }
