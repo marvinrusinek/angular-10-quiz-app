@@ -135,6 +135,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isLoading = true;
   isPaused = false;
   private initialized = false;
+  questionsArray: QuizQuestion[];
   
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -187,6 +188,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.initialized) {
       await this.initializeQuiz();
     }
+
+    this.questions.subscribe(questions => {
+      this.questionsArray = questions; // Assuming you have a property called questionsArray to hold the actual array
+    });
 
     this.subscribeToAnswers();
     this.subscribeToSelectionMessage();
@@ -876,6 +881,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   maybeShowExplanation(questionIndex: number): void {
     console.log(`maybeShowExplanation called for questionIndex: ${questionIndex}`);
+    if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
+      console.error(`Invalid questionIndex: ${questionIndex}`);
+      return;
+    }
+
     const questionState = this.quizStateService.getQuestionState(questionIndex);
     console.log(`Question State:`, questionState);
 
