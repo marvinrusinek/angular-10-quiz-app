@@ -994,10 +994,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
-    this.questions.subscribe({
+    this.questions.pipe(take(1)).subscribe({
       next: (questionsArray: QuizQuestion[]) => {
-        const questionIndex = questionsArray.findIndex((q) =>
-          this.isSameQuestion(q, currentQuestion)
+        this.questionsArray = questionsArray;
+        const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion)
         );
         this.setExplanationText(questionIndex);
       },
