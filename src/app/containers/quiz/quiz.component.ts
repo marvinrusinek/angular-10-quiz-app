@@ -1389,29 +1389,35 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  restartQuiz(): void {
-    // Reset quiz-specific states
+  async restartQuiz(): Promise<void> {
+    // Reset states
     this.quizService.resetAll();
     this.currentQuestionIndex = 0;
     this.questionIndex = 1;
-    this.explanationTextService.resetExplanationText(); // Reset explanation texts and any flags
-    
-    // Refetch questions and reinitialize states related to questions and explanations
-    this.fetchAndInitializeQuestions();
-    
-    // Navigate to the first question after ensuring all resets and initializations are complete
-    this.router.navigate(['/question/', this.quizId, 1]).then(() => {
+    this.explanationTextService.resetExplanationText();
+
+    try {
+      // Ensure questions are fetched before proceeding
+      await this.fetchAndInitializeQuestions();
+      await this.router.navigate(['/question/', this.quizId, 1]);
       this.resetUI();
-    });
+    } catch (error) {
+      console.error('Error during quiz restart:', error);
+    }
   }
 
-  fetchAndInitializeQuestions(): void {
-    this.quizDataService.getQuestionsForQuiz(this.quizService.quizId).subscribe({
-      next: (questionsArray: QuizQuestion[]) => {
-        this.questionsArray = questionsArray; 
-        this.initializeQuestionState(); 
-      },
-      error: (error) => console.error('Error fetching questions:', error)
+  async fetchAndInitializeQuestions(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+        next: (questions) => {
+          this.questionsArray = questions;
+          resolve();
+        },
+        error: (error) => {
+          console.error('Failed to fetch questions:', error);
+          reject(error);
+        }
+      });
     });
   }
 
