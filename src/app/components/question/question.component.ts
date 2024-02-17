@@ -21,6 +21,7 @@ import {
   ReplaySubject,
   Subject,
   Subscription,
+  throwError
 } from 'rxjs';
 import {
   catchError,
@@ -29,8 +30,7 @@ import {
   switchMap,
   take,
   takeUntil,
-  tap,
-  throwError
+  tap
 } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -843,64 +843,41 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async onOptionClicked(option: Option, index: number): Promise<void> {
     this.quizService.addSelectedOption(option);
 
+    const currentQuestion = await this.getCurrentQuestion();
+    if (currentQuestion) {
+        this.handleOptionSelection(option, index, currentQuestion);
+    }
+  }
+
+  async getCurrentQuestion(): Promise<QuizQuestion | null> {
     const currentQuestion = await firstValueFrom(this.quizStateService.currentQuestion$.pipe(take(1)));
     if (this.quizService.isQuizQuestion(currentQuestion)) {
-      this.currentQuestion = currentQuestion;
+        return currentQuestion;
     } else {
-      console.error('Received value does not match QuizQuestion structure:', currentQuestion);
-      return;
+        console.error('Received value does not match QuizQuestion structure:', currentQuestion);
+        return null;
     }
+  }
 
-    this.processOptionSelection(this.currentQuestion, option);
-
+  handleOptionSelection(option: Option, index: number, currentQuestion: QuizQuestion): void {
+    this.processOptionSelection(currentQuestion, option);
     this.updateAnswersForOption(option);
     this.checkAndHandleCorrectAnswer();
     this.logDebugInformation();
 
-    const totalCorrectAnswers = currentQuestion.options.filter(option => option.correct).length;
+    const totalCorrectAnswers = currentQuestion.options.filter(opt => opt.correct).length;
 
     // Update the state to reflect the selected option
     const optionId = option.optionId ?? index;
     this.quizStateService.updateQuestionState(
-      this.currentQuestionIndex,
-      optionId,
-      option.correct ?? false,
-      totalCorrectAnswers
+        this.currentQuestionIndex,
+        optionId,
+        option.correct ?? false,
+        totalCorrectAnswers
     );
 
     // Decide whether to show the explanation
     this.conditionallyShowExplanation(this.currentQuestionIndex);
-
-    this.explanationTextService.setShouldDisplayExplanation(true);
-    this.explanationTextService.toggleExplanationDisplay(true);
-  }
-
-  conditionallyShowExplanation(questionIndex: number): void {
-    if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.warn('Questions array is not initialized or empty.');
-      return;
-    }
-
-    if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
-      console.error(`Invalid questionIndex: ${questionIndex}`);
-      return;
-    }
-
-    const questionState = this.quizStateService.getQuestionState(questionIndex);
-    console.log('Question State:', questionState);
-    if (questionState && questionState.isAnswered) {
-      console.log(`Retrieving explanation for questionIndex: ${questionIndex}`);
-      const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-      console.log('Explanation Text:', explanationText);
-      this.explanationTextService.setExplanationText(explanationText);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-    } else {
-      console.log(`Conditions for showing explanation not met.`);
-    }
-
-    this.explanationTextService.shouldDisplayExplanation$.subscribe(value => {
-      console.log('Should Display Explanation:', value);
-    });
   }
 
   private processOptionSelection(
@@ -945,6 +922,34 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         // add additional logic here
       });
     }
+  }
+
+  conditionallyShowExplanation(questionIndex: number): void {
+    if (!this.questionsArray || this.questionsArray.length === 0) {
+      console.warn('Questions array is not initialized or empty.');
+      return;
+    }
+
+    if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
+      console.error(`Invalid questionIndex: ${questionIndex}`);
+      return;
+    }
+
+    const questionState = this.quizStateService.getQuestionState(questionIndex);
+    console.log('Question State:', questionState);
+    if (questionState && questionState.isAnswered) {
+      console.log(`Retrieving explanation for questionIndex: ${questionIndex}`);
+      const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      console.log('Explanation Text:', explanationText);
+      this.explanationTextService.setExplanationText(explanationText);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+    } else {
+      console.log(`Conditions for showing explanation not met.`);
+    }
+
+    this.explanationTextService.shouldDisplayExplanation$.subscribe(value => {
+      console.log('Should Display Explanation:', value);
+    });
   }
 
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
