@@ -86,15 +86,15 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   getFormattedExplanationTextForQuestion(index: number): string {
-    // Convert the record's keys to an array of numbers and check if the index is a valid key
-    const keys = Object.keys(this.formattedExplanations).map(Number);
-
-    if (keys.includes(index)) {
-      // Retrieve the formatted explanation using the index
+    // Check if the index is a valid key in the formattedExplanations object.
+    if (index in this.formattedExplanations) {
+      // Retrieve the formatted explanation using the index.
       const formattedExplanation = this.formattedExplanations[index];
 
-      // Return the explanation text, or a default message if it's not available
-      return formattedExplanation ? formattedExplanation.explanation : 'No explanation available';
+      // Return the explanation text if available, or a default message if it's not.
+      return formattedExplanation && formattedExplanation.explanation
+        ? formattedExplanation.explanation
+        : 'No explanation available';
     } else {
       return 'Question index out of bounds or no explanation available';
     }
