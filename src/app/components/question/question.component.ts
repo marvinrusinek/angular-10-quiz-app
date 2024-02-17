@@ -189,6 +189,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.initializeQuiz();
     }
 
+    this.explanationTextService.shouldDisplayExplanation$.subscribe(shouldDisplay => {
+      if (shouldDisplay) {
+        this.conditionallyShowExplanation(this.currentQuestionIndex);
+      }
+    });
+
     this.subscribeToAnswers();
     this.subscribeToSelectionMessage();
     this.subscriptionToOptions();
