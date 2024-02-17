@@ -1421,7 +1421,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
             next: (questions) => {
                 this.questionsArray = questions;
-                console.log("Questions fetched:", this.questionsArray); // Add this line to log fetched questions
+                console.log('Questions array populated:', this.questionsArray); // Add this line to log fetched questions
                 resolve();
             },
             error: (error) => {
@@ -1511,20 +1511,18 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   setDisplayStateForExplanationsAfterRestart(): Observable<void> {
     return new Observable<void>(observer => {
-        // Assuming the first question's explanation is to be displayed upon restart
-        const firstQuestionIndex = 0;
-        const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(firstQuestionIndex);
+      const firstQuestionIndex = 0;
+      const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(firstQuestionIndex);
         
-        if (explanation) {
-            this.explanationTextService.shouldDisplayExplanationSource.next(true);
-            this.explanationTextService.formattedExplanation$.next(explanation);
-            observer.complete(); // Complete the observable since the required action is done
-        } else {
-            observer.error(new Error('Failed to set explanation for the first question'));
-        }
+      if (explanation) {
+        this.explanationTextService.shouldDisplayExplanationSource.next(true);
+        this.explanationTextService.formattedExplanation$.next(explanation);
+        observer.complete();
+      } else {
+        observer.error(new Error('Failed to set explanation for the first question'));
+      }
 
-        // Cleanup if the observable is unsubscribed
-        return { unsubscribe() {} }; // No active subscriptions to clean up in this simplified version
+      return { unsubscribe() {} };
     });
   }
   
