@@ -851,17 +851,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     const currentQuestion = await this.getCurrentQuestion();
     if (currentQuestion) {
-        this.handleOptionSelection(option, index, currentQuestion);
+      this.handleOptionSelection(option, index, currentQuestion);
     }
   }
 
   async getCurrentQuestion(): Promise<QuizQuestion | null> {
     const currentQuestion = await firstValueFrom(this.quizStateService.currentQuestion$.pipe(take(1)));
     if (this.quizService.isQuizQuestion(currentQuestion)) {
-        return currentQuestion;
+      return currentQuestion;
     } else {
-        console.error('Received value does not match QuizQuestion structure:', currentQuestion);
-        return null;
+      console.error('Received value does not match QuizQuestion structure:', currentQuestion);
+      return null;
     }
   }
 
@@ -876,10 +876,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Update the state to reflect the selected option
     const optionId = option.optionId ?? index;
     this.quizStateService.updateQuestionState(
-        this.currentQuestionIndex,
-        optionId,
-        option.correct ?? false,
-        totalCorrectAnswers
+      this.currentQuestionIndex,
+      optionId,
+      option.correct ?? false,
+      totalCorrectAnswers
     );
 
     // Decide whether to show the explanation

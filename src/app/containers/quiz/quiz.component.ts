@@ -1389,7 +1389,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  restartQuiz(): void {
+  /* restartQuiz(): void {
     // Step 1: Reset quiz-specific states and services
     this.quizService.resetAll();
     this.currentQuestionIndex = 0;  // Reset to the first question's index
@@ -1414,9 +1414,33 @@ export class QuizComponent implements OnInit, OnDestroy {
     }).catch(error => {
         console.error('Error during quiz restart:', error);
     });
+  } */
+
+  restartQuiz(): void {
+    // Step 1: Reset quiz-specific states and services
+    this.quizService.resetAll();
+    this.currentQuestionIndex = 0;  // Reset to the first question's index
+    this.explanationTextService.resetExplanationText();  // Clears any existing explanation text
+
+    // Step 2: Reset the timer synchronously
+    this.timerService.stopTimer();
+    this.timerService.resetTimer();
+
+    // Step 3: Refetch questions and reinitialize states related to questions and explanations
+    this.fetchAndInitializeQuestions().then(() => {
+        // Step 4: Set up the display state for explanations after ensuring questions are refetched
+        return this.setDisplayStateForExplanationsAfterRestart();
+    }).then(() => {
+        // Step 5: Navigate to the first question and reset UI only after all previous steps are complete
+        return this.router.navigate(['/question/', this.quizId, 1]);
+    }).then(() => {
+        this.resetUI(); // Reset UI after successful navigation
+    }).catch(error => {
+        console.error('Error during quiz restart:', error);
+    });
   }
 
-  async fetchAndInitializeQuestions(): Promise<void> {
+  /* async fetchAndInitializeQuestions(): Promise<void> {
     return new Promise((resolve, reject) => {
         this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
             next: (questions) => {
@@ -1430,6 +1454,28 @@ export class QuizComponent implements OnInit, OnDestroy {
             }
         });
     });
+  } */
+
+  /* fetchAndInitializeQuestions(): Promise<void> {
+    return new Promise((resolve, reject) => {
+        this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+            next: (questions) => {
+                this.questionsArray = questions;
+                resolve();
+            },
+            error: reject
+        });
+    });
+  } */
+
+  async fetchAndInitializeQuestions(): Promise<void> {
+    try {
+        this.questionsArray = await this.quizDataService.getQuestionsForQuiz(this.quizId).toPromise();
+        console.log('Questions fetched and initialized:', this.questionsArray);
+    } catch (error) {
+        console.error('Failed to fetch and initialize questions:', error);
+        throw error;
+    }
   }
 
   initializeQuestionState(): void {
@@ -1526,7 +1572,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  setDisplayStateForExplanationsAfterRestart(): Promise<void> {
+  /* setDisplayStateForExplanationsAfterRestart(): Promise<void> {
     return new Promise((resolve, reject) => {
         // Assuming you want to display the explanation for the first question upon restart
         const firstQuestionIndex = 0;
@@ -1539,6 +1585,36 @@ export class QuizComponent implements OnInit, OnDestroy {
         } else {
             console.error('No explanation available for the first question');
             reject('No explanation available for the first question'); // Reject the promise if no explanation is found
+        }
+    });
+  } */
+
+  /* setDisplayStateForExplanationsAfterRestart(): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+        if (explanationText) {
+            this.explanationTextService.setExplanationText(explanationText);
+            this.explanationTextService.setShouldDisplayExplanation(true);
+            console.log(`Explanation set for question ${this.currentQuestionIndex}:`, explanationText);
+            resolve();
+        } else {
+            console.error('No explanation available for the first question');
+            reject('No explanation available');
+        }
+    });
+  } */
+
+  setDisplayStateForExplanationsAfterRestart(): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+        if (explanation) {
+            this.explanationTextService.setExplanationText(explanation);
+            this.explanationTextService.setShouldDisplayExplanation(true);
+            console.log('Explanation set:', explanation);
+            resolve();
+        } else {
+            console.warn('No explanation available for the first question');
+            reject('No explanation available');
         }
     });
   }
