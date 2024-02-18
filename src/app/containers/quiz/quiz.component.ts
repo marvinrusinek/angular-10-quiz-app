@@ -1389,7 +1389,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  restartQuiz(): void {
+  /* restartQuiz(): void {
     // Step 1: Reset quiz-specific states and services
     this.quizService.resetAll();
     this.currentQuestionIndex = 0;  // Reset to the first question's index
@@ -1414,9 +1414,27 @@ export class QuizComponent implements OnInit, OnDestroy {
     }).catch(error => {
         console.error('Error during quiz restart:', error);
     });
+  } */
+
+  restartQuiz(): void {
+    // Reset quiz and timer
+    this.quizService.resetAll();
+    this.timerService.resetTimer();
+
+    // Reset explanation display state
+    this.explanationTextService.resetExplanationText();
+
+    // Fetch questions and reinitialize the quiz
+    this.fetchAndInitializeQuestions().then(() => {
+        // Navigate to the first question
+        this.router.navigate(['/question/', this.quizId, 1]).then(() => {
+            // Additional UI reset if needed
+            this.resetUI();
+        });
+    });
   }
 
-  async fetchAndInitializeQuestions(): Promise<void> {
+  /* async fetchAndInitializeQuestions(): Promise<void> {
     return new Promise((resolve, reject) => {
         this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
             next: (questions) => {
@@ -1429,6 +1447,16 @@ export class QuizComponent implements OnInit, OnDestroy {
                 reject(error);
             }
         });
+    });
+  } */
+
+  fetchAndInitializeQuestions(): Promise<void> {
+    return new Promise((resolve, reject) => {
+        this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
+            this.questionsArray = questions;
+            // Optionally set up initial explanation state for the first question here
+            resolve();
+        }, reject);
     });
   }
 
