@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -29,8 +29,6 @@ export class ExplanationTextService {
 
   private isExplanationDisplayedSource = new BehaviorSubject<boolean>(false);
   isExplanationDisplayed$ = this.isExplanationDisplayedSource.asObservable();
-
-  private explanationDisplayedSource = new BehaviorSubject<boolean>(false);
 
   constructor() {
     this.explanationText$.next('');
@@ -93,10 +91,12 @@ export class ExplanationTextService {
     });
   }
 
-  formatExplanationText(question: QuizQuestion, questionIndex: number): Observable<{ questionIndex: number, explanation: string }> {
+  formatExplanationText(question: QuizQuestion, questionIndex: number): 
+    Observable<{ questionIndex: number, explanation: string }> {
     // Early return for invalid or non-current question
     if (!this.isQuestionValid(question) || !this.isCurrentQuestion(question)) {
-      console.log('Skipping question:', questionIndex, 'Reason:', !this.isQuestionValid(question) ? 'Invalid' : 'Not Current');
+      console.log('Skipping question:', questionIndex, 
+        'Reason:', !this.isQuestionValid(question) ? 'Invalid' : 'Not Current');
       return of({ questionIndex, explanation: '' });
     }
 
@@ -190,10 +190,6 @@ export class ExplanationTextService {
     } catch (error) {
       console.error('Error updating explanation text:', error);
     }
-  }
-
-  setExplanationDisplayed(isDisplayed: boolean): void {
-    this.explanationDisplayedSource.next(isDisplayed);
   }
 
   setIsExplanationTextDisplayed(isDisplayed: boolean): void {
