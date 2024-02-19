@@ -7,9 +7,8 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({ providedIn: 'root' })
 export class ExplanationTextService {
-  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
-    string | null
-  >('');
+  explanationText$: BehaviorSubject<string | null> = 
+    new BehaviorSubject<string | null>('');
   explanationTexts: Record<number, string> = {};
   currentQuestionExplanation: string | null = null;
   formattedExplanations: Record<number, FormattedExplanation> = {};
