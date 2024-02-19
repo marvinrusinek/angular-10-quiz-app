@@ -39,9 +39,7 @@ import { Resource } from '../../shared/models/Resource.model';
 
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class QuizService implements OnDestroy {
   currentQuestionIndex = -1;
   quiz: Quiz = QUIZ_DATA[this.currentQuestionIndex];
@@ -204,9 +202,7 @@ export class QuizService implements OnDestroy {
   private correctAnswersCountTextSource = new BehaviorSubject<string>('Select answers');
   correctAnswersCountText$ = this.correctAnswersCountTextSource.asObservable();
 
-  private correctAnswersAvailabilitySubject = new BehaviorSubject<boolean>(
-    false
-  );
+  private correctAnswersAvailabilitySubject = new BehaviorSubject<boolean>(false);
   correctAnswersAvailability$ =
     this.correctAnswersAvailabilitySubject.asObservable();
 
@@ -256,10 +252,6 @@ export class QuizService implements OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  isQuizQuestion(obj: any): obj is QuizQuestion {
-    return obj && 'questionText' in obj && 'options' in obj && 'explanation' in obj;
   }
 
   get quizData$(): Observable<Quiz[]> {
@@ -353,6 +345,10 @@ export class QuizService implements OnDestroy {
   // Type guard function to check if an object is of type Quiz
   private isQuiz(item: any): item is Quiz {
     return typeof item === 'object' && 'quizId' in item;
+  }
+
+  isQuizQuestion(obj: any): obj is QuizQuestion {
+    return obj && 'questionText' in obj && 'options' in obj && 'explanation' in obj;
   }
 
   initializeData(): void {
