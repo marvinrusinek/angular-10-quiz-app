@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
@@ -6,7 +6,7 @@ import { FormattedExplanation } from '../../shared/models/FormattedExplanation.m
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({ providedIn: 'root' })
-export class ExplanationTextService implements OnDestroy {
+export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
     string | null
   >('');
@@ -33,16 +33,9 @@ export class ExplanationTextService implements OnDestroy {
 
   private explanationDisplayedSource = new BehaviorSubject<boolean>(false);
 
-  private destroyed$ = new Subject<void>();
-
   constructor() {
     this.explanationText$.next('');
     this.shouldDisplayExplanationSource.next(false);
-  }
-
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
   }
 
   getExplanationText$(): Observable<string | null> {
