@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class SharedVisibilityService {
   private isPageHidden = false;
   private pageVisibilitySubject = new Subject<boolean>();
