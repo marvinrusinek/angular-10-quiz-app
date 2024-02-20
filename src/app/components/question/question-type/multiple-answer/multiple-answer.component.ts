@@ -31,7 +31,6 @@ import { TimerService } from '../../../../shared/services/timer.service';
 export class MultipleAnswerComponent extends QuizQuestionComponent implements AfterViewInit, OnInit, OnChanges, OnDestroy {
   @Output() answer = new EventEmitter<number>();
   @Input() question!: QuizQuestion;
-  @Input() currentQuestionIndex!: number;
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[];
   @Input() correctMessage: string;
