@@ -4,16 +4,12 @@ import { BehaviorSubject } from 'rxjs';
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class QuizQuestionManagerService {
   currentQuestion$: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
   explanationText: string;
-  numberOfCorrectAnswers: number;
   shouldDisplayNumberOfCorrectAnswers = false;
-  isOptionSelected = false;
   shouldDisplayExplanation = false;
   correctAnswersCount = 0; // not currently being used
   selectedOption: Option | null = null;
@@ -25,12 +21,6 @@ export class QuizQuestionManagerService {
 
   setSelectedOption(option: Option): void {
     this.selectedOption = option;
-  }
-
-  updateCurrentQuestionDetail(question: QuizQuestion): void {
-    this.currentQuestion$.next(question);
-    this.currentQuestionSubject.next(question);
-    this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers(question);
   }
 
   setExplanationText(explanation: string): void {
@@ -51,6 +41,12 @@ export class QuizQuestionManagerService {
         : '';
 
     return correctAnswersText;
+  }
+
+  updateCurrentQuestionDetail(question: QuizQuestion): void {
+    this.currentQuestion$.next(question);
+    this.currentQuestionSubject.next(question);
+    this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers(question);
   }
 
   calculateNumberOfCorrectAnswers(options: Option[]): number {
@@ -74,9 +70,5 @@ export class QuizQuestionManagerService {
   
     const isMultiple = numberOfCorrectAnswers > 1;  
     return isMultiple;
-  }
-  
-  hasCurrentQuestion(): boolean {
-    return !!this.currentQuestion$;
   }
 }
