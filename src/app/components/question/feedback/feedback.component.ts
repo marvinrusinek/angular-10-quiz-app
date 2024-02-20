@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -9,7 +9,7 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
   styleUrls: ['./feedback.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FeedbackComponent {
+export class FeedbackComponent implements OnChanges {
   @Input() data: {
     questionText: string;
     correctAnswersText?: string;
@@ -21,11 +21,19 @@ export class FeedbackComponent {
   @Input() showFeedback: boolean;
   feedback: string;
 
-  constructor() {
-    this.feedback = this.displayFeedbackMessage();
+  constructor() {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Check if selectedOption has changed
+    if (changes.selectedOption) {
+      this.feedback = this.displayFeedbackMessage();
+    }
   }
 
   displayFeedbackMessage(): string {
+    if (!this.selectedOption) {
+      return ''; // or some default message
+    }
     return this.selectedOption.correct ? "You're right! " : "That's wrong. ";
   }
 }
