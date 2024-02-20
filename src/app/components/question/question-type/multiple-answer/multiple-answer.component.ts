@@ -1,20 +1,9 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges,
-  ViewEncapsulation
-} from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef,
+  Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit,
+  Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormGroup } from '@angular/forms';
+import { Observable, Subject } from 'rxjs';
 
 import { QuizQuestionComponent } from '../../question.component';
 import { Option } from '../../../../shared/models/Option.model';
@@ -54,13 +43,9 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   @Input() correctMessage: string;
   @Input() correctAnswers: number[];
   form: FormGroup;
-  currentQuestion$: Observable<QuizQuestion>;
-  currentOptionsSubscription: Subscription;
   selectedOptions: Option[] = [];
   optionChecked: { [optionId: number]: boolean } = {};
   options$: Observable<Option[]>;
-  isMultiple = true;
-  showExplanation = false;
   showFeedback = false;
   private destroyed$ = new Subject<void>();
 
@@ -75,7 +60,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     sharedVisibilityService: SharedVisibilityService,
     timerService: TimerService,
     activatedRoute: ActivatedRoute,
-    fb: FormBuilder,
     cdRef: ChangeDetectorRef,
     router: Router
   ) {
@@ -143,7 +127,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   ngOnDestroy(): void {
     this.destroyed$.next();
     this.destroyed$.complete();
-    this.currentOptionsSubscription?.unsubscribe();
   }
 
   onOptionClick(option: Option, index: number, event?: MouseEvent): void {

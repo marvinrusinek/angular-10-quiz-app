@@ -1,37 +1,13 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges
+import { ChangeDetectionStrategy, ChangeDetectorRef,
+  Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  combineLatest,
-  firstValueFrom,
-  Observable,
-  of,
-  ReplaySubject,
-  Subject,
-  Subscription,
-  throwError
-} from 'rxjs';
-import {
-  catchError,
-  filter,
-  map,
-  switchMap,
-  take,
-  takeUntil,
-  tap
-} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest,
+  firstValueFrom, Observable, of, ReplaySubject,
+  Subject, Subscription, throwError } from 'rxjs';
+import { catchError, filter, map, switchMap, take,
+  takeUntil, tap } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
