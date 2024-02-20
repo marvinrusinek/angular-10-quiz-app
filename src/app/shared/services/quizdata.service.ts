@@ -13,8 +13,8 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 @Injectable({ providedIn: 'root' })
 export class QuizDataService implements OnDestroy {
   quiz: Quiz;
-  quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
   quizzes: Quiz[] = [];
+  quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
   quizzesSubject = new BehaviorSubject<Quiz[]>(this.quizzes);
   quizId = '';
   question: QuizQuestion | null = null;
