@@ -1,20 +1,9 @@
 import { Injectable, Input } from '@angular/core';
 import { BehaviorSubject, Observable, of, timer } from 'rxjs';
-import {
-  first,
-  repeatWhen,
-  scan,
-  shareReplay,
-  skip,
-  switchMapTo,
-  take,
-  takeUntil,
-  tap
-} from 'rxjs/operators';
+import { first, repeatWhen, scan, shareReplay, skip,
+  switchMapTo, take, takeUntil, tap } from 'rxjs/operators';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class StopwatchService {
   @Input() selectedAnswer: number;
   answer: number;
@@ -31,7 +20,6 @@ export class StopwatchService {
   isStart = new BehaviorSubject<number>(1);
   isStop = new BehaviorSubject<number>(1);
   isReset = new BehaviorSubject<number>(1);
-  isTimerStart = false;
 
   constructor() {
     this.start$ = this.isStart.asObservable().pipe(shareReplay(1));
