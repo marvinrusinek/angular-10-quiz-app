@@ -19,4 +19,13 @@ export class FeedbackComponent {
   @Input() correctMessage: string;
   @Input() selectedOption: Option & { correct: boolean };
   @Input() showFeedback: boolean;
+  feedbackMessage: string;
+
+  constructor() {
+    this.feedbackMessage = this.feedbackMessage();
+  }
+
+  feedbackMessage(): string {
+    this.selectedOption.correct ? "You're right! " : "That's wrong. ";
+  }
 }
