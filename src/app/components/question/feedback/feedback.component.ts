@@ -24,7 +24,6 @@ export class FeedbackComponent implements OnChanges {
   constructor() {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Check if selectedOption has changed
     if (changes.selectedOption) {
       this.feedback = this.displayFeedbackMessage();
     }
@@ -32,7 +31,7 @@ export class FeedbackComponent implements OnChanges {
 
   displayFeedbackMessage(): string {
     if (!this.selectedOption) {
-      return ''; // or some default message
+      return '';
     }
     return this.selectedOption.correct ? "You're right! " : "That's wrong. ";
   }
