@@ -6,9 +6,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { ExplanationTextService } from './explanation-text.service';
 import { QuizService } from './quiz.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class QuizResolverService implements Resolve<QuizQuestion[]> {
   constructor(
     private quizService: QuizService,
