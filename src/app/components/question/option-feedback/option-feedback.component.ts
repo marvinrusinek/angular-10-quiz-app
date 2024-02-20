@@ -16,6 +16,11 @@ export class OptionFeedbackComponent {
   };
   @Input() correct: boolean;
   @Input() selected: string;
+  statusIcon: string;
+
+  constructor() {
+    this.statusIcon = this.selectStatusIcon();
+  }
 
   selectStatusIcon(): string {
     return this.correct ? 'done' : 'clear';
