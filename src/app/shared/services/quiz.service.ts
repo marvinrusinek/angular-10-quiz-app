@@ -1,27 +1,10 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import {
-  BehaviorSubject,
-  combineLatest,
-  firstValueFrom,
-  from,
-  Observable,
-  of,
-  Subject,
-  Subscription
-} from 'rxjs';
-import {
-  catchError,
-  distinctUntilChanged,
-  finalize,
-  map,
-  shareReplay,
-  switchMap,
-  takeUntil,
-  tap,
-  throwError
-} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, firstValueFrom, from, 
+  Observable, of, Subject, Subscription } from 'rxjs';
+import { catchError, distinctUntilChanged, finalize, map, shareReplay, switchMap,
+  takeUntil, tap, throwError } from 'rxjs/operators';
 import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
 
@@ -76,6 +59,8 @@ export class QuizService implements OnDestroy {
     new BehaviorSubject<QuizQuestion | null>(null);
   public currentQuestion$: Observable<QuizQuestion | null> =
     this.currentQuestionSubject.asObservable();
+  private answerStatus = new BehaviorSubject<boolean>(false);
+  answerStatus$ = this.answerStatus.asObservable();
 
   currentQuestionIndexSource = new BehaviorSubject<number>(0);
   currentQuestionIndex$ = this.currentQuestionIndexSource.asObservable();
@@ -85,8 +70,6 @@ export class QuizService implements OnDestroy {
   resources: Resource[];
   quizId = '';
   answers: number[] = [];
-  private answerStatus = new BehaviorSubject<boolean>(false);
-  answerStatus$ = this.answerStatus.asObservable();
   totalQuestions = 0;
   correctCount: number;
 
@@ -137,9 +120,6 @@ export class QuizService implements OnDestroy {
 
   currentAnswer = '';
   nextQuestionText = '';
-  private nextQuestionTextSubject = new BehaviorSubject<string>('');
-  nextQuestionText$ = this.nextQuestionTextSubject.asObservable();
-  showQuestionText$: Observable<boolean>;
 
   correctOptions: string[] = [];
   selectedOption$ = new BehaviorSubject<string>(null);
