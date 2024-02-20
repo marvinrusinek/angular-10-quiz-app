@@ -6,9 +6,7 @@ import { QuestionState } from '../../shared/models/QuestionState.model';
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class QuizStateService { 
   currentQuestion: BehaviorSubject<QuizQuestion | null>
     = new BehaviorSubject<QuizQuestion | null>(null);
@@ -94,7 +92,6 @@ export class QuizStateService {
       }
     } else {
       console.error('selectedOptions is not an array', { currentState });
-      // Initialize selectedOptions as an array if it's not already
       currentState.selectedOptions = [selectedOptionId.toString()];
     }
 
