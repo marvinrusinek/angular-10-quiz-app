@@ -43,7 +43,6 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   @Input() currentQuestionIndex!: number;
   @Input() correctMessage: string;
   @Input() selected: string;
-  options$: Observable<Option[]>;
   optionChecked: { [optionId: number]: boolean } = {};
   showFeedback = false;
 
