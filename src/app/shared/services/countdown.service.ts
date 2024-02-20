@@ -20,7 +20,6 @@ export class CountdownService {
   isStart = new BehaviorSubject<number>(1);
   isStop = new BehaviorSubject<number>(1);
   isReset = new BehaviorSubject<number>(1);
-  isTimerStart = false;
 
   constructor() {
     this.start$ = this.isStart.asObservable().pipe(shareReplay(1));
