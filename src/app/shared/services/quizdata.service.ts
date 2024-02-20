@@ -10,18 +10,14 @@ import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class QuizDataService implements OnDestroy {
   quiz: Quiz;
   quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
   quizzes: Quiz[] = [];
   quizzesSubject = new BehaviorSubject<Quiz[]>(this.quizzes);
   quizId = '';
-  currentQuizId = '';
   question: QuizQuestion | null = null;
-  questionAndOptions: [QuizQuestion, Option[]] | null = null;
   questionType: string;
 
   currentQuestionIndex = 0;
@@ -219,14 +215,10 @@ export class QuizDataService implements OnDestroy {
       const question = await firstValueFrom(
         this.fetchQuizQuestionByIdAndIndex(quizId, currentQuestionIndex)
       );
-      this.setQuestion(question);
+      this.question = question;
     } catch (error) {
       console.error('Error setting question:', error);
     }
-  }
-
-  setQuestion(question: QuizQuestion | null): void {
-    this.question = question;
   }
 
   fetchQuizQuestionByIdAndIndex(
