@@ -6,7 +6,7 @@ import { Option } from '../../../shared/models/Option.model';
   selector: 'codelab-quiz-option-feedback',
   templateUrl: './option-feedback.component.html',
   styleUrls: ['./option-feedback.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OptionFeedbackComponent {
   @Input() data: {

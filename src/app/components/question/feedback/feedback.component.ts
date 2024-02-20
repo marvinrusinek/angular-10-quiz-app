@@ -7,7 +7,7 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
   selector: 'codelab-quiz-feedback',
   templateUrl: './feedback.component.html',
   styleUrls: ['./feedback.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FeedbackComponent {
   @Input() data: {
