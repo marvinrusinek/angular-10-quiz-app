@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef,
   Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit,
   Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
 
 import { QuizQuestionComponent } from '../../question.component';
@@ -60,6 +60,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     sharedVisibilityService: SharedVisibilityService,
     timerService: TimerService,
     activatedRoute: ActivatedRoute,
+    fb: FormBuilder,
     cdRef: ChangeDetectorRef,
     router: Router
   ) {
