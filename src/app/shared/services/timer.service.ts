@@ -1,12 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, timer } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, timer } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 
-import { CountdownService } from './countdown.service';
-
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class TimerService {
   timePerQuestion = 20;
   elapsedTime = 0;
@@ -16,7 +12,7 @@ export class TimerService {
 
   private isTimerRunning = false;
   private timer$: Observable<number>;
-  private timerSubscription: any;
+  private timerSubscription: Subscription;
 
   start$: Observable<number>;
   reset$: Observable<number>;
@@ -41,6 +37,10 @@ export class TimerService {
     );
 
     this.timer = this.timer$.pipe(takeUntil(this.isReset));
+  }
+
+  ngOnDestroy(): void {
+    this.timerSubscription?.unsubscribe();
   }
 
   stopTimer(callback: (elapsedTime: number) => void): void {
@@ -85,10 +85,6 @@ export class TimerService {
       this.completionTime = elapsedTimes.reduce((acc, cur) => acc + cur, 0);
       return this.completionTime;
     }
-  }
-
-  ngOnDestroy(): void {
-    this.timerSubscription?.unsubscribe();
   }
 }
 
