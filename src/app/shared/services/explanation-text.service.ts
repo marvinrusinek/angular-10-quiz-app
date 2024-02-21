@@ -117,7 +117,8 @@ export class ExplanationTextService {
       .filter(index => index !== null);
   }
 
-  private formatExplanation(question: QuizQuestion, correctOptionIndices: number[]): string {
+  private formatExplanation(
+    question: QuizQuestion, correctOptionIndices: number[]): string {
     if (correctOptionIndices.length > 1) {
       question.type = QuestionType.MultipleAnswer;
       
@@ -135,10 +136,12 @@ export class ExplanationTextService {
     }
   }  
 
-  private syncFormattedExplanationState(questionIndex: number, formattedExplanation: string): void {
+  private syncFormattedExplanationState(
+    questionIndex: number, formattedExplanation: string): void {
     if (!this.formattedExplanations$[questionIndex]) {
       // Initialize the BehaviorSubject if it doesn't exist at the specified index
-      this.formattedExplanations$[questionIndex] = new BehaviorSubject<string | null>(null);
+      this.formattedExplanations$[questionIndex] = 
+        new BehaviorSubject<string | null>(null);
     }
   
     // Access the BehaviorSubject at the specified questionIndex
@@ -148,7 +151,8 @@ export class ExplanationTextService {
       subjectAtIndex.next(formattedExplanation);
       
       // Update the formattedExplanations array
-      const formattedExplanationObj: FormattedExplanation = { questionIndex, explanation: formattedExplanation };
+      const formattedExplanationObj: FormattedExplanation = 
+        { questionIndex, explanation: formattedExplanation };
       this.formattedExplanations[questionIndex] = formattedExplanationObj;
     } else {
       console.error(`No element at index ${questionIndex} in formattedExplanations$`);
@@ -156,7 +160,9 @@ export class ExplanationTextService {
   }
 
   private isQuestionValid(question: QuizQuestion): boolean {
-    return question && question.questionText && !this.processedQuestions.has(question.questionText);
+    return question && 
+           question.questionText && 
+           !this.processedQuestions.has(question.questionText);
   }
 
   setCurrentQuestionExplanation(explanation: string): void {
@@ -171,8 +177,8 @@ export class ExplanationTextService {
     this.formattedExplanation$.next(newExplanation);
   }
 
-  getFormattedExplanation(questionId: number): string {
-    const explanation = this.formattedExplanations[questionId];
+  getFormattedExplanation(questionIndex: number): string {
+    const explanation = this.formattedExplanations[questionIndex];
     if (explanation) {
       return explanation.explanation;
     }
