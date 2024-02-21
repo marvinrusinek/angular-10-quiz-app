@@ -57,57 +57,57 @@
   </footer>
 </div>-->
 <ion-page>
-<ion-content>
-  <ion-header>
-    <ion-toolbar>
-      <ion-title>Angular Codelab Quiz App</ion-title>
-      <ion-buttons slot="start">
-        <ion-button href="https://www.codelab.fun" target="_blank">
-          <ion-icon slot="icon-only" name="logo"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-      <ion-buttons slot="end">
-        <ion-button href="https://github.com/codelab-fun/codelab/blob/master/README.md" target="_blank">
-          <ion-icon slot="icon-only" name="information-circle"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-  </ion-header>
+  <ion-content>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Angular Codelab Quiz App</ion-title>
+        <ion-buttons slot="start">
+          <ion-button href="https://www.codelab.fun" target="_blank">
+            <ion-icon slot="icon-only" name="logo"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <ion-buttons slot="end">
+          <ion-button href="https://github.com/codelab-fun/codelab/blob/master/README.md" target="_blank">
+            <ion-icon slot="icon-only" name="information-circle"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
 
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Angular Codelab Quiz App</ion-title>
-    </ion-toolbar>
-  </ion-header>
+    <ion-header collapse="condense">
+      <ion-toolbar>
+        <ion-title size="large">Angular Codelab Quiz App</ion-title>
+      </ion-toolbar>
+    </ion-header>
 
-  <ion-content class="ion-padding">
-    <h4>How well do you know Angular? Find out!</h4>
+    <ion-content class="ion-padding">
+      <h4>How well do you know Angular? Find out!</h4>
 
-    <ion-item>
-      <ion-label>Milestones</ion-label>
-      <ion-select [interfaceOptions]="customPopoverOptions" interface="popover">
-        <ion-select-option *ngFor="let quiz of quizzes$ | async" [value]="quiz?.quizId">{{ quiz?.milestone || "Milestone not found" }}</ion-select-option>
-      </ion-select>
-    </ion-item>
+      <ion-item>
+        <ion-label>Milestones</ion-label>
+        <ion-select [interfaceOptions]="customPopoverOptions" interface="popover">
+          <ion-select-option *ngFor="let quiz of quizzes$ | async" [value]="quiz?.quizId">{{ quiz?.milestone || "Milestone not found" }}</ion-select-option>
+        </ion-select>
+      </ion-item>
 
-    <div class="quiz-grid">
-      <ion-card *ngFor="let quiz of quizzes$ | async" (click)="onSelect(quiz.quizId)">
-        <ion-card-header>
-          <ion-card-title>{{ quiz?.milestone || "Milestone not found" }}</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          {{ quiz?.summary || "Summary not found" }}
-        </ion-card-content>
-      </ion-card>
-    </div>
+      <div class="quiz-grid">
+        <ion-card *ngFor="let quiz of quizzes$ | async" (click)="onSelect(quiz.quizId)">
+          <ion-card-header>
+            <ion-card-title>{{ quiz?.milestone || "Milestone not found" }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            {{ quiz?.summary || "Summary not found" }}
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </ion-content>
+
+    <ion-footer>
+      <ion-toolbar>
+        <ion-title>
+          <a target="_blank" href="https://www.codelab.fun">codelab.fun</a>
+        </ion-title>
+      </ion-toolbar>
+    </ion-footer>
   </ion-content>
-
-  <ion-footer>
-    <ion-toolbar>
-      <ion-title>
-        <a target="_blank" href="https://www.codelab.fun">codelab.fun</a>
-      </ion-title>
-    </ion-toolbar>
-  </ion-footer>
-</ion-content>
 </ion-page>
