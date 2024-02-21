@@ -91,7 +91,7 @@
       </ion-item>
 
       <div class="quiz-grid">
-        <ion-card *ngFor="let quiz of quizzes$ | async" (click)="onSelect(quiz.quizId)" [@slideLeftToRight]="animationState$ | async" (@slideLeftToRight.done)="animationDoneHandler()" routerLinkActive="active" [ngStyle]="getQuizTileStyles(quiz)" loading="lazy">
+        <ion-card class="quiz-tile" *ngFor="let quiz of quizzes$ | async" (click)="onSelect(quiz.quizId)" [@slideLeftToRight]="animationState$ | async" (@slideLeftToRight.done)="animationDoneHandler()" routerLinkActive="active" [ngStyle]="getQuizTileStyles(quiz)" loading="lazy">
           <ion-card-header>
             <ion-card-title>{{ quiz?.milestone || "Milestone not found" }}</ion-card-title>
           </ion-card-header>
