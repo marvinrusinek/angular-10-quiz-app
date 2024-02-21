@@ -75,7 +75,7 @@
         <ng-container *ngIf="isLoading">
           Loading options...
         </ng-container>
-        <ng-container *ngIf="!isLoading && shouldHideOptions()">
+        <ng-container *ngIf="shouldDisplayContainer">
           No options found for the current question.
         </ng-container>
       </ng-template>

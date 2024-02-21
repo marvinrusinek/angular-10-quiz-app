@@ -115,6 +115,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private destroy$: Subject<void> = new Subject<void>();
 
+  get shouldDisplayContainer(): boolean {
+    return !this.isLoading && this.shouldHideOptions();
+  }  
+
   constructor(
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
