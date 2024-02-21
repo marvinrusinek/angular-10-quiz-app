@@ -13,11 +13,17 @@ export class FeedbackComponent implements OnChanges {
   @Input() selectedOption: Option & { correct: boolean };
   @Input() showFeedback: boolean;
   feedback: string;
+  feedbackMessageClass: string;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.selectedOption) {
+      this.feedbackMessageClass = this.determineFeedbackMessageClass();
       this.feedback = this.displayFeedbackMessage();
     }
+  }
+
+  determineFeedbackMessageClass(): string {
+    return this.selectedOption && this.selectedOption.correct ? 'correct-message' : 'wrong-message';
   }
 
   displayFeedbackMessage(): string {
