@@ -30,6 +30,7 @@
     "hammerjs": "^2.0.8",
     "hover.css": "2.3.2",
     "howler": "^2.2.4",
+    "ionic/cli": "*",
     "jquery": "3.5.1",
     "lodash": "^4.17.21",
     "ngx-bootstrap": "6.1.0",
