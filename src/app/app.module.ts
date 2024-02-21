@@ -18,6 +18,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { IonicModule } from '@ionic/angular';
 
 import { AppComponent } from './app.component';
 import { IntroductionComponent } from './containers/introduction/introduction.component';
@@ -108,7 +109,8 @@ import { QuizGuard } from './router/guards/quiz.guard';
     MatMenuModule,
     MatToolbarModule,
     NgbModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    IonicModule.forRoot()
   ],
   exports: [
     HighlightDirective,
