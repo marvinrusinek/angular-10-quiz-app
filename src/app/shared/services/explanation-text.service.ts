@@ -44,7 +44,7 @@ export class ExplanationTextService {
     this.isExplanationDisplayedSource.next(true); // Set to true when explanation is displayed
   }
   
-  resetExplanationText() {
+  resetExplanationText(): void {
     this.explanationText$.next('');
     this.isExplanationDisplayedSource.next(false); // Set to false when explanation is hidden
   }
@@ -76,8 +76,7 @@ export class ExplanationTextService {
 
       // Return the explanation text if available, or a default message if it's not.
       return formattedExplanation && formattedExplanation.explanation
-        ? formattedExplanation.explanation
-        : 'No explanation available';
+        ? formattedExplanation.explanation : 'No explanation available';
     } else {
       return 'Question index out of bounds or no explanation available';
     }
