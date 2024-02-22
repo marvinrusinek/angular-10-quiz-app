@@ -108,16 +108,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   sharedVisibilitySubscription: Subscription;
   isExplanationTextDisplayed = false;
   isNavigatingToPrevious = false;
-  isLoading = true;
+  isLoading = false;
   isPaused = false;
   private initialized = false;
   questionsArray: QuizQuestion[] = [];
+  shouldRenderContainer: boolean;
 
   private destroy$: Subject<void> = new Subject<void>();
-
-  get shouldDisplayContainer(): boolean {
-    return !this.isLoading && this.shouldHideOptions();
-  }  
 
   constructor(
     protected quizService: QuizService,
@@ -168,6 +165,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.initialized) {
       await this.initializeQuiz();
     }
+
+    this.shouldRenderContainer = this.shouldDisplayContainer();
 
     this.explanationTextService.shouldDisplayExplanation$.subscribe(shouldDisplay => {
       if (shouldDisplay) {
@@ -472,6 +471,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   shouldHideOptions(): boolean {
     return !this.data?.options || this.data.options.length === 0;
+  }
+
+  shouldDisplayContainer(): boolean {
+    return !this.isLoading && this.shouldHideOptions();
   }
 
   shouldDisplayTextContent(): boolean {
