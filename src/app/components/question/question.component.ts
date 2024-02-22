@@ -978,6 +978,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         next: () => {
           if (this.quizService.selectedOptions.length > 0) {
             this.fetchQuestionsArray(currentQuestion);
+            const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
+            this.conditionallyShowExplanation(questionIndex);
           } else {
             this.explanationText$.next('');
           }
