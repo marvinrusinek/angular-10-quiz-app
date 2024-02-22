@@ -1019,6 +1019,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     try {
       const questionsArray: QuizQuestion[] = await firstValueFrom(this.questions.pipe(take(1)));
+      console.log('Fetched Questions Array:', questionsArray);
       this.questionsArray = questionsArray;
       // Further processing...
     } catch (error) {
