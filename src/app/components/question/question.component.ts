@@ -108,12 +108,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   sharedVisibilitySubscription: Subscription;
   isExplanationTextDisplayed = false;
   isNavigatingToPrevious = false;
-  isLoading = false;
+  isLoading = true;
   isPaused = false;
   private initialized = false;
   questionsArray: QuizQuestion[] = [];
-  shouldRenderContainer: boolean;
-  isLoadingQuestions = false;
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -166,8 +164,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.initialized) {
       await this.initializeQuiz();
     }
-
-    this.shouldRenderContainer = this.shouldDisplayContainer();
 
     this.explanationTextService.shouldDisplayExplanation$.subscribe(shouldDisplay => {
       if (shouldDisplay) {
@@ -472,10 +468,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   shouldHideOptions(): boolean {
     return !this.data?.options || this.data.options.length === 0;
-  }
-
-  shouldDisplayContainer(): boolean {
-    return !this.isLoading && this.shouldHideOptions();
   }
 
   shouldDisplayTextContent(): boolean {
@@ -974,60 +966,33 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
     this.quizStateService
-        .isMultipleAnswerQuestion(currentQuestion)
-        .subscribe({
-            next: () => {
-                if (this.quizService.selectedOptions.length > 0) {
-                    this.fetchQuestionsArray(currentQuestion)
-                        .then(() => {
-                            const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
-                            this.conditionallyShowExplanation(questionIndex);
-                        })
-                        .catch(error => {
-                            console.error('Error fetching questions array:', error);
-                        });
-                } else {
-                    this.explanationText$.next('');
-                }
-            },
-            error: (error) => {
-                console.error('Error in isMultipleAnswer subscription:', error);
-            },
-        });
+      .isMultipleAnswerQuestion(currentQuestion)
+      .subscribe({
+        next: () => {
+          if (this.quizService.selectedOptions.length > 0) {
+            this.fetchQuestionsArray(currentQuestion);
+          } else {
+            this.explanationText$.next('');
+          }
+        },
+        error: (error) => {
+          console.error('Error in isMultipleAnswer subscription:', error);
+        },
+      });
   }
 
-  /* private fetchQuestionsArray(currentQuestion: QuizQuestion): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        this.questions.pipe(take(1)).subscribe({
-            next: (questionsArray: QuizQuestion[]) => {
-                this.questionsArray = questionsArray;
-                const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
-                this.setExplanationText(questionIndex);
-                resolve(); // Resolve the promise when questions array is fetched and processed
-            },
-            error: (error: Error) => {
-                console.error('Error fetching questions array:', error);
-                reject(error); // Reject the promise if there's an error fetching questions array
-            }
-        });
+  private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
+    this.questions.pipe(take(1)).subscribe({
+      next: (questionsArray: QuizQuestion[]) => {
+        this.questionsArray = questionsArray;
+        const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion)
+        );
+        this.setExplanationText(questionIndex);
+      },
+      error: (error: Error) => {
+        console.error('Error fetching questions array:', error);
+      }
     });
-  } */
-
-  private async fetchQuestionsArray(currentQuestion: QuizQuestion): Promise<void> {
-    if (this.isLoadingQuestions) return;
-    this.isLoadingQuestions = true;
-  
-    try {
-      const questionsArray: QuizQuestion[] = await firstValueFrom(this.questions.pipe(take(1)));
-      console.log('Fetched Questions Array:', questionsArray);
-      this.questionsArray = questionsArray;
-      // Further processing...
-    } catch (error) {
-      console.error('Error fetching questions array:', error);
-      // Handle error...
-    } finally {
-      this.isLoadingQuestions = false;
-    }
   }
 
   private isSameQuestion(
