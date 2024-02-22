@@ -14,14 +14,11 @@
     
         <!-- the question and options -->
         <codelab-quiz-content-component
-          [combinedQuestionData$]="combinedQuestionData$"
-          [questions]="questions"
           [question]="questionToDisplay"
+          [questions]="questions"
           [questionToDisplay]="questionToDisplay"
           [explanationToDisplay]="explanationToDisplay"
-          [options]="optionsToDisplay"
-          [explanationText]="explanationText$ | async"  
-          [correctAnswersText]="correctAnswersText"
+          [options]="optionsToDisplay"          
         >
         </codelab-quiz-content-component> 
         <ng-content select="[question-content]"></ng-content>
@@ -35,9 +32,7 @@
             [questions]="questions$"
             [optionsToDisplay]="optionsToDisplay"
             (answer)="selectedAnswer($event)"
-            [multipleAnswer]="multipleAnswer"
             (answersChange)="checkIfAnsweredCorrectly()"
-            [showFeedback]="showFeedback"
           ></codelab-quiz-question>
         </ng-container>
       </ng-container>
