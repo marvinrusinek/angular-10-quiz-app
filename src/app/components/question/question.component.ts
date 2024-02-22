@@ -113,6 +113,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private initialized = false;
   questionsArray: QuizQuestion[] = [];
   shouldRenderContainer: boolean;
+  isLoadingQuestions = false;
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -995,7 +996,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         });
   }
 
-  private fetchQuestionsArray(currentQuestion: QuizQuestion): Promise<void> {
+  /* private fetchQuestionsArray(currentQuestion: QuizQuestion): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         this.questions.pipe(take(1)).subscribe({
             next: (questionsArray: QuizQuestion[]) => {
@@ -1010,6 +1011,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             }
         });
     });
+  } */
+
+  private async fetchQuestionsArray(currentQuestion: QuizQuestion): Promise<void> {
+    if (this.isLoadingQuestions) return;
+    this.isLoadingQuestions = true;
+  
+    try {
+      const questionsArray: QuizQuestion[] = await firstValueFrom(this.questions.pipe(take(1)));
+      this.questionsArray = questionsArray;
+      // Further processing...
+    } catch (error) {
+      console.error('Error fetching questions array:', error);
+      // Handle error...
+    } finally {
+      this.isLoadingQuestions = false;
+    }
   }
 
   private isSameQuestion(
