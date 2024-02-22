@@ -973,24 +973,26 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
     this.quizStateService
-      .isMultipleAnswerQuestion(currentQuestion)
-      .subscribe({
-        next: () => {
-          if (this.quizService.selectedOptions.length > 0) {
-            this.fetchQuestionsArray(currentQuestion).then(() => {
-              const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
-              this.conditionallyShowExplanation(questionIndex);
-            }).catch(error => {
-                console.error('Error fetching questions array:', error);
-            });
-          } else {
-            this.explanationText$.next('');
-          }
-        },
-        error: (error) => {
-          console.error('Error in isMultipleAnswer subscription:', error);
-        },
-      });
+        .isMultipleAnswerQuestion(currentQuestion)
+        .subscribe({
+            next: () => {
+                if (this.quizService.selectedOptions.length > 0) {
+                    this.fetchQuestionsArray(currentQuestion)
+                        .then(() => {
+                            const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
+                            this.conditionallyShowExplanation(questionIndex);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching questions array:', error);
+                        });
+                } else {
+                    this.explanationText$.next('');
+                }
+            },
+            error: (error) => {
+                console.error('Error in isMultipleAnswer subscription:', error);
+            },
+        });
   }
 
   private fetchQuestionsArray(currentQuestion: QuizQuestion): Promise<void> {
