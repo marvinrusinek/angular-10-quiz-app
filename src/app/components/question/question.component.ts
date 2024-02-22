@@ -977,9 +977,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe({
         next: () => {
           if (this.quizService.selectedOptions.length > 0) {
-            this.fetchQuestionsArray(currentQuestion);
-            const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
-            this.conditionallyShowExplanation(questionIndex);
+            this.fetchQuestionsArray(currentQuestion).then(() => {
+              const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
+              this.conditionallyShowExplanation(questionIndex);
+            }).catch(error => {
+                console.error('Error fetching questions array:', error);
+            });
           } else {
             this.explanationText$.next('');
           }
@@ -990,17 +993,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
-  private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
-    this.questions.pipe(take(1)).subscribe({
-      next: (questionsArray: QuizQuestion[]) => {
-        this.questionsArray = questionsArray;
-        const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion)
-        );
-        this.setExplanationText(questionIndex);
-      },
-      error: (error: Error) => {
-        console.error('Error fetching questions array:', error);
-      }
+  private fetchQuestionsArray(currentQuestion: QuizQuestion): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        this.questions.pipe(take(1)).subscribe({
+            next: (questionsArray: QuizQuestion[]) => {
+                this.questionsArray = questionsArray;
+                const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
+                this.setExplanationText(questionIndex);
+                resolve(); // Resolve the promise when questions array is fetched and processed
+            },
+            error: (error: Error) => {
+                console.error('Error fetching questions array:', error);
+                reject(error); // Reject the promise if there's an error fetching questions array
+            }
+        });
     });
   }
 
