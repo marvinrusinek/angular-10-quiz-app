@@ -33,17 +33,10 @@
             [questionToDisplay]="questionToDisplay"
             [question]="questionToDisplay"
             [questions]="questions$"
-            [options]="optionsToDisplay"
             [optionsToDisplay]="optionsToDisplay"
             (answer)="selectedAnswer($event)"
-            [selectedOption]="selectedOption$ | async"          
-            [currentQuestion]="currentQuestion"
-            [currentQuestion$]="currentQuestion$ | async"
-            [currentQuestionIndex]="currentQuestionIndex"
-            [previousQuestionIndex]="previousQuestionIndex"
             [multipleAnswer]="multipleAnswer"
             (answersChange)="checkIfAnsweredCorrectly()"
-            [selectionMessage]="selectionMessage$ | async"
             [showFeedback]="showFeedback"
           ></codelab-quiz-question>
         </ng-container>
