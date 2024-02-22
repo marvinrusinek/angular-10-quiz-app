@@ -38,11 +38,9 @@
     <ng-template #questionTemplate let-type>
       <ng-container *ngIf="shouldDisplayOptions(); else noOptions">
         <ng-container [ngSwitch]="type">
-          <codelab-question-multiple-answer *ngSwitchCase="'multiple'"
-            [form]="questionForm"
+          <codelab-question-multiple-answer *ngSwitchCase="'multiple'" 
             [question]="questionToDisplay"
-            [questions]="questions"           
-            [options]="getOptionsForQuestion()"
+            [questions]="questions"
             [optionsToDisplay]="optionsToDisplay"
             [correctAnswers]="correctAnswers"
             [correctMessage]="correctMessage"
@@ -50,10 +48,8 @@
           ></codelab-question-multiple-answer>
 
           <codelab-question-single-answer *ngSwitchCase="'single'"
-            [form]="questionForm"
             [question]="questionToDisplay"
             [questions]="questions"
-            [options]="getOptionsForQuestion()"
             [optionsToDisplay]="optionsToDisplay"
             [correctMessage]="correctMessage"
             (answer)="updateClassName($event)"
