@@ -154,6 +154,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    this.options = this.getOptionsForQuestion();
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
 
     this.logInitialData();
@@ -476,6 +477,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   shouldDisplayPreviousQuestionOptions(): boolean {
     // Check if the current question is not the first question
     return this.currentQuestionIndex !== 0;
+  }
+
+  getOptionsForQuestion(): Option[] {
+    return this.currentQuestionIndex === this.previousQuestionIndex
+      ? this.optionsToDisplay
+      : this.data?.options;
   }
 
   updateQuestionForm(): void {
