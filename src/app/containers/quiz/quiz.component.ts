@@ -1080,6 +1080,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
 
+        this.explanationTextService.setShouldDisplayExplanation(true);
+
         this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
 
         this.resetUI();
