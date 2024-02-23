@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 @Component({
   selector: 'codelab-quiz-option-feedback',
@@ -6,16 +6,22 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   styleUrls: ['./option-feedback.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class OptionFeedbackComponent {
+export class OptionFeedbackComponent implements OnChanges {
   @Input() correct: boolean;
-  @Input() selected: string;
+  @Input() selected: boolean;
   statusIcon: string;
 
   constructor() {
-    this.statusIcon = this.selectStatusIcon();
+    this.updateStatusIcon();
   }
 
-  selectStatusIcon(): string {
-    return this.correct ? 'done' : 'clear';
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.correct) {
+      this.updateStatusIcon();
+    }
+  }
+
+  updateStatusIcon(): void {
+    this.statusIcon = this.correct ? 'done' : 'clear';
   }
 }
