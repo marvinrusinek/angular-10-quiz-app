@@ -14,9 +14,14 @@
     
         <!-- the question and options -->
         <codelab-quiz-content-component
-          [questionToDisplay]="questionToDisplay"
-          [question]="questionToDisplay"
+          [combinedQuestionData$]="combinedQuestionData$"
           [questions]="questions"
+          [question]="questionToDisplay"
+          [questionToDisplay]="questionToDisplay"
+          [explanationToDisplay]="explanationToDisplay"
+          [options]="optionsToDisplay"
+          [explanationText]="explanationText$ | async"  
+          [correctAnswersText]="correctAnswersText"
         >
         </codelab-quiz-content-component> 
         <ng-content select="[question-content]"></ng-content>
