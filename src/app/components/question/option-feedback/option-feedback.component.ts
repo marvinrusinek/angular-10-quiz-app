@@ -11,17 +11,13 @@ export class OptionFeedbackComponent implements OnChanges {
   @Input() selected: boolean;
   statusIcon: string;
 
-  constructor() {
-    this.updateStatusIcon();
-  }
-
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.correct) {
-      this.updateStatusIcon();
+      this.updateFeedbackStatusIcon();
     }
   }
 
-  updateStatusIcon(): void {
+  updateFeedbackStatusIcon(): void {
     this.statusIcon = this.correct ? 'done' : 'clear';
   }
 }
