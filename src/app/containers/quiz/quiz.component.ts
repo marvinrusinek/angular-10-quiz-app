@@ -534,7 +534,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Reset UI elements and messages as needed
     this.selectionMessageService.updateSelectionMessage('');
-    this.quizService.showQuestionText$ = of(true);
     this.selectedOption$.next(null);
     this.explanationTextService.explanationText$.next('');
     this.cdRef.detectChanges();
