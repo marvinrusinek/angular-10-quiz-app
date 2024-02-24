@@ -1122,7 +1122,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
     try {
       this.animationState$.next('animationStarted');
-      this.explanationTextService.setShouldDisplayExplanation(false);
+      // this.explanationTextService.setShouldDisplayExplanation(false);
 
       // Check if the question index is valid
       const isValidIndex = await this.isQuestionIndexValid(questionIndex);
