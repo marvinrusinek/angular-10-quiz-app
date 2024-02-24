@@ -1223,43 +1223,6 @@ export class QuizService implements OnDestroy {
     this.questions$ = of(this.questions);
   }
 
-  /* setCurrentQuestion(question: QuizQuestion): void {
-    this.selectedQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
-
-    // Find the index of the current question
-    const currentIndex = this.selectedQuiz.questions.findIndex(
-      (q) => q.questionText === question.questionText
-    );
-
-    if (currentIndex === -1) {
-      console.error('Invalid current question:', question);
-      return;
-    }
-
-    // Calculate the index of the next question
-    const nextIndex = currentIndex + 1;
-
-    if (nextIndex < this.selectedQuiz.questions.length) {
-      const nextQuestion = this.selectedQuiz.questions[nextIndex];
-
-      if (nextQuestion && nextQuestion.options) {
-        // Emit the next question and its options
-        this.currentQuestion.next(nextQuestion);
-
-        const options: Option[] = nextQuestion.options.map((option) => ({
-          value: option.value,
-          text: option.text
-        }));
-
-        this.optionsSource.next(options);
-      } else {
-        console.error('Invalid next question:', nextQuestion);
-      }
-    } else {
-      console.error('Invalid next question index:', nextIndex);
-    }
-  } */
-
   setCurrentQuestion(question: QuizQuestion): void {
     this.selectedQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
   
@@ -1294,9 +1257,6 @@ export class QuizService implements OnDestroy {
       }
     } else {
       console.log('End of quiz reached. Current question is the last one.');
-      // Handle the end of the quiz here
-      // For example, navigate to a results page or show a summary
-      // this.navigateToResultsPage(); // Hypothetical function to navigate to a results page
     }
   }
   
