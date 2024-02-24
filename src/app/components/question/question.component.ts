@@ -87,6 +87,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   selectedOption$ = new BehaviorSubject<Option>(null);
   options$: Observable<Option[]>;
   quiz: Quiz;
+  questionsArray: QuizQuestion[] = [];
   questionsObservableSubscription: Subscription;
   currentQuestionSubscription: Subscription;
   questionForm: FormGroup = new FormGroup({});
@@ -111,7 +112,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isLoading = true;
   isPaused = false;
   private initialized = false;
-  questionsArray: QuizQuestion[] = [];
 
   private destroy$: Subject<void> = new Subject<void>();
 
