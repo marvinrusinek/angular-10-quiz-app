@@ -346,7 +346,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.setCurrentQuizForQuizId(this.quizId);
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.explanationTextService.resetProcessedQuestionsState();
-
+  
     // Load and apply stored state
     console.log("Quiz ID:", this.quizId);
     const storedStates = this.quizStateService.getStoredState(this.quizId);
@@ -363,10 +363,17 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.storeFormattedExplanationText(+questionId, explanationText);
         }
       });
+  
+      // After restoring states, explicitly check the first question's state
+      const firstQuestionState = storedStates.get(0); // Assuming '0' is the ID for the first question
+      if (firstQuestionState && firstQuestionState.isAnswered) {
+        // Set the explanation text visibility to true if the first question was answered
+        this.explanationTextService.setShouldDisplayExplanation(true);
+      }
     } else {
       console.log("No stored state found for quizId:", this.quizId);
     }
-  }
+  }  
 
   storeFormattedExplanationText(questionId: number, explanationText: string): void {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
@@ -1099,6 +1106,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         // Retrieve the state for the current question
         const questionState = this.quizStateService.getQuestionState(this.currentQuestionIndex);
+        this.explanationTextService.setShouldDisplayExplanation(questionState.isAnswered);
 
         // Check if the question has been answered before deciding to show the explanation
         if (questionState.isAnswered) {
