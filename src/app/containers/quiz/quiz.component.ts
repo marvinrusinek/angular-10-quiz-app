@@ -1084,9 +1084,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         const questionState = this.quizStateService.getQuestionState(this.currentQuestionIndex);
 
         // Check if the question has been answered before deciding to show the explanation
-        if (questionState.isAnswered && !questionState.explanationDisplayed) {
+        if (questionState.isAnswered) {
           this.explanationTextService.setShouldDisplayExplanation(true);
         } else {
+          // Optionally, hide the explanation if navigating back to an unanswered question
           this.explanationTextService.setShouldDisplayExplanation(false);
         }
 
