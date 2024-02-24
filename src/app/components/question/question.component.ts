@@ -565,10 +565,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           additionalData: questionData
         };
       }),
-      catchError(error => {
+      catchError((error: Error) => {
         console.error('Error processing combined question data:', error);
-        // Handle the error or rethrow it
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }
