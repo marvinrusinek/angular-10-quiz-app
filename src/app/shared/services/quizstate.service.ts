@@ -135,6 +135,16 @@ export class QuizStateService {
     };
   }
 
+  // In QuizStateService
+
+  // Update or add a method to mark a question as answered
+  markQuestionAsAnswered(questionIndex: number, showExplanation: boolean) {
+    const questionState = this.getQuestionState(questionIndex) || this.createDefaultQuestionState();
+    questionState.isAnswered = true;
+    questionState.explanationDisplayed = showExplanation;
+    this.questionStates.set(questionIndex, questionState);
+  }
+
   updateCurrentQuestion(newQuestion: QuizQuestion): void {
     this.currentQuestionSubject.next(newQuestion);
   }
