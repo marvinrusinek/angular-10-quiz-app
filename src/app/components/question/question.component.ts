@@ -199,7 +199,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.sharedVisibilitySubscription?.unsubscribe();
   }
 
-  trackByFn(option: Option) {
+  trackByFn(option: Option): number {
     return option.optionId;
   }
 
@@ -499,7 +499,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   // not being called, potentially remove, but might need for getting correct answers text to display
   private loadQuestionsForQuiz(quizId: string): void {
-    this.logStartOfLoadingQuestions(quizId);
     if (!this.isValidQuizId(quizId)) return;
 
     this.quizDataService.getQuestionsForQuiz(quizId)
@@ -514,12 +513,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
 
     this.subscribeToCorrectMessage();
-  }
-
-  private logStartOfLoadingQuestions(quizId: string): void {
-    console.log('start of loadQuestionsForQuiz');
-    console.log('Quiz ID:', quizId);
-    console.log('Current Question Index:', this.currentQuestionIndex);
   }
 
   private isValidQuizId(quizId: string): boolean {
