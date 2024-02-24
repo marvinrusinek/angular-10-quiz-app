@@ -1001,7 +1001,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return this.selectedOptions.includes(option as Option);
   }
 
-  selectOption(currentQuestion: QuizQuestion, option: any): void {
+  selectOption(currentQuestion: QuizQuestion, option: Option): void {
     this.selectedOptions = [option];
     this.showFeedbackForOption = { [option.optionId]: true };
     this.showFeedback = true;
