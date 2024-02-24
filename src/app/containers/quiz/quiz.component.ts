@@ -1077,7 +1077,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* async advanceToPreviousQuestion(): Promise<void> {
+  async advanceToPreviousQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1122,50 +1122,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('Already at the first question. No action taken.');
         return;
       }
-    } catch (error) {
-      console.error('Error occurred while navigating to the previous question:', error);
-    } finally {
-      this.isNavigating = false;
-    }
-  } */
-
-  async advanceToPreviousQuestion(): Promise<void> {
-    if (this.isNavigating) {
-      console.warn('Navigation already in progress. Aborting.');
-      return;
-    }
-    this.isNavigating = true;
-    this.quizService.setIsNavigatingToPrevious(true);
-  
-    try {
-      // Check for the first question; adjust as needed for your application logic
-      if (this.currentQuestionIndex === 0) {
-        console.log('Already at the first question. No action taken.');
-        this.explanationTextService.setShouldDisplayExplanation(true); // Assuming you want to show the explanation for the first question when "previous" is clicked
-        this.isNavigating = false; // Ensure navigation flag is reset
-        return;
-      }
-  
-      this.currentQuestionIndex--;
-      this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
-  
-      // Fetch the previous question details
-      const previousQuestion = await this.fetchQuestionDetails(this.currentQuestionIndex);
-  
-      // Update the state in QuizStateService
-      this.quizStateService.updateCurrentQuestion(previousQuestion);
-  
-      await this.fetchAndSetQuestionData(this.currentQuestionIndex);
-  
-      // Retrieve the state for the current question and set explanation visibility
-      const questionState = this.quizStateService.getQuestionState(this.currentQuestionIndex);
-      this.explanationTextService.setShouldDisplayExplanation(questionState.isAnswered);
-  
-      // Navigate to the previous question
-      this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex]);
-  
-      this.resetUI();
-      this.explanationTextService.resetStateBetweenQuestions();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
