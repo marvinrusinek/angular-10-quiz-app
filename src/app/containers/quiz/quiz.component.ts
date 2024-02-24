@@ -629,37 +629,54 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   initializeFirstQuestionText(): void {
     this.resetQuestionState();
-
+  
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (questions: QuizQuestion[]) => {
         if (questions && questions.length > 0) {
           this.questions = questions;
           this.currentQuestion = questions[0];
-
+  
           // Set the question and options to display
           this.questionToDisplay = this.currentQuestion.questionText;
           this.optionsToDisplay = this.currentQuestion.options;
-
-          if (this.shouldDisplayExplanationForQuestion(this.currentQuestion)) {
-            this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(0);
-          }
+  
+          // Handle explanation text for the first question
+          this.handleExplanationForQuestion(0);
         } else {
           // Handle the case with no questions available
-          this.questions = [];
-          this.currentQuestion = null;
-          this.questionToDisplay = 'No questions available.';
-          this.optionsToDisplay = [];
-          this.explanationToDisplay = '';
+          this.handleNoQuestionsAvailable();
         }
       },
       error: (err) => {
         console.error('Error fetching questions:', err);
-        this.questionToDisplay = 'Error loading questions.';
-        this.optionsToDisplay = [];
-        this.explanationToDisplay = 'Error loading explanation.';
+        this.handleQuestionsLoadingError();
       }
     });
   }
+  
+  handleExplanationForQuestion(questionIndex: number): void {
+    if (this.shouldDisplayExplanationForQuestion(this.currentQuestion)) {
+      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+    } else {
+      this.explanationToDisplay = '';
+      this.explanationTextService.setShouldDisplayExplanation(false);
+    }
+  }
+  
+  handleNoQuestionsAvailable(): void {
+    this.questions = [];
+    this.currentQuestion = null;
+    this.questionToDisplay = 'No questions available.';
+    this.optionsToDisplay = [];
+    this.explanationToDisplay = '';
+  }
+  
+  handleQuestionsLoadingError(): void {
+    this.questionToDisplay = 'Error loading questions.';
+    this.optionsToDisplay = [];
+    this.explanationToDisplay = 'Error loading explanation.';
+  }  
 
   shouldDisplayExplanationForQuestion(question: QuizQuestion): boolean {
     return question.selectedOptions && question.selectedOptions.length > 0;
