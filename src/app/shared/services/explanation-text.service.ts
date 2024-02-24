@@ -59,13 +59,13 @@ export class ExplanationTextService {
   }  
 
   getExplanationTextForQuestionIndex(index: number): string {
-    const explanation = this.explanationTexts[index];
-    if (explanation === undefined) {
+    const explanationObject = this.formattedExplanations[index];
+    if (explanationObject === undefined) {
       console.error(`No explanation found at index ${index}.`);
-      return 'Explanation not found.';
+      return `Default explanation for question ${index}`;
     }
 
-    return explanation;
+    return explanationObject.explanation;
   }
 
   getFormattedExplanationTextForQuestion(index: number): string {
