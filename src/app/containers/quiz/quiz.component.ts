@@ -1080,7 +1080,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
 
-        this.explanationTextService.setShouldDisplayExplanation(true);
+        // Retrieve the state for the current question
+        const questionState = this.quizStateService.getQuestionState(this.currentQuestionIndex);
+
+        // Check if the question has been answered before deciding to show the explanation
+        if (questionState.isAnswered) {
+          this.explanationTextService.setShouldDisplayExplanation(true);
+        }
 
         this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
 

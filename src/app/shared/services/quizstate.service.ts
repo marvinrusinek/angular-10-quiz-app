@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { catchError, distinctUntilChanged, throwError } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
+import { catchError, distinctUntilChanged } from 'rxjs/operators';
 
 import { QuestionState } from '../../shared/models/QuestionState.model';
 import { Option } from '../../shared/models/Option.model';
