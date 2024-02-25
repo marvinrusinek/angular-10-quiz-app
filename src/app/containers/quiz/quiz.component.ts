@@ -129,6 +129,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
 
+  get shouldDisplayContent(): boolean {
+    return !!this.data?.questionText && !!this.questionToDisplay;
+  }
+
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,

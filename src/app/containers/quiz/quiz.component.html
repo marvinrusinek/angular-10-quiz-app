@@ -10,7 +10,7 @@
       <codelab-scoreboard></codelab-scoreboard>
 
       <!-- Check if both question text and questionToDisplay are available -->
-      <ng-container *ngIf="data.questionText && questionToDisplay">
+      <ng-container *ngIf="shouldDisplayContent">
     
         <!-- the question and options -->
         <codelab-quiz-content-component
