@@ -825,6 +825,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (currentQuestion) {
       this.handleOptionSelection(option, index, currentQuestion);
     }
+
+    this.updateSelectedOption(option, option.optionId);
   }
 
   async getCurrentQuestion(): Promise<QuizQuestion | null> {
@@ -1211,6 +1213,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOptions: [],
       numberOfCorrectAnswers: 0
     });
+
+    this.quizService.playSound(isCorrect);
 
     return isCorrect;
   }
