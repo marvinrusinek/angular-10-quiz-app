@@ -110,7 +110,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isExplanationTextDisplayed = false;
   isNavigatingToPrevious = false;
   isLoading = true;
-  isLoadingQuestions = true;
+  isLoadingQuestions = false;
   isPaused = false;
   private initialized = false;
 
@@ -170,11 +170,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.initializeQuiz();
     }
 
-    this.explanationTextService.shouldDisplayExplanation$.subscribe(shouldDisplay => {
+    /* this.explanationTextService.shouldDisplayExplanation$.subscribe(shouldDisplay => {
       if (shouldDisplay) {
         this.conditionallyShowExplanation(this.currentQuestionIndex);
       }
-    });
+    }); */
 
     this.subscribeToAnswers();
     this.subscribeToSelectionMessage();
@@ -828,6 +828,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.updateSelectedOption(option, option.optionId);
+
+    if (!this.isLoadingQuestions) {
+      // Only proceed if questions are not loading
+      this.conditionallyShowExplanation(this.currentQuestionIndex);
+    } else {
+      console.log("Still loading questions, cannot show explanation yet.");
+    }
   }
 
   async getCurrentQuestion(): Promise<QuizQuestion | null> {
@@ -858,7 +865,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     );
 
     // Decide whether to show the explanation
-    this.conditionallyShowExplanation(this.currentQuestionIndex);
+    // this.conditionallyShowExplanation(this.currentQuestionIndex);
   }
 
   private processOptionSelection(
@@ -985,9 +992,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.questions.pipe(take(1)).subscribe({
       next: (questionsArray: QuizQuestion[]) => {
         this.questionsArray = questionsArray;
-        this.isLoadingQuestions = false; // Done loading
         const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
         this.setExplanationText(questionIndex);
+        this.isLoadingQuestions = false;
       },
       error: (error: Error) => {
         console.error('Error fetching questions array:', error);
