@@ -790,15 +790,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private clearSelection(): void {
-    if (this.correctAnswers.length === 1) {
-      if (this.currentQuestion && this.currentQuestion?.options) {
-        this.currentQuestion?.options.forEach((option) => {
+    if (this.correctAnswers && this.correctAnswers.length === 1) {
+      if (this.currentQuestion && this.currentQuestion.options) {
+        this.currentQuestion.options.forEach((option) => {
           option.selected = false;
           option.styleClass = '';
         });
       }
     }
-  }
+  }  
 
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
