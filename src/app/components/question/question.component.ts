@@ -1153,10 +1153,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   updateFeedbackVisibility(): void {
     const isOptionSelected = this.selectedOptions.length > 0;
-    const isFeedbackVisible =
-      isOptionSelected &&
-      this.showFeedbackForOption[this.selectedOption.optionId];
-
+    const isFeedbackVisible = isOptionSelected && this.selectedOption && this.showFeedbackForOption[this.selectedOption.optionId];
     this.showFeedback = isFeedbackVisible;
   }
 
