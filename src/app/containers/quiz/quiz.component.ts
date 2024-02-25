@@ -171,8 +171,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('Updated progress value:', this.progressValue);
-
     // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
@@ -929,8 +927,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         } else {
           this.progressValue = 0;
         }
-  
-        console.log('Updated progress value:', this.progressValue);
       },
       error: (error) => {
         console.error('Error fetching total questions:', error);
