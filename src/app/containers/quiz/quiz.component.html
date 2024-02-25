@@ -132,7 +132,7 @@
       </section>
   
       <!-- progress bar -->
-      <section class="progress-bar" *ngIf="shouldHideProgressBar()">
+      <section class="progress-bar">
         <ngb-progressbar
           max="100"
           type="success"
@@ -141,7 +141,7 @@
           [value]="progressValue"
           class="progress-bar bg-info"
         >
-          <strong>{{ progressValue?.toFixed(2) }}%</strong>
+          <strong>{{ progressValue?.toFixed(0) }}%</strong>
         </ngb-progressbar>
       </section>
     </mat-card-footer>
