@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
-  EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
+  EventEmitter, HostListener, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription } from 'rxjs';
@@ -39,7 +39,7 @@ type AnimationState = 'animationStarted' | 'none';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [FormBuilder, QuizService, QuizDataService, QuizStateService, HighlightDirective]
 })
-export class QuizComponent implements OnInit, OnDestroy {
+export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() data: {
     questionText: string;
@@ -114,7 +114,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   lastQuestionIndex: number;
   totalQuestions = 0;
   questionIndex: number;
-  progressValue: number;
+  progressValue = 0;
   correctCount: number;
   numberOfCorrectAnswers: number;
   score: number;
@@ -171,6 +171,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    console.log('Updated progress value:', this.progressValue);
+
     // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
@@ -180,7 +182,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Initialize quiz-related properties
     this.initializeQuiz();
-    this.getQuiz(this.quizService.quizId);
 
     // Fetch and display the current question
     this.initializeQuestionStreams();
@@ -195,6 +196,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.correctAnswersText = text;
     }); */
   }
+
+  /* ngOnChanges(changes: SimpleChanges): void {
+    if (changes.currentQuestionIndex) {
+      this.updateProgressValue();
+      console.log('Updated progress value:', this.progressValue);
+    }
+  } */
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
@@ -776,6 +784,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         if (question) {
           this.currentQuestion = question;
           this.options = question.options;
+          // this.updateProgressValue();
         } else {
           this.currentQuestion = null;
           this.options = [];
@@ -856,7 +865,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.currentQuestionIndex = currentQuestionIndex;
     this.question = quiz.questions[currentQuestionIndex];
-    this.updateProgressValue();
   }
 
   handleQuestion(question: QuizQuestion): void {
@@ -918,12 +926,23 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Options after setting:', options);
   }
 
-  private updateProgressValue(): void {
-    if (this.questionIndex !== 0 && this.totalQuestions !== 0) {
-      this.progressValue = Math.round(
-        ((this.questionIndex - 1) / this.totalQuestions) * 100
-      );
-    }
+  updateProgressValue(): void {
+    this.quizService.getTotalQuestions().subscribe({
+      next: (total) => {
+        this.totalQuestions = total;
+  
+        if (this.totalQuestions > 0) {
+          this.progressValue = (this.currentQuestionIndex / this.totalQuestions) * 100;    
+        } else {
+          this.progressValue = 0;
+        }
+  
+        console.log('Updated progress value:', this.progressValue);
+      },
+      error: (error) => {
+        console.error('Error fetching total questions:', error);
+      }
+    });
   }
 
   loadExplanationTextForCurrentQuestion(): void {
@@ -1070,6 +1089,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
+        this.updateProgressValue();
         this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
@@ -1151,6 +1171,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
 
         this.currentQuestionIndex--;
+        this.updateProgressValue();
         this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
 
         // Fetch the previous question details
