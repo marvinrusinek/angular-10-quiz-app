@@ -180,6 +180,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Initialize quiz-related properties
     this.initializeQuiz();
+    this.getQuiz(this.quizService.quizId);
 
     // Fetch and display the current question
     this.initializeQuestionStreams();
@@ -855,7 +856,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.currentQuestionIndex = currentQuestionIndex;
     this.question = quiz.questions[currentQuestionIndex];
-    this.updateProgressValue(); // move later
+    this.updateProgressValue();
   }
 
   handleQuestion(question: QuizQuestion): void {
