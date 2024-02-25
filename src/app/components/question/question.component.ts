@@ -110,6 +110,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isExplanationTextDisplayed = false;
   isNavigatingToPrevious = false;
   isLoading = true;
+  isLoadingQuestions = true;
   isPaused = false;
   private initialized = false;
 
@@ -980,15 +981,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
+    this.isLoadingQuestions = true; // Start loading
     this.questions.pipe(take(1)).subscribe({
       next: (questionsArray: QuizQuestion[]) => {
         this.questionsArray = questionsArray;
-        const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion)
-        );
+        this.isLoadingQuestions = false; // Done loading
+        const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
         this.setExplanationText(questionIndex);
       },
       error: (error: Error) => {
         console.error('Error fetching questions array:', error);
+        this.isLoadingQuestions = false; // Error loading
       }
     });
   }
