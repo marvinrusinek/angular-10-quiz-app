@@ -1091,56 +1091,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* async advanceToPreviousQuestion(): Promise<void> {
-    if (this.isNavigating) {
-      console.warn('Navigation already in progress. Aborting.');
-      return;
-    }
-    this.isNavigating = true;
-    this.quizService.setIsNavigatingToPrevious(true);
-
-    try {
-      if (this.currentQuestionIndex <= 0) {
-        console.log('No valid previous question available.');
-        return;
-      }
-
-      if (this.currentQuestionIndex > 0) {
-        this.currentQuestionIndex--;
-        this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
-
-        // Fetch the previous question details and update the state
-        const previousQuestion = await this.fetchQuestionDetails(this.currentQuestionIndex);
-        this.quizStateService.updateCurrentQuestion(previousQuestion);
-
-        await this.fetchAndSetQuestionData(this.currentQuestionIndex);
-
-        // Retrieve the state for the current question
-        const questionState = this.quizStateService.getQuestionState(this.currentQuestionIndex);
-        this.explanationTextService.setShouldDisplayExplanation(questionState.isAnswered);
-
-        // Check if the question has been answered before deciding to show the explanation
-        if (questionState.isAnswered) {
-          this.explanationTextService.setShouldDisplayExplanation(true);
-        } else {
-          this.explanationTextService.setShouldDisplayExplanation(false);
-        }
-
-        this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
-
-        this.resetUI();
-        this.explanationTextService.resetStateBetweenQuestions();
-      } else {
-        console.log('Already at the first question. No action taken.');
-        return;
-      }
-    } catch (error) {
-      console.error('Error occurred while navigating to the previous question:', error);
-    } finally {
-      this.isNavigating = false;
-    }
-  } */
-
   async advanceToPreviousQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -1170,6 +1120,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Set the explanation visibility based on whether the question has been answered
       const questionState = this.quizStateService.getQuestionState(this.currentQuestionIndex);
       this.explanationTextService.setShouldDisplayExplanation(questionState.isAnswered);
+
+      // Check if the question has been answered before deciding to show the explanation
+      /* if (questionState.isAnswered) {
+        this.explanationTextService.setShouldDisplayExplanation(true);
+      } else {
+        this.explanationTextService.setShouldDisplayExplanation(false);
+      } */
 
       // Navigate to the previous question
       this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
