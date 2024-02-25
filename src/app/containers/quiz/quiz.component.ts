@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
-  EventEmitter, HostListener, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+  EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription } from 'rxjs';
@@ -39,7 +39,7 @@ type AnimationState = 'animationStarted' | 'none';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [FormBuilder, QuizService, QuizDataService, QuizStateService, HighlightDirective]
 })
-export class QuizComponent implements OnInit, OnChanges, OnDestroy {
+export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() data: {
     questionText: string;
@@ -171,8 +171,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('Updated progress value:', this.progressValue);
-
     // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
@@ -196,13 +194,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.correctAnswersText = text;
     }); */
   }
-
-  /* ngOnChanges(changes: SimpleChanges): void {
-    if (changes.currentQuestionIndex) {
-      this.updateProgressValue();
-      console.log('Updated progress value:', this.progressValue);
-    }
-  } */
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
