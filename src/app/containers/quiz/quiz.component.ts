@@ -137,6 +137,24 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !!this.data?.questionText || !!this.data?.correctAnswersText;
   }
 
+  public get shouldHidePrevQuestionNav(): boolean {
+    return this.currentQuestionIndex === 0;
+  }
+
+  public get shouldHideRestartNav(): boolean {
+    return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1;
+  }
+
+  public get shouldHideShowScoreNav(): boolean {
+    const selectedQuiz = this.selectedQuiz$.value;
+
+    if (!selectedQuiz || !selectedQuiz.questions) {
+      return false;
+    }
+
+    return this.currentQuestionIndex === selectedQuiz?.questions.length - 1;
+  }
+
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
@@ -1024,29 +1042,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.questionIndex === this.totalQuestions;
   }
 
-  shouldHidePrevQuestionNav(): boolean {
-    return this.currentQuestionIndex === 0;
-  }
-
-  shouldHideRestartNav(): boolean {
-    return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1;
-  }
-
   shouldHideNextQuestionNav(): boolean {
     return (
       this.selectedQuiz &&
       this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1
     );
-  }
-
-  shouldHideShowScoreNav(): boolean {
-    const selectedQuiz = this.selectedQuiz$.value;
-
-    if (!selectedQuiz || !selectedQuiz.questions) {
-      return false;
-    }
-
-    return this.currentQuestionIndex === selectedQuiz?.questions.length - 1;
   }
 
   shouldHideProgressBar(): boolean {
