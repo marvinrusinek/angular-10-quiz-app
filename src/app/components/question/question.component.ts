@@ -247,7 +247,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  getDisplayOptions(): Option[] {
+  public getDisplayOptions(): Option[] {
     return this.optionsToDisplay && this.optionsToDisplay.length > 0
       ? this.optionsToDisplay
       : this.data?.options;
