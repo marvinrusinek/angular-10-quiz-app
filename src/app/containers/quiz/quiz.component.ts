@@ -1109,7 +1109,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (this.currentQuestionIndex === 0) {
         // Logic for when the user is already at the first question
         console.log('Already at the first question. No action taken.');
-        // Optionally, handle navigation to an intro page or disable the previous button instead
         this.isNavigating = false; // Ensure to reset the navigation flag
         return;
       }
@@ -1132,6 +1131,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       } else {
         this.explanationTextService.setShouldDisplayExplanation(false);
       } */
+
+      await this.fetchAndSetQuestionData(this.currentQuestionIndex);
 
       // Navigate to the previous question
       this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
