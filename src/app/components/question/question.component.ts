@@ -827,9 +827,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.handleOptionSelection(option, index, currentQuestion);
     }
 
-    // this.updateSelectedOption(option, option.optionId);
+    /* this.updateSelectedOption(option, option.optionId);
 
-    /* if (!this.isLoadingQuestions) {
+    if (!this.isLoadingQuestions) {
       // Only proceed if questions are not loading
       this.conditionallyShowExplanation(this.currentQuestionIndex);
     } else {
@@ -847,7 +847,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  handleOptionSelection(option: Option, index: number, currentQuestion: QuizQuestion): void {
+  async handleOptionSelection(option: Option, index: number, currentQuestion: QuizQuestion): Promise<void> {
     this.processOptionSelection(currentQuestion, option);
     this.updateAnswersForOption(option);
     this.checkAndHandleCorrectAnswer();
@@ -864,8 +864,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       totalCorrectAnswers
     );
 
-    // Decide whether to show the explanation
-    // this.conditionallyShowExplanation(this.currentQuestionIndex);
+    // Decide whether to show the explanation based on the current question index
+    await this.conditionallyShowExplanation(this.currentQuestionIndex);
   }
 
   private processOptionSelection(
