@@ -116,10 +116,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private destroy$: Subject<void> = new Subject<void>();
 
-  get shouldRenderContainer(): boolean {
-    return !this.isLoading && this.shouldHideOptions();
-  }
-
   constructor(
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
@@ -206,6 +202,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   trackByFn(option: Option): number {
     return option.optionId;
+  }
+
+  public get shouldRenderContainer(): boolean {
+    return !this.isLoading && this.shouldHideOptions();
   }
 
   private async initializeQuiz(): Promise<void> {
