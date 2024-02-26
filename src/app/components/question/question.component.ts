@@ -205,6 +205,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return option.optionId;
   }
 
+  public get shouldDisplayOptions(): boolean {
+    return this.data?.options && this.data.options.length > 0;
+  }
+
   public get shouldRenderContainer(): boolean {
     return !this.isLoading && this.shouldHideOptions();
   }
@@ -466,10 +470,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     await this.fetchCorrectAnswersText(data, data.currentOptions);
     console.log('After fetchCorrectAnswersText...');
     console.log('MY CORR MSG:', this.correctMessage);
-  }
-
-  shouldDisplayOptions(): boolean {
-    return this.data?.options && this.data.options.length > 0;
   }
 
   shouldHideOptions(): boolean {
