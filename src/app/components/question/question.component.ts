@@ -963,10 +963,28 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
     this.isLoadingQuestions = true; // Start loading
+    // Assuming this.questions is an Observable<QuizQuestion[]>
     this.questions.pipe(take(1)).subscribe({
       next: (questionsArray: QuizQuestion[]) => {
+        // Ensure questionsArray is not null or empty
+        if (!questionsArray || questionsArray.length === 0) {
+          console.warn('Questions array is not initialized or empty.');
+          this.isLoadingQuestions = false;
+          return;
+        }
+  
+        // Populate questionsArray and find index of currentQuestion
         this.questionsArray = questionsArray;
         const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
+  
+        // Check if questionIndex is valid
+        if (questionIndex === -1) {
+          console.error('Current question not found in questions array.');
+          this.isLoadingQuestions = false;
+          return;
+        }
+  
+        // Call setExplanationText with the index of the currentQuestion
         this.setExplanationText(questionIndex);
         this.isLoadingQuestions = false;
       },
