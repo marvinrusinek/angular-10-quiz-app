@@ -803,6 +803,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
+    if (!this.questionsArray || this.questionsArray.length === 0) {
+      console.warn('Questions array is not initialized or empty.');
+      return; // Exit the function
+    }
+
     this.quizService.addSelectedOption(option);
 
     const currentQuestion = await this.getCurrentQuestion();
@@ -974,6 +979,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.questionsArray = questionsArray;
         console.log('QuestionsArray before finding index:', this.questionsArray);
         const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
+        console.log('Question Index:', questionIndex);
   
         if (questionIndex === -1) {
           console.error('Current question not found in questions array.');
@@ -991,14 +997,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private isSameQuestion(
-    question1: QuizQuestion,
-    question2: QuizQuestion
-  ): boolean {
-    return (
-      question1.questionText === question2.questionText &&
-      question1.explanation === question2.explanation
-    );
+  private isSameQuestion(question1: QuizQuestion, question2: QuizQuestion): boolean {
+    const isSame = question1.questionText.trim().toLowerCase() === question2.questionText.trim().toLowerCase() &&
+                   question1.explanation.trim().toLowerCase() === question2.explanation.trim().toLowerCase();
+    console.log(`Comparing:`, question1, question2, `Result: ${isSame}`);
+    return isSame;
   }
 
   checkOptionSelected(option: Option): boolean {
