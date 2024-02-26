@@ -80,7 +80,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     currentOptions: Option[];
   }> = new Subject();
 
-  isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
