@@ -803,11 +803,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
-    if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.warn('Questions array is not initialized or empty.');
-      return; // Exit the function
-    }
-
+    console.log('Current state of questionsArray:', this.questionsArray);
     this.quizService.addSelectedOption(option);
 
     const currentQuestion = await this.getCurrentQuestion();
