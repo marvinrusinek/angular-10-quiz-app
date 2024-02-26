@@ -114,7 +114,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   lastQuestionIndex: number;
   totalQuestions = 0;
   questionIndex: number;
-  progressValue = 0;
+  progressPercentage = 0;
   correctCount: number;
   numberOfCorrectAnswers: number;
   score: number;
@@ -775,7 +775,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         if (question) {
           this.currentQuestion = question;
           this.options = question.options;
-          // this.updateProgressValue();
         } else {
           this.currentQuestion = null;
           this.options = [];
@@ -917,15 +916,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Options after setting:', options);
   }
 
-  updateProgressValue(): void {
+  updateProgressPercentage(): void {
     this.quizService.getTotalQuestions().subscribe({
       next: (total) => {
         this.totalQuestions = total;
   
         if (this.totalQuestions > 0) {
-          this.progressValue = (this.currentQuestionIndex / this.totalQuestions) * 100;    
+          this.progressPercentage = (this.currentQuestionIndex / this.totalQuestions) * 100;    
         } else {
-          this.progressValue = 0;
+          this.progressPercentage = 0;
         }
       },
       error: (error) => {
@@ -1079,7 +1078,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
         this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
-        this.updateProgressValue();
+        this.updateProgressPercentage();
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log("Cannot navigate to invalid index.");
@@ -1111,7 +1110,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       this.currentQuestionIndex--;
       this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
-      this.updateProgressValue();
+      this.updateProgressPercentage();
 
       // Fetch the previous question details
       const previousQuestion = await this.fetchQuestionDetails(this.currentQuestionIndex);
