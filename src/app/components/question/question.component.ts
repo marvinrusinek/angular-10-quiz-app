@@ -799,24 +799,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         });
       }
     }
-  }  
-
-  private updateClassName(selectedOption: Option, optionIndex: number): void {
-    if (
-      selectedOption &&
-      this.currentQuestion &&
-      this.currentQuestion.options
-    ) {
-      this.currentQuestion.options.forEach((option) => {
-        option.styleClass = '';
-      });
-
-      const selectedOption = this.currentQuestion.options[optionIndex];
-      selectedOption.styleClass = selectedOption.correct
-        ? 'correct'
-        : 'incorrect';
-      this.showFeedback = true;
-    }
   }
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
@@ -826,8 +808,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (currentQuestion) {
       this.handleOptionSelection(option, index, currentQuestion);
     }
-
-    /* this.updateSelectedOption(option, option.optionId); */
   }
 
   async getCurrentQuestion(): Promise<QuizQuestion | null> {
@@ -1229,33 +1209,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.currentQuestionIndex++;
     const currentQuiz: Quiz = await firstValueFrom(this.selectedQuiz);
     this.currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
-  }
-
-  // not called anywhere...
-  updateSelectedOption(selectedOption: Option, optionIndex: number): void {
-    this.alreadyAnswered = true;
-    this.answer.emit(optionIndex);
-
-    if (this.selectedOption === selectedOption) {
-      this.selectedOption = null;
-    } else {
-      this.selectedOption = selectedOption;
-    }
-
-    this.clearSelection();
-    this.updateSelection(optionIndex);
-    this.updateClassName(this.selectedOption, optionIndex);
-    this.playSound(this.selectedOption);
-  }
-
-  updateSelection(optionIndex: number): void {
-    const option = this.currentQuestion?.options[optionIndex];
-    this.showFeedback = true;
-    if (option && this.currentQuestion && this.currentQuestion?.options) {
-      this.currentQuestion.options.forEach((o) => (o.selected = false));
-      option.selected = true;
-      this.selectedOption = option;
-    }
   }
 
   playSound(selectedOption: Option): void {
