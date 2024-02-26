@@ -129,32 +129,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
 
-  public get shouldDisplayContent(): boolean {
-    return !!this.data?.questionText && !!this.questionToDisplay;
-  }
-
-  public get isContentAvailable(): boolean {
-    return !!this.data?.questionText || !!this.data?.correctAnswersText;
-  }
-
-  public get shouldHidePrevQuestionNav(): boolean {
-    return this.currentQuestionIndex === 0;
-  }
-
-  public get shouldHideRestartNav(): boolean {
-    return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1;
-  }
-
-  public get shouldHideShowScoreNav(): boolean {
-    const selectedQuiz = this.selectedQuiz$.value;
-
-    if (!selectedQuiz || !selectedQuiz.questions) {
-      return false;
-    }
-
-    return this.currentQuestionIndex === selectedQuiz?.questions.length - 1;
-  }
-
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
@@ -226,6 +200,34 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.timerService.stopTimer(null);
   }
 
+  // Public getter methods for determining UI state based on current quiz and question data.
+  public get shouldDisplayContent(): boolean {
+    return !!this.data?.questionText && !!this.questionToDisplay;
+  }
+
+  public get isContentAvailable(): boolean {
+    return !!this.data?.questionText || !!this.data?.correctAnswersText;
+  }
+
+  public get shouldHidePrevQuestionNav(): boolean {
+    return this.currentQuestionIndex === 0;
+  }
+
+  public get shouldHideRestartNav(): boolean {
+    return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1;
+  }
+
+  public get shouldHideShowScoreNav(): boolean {
+    const selectedQuiz = this.selectedQuiz$.value;
+
+    if (!selectedQuiz || !selectedQuiz.questions) {
+      return false;
+    }
+
+    return this.currentQuestionIndex === selectedQuiz?.questions.length - 1;
+  }
+
+  
   checkAndDisplayCorrectAnswers(): void {
     const multipleAnswerQuestionIndex = this.findCurrentMultipleAnswerQuestionIndex();
     if (this.quizService.isAnswered(multipleAnswerQuestionIndex)) {
