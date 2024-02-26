@@ -827,14 +827,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.handleOptionSelection(option, index, currentQuestion);
     }
 
-    this.updateSelectedOption(option, option.optionId);
+    // this.updateSelectedOption(option, option.optionId);
 
-    if (!this.isLoadingQuestions) {
+    /* if (!this.isLoadingQuestions) {
       // Only proceed if questions are not loading
       this.conditionallyShowExplanation(this.currentQuestionIndex);
     } else {
       console.log("Still loading questions, cannot show explanation yet.");
-    }
+    } */
   }
 
   async getCurrentQuestion(): Promise<QuizQuestion | null> {
