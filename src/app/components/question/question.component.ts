@@ -153,6 +153,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.getIsNavigatingToPrevious().subscribe(
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
+
+    /* this.questionsArray = [
+      { questionText: "Example Question 1", options: ["Option 1", "Option 2"], explanation: "Example explanation 1" },
+      // Add more questions as needed
+    ]; */
   }
 
   async ngOnInit(): Promise<void> {
@@ -203,6 +208,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   trackByFn(option: Option): number {
     return option.optionId;
+  }
+
+  public get shouldDisplayTextContent(): boolean {
+    return !!this.data?.questionText || !!this.data?.correctAnswersText;
   }
 
   public get shouldDisplayOptions(): boolean {
@@ -474,10 +483,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   shouldHideOptions(): boolean {
     return !this.data?.options || this.data.options.length === 0;
-  }
-
-  shouldDisplayTextContent(): boolean {
-    return !!this.data?.questionText || !!this.data?.correctAnswersText;
   }
 
   shouldDisplayPreviousQuestionOptions(): boolean {
