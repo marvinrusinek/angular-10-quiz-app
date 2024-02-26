@@ -972,6 +972,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }
   
         this.questionsArray = questionsArray;
+        console.log('QuestionsArray before finding index:', this.questionsArray);
         const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
   
         if (questionIndex === -1) {
