@@ -209,6 +209,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !!this.data?.questionText || !!this.data?.correctAnswersText;
   }
 
+  shouldApplyLastQuestionClass(): boolean {
+    return this.questionIndex === this.totalQuestions;
+  }
+
   public get shouldHidePrevQuestionNav(): boolean {
     return this.currentQuestionIndex === 0;
   }
@@ -227,7 +231,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.currentQuestionIndex === selectedQuiz?.questions.length - 1;
   }
 
-  
+
   checkAndDisplayCorrectAnswers(): void {
     const multipleAnswerQuestionIndex = this.findCurrentMultipleAnswerQuestionIndex();
     if (this.quizService.isAnswered(multipleAnswerQuestionIndex)) {
@@ -1038,10 +1042,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   /************** template logic functions ******************/
   isMultipleCorrectAnswers(): boolean {
     return this.numberOfCorrectAnswers > 1;
-  }
-
-  shouldApplyLastQuestionClass(): boolean {
-    return this.questionIndex === this.totalQuestions;
   }
 
   shouldHideNextQuestionNav(): boolean {
