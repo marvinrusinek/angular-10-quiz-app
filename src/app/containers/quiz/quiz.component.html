@@ -9,9 +9,7 @@
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
 
-      <!-- Check if both question text and questionToDisplay are available -->
       <ng-container *ngIf="shouldDisplayContent">
-    
         <!-- the question and options -->
         <codelab-quiz-content-component
           [combinedQuestionData$]="combinedQuestionData$"
@@ -141,7 +139,7 @@
           [value]="progressPercentage"
           class="progress-bar bg-info"
         >
-          <strong>{{ progressPercentage.toFixed(0) }}%</strong>
+          <strong>{{ progressPercentage?.toFixed(0) }}%</strong>
         </ngb-progressbar>
       </section>
     </mat-card-footer>
