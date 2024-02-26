@@ -1266,24 +1266,30 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   playSound(selectedOption: Option): void {
-    if (!selectedOption || selectedOption === undefined) {
-      console.log(
-        'Selected option is undefined or null, or current question/options are empty.'
-      );
+    if (!selectedOption) {
+      console.log('Selected option is undefined or null.');
       return;
     }
-
+  
     console.log('Selected option:', selectedOption.text);
-
+  
+    // Check if 'this.currentQuestion' and 'this.currentQuestion.options' are defined
+    if (!this.currentQuestion || !this.currentQuestion.options) {
+      console.log('Current question or options are undefined or null.');
+      return;
+    }
+  
     const optionIndex = this.currentQuestion.options.findIndex(
       (option) => option.text === selectedOption.text
     );
+  
     if (optionIndex === undefined || optionIndex === null) {
       console.log('Option index is undefined or null');
       return;
     }
+    
     console.log('Option index:', optionIndex);
-
+  
     if (selectedOption.correct) {
       console.log('Selected option is correct, playing sound...');
       this.timerService.stopTimer((elapsedTime) => {
