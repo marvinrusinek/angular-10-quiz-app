@@ -151,6 +151,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.getIsNavigatingToPrevious().subscribe(
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
+
+    this.options = this.getOptionsForQuestion();
   }
 
   async ngOnInit(): Promise<void> {
