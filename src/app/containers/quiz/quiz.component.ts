@@ -209,7 +209,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !!this.data?.questionText || !!this.data?.correctAnswersText;
   }
 
-  shouldApplyLastQuestionClass(): boolean {
+  public get shouldApplyLastQuestionClass(): boolean {
     return this.questionIndex === this.totalQuestions;
   }
 
