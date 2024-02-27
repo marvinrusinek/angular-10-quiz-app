@@ -781,25 +781,27 @@ export class QuizService implements OnDestroy {
   loadQuestions(): Observable<QuizQuestion[]> {
     const quizId = this.getCurrentQuizId();
   
-    // Function to ensure selectedOptions is initialized for each question
-    const initializeSelectedOptions = (questions: QuizQuestion[]) => {
+    // Handler for processing questions after they're fetched
+    const processQuestions = (questions: QuizQuestion[]) => {
+      // Ensure each question has an initialized 'selectedOptions' array
       questions.forEach(question => {
         question.selectedOptions = question.selectedOptions || [];
       });
-      return questions;  // Return the modified questions array
+      return questions;
     };
   
     if (this.currentQuestionPromise) {
       return from(this.currentQuestionPromise).pipe(
         switchMap(() => this.loadQuestionsInternal(quizId)),
-        map(initializeSelectedOptions)  // Initialize selectedOptions for each question
+        map(processQuestions) // Process questions after fetching
       );
     }
   
     return this.loadQuestionsInternal(quizId).pipe(
-      map(initializeSelectedOptions)  // Initialize selectedOptions for each question
+      map(processQuestions) // Process questions after fetching
     );
-  }  
+  }
+  
 
   private loadQuestionsInternal(quizId: string): Observable<QuizQuestion[]> {
     if (this.loadingQuestions) {
