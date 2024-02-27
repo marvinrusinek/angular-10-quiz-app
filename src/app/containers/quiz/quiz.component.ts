@@ -707,7 +707,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   
     // Initialize selectedOptions if it's undefined
-    this.currentQuestion.selectedOptions = this.currentQuestion.selectedOptions || [];
+    if (!this.currentQuestion.selectedOptions) {
+      console.log("Initializing selectedOptions for the current question");
+      this.currentQuestion.selectedOptions = [];
+    }
   
     // Proceed with displaying the explanation if applicable
     if (this.shouldDisplayExplanationForQuestion(this.currentQuestion)) {
@@ -726,7 +729,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.explanationToDisplay = '';
       this.explanationTextService.setShouldDisplayExplanation(false);
     }
-  }  
+  }
   
   handleNoQuestionsAvailable(): void {
     this.questions = [];
@@ -742,24 +745,22 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationToDisplay = 'Error loading explanation.';
   }  
 
-  /* shouldDisplayExplanationForQuestion(question: QuizQuestion): boolean {
-    return question.selectedOptions && question.selectedOptions.length > 0;
-  } */
-
-  /* shouldDisplayExplanationForQuestion(question: QuizQuestion): boolean {
-    console.log("Checking Explanation for:", question);
-    if (!question || !question.selectedOptions) {
-      console.log("Question or selectedOptions undefined");
-      return false;
-    }
-    return question.selectedOptions.length > 0;
-  } */
-
   shouldDisplayExplanationForQuestion(question: QuizQuestion): boolean {
-    return !!question.explanation;
+    return question.selectedOptions && question.selectedOptions.length > 0;
+  }
+
+  updateSelectedOptions(option) {
+    // Subscribe to get the current question index
+    this.quizService.getCurrentQuestionIndexObservable().pipe(take(1)).subscribe((currentIndex: number) => {
+      // Update the selectedOptions for the current question
+      if (!this.currentQuestion.selectedOptions.includes(option)) {
+        this.currentQuestion.selectedOptions.push(option);
+      }
+      // Now call handleExplanationForQuestion with the current index
+      this.handleExplanationForQuestion(currentIndex);
+    });
   }
   
-
   initializeQuestionStreams(): void {
     // Initialize questions stream
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
