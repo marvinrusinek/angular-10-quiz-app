@@ -882,7 +882,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   conditionallyShowExplanation(questionIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizService.quizId).pipe(
-      catchError(error => {
+      catchError((error: Error) => {
         console.error('There was an error loading the questions', error);
         return of([]);
       })
