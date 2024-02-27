@@ -698,8 +698,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
   
   handleExplanationForQuestion(questionIndex: number): void {
+    console.log("CURRENT Question", this.currentQuestion);
+    console.log("Should Display Explanation:::::", this.shouldDisplayExplanationForQuestion(this.currentQuestion));
     if (this.shouldDisplayExplanationForQuestion(this.currentQuestion)) {
+      console.log("TEST");
       this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      console.log("MY EXPL TEXT1", this.explanationToDisplay);
       this.explanationTextService.setShouldDisplayExplanation(true);
     } else {
       this.explanationToDisplay = '';
