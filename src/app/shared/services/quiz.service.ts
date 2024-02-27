@@ -629,6 +629,11 @@ export class QuizService implements OnDestroy {
   }
 
   updateSelectedOptions(questionIndex: number, selectedOptionId: number): void {
+    if (!this.quiz) {
+      console.error('Quiz data is not initialized.');
+      return;
+    }
+
     const question = this.quiz.questions[questionIndex];
     if (question) {
       // Find the Option object that matches the selectedOptionId
