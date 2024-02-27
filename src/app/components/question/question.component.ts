@@ -982,8 +982,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
     this.isLoadingQuestions = true; // Start loading
-    this.questions.pipe(take(1)).subscribe({
+    console.log("QUESTIONS::", this.questions);
+    this.questions.pipe(
+      tap(questionsArray => console.log("Emitting:", questionsArray)),
+      take(1)).subscribe({
       next: (questionsArray: QuizQuestion[]) => {
+        console.log("QA::", questionsArray);
         if (!questionsArray || questionsArray.length === 0) {
           console.warn('Questions array is not initialized or empty.');
           this.isLoadingQuestions = false;
