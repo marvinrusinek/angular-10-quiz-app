@@ -965,7 +965,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
-  private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
+  /* private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
     this.isLoadingQuestions = true; // Start loading
     this.questions.pipe(take(1)).subscribe({
       next: (questionsArray: QuizQuestion[]) => {
@@ -998,7 +998,40 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.isLoadingQuestions = false;
       }
     });
-  }
+  } */
+
+  private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
+    this.isLoadingQuestions = true;
+    this.questions.pipe(take(1)).subscribe({
+      next: (questionsArray: QuizQuestion[]) => {
+        if (!questionsArray || questionsArray.length === 0) {
+          console.warn('Questions array is empty or undefined.');
+          this.isLoadingQuestions = false;
+          return;
+        }
+  
+        this.questionsArray = questionsArray;
+        console.log("Current Question:", currentQuestion);
+        console.log("Questions Array:", questionsArray);
+  
+        // Simplified comparison for troubleshooting
+        const questionIndex = this.questionsArray.findIndex(q => q.questionText === currentQuestion.questionText);
+  
+        if (questionIndex === -1) {
+          console.error('Current question not found in questions array.');
+          this.isLoadingQuestions = false;
+          return;
+        }
+  
+        this.setExplanationText(questionIndex);
+        this.isLoadingQuestions = false;
+      },
+      error: (error: Error) => {
+        console.error('Error fetching questions array:', error);
+        this.isLoadingQuestions = false;
+      }
+    });
+  }  
 
   private isSameQuestion(question1: QuizQuestion, question2: QuizQuestion): boolean {
     const isSame = question1.questionText.trim().toLowerCase() === question2.questionText.trim().toLowerCase() &&
