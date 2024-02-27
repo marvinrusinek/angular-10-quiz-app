@@ -638,6 +638,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
+  updateExplanationText(questionIndex: number): void {
+    this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+  }
+  
+
   async getQuestion(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params.quizId;
@@ -1084,6 +1089,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
         this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
+        this.updateExplanationText(this.currentQuestionIndex);
         this.updateProgressPercentage();
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
@@ -1115,6 +1121,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       this.currentQuestionIndex--;
       this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
+      this.updateExplanationText(this.currentQuestionIndex);
       this.updateProgressPercentage();
 
       // Fetch the previous question details
