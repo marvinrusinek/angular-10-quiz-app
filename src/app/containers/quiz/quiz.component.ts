@@ -375,7 +375,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log("prepareQuizSession() called");
     this.currentQuestionIndex = 0;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.setCurrentQuizForQuizId(this.quizId);
+    await this.setCurrentQuizForQuizId(this.quizId);
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.explanationTextService.resetProcessedQuestionsState();
   
