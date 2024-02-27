@@ -699,17 +699,30 @@ export class QuizComponent implements OnInit, OnDestroy {
   
   handleExplanationForQuestion(questionIndex: number): void {
     console.log("CURRENT Question", this.currentQuestion);
-    console.log("Should Display Explanation:::::", this.shouldDisplayExplanationForQuestion(this.currentQuestion));
+  
+    // Check if currentQuestion and selectedOptions are defined
+    if (!this.currentQuestion || !this.currentQuestion.selectedOptions) {
+      console.error("currentQuestion or selectedOptions is undefined");
+      return;
+    }
+  
     if (this.shouldDisplayExplanationForQuestion(this.currentQuestion)) {
-      console.log("TEST");
+      console.log("Displaying explanation for question index", questionIndex);
       this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-      console.log("MY EXPL TEXT1", this.explanationToDisplay);
+      console.log("Explanation text", this.explanationToDisplay);
+  
+      // Check if the explanation text is not empty
+      if (!this.explanationToDisplay) {
+        console.warn("Explanation text is empty for question index", questionIndex);
+      }
+  
       this.explanationTextService.setShouldDisplayExplanation(true);
     } else {
+      console.log("Not displaying explanation for question index", questionIndex);
       this.explanationToDisplay = '';
       this.explanationTextService.setShouldDisplayExplanation(false);
     }
-  }
+  }  
   
   handleNoQuestionsAvailable(): void {
     this.questions = [];
