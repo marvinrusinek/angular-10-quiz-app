@@ -159,20 +159,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.options = this.getOptionsForQuestion();
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
 
-    /* this.activatedRoute.data.pipe(take(1)).subscribe((data: { questions: QuizQuestion[] }) => {
-      this.questionsArray = data.questions;
-    }); */
-
-    /* this.quizDataService.getQuestionsForQuiz(this.quizService.quizId).pipe(
-      catchError(error => {
-        console.error('There was an error loading the questions', error);
-        return of([]);
-      })
-    ).subscribe((data: QuizQuestion[]) => {
-      console.log('Data received:', data);
-      this.questionsArray = data;
-    }); */
-
     this.logInitialData();
     this.initializeQuizQuestion();
     this.subscribeToRouterEvents();
@@ -180,12 +166,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.initialized) {
       await this.initializeQuiz();
     }
-
-    /* this.explanationTextService.shouldDisplayExplanation$.subscribe(shouldDisplay => {
-      if (shouldDisplay) {
-        this.conditionallyShowExplanation(this.currentQuestionIndex);
-      }
-    }); */
 
     this.subscribeToAnswers();
     this.subscribeToSelectionMessage();
