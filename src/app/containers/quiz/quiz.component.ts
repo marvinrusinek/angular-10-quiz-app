@@ -746,14 +746,19 @@ export class QuizComponent implements OnInit, OnDestroy {
     return question.selectedOptions && question.selectedOptions.length > 0;
   } */
 
-  shouldDisplayExplanationForQuestion(question: QuizQuestion): boolean {
+  /* shouldDisplayExplanationForQuestion(question: QuizQuestion): boolean {
     console.log("Checking Explanation for:", question);
     if (!question || !question.selectedOptions) {
       console.log("Question or selectedOptions undefined");
       return false;
     }
     return question.selectedOptions.length > 0;
-  }  
+  } */
+
+  shouldDisplayExplanationForQuestion(question: QuizQuestion): boolean {
+    return !!question.explanation;
+  }
+  
 
   initializeQuestionStreams(): void {
     // Initialize questions stream
