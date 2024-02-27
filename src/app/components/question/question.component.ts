@@ -901,8 +901,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   conditionallyShowExplanation(questionIndex: number): void {
-    this.activatedRoute.data.pipe(take(1)).subscribe((data: { questions: QuizQuestion[] }) => {
-      this.questionsArray = data.questions;
+    this.activatedRoute.data.pipe(take(1)).subscribe((data: { quizData: YourDataType }) => {
+      // Assuming the questions array is part of your quizData, adjust the path as necessary
+      this.questionsArray = data.quizData.questions;
   
       console.log("QA at Explanation:", this.questionsArray, "Length:", this.questionsArray?.length);
       if (!this.questionsArray || this.questionsArray.length === 0) {
@@ -931,8 +932,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.log('Should Display Explanation:', value);
       });
     });
-  }
-  
+  }  
 
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
     const isOptionSelected = this.checkOptionSelected(option);
