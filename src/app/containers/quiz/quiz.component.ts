@@ -110,6 +110,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   combinedQuestionData$: Observable<any> =
     this.combinedQuestionDataSubject.asObservable();
 
+  private currentQuizSubject = new BehaviorSubject<Quiz | null>(null);
+  currentQuiz$ = this.currentQuizSubject.asObservable();
+
   currentQuestionIndex = 0;
   lastQuestionIndex: number;
   totalQuestions = 0;
@@ -522,7 +525,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  setCurrentQuizForQuizId(quizId: string): void {
+  setCurrentQuiz(quiz: Quiz): void {
+    this.currentQuizSubject.next(quiz);
+  }
+
+  /* setCurrentQuizForQuizId(quizId: string): void {
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     this.quizDataService.currentQuizId = quizId;
 
@@ -531,6 +538,15 @@ export class QuizComponent implements OnInit, OnDestroy {
         (quiz) => quiz.quizId === this.quizDataService.currentQuizId
       );
       this.currentQuiz = currentQuiz;
+    });
+  } */
+
+  setCurrentQuizForQuizId(quizId: string): void {
+    this.quizDataService.quizzes$.subscribe((quizzes) => {
+      const currentQuiz = quizzes.find(quiz => quiz.quizId === quizId);
+      if (currentQuiz) {
+        this.quizDataService.setCurrentQuiz(currentQuiz);
+      }
     });
   }
 

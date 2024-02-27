@@ -28,6 +28,9 @@ export class QuizDataService implements OnDestroy {
   selectedQuizSubject: BehaviorSubject<Quiz | null> =
     new BehaviorSubject<Quiz | null>(null);
 
+  private currentQuizSubject = new BehaviorSubject<Quiz | null>(null);
+  currentQuiz$ = this.currentQuizSubject.asObservable();
+
   currentQuestion$: QuizQuestion;
   options$: Observable<Option[]>;
 
@@ -97,6 +100,10 @@ export class QuizDataService implements OnDestroy {
         return of([]);
       })
     );
+  }
+
+  setCurrentQuiz(quiz: Quiz): void {
+    this.currentQuizSubject.next(quiz);
   }
 
   setSelectedQuiz(quiz: Quiz | null): void {
