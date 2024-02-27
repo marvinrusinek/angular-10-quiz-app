@@ -174,6 +174,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         return of([]);
       })
     ).subscribe((data: QuizQuestion[]) => {
+      console.log('Data received:', data);
       this.questionsArray = data;
     });
 
