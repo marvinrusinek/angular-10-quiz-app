@@ -967,13 +967,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
     this.isLoadingQuestions = true; // Start loading
-    console.log("QUESTIONS::", this.questions);
-    this.questions.pipe(
-      tap(questionsArray => console.log("Emitting:", questionsArray)),
-      take(1)).subscribe({
+    this.questions.pipe(take(1)).subscribe({
       next: (questionsArray: QuizQuestion[]) => {
-        console.log("QA::", questionsArray);
-        console.log("QA Length:", questionsArray.length, "Is QA truthy:", !!questionsArray);
         if (!questionsArray) {
           console.warn('Questions array is undefined or null.');
           this.isLoadingQuestions = false;
@@ -987,9 +982,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }
   
         this.questionsArray = questionsArray;
-        console.log('QuestionsArray before finding index:', this.questionsArray);
         const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
-        console.log('Question Index:', questionIndex);
   
         if (questionIndex === -1) {
           console.error('Current question not found in questions array.');
