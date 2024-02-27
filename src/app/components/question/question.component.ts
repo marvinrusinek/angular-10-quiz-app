@@ -906,6 +906,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   conditionallyShowExplanation(questionIndex: number): void {
+    console.log("QA at Explanation:", this.questionsArray, "Length:", this.questionsArray?.length);
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.warn('Questions array is not initialized or empty.');
       return;
