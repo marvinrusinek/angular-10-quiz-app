@@ -628,6 +628,20 @@ export class QuizService implements OnDestroy {
     this.combinedQuestionDataSubject.next(newData);
   }
 
+  updateSelectedOptions(questionIndex: number, selectedOptionId: number): void {
+    const question = this.quiz.questions[questionIndex];
+    if (question) {
+      // Find the Option object that matches the selectedOptionId
+      const selectedOption = question.options.find(option => option.optionId === selectedOptionId);
+      
+      if (selectedOption) {
+        question.selectedOptions = [selectedOption];
+      } else {
+        console.error('Selected option ID does not match any option in the question.');
+      }
+    }
+  }
+
   isQuestionAnswered(): boolean {
     return this.isOptionSelected;
   }
