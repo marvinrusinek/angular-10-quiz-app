@@ -153,11 +153,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.getIsNavigatingToPrevious().subscribe(
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
-
-    /* this.questionsArray = [
-      { questionText: "Example Question 1", options: ["Option 1", "Option 2"], explanation: "Example explanation 1" },
-      // Add more questions as needed
-    ]; */
   }
 
   async ngOnInit(): Promise<void> {
@@ -906,33 +901,38 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   conditionallyShowExplanation(questionIndex: number): void {
-    console.log("QA at Explanation:", this.questionsArray, "Length:", this.questionsArray?.length);
-    if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.warn('Questions array is not initialized or empty.');
-      return;
-    }
-
-    if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
-      console.error(`Invalid questionIndex: ${questionIndex}`);
-      return;
-    }
-
-    const questionState = this.quizStateService.getQuestionState(questionIndex);
-    console.log('Question State:', questionState);
-    if (questionState && questionState.isAnswered) {
-      console.log(`Retrieving explanation for questionIndex: ${questionIndex}`);
-      const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-      console.log('Explanation Text:', explanationText);
-      this.explanationTextService.setExplanationText(explanationText);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-    } else {
-      console.log(`Conditions for showing explanation not met.`);
-    }
-
-    this.explanationTextService.shouldDisplayExplanation$.subscribe(value => {
-      console.log('Should Display Explanation:', value);
+    this.activatedRoute.data.pipe(take(1)).subscribe((data: { questions: QuizQuestion[] }) => {
+      this.questionsArray = data.questions;
+  
+      console.log("QA at Explanation:", this.questionsArray, "Length:", this.questionsArray?.length);
+      if (!this.questionsArray || this.questionsArray.length === 0) {
+        console.warn('Questions array is not initialized or empty.');
+        return;
+      }
+  
+      if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
+        console.error(`Invalid questionIndex: ${questionIndex}`);
+        return;
+      }
+  
+      const questionState = this.quizStateService.getQuestionState(questionIndex);
+      console.log('Question State:', questionState);
+      if (questionState && questionState.isAnswered) {
+        console.log(`Retrieving explanation for questionIndex: ${questionIndex}`);
+        const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+        console.log('Explanation Text:', explanationText);
+        this.explanationTextService.setExplanationText(explanationText);
+        this.explanationTextService.setShouldDisplayExplanation(true);
+      } else {
+        console.log(`Conditions for showing explanation not met.`);
+      }
+  
+      this.explanationTextService.shouldDisplayExplanation$.subscribe(value => {
+        console.log('Should Display Explanation:', value);
+      });
     });
   }
+  
 
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
     const isOptionSelected = this.checkOptionSelected(option);
