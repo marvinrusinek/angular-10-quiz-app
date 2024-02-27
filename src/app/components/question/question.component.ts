@@ -1005,6 +1005,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       'Please click the next button to continue...'
     );
 
+    this.quizService.updateSelectedOptions(
+      this.currentQuestionIndex, option.optionId
+    );
+
     this.quizQuestionManagerService.setExplanationText(
       this.currentQuestion?.explanation || null
     );
