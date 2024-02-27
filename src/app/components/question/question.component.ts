@@ -164,6 +164,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.options = this.getOptionsForQuestion();
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
 
+    this.activatedRoute.data.subscribe((data: { questions: QuizQuestion[] }) => {
+      this.questionsArray = data.questions;
+    });
+
     this.logInitialData();
     this.initializeQuizQuestion();
     this.subscribeToRouterEvents();
@@ -808,7 +812,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
-    console.log('Current state of questionsArray:', this.questionsArray);
     this.quizService.addSelectedOption(option);
 
     const currentQuestion = await this.getCurrentQuestion();
