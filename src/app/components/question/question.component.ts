@@ -965,41 +965,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
-  /* private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
-    this.isLoadingQuestions = true; // Start loading
-    this.questions.pipe(take(1)).subscribe({
-      next: (questionsArray: QuizQuestion[]) => {
-        if (!questionsArray) {
-          console.warn('Questions array is undefined or null.');
-          this.isLoadingQuestions = false;
-          return;
-        }
-        
-        if (questionsArray.length === 0) {
-          console.warn('Questions array is empty.');
-          this.isLoadingQuestions = false;
-          return;
-        }
-  
-        this.questionsArray = questionsArray;
-        const questionIndex = this.questionsArray.findIndex((q) => this.isSameQuestion(q, currentQuestion));
-  
-        if (questionIndex === -1) {
-          console.error('Current question not found in questions array.');
-          this.isLoadingQuestions = false;
-          return;
-        }
-  
-        this.setExplanationText(questionIndex);
-        this.isLoadingQuestions = false;
-      },
-      error: (error: Error) => {
-        console.error('Error fetching questions array:', error);
-        this.isLoadingQuestions = false;
-      }
-    });
-  } */
-
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
     this.isLoadingQuestions = true;
     this.questions.pipe(take(1)).subscribe({
