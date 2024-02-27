@@ -164,8 +164,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.options = this.getOptionsForQuestion();
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
 
-    this.activatedRoute.data.pipe(take(1)).subscribe((data: { questions: QuizQuestion[] }) => {
+    /* this.activatedRoute.data.pipe(take(1)).subscribe((data: { questions: QuizQuestion[] }) => {
       this.questionsArray = data.questions;
+    }); */
+
+    this.quizDataService.getQuestionsForQuiz(this.quizService.quizId).pipe(
+      catchError(error => {
+        console.error('There was an error loading the questions', error);
+        return of([]);
+      })
+    ).subscribe((data: QuizQuestion[]) => {
+      this.questionsArray = data;
     });
 
     this.logInitialData();
