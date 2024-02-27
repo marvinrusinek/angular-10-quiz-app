@@ -1014,7 +1014,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.log("Current Question:", currentQuestion);
         console.log("Questions Array:", questionsArray);
   
-        // Simplified comparison for troubleshooting
         const questionIndex = this.questionsArray.findIndex(q => q.questionText === currentQuestion.questionText);
   
         if (questionIndex === -1) {
@@ -1031,13 +1030,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.isLoadingQuestions = false;
       }
     });
-  }  
-
-  private isSameQuestion(question1: QuizQuestion, question2: QuizQuestion): boolean {
-    const isSame = question1.questionText.trim().toLowerCase() === question2.questionText.trim().toLowerCase() &&
-                   question1.explanation.trim().toLowerCase() === question2.explanation.trim().toLowerCase();
-    console.log(`Comparing:`, question1, question2, `Result: ${isSame}`);
-    return isSame;
   }
 
   checkOptionSelected(option: Option): boolean {
