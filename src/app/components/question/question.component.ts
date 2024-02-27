@@ -989,8 +989,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       next: (questionsArray: QuizQuestion[]) => {
         console.log("QA::", questionsArray);
         console.log("QA Length:", questionsArray.length, "Is QA truthy:", !!questionsArray);
-        if (!questionsArray || questionsArray.length === 0) {
-          console.warn('Questions array is not initialized or empty.');
+        if (!questionsArray) {
+          console.warn('Questions array is undefined or null.');
+          this.isLoadingQuestions = false;
+          return;
+        }
+        
+        if (questionsArray.length === 0) {
+          console.warn('Questions array is empty.');
           this.isLoadingQuestions = false;
           return;
         }
