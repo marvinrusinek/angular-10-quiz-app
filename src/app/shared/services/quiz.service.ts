@@ -766,7 +766,7 @@ export class QuizService implements OnDestroy {
     await firstValueFrom(this.getCurrentQuestion());
   }
 
-  loadQuestions(): Observable<QuizQuestion[]> {
+  /* loadQuestions(): Observable<QuizQuestion[]> {
     const quizId = this.getCurrentQuizId();
 
     if (this.currentQuestionPromise) {
@@ -776,7 +776,30 @@ export class QuizService implements OnDestroy {
     }
 
     return this.loadQuestionsInternal(quizId);
-  }
+  } */
+
+  loadQuestions(): Observable<QuizQuestion[]> {
+    const quizId = this.getCurrentQuizId();
+  
+    // Function to ensure selectedOptions is initialized for each question
+    const initializeSelectedOptions = (questions: QuizQuestion[]) => {
+      questions.forEach(question => {
+        question.selectedOptions = question.selectedOptions || [];
+      });
+      return questions;  // Return the modified questions array
+    };
+  
+    if (this.currentQuestionPromise) {
+      return from(this.currentQuestionPromise).pipe(
+        switchMap(() => this.loadQuestionsInternal(quizId)),
+        map(initializeSelectedOptions)  // Initialize selectedOptions for each question
+      );
+    }
+  
+    return this.loadQuestionsInternal(quizId).pipe(
+      map(initializeSelectedOptions)  // Initialize selectedOptions for each question
+    );
+  }  
 
   private loadQuestionsInternal(quizId: string): Observable<QuizQuestion[]> {
     if (this.loadingQuestions) {
