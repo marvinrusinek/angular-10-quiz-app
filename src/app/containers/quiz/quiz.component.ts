@@ -725,9 +725,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationToDisplay = 'Error loading explanation.';
   }  
 
-  shouldDisplayExplanationForQuestion(question: QuizQuestion): boolean {
+  /* shouldDisplayExplanationForQuestion(question: QuizQuestion): boolean {
     return question.selectedOptions && question.selectedOptions.length > 0;
-  }
+  } */
+
+  shouldDisplayExplanationForQuestion(question: QuizQuestion): boolean {
+    console.log("Checking Explanation for:", question);
+    if (!question || !question.selectedOptions) {
+      console.log("Question or selectedOptions undefined");
+      return false;
+    }
+    return question.selectedOptions.length > 0;
+  }  
 
   initializeQuestionStreams(): void {
     // Initialize questions stream
