@@ -888,7 +888,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       })
     ).subscribe((data: QuizQuestion[]) => {
       this.questionsArray = data;
-      console.log('Data received:', data);
   
       if (!this.questionsArray || this.questionsArray.length === 0) {
         console.warn('Questions array is not initialized or empty.');
