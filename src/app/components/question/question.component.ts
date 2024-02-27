@@ -163,7 +163,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.questionsArray = data.questions;
     }); */
 
-    this.quizDataService.getQuestionsForQuiz(this.quizService.quizId).pipe(
+    /* this.quizDataService.getQuestionsForQuiz(this.quizService.quizId).pipe(
       catchError(error => {
         console.error('There was an error loading the questions', error);
         return of([]);
@@ -171,7 +171,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe((data: QuizQuestion[]) => {
       console.log('Data received:', data);
       this.questionsArray = data;
-    });
+    }); */
 
     this.logInitialData();
     this.initializeQuizQuestion();
@@ -901,6 +901,44 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   conditionallyShowExplanation(questionIndex: number): void {
+    this.quizDataService.getQuestionsForQuiz(this.quizService.quizId).pipe(
+      catchError(error => {
+        console.error('There was an error loading the questions', error);
+        return of([]); // Ensure that an empty array is returned on error to avoid further issues.
+      })
+    ).subscribe((data: QuizQuestion[]) => {
+      this.questionsArray = data;
+      console.log('Data received:', data);
+  
+      if (!this.questionsArray || this.questionsArray.length === 0) {
+        console.warn('Questions array is not initialized or empty.');
+        return;
+      }
+  
+      if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
+        console.error(`Invalid questionIndex: ${questionIndex}`);
+        return;
+      }
+  
+      const questionState = this.quizStateService.getQuestionState(questionIndex);
+      console.log('Question State:', questionState);
+      if (questionState && questionState.isAnswered) {
+        console.log(`Retrieving explanation for questionIndex: ${questionIndex}`);
+        const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+        console.log('Explanation Text:', explanationText);
+        this.explanationTextService.setExplanationText(explanationText);
+        this.explanationTextService.setShouldDisplayExplanation(true);
+      } else {
+        console.log(`Conditions for showing explanation not met.`);
+      }
+  
+      this.explanationTextService.shouldDisplayExplanation$.subscribe(value => {
+        console.log('Should Display Explanation:', value);
+      });
+    });
+  }
+  
+  /* conditionallyShowExplanation(questionIndex: number): void {
     this.activatedRoute.data.pipe(take(1)).subscribe((data: { quizData: YourDataType }) => {
       // Assuming the questions array is part of your quizData, adjust the path as necessary
       this.questionsArray = data.quizData.questions;
@@ -932,7 +970,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.log('Should Display Explanation:', value);
       });
     });
-  }  
+  } */
 
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
     const isOptionSelected = this.checkOptionSelected(option);
