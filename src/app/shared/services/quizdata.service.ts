@@ -248,7 +248,7 @@ export class QuizDataService implements OnDestroy {
         });
       }),
       distinctUntilChanged()
-    );
+    ); 
   }
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
