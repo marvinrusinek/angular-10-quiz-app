@@ -944,7 +944,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizDataService.currentQuiz$.subscribe(currentQuiz => {
       if (currentQuiz) {
         // Safe to perform the action since quiz data is available
-        this.updateSelectedOptions(questionIndex, selectedOptionId);
+        this.quizService.updateSelectedOptions(questionIndex, selectedOptionId);
       } else {
         console.error('Quiz data is not initialized.');
       }
