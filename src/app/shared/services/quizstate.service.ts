@@ -37,10 +37,32 @@ export class QuizStateService {
   getStoredState(quizId: string): Map<number, QuestionState> | null {
     const stateJSON = localStorage.getItem(`quizState_${quizId}`);
     if (stateJSON) {
-      const stateObject = JSON.parse(stateJSON);
-      return new Map<number, QuestionState>(
-        Object.entries(stateObject).map(([key, value]): [number, QuestionState] => [Number(key), value as QuestionState])
-      );
+      try {
+        const stateObject = JSON.parse(stateJSON);
+  
+        // Additional check to ensure the parsed object matches the expected structure
+        if (typeof stateObject === 'object' && !Array.isArray(stateObject)) {
+          return new Map<number, QuestionState>(
+            Object.entries(stateObject).map(([key, value]): [number, QuestionState] => {
+              // Further validation to ensure each key-value pair matches the expected types
+              const parsedKey = Number(key);
+              if (!isNaN(parsedKey) && typeof value === 'object' && value !== null && 'isAnswered' in value) {
+                // Assuming 'isAnswered' is a mandatory property in QuestionState for validation
+                return [parsedKey, value as QuestionState];
+              } else {
+                throw new Error(`Invalid question state format for questionId ${key}`);
+              }
+            })
+          );
+        } else {
+          throw new Error('Stored state is not in object format');
+        }
+      } catch (error) {
+        console.error(`Error parsing stored state for quizId ${quizId}:`, error);
+        // Decide how to handle this error. Options include returning null or an empty Map.
+        // Returning null to maintain consistency with the function's original behavior.
+        return null;
+      }
     }
     return null;
   }
