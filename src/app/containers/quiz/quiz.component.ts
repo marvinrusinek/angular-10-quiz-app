@@ -378,12 +378,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       this.currentQuestionIndex = 0;
       this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-      await this.setCurrentQuizForQuizId(this.quizId);
+  
+      console.log("Before setCurrentQuizForQuizId, this.currentQuiz:", this.currentQuiz);
+      await this.setCurrentQuizForQuizId(this.quizId); // Ensure this method populates this.currentQuiz
+      console.log("After setCurrentQuizForQuizId, this.currentQuiz:", this.currentQuiz);
   
       if (!this.currentQuiz || !Array.isArray(this.currentQuiz.questions)) {
         console.error('Current quiz or quiz questions are undefined.');
-        // Consider initializing the currentQuiz here or handling the error appropriately
-        return;
+        return; // Consider initializing this.currentQuiz here or handling the error
       }
   
       this.shouldDisplayNumberOfCorrectAnswers = true;
@@ -411,12 +413,11 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log("No stored state found for quizId:", this.quizId);
         this.quizStateService.applyDefaultStates(this.quizId, this.currentQuiz.questions);
       }
-  
     } catch (error) {
       console.error("An error occurred during quiz session preparation:", error);
     }
   }
-   
+  
   storeFormattedExplanationText(questionId: number, explanationText: string): void {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
   }
