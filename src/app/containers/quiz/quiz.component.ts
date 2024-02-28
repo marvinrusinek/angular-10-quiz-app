@@ -537,24 +537,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.currentQuizSubject.next(quiz);
   }
 
-  /* setCurrentQuizForQuizId(quizId: string): void {
-    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-    this.quizDataService.currentQuizId = quizId;
-
-    this.quizDataService.quizzes$.subscribe((quizzes) => {
-      const currentQuiz = quizzes.find(
-        (quiz) => quiz.quizId === this.quizDataService.currentQuizId
-      );
-      this.currentQuiz = currentQuiz;
-    });
-  } */
-
-  setCurrentQuizForQuizId(quizId: string): void {
-    this.quizDataService.quizzes$.subscribe((quizzes) => {
-      const currentQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-      if (currentQuiz) {
-        this.quizDataService.setCurrentQuiz(currentQuiz);
-      }
+  setCurrentQuizForQuizId(quizId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.quizDataService.quizzes$.subscribe((quizzes) => {
+        const currentQuiz = quizzes.find(quiz => quiz.quizId === quizId);
+        if (currentQuiz) {
+          this.quizDataService.setCurrentQuiz(currentQuiz);
+          this.currentQuiz = currentQuiz;
+          resolve(); // Resolve the promise once the current quiz is set
+        } else {
+          reject(`Quiz with ID ${quizId} not found`); // Reject the promise if no quiz is found
+        }
+      });
     });
   }
   
