@@ -411,6 +411,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       } else {
         console.log("No stored state found for quizId:", this.quizId);
+        const defaultStates = this.quizStateService.createDefaultQuestionState();
+        this.applyDefaultStates(defaultStates);
       }
     } catch (error) {
       console.error("An error occurred during quiz session preparation:", error);

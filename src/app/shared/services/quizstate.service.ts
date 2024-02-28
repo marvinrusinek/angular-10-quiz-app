@@ -135,6 +135,19 @@ export class QuizStateService {
     };
   }
 
+  applyDefaultStates(quizId: string, questions: QuizQuestion[]): void {
+    questions.forEach((question, index) => {
+      // Use the index as the question identifier
+      const questionId = index;
+      const defaultState = this.createDefaultQuestionState();
+  
+      // Apply the default state to each question using its index as the identifier
+      this.setQuestionState(questionId, defaultState);
+    });
+  
+    console.log(`Default states applied for all questions in quizId: ${quizId}`);
+  }
+
   markQuestionAsAnswered(questionIndex: number, showExplanation: boolean) {
     const questionState = this.getQuestionState(questionIndex) || this.createDefaultQuestionState();
     questionState.isAnswered = true;
