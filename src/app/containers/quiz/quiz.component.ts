@@ -375,37 +375,47 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private async prepareQuizSession(): Promise<void> {
-    this.currentQuestionIndex = 0;
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    await this.setCurrentQuizForQuizId(this.quizId);
-    this.shouldDisplayNumberOfCorrectAnswers = true;
-    this.explanationTextService.resetProcessedQuestionsState();
+    try {
+      this.currentQuestionIndex = 0;
+      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
   
-    // Load and apply stored state
-    const storedStates = this.quizStateService.getStoredState(this.quizId);
-    console.log("Retrieved stored state:", storedStates);
-    if (storedStates) {
-      storedStates.forEach((state, questionId) => {
-        this.quizStateService.setQuestionState(questionId, state);
-        console.log(`Restoring state for question ${questionId}`, state);
-        if (state.isAnswered && state.explanationDisplayed) {
-          // Retrieve the explanation text for the question
-          const explanationText = this.explanationTextService.getFormattedExplanation(+questionId);
-          console.log(`Restoring explanation for question ${questionId}: ${explanationText}`);
-          // Store the explanation text
-          this.storeFormattedExplanationText(+questionId, explanationText);
-        }
-      });
-  
-      // After restoring states, explicitly check the first question's state
-      const firstQuestionState = storedStates.get(0);
-      if (firstQuestionState && firstQuestionState.isAnswered) {
-        this.explanationTextService.setShouldDisplayExplanation(true);
+      // Ensure quizId is valid
+      if (!this.quizId) {
+        throw new Error("Quiz ID is not available in route parameters.");
       }
-    } else {
-      console.log("No stored state found for quizId:", this.quizId);
+  
+      await this.setCurrentQuizForQuizId(this.quizId);
+      this.shouldDisplayNumberOfCorrectAnswers = true;
+      this.explanationTextService.resetProcessedQuestionsState();
+  
+      // Load and apply stored state
+      const storedStates = this.quizStateService.getStoredState(this.quizId);
+      console.log("Retrieved stored state:", storedStates);
+  
+      if (storedStates) {
+        storedStates.forEach((state, questionId) => {
+          this.quizStateService.setQuestionState(questionId, state);
+          console.log(`Restoring state for question ${questionId}`, state);
+  
+          if (state.isAnswered && state.explanationDisplayed) {
+            const explanationText = this.explanationTextService.getFormattedExplanation(Number(questionId));
+            console.log(`Restoring explanation for question ${questionId}: ${explanationText}`);
+            this.storeFormattedExplanationText(Number(questionId), explanationText);
+          }
+        });
+  
+        // After restoring states, explicitly check the first question's state
+        const firstQuestionState = typeof storedStates.get === 'function' ? storedStates.get(0) : storedStates[0];
+        if (firstQuestionState && firstQuestionState.isAnswered) {
+          this.explanationTextService.setShouldDisplayExplanation(true);
+        }
+      } else {
+        console.log("No stored state found for quizId:", this.quizId);
+      }
+    } catch (error) {
+      console.error("An error occurred during quiz session preparation:", error);
     }
-  }  
+  }
 
   storeFormattedExplanationText(questionId: number, explanationText: string): void {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
