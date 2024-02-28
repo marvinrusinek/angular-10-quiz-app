@@ -375,7 +375,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private async prepareQuizSession(): Promise<void> {
-    console.log("prepareQuizSession() called");
     this.currentQuestionIndex = 0;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     await this.setCurrentQuizForQuizId(this.quizId);
@@ -383,7 +382,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.resetProcessedQuestionsState();
   
     // Load and apply stored state
-    console.log("Quiz ID:", this.quizId);
     const storedStates = this.quizStateService.getStoredState(this.quizId);
     console.log("Retrieved stored state:", storedStates);
     if (storedStates) {
@@ -400,9 +398,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
   
       // After restoring states, explicitly check the first question's state
-      const firstQuestionState = storedStates.get(0); // Assuming '0' is the ID for the first question
+      const firstQuestionState = storedStates.get(0);
       if (firstQuestionState && firstQuestionState.isAnswered) {
-        // Set the explanation text visibility to true if the first question was answered
         this.explanationTextService.setShouldDisplayExplanation(true);
       }
     } else {
