@@ -378,17 +378,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       this.currentQuestionIndex = 0;
       this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-  
-      // Ensure quizId is valid
-      if (!this.quizId) {
-        throw new Error("Quiz ID is not available in route parameters.");
-      }
-  
-      await this.setCurrentQuizForQuizId(this.quizId);
+      await this.setCurrentQuizForQuizId(this.quizId); // Ensure this populates this.currentQuiz
       this.shouldDisplayNumberOfCorrectAnswers = true;
       this.explanationTextService.resetProcessedQuestionsState();
   
-      // Load and apply stored state
       const storedStates = this.quizStateService.getStoredState(this.quizId);
       console.log("Retrieved stored state:", storedStates);
   
@@ -411,13 +404,17 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       } else {
         console.log("No stored state found for quizId:", this.quizId);
-        this.quizStateService.applyDefaultStates(this.quizId, this.currentQuiz.questions);
+        if (this.currentQuiz && this.currentQuiz.questions) {
+          this.quizStateService.applyDefaultStates(this.quizId, this.currentQuiz.questions);
+        } else {
+          console.error('Current quiz or quiz questions are undefined.');
+        }
       }
     } catch (error) {
       console.error("An error occurred during quiz session preparation:", error);
     }
   }
-
+  
   storeFormattedExplanationText(questionId: number, explanationText: string): void {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
   }
