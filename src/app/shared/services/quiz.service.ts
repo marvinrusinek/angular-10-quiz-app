@@ -630,6 +630,7 @@ export class QuizService implements OnDestroy {
 
   updateSelectedOptions(quizId: string, questionIndex: number, selectedOptionId: number): void {
     const quiz = this.quizData.find(q => q.quizId === quizId);
+    console.log("QUIZ", quiz); 
 
     if (!quiz) {
       console.error('Quiz data is not initialized....');
