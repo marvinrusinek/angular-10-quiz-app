@@ -404,12 +404,16 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       } else {
         console.log("No stored state found for quizId:", this.quizId);
-        if (this.currentQuiz && this.currentQuiz.questions) {
-          this.quizStateService.applyDefaultStates(this.quizId, this.currentQuiz.questions);
-        } else {
-          console.error('Current quiz or quiz questions are undefined.');
-        }
       }
+  
+      // Apply default states if currentQuiz and its questions are defined
+      if (this.currentQuiz && Array.isArray(this.currentQuiz.questions)) {
+        this.quizStateService.applyDefaultStates(this.quizId, this.currentQuiz.questions);
+      } else {
+        console.error('Current quiz or quiz questions are undefined.');
+        return;
+      }
+      
     } catch (error) {
       console.error("An error occurred during quiz session preparation:", error);
     }
