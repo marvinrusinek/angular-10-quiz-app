@@ -629,6 +629,8 @@ export class QuizService implements OnDestroy {
   }
 
   updateSelectedOptions(quizId: string, questionIndex: number, selectedOptionId: number): void {
+    console.log("Searching for quizId:", quizId);
+    console.log("Current quizData:", this.quizData);
     const quiz = this.quizData.find(q => q.quizId === quizId);
     console.log("QUIZ", quiz); 
 
