@@ -549,7 +549,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
-
+  
   private initializeQuizState(): void {
     // Find the current quiz object by quizId
     const currentQuiz = this.quizService.findQuizByQuizId(this.quizId);
