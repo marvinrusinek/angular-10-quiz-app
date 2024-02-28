@@ -765,7 +765,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return question.selectedOptions && question.selectedOptions.length > 0;
   }
 
-  updateSelectedOptions(option) {
+  /* updateSelectedOptions(option) {
     // Subscribe to get the current question index
     this.quizService.getCurrentQuestionIndexObservable().pipe(take(1)).subscribe((currentIndex: number) => {
       // Update the selectedOptions for the current question
@@ -775,7 +775,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Now call handleExplanationForQuestion with the current index
       this.handleExplanationForQuestion(currentIndex);
     });
-  }
+  } */
   
   initializeQuestionStreams(): void {
     // Initialize questions stream

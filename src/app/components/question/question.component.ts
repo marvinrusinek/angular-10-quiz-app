@@ -803,7 +803,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const currentQuestion = await this.getCurrentQuestion();
       if (currentQuestion) {
         this.handleOptionSelection(option, index, currentQuestion);
-        this.handleAction(index, option.optionId);
       } else {
         console.error("Could not retrieve the current question.");
       }
@@ -940,17 +939,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleMultipleAnswer(currentQuestion);
   }
 
-  handleAction(questionIndex: number, selectedOptionId: number): void {
-    this.quizDataService.currentQuiz$.subscribe(currentQuiz => {
-      if (currentQuiz) {
-        // Safe to perform the action since quiz data is available
-        this.quizService.updateSelectedOptions(this.quizId, questionIndex, selectedOptionId);
-      } else {
-        console.error('Quiz data is not initialized.');
-      }
-    });
-  }
-
   private addSelectedOption(
     option: Option,
     currentQuestion: QuizQuestion
@@ -1024,7 +1012,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     );
 
     this.quizService.updateSelectedOptions(
-      this.quizId, this.currentQuestionIndex, option.optionId
+      this.quizService.quizId, this.currentQuestionIndex, option.optionId
     );
 
     this.quizQuestionManagerService.setExplanationText(
