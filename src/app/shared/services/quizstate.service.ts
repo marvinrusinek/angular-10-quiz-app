@@ -47,7 +47,6 @@ export class QuizStateService {
               // Further validation to ensure each key-value pair matches the expected types
               const parsedKey = Number(key);
               if (!isNaN(parsedKey) && typeof value === 'object' && value !== null && 'isAnswered' in value) {
-                // Assuming 'isAnswered' is a mandatory property in QuestionState for validation
                 return [parsedKey, value as QuestionState];
               } else {
                 throw new Error(`Invalid question state format for questionId ${key}`);
@@ -59,8 +58,6 @@ export class QuizStateService {
         }
       } catch (error) {
         console.error(`Error parsing stored state for quizId ${quizId}:`, error);
-        // Decide how to handle this error. Options include returning null or an empty Map.
-        // Returning null to maintain consistency with the function's original behavior.
         return null;
       }
     }
