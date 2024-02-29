@@ -231,7 +231,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    return this.currentQuestionIndex === selectedQuiz?.questions.length - 1;
+    return this.currentQuestionIndex !== selectedQuiz.questions.length - 1;
   }
 
 
