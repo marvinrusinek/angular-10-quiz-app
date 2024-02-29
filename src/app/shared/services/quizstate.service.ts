@@ -120,31 +120,6 @@ export class QuizStateService {
     this.setQuestionState(questionId, currentState);
   }
 
-  updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
-    if (question$ === null || question$ === undefined) {
-      throwError('Question$ is null or undefined.');
-      return;
-    }
-
-    question$.pipe(
-      catchError((error: any) => {
-        console.error(error);
-        return throwError(error);
-      }),
-      distinctUntilChanged()
-    ).subscribe((question: QuizQuestion) => {
-      this.currentQuestion.next(question);
-      this.currentQuestionSubject.next(question);
-
-      if (question && question.options) {
-        this.currentQuestion.next(question);
-        this.currentOptionsSubject.next(question?.options || []);
-      } else {
-        console.log('No options found.');
-      }
-    });
-  }
-
   createDefaultQuestionState(): QuestionState {
     return {
       isAnswered: false,
@@ -172,6 +147,31 @@ export class QuizStateService {
     questionState.isAnswered = true;
     questionState.explanationDisplayed = showExplanation;
     this.questionStates.set(questionIndex, questionState);
+  }
+
+  updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
+    if (question$ === null || question$ === undefined) {
+      throwError('Question$ is null or undefined.');
+      return;
+    }
+
+    question$.pipe(
+      catchError((error: any) => {
+        console.error(error);
+        return throwError(error);
+      }),
+      distinctUntilChanged()
+    ).subscribe((question: QuizQuestion) => {
+      this.currentQuestion.next(question);
+      this.currentQuestionSubject.next(question);
+
+      if (question && question.options) {
+        this.currentQuestion.next(question);
+        this.currentOptionsSubject.next(question?.options || []);
+      } else {
+        console.log('No options found.');
+      }
+    });
   }
 
   updateCurrentQuestion(newQuestion: QuizQuestion): void {
