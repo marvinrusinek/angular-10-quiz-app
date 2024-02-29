@@ -818,7 +818,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         currentQuestion.selectedOptions = currentQuestion.selectedOptions || [];
   
         // Determine how to handle option selection based on question type
-        if (currentQuestion.type === 'MultipleAnswer') { // Assuming 'MultipleAnswer' is a valid type value
+        if (currentQuestion.type === QuestionType.MultipleAnswer) {
           const isSelected = currentQuestion.selectedOptions.some(o => o.optionId === option.optionId);
           if (isSelected) {
             // Remove the option if it's already selected (toggle behavior)
@@ -836,7 +836,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.handleOptionSelection(option, index, currentQuestion);
   
         // Optionally, synchronize the current question's state with a central store or service
-        // this.quizService.updateQuestionState(currentQuestion.id, currentQuestion.selectedOptions);
+        this.quizStateService.updateQuestionState(currentQuestion.id, currentQuestion.selectedOptions);
   
       } else {
         console.error("Could not retrieve the current question.");

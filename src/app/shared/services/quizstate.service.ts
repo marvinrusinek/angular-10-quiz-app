@@ -85,8 +85,8 @@ export class QuizStateService {
   updateQuestionState(
     questionId: number,
     selectedOptionId: number,
-    isCorrect: boolean,
-    totalCorrectAnswers: number) {
+    isCorrect?: boolean,
+    totalCorrectAnswers?: number) {
     if (typeof selectedOptionId === 'undefined') {
       console.error('SelectedOptionId is undefined', { questionId, isCorrect });
       return;
