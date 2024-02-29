@@ -92,7 +92,7 @@
             </button>
           </div>
   
-          <div class="next-question-nav" [hidden]="shouldHideNextQuestionButton"
+          <div class="next-question-nav" [hidden]="shouldHideNextButton">
             matTooltip="Next Question &raquo;"
             matTooltipPosition="above"
           >
@@ -109,7 +109,7 @@
             </button>
           </div>
   
-          <div class="show-score-nav" [hidden]="!shouldShowScoreButton">
+          <div class="show-score-nav" [hidden]="shouldHideShowScoreButton">
             <button
               type="submit"
               mat-raised-button

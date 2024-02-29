@@ -188,10 +188,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    this.selectedQuiz$.subscribe(quiz => {
+    /* this.selectedQuiz$.subscribe(quiz => {
       this.selectedQuiz = quiz;
       this.totalQuestions = quiz?.questions?.length ?? 0;
-    });
+    }); */
+
+    this.totalQuestions$.subscribe(total => this.totalQuestions = total);
 
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
@@ -230,16 +232,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.selectedQuiz?.questions?.length ?? 0;
   } */
 
+  get shouldHideNextButton(): boolean {
+    return this.currentQuestionIndex >= this.totalQuestions - 1;
+  }
+  
+  get shouldHideShowScoreButton(): boolean {
+    return this.currentQuestionIndex < this.totalQuestions - 1;
+  }
+  
   public get shouldHideNextQuestionNav(): boolean {
     if (!this.selectedQuiz || !this.selectedQuiz.questions) {
       return true; // Hide if there's no quiz data
     }
     // Hide the "Next" button only if on the last question
     return this.currentQuestionIndex === this.totalQuestions - 1;
-  }
-
-  public get shouldHideShowScoreButton(): boolean {
-    return this.currentQuestionIndex !== this.totalQuestions - 1;
   }
 
   public get shouldHideNextQuestionButton(): boolean {
