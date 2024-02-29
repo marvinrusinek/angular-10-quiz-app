@@ -78,6 +78,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   indexOfQuizId: number;
   status: QuizStatus;
   isNavigating = false;
+  totalQuestions$: Observable<number>;
 
   selectedOption: Option;
   selectedOptions: Option[] = [];
@@ -169,7 +170,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
@@ -186,6 +187,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.createQuestionData();
     this.getQuestion();
     this.subscribeToCurrentQuestion();
+
+    this.selectedQuiz$.subscribe(quiz => {
+      this.selectedQuiz = quiz;
+      console.log("Selected Quiz:", this.selectedQuiz);
+    });
+
+    this.totalQuestions$ = this.getTotalQuestions();
 
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
@@ -220,13 +228,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.currentQuestionIndex === 0;
   }
 
+  /* public get totalQuestions(): number {
+    return this.selectedQuiz?.questions?.length ?? 0;
+  } */
+
   public get shouldHideNextQuestionNav(): boolean {
-    const selectedQuiz = this.selectedQuiz$.value;
-    if (!selectedQuiz || !selectedQuiz.questions) {
+    if (!this.selectedQuiz || !this.selectedQuiz.questions) {
       return true; // Hide if there's no quiz data
     }
     // Hide the "Next" button only if on the last question
-    return this.currentQuestionIndex === selectedQuiz.questions.length - 1;
+    return this.currentQuestionIndex === this.totalQuestions - 1;
   }
 
   public get shouldHideShowScoreButton(): boolean {

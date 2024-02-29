@@ -92,7 +92,7 @@
             </button>
           </div>
   
-          <div class="next-question-nav" *ngIf="shouldHideNextQuestionNav"
+          <div class="next-question-nav" *ngIf="(totalQuestions$ | async) > currentQuestionIndex + 1"
             matTooltip="Next Question &raquo;"
             matTooltipPosition="above"
           >
