@@ -193,9 +193,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.totalQuestions = quiz?.questions?.length ?? 0;
     }); */
 
-    this.totalQuestions$.subscribe(total => {
+    this.getTotalQuestions().then(total => {
       this.totalQuestions = total;
-      console.log('Total Questions Set:', this.totalQuestions); // Check the logged value
     });
 
     /* this.quizService.getCorrectAnswersText().pipe(
@@ -232,16 +231,15 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   get shouldHideNextButton(): boolean {
-    const result = this.currentQuestionIndex >= this.totalQuestions - 1;
-    console.log(`Hide Next: ${result} (Index: ${this.currentQuestionIndex}, Total: ${this.totalQuestions})`);
-    return result;
+    // The "Next" button should be hidden only on the last question
+    return this.currentQuestionIndex >= this.totalQuestions - 1;
   }
   
   get shouldHideShowScoreButton(): boolean {
-    const result = this.currentQuestionIndex < this.totalQuestions - 1;
-    console.log(`Hide Show Score: ${result} (Index: ${this.currentQuestionIndex}, Total: ${this.totalQuestions})`);
-    return result;
-  }  
+    // The "Show Your Score" button should be hidden on all but the last question
+    return this.currentQuestionIndex < this.totalQuestions - 1;
+  }
+  
 
   public get shouldHideNextQuestionNav(): boolean {
     if (!this.selectedQuiz || !this.selectedQuiz.questions) {
