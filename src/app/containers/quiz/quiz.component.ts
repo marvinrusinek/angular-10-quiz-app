@@ -195,6 +195,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.totalQuestions$ = from(this.getTotalQuestions());
 
+    this.totalQuestions$.subscribe(total => {
+      this.totalQuestions = total; // Update the synchronous property when the total number of questions is emitted
+    });
+
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe((text: string) => {
@@ -242,13 +246,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   public get shouldHideShowScoreButton(): boolean {
     const selectedQuiz = this.selectedQuiz$.value;
-    console.log("Current Index:", this.currentQuestionIndex, "Total Questions:", selectedQuiz?.questions.length);
   
     if (!selectedQuiz || !selectedQuiz.questions) {
       return true; // Hide if there's no quiz data
     }
   
-    const shouldHide = this.currentQuestionIndex !== selectedQuiz.questions.length - 1;
+    const shouldHide = this.currentQuestionIndex !== this.totalQuestions - 1;
     console.log("Should Hide Show Score Button:", shouldHide);
     return shouldHide;
   }
