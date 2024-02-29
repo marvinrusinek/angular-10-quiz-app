@@ -129,6 +129,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   explanationToDisplay = '';
 
   questionsArray: QuizQuestion[] = [];
+  isQuizDataLoaded = false;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
@@ -195,6 +196,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.getTotalQuestions().then(total => {
       this.totalQuestions = total;
+      this.isQuizDataLoaded = true;
     });
 
     /* this.quizService.getCorrectAnswersText().pipe(
@@ -231,14 +233,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   public get shouldHideNextButton(): boolean {
-    // The "Next" button should be hidden only on the last question
-    return this.currentQuestionIndex >= this.totalQuestions - 1;
+    // Hide if data isn't loaded or on the last question
+    return !this.isQuizDataLoaded || this.currentQuestionIndex >= this.totalQuestions - 1;
   }
   
   public get shouldHideShowScoreButton(): boolean {
-    // The "Show Your Score" button should be hidden on all but the last question
-    return this.currentQuestionIndex < this.totalQuestions - 1;
-  }
+    // Hide if data isn't loaded or not on the last question
+    return !this.isQuizDataLoaded || this.currentQuestionIndex < this.totalQuestions - 1;
+  }  
     
   public get shouldHideRestartNav(): boolean {
     return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1;
