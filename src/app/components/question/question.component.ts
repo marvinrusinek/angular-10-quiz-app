@@ -795,49 +795,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* async onOptionClicked(option: Option, index: number): Promise<void> {
+  async onOptionClicked(option: Option, index: number): Promise<void> {
     this.quizService.addSelectedOption(option);
   
     try {
       const currentQuestion = await this.getCurrentQuestion();
       if (currentQuestion) {
         this.handleOptionSelection(option, index, currentQuestion);
-      } else {
-        console.error("Could not retrieve the current question.");
-      }
-    } catch (error) {
-      console.error("An error occurred while fetching the current question:", error);
-    }
-  } */
-
-  async onOptionClicked(option: Option, index: number): Promise<void> {
-    try {
-      const currentQuestion = await this.getCurrentQuestion();
-      if (currentQuestion) {
-        // Ensure selectedOptions is initialized
-        currentQuestion.selectedOptions = currentQuestion.selectedOptions || [];
-  
-        // Determine how to handle option selection based on question type
-        if (currentQuestion.type === QuestionType.MultipleAnswer) {
-          const isSelected = currentQuestion.selectedOptions.some(o => o.optionId === option.optionId);
-          if (isSelected) {
-            // Remove the option if it's already selected (toggle behavior)
-            currentQuestion.selectedOptions = currentQuestion.selectedOptions.filter(o => o.optionId !== option.optionId);
-          } else {
-            // Add the option if it's not already selected
-            currentQuestion.selectedOptions.push(option);
-          }
-        } else {
-          // For single-choice questions, set selectedOptions to the newly selected option
-          currentQuestion.selectedOptions = [option];
-        }
-  
-        // Update the state and UI as necessary
-        this.handleOptionSelection(option, index, currentQuestion);
-  
-        // Synchronize the current question's state with a central store or service
-        this.quizStateService.updateQuestionState(this.currentQuestionIndex, option.optionId);
-  
       } else {
         console.error("Could not retrieve the current question.");
       }
