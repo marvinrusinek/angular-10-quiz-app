@@ -795,35 +795,48 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  /* async onOptionClicked(option: Option, index: number): Promise<void> {
+    this.quizService.addSelectedOption(option);
+  
+    try {
+      const currentQuestion = await this.getCurrentQuestion();
+      if (currentQuestion) {
+        this.handleOptionSelection(option, index, currentQuestion);
+      } else {
+        console.error("Could not retrieve the current question.");
+      }
+    } catch (error) {
+      console.error("An error occurred while fetching the current question:", error);
+    }
+  } */
+
   async onOptionClicked(option: Option, index: number): Promise<void> {
     try {
       const currentQuestion = await this.getCurrentQuestion();
       if (currentQuestion) {
-        // Initialize selectedOptions if it's undefined
-        if (!currentQuestion.selectedOptions) {
-          currentQuestion.selectedOptions = [];
-        }
+        // Ensure selectedOptions is initialized
+        currentQuestion.selectedOptions = currentQuestion.selectedOptions || [];
   
-        // Check the question type to decide how to update selectedOptions
-        if (currentQuestion.type === QuestionType.MultipleAnswer) {
-          // For multiple-choice questions, add or remove the option from selectedOptions
-          const optionIndex = currentQuestion.selectedOptions.findIndex(o => o.optionId === option.optionId);
-          if (optionIndex > -1) {
-            // Option is already selected, remove it (toggle off)
-            currentQuestion.selectedOptions.splice(optionIndex, 1);
+        // Determine how to handle option selection based on question type
+        if (currentQuestion.type === 'MultipleAnswer') { // Assuming 'MultipleAnswer' is a valid type value
+          const isSelected = currentQuestion.selectedOptions.some(o => o.optionId === option.optionId);
+          if (isSelected) {
+            // Remove the option if it's already selected (toggle behavior)
+            currentQuestion.selectedOptions = currentQuestion.selectedOptions.filter(o => o.optionId !== option.optionId);
           } else {
-            // Option not selected, add it (toggle on)
+            // Add the option if it's not already selected
             currentQuestion.selectedOptions.push(option);
           }
         } else {
-          // For single-choice questions, replace selectedOptions with the new selection
+          // For single-choice questions, set selectedOptions to the newly selected option
           currentQuestion.selectedOptions = [option];
         }
   
+        // Update the state and UI as necessary
         this.handleOptionSelection(option, index, currentQuestion);
   
-        // If necessary, update the question in a central store or service
-        // this.quizService.updateQuestion(currentQuestion);
+        // Optionally, synchronize the current question's state with a central store or service
+        // this.quizService.updateQuestionState(currentQuestion.id, currentQuestion.selectedOptions);
   
       } else {
         console.error("Could not retrieve the current question.");
@@ -831,7 +844,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error("An error occurred while fetching the current question:", error);
     }
-  }
+  }  
     
   async getCurrentQuestion(): Promise<QuizQuestion | null> {
     const currentQuestion = await firstValueFrom(this.quizStateService.currentQuestion$.pipe(take(1)));
