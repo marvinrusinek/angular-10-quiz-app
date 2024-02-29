@@ -11,6 +11,7 @@ import { catchError, filter, map, switchMap, take,
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
+import { QuestionType } from '../../shared/models/question-type.enum';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
@@ -797,20 +798,43 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
-    this.quizService.addSelectedOption(option);
-  
     try {
       const currentQuestion = await this.getCurrentQuestion();
       if (currentQuestion) {
+        // Initialize selectedOptions if it's undefined
+        if (!currentQuestion.selectedOptions) {
+          currentQuestion.selectedOptions = [];
+        }
+  
+        // Check the question type to decide how to update selectedOptions
+        if (currentQuestion.type === QuestionType.MultipleAnswer) {
+          // For multiple-choice questions, add or remove the option from selectedOptions
+          const optionIndex = currentQuestion.selectedOptions.findIndex(o => o.optionId === option.optionId);
+          if (optionIndex > -1) {
+            // Option is already selected, remove it (toggle off)
+            currentQuestion.selectedOptions.splice(optionIndex, 1);
+          } else {
+            // Option not selected, add it (toggle on)
+            currentQuestion.selectedOptions.push(option);
+          }
+        } else {
+          // For single-choice questions, replace selectedOptions with the new selection
+          currentQuestion.selectedOptions = [option];
+        }
+  
         this.handleOptionSelection(option, index, currentQuestion);
+  
+        // If necessary, update the question in a central store or service
+        // this.quizService.updateQuestion(currentQuestion);
+  
       } else {
         console.error("Could not retrieve the current question.");
       }
     } catch (error) {
       console.error("An error occurred while fetching the current question:", error);
     }
-  }  
-
+  }
+    
   async getCurrentQuestion(): Promise<QuizQuestion | null> {
     const currentQuestion = await firstValueFrom(this.quizStateService.currentQuestion$.pipe(take(1)));
     if (this.quizService.isQuizQuestion(currentQuestion)) {
