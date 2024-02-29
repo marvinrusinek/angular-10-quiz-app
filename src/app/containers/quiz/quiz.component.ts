@@ -246,6 +246,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1;
   }
 
+  public get shouldShowScoreButton(): boolean {
+    // Show the "Show Your Score" button only on the last question
+    return this.currentQuestionIndex === this.totalQuestions - 1;
+  }
+
   checkAndDisplayCorrectAnswers(): void {
     const multipleAnswerQuestionIndex = this.findCurrentMultipleAnswerQuestionIndex();
     if (this.quizService.isAnswered(multipleAnswerQuestionIndex)) {
