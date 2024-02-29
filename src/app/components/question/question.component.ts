@@ -3,11 +3,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef,
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest,
-  firstValueFrom, Observable, of, ReplaySubject,
+import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject,
   Subject, Subscription, throwError } from 'rxjs';
-import { catchError, filter, map, switchMap, take,
-  takeUntil, tap } from 'rxjs/operators';
+import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
