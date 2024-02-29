@@ -231,27 +231,20 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   public get shouldHideShowScoreButton(): boolean {
     const selectedQuiz = this.selectedQuiz$.value;
+    console.log("Current Index:", this.currentQuestionIndex, "Total Questions:", selectedQuiz?.questions.length);
+  
     if (!selectedQuiz || !selectedQuiz.questions) {
       return true; // Hide if there's no quiz data
     }
-    // Show the "Show Your Score" button only on the last question
-    return this.currentQuestionIndex !== selectedQuiz.questions.length - 1;
+  
+    const shouldHide = this.currentQuestionIndex !== selectedQuiz.questions.length - 1;
+    console.log("Should Hide Show Score Button:", shouldHide);
+    return shouldHide;
   }
   
   public get shouldHideRestartNav(): boolean {
     return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1;
   }
-
-  public get shouldHideShowScoreNav(): boolean {
-    const selectedQuiz = this.selectedQuiz$.value;
-    if (!selectedQuiz || !selectedQuiz.questions) {
-      return true; // Hide if there's no quiz or questions data
-    }
-    // Show the "Show Your Score" button only on the last question
-    return this.currentQuestionIndex !== selectedQuiz.questions.length - 1;
-  }
-
-  
 
   checkAndDisplayCorrectAnswers(): void {
     const multipleAnswerQuestionIndex = this.findCurrentMultipleAnswerQuestionIndex();
