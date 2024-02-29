@@ -230,37 +230,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.currentQuestionIndex === 0;
   }
 
-  get shouldHideNextButton(): boolean {
+  public get shouldHideNextButton(): boolean {
     // The "Next" button should be hidden only on the last question
     return this.currentQuestionIndex >= this.totalQuestions - 1;
   }
   
-  get shouldHideShowScoreButton(): boolean {
+  public get shouldHideShowScoreButton(): boolean {
     // The "Show Your Score" button should be hidden on all but the last question
     return this.currentQuestionIndex < this.totalQuestions - 1;
   }
-  
-
-  public get shouldHideNextQuestionNav(): boolean {
-    if (!this.selectedQuiz || !this.selectedQuiz.questions) {
-      return true; // Hide if there's no quiz data
-    }
-    // Hide the "Next" button only if on the last question
-    return this.currentQuestionIndex === this.totalQuestions - 1;
-  }
-
-  public get shouldHideNextQuestionButton(): boolean {
-    // Hide the "Next Question" button on the last question
-    return this.currentQuestionIndex >= this.totalQuestions - 1;
-  }
-  
+    
   public get shouldHideRestartNav(): boolean {
     return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1;
-  }
-
-  public get shouldShowScoreButton(): boolean {
-    // Show the "Show Your Score" button only on the last question
-    return this.currentQuestionIndex === this.totalQuestions - 1;
   }
 
   checkAndDisplayCorrectAnswers(): void {
