@@ -109,8 +109,8 @@
             </button>
           </div>
   
-          <div class="show-score-nav">
-            <button *ngIf="!shouldHideShowScoreNav"
+          <div class="show-score-nav" [hidden]="shouldHideShowScoreButton">
+            <button
               type="submit"
               mat-raised-button
               routerLinkActive="active"

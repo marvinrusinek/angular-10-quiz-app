@@ -223,10 +223,19 @@ export class QuizComponent implements OnInit, OnDestroy {
   public get shouldHideNextQuestionNav(): boolean {
     const selectedQuiz = this.selectedQuiz$.value;
     if (!selectedQuiz || !selectedQuiz.questions) {
-      return true; // Hide if there's no quiz or questions data
+      return true; // Hide if there's no quiz data
     }
-    // Hide the "Next Question" button only on the last question
+    // Hide the "Next" button only if on the last question
     return this.currentQuestionIndex === selectedQuiz.questions.length - 1;
+  }
+
+  public get shouldHideShowScoreButton(): boolean {
+    const selectedQuiz = this.selectedQuiz$.value;
+    if (!selectedQuiz || !selectedQuiz.questions) {
+      return true; // Hide if there's no quiz data
+    }
+    // Show the "Show Your Score" button only on the last question
+    return this.currentQuestionIndex !== selectedQuiz.questions.length - 1;
   }
   
   public get shouldHideRestartNav(): boolean {
@@ -1116,12 +1125,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.numberOfCorrectAnswers > 1;
   }
 
-  shouldHideNextQuestionNav(): boolean {
+  /* shouldHideNextQuestionNav(): boolean {
     return (
       this.selectedQuiz &&
       this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1
     );
-  }
+  } */
 
   shouldHideProgressBar(): boolean {
     return this.totalQuestions < 1;
