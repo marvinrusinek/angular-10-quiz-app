@@ -239,15 +239,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   public get shouldHideShowScoreButton(): boolean {
-    const selectedQuiz = this.selectedQuiz$.value;
-  
-    if (!selectedQuiz || !selectedQuiz.questions) {
-      return true; // Hide if there's no quiz data
-    }
-  
-    const shouldHide = this.currentQuestionIndex !== this.totalQuestions - 1;
-    console.log("Should Hide Show Score Button:", shouldHide);
-    return shouldHide;
+    return this.currentQuestionIndex !== this.totalQuestions - 1;
   }
   
   public get shouldHideRestartNav(): boolean {
