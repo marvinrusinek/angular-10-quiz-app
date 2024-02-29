@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter,
   HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, from, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, filter, first, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
@@ -193,7 +193,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log("Selected Quiz:", this.selectedQuiz);
     });
 
-    this.totalQuestions$ = this.getTotalQuestions();
+    this.totalQuestions$ = from(this.getTotalQuestions());
 
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
