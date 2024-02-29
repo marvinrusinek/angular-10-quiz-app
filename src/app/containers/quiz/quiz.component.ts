@@ -241,6 +241,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   public get shouldHideShowScoreButton(): boolean {
     return this.currentQuestionIndex !== this.totalQuestions - 1;
   }
+
+  public get shouldHideNextQuestionButton(): boolean {
+    // Hide the "Next Question" button on the last question
+    return this.currentQuestionIndex >= this.totalQuestions - 1;
+  }
   
   public get shouldHideRestartNav(): boolean {
     return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1;
