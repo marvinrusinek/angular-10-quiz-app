@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 
 import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizService } from '../../../shared/services/quiz.service';
+import { QuizDataService } from '../../../shared/services/quizdata.service';
 
 @Component({
   selector: 'codelab-quiz-header',
@@ -15,7 +16,7 @@ export class CodelabQuizHeaderComponent {
   currentQuiz: Quiz;
   currentQuiz$: Observable<Quiz>;
 
-  constructor(private quizService: QuizService) {
+  constructor(private quizService: QuizService, private quizDataService: QuizDataService) {
     this.currentQuiz$ = this.quizDataService.quizzes$.pipe(
       map(quizzes => quizzes.find(quiz => quiz.quizId === this.quizService.quizId))
     );
