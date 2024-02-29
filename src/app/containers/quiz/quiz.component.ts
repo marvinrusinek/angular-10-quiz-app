@@ -190,13 +190,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.selectedQuiz$.subscribe(quiz => {
       this.selectedQuiz = quiz;
-      console.log("Selected Quiz:", this.selectedQuiz);
-    });
-
-    this.totalQuestions$ = from(this.getTotalQuestions());
-
-    this.totalQuestions$.subscribe(total => {
-      this.totalQuestions = total; // Update the synchronous property when the total number of questions is emitted
+      this.totalQuestions = quiz?.questions?.length ?? 0;
     });
 
     /* this.quizService.getCorrectAnswersText().pipe(
