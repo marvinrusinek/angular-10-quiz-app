@@ -835,8 +835,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         // Update the state and UI as necessary
         this.handleOptionSelection(option, index, currentQuestion);
   
-        // Optionally, synchronize the current question's state with a central store or service
-        this.quizStateService.updateQuestionState(currentQuestion.id, currentQuestion.selectedOptions);
+        // Synchronize the current question's state with a central store or service
+        this.quizStateService.updateQuestionState(this.currentQuestionIndex, option.optionId);
   
       } else {
         console.error("Could not retrieve the current question.");
