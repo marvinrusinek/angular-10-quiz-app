@@ -240,7 +240,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   checkAndDisplayCorrectAnswers(): void {
     const multipleAnswerQuestionIndex = this.findCurrentMultipleAnswerQuestionIndex();
     if (this.quizService.isAnswered(multipleAnswerQuestionIndex)) {
-        this.shouldDisplayNumberOfCorrectAnswers = true;
+      this.shouldDisplayNumberOfCorrectAnswers = true;
     }
   }
 
