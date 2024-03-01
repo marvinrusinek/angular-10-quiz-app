@@ -181,23 +181,14 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Initialize quiz-related properties
     this.initializeQuiz();
+    this.retrieveTotalQuestionsCount();
 
     // Fetch and display the current question
     this.initializeQuestionStreams();
     this.loadQuizQuestions();
     this.createQuestionData();
     this.getQuestion();
-    this.subscribeToCurrentQuestion();
-
-    /* this.selectedQuiz$.subscribe(quiz => {
-      this.selectedQuiz = quiz;
-      this.totalQuestions = quiz?.questions?.length ?? 0;
-    }); */
-
-    this.getTotalQuestions().then(total => {
-      this.totalQuestions = total;
-      this.isQuizDataLoaded = true;
-    });
+    this.subscribeToCurrentQuestion(); 
 
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
@@ -1118,23 +1109,22 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.numberOfCorrectAnswers > 1;
   }
 
-  /* shouldHideNextQuestionNav(): boolean {
-    return (
-      this.selectedQuiz &&
-      this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1
-    );
-  } */
-
-  shouldHideProgressBar(): boolean {
-    return this.totalQuestions < 1;
-  }
-
   shouldDisableButton(): boolean {
     return !this.formControl || this.formControl.valid === false;
   }
 
   private async getTotalQuestions(): Promise<number> {
     return await firstValueFrom(this.quizService.getTotalQuestions());
+  }
+
+  public retrieveTotalQuestionsCount(): void {
+    this.getTotalQuestions().then(total => {
+      this.totalQuestions = total;
+      this.isQuizDataLoaded = true;
+    }).catch(error => {
+      console.error('Error fetching total questions:', error);
+      // Handle the error appropriately, perhaps by showing an error message in the UI
+    });   
   }
 
   /************************ paging functions *********************/
