@@ -66,7 +66,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     new BehaviorSubject<boolean>(false);
   @Input() shouldDisplayNumberOfCorrectAnswers = false;
   @Input() explanationText: string | null;
-  @Input() explanationTextValue: string;
   @Input() isOptionSelected = false;
   @Input() selectionMessage: string;
   @Input() showFeedback = false;
@@ -99,7 +98,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   shuffleOptions = true;
   shuffledOptions: Option[];
   explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  displayExplanation = false;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectionMessage$: Observable<string>;
   correctAnswersLoaded = false;
