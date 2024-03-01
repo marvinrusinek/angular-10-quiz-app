@@ -141,24 +141,10 @@ export class CodelabQuizContentComponent
   ngOnInit(): void {
     this.shouldDisplayCorrectAnswers = true;
 
-    this.quizService.getCurrentQuestionIndexObservable()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((index: number) => {
-        this.currentQuestionIndexValue = index;
-      });
-
-    this.quizStateService.resetQuiz$.subscribe(() => {
-      this.shouldDisplayCorrectAnswers = false;
-    });
-
-    this.explanationTextService.shouldDisplayExplanationSource.subscribe(shouldDisplay => {
-      this.quizService.shouldDisplayExplanation = shouldDisplay
-    });
-
-    this.formattedExplanationSubscription = this.explanationTextService.formattedExplanation$.subscribe(explanationText => {
-      this.explanationText = explanationText;
-      this.cdRef.detectChanges();
-    });
+    this.initializeQuestionIndexSubscription();
+    this.initializeResetQuizSubscription();
+    this.initializeExplanationDisplaySubscription();
+    this.initializeExplanationTextSubscription();
 
     this.restoreQuestionState();
     this.subscribeToQuestionState();
@@ -185,6 +171,33 @@ export class CodelabQuizContentComponent
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
     this.explanationTextService.resetStateBetweenQuestions();
+  }
+
+  private initializeQuestionIndexSubscription(): void {
+    this.quizService.getCurrentQuestionIndexObservable()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((index: number) => {
+        this.currentQuestionIndexValue = index;
+      });
+  }
+  
+  private initializeResetQuizSubscription(): void {
+    this.quizStateService.resetQuiz$.subscribe(() => {
+      this.shouldDisplayCorrectAnswers = false;
+    });
+  }
+  
+  private initializeExplanationDisplaySubscription(): void {
+    this.explanationTextService.shouldDisplayExplanationSource.subscribe(shouldDisplay => {
+      this.quizService.shouldDisplayExplanation = shouldDisplay;
+    });
+  }
+  
+  private initializeExplanationTextSubscription(): void {
+    this.formattedExplanationSubscription = this.explanationTextService.formattedExplanation$.subscribe(explanationText => {
+      this.explanationText = explanationText;
+      this.cdRef.detectChanges();
+    });
   }
 
   restoreQuestionState(): void {
