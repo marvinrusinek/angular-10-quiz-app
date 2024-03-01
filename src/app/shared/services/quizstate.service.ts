@@ -23,6 +23,8 @@ export class QuizStateService {
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
 
   questionStates: Map<number, QuestionState> = new Map();
+  private quizStates: { [quizId: string]: Map<number, QuestionState> } = {};
+
   private quizQuestionCreated = false;
 
   constructor() {
@@ -65,22 +67,33 @@ export class QuizStateService {
   }
 
   // Method to set or update the state for a question
-  setQuestionState(questionId: number, state: QuestionState): void {
-    // console.log(`Setting state for questionId ${questionId}:`, state);
-    this.questionStates.set(questionId, state);
+  setQuestionState(quizId: string, questionId: number, state: QuestionState): void {
+    // Check if the quizId already exists in the quizStates map, if not, create a new Map for it
+    if (!this.quizStates[quizId]) {
+      this.quizStates[quizId] = new Map<number, QuestionState>();
+    }
+  
+    // Set the state for the given questionId within the specified quizId
+    this.quizStates[quizId].set(questionId, state);
   }
+  
 
   // Method to get the state of a question by its ID
-  getQuestionState(questionId: number): QuestionState {
-    // console.log(`Getting state for questionId ${questionId}`);
-    // console.log(`Current question states:`, Array.from(this.questionStates.entries()));
-    let state = this.questionStates.get(questionId);
+  getQuestionState(quizId: string, questionId: number): QuestionState {
+    // Initialize the state map for this quiz if it doesn't exist
+    if (!this.quizStates[quizId]) {
+      this.quizStates[quizId] = new Map<number, QuestionState>();
+    }
+  
+    let state = this.quizStates[quizId].get(questionId);
     if (!state) {
+      // If there's no state for the given questionId, create a default state
       state = this.createDefaultQuestionState();
-      this.questionStates.set(questionId, state);
+      this.quizStates[quizId].set(questionId, state); // Store the default state in the quiz's state map
     }
     return state;
   }
+  
   
   updateQuestionState(
     questionId: number,
@@ -130,17 +143,20 @@ export class QuizStateService {
   }
 
   applyDefaultStates(quizId: string, questions: QuizQuestion[]): void {
-    questions.forEach((question, index) => {
-      // Use the index as the question identifier
-      const questionId = index;
-      const defaultState = this.createDefaultQuestionState();
+    // Initialize the state map for this quiz if it doesn't exist
+    if (!this.quizStates[quizId]) {
+      this.quizStates[quizId] = new Map<number, QuestionState>();
+    }
   
-      // Apply the default state to each question using its index as the identifier
-      this.setQuestionState(questionId, defaultState);
+    questions.forEach((question, index) => {
+      const defaultState = this.createDefaultQuestionState();
+      // Apply the default state to each question using its index as the identifier within the specific quiz's state map
+      this.quizStates[quizId].set(index, defaultState);
     });
   
     console.log(`Default states applied for all questions in quizId: ${quizId}`);
   }
+  
 
   markQuestionAsAnswered(questionIndex: number, showExplanation: boolean) {
     const questionState = this.getQuestionState(questionIndex) || this.createDefaultQuestionState();
