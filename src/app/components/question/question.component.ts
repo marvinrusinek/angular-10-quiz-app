@@ -898,19 +898,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
   
       const questionState = this.quizStateService.getQuestionState(questionIndex);
-      console.log('Question State:', questionState);
+      // console.log('Question State:', questionState);
       if (questionState && questionState.isAnswered) {
-        console.log(`Retrieving explanation for questionIndex: ${questionIndex}`);
         const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
         this.explanationTextService.setExplanationText(explanationText);
         this.explanationTextService.setShouldDisplayExplanation(true);
       } else {
         console.log(`Conditions for showing explanation not met.`);
       }
-  
-      this.explanationTextService.shouldDisplayExplanation$.subscribe(value => {
-        console.log('Should Display Explanation:', value);
-      });
     });
   }
 
