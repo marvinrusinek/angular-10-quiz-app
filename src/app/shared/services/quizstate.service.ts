@@ -95,7 +95,7 @@ export class QuizStateService {
   }
   
   updateQuestionState(
-    quizId: string, // Add quizId as the first parameter
+    quizId: string,
     questionId: number,
     selectedOptionId: number,
     isCorrect?: boolean,
