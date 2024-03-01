@@ -824,6 +824,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Update the state to reflect the selected option
     const optionId = option.optionId ?? index;
     this.quizStateService.updateQuestionState(
+      this.quizId,
       this.currentQuestionIndex,
       optionId,
       option.correct ?? false,
