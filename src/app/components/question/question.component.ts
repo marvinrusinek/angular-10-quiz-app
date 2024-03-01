@@ -9,7 +9,6 @@ import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/o
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
-import { QuestionType } from '../../shared/models/question-type.enum';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
