@@ -972,7 +972,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   setOptions(): void {
-    console.log('Question:', this.question);
     console.log('Answers:', this.answers);
 
     if (!this.question) {
@@ -985,9 +984,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('Options array:', this.question.options);
-
-    console.log('Options array before modification:', this.question.options);
     const options =
       this.question && this.question.options
         ? this.question.options.map((option) => {
@@ -998,8 +994,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Options array after modification:', options);
 
     this.quizService.setAnswers(options);
-
-    console.log('Options after setting:', options);
   }
 
   updateProgressPercentage(): void {
