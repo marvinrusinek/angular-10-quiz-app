@@ -311,7 +311,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
         // Display explanation texts for previously answered questions, if applicable
         questions.forEach((question, index) => {
-          const state = this.quizStateService.getQuestionState(index);
+          const state = this.quizStateService.getQuestionState(this.quizId, index);
           if (state?.isAnswered) {
             const formattedExplanationText: FormattedExplanation = {
               questionIndex: this.currentQuestionIndex,
