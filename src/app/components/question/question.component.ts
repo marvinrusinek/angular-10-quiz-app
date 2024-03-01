@@ -902,7 +902,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       if (questionState && questionState.isAnswered) {
         console.log(`Retrieving explanation for questionIndex: ${questionIndex}`);
         const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-        console.log('Explanation Text:', explanationText);
         this.explanationTextService.setExplanationText(explanationText);
         this.explanationTextService.setShouldDisplayExplanation(true);
       } else {
