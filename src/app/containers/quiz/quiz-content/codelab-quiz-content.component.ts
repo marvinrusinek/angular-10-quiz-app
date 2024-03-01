@@ -93,8 +93,6 @@ export class CodelabQuizContentComponent
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   displayCorrectAnswersText = false;
   explanationDisplayed = false;
-  isQuestionActive = false;
-  isSingleAnswerQuestion = false;
 
   numberOfCorrectAnswers = 0;
   numberOfCorrectAnswers$: BehaviorSubject<string> =
