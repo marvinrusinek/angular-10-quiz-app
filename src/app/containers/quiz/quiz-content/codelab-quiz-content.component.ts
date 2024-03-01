@@ -211,8 +211,8 @@ export class CodelabQuizContentComponent
 
   subscribeToQuestionState(): void {
     this.quizService.getCurrentQuestionIndexObservable().subscribe(currentIndex => {
-      const quizId = this.quizService.getCurrentQuizId(); // Retrieve the current quiz's ID
-      const questionId = this.quizService.getQuestionIdAtIndex(currentIndex); // Retrieve the ID of the question at the current index
+      const quizId = this.quizService.getCurrentQuizId();
+      const questionId = this.quizService.getQuestionIdAtIndex(currentIndex);
   
       // Use both quizId and questionId to get the question state
       const state = this.quizStateService.getQuestionState(quizId, questionId);
