@@ -383,23 +383,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     // First, ensure the quiz data (including questions) is fetched and set
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (questions) => {
-        console.log("Questions for quiz:", questions);
         this.questions = questions; // Store the fetched questions in a component property
   
         // After ensuring we have the questions, proceed to check for stored states
         const storedStates = this.quizStateService.getStoredState(this.quizId);
-        console.log("Retrieved stored state:", storedStates);
   
         if (storedStates) {
           // Logic to restore stored states to each question
           storedStates.forEach((state, questionId) => {
             this.quizStateService.setQuestionState(questionId, state);
-            console.log(`Restoring state for question ${questionId}:`, state);
   
             if (state.isAnswered && state.explanationDisplayed) {
               const explanationText = this.explanationTextService.getFormattedExplanation(Number(questionId));
-              console.log(`Restoring explanation for question ${questionId}:`, explanationText);
-              // Assuming there's a method to store the explanation text
               this.storeFormattedExplanationText(Number(questionId), explanationText);
             }
           });
