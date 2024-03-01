@@ -95,7 +95,6 @@ export class CodelabQuizContentComponent
   explanationDisplayed = false;
   isQuestionActive = false;
   isSingleAnswerQuestion = false;
-  correctAnswersCountText = '';
 
   numberOfCorrectAnswers = 0;
   numberOfCorrectAnswers$: BehaviorSubject<string> =
