@@ -1173,7 +1173,6 @@ export class QuizService implements OnDestroy {
     currentOptions: Option[]
   ): string {
     console.log('Correct Answer Options:::>>>', correctAnswerOptions);
-    console.log('Current Options:::>>>', currentOptions);
     if (!Array.isArray(correctAnswerOptions)) {
       console.error('correctAnswerOptions is not an array');
       return;
