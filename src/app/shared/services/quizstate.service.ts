@@ -94,19 +94,20 @@ export class QuizStateService {
     return state;
   }
   
-  
   updateQuestionState(
+    quizId: string, // Add quizId as the first parameter
     questionId: number,
     selectedOptionId: number,
     isCorrect?: boolean,
     totalCorrectAnswers?: number) {
+  
     if (typeof selectedOptionId === 'undefined') {
       console.error('SelectedOptionId is undefined', { questionId, isCorrect });
       return;
     }
 
-    // Retrieve the current state for the question
-    let currentState = this.getQuestionState(questionId) || {
+    // Retrieve the current state for the question in the specified quiz
+    let currentState = this.getQuestionState(quizId, questionId) || {
       isAnswered: false,
       numberOfCorrectAnswers: 0,
       selectedOptions: [],
@@ -130,7 +131,8 @@ export class QuizStateService {
     currentState.isAnswered = true;
     currentState.explanationDisplayed = true;
 
-    this.setQuestionState(questionId, currentState);
+    // Save the updated state for the specified quiz and question
+    this.setQuestionState(quizId, questionId, currentState);
   }
 
   createDefaultQuestionState(): QuestionState {
@@ -155,13 +157,13 @@ export class QuizStateService {
     });
   }
   
-
-  markQuestionAsAnswered(questionIndex: number, showExplanation: boolean) {
+  // not being used...
+  /* markQuestionAsAnswered(questionIndex: number, showExplanation: boolean) {
     const questionState = this.getQuestionState(questionIndex) || this.createDefaultQuestionState();
     questionState.isAnswered = true;
     questionState.explanationDisplayed = showExplanation;
     this.questionStates.set(questionIndex, questionState);
-  }
+  } */
 
   updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
     if (question$ === null || question$ === undefined) {
