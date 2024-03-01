@@ -88,7 +88,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
       'CodelabQuizMultipleAnswerComponent - Question:',
       this.question
     );
-    console.log('CodelabQuizMultipleAnswerComponent - Options:', this.options);
 
     if (this.currentQuestion && !this.currentQuestion.selectedOptions) {
       this.currentQuestion.selectedOptions = [];

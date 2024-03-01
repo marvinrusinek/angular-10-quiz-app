@@ -720,8 +720,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
   
   handleExplanationForQuestion(questionIndex: number): void {
-    console.log("CURRENT Question", this.currentQuestion);
-  
     if (!this.currentQuestion) {
       console.error("currentQuestion is undefined");
       return;
