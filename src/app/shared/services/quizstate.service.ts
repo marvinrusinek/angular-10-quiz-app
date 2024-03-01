@@ -153,8 +153,6 @@ export class QuizStateService {
       // Apply the default state to each question using its index as the identifier within the specific quiz's state map
       this.quizStates[quizId].set(index, defaultState);
     });
-  
-    console.log(`Default states applied for all questions in quizId: ${quizId}`);
   }
   
 

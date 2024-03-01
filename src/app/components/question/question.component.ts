@@ -434,7 +434,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     };
     console.log('Data to be passed to fetchCorrectAnswersText:', data);
     console.log('questionData:::', this.questionData);
-    console.log('data:::', this.data);
+    // console.log('data:::', this.data); // this works correctly
     console.log('data.currentOptions:::', this.data.options);
     console.log('MY CORR MSG', this.correctMessage);
   }
