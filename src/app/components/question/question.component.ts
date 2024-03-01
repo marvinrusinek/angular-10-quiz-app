@@ -898,7 +898,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         return;
       }
   
-      const questionState = this.quizStateService.getQuestionState(questionIndex);
+      const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
       // console.log('Question State:', questionState);
       if (questionState && questionState.isAnswered) {
         const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
@@ -1189,7 +1189,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
     const explanationText = this.currentQuestion.explanation;
 
-    this.quizStateService.setQuestionState(this.currentQuestionIndex, {
+    const quizId = this.quizService.getCurrentQuizId();
+    const questionId = this.currentQuestionIndex;
+
+    this.quizStateService.setQuestionState(quizId, questionId, {
       isAnswered: true,
       isCorrect: isCorrect,
       explanationText: explanationText,
