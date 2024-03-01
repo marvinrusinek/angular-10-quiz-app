@@ -192,13 +192,11 @@ export class CodelabQuizContentComponent
 
   restoreQuestionState(): void {
     console.log("CQIV", this.currentQuestionIndexValue);
-    const questionState = this.quizStateService.getQuestionState(this.currentQuestionIndexValue);
+    const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndexValue);
     console.log("QS", questionState, "for questionId", this.currentQuestionIndexValue);
 
     if (questionState) {
       const isQuestionAnswered = questionState.isAnswered;
-      console.log("iQA", isQuestionAnswered);
-
       if (isQuestionAnswered) {
         this.quizService.displayExplanation = true;
         this.explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndexValue);
