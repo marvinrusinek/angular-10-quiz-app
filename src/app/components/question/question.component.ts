@@ -334,10 +334,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   private subscribeToCorrectAnswersAndData(): void {
-    this.quizService.combinedQuestionData$.subscribe(value => {
-      console.log('CQD::', value);
-    });
-
     combineLatest([
       this.quizService.correctAnswers$,
       this.quizService.combinedQuestionData$.pipe(filter(data => data !== null))

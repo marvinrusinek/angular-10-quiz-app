@@ -86,7 +86,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   async ngOnInit(): Promise<void> {
     console.log(
       'CodelabQuizMultipleAnswerComponent - Question:',
-      this.question
+      this.currentQuestion
     );
 
     if (this.currentQuestion && !this.currentQuestion.selectedOptions) {
