@@ -1295,9 +1295,19 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private setQuestionDetails(questionText: string, options: Option[], explanationText: string): void {
-    this.questionToDisplay = questionText;
-    this.optionsToDisplay = options;
-    this.explanationToDisplay = explanationText;
+    if (!questionText) {
+      console.warn('Question text is undefined or empty.');
+    }
+    if (!options || options.length === 0) {
+      console.warn('Options array is undefined or empty.');
+    }
+    if (!explanationText) {
+      console.warn('Explanation text is undefined or empty.');
+    }
+
+    this.questionToDisplay = questionText || 'No question text available';
+    this.optionsToDisplay = options || [];
+    this.explanationToDisplay = explanationText || 'No explanation available';
   }
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
