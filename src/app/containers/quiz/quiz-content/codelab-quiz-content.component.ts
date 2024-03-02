@@ -184,6 +184,31 @@ export class CodelabQuizContentComponent
     this.cdRef.detectChanges();
   }
 
+  displayExplanationForFirstQuestion() {
+    const isFirstQuestion = this.currentQuestionIndexValue === 0;
+    
+    // Simplified condition for demonstration purposes
+    if (isFirstQuestion) {
+      this.explanationToDisplay = 'Temporary explanation text for the first question';
+    } else {
+      this.explanationToDisplay = '';
+    }
+    
+    // Manually trigger change detection
+    this.cdRef.detectChanges();
+  }
+  
+  displayExplanationTextForQuestion(index: number) {
+    // Simplified logic to fetch and display explanation text
+    const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(index); // Implement this method based on your application's logic
+    if (explanationText) {
+      this.explanationToDisplay = explanationText;
+    } else {
+      // Handle case where there's no explanation text (e.g., question hasn't been answered yet)
+      this.explanationToDisplay = 'No explanation available for this question.';
+    }
+  }
+
   ngOnInit(): void {
     this.shouldDisplayCorrectAnswers = true;
 
@@ -192,6 +217,12 @@ export class CodelabQuizContentComponent
     this.initializeExplanationDisplaySubscription();
     this.initializeExplanationTextSubscription();
     this.setupQuestionDisplay();
+    this.displayExplanationForFirstQuestion();
+
+    this.activatedRoute.params.subscribe(params => {
+      const questionIndex = +params['questionIndex'];
+      this.displayExplanationTextForQuestion(questionIndex);
+    });
 
     this.restoreQuestionState();
     this.subscribeToQuestionState();
