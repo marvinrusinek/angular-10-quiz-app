@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter,
   HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, firstValueFrom, from, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, filter, first, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription } from 'rxjs';
+import { catchError, filter, first, map, switchMap, take, takeUntil } from 'rxjs/operators';
 
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuizStatus } from '../../shared/models/quiz-status.enum';
@@ -1570,125 +1570,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  /* setDisplayStateForExplanationsAfterRestart(): Observable<void> {
-    return new Observable<void>(observer => {
-      // Ensure questions and the timer are reset
-      this.quizService.resetQuestions();
-      this.timerService.resetTimer();
-  
-      const totalQuestionsSubscription = this.quizService.getTotalQuestions().subscribe({
-        next: (totalQuestions) => {
-          for (let index = 0; index < totalQuestions; index++) {
-            // Logic to set explanations for each question
-            const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
-            if (explanation) {
-              this.explanationTextService.shouldDisplayExplanationSource.next(true);
-              this.explanationTextService.formattedExplanation$.next(explanation);
-            }
-          }
-  
-          // Navigation after setting up all explanations
-          this.router.navigate(['/question/', this.quizId, 1]);
-          observer.complete();
-        },
-        error: (error) => {
-          console.error('Error getting total questions:', error);
-          observer.error(error); // Pass the error along to the observer
-        },
-        complete: () => {
-          observer.complete();
-        }
-      });
-  
-      // Cleanup if the observable is unsubscribed
-      return {
-        unsubscribe() {
-          totalQuestionsSubscription.unsubscribe();
-        }
-      };
-    });
-  } */
-
-  /* setDisplayStateForExplanationsAfterRestart(): Observable<void> {
-    return new Observable<void>(observer => {
-        // Assuming the first question's explanation is to be displayed upon restart
-        const firstQuestionIndex = 0;
-        const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(firstQuestionIndex);
-        
-        if (explanation) {
-            this.explanationTextService.shouldDisplayExplanationSource.next(true);
-            this.explanationTextService.formattedExplanation$.next(explanation);
-            observer.complete(); // Complete the observable since the required action is done
-        } else {
-            observer.error(new Error('Failed to set explanation for the first question'));
-        }
-
-        // Cleanup if the observable is unsubscribed
-        return { unsubscribe() {} }; // No active subscriptions to clean up in this simplified version
-    });
-  } */
-
-  /* setDisplayStateForExplanationsAfterRestart(): Observable<void> {
-    return new Observable<void>(observer => {
-      const firstQuestionIndex = 0;
-      const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(firstQuestionIndex);
-        
-      if (explanation) {
-        this.explanationTextService.shouldDisplayExplanationSource.next(true);
-        this.explanationTextService.formattedExplanation$.next(explanation);
-        observer.complete();
-      } else {
-        observer.error(new Error('Failed to set explanation for the first question'));
-      }
-
-      return { unsubscribe() {} };
-    });
-  } */
-
-  /* setDisplayStateForExplanationsAfterRestart(): Promise<void> {
-    return new Promise((resolve, reject) => {
-        // Assuming you want to display the explanation for the first question upon restart
-        const firstQuestionIndex = 0;
-        const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(firstQuestionIndex);
-
-        if (explanationText) {
-            this.explanationTextService.setExplanationText(explanationText);
-            this.explanationTextService.setShouldDisplayExplanation(true);
-            resolve(); // Resolve the promise if the explanation is successfully set
-        } else {
-            console.error('No explanation available for the first question');
-            reject('No explanation available for the first question'); // Reject the promise if no explanation is found
-        }
-    });
-  } */
-
-  /* setDisplayStateForExplanationsAfterRestart(): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-        if (explanationText) {
-            this.explanationTextService.setExplanationText(explanationText);
-            this.explanationTextService.setShouldDisplayExplanation(true);
-            console.log(`Explanation set for question ${this.currentQuestionIndex}:`, explanationText);
-            resolve();
-        } else {
-            console.error('No explanation available for the first question');
-            reject('No explanation available');
-        }
-    });
-  } */
-
   setDisplayStateForExplanationsAfterRestart(): Promise<void> {
     return new Promise((resolve, reject) => {
-        const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-        if (explanation) {
-            this.explanationTextService.setExplanationText(explanation);
-            this.explanationTextService.setShouldDisplayExplanation(true);
-            console.log('Explanation set:', explanation);
-            resolve();
-        } else {
-            console.warn('No explanation available for the first question');
-            reject('No explanation available');
-        }
+      const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+      if (explanation) {
+        this.explanationTextService.setExplanationText(explanation);
+        this.explanationTextService.setShouldDisplayExplanation(true);
+        console.log('Explanation set:', explanation);
+        resolve();
+      } else {
+        console.warn('No explanation available for the first question');
+        reject('No explanation available');
+      }
     });
   }
   
