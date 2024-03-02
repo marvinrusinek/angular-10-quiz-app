@@ -1019,11 +1019,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.quizId, this.currentQuestionIndex, true
     );
   
-    // Store the explanation text for the current question
-    if (currentQuestion.explanation) {
-      this.explanationTextService.setExplanationText(currentQuestion.explanation || '');
-    }
-  
+    const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex) || 'No explanation available';
+    this.explanationTextService.setExplanationText(explanationText);
+    
     // Set the explanation text in the quiz question manager service (if needed)
     this.quizQuestionManagerService.setExplanationText(currentQuestion.explanation || '');
   
