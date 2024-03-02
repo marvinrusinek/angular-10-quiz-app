@@ -69,7 +69,7 @@ export class CodelabQuizContentComponent
   @Input() questions: QuizQuestion[];
   @Input() options!: Option[];
   @Input() options$: Observable<Option[]>;
-  @Input() correctAnswersText: string = '';
+  @Input() correctAnswersText = '';
   quizId = '';
   questionIndex: number;
   questionText = '';
