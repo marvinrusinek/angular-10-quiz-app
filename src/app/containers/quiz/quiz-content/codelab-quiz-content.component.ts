@@ -142,9 +142,9 @@ export class CodelabQuizContentComponent
     // Listen to router navigation events
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
-      map(() => this.activatedRoute.firstChild),  // Assuming the question index is a parameter in a child route
+      map(() => this.activatedRoute.firstChild),
       switchMap(route => route.params),
-      map(params => +params['questionIndex'])  // Adjust the param name based on your route configuration
+      map(params => +params['questionIndex'])
     ).subscribe(questionIndex => {
       const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
       if (questionState && questionState.isAnswered) {
