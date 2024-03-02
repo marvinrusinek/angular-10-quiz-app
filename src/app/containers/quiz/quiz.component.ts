@@ -661,10 +661,21 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   updateExplanationText(questionIndex: number): void {
-    this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+    // Get the state of the question at the given index
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    
+    // Check if the question has been answered
+    if (questionState.isAnswered) {
+      // If answered, fetch and set the formatted explanation text for the question
+      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+    } else {
+      // If not answered, clear the explanation text and set the display flag to false
+      this.explanationToDisplay = '';
+      this.explanationTextService.setShouldDisplayExplanation(false);
+    }
   }
   
-
   async getQuestion(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params.quizId;
