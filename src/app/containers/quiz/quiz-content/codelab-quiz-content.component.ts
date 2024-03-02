@@ -141,7 +141,7 @@ export class CodelabQuizContentComponent
     );
 
     // Listen to router navigation events
-    this.router.events.pipe(
+    /* this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(() => this.activatedRoute.firstChild),
       switchMap(route => route.params),
@@ -156,7 +156,7 @@ export class CodelabQuizContentComponent
         this.explanationTextService.setShouldDisplayExplanation(false);
       }
       this.cdRef.detectChanges();  // Force the view to update
-    });
+    }); */
 
     this.explanationTextService.observeExplanationTextVisibility().subscribe(isDisplayed => {
       this.showExplanationText = isDisplayed;
