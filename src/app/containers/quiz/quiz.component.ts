@@ -774,7 +774,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.explanationTextService.setShouldDisplayExplanation(false);
     }
   
-    console.log(`Question state for index ${questionIndex}:`, questionState);
+    console.log(`Question state for index ${questionIndex}::::`, questionState);
     console.log(`Explanation text for question ${questionIndex}:`, this.explanationToDisplay);
   }
   
@@ -1269,6 +1269,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     // Update the explanation text based on the current question state
     this.updateExplanationText(this.currentQuestionIndex);
+
+    this.initializeOrUpdateQuestionState(this.currentQuestionIndex);
   
     // Update the progress percentage based on the new current question index
     this.updateProgressPercentage();
