@@ -148,6 +148,24 @@ export class CodelabQuizContentComponent
     });
   }
 
+  setupQuestionDisplay() {
+    // Assuming you have a way to get the current question index
+    const currentQuestionIndex = this.currentQuestionIndexValue;
+  
+    // Retrieve the state for the current question
+    const questionState = this.quizStateService.getQuestionState(this.quizId, currentQuestionIndex);
+  
+    // Check if the question has been answered and set the explanation text accordingly
+    if (questionState.isAnswered) {
+      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(currentQuestionIndex);
+    } else {
+      this.explanationToDisplay = '';
+    }
+  
+    // Additional logic to setup the question display...
+  }
+  
+
   updateExplanationForCurrentQuestion(): void {
     // Fetch the current question's index and state
     const currentIndex = this.currentQuestionIndexValue;
@@ -173,6 +191,7 @@ export class CodelabQuizContentComponent
     this.initializeResetQuizSubscription();
     this.initializeExplanationDisplaySubscription();
     this.initializeExplanationTextSubscription();
+    this.setupQuestionDisplay();
 
     this.restoreQuestionState();
     this.subscribeToQuestionState();
