@@ -1270,17 +1270,27 @@ export class QuizComponent implements OnInit, OnDestroy {
     return isValid;
   }
 
-  private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
-    // Fetching question details based on the provided questionIndex
+  private fetchQuestionDetails(questionIndex: number): QuizQuestion {
     const questionText = this.quizService.getQuestionTextForIndex(questionIndex);
-    const options = this.quizService.getNextOptions(questionIndex) || [];
+    if (!questionText) {
+      console.error('No question text found for index:', questionIndex);
+    }
 
-    // Fetch the explanation text
+    const options = this.quizService.getNextOptions(questionIndex) || [];
+    if (options.length === 0) {
+      console.warn('No options found for question at index:', questionIndex);
+    }
+
     const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+    if (!explanation) {
+      console.warn('No explanation text found for question at index:', questionIndex);
+    }
 
     let question: QuizQuestion = { questionText, options, explanation, type: null };
+
     this.quizDataService.setQuestionType(question);
 
+    console.log('Fetched question details:', question);
     return question;
   }
 
