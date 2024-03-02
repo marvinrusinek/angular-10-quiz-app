@@ -43,7 +43,7 @@ export class TimerService {
     this.timerSubscription?.unsubscribe();
   }
 
-  stopTimer(callback: (elapsedTime: number) => void): void {
+  stopTimer(callback?: (elapsedTime: number) => void): void {
     if (!this.isTimerRunning) {
       console.log('Timer is not running, returning.');
       return;
