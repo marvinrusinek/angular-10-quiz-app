@@ -1295,20 +1295,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private setQuestionDetails(questionText: string, options: Option[], explanationText: string): void {
-    if (!questionText) {
-      console.warn('Question text is undefined or empty.');
-    }
-    if (!options || options.length === 0) {
-      console.warn('Options array is undefined or empty.');
-    }
-    if (!explanationText) {
-      console.warn('Explanation text is undefined or empty.');
-    }
-
     this.questionToDisplay = questionText || 'No question text available';
     this.optionsToDisplay = options || [];
     this.explanationToDisplay = explanationText || 'No explanation available';
-  }
+  }  
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     this.resetUI();
@@ -1440,72 +1430,5 @@ export class QuizComponent implements OnInit, OnDestroy {
         reject('No explanation available');
       }
     });
-  }
-  
-  /* sendValuesToQuizService(): void {
-    this.sendQuizQuestionToQuizService();
-    this.sendQuizQuestionsToQuizService();
-    this.sendQuizIdToQuizService();
-    this.sendQuizStatusToQuizService();
-    this.sendQuizResourcesToQuizService();
-  }
-
-  private sendQuizQuestionToQuizService(): void {
-    const quizQuestion = this.quizData[this.indexOfQuizId];
-
-    if (
-      quizQuestion &&
-      Array.isArray(quizQuestion) &&
-      quizQuestion.length > this.questionIndex
-    ) {
-      const question = quizQuestion[this.questionIndex - 1];
-
-      if (question) {
-        this.quizService.setQuestion(question);
-      } else {
-        console.error('Question object is missing or undefined.');
-      }
-    } else {
-      console.error('Invalid data structure or index out of bounds.');
-    }
-  }
-
-  private sendQuizQuestionsToQuizService(): void {
-    const quizQuestion = this.quizData[this.indexOfQuizId];
-
-    if (quizQuestion && Array.isArray(quizQuestion)) {
-      this.quizService.setQuestions(
-        quizQuestion.map((question) => question.questions)
-      );
-    } else {
-      console.error('Invalid data structure.');
-    }
-  }
-
-  private sendQuizResourcesToQuizService(): void {
-    this.resources = this.quizResources[this.indexOfQuizId].resources;
-    this.quizService.setResources(this.resources);
-  }
-
-  sendQuizIdToQuizService(): void {
-    this.quizDataService.getQuizById(this.quizId).subscribe((quiz: Quiz) => {
-      this.quizService.setQuiz(quiz).subscribe((selectedQuiz: Quiz) => {
-        // this.router.navigate(['/quiz', this.quizId, 'question', 1]);
-      });
-    });
-  }
-
-  private sendQuizStatusToQuizService(): void {
-    this.quizService.setQuizStatus(this.status);
-  } */
-
-  // not called anywhere...
-  private sendStartedQuizIdToQuizService(): void {
-    this.quizService.setStartedQuizId(this.quizId);
-  }
-
-  // not called anywhere...
-  private sendContinueQuizIdToQuizService(): void {
-    this.quizService.setContinueQuizId(this.quizId);
   }
 }
