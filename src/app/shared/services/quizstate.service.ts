@@ -156,14 +156,6 @@ export class QuizStateService {
       this.quizStates[quizId].set(index, defaultState);
     });
   }
-  
-  // not being used...
-  /* markQuestionAsAnswered(questionIndex: number, showExplanation: boolean) {
-    const questionState = this.getQuestionState(questionIndex) || this.createDefaultQuestionState();
-    questionState.isAnswered = true;
-    questionState.explanationDisplayed = showExplanation;
-    this.questionStates.set(questionIndex, questionState);
-  } */
 
   updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
     if (question$ === null || question$ === undefined) {
