@@ -1542,11 +1542,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async fetchAndInitializeQuestions(): Promise<void> {
     try {
-        this.questionsArray = await this.quizDataService.getQuestionsForQuiz(this.quizId).toPromise();
-        console.log('Questions fetched and initialized:', this.questionsArray);
+      // Use firstValueFrom to convert the Observable to a Promise
+      this.questionsArray = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
+      console.log('Questions fetched and initialized:', this.questionsArray);
     } catch (error) {
-        console.error('Failed to fetch and initialize questions:', error);
-        throw error;
+      console.error('Failed to fetch and initialize questions:', error);
+      throw error;
     }
   }
 
