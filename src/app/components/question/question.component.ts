@@ -788,6 +788,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  async markQuestionAsAnswered(questionIndex: number, showExplanation: boolean) {
+    const quizId = this.quizService.getCurrentQuizId();
+    const questionState = this.quizStateService.getQuestionState(quizId, questionIndex) || this.quizStateService.createDefaultQuestionState();
+    questionState.isAnswered = true;
+    questionState.explanationDisplayed = showExplanation;
+    this.quizStateService.setQuestionState(quizId, questionIndex, questionState);
+  }
+
   async onOptionClicked(option: Option, index: number): Promise<void> {
     this.quizService.addSelectedOption(option);
   
@@ -795,6 +803,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const currentQuestion = await this.getCurrentQuestion();
       if (currentQuestion) {
         this.handleOptionSelection(option, index, currentQuestion);
+        this.markQuestionAsAnswered(index, true);
       } else {
         console.error("Could not retrieve the current question.");
       }

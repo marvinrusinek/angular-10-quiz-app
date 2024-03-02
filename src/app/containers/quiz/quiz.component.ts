@@ -1248,16 +1248,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Assuming you have access to quizId in your component
-  async markQuestionAsAnswered(questionIndex: number, showExplanation: boolean) {
-    const quizId = this.quizService.getCurrentQuizId(); // Method to get the current quizId
-    const questionState = this.quizStateService.getQuestionState(quizId, questionIndex) || this.quizStateService.createDefaultQuestionState();
-    questionState.isAnswered = true;
-    questionState.explanationDisplayed = showExplanation;
-    this.quizStateService.setQuestionState(quizId, questionIndex, questionState);
-  }
-
-
   advanceToResults(): void {
     this.quizService.resetAll();
     this.timerService.stopTimer((elapsedTime: number) => {
