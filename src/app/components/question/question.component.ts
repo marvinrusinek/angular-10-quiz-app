@@ -1008,16 +1008,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectionMessageService.updateSelectionMessage(
       'Please click the next button to continue...'
     );
-
+  
+    // Update the selected option in the quiz service and mark the question as answered
     this.quizService.updateSelectedOptions(
       this.quizService.quizId, this.currentQuestionIndex, option.optionId
     );
-
-    this.quizQuestionManagerService.setExplanationText(
-      this.currentQuestion?.explanation || null
+  
+    // Mark the current question as answered in the quiz state service
+    this.markQuestionAsAnswered(
+      this.quizService.quizId, this.currentQuestionIndex, true
     );
-    this.quizQuestionManagerService.setSelectedOption(option);
-
+  
+    // Store the explanation text for the current question
+    if (currentQuestion.explanation) {
+      this.explanationTextService.setExplanationText(currentQuestion.explanation || '');
+    }
+  
+    // Set the explanation text in the quiz question manager service (if needed)
+    this.quizQuestionManagerService.setExplanationText(currentQuestion.explanation || '');
+  
     // Emit events and update states after the option is selected
     this.isOptionSelected = true;
     this.isAnswered = this.selectedOptions.length > 0;
@@ -1025,7 +1034,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isAnsweredChange.emit(this.isAnswered);
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
-
+  
     this.selectionChanged.emit({
       question: currentQuestion,
       selectedOptions: this.selectedOptions,
