@@ -1350,15 +1350,15 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Step 3: Refetch questions and reinitialize states related to questions and explanations
     this.fetchAndInitializeQuestions().then(() => {
-        // Step 4: Set up the display state for explanations after ensuring questions are refetched
-        return this.setDisplayStateForExplanationsAfterRestart();
+      // Step 4: Set up the display state for explanations after ensuring questions are refetched
+      return this.setDisplayStateForExplanationsAfterRestart();
     }).then(() => {
-        // Step 5: Navigate to the first question and reset UI only after all previous steps are complete
-        return this.router.navigate(['/question/', this.quizId, 1]);
+      // Step 5: Navigate to the first question and reset UI only after all previous steps are complete
+      return this.router.navigate(['/question/', this.quizId, 1]);
     }).then(() => {
-        this.resetUI(); // Reset UI after successful navigation
+      this.resetUI(); // Reset UI after successful navigation
     }).catch(error => {
-        console.error('Error during quiz restart:', error);
+      console.error('Error during quiz restart:', error);
     });
   }
 
