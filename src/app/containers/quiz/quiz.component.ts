@@ -1348,7 +1348,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.quizDataService.setQuestionType(question);
 
-    console.log('Fetched question details:', question);
     return question;
   }
 
