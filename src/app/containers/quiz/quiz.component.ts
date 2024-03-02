@@ -726,15 +726,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   
     if (!this.currentQuestion.selectedOptions) {
-      console.log("Initializing selectedOptions for the current question");
       this.currentQuestion.selectedOptions = [];
     }
   
-    console.log("Should display explanation check:", this.shouldDisplayExplanationForQuestion(this.currentQuestion));
     if (this.shouldDisplayExplanationForQuestion(this.currentQuestion)) {
-      console.log("Displaying explanation for question index", questionIndex);
       this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-      console.log("Explanation text", this.explanationToDisplay);
   
       if (!this.explanationToDisplay) {
         console.warn("Explanation text is empty for question index", questionIndex);
