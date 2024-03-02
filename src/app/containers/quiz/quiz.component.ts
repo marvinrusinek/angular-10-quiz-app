@@ -1204,11 +1204,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Update the progress percentage based on the new current question index
     this.updateProgressPercentage();
 
+    // Update the explanation visibility based on whether the question has been answered
     this.updateExplanationVisibility();
   }
 
   updateExplanationVisibility(): void {
-    // Set the explanation visibility based on whether the question has been answered
     const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
     this.explanationTextService.setShouldDisplayExplanation(questionState.isAnswered);
   }  
