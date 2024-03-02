@@ -703,7 +703,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  initializeFirstQuestionText(): void {
+  /* initializeFirstQuestionText(): void {
     this.resetQuestionState();
   
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
@@ -728,7 +728,56 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.handleQuestionsLoadingError();
       }
     });
+  } */
+
+  initializeFirstQuestionText(): void {
+    this.resetQuestionState();
+  
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: (questions: QuizQuestion[]) => {
+        if (questions && questions.length > 0) {
+          this.questions = questions;
+          this.currentQuestion = questions[0];
+  
+          // Set the question and options to display
+          this.questionToDisplay = this.currentQuestion.questionText;
+          this.optionsToDisplay = this.currentQuestion.options;
+  
+          // Initialize or update the question state, especially for handling explanations
+          this.initializeOrUpdateQuestionState(0);
+        } else {
+          // Handle the case with no questions available
+          this.handleNoQuestionsAvailable();
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching questions:', err);
+        this.handleQuestionsLoadingError();
+      }
+    });
   }
+
+  initializeOrUpdateQuestionState(questionIndex: number): void {
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+  
+    // Ensure selectedOptions is initialized
+    if (!questionState.selectedOptions) {
+      questionState.selectedOptions = [];
+    }
+  
+    // Update the explanation text based on the question state
+    if (questionState.isAnswered) {
+      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+    } else {
+      this.explanationToDisplay = '';
+      this.explanationTextService.setShouldDisplayExplanation(false);
+    }
+  
+    console.log(`Question state for index ${questionIndex}:`, questionState);
+    console.log(`Explanation text for question ${questionIndex}:`, this.explanationToDisplay);
+  }
+  
   
   handleExplanationForQuestion(questionIndex: number): void {
     if (!this.currentQuestion) {
