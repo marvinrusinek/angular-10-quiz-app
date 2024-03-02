@@ -1209,7 +1209,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Update the current question index in the quiz service
     this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
   
-    // Update the explanation text based on the new current question index
+    // Update the explanation text based on the current question state
     this.updateExplanationText(this.currentQuestionIndex);
   
     // Update the progress percentage based on the new current question index
