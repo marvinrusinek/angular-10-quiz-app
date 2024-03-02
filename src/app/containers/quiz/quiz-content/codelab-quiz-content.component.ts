@@ -141,10 +141,20 @@ export class CodelabQuizContentComponent
 
     // Listen to router navigation events
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      // When navigation ends, update the explanation text based on the current question's state
-      this.updateExplanationForCurrentQuestion();
+      filter(event => event instanceof NavigationEnd),
+      map(() => this.activatedRoute.firstChild),  // Assuming the question index is a parameter in a child route
+      switchMap(route => route.params),
+      map(params => +params['questionIndex'])  // Adjust the param name based on your route configuration
+    ).subscribe(questionIndex => {
+      const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+      if (questionState && questionState.isAnswered) {
+        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+        this.explanationTextService.setShouldDisplayExplanation(true);
+      } else {
+        this.explanationToDisplay = '';
+        this.explanationTextService.setShouldDisplayExplanation(false);
+      }
+      this.cdRef.detectChanges();  // Force the view to update
     });
   }
 
