@@ -113,6 +113,7 @@ export class CodelabQuizContentComponent
   explanationText$ = this.explanationTextSource.asObservable();
   explanationText: string | null = null;
   explanationTexts: string[] = [];
+  showExplanationText = false;
 
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
@@ -156,67 +157,10 @@ export class CodelabQuizContentComponent
       }
       this.cdRef.detectChanges();  // Force the view to update
     });
-  }
 
-  setupQuestionDisplay() {
-    // Assuming you have a way to get the current question index
-    const currentQuestionIndex = this.currentQuestionIndexValue;
-  
-    // Retrieve the state for the current question
-    const questionState = this.quizStateService.getQuestionState(this.quizId, currentQuestionIndex);
-  
-    // Check if the question has been answered and set the explanation text accordingly
-    if (questionState.isAnswered) {
-      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(currentQuestionIndex);
-    } else {
-      this.explanationToDisplay = '';
-    }
-  
-    // Additional logic to setup the question display...
-  }
-  
-
-  updateExplanationForCurrentQuestion(): void {
-    // Fetch the current question's index and state
-    const currentIndex = this.currentQuestionIndexValue;
-    const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
-
-    // If the question has been answered, fetch and display the explanation text
-    if (questionState.isAnswered) {
-      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(currentIndex);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-    } else {
-      this.explanationToDisplay = '';
-      this.explanationTextService.setShouldDisplayExplanation(false);
-    }
-
-    // Manually trigger change detection to ensure the view updates
-    this.cdRef.detectChanges();
-  }
-
-  displayExplanationForFirstQuestion() {
-    const isFirstQuestion = this.currentQuestionIndexValue === 0;
-    
-    // Simplified condition for demonstration purposes
-    if (isFirstQuestion) {
-      this.explanationToDisplay = 'Temporary explanation text for the first question';
-    } else {
-      this.explanationToDisplay = '';
-    }
-    
-    // Manually trigger change detection
-    this.cdRef.detectChanges();
-  }
-  
-  displayExplanationTextForQuestion(index: number) {
-    // Simplified logic to fetch and display explanation text
-    const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(index); // Implement this method based on your application's logic
-    if (explanationText) {
-      this.explanationToDisplay = explanationText;
-    } else {
-      // Handle case where there's no explanation text (e.g., question hasn't been answered yet)
-      this.explanationToDisplay = 'No explanation available for this question.';
-    }
+    this.explanationTextService.observeExplanationTextVisibility().subscribe(isDisplayed => {
+      this.showExplanationText = isDisplayed;
+    });
   }
 
   ngOnInit(): void {
@@ -226,13 +170,6 @@ export class CodelabQuizContentComponent
     this.initializeResetQuizSubscription();
     this.initializeExplanationDisplaySubscription();
     this.initializeExplanationTextSubscription();
-    this.setupQuestionDisplay();
-    this.displayExplanationForFirstQuestion();
-
-    this.activatedRoute.params.subscribe(params => {
-      const questionIndex = +params['questionIndex'];
-      this.displayExplanationTextForQuestion(questionIndex);
-    });
 
     this.restoreQuestionState();
     this.subscribeToQuestionState();
