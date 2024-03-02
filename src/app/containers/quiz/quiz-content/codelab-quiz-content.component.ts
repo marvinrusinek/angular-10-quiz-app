@@ -8,7 +8,7 @@ import {
   OnInit,
   SimpleChanges
 } from '@angular/core';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
 import {
   BehaviorSubject,
   combineLatest,
@@ -22,6 +22,7 @@ import {
 import {
   catchError,
   distinctUntilChanged,
+  filter,
   map,
   mergeMap,
   startWith,
@@ -128,6 +129,7 @@ export class CodelabQuizContentComponent
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
     private activatedRoute: ActivatedRoute,
+    private router: Router,
     private cdRef: ChangeDetectorRef
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
@@ -136,6 +138,32 @@ export class CodelabQuizContentComponent
     this.quizService.getIsNavigatingToPrevious().subscribe(
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
+
+    // Listen to router navigation events
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      // When navigation ends, update the explanation text based on the current question's state
+      this.updateExplanationForCurrentQuestion();
+    });
+  }
+
+  updateExplanationForCurrentQuestion(): void {
+    // Fetch the current question's index and state
+    const currentIndex = this.currentQuestionIndexValue;
+    const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
+
+    // If the question has been answered, fetch and display the explanation text
+    if (questionState.isAnswered) {
+      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(currentIndex);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+    } else {
+      this.explanationToDisplay = '';
+      this.explanationTextService.setShouldDisplayExplanation(false);
+    }
+
+    // Manually trigger change detection to ensure the view updates
+    this.cdRef.detectChanges();
   }
 
   ngOnInit(): void {
