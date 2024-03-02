@@ -1,10 +1,5 @@
 import { Option } from './Option.model';
-
-enum QuestionType {
-  SingleAnswer = 'single_answer',
-  MultipleAnswer = 'multiple_answer',
-  TrueFalse = 'true_false',
-}
+import { QuestionType } from './question-type.enum';
 
 export interface QuizQuestion {
   questionText: string;
