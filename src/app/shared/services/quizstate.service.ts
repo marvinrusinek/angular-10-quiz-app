@@ -167,14 +167,14 @@ export class QuizStateService {
 
   updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
     if (question$ === null || question$ === undefined) {
-      throwError('Question$ is null or undefined.');
+      throw new Error('Question$ is null or undefined.');
       return;
     }
 
     question$.pipe(
       catchError((error: any) => {
         console.error(error);
-        return throwError(error);
+        return throwError(() => new Error(error));
       }),
       distinctUntilChanged()
     ).subscribe((question: QuizQuestion) => {
