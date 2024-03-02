@@ -391,7 +391,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         if (storedStates) {
           // Logic to restore stored states to each question
           storedStates.forEach((state, questionId) => {
-            this.quizStateService.setQuestionState(questionId, state);
+            this.quizStateService.setQuestionState(this.quizId, questionId, state);
   
             if (state.isAnswered && state.explanationDisplayed) {
               const explanationText = this.explanationTextService.getFormattedExplanation(Number(questionId));
@@ -783,7 +783,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Reset and set initial state for each question
         questions.forEach((question, index) => {
           const defaultState = this.quizStateService.createDefaultQuestionState();
-          this.quizStateService.setQuestionState(index, defaultState);
+          this.quizStateService.setQuestionState(this.quizId, index, defaultState);
         });
 
         this.currentQuestionIndex = 0;
