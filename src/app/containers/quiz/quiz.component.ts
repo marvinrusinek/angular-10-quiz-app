@@ -1435,7 +1435,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.resetExplanationText();  // Clears any existing explanation text
 
     // Step 2: Reset the timer synchronously
-    this.timerService.stopTimer();
+    this.timerService.stopTimer((elapsedTime: number) => {
+      this.elapsedTimeDisplay = elapsedTime;
+    });
     this.timerService.resetTimer();
 
     // Step 3: Refetch questions and reinitialize states related to questions and explanations
