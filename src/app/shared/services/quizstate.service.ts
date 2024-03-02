@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged } from 'rxjs/operators';
 
-import { QuestionState } from '../../shared/models/QuestionState.model';
 import { Option } from '../../shared/models/Option.model';
+import { QuestionState } from '../../shared/models/QuestionState.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({ providedIn: 'root' })
