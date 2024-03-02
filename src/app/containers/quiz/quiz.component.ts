@@ -1540,34 +1540,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  /* async fetchAndInitializeQuestions(): Promise<void> {
-    return new Promise((resolve, reject) => {
-        this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
-            next: (questions) => {
-                this.questionsArray = questions;
-                console.log('Questions array populated:', this.questionsArray); // Add this line to log fetched questions
-                resolve();
-            },
-            error: (error) => {
-                console.error('Failed to fetch questions:', error);
-                reject(error);
-            }
-        });
-    });
-  } */
-
-  /* fetchAndInitializeQuestions(): Promise<void> {
-    return new Promise((resolve, reject) => {
-        this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
-            next: (questions) => {
-                this.questionsArray = questions;
-                resolve();
-            },
-            error: reject
-        });
-    });
-  } */
-
   async fetchAndInitializeQuestions(): Promise<void> {
     try {
         this.questionsArray = await this.quizDataService.getQuestionsForQuiz(this.quizId).toPromise();
