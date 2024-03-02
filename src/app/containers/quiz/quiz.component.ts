@@ -1130,9 +1130,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
-        this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
-        this.updateExplanationText(this.currentQuestionIndex);
-        this.updateProgressPercentage();
+        this.updateNavigationAndExplanationState();
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log("Cannot navigate to invalid index.");
@@ -1162,24 +1160,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
 
       this.currentQuestionIndex--;
-      this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
-      this.updateExplanationText(this.currentQuestionIndex);
-      this.updateProgressPercentage();
+      this.updateNavigationAndExplanationState();
 
       // Fetch the previous question details
       const previousQuestion = await this.fetchQuestionDetails(this.currentQuestionIndex);
       this.quizStateService.updateCurrentQuestion(previousQuestion);
-
-      // Set the explanation visibility based on whether the question has been answered
-      const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
-      this.explanationTextService.setShouldDisplayExplanation(questionState.isAnswered);
-
-      // Check if the question has been answered before deciding to show the explanation
-      /* if (questionState.isAnswered) {
-        this.explanationTextService.setShouldDisplayExplanation(true);
-      } else {
-        this.explanationTextService.setShouldDisplayExplanation(false);
-      } */
 
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
 
@@ -1208,6 +1193,25 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error("Error during checkIfAnsweredCorrectly:", error);
     });
   }
+
+  updateNavigationAndExplanationState(): void {
+    // Update the current question index in the quiz service
+    this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
+  
+    // Update the explanation text based on the new current question index
+    this.updateExplanationText(this.currentQuestionIndex);
+  
+    // Update the progress percentage based on the new current question index
+    this.updateProgressPercentage();
+
+    this.updateExplanationVisibility();
+  }
+
+  updateExplanationVisibility(): void {
+    // Set the explanation visibility based on whether the question has been answered
+    const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
+    this.explanationTextService.setShouldDisplayExplanation(questionState.isAnswered);
+  }  
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
     try {
