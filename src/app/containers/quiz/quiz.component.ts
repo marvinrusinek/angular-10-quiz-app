@@ -1229,7 +1229,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log(`Question State for index ${this.currentQuestionIndex}:`, questionState);
 
       if (questionState.isAnswered) {
-        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+        const explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+        this.explanationToDisplay = explanationToDisplay;
         this.explanationTextService.setShouldDisplayExplanation(true);
       } else {
         this.explanationToDisplay = '';
