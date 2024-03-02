@@ -803,7 +803,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const currentQuestion = await this.getCurrentQuestion();
       if (currentQuestion) {
         this.handleOptionSelection(option, index, currentQuestion);
-        this.markQuestionAsAnswered(index, true);
+        this.markQuestionAsAnswered(this.currentQuestionIndex, true);
       } else {
         console.error("Could not retrieve the current question.");
       }
