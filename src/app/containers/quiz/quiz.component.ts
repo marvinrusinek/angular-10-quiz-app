@@ -314,7 +314,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Now that explanations are initialized, fetch question data
       const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
       if (questionData) {
-        this.initializeAndPrepareQuestion(questionData);
+        this.initializeAndPrepareQuestion(questionData, quizId);
       } else {
         this.data = null;
       }
