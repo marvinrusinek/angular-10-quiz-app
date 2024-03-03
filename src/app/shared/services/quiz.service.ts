@@ -1354,43 +1354,48 @@ export class QuizService implements OnDestroy {
   async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
       const quizId = this.quizId;
-      const questionObjects: any[] = await this.fetchAndSetQuestions(quizId);
-      const questions: QuizQuestion[] = questionObjects[0].questions;
-
+      // Directly fetch the array of QuizQuestion
+      const questions: QuizQuestion[] = await this.fetchAndSetQuestions(quizId);
+  
+      // Check if questions array is not empty
       if (!questions || questions.length === 0) {
         console.error('No questions found');
         return [];
       }
-
+  
       // Calculate correct answers
       const correctAnswers = this.calculateCorrectAnswers(questions);
       this.correctAnswersSubject.next(correctAnswers);
-
+  
       // Initialize combined question data
       await this.initializeCombinedQuestionData();
-
+  
       // Set correct answers for questions
       this.setCorrectAnswersForQuestions(questions, correctAnswers);
-
+  
       this.correctAnswersLoadedSubject.next(true);
-
+  
       return questions;
     } catch (error) {
       console.error('Error fetching quiz questions:', error);
       return [];
     }
   }
-
+  
   async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
       const questionsData = await firstValueFrom(this.getQuestionsForQuiz(quizId));
-      this.questions = questionsData.questions;
-      return questionsData.questions;
+      if (!questionsData || questionsData.length === 0) {
+        console.error(`No questions found for quizId ${quizId}`);
+        return [];
+      }
+      this.questions = questionsData;
+      return questionsData;
     } catch (error) {
       console.error('Error fetching questions for quiz:', error);
       return [];
     }
-  }
+  }  
 
   calculateCorrectAnswers(questions: QuizQuestion[]): Map<string, number[]> {
     const correctAnswers = new Map<string, number[]>();
