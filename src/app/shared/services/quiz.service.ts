@@ -3,8 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, combineLatest, firstValueFrom, from, 
   Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, finalize, map, shareReplay, switchMap,
-  takeUntil, tap } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
 
@@ -229,10 +228,15 @@ export class QuizService implements OnDestroy {
     const initialText = localStorage.getItem('correctAnswersText') || 'Please select an answer';
     this.correctAnswersCountTextSource.next(initialText);
 
-    this.fetchQuizQuestions().subscribe(questions => {
-      this.questions = questions;
-    }, error => {
-      console.error('Error fetching questions:', error);
+    this.fetchQuizQuestions().pipe(
+      take(1)
+    ).subscribe({
+      next: (questions) => {
+        this.questions = questions;
+      },
+      error: (error) => {
+        console.error('Error fetching questions:', error);
+      }
     });
   }
 
