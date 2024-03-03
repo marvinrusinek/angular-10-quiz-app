@@ -902,12 +902,29 @@ export class QuizService implements OnDestroy {
     const quizScore: QuizScore = {
       quizId: this.selectedQuiz.quizId,
       attemptDateTime: new Date(),
-      score: this.calculateTotalCorrectAnswers(userAnswers), // Pass the user answers to calculate the score
+      score: this.calculateScore(userAnswers), // Use the new function to calculate the numerical score
       totalQuestions: this.questions.length,
     };
     this.quizScore = quizScore;
     return this.http.post<void>(`${this.quizUrl}/quiz/scores`, quizScore);
   }
+
+  calculateScore(userAnswers: number[]): number {
+    const correctAnswersMap = this.calculateCorrectAnswers(this.questions);
+    let score = 0;
+  
+    // Assuming you have a way to map userAnswers to questions and their selected options
+    userAnswers.forEach((answer, index) => {
+      const questionText = this.questions[index].questionText; // Example of getting question text
+      const correctOptions = correctAnswersMap.get(questionText);
+  
+      if (correctOptions && correctOptions.includes(answer)) {
+        score += 1; // Increment score for each correct answer
+      }
+    });
+  
+    return score;
+  }  
 
   getQuizLength(): number {
     return this.selectedQuiz.questions.length;
@@ -1389,8 +1406,8 @@ export class QuizService implements OnDestroy {
         console.error(`No questions found for quizId ${quizId}`);
         return [];
       }
-      this.questions = questionsData;
-      return questionsData;
+      this.questions = questionsData.questions;
+      return questionsData.questions;
     } catch (error) {
       console.error('Error fetching questions for quiz:', error);
       return [];
@@ -1401,7 +1418,7 @@ export class QuizService implements OnDestroy {
     const correctAnswers = new Map<string, number[]>();
   
     // Check if questions is an array before proceeding
-    if (Array.isArray(questions)) {
+    if (Array.isArray(questions) && questions.length > 0) {
       questions.forEach((question) => {
         if (question?.options) {
           const correctOptionNumbers = question.options
