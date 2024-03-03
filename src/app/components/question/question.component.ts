@@ -304,26 +304,37 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async loadQuizQuestions(): Promise<void> {
     this.isLoading = true;
-    const questions = await this.quizService.fetchQuizQuestions();
-
-    if (questions.length > 0) {
-        // Update component's state with the fetched questions, for example, this.questions = questions;
-
+  
+    try {
+      // Convert the Observable to a Promise using firstValueFrom
+      const questions = await firstValueFrom(this.quizService.fetchQuizQuestions());
+  
+      if (questions && questions.length > 0) {
+        // Update component's state with the fetched questions
+        // Assuming this.questions is an array where you want to store your questions
+        // this.questions = questions;
+  
         // Display explanation texts for previously answered questions, if applicable
         questions.forEach((question, index) => {
           const state = this.quizStateService.getQuestionState(this.quizId, index);
           if (state?.isAnswered) {
             const formattedExplanationText: FormattedExplanation = {
-              questionIndex: this.currentQuestionIndex,
+              questionIndex: index, // Assuming you meant to use the question's index here
               explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
             };
             this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
           }
         });
-    } else {
-      console.error('No questions were loaded');
+      } else {
+        console.error('No questions were loaded');
+      }
+    } catch (error) {
+      // Handle any errors that occur during the fetching of questions
+      console.error('Error loading questions:', error);
+    } finally {
+      // Ensure isLoading is set to false regardless of success or failure
+      this.isLoading = false;
     }
-    this.isLoading = false;
   }
 
   /* private initializeCorrectAnswerOptions(): void {
