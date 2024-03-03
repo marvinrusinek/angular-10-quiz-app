@@ -44,6 +44,7 @@ export class QuizService implements OnDestroy {
   question: QuizQuestion;
   questions: QuizQuestion[];
   questions$: Observable<QuizQuestion[]>;
+  questionsPromise: Promise<QuizQuestion[]>;
   quizQuestions: QuizQuestion[];
   nextQuestion: QuizQuestion;
   isOptionSelected = false;
@@ -227,6 +228,11 @@ export class QuizService implements OnDestroy {
 
     const initialText = localStorage.getItem('correctAnswersText') || 'Please select an answer';
     this.correctAnswersCountTextSource.next(initialText);
+
+    this.questionsPromise = this.fetchQuizQuestions();
+    this.questionsPromise.then(questions => {
+      this.questions = questions;
+    });
   }
 
   ngOnDestroy(): void {
@@ -432,6 +438,7 @@ export class QuizService implements OnDestroy {
   }
 
   getTypeForQuestion(questionIndex: number): string | null {
+    console.log("Questions array::::", this.questions);
     // Check if the questionIndex is within the bounds of the questions array
     if (this.questions && questionIndex >= 0 && questionIndex < this.questions.length) {
       const question = this.questions[questionIndex];
