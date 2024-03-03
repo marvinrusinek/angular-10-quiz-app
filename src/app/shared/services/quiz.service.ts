@@ -1391,7 +1391,7 @@ export class QuizService implements OnDestroy {
     }
 
     // Assuming fetchAndSetQuestions correctly returns Observable<QuizQuestion[]>
-    return this.fetchAndSetQuestions(this.quizId).pipe(
+    return from(this.fetchAndSetQuestions(this.quizId)).pipe(
       switchMap(questions => {
         if (!questions || questions.length === 0) {
           console.error('No questions found');
@@ -1416,7 +1416,6 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  
   async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
       const response = await firstValueFrom(this.getQuestionsForQuiz(quizId));
