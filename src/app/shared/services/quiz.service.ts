@@ -433,7 +433,7 @@ export class QuizService implements OnDestroy {
 
   getTypeForQuestion(questionIndex: number): string | null {
     // Check if the questionIndex is within the bounds of the questions array
-    if (questionIndex >= 0 && questionIndex < this.questions.length) {
+    if (this.questions && questionIndex >= 0 && questionIndex < this.questions.length) {
       const question = this.questions[questionIndex];
       return question.type; // Return the type of the question
     } else {
