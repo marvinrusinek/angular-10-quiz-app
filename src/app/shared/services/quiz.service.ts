@@ -1387,7 +1387,7 @@ export class QuizService implements OnDestroy {
   fetchQuizQuestions(): Observable<QuizQuestion[]> {
     if (!this.quizId) {
       console.error('Quiz ID is not set in QuizService.');
-      return of([]); // Return an empty observable array if quizId is not set
+      return of([]);
     }
 
     // Assuming fetchAndSetQuestions correctly returns Observable<QuizQuestion[]>
@@ -1395,7 +1395,7 @@ export class QuizService implements OnDestroy {
       switchMap(questions => {
         if (!questions || questions.length === 0) {
           console.error('No questions found');
-          return of([]); // Return an empty observable array if no questions are found
+          return of([]);
         }
 
         // Perform operations with the questions
@@ -1404,13 +1404,10 @@ export class QuizService implements OnDestroy {
         this.setCorrectAnswersForQuestions(questions, correctAnswers);
         this.correctAnswersLoadedSubject.next(true);
 
-        // Since the operations above are synchronous and don't return an Observable,
-        // you can simply return the questions wrapped in an Observable using 'of'
         return of(questions);
       }),
       catchError(error => {
         console.error('Error fetching quiz questions:', error);
-        // Use 'throwError' to return an Observable that emits the provided error
         return throwError(() => new Error('Error fetching quiz questions'));
       })
     );
