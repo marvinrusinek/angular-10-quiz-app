@@ -177,14 +177,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.initializeRouteParams();
 
     this.activatedRoute.paramMap.subscribe(params => {
-      const quizId = params.get('quizId');
-
-      if (quizId) {
-        const questionData = this.quizService.fetchQuizQuestions();
-        this.initializeAndPrepareQuestion(questionData, quizId);
-      } else {
-        console.error('Quiz ID is not available');
-      }
+      this.quizId = params.get('quizId');
     });
 
     // Fetch additional quiz data
