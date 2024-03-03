@@ -310,16 +310,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const questions = await firstValueFrom(this.quizService.fetchQuizQuestions());
   
       if (questions && questions.length > 0) {
-        // Update component's state with the fetched questions
-        // Assuming this.questions is an array where you want to store your questions
-        // this.questions = questions;
-  
-        // Display explanation texts for previously answered questions, if applicable
+        // Update component's state with the fetched questions  
+        // Display explanation texts for previously answered questions
         questions.forEach((question, index) => {
           const state = this.quizStateService.getQuestionState(this.quizId, index);
           if (state?.isAnswered) {
             const formattedExplanationText: FormattedExplanation = {
-              questionIndex: index, // Assuming you meant to use the question's index here
+              questionIndex: index,
               explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
             };
             this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
