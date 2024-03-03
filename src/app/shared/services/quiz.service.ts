@@ -1380,7 +1380,7 @@ export class QuizService implements OnDestroy {
       }
       
       // Directly fetch the array of QuizQuestion
-      const questions: QuizQuestion[] = await this.fetchAndSetQuestions(quizId);
+      const questions: QuizQuestion[] = await this.fetchAndSetQuestions(this.quizId);
   
       // Check if questions array is not empty
       if (!questions || questions.length === 0) {
