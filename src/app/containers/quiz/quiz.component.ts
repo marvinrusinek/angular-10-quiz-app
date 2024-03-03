@@ -176,13 +176,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
 
-    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    if (quizId) {
-      this.quizService.setQuizId(quizId);
-    } else {
-      console.error('Quiz ID is not set.');
-      // Redirect or handle the error
-    }
+    this.activatedRoute.paramMap.subscribe(params => {
+      const quizId = params.get('quizId');
+      if (quizId) {
+        this.quizService.setQuizId(quizId);
+      } else {
+        console.error('Quiz ID is not set.');
+      }
+    });
 
     // Fetch additional quiz data
     this.fetchQuizData();
