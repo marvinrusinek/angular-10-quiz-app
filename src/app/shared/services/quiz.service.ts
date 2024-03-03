@@ -1305,6 +1305,12 @@ export class QuizService implements OnDestroy {
   setCurrentQuestion(question: QuizQuestion): void {
     this.selectedQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
   
+    // Check if selectedQuiz is defined
+    if (!this.selectedQuiz) {
+      console.error('Selected quiz is undefined. Please ensure the quizId is correct and the quizData array is properly initialized.');
+      return;
+    }
+  
     // Find the index of the current question
     const currentIndex = this.selectedQuiz.questions.findIndex(
       (q) => q.questionText === question.questionText
