@@ -431,6 +431,17 @@ export class QuizService implements OnDestroy {
     return segments[1].toString();
   }
 
+  getTypeForQuestion(questionIndex: number): string | null {
+    // Check if the questionIndex is within the bounds of the questions array
+    if (questionIndex >= 0 && questionIndex < this.questions.length) {
+      const question = this.questions[questionIndex];
+      return question.type; // Return the type of the question
+    } else {
+      console.warn(`No question found at index ${questionIndex}.`);
+      return null; // Return null or a default type as appropriate
+    }
+  }
+
   getCorrectAnswersAsString(): string {
     // Convert the map to a comma-separated string
     const correctAnswersString = Array.from(this.correctAnswers.values())
