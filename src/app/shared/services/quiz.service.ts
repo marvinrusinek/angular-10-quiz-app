@@ -1374,15 +1374,15 @@ export class QuizService implements OnDestroy {
     this.resources = value;
   }
 
-  setQuizId(quizId: string) {
-    this.quizId = quizId;
+  setQuizId(id: string): void {
+    this.quizId = id;
   }
 
   async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
       if (!this.quizId) {
         console.error('Quiz ID is not set in QuizService.');
-        return Promise.reject('Quiz ID is not set.');
+        return throwError('Quiz ID is not set.');
       }
       
       // Directly fetch the array of QuizQuestion
