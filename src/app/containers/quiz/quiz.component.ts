@@ -1177,8 +1177,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
         this.updateNavigationAndExplanationState();
-        this.resetUI();
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+        this.resetUI();
       } else {
         console.log("Cannot navigate to invalid index.");
       }
