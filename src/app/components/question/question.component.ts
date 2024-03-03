@@ -326,10 +326,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('No questions were loaded');
       }
     } catch (error) {
-      // Handle any errors that occur during the fetching of questions
       console.error('Error loading questions:', error);
     } finally {
-      // Ensure isLoading is set to false regardless of success or failure
       this.isLoading = false;
     }
   }
