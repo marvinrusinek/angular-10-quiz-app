@@ -178,10 +178,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.paramMap.subscribe(params => {
       const quizId = params.get('quizId');
+
       if (quizId) {
-        this.quizService.setQuizId(quizId);
+        const questionData = this.quizService.fetchQuizQuestions();
+        this.initializeAndPrepareQuestion(questionData, quizId);
       } else {
-        console.error('Quiz ID is not set.');
+        console.error('Quiz ID is not available');
       }
     });
 
@@ -351,8 +353,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private initializeAndPrepareQuestion(questionData: CombinedQuestionDataType): void {
+  private initializeAndPrepareQuestion(questionData: CombinedQuestionDataType, quizId: string): void {
     this.data = questionData;
+    this.quizService.setQuizId(quizId);
     this.quizService.fetchQuizQuestions();
     this.quizService.setQuestionData(questionData);
 
