@@ -447,10 +447,10 @@ export class QuizService implements OnDestroy {
     // Check if the questionIndex is within the bounds of the questions array
     if (this.questions && questionIndex >= 0 && questionIndex < this.questions.length) {
       const question = this.questions[questionIndex];
-      return question.type; // Return the type of the question
+      return question.type;
     } else {
       console.warn(`No question found at index ${questionIndex}.`);
-      return null; // Return null or a default type as appropriate
+      return null;
     }
   }
 
@@ -1381,7 +1381,6 @@ export class QuizService implements OnDestroy {
 
   setQuizId(id: string): void {
     this.quizId = id;
-    console.log('Quiz ID set in QuizService:', this.quizId);
   }
 
   fetchQuizQuestions(): Observable<QuizQuestion[]> {
