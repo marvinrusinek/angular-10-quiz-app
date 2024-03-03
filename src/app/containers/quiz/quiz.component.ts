@@ -1206,8 +1206,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       this.currentQuestionIndex--;
       this.updateNavigationAndExplanationState();
-      
-      this.resetUI();
   
       const previousQuestion = await this.fetchQuestionDetails(this.currentQuestionIndex);
       this.quizStateService.updateCurrentQuestion(previousQuestion);
@@ -1229,6 +1227,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log(`Explanation text for previous question:`, this.explanationToDisplay);
 
       this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
+      this.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
