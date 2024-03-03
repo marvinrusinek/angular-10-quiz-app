@@ -1379,39 +1379,32 @@ export class QuizService implements OnDestroy {
     console.log('Quiz ID set in QuizService:', this.quizId);
   }
 
-  async fetchQuizQuestions(): Promise<QuizQuestion[]> {
-    try {
-      if (!this.quizId) {
-        console.error('Quiz ID is not set in QuizService.');
-        return of([]);
-      }
-      
-      // Directly fetch the array of QuizQuestion
-      const questions: QuizQuestion[] = await this.fetchAndSetQuestions(this.quizId);
-  
-      // Check if questions array is not empty
-      if (!questions || questions.length === 0) {
-        console.error('No questions found');
-        return [];
-      }
-  
-      // Calculate correct answers
-      const correctAnswers = this.calculateCorrectAnswers(questions);
-      this.correctAnswersSubject.next(correctAnswers);
-  
-      // Initialize combined question data
-      await this.initializeCombinedQuestionData();
-  
-      // Set correct answers for questions
-      this.setCorrectAnswersForQuestions(questions, correctAnswers);
-  
-      this.correctAnswersLoadedSubject.next(true);
-  
-      return questions;
-    } catch (error) {
-      console.error('Error fetching quiz questions:', error);
-      return [];
+  fetchQuizQuestions(): Observable<QuizQuestion[]> {
+    if (!this.quizId) {
+      console.error('Quiz ID is not set in QuizService.');
+      return of([]); // Return an empty observable array if quizId is not set
     }
+  
+    // Assuming fetchAndSetQuestions returns Observable<QuizQuestion[]>
+    return this.fetchAndSetQuestions(this.quizId).pipe(
+      switchMap(questions => {
+        if (!questions || questions.length === 0) {
+          console.error('No questions found');
+          return of([] as QuizQuestion[]); // Return an empty observable array if no questions are found
+        }
+  
+        const correctAnswers = this.calculateCorrectAnswers(questions);
+        this.correctAnswersSubject.next(correctAnswers);
+        this.setCorrectAnswersForQuestions(questions, correctAnswers);
+        this.correctAnswersLoadedSubject.next(true);
+  
+        return of(questions); // Return the questions as an observable
+      }),
+      catchError(error => {
+        console.error('Error fetching quiz questions:', error);
+        return throwError(() => new Error('Error fetching quiz questions'));
+      })
+    );
   }
   
   async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
