@@ -1397,20 +1397,27 @@ export class QuizService implements OnDestroy {
     }
   }  
 
-  calculateCorrectAnswers(questions: QuizQuestion[]): Map<string, number[]> {
+  calculateCorrectAnswers(questions: QuizQuestion[] | any): Map<string, number[]> {
     const correctAnswers = new Map<string, number[]>();
-    questions.forEach((question) => {
-      if (question?.options) {
-        const correctOptionNumbers = question.options
-          .filter((option) => option?.correct)
-          .map((option) => option?.optionId);
-        correctAnswers.set(question.questionText, correctOptionNumbers);
-      } else {
-        console.log('Options are undefined for question:', question);
-      }
-    });
+  
+    // Check if questions is an array before proceeding
+    if (Array.isArray(questions)) {
+      questions.forEach((question) => {
+        if (question?.options) {
+          const correctOptionNumbers = question.options
+            .filter((option) => option?.correct)
+            .map((option) => option?.optionId);
+          correctAnswers.set(question.questionText, correctOptionNumbers);
+        } else {
+          console.log('Options are undefined for question:', question);
+        }
+      });
+    } else {
+      console.error('calculateCorrectAnswers was called with a non-array value:', questions);
+    }
+  
     return correctAnswers;
-  }
+  }  
 
   async initializeCombinedQuestionData(): Promise<void> {
     try {
