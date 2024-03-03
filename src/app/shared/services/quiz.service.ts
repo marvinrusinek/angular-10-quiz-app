@@ -229,9 +229,10 @@ export class QuizService implements OnDestroy {
     const initialText = localStorage.getItem('correctAnswersText') || 'Please select an answer';
     this.correctAnswersCountTextSource.next(initialText);
 
-    this.questionsPromise = this.fetchQuizQuestions();
-    this.questionsPromise.then(questions => {
+    this.fetchQuizQuestions().subscribe(questions => {
       this.questions = questions;
+    }, error => {
+      console.error('Error fetching questions:', error);
     });
   }
 
