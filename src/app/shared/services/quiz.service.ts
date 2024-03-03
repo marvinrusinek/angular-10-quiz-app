@@ -1368,9 +1368,17 @@ export class QuizService implements OnDestroy {
     this.resources = value;
   }
 
+  setQuizId(quizId: string) {
+    this.quizId = quizId;
+  }
+
   async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
-      const quizId = this.quizId;
+      if (!this.quizId) {
+        console.error('Quiz ID is not set in QuizService.');
+        return Promise.reject('Quiz ID is not set.');
+      }
+      
       // Directly fetch the array of QuizQuestion
       const questions: QuizQuestion[] = await this.fetchAndSetQuestions(quizId);
   
@@ -1401,18 +1409,21 @@ export class QuizService implements OnDestroy {
   
   async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
-      const questionsData = await firstValueFrom(this.getQuestionsForQuiz(quizId));
+      const response = await firstValueFrom(this.getQuestionsForQuiz(quizId));
+      const questionsData = response.questions;
+  
       if (!questionsData || questionsData.length === 0) {
         console.error(`No questions found for quizId ${quizId}`);
         return [];
       }
-      this.questions = questionsData.questions;
-      return questionsData.questions;
+  
+      this.questions = questionsData; // Assuming this.questions should hold the array of questions
+      return questionsData;
     } catch (error) {
       console.error('Error fetching questions for quiz:', error);
       return [];
     }
-  }  
+  } 
 
   calculateCorrectAnswers(questions: QuizQuestion[] | any): Map<string, number[]> {
     const correctAnswers = new Map<string, number[]>();
