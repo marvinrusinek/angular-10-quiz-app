@@ -820,18 +820,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   shouldDisplayExplanationForQuestion(question: QuizQuestion): boolean {
     return question.selectedOptions && question.selectedOptions.length > 0;
   }
-
-  /* updateSelectedOptions(option) {
-    // Subscribe to get the current question index
-    this.quizService.getCurrentQuestionIndexObservable().pipe(take(1)).subscribe((currentIndex: number) => {
-      // Update the selectedOptions for the current question
-      if (!this.currentQuestion.selectedOptions.includes(option)) {
-        this.currentQuestion.selectedOptions.push(option);
-      }
-      // Now call handleExplanationForQuestion with the current index
-      this.handleExplanationForQuestion(currentIndex);
-    });
-  } */
   
   initializeQuestionStreams(): void {
     // Initialize questions stream
