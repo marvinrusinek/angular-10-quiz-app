@@ -1351,7 +1351,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     const type = this.quizService.getTypeForQuestion(questionIndex);
     if (!type) {
       console.warn('No type found for question at index:', questionIndex);
-      // Handle this case as needed, possibly with a default type or error handling
     }
 
     let question: QuizQuestion = { questionText, options, explanation, type };
