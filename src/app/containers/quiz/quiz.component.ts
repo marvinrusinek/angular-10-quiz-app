@@ -190,11 +190,27 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion(); 
 
+    this.loadQuestionDetails(this.currentQuestionIndex);
+
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe((text: string) => {
       this.correctAnswersText = text;
     }); */
+  }
+
+  async loadQuestionDetails(questionIndex: number) {
+    // Load the question data
+    const question = await this.fetchQuestionDetails(questionIndex);
+    this.currentQuestion = question;
+  
+    // Now, check if we should display the explanation for this question
+    const displayExplanation = this.shouldDisplayExplanation();
+    if (displayExplanation) {
+      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+    } else {
+      this.explanationToDisplay = '';
+    }
   }
 
   ngOnDestroy(): void {
@@ -1319,6 +1335,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const questionText = this.quizService.getQuestionTextForIndex(questionIndex);
     if (!questionText) {
       console.error('No question text found for index:', questionIndex);
+      // Consider returning early or handling this case appropriately
     }
 
     const options = this.quizService.getNextOptions(questionIndex) || [];
@@ -1331,7 +1348,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.warn('No explanation text found for question at index:', questionIndex);
     }
 
-    const type = this.quizService.question.type;
+    const type = this.quizService.getTypeForQuestion(questionIndex);
+    if (!type) {
+      console.warn('No type found for question at index:', questionIndex);
+      // Handle this case as needed, possibly with a default type or error handling
+    }
 
     let question: QuizQuestion = { questionText, options, explanation, type };
 
