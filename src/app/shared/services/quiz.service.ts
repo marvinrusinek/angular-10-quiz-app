@@ -1382,7 +1382,7 @@ export class QuizService implements OnDestroy {
     try {
       if (!this.quizId) {
         console.error('Quiz ID is not set in QuizService.');
-        return throwError('Quiz ID is not set.');
+        return throwError(() => new Error('Quiz ID is not set.'));
       }
       
       // Directly fetch the array of QuizQuestion
