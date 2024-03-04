@@ -1410,42 +1410,46 @@ export class QuizService implements OnDestroy {
   fetchQuizQuestions(): Observable<QuizQuestion[]> {
     if (!this.quizId) {
       console.error('Quiz ID is not set in QuizService.');
-      return of([]);
+      return of([] as QuizQuestion[]); // Return an empty observable array immediately if quizId is not set.
     }
-
-    // Convert the Promise returned by fetchAndSetQuestions into an Observable
+  
     return from(this.fetchAndSetQuestions(this.quizId)).pipe(
-      switchMap((questions: QuizQuestion[]): Observable<QuizQuestion[]> => {
-        if (!questions || questions.length === 0) {
+      switchMap((response: any): Observable<QuizQuestion[]> => {
+        // Ensure that 'response' actually contains the 'questions' property and it is an array.
+        if (!response || !Array.isArray(response.questions) || response.questions.length === 0) {
           console.error('No questions found');
-          return of([]);
+          return of([] as QuizQuestion[]); // Return an empty observable array if no questions are found.
         }
-
-        // Assuming synchronous operations here don't change the array type
-        // Calculate correct answers and set them
-        // Ensure these operations do not await or return a different type
-
+  
+        const questions: QuizQuestion[] = response.questions;
+  
+        // You can perform synchronous operations on 'questions' here, like calculating correct answers,
+        // but make sure these operations do not asynchronously alter the 'questions' array.
+  
+        // Return the processed 'questions' array wrapped in an Observable.
         return of(questions);
       }),
       tap((questions: QuizQuestion[]) => {
-        // Calculate correct answers
+        // Perform any side effects needed with the fetched questions here.
+        // Since 'tap' is used for side effects, make sure not to perform any asynchronous operations here.
+  
+        // If 'calculateCorrectAnswers' and 'setCorrectAnswersForQuestions' are synchronous,
+        // they can safely be called here. Otherwise, consider handling them differently.
         const correctAnswers = this.calculateCorrectAnswers(questions);
         this.correctAnswersSubject.next(correctAnswers);
-
-        // Initialize combined question data
-        this.initializeCombinedQuestionData();
-
-        // Set correct answers for questions
         this.setCorrectAnswersForQuestions(questions, correctAnswers);
-
         this.correctAnswersLoadedSubject.next(true);
       }),
       catchError((error: any): Observable<never> => {
+        // Handle any errors that occur during the fetching or processing of quiz questions.
         console.error('Error fetching quiz questions:', error);
         return throwError(() => new Error('Error fetching quiz questions'));
       })
     );
   }
+  
+
+  
 
   async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
