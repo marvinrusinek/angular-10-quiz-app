@@ -1370,31 +1370,35 @@ export class QuizService implements OnDestroy {
   fetchQuizQuestions(): Observable<QuizQuestion[]> {
     if (!this.quizId) {
       console.error('Quiz ID is not set in QuizService.');
-      return of<QuizQuestion[]>([]); // Explicitly type the empty Observable array
+      return of([]);
     }
 
-    return from(this.fetchAndSetQuestions(this.quizId)).pipe(
-      switchMap(questionObjects => {
-        const questions = questionObjects[0]?.questions as QuizQuestion[];
+    return this.fetchAndSetQuestions(this.quizId).pipe(
+      switchMap(response => {
+        const questions = response.questions as QuizQuestion[];
         if (!questions || questions.length === 0) {
           console.error('No questions found');
-          return of<QuizQuestion[]>([]); // Ensure the empty array is typed as QuizQuestion[]
+          return of([]);
         }
+
+        // Calculate correct answers and perform other synchronous operations here
+        const correctAnswers = this.calculateCorrectAnswers(questions);
+        this.setCorrectAnswersForQuestions(questions, correctAnswers);
+        this.correctAnswersSubject.next(correctAnswers);
+
+        // Return questions to continue the chain
         return of(questions);
       }),
-      tap(questions => {
-        // Perform side effects here
-        const correctAnswers = this.calculateCorrectAnswers(questions);
-        this.correctAnswersSubject.next(correctAnswers);
-        this.setCorrectAnswersForQuestions(questions, correctAnswers);
-        this.correctAnswersLoadedSubject.next(true);
+      map(questions => {
+        // Use map to ensure the type is maintained
+        // Initialize combined question data and wait for completion
+        this.initializeCombinedQuestionData().then(() => {
+          this.correctAnswersLoadedSubject.next(true);
+        });
+
+        // Return questions to maintain the Observable<QuizQuestion[]> type
+        return questions;
       }),
-      switchMap((questions: QuizQuestion[]) => 
-        from(this.initializeCombinedQuestionData()).pipe(
-          // Use map to return questions without transformation, with a type assertion
-          map(() => questions as QuizQuestion[])
-        )
-      ),
       catchError(error => {
         console.error('Error fetching quiz questions:', error);
         return throwError(() => new Error('Error fetching quiz questions'));
