@@ -1370,36 +1370,37 @@ export class QuizService implements OnDestroy {
   fetchQuizQuestions(): Observable<QuizQuestion[]> {
     if (!this.quizId) {
       console.error('Quiz ID is not set in QuizService.');
-      return of([]);
+      return of([] as QuizQuestion[]);
     }
 
-    return this.fetchAndSetQuestions(this.quizId).pipe(
-      switchMap(response => {
-        const questions = response.questions as QuizQuestion[];
-        if (!questions || questions.length === 0) {
+    return from(this.fetchAndSetQuestions(this.quizId)).pipe(
+      switchMap((response: any): Observable<QuizQuestion[]> => { // Explicitly return Observable<QuizQuestion[]>
+        const questions = response?.questions ?? [] as QuizQuestion[];
+        if (questions.length === 0) {
           console.error('No questions found');
-          return of([]);
+          return of([] as QuizQuestion[]);
         }
 
-        // Calculate correct answers and perform other synchronous operations here
+        // Assuming synchronous operations here don't change the array type
+        // Calculate correct answers and set them
+        // Ensure these operations do not await or return a different type
+
+        return of(questions as QuizQuestion[]);
+      }),
+      tap((questions: QuizQuestion[]) => {
+        // Calculate correct answers
         const correctAnswers = this.calculateCorrectAnswers(questions);
-        this.setCorrectAnswersForQuestions(questions, correctAnswers);
         this.correctAnswersSubject.next(correctAnswers);
 
-        // Return questions to continue the chain
-        return of(questions);
-      }),
-      map(questions => {
-        // Use map to ensure the type is maintained
-        // Initialize combined question data and wait for completion
-        this.initializeCombinedQuestionData().then(() => {
-          this.correctAnswersLoadedSubject.next(true);
-        });
+        // Initialize combined question data
+        this.initializeCombinedQuestionData();
 
-        // Return questions to maintain the Observable<QuizQuestion[]> type
-        return questions;
+        // Set correct answers for questions
+        this.setCorrectAnswersForQuestions(questions, correctAnswers);
+
+        this.correctAnswersLoadedSubject.next(true);
       }),
-      catchError(error => {
+      catchError((error: any): Observable<never> => { // Ensure catchError returns Observable<never>
         console.error('Error fetching quiz questions:', error);
         return throwError(() => new Error('Error fetching quiz questions'));
       })
