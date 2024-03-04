@@ -1430,14 +1430,16 @@ export class QuizService implements OnDestroy {
         return of(questions);
       }),
       tap((questions: QuizQuestion[]) => {
-        // Perform any side effects needed with the fetched questions here.
-        // Since 'tap' is used for side effects, make sure not to perform any asynchronous operations here.
-  
-        // If 'calculateCorrectAnswers' and 'setCorrectAnswersForQuestions' are synchronous,
-        // they can safely be called here. Otherwise, consider handling them differently.
+        // Calculate correct answers
         const correctAnswers = this.calculateCorrectAnswers(questions);
         this.correctAnswersSubject.next(correctAnswers);
+
+        // Initialize combined question data
+        this.initializeCombinedQuestionData();
+
+        // Set correct answers for questions
         this.setCorrectAnswersForQuestions(questions, correctAnswers);
+
         this.correctAnswersLoadedSubject.next(true);
       }),
       catchError((error: any): Observable<never> => {
