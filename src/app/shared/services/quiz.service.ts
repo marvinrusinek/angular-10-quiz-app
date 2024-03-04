@@ -2,9 +2,9 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, combineLatest, firstValueFrom, from, 
-  Observable, of, Subject, Subscription } from 'rxjs';
+  Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged, finalize, map, shareReplay, switchMap,
-  takeUntil, tap, throwError } from 'rxjs/operators';
+  takeUntil, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
 
@@ -1598,7 +1598,7 @@ export class QuizService implements OnDestroy {
     this.incorrectSound = this.loadSound('http://www.marvinrusinek.com/sound-incorrect.mp3', 'Incorrect');
   }
 
-  loadSound(url, soundName) {
+  loadSound(url: string, soundName: string): Howl {
     return new Howl({
       src: [url],
       onload: () => {
@@ -1610,7 +1610,7 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  playSound(isCorrect) {
+  playSound(isCorrect: boolean) {
     // Initialize sounds only if they haven't been loaded yet
     if (!this.correctSound || !this.incorrectSound) {
       this.initializeSounds();
