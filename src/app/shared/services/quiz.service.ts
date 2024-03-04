@@ -1367,14 +1367,14 @@ export class QuizService implements OnDestroy {
     }
   } */
 
-  fetchQuizQuestions(): Observable<QuizQuestion[]> {
+  /* fetchQuizQuestions(): Observable<QuizQuestion[]> {
     if (!this.quizId) {
       console.error('Quiz ID is not set in QuizService.');
       return of([] as QuizQuestion[]);
     }
 
     return from(this.fetchAndSetQuestions(this.quizId)).pipe(
-      switchMap((response: any): Observable<QuizQuestion[]> => { // Explicitly return Observable<QuizQuestion[]>
+      switchMap((response: any): Observable<QuizQuestion[]> => {
         const questions = response?.questions ?? [] as QuizQuestion[];
         if (questions.length === 0) {
           console.error('No questions found');
@@ -1401,6 +1401,46 @@ export class QuizService implements OnDestroy {
         this.correctAnswersLoadedSubject.next(true);
       }),
       catchError((error: any): Observable<never> => { // Ensure catchError returns Observable<never>
+        console.error('Error fetching quiz questions:', error);
+        return throwError(() => new Error('Error fetching quiz questions'));
+      })
+    );
+  } */
+
+  fetchQuizQuestions(): Observable<QuizQuestion[]> {
+    if (!this.quizId) {
+      console.error('Quiz ID is not set in QuizService.');
+      return of([]);
+    }
+
+    // Convert the Promise returned by fetchAndSetQuestions into an Observable
+    return from(this.fetchAndSetQuestions(this.quizId)).pipe(
+      switchMap((questions: QuizQuestion[]): Observable<QuizQuestion[]> => {
+        if (!questions || questions.length === 0) {
+          console.error('No questions found');
+          return of([]);
+        }
+
+        // Assuming synchronous operations here don't change the array type
+        // Calculate correct answers and set them
+        // Ensure these operations do not await or return a different type
+
+        return of(questions);
+      }),
+      tap((questions: QuizQuestion[]) => {
+        // Calculate correct answers
+        const correctAnswers = this.calculateCorrectAnswers(questions);
+        this.correctAnswersSubject.next(correctAnswers);
+
+        // Initialize combined question data
+        this.initializeCombinedQuestionData();
+
+        // Set correct answers for questions
+        this.setCorrectAnswersForQuestions(questions, correctAnswers);
+
+        this.correctAnswersLoadedSubject.next(true);
+      }),
+      catchError((error: any): Observable<never> => {
         console.error('Error fetching quiz questions:', error);
         return throwError(() => new Error('Error fetching quiz questions'));
       })
