@@ -1471,6 +1471,7 @@ export class QuizService implements OnDestroy {
   
       // Update the service's questions property with the fetched questions
       this.questions = response.questions;
+      console.log('Fetched questions:', response.questions);
   
       // Return the questions array
       return response.questions;
