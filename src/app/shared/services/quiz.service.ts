@@ -1445,10 +1445,7 @@ export class QuizService implements OnDestroy {
     );
   }
   
-
-  
-
-  async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
+  /* async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
       const questionsData = await firstValueFrom(this.getQuestionsForQuiz(quizId));
       this.questions = questionsData.questions;
@@ -1457,7 +1454,32 @@ export class QuizService implements OnDestroy {
       console.error('Error fetching questions for quiz:', error);
       return [];
     }
+  } */
+
+  async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
+    try {
+      // Use firstValueFrom to convert the Observable returned by getQuestionsForQuiz to a Promise
+      const response = await firstValueFrom(this.getQuestionsForQuiz(quizId));
+  
+      console.log("Raw response from getQuestionsForQuiz:", response);
+  
+      // Assuming the response structure includes a 'questions' property that is an array of QuizQuestion
+      if (!response || !Array.isArray(response.questions) || response.questions.length === 0) {
+        console.error('No questions found or invalid response structure:', response);
+        throw new Error('No questions found or invalid response structure');
+      }
+  
+      // Update the service's questions property with the fetched questions
+      this.questions = response.questions;
+  
+      // Return the questions array
+      return response.questions;
+    } catch (error) {
+      console.error('Error fetching questions for quiz:', error);
+      throw error;
+    }
   }
+  
 
   calculateCorrectAnswers(questions: QuizQuestion[]): Map<string, number[]> {
     const correctAnswers = new Map<string, number[]>();
