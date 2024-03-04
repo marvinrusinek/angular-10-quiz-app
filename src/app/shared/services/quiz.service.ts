@@ -1337,7 +1337,7 @@ export class QuizService implements OnDestroy {
     this.resources = value;
   }
 
-  async fetchQuizQuestions(): Promise<QuizQuestion[]> {
+  /* async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
       const quizId = this.quizId;
       const questionObjects: any[] = await this.fetchAndSetQuestions(quizId);
@@ -1365,6 +1365,41 @@ export class QuizService implements OnDestroy {
       console.error('Error fetching quiz questions:', error);
       return [];
     }
+  } */
+
+  fetchQuizQuestions(): Observable<QuizQuestion[]> {
+    if (!this.quizId) {
+      console.error('Quiz ID is not set in QuizService.');
+      return of<QuizQuestion[]>([]); // Explicitly type the empty Observable array
+    }
+
+    return from(this.fetchAndSetQuestions(this.quizId)).pipe(
+      switchMap(questionObjects => {
+        const questions = questionObjects[0]?.questions as QuizQuestion[];
+        if (!questions || questions.length === 0) {
+          console.error('No questions found');
+          return of<QuizQuestion[]>([]); // Ensure the empty array is typed as QuizQuestion[]
+        }
+        return of(questions);
+      }),
+      tap(questions => {
+        // Perform side effects here
+        const correctAnswers = this.calculateCorrectAnswers(questions);
+        this.correctAnswersSubject.next(correctAnswers);
+        this.setCorrectAnswersForQuestions(questions, correctAnswers);
+        this.correctAnswersLoadedSubject.next(true);
+      }),
+      switchMap((questions: QuizQuestion[]) => 
+        from(this.initializeCombinedQuestionData()).pipe(
+          // Use map to return questions without transformation, with a type assertion
+          map(() => questions as QuizQuestion[])
+        )
+      ),
+      catchError(error => {
+        console.error('Error fetching quiz questions:', error);
+        return throwError(() => new Error('Error fetching quiz questions'));
+      })
+    );
   }
 
   async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
