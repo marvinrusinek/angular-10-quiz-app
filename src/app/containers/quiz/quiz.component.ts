@@ -409,7 +409,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.currentQuestionIndex = 0;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
   
-    // First, ensure the quiz data (including questions) is fetched and set
+    // Ensure the quiz data (including questions) is fetched and set
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (questions) => {
         this.questions = questions; // Store the fetched questions in a component property
