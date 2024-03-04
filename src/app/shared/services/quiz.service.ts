@@ -1375,17 +1375,6 @@ export class QuizService implements OnDestroy {
     );
   }
   
-  /* async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
-    try {
-      const questionsData = await firstValueFrom(this.getQuestionsForQuiz(quizId));
-      this.questions = questionsData.questions;
-      return questionsData.questions;
-    } catch (error) {
-      console.error('Error fetching questions for quiz:', error);
-      return [];
-    }
-  } */
-
   async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
       const response = await firstValueFrom(this.getQuestionsForQuiz(quizId));
