@@ -1640,7 +1640,7 @@ export class QuizService implements OnDestroy {
     this.incorrectSound = this.loadSound('http://www.marvinrusinek.com/sound-incorrect.mp3', 'Incorrect');
   }
 
-  loadSound(url, soundName) {
+  loadSound(url: string, soundName: string): Howl {
     return new Howl({
       src: [url],
       onload: () => {
