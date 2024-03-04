@@ -1418,15 +1418,11 @@ export class QuizService implements OnDestroy {
         // Ensure that 'response' actually contains the 'questions' property and it is an array.
         if (!response || !Array.isArray(response.questions) || response.questions.length === 0) {
           console.error('No questions found');
-          return of([] as QuizQuestion[]); // Return an empty observable array if no questions are found.
+          return of([] as QuizQuestion[]);
         }
   
         const questions: QuizQuestion[] = response.questions;
   
-        // You can perform synchronous operations on 'questions' here, like calculating correct answers,
-        // but make sure these operations do not asynchronously alter the 'questions' array.
-  
-        // Return the processed 'questions' array wrapped in an Observable.
         return of(questions);
       }),
       tap((questions: QuizQuestion[]) => {
@@ -1443,7 +1439,6 @@ export class QuizService implements OnDestroy {
         this.correctAnswersLoadedSubject.next(true);
       }),
       catchError((error: any): Observable<never> => {
-        // Handle any errors that occur during the fetching or processing of quiz questions.
         console.error('Error fetching quiz questions:', error);
         return throwError(() => new Error('Error fetching quiz questions'));
       })
