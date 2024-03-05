@@ -188,6 +188,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.quizService.fetchQuizQuestions().pipe(take(1)).subscribe(questions => {
+      this.questions = questions;
+    });
+
     // Fetch additional quiz data
     this.fetchQuizData();
 
