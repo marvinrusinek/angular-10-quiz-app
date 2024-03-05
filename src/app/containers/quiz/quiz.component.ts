@@ -162,6 +162,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.quizReset$.subscribe(() => {
       this.updateComponentState();
     });
+
+    this.questions$ = this.quizService.fetchQuizQuestions();
+    this.questions$.subscribe({
+      next: questions => console.log('Questions in component:', questions),
+      error: error => console.error('Error in component:', error),
+    });
   }
 
   @HostListener('window:focus', ['$event'])

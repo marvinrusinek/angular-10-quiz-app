@@ -1340,32 +1340,34 @@ export class QuizService implements OnDestroy {
   fetchQuizQuestions(): Observable<QuizQuestion[]> {
     if (!this.quizId) {
       console.error('Quiz ID is not set in QuizService.');
-      return of([] as QuizQuestion[]); // Return an empty observable array immediately if quizId is not set.
+      return of([] as QuizQuestion[]);  // Return an empty observable array immediately if quizId is not set.
     }
   
     return from(this.fetchAndSetQuestions(this.quizId)).pipe(
-      switchMap((response: any): Observable<QuizQuestion[]> => {
-        // Ensure that 'response' actually contains the 'questions' property and it is an array.
-        if (!response || !Array.isArray(response.questions) || response.questions.length === 0) {
+      switchMap((response: any[]): Observable<QuizQuestion[]> => {  // Expect response to be an array
+        console.log('Response from fetchAndSetQuestions:', response);
+        // Check if the response is an array, has at least one item, and that item has a 'questions' property which is an array
+        if (!response || response.length === 0 || !Array.isArray(response[0].questions) || response[0].questions.length === 0) {
           console.error('No questions found');
           return of([] as QuizQuestion[]);
         }
   
-        const questions: QuizQuestion[] = response.questions;
+        // Access the 'questions' property of the first object in the response array
+        const questions: QuizQuestion[] = response[0].questions;
   
         return of(questions);
       }),
       tap((questions: QuizQuestion[]) => {
-        // Calculate correct answers
+        // Calculate correct answers and other operations
         const correctAnswers = this.calculateCorrectAnswers(questions);
         this.correctAnswersSubject.next(correctAnswers);
-
+  
         // Initialize combined question data
         this.initializeCombinedQuestionData();
-
+  
         // Set correct answers for questions
         this.setCorrectAnswersForQuestions(questions, correctAnswers);
-
+  
         this.correctAnswersLoadedSubject.next(true);
       }),
       catchError((error: any): Observable<never> => {
