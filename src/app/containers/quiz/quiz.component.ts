@@ -1372,7 +1372,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     // const type = this.quizService.getTypeForQuestion(questionIndex);
-    const type = this.quizDataService.questionType;
+    const type = this.quizDataService.questionType as QuestionType;
     if (!type) {
       console.warn('No type found for question at index:', questionIndex);
     }
