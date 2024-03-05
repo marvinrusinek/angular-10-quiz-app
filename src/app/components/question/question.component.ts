@@ -975,8 +975,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
-  private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
+  /* private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
     this.isLoadingQuestions = true;
+    console.log('this.questions:', this.questions);
     this.questions.pipe(take(1)).subscribe({
       next: (questionsArray: QuizQuestion[]) => {
         if (!questionsArray || questionsArray.length === 0) {
@@ -1001,7 +1002,37 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.isLoadingQuestions = false;
       }
     });
-  }
+  } */
+
+  private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
+    this.isLoadingQuestions = true;
+  
+    this.questions.pipe(
+      take(1), // Take the first emission of the questions Observable and complete
+      tap(questionsArray => {
+        if (!questionsArray || questionsArray.length === 0) {
+          console.warn('Questions array is empty or undefined.');
+          this.isLoadingQuestions = false;
+          return;
+        }
+  
+        const questionIndex = questionsArray.findIndex(q => q.questionText === currentQuestion.questionText);
+        if (questionIndex === -1) {
+          console.error('Current question not found in questions array.');
+          this.isLoadingQuestions = false;
+          return;
+        }
+  
+        // Perform operations with questionsArray and questionIndex here
+        // For example, this.setExplanationText(questionIndex);
+      }),
+      catchError(error => {
+        console.error('Error fetching questions array:', error);
+        this.isLoadingQuestions = false;
+        return of([]); // Handle the error by returning an empty array Observable
+      })
+    ).subscribe(); // Subscribe to the Observable to trigger the above operations
+  }  
 
   checkOptionSelected(option: Option): boolean {
     return this.selectedOptions.includes(option as Option);
