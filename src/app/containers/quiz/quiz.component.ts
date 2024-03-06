@@ -162,12 +162,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.quizReset$.subscribe(() => {
       this.updateComponentState();
     });
-
-    this.questions$ = this.quizService.fetchQuizQuestions();
-    this.questions$.subscribe({
-      next: questions => console.log('Questions in component:', questions),
-      error: error => console.error('Error in component:', error),
-    });
   }
 
   @HostListener('window:focus', ['$event'])
@@ -192,10 +186,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       } else {
         console.error('Quiz ID is not available.');
       }
-    });
-
-    this.quizService.fetchQuizQuestions().pipe(take(1)).subscribe(questions => {
-      this.questions = questions;
     });
 
     // Fetch additional quiz data
@@ -1371,8 +1361,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.warn('No explanation text found for question at index:', questionIndex);
     }
 
-    // const type = this.quizService.getTypeForQuestion(questionIndex);
-    const type = this.quizDataService.questionType as QuestionType;
+    const type = this.quizService.getTypeForQuestion(questionIndex);
     if (!type) {
       console.warn('No type found for question at index:', questionIndex);
     }

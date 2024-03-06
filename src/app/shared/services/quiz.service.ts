@@ -2,9 +2,9 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, combineLatest, firstValueFrom, from, 
-  Observable, of, Subject, Subscription, throwError } from 'rxjs';
+  Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, distinctUntilChanged, finalize, map, shareReplay, switchMap,
-  takeUntil, tap } from 'rxjs/operators';
+  takeUntil, tap, throwError } from 'rxjs/operators';
 import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
 
@@ -244,10 +244,6 @@ export class QuizService implements OnDestroy {
 
   setSelectedQuiz(selectedQuiz: Quiz): void {
     this.selectedQuiz$.next(selectedQuiz);
-  }
-
-  setQuizId(id: string): void {
-    this.quizId = id;
   }
 
   setQuizData(quizData: Quiz[]): void {
@@ -1337,63 +1333,44 @@ export class QuizService implements OnDestroy {
     this.resources = value;
   }
 
-  fetchQuizQuestions(): Observable<QuizQuestion[]> {
-    if (!this.quizId) {
-      console.error('Quiz ID is not set in QuizService.');
-      return of([] as QuizQuestion[]);  // Return an empty observable array immediately if quizId is not set.
-    }
-  
-    return from(this.fetchAndSetQuestions(this.quizId)).pipe(
-      switchMap((response: any[]): Observable<QuizQuestion[]> => {  // Expect response to be an array
-        console.log('Response from fetchAndSetQuestions:', response);
-        // Check if the response is an array, has at least one item, and that item has a 'questions' property which is an array
-        if (!response || response.length === 0 || !Array.isArray(response[0].questions) || response[0].questions.length === 0) {
-          console.error('No questions found');
-          return of([] as QuizQuestion[]);
-        }
-  
-        // Access the 'questions' property of the first object in the response array
-        const questions: QuizQuestion[] = response[0].questions;
-  
-        return of(questions);
-      }),
-      tap((questions: QuizQuestion[]) => {
-        // Calculate correct answers and other operations
-        const correctAnswers = this.calculateCorrectAnswers(questions);
-        this.correctAnswersSubject.next(correctAnswers);
-  
-        // Initialize combined question data
-        this.initializeCombinedQuestionData();
-  
-        // Set correct answers for questions
-        this.setCorrectAnswersForQuestions(questions, correctAnswers);
-  
-        this.correctAnswersLoadedSubject.next(true);
-      }),
-      catchError((error: any): Observable<never> => {
-        console.error('Error fetching quiz questions:', error);
-        return throwError(() => new Error('Error fetching quiz questions'));
-      })
-    );
-  }
-  
-  async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
+  async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
-      const response = await firstValueFrom(this.getQuestionsForQuiz(quizId));
-      console.log("Raw response from getQuestionsForQuiz:", response);
-  
-      // Directly access the 'questions' property from the response object
-      const questions: QuizQuestion[] = response.questions;
+      const quizId = this.quizId;
+      const questionObjects: any[] = await this.fetchAndSetQuestions(quizId);
+      const questions: QuizQuestion[] = questionObjects[0].questions;
+
       if (!questions || questions.length === 0) {
         console.error('No questions found');
-        throw new Error('No questions found');
+        return [];
       }
-  
-      this.questions = questions;
+
+      // Calculate correct answers
+      const correctAnswers = this.calculateCorrectAnswers(questions);
+      this.correctAnswersSubject.next(correctAnswers);
+
+      // Initialize combined question data
+      await this.initializeCombinedQuestionData();
+
+      // Set correct answers for questions
+      this.setCorrectAnswersForQuestions(questions, correctAnswers);
+
+      this.correctAnswersLoadedSubject.next(true);
+
       return questions;
     } catch (error) {
+      console.error('Error fetching quiz questions:', error);
+      return [];
+    }
+  }
+
+  async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
+    try {
+      const questionsData = await firstValueFrom(this.getQuestionsForQuiz(quizId));
+      this.questions = questionsData.questions;
+      return questionsData.questions;
+    } catch (error) {
       console.error('Error fetching questions for quiz:', error);
-      throw error;
+      return [];
     }
   }
 
@@ -1600,7 +1577,7 @@ export class QuizService implements OnDestroy {
     this.incorrectSound = this.loadSound('http://www.marvinrusinek.com/sound-incorrect.mp3', 'Incorrect');
   }
 
-  loadSound(url: string, soundName: string): Howl {
+  loadSound(url, soundName) {
     return new Howl({
       src: [url],
       onload: () => {
@@ -1612,7 +1589,7 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  playSound(isCorrect: boolean): void {
+  playSound(isCorrect) {
     // Initialize sounds only if they haven't been loaded yet
     if (!this.correctSound || !this.incorrectSound) {
       this.initializeSounds();

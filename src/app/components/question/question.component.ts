@@ -53,6 +53,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   };
   @Input() questionData: QuizQuestion;
   @Input() question!: QuizQuestion;
+  @Input() question$: Observable<QuizQuestion>;
   @Input() questions: Observable<QuizQuestion[]>;
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[];
@@ -161,10 +162,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.initialized) {
       await this.initializeQuiz();
     }
-
-    /* this.questions.subscribe(questions => {
-      this.questionsArray = questions;
-    }); */
 
     this.subscribeToAnswers();
     this.subscribeToSelectionMessage();
@@ -981,7 +978,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
     this.isLoadingQuestions = true;
-    console.log('this.questions:', this.questions);
     this.questions.pipe(take(1)).subscribe({
       next: (questionsArray: QuizQuestion[]) => {
         if (!questionsArray || questionsArray.length === 0) {
