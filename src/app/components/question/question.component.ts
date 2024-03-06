@@ -310,7 +310,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const questions = await this.quizService.fetchQuizQuestions();
   
       if (questions && questions.length > 0) {
-        this.questions = questions;
+        this.questions = of(questions);
         
         // Update component's state with the fetched questions  
         // Display explanation texts for previously answered questions
