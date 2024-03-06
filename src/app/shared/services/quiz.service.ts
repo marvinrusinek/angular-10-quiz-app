@@ -250,6 +250,10 @@ export class QuizService implements OnDestroy {
     this.quizData = quizData;
   }
 
+  setQuizId(id: string): void {
+    this.quizId = id;
+  }
+
   private loadData(): void {
     this.initializeQuizData();
     this.loadRouteParams();
