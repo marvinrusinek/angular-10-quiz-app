@@ -1348,7 +1348,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     const questionText = this.quizService.getQuestionTextForIndex(questionIndex);
     if (!questionText) {
       console.error('No question text found for index:', questionIndex);
-      // Consider returning early or handling this case appropriately
     }
 
     const options = this.quizService.getNextOptions(questionIndex) || [];
