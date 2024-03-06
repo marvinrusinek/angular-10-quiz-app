@@ -434,7 +434,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             this.explanationTextService.setShouldDisplayExplanation(true);
           }
         } else {
-          console.log("No stored state found for quizId:", this.quizId);
+          // console.log("No stored state found for quizId:", this.quizId);
           // Apply default states to all questions as no stored state is found
           this.quizStateService.applyDefaultStates(this.quizId, questions);
         }
