@@ -1361,12 +1361,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.warn('No explanation text found for question at index:', questionIndex);
     }
 
-    const type = this.quizService.getTypeForQuestion(questionIndex);
+    /* const type = this.quizService.getTypeForQuestion(questionIndex);
     if (!type) {
       console.warn('No type found for question at index:', questionIndex);
-    }
+    } */
 
-    let question: QuizQuestion = { questionText, options, explanation, type };
+    let question: QuizQuestion = { questionText, options, explanation };
 
     this.quizDataService.setQuestionType(question);
 
