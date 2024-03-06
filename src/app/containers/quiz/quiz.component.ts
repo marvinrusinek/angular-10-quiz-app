@@ -1378,7 +1378,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     this.resetUI();
     this.explanationTextService.resetStateBetweenQuestions();
-
     await this.navigateToQuestion(questionIndex);
   }
 
