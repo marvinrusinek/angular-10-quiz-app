@@ -1249,7 +1249,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       } */
 
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
-      await this.setExplanationForQuestion(this.currentQuestionIndex);  // Set explanation text
+      await this.setExplanationForQuestion(this.currentQuestionIndex);
   
       this.resetUI();
       this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
@@ -1259,18 +1259,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
-
-  private async setExplanationForQuestion(questionIndex: number): Promise<void> {
-    const questionState = await this.quizStateService.getQuestionState(this.quizId, questionIndex);
-    if (questionState && questionState.isAnswered) {
-      const explanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-      this.explanationToDisplay = explanationText;
-      this.explanationTextService.setShouldDisplayExplanation(true);
-    } else {
-      this.explanationToDisplay = '';
-      this.explanationTextService.setShouldDisplayExplanation(false);
-    }
-  }  
 
   advanceToResults(): void {
     this.quizService.resetAll();
@@ -1344,6 +1332,18 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
+    }
+  }
+
+  private async setExplanationForQuestion(questionIndex: number): Promise<void> {
+    const questionState = await this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    if (questionState && questionState.isAnswered) {
+      const explanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      this.explanationToDisplay = explanationText;
+      this.explanationTextService.setShouldDisplayExplanation(true);
+    } else {
+      this.explanationToDisplay = '';
+      this.explanationTextService.setShouldDisplayExplanation(false);
     }
   }
 
