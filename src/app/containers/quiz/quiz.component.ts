@@ -1236,18 +1236,18 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex--;
       this.updateNavigationAndExplanationState();
   
-      /* const questionIsAnswered = this.quizStateService.checkIfQuestionIsAnswered(this.currentQuestionIndex);
+      const questionIsAnswered = this.quizStateService.checkIfQuestionIsAnswered(this.currentQuestionIndex);
 
       if (questionIsAnswered) {
         this.explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-        this.explanationTextService.shouldDisplayExplanation$ = true;
-        this.explanationTextService.shouldDisplayOptions = false;
+        this.shouldDisplayExplanation = true;
+        this.shouldDisplayOptions = false;
       } else {
-        this.explanationTextService.explanationText$ = '';
-        this.explanationTextService.shouldDisplayExplanation$ = false;
-        this.explanationTextService.shouldDisplayOptions = true; 
+        this.explanationText = '';
+        this.shouldDisplayExplanation = false;
+        this.shouldDisplayOptions = true; 
         this.resetSelectedOptions();
-      } */
+      }
 
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       await this.setExplanationForQuestion(this.currentQuestionIndex);
