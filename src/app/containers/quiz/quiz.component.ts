@@ -1235,25 +1235,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex--;
       this.updateNavigationAndExplanationState();
   
-      const previousQuestion = await this.fetchQuestionDetails(this.currentQuestionIndex);
-      this.quizStateService.updateCurrentQuestion(previousQuestion);
-  
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
-
-      const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
-      console.log(`Question State for index ${this.currentQuestionIndex}:`, questionState);
-
-      if (questionState.isAnswered) {
-        const explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-        this.explanationToDisplay = explanationToDisplay;
-        this.explanationTextService.setShouldDisplayExplanation(true);
-      } else {
-        this.explanationToDisplay = '';
-        this.explanationTextService.setShouldDisplayExplanation(false);
-      }
-
-      console.log(`Explanation text for previous question:`, this.explanationToDisplay);
-
+      await this.setExplanationForQuestion(this.currentQuestionIndex);  // Set explanation text
+  
       this.resetUI();
       this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
     } catch (error) {
@@ -1262,6 +1246,18 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
+
+  private async setExplanationForQuestion(questionIndex: number): Promise<void> {
+    const questionState = await this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    if (questionState && questionState.isAnswered) {
+      const explanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      this.explanationToDisplay = explanationText;
+      this.explanationTextService.setShouldDisplayExplanation(true);
+    } else {
+      this.explanationToDisplay = '';
+      this.explanationTextService.setShouldDisplayExplanation(false);
+    }
+  }  
 
   advanceToResults(): void {
     this.quizService.resetAll();
