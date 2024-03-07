@@ -6,6 +6,7 @@ import {
   OnChanges,
   OnDestroy,
   OnInit,
+  Output,
   SimpleChanges
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
@@ -59,6 +60,9 @@ enum QuestionType {
 export class CodelabQuizContentComponent
   implements OnInit, OnChanges, OnDestroy
 {
+  @Output() explanationTextChanged = new EventEmitter<string>();
+  @Output() shouldDisplayExplanationChanged = new EventEmitter<boolean>();
+  @Output() shouldDisplayOptionsChanged = new EventEmitter<boolean>();
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
@@ -635,5 +639,17 @@ export class CodelabQuizContentComponent
     this.correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
     this.quizService.updateQuestionText(this.questionText);
     this.quizService.updateCorrectAnswersText(this.correctAnswersText);
+  }
+
+  updateExplanationText(newText: string) {
+    this.explanationTextChanged.emit(newText);
+  }
+
+  updateShouldDisplayExplanation(newValue: boolean) {
+    this.shouldDisplayExplanationChanged.emit(newValue);
+  }
+
+  updateShouldDisplayOptions(newValue: boolean) {
+    this.shouldDisplayOptionsChanged.emit(newValue);
   }
 }
