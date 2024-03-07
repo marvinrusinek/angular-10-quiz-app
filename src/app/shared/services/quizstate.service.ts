@@ -27,6 +27,8 @@ export class QuizStateService {
 
   private quizQuestionCreated = false;
 
+  private answeredQuestions: boolean[] = [];
+
   constructor() {
     this.questionStates = new Map<number, QuestionState>();
   }
@@ -212,6 +214,14 @@ export class QuizStateService {
 
   getQuizQuestionCreated(): boolean {
     return this.quizQuestionCreated;
+  }
+
+  checkIfQuestionIsAnswered(questionIndex: number): boolean {
+    return this.answeredQuestions[questionIndex] === true;
+  }
+
+  markQuestionAsAnswered(questionIndex: number): void {
+    this.answeredQuestions[questionIndex] = true;
   }
 
   /* not being used, potentially remove...
