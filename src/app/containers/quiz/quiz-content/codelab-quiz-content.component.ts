@@ -234,7 +234,6 @@ export class CodelabQuizContentComponent
       if (isQuestionAnswered) {
         this.quizService.displayExplanation = true;
         this.explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndexValue);
-        console.log('Restored Explanation Text:', this.explanationText);
       }
 
       this.numberOfCorrectAnswers = questionState.numberOfCorrectAnswers;
