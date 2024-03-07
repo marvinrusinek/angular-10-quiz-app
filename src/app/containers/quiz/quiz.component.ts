@@ -1238,17 +1238,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       const questionIsAnswered = this.quizStateService.checkIfQuestionIsAnswered(this.currentQuestionIndex);
 
       if (questionIsAnswered) {
-        this.explanationText = this.explanationTextService.getFormattedExplanationForQuestion(this.currentQuestionIndex);
-        this.shouldDisplayExplanation = true;
-        this.shouldDisplayOptions = false;
+        this.explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+        this.explanationTextService.shouldDisplayExplanation$ = true;
+        this.explanationTextService.shouldDisplayOptions = false;
       } else {
-        this.explanationText = '';
-        this.shouldDisplayExplanation = false;
-
-        // Make sure UI elements for answering the question are displayed
-        this.shouldDisplayOptions = true; // Assuming you use this flag to control the display of options
-
-        // Additionally, you might want to reset any selected options or answers to ensure the user is starting fresh
+        this.explanationTextService.explanationText$ = '';
+        this.explanationTextService.shouldDisplayExplanation$ = false;
+        this.explanationTextService.shouldDisplayOptions = true; 
         this.resetSelectedOptions();
       }
 
