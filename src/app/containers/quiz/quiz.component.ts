@@ -1240,13 +1240,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       if (questionIsAnswered) {
         this.explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-        this.shouldDisplayExplanation = true;
+        this.quizService.shouldDisplayExplanation = true;
         this.shouldDisplayOptions = false;
       } else {
         this.explanationText = '';
-        this.shouldDisplayExplanation = false;
+        this.quizService.shouldDisplayExplanation = false;
         this.shouldDisplayOptions = true; 
-        this.resetSelectedOptions(); // don't have
+        // this.resetSelectedOptions(); // don't have
       }
 
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
