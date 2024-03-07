@@ -1251,6 +1251,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const questionState = await this.quizStateService.getQuestionState(this.quizId, questionIndex);
     if (questionState && questionState.isAnswered) {
       const explanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      console.log(`Fetched explanation text for question index ${questionIndex}:`, explanationText); // Debugging line
       this.explanationToDisplay = explanationText;
       this.explanationTextService.setShouldDisplayExplanation(true);
     } else {
