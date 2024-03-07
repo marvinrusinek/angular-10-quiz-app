@@ -1235,7 +1235,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex--;
       this.updateNavigationAndExplanationState();
   
-      const questionIsAnswered = this.quizStateService.checkIfQuestionIsAnswered(this.currentQuestionIndex);
+      /* const questionIsAnswered = this.quizStateService.checkIfQuestionIsAnswered(this.currentQuestionIndex);
 
       if (questionIsAnswered) {
         this.explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
@@ -1246,7 +1246,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.explanationTextService.shouldDisplayExplanation$ = false;
         this.explanationTextService.shouldDisplayOptions = true; 
         this.resetSelectedOptions();
-      }
+      } */
 
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       await this.setExplanationForQuestion(this.currentQuestionIndex);  // Set explanation text
