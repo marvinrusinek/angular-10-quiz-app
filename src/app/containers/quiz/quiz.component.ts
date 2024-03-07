@@ -1246,7 +1246,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.explanationText = '';
         this.shouldDisplayExplanation = false;
         this.shouldDisplayOptions = true; 
-        this.resetSelectedOptions();
+        this.resetSelectedOptions(); // don't have
       }
 
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
