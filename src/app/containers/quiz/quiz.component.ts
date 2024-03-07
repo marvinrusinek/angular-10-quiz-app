@@ -95,6 +95,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   nextExplanationText = '';
   correctAnswersText: string;
   selectOptionText = 'Please select an option to continue...';
+  shouldDisplayOptions = true;
   cardFooterClass = '';
 
   showExplanation = false;
@@ -1519,5 +1520,20 @@ export class QuizComponent implements OnInit, OnDestroy {
         reject('No explanation available');
       }
     });
+  }
+
+  handleExplanationTextChanged(newText: string) {
+    this.explanationText = newText;
+    // Additional logic if needed
+  }
+
+  handleShouldDisplayExplanationChanged(newValue: boolean) {
+    this.shouldDisplayExplanation = newValue;
+    // Additional logic if needed
+  }
+
+  handleShouldDisplayOptionsChanged(newValue: boolean) {
+    this.shouldDisplayOptions = newValue;
+    // Additional logic if needed
   }
 }

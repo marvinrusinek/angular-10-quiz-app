@@ -20,6 +20,9 @@
           [options]="optionsToDisplay"
           [explanationText]="explanationText$ | async"  
           [correctAnswersText]="correctAnswersText"
+          (explanationTextChanged)="handleExplanationTextChanged($event)"
+          (shouldDisplayExplanationChanged)="handleShouldDisplayExplanationChanged($event)"
+          (shouldDisplayOptionsChanged)="handleShouldDisplayOptionsChanged($event)"
         >
         </codelab-quiz-content-component> 
         <ng-content select="[question-content]"></ng-content>
