@@ -1265,10 +1265,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.shouldDisplayExplanation = false;
     }
 
-    // Ensure the UI is updated to reflect the state of the first question
     this.resetUI();
-    // Optionally, navigate to the first question's route if needed
-    this.router.navigate(['/question/', this.quizId, 1]);
+    // this.router.navigate(['/question/', this.quizId, 1]);
 }
 
   advanceToResults(): void {
