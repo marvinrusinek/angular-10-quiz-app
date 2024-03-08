@@ -1325,21 +1325,22 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async updateExplanationForQuestion(questionIndex: number): Promise<void> {
-    // Attempt to get the state of the question to determine if it's been answered
-    const questionState = await this.quizStateService.getQuestionState(this.quizId, questionIndex);
-
-    // Check if the question has been answered
-    const questionIsAnswered = questionState && questionState.isAnswered;
-
-    // Update the UI based on whether the question has been answered
-    if (questionIsAnswered) {
-      // Fetch and set the explanation text for the answered question
-      this.explanationToDisplay = await this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-      this.quizService.shouldDisplayExplanation = true;
-    } else {
-      // Reset the explanation display for unanswered questions
-      this.explanationToDisplay = '';
-      this.quizService.shouldDisplayExplanation = false;
+    try {
+      const questionState = await this.quizStateService.getQuestionState(this.quizId, questionIndex);
+      const questionIsAnswered = questionState && questionState.isAnswered;
+      console.log("QIA", questionIsAnswered);
+  
+      if (questionIsAnswered) {
+        // Fetch and set the explanation text for the answered question
+        this.explanationToDisplay = await this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+        this.quizService.shouldDisplayExplanation = true;
+      } else {
+        // Reset the explanation display for unanswered questions
+        this.explanationToDisplay = '';
+        this.quizService.shouldDisplayExplanation = false;
+      }  
+    } catch (error) {
+      console.error('Error in updateExplanationForQuestion:', error);
     }
   }
 
