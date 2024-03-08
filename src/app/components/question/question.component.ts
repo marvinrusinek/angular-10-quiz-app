@@ -40,11 +40,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() toggleVisibility: EventEmitter<void> = new EventEmitter<void>();
   @Output() optionClicked: EventEmitter<void> = new EventEmitter<void>();
   @Output() optionSelected: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() questionAnswered = new EventEmitter<void>()
   @Output() isAnswerSelectedChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
   @Output() isAnsweredChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
-  @Output() isAnswered = false;
+  @Output() isAnswered = false;;
   @Input() data: {
     questionText: string;
     explanationText?: string;
@@ -810,17 +811,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const currentQuestion = await this.getCurrentQuestion();
       if (currentQuestion) {
         this.handleOptionSelection(option, index, currentQuestion);
-        this.markQuestionAsAnswered(this.quizId, this.currentQuestionIndex, true);
+        await this.markQuestionAsAnswered(this.quizId, this.currentQuestionIndex, true);
         this.explanationTextService.setShouldDisplayExplanation(true);
-        const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+        const explanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
         this.explanationTextService.setCurrentQuestionExplanation(explanationText);
+        this.questionAnswered.emit();
       } else {
         console.error("Could not retrieve the current question.");
       }
     } catch (error) {
       console.error("An error occurred while fetching the current question:", error);
     }
-  }  
+  } 
     
   async getCurrentQuestion(): Promise<QuizQuestion | null> {
     const currentQuestion = await firstValueFrom(this.quizStateService.currentQuestion$.pipe(take(1)));
