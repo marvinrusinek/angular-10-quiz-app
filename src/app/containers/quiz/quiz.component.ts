@@ -1532,4 +1532,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.shouldDisplayOptions = newValue;
     // Additional logic if needed
   }
+
+
+  handleQuestionAnswered(questionIndex: number): void {
+    console.log(`Question answered event received for question index: ${questionIndex}`);
+    this.updateExplanationForQuestion(questionIndex);
+  }  
 }
