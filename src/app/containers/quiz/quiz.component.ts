@@ -1235,18 +1235,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       this.currentQuestionIndex--;
       this.updateNavigationAndExplanationState();
-  
-      const questionIsAnswered = this.quizStateService.checkIfQuestionIsAnswered(this.currentQuestionIndex);
-      if (questionIsAnswered) {
-        this.explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-        this.quizService.shouldDisplayExplanation = true;
-      } else {
-        this.explanationText = '';
-        this.quizService.shouldDisplayExplanation = false;
-      }
 
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
-      await this.setExplanationForQuestion(this.currentQuestionIndex);
+      await this.updateExplanationForQuestion(this.currentQuestionIndex);
   
       this.resetUI();
       this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
@@ -1332,15 +1323,22 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async setExplanationForQuestion(questionIndex: number): Promise<void> {
+  async updateExplanationForQuestion(questionIndex: number): Promise<void> {
+    // Attempt to get the state of the question to determine if it's been answered
     const questionState = await this.quizStateService.getQuestionState(this.quizId, questionIndex);
-    if (questionState && questionState.isAnswered) {
-      const explanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-      this.explanationToDisplay = explanationText;
-      this.explanationTextService.setShouldDisplayExplanation(true);
+
+    // Check if the question has been answered
+    const questionIsAnswered = questionState && questionState.isAnswered;
+
+    // Update the UI based on whether the question has been answered
+    if (questionIsAnswered) {
+      // Fetch and set the explanation text for the answered question
+      this.explanationToDisplay = await this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      this.quizService.shouldDisplayExplanation = true;
     } else {
+      // Reset the explanation display for unanswered questions
       this.explanationToDisplay = '';
-      this.explanationTextService.setShouldDisplayExplanation(false);
+      this.quizService.shouldDisplayExplanation = false;
     }
   }
 
