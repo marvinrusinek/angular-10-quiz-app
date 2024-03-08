@@ -805,6 +805,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   
     // console.log("Explanation text for question", this.currentQuestionIndex + 1, ":", this.explanationToDisplay);
+
+    this.cdRef.detectChanges();
   }
   
   handleExplanationForQuestion(questionIndex: number): void {
@@ -1230,6 +1232,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       if (this.currentQuestionIndex === 0) {
         console.log('Already at the first question. No action taken.');
+        await this.handleFirstQuestionState();
         this.isNavigating = false;
         return;
       }
@@ -1248,6 +1251,25 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
+
+  async handleFirstQuestionState(): Promise<void> {
+    // Check if the first question has been answered and needs to display its explanation
+    const firstQuestionState = await this.quizStateService.getQuestionState(this.quizId, 0);
+    if (firstQuestionState && firstQuestionState.isAnswered) {
+        // Fetch and display the explanation for the first question
+        this.explanationToDisplay = await this.explanationTextService.getFormattedExplanationTextForQuestion(0);
+        this.quizService.shouldDisplayExplanation = true;
+    } else {
+        // Reset any explanation text if the first question hasn't been answered
+        this.explanationToDisplay = '';
+        this.quizService.shouldDisplayExplanation = false;
+    }
+
+    // Ensure the UI is updated to reflect the state of the first question
+    this.resetUI();
+    // Optionally, navigate to the first question's route if needed
+    this.router.navigate(['/question/', this.quizId, 1]);
+}
 
   advanceToResults(): void {
     this.quizService.resetAll();
