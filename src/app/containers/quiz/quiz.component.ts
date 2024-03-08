@@ -1236,8 +1236,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex--;
       this.updateNavigationAndExplanationState();
 
-      await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       await this.updateExplanationForQuestion(this.currentQuestionIndex);
+      await this.fetchAndSetQuestionData(this.currentQuestionIndex);
   
       this.resetUI();
       this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
