@@ -591,10 +591,6 @@ export class CodelabQuizContentComponent
           this.shouldDisplayCorrectAnswers = false;
         }
       }
-      
-      console.log('shouldDisplayExplanation:', shouldDisplayExplanation);
-      console.log('formattedExplanation:', formattedExplanation);
-      console.log('textToDisplay:', textToDisplay);
 
       return of(textToDisplay).pipe(
         tap(() => {
