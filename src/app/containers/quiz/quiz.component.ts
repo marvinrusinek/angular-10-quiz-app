@@ -377,7 +377,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         questionText: rawData.questionText,
         options: [],
         explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex),
-        type: QuestionType.SingleAnswer
+        type: this.quizDataService.questionType as QuestionType
       };
       return transformedData;
     } catch (error) {
