@@ -841,17 +841,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.checkAndHandleCorrectAnswer();
     this.logDebugInformation();
 
-    const totalCorrectAnswers = currentQuestion.options.filter(opt => opt.correct).length;
-
     // Update the state to reflect the selected option
     const optionId = option.optionId ?? index;
     this.quizStateService.updateQuestionState(
       this.quizId,
       this.currentQuestionIndex,
       {
-        selectedOptionId: optionId,
-        isCorrect: option.correct ?? false,
-        totalCorrectAnswers: totalCorrectAnswers
+        selectedOptions: [optionId.toString()],
+        isCorrect: option.correct ?? false
       }
     );
 
