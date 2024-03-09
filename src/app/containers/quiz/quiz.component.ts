@@ -1286,7 +1286,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         console.log('Already at the first question. No action taken.');
         this.initializeFirstQuestionText();
         await this.updateExplanationForQuestion(0);
-        // await this.handleFirstQuestionState();
+        await this.handleFirstQuestionState();
         this.isNavigating = false;
         return;
       }
@@ -1444,6 +1444,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         this.explanationToDisplay = '';
         this.quizService.shouldDisplayExplanation = false;
       }  
+
+      this.cdRef.detectChanges();
     } catch (error) {
       console.error('Error in updateExplanationForQuestion:', error);
     }
