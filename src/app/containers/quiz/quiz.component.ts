@@ -1285,6 +1285,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       console.log("PQ", previousQuestion);
       this.setCurrentQuestion(previousQuestion);
 
+      this.updateQuestionState(this.currentQuestionIndexValue);
+
       this.updateNavigationAndExplanationState();
 
       await this.updateExplanationForQuestion(this.currentQuestionIndex);
@@ -1309,6 +1311,18 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     } finally {
       this.isNavigating = false;
     }
+  }
+
+  updateQuestionState(index: number) {
+    const questionState = this.quizStateService.getQuestionState(this.quizId, index);
+    if (questionState && questionState.isAnswered) {
+      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+    } else {
+      this.explanationToDisplay = '';
+      this.explanationTextService.setShouldDisplayExplanation(false);
+    }
+    this.cdRef.detectChanges();  // Force the view to update
   }
 
   async handleFirstQuestionState(): Promise<void> {
