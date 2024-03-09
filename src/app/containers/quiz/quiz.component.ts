@@ -134,6 +134,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
+  private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
     private quizService: QuizService,
@@ -189,6 +190,16 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
 
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      map(() => this.activatedRoute.firstChild),
+      switchMap(route => route.params),
+      takeUntil(this.destroy$)
+    ).subscribe(params => {
+      const questionIndex = +params['questionIndex'];
+      this.updateExplanationForQuestion(questionIndex);
+    });
+
     // Fetch additional quiz data
     this.fetchQuizData();
 
@@ -217,6 +228,17 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.updateExplanationForQuestion(this.currentQuestionIndex);
     }
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    this.selectedQuiz$.next(null);
+    this.routerSubscription.unsubscribe();
+    this.currentQuestionSubscriptions.unsubscribe();
+    this.timerService.stopTimer(null);
+  }
   
   async loadQuestionDetails(questionIndex: number) {
     // Load the question data
@@ -230,15 +252,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.explanationToDisplay = '';
     }
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
-    this.selectedQuiz$.next(null);
-    this.routerSubscription.unsubscribe();
-    this.currentQuestionSubscriptions.unsubscribe();
-    this.timerService.stopTimer(null);
   }
 
   // Public getter methods for determining UI state based on current quiz and question data.
