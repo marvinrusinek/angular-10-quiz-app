@@ -1285,7 +1285,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       if (this.currentQuestionIndex === 0) {
         console.log('Already at the first question. No action taken.');
         this.initializeFirstQuestionText();
-        await this.handleFirstQuestionState();
+        await this.updateExplanationForQuestion(0);
+        // await this.handleFirstQuestionState();
         this.isNavigating = false;
         return;
       }
