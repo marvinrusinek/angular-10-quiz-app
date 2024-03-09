@@ -99,9 +99,8 @@ export class QuizStateService {
   updateQuestionState(quizId: string, questionIndex: number, stateUpdates: Partial<QuestionState>): void {
     // Retrieve the current state for the question or initialize if not present
     const currentState = this.getQuestionState(quizId, questionIndex) || {
-        isAnswered: false,
-        selectedOptions: [],
-        // Add other default state properties as needed
+      isAnswered: false,
+      selectedOptions: []
     };
 
     // Merge the current state with the updates
