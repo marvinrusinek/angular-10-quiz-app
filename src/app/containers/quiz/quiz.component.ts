@@ -600,15 +600,14 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     return new Promise((resolve, reject) => {
       this.quizDataService.quizzes$
         .pipe(
-          filter(quizzes => quizzes.length > 0), // Only proceed with non-empty arrays
-          first() // Complete after the first non-empty array is emitted
-        )
-        .subscribe((quizzes) => {
-          console.log("Quizzes data:", quizzes); // Should now log non-empty array
+          filter((quizzes: Quiz[]) => quizzes.length > 0),
+          first()
+        .subscribe((quizzes: Quiz[]) => {
+          console.log("Quizzes data:", quizzes);
           const currentQuiz = quizzes.find(quiz => quiz.quizId === quizId);
           if (currentQuiz) {
             this.quizDataService.setCurrentQuiz(currentQuiz);
-            this.currentQuiz = currentQuiz; // Update component's currentQuiz if needed
+            this.currentQuiz = currentQuiz;
             resolve();
           } else {
             reject(`Quiz with ID ${quizId} not found`);
