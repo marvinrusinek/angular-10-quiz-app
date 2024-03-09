@@ -849,9 +849,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizId,
       this.currentQuestionIndex,
       {
-        optionId,
-        option.correct ?? false,
-        totalCorrectAnswers
+        selectedOptionId: optionId,
+        isCorrect: option.correct ?? false,
+        totalCorrectAnswers: totalCorrectAnswers
       }
     );
 
