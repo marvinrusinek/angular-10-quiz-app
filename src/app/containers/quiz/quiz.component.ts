@@ -1217,6 +1217,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });   
   }
 
+  setCurrentQuestion(question: QuizQuestion): void {
+    this.currentQuestion = question;
+    this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+  }
+
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     if (this.isNavigating) {
@@ -1237,6 +1242,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
+        this.setCurrentQuestion(this.currentQuestionIndex);
         this.updateNavigationAndExplanationState();
         await this.updateExplanationForQuestion(this.currentQuestionIndex);
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
@@ -1262,12 +1268,14 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     try {
       if (this.currentQuestionIndex === 0) {
         console.log('Already at the first question. No action taken.');
+        this.setCurrentQuestion(this.currentQuestionIndex);
         await this.handleFirstQuestionState();
         this.isNavigating = false;
         return;
       }
   
       this.currentQuestionIndex--;
+      this.setCurrentQuestion(this.currentQuestionIndex);
       this.updateNavigationAndExplanationState();
 
       await this.updateExplanationForQuestion(this.currentQuestionIndex);
