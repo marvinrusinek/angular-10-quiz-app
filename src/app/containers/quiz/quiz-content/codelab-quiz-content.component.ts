@@ -149,6 +149,7 @@ export class CodelabQuizContentComponent
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(() => this.activatedRoute.firstChild),
+      filter(route => route !== null && route !== undefined),
       switchMap(route => route.params),
       map(params => +params['questionIndex'])
     ).subscribe(questionIndex => {
