@@ -81,7 +81,7 @@ export class QuizStateService {
   
 
   // Method to get the state of a question by its ID
-  getQuestionState(quizId: string, questionId: number): QuestionState {
+  getQuestionState(quizId: string, questionId: number): QuestionState | undefined {
     // Initialize the state map for this quiz if it doesn't exist
     if (!this.quizStates[quizId]) {
       this.quizStates[quizId] = new Map<number, QuestionState>();
