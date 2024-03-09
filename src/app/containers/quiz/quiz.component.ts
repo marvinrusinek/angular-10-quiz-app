@@ -1285,18 +1285,19 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       if (this.currentQuestionIndex === 0) {
         console.log('Already at the first question. No action taken.');
         this.initializeFirstQuestionText();
+        this.initializeQuestionForDisplay(this.quizId, 0);
         await this.updateExplanationForQuestion(0);
         await this.handleFirstQuestionState();
         this.isNavigating = false;
         return;
       }
   
-      this.currentQuestionIndex--;
+      this.currentQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
 
       const previousQuestion = this.questions[this.currentQuestionIndex];
       console.log("PQ", previousQuestion);
       this.setCurrentQuestion(previousQuestion);
-
+      this.initializeQuestionForDisplay(this.quizId, this.currentQuestionIndex);
       this.updateQuestionState(this.currentQuestionIndex);
 
       this.updateNavigationAndExplanationState();
@@ -1324,6 +1325,20 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.isNavigating = false;
     }
   }
+
+  initializeQuestionForDisplay(quizId: string, questionIndex: number) {
+    const questionState = this.quizStateService.questionStates[quizId]?.[questionIndex];
+    if (questionState?.isAnswered) {
+      // Display explanation text
+      this.explanationToDisplay = questionState.explanationText;
+      this.showExplanation = true;
+    } else {
+      // Hide or clear explanation text
+      this.explanationToDisplay = '';
+      this.showExplanation = false;
+    }
+  }
+  
 
   updateQuestionState(index: number) {
     const questionState = this.quizStateService.getQuestionState(this.quizId, index);
