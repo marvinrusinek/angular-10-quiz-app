@@ -603,7 +603,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
           filter((quizzes: Quiz[]) => quizzes.length > 0),
           first()
           .subscribe((quizzes: Quiz[]) => {
-            console.log("Quizzes data:", quizzes);
             const currentQuiz = quizzes.find(quiz => quiz.quizId === quizId);
             if (currentQuiz) {
               this.quizDataService.setCurrentQuiz(currentQuiz);
