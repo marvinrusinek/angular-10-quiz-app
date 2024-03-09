@@ -87,14 +87,21 @@ export class QuizStateService {
       this.quizStates[quizId] = new Map<number, QuestionState>();
     }
   
+    // Attempt to retrieve the state from the map
     let state = this.quizStates[quizId].get(questionId);
-    if (!state) {
-      // If there's no state for the given questionId, create a default state
+  
+    if (state === undefined) {
+      console.log(`No existing state for quizId: ${quizId}, questionId: ${questionId}. Creating default state.`);
+      
+      // If there's no state for the given questionId, create and store a default state
       state = this.createDefaultQuestionState();
-      this.quizStates[quizId].set(questionId, state); // Store the default state in the quiz's state map
+      this.quizStates[quizId].set(questionId, state);
+    } else {
+      console.log(`Retrieved existing state for quizId: ${quizId}, questionId: ${questionId}.`);
     }
+  
     return state;
-  }
+  }  
 
   updateQuestionState(quizId: string, questionIndex: number, stateUpdates: Partial<QuestionState>): void {
     // Retrieve the current state for the question or initialize if not present
