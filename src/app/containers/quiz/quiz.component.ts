@@ -1263,7 +1263,19 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
   
       this.resetUI();
-      this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
+      this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1])
+        .then(() => {
+          this.updateExplanationForQuestion(this.currentQuestionIndex)
+            .then(() => {
+              console.log('Explanation updated after navigation');
+            })
+          .catch(error => {
+            console.error('Error updating explanation after navigation:', error);
+          });
+        })
+      .catch(error => {
+        console.error('Navigation error:', error);
+      });
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
