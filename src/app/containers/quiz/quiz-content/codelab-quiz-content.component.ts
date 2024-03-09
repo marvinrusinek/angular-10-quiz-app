@@ -567,7 +567,7 @@ export class CodelabQuizContentComponent
     );
   }
 
-  /* private determineTextToDisplay(
+  private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]
   ): Observable<string> {
     if ((!nextQuestion || !nextQuestion.questionText) &&
@@ -601,38 +601,7 @@ export class CodelabQuizContentComponent
         })
       );
     }
-  } */
-
-  private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]
-  ): Observable<string> {
-    let textToDisplay = '';
-  
-    // Explicitly check if there's a need to display the formatted explanation
-    if (shouldDisplayExplanation && formattedExplanation) {
-      textToDisplay = formattedExplanation;
-      this.shouldDisplayCorrectAnswers = false;
-    } else if (nextQuestion && nextQuestion.questionText) {
-      // Use nextQuestion's text if it exists
-      textToDisplay = nextQuestion.questionText;
-      this.shouldDisplayCorrectAnswers = this.isCurrentQuestionMultipleAnswer();
-    } else if (previousQuestion && previousQuestion.questionText) {
-      // Fallback to previousQuestion's text if nextQuestion is not available
-      textToDisplay = previousQuestion.questionText;
-      this.shouldDisplayCorrectAnswers = this.isCurrentQuestionMultipleAnswer();
-    }
-  
-    return of(textToDisplay).pipe(
-      tap(() => {
-        // Ensure correct answers display state is reset if necessary
-        if (!shouldDisplayExplanation) {
-          this.shouldDisplayCorrectAnswers = false;
-        }
-      })
-    );
   }
-  
-
 
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
