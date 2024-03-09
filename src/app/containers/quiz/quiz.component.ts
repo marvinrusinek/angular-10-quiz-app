@@ -164,6 +164,17 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.quizReset$.subscribe(() => {
       this.updateComponentState();
     });
+
+    this.activatedRoute.params.subscribe(params => {
+      const questionIndex = +params['questionIndex'];
+      this.updateExplanationForQuestion(questionIndex);
+    });
+
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.updateExplanationForQuestion(this.currentQuestionIndex);
+    });
   }
 
   @HostListener('window:focus', ['$event'])
@@ -193,6 +204,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(() => this.activatedRoute.firstChild),
+      filter(route => route !== null && route !== undefined),
       switchMap(route => route.params),
       takeUntil(this.destroy$)
     ).subscribe(params => {
