@@ -815,6 +815,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.explanationTextService.setShouldDisplayExplanation(true);
         const explanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
         this.explanationTextService.setCurrentQuestionExplanation(explanationText);
+        this.quizStateService.updateQuestionState(this.quizId, this.currentQuestionIndex, { isAnswered: true });
         this.questionAnswered.emit();
       } else {
         console.error("Could not retrieve the current question.");

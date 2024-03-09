@@ -95,14 +95,29 @@ export class QuizStateService {
     }
     return state;
   }
-  
-  updateQuestionState(
-    quizId: string,
-    questionId: number,
-    selectedOptionId: number,
-    isCorrect?: boolean,
-    totalCorrectAnswers?: number) {
-  
+
+  updateQuestionState(quizId: string, questionIndex: number, stateUpdates: Partial<QuestionState>): void {
+    // Retrieve the current state for the question or initialize if not present
+    const currentState = this.getQuestionState(quizId, questionIndex) || {
+        isAnswered: false,
+        selectedOptions: [],
+        // Add other default state properties as needed
+    };
+
+    // Merge the current state with the updates
+    const newState = { ...currentState, ...stateUpdates };
+
+    // Save the updated state for the specified quiz and question
+    this.setQuestionState(quizId, questionIndex, newState);
+  }
+
+  /* updateQuestionState(quizId: string, questionIndex: number, stateUpdates: Partial<QuestionState>): void {
+    const currentState = this.getQuestionState(quizId, questionIndex) || {};
+    const newState = { ...currentState, ...stateUpdates };
+    
+    // Update the state in your storage (array, object, service, etc.)
+    this.questionStates[quizId][questionIndex] = newState;
+
     if (typeof selectedOptionId === 'undefined') {
       console.error('SelectedOptionId is undefined', { questionId, isCorrect });
       return;
@@ -135,7 +150,7 @@ export class QuizStateService {
 
     // Save the updated state for the specified quiz and question
     this.setQuestionState(quizId, questionId, currentState);
-  }
+  } */
 
   createDefaultQuestionState(): QuestionState {
     return {

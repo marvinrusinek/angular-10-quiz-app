@@ -4,5 +4,5 @@ export interface QuestionState {
   selectedOptions: string[];
   explanationDisplayed?: boolean;
   explanationText?: string;
-  numberOfCorrectAnswers: number;
+  numberOfCorrectAnswers?: number;
 }
