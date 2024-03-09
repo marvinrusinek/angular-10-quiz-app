@@ -1642,17 +1642,14 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   handleExplanationTextChanged(newText: string) {
     this.explanationText = newText;
-    // Additional logic if needed
   }
 
   handleShouldDisplayExplanationChanged(newValue: boolean) {
-    this.shouldDisplayExplanation = newValue;
-    // Additional logic if needed
+    this.quizService.shouldDisplayExplanation = newValue;
   }
 
   handleShouldDisplayOptionsChanged(newValue: boolean) {
     this.shouldDisplayOptions = newValue;
-    // Additional logic if needed
   }
 
 
