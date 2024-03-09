@@ -239,9 +239,18 @@ export class QuizStateService {
     return this.answeredQuestions[questionIndex] === true;
   }
 
-  markQuestionAsAnswered(questionIndex: number): void {
+  markQuestionAsAnswered(questionIndex: number, explanationText: string): void {
+    // Mark the question as answered
     this.answeredQuestions[questionIndex] = true;
-  }
+  
+    // Update the question state with the explanation text
+    this.questionStates.set(questionIndex, {
+      isAnswered: true,
+      selectedOptions: [],
+      explanationText: explanationText,
+      explanationDisplayed: true
+    });
+  }  
 
   /* not being used, potentially remove...
   updateCorrectAnswersText(newText: string): void {
