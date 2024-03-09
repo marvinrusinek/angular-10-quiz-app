@@ -848,9 +848,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizStateService.updateQuestionState(
       this.quizId,
       this.currentQuestionIndex,
-      optionId,
-      option.correct ?? false,
-      totalCorrectAnswers
+      {
+        optionId,
+        option.correct ?? false,
+        totalCorrectAnswers
+      }
     );
 
     // Decide whether to show the explanation based on the current question index
