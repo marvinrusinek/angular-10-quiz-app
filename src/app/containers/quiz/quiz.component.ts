@@ -1297,7 +1297,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       const previousQuestion = this.questions[this.currentQuestionIndex];
       console.log("PQ", previousQuestion);
       this.setCurrentQuestion(previousQuestion);
-      this.initializeQuestionForDisplay(this.quizId, this.currentQuestionIndex);
+      this.initializeQuestionForDisplay(this.currentQuestionIndex);
       this.updateQuestionState(this.currentQuestionIndex);
 
       this.updateNavigationAndExplanationState();
@@ -1326,14 +1326,14 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  initializeQuestionForDisplay(quizId: string, questionIndex: number) {
-    const questionState = this.quizStateService.questionStates[quizId]?.[questionIndex];
+  initializeQuestionForDisplay(questionIndex: number): void {
+    const questionState = this.quizStateService.questionStates.get(questionIndex);
+    console.log(`Initializing display for question ${questionIndex}:`, questionState);
+  
     if (questionState?.isAnswered) {
-      // Display explanation text
       this.explanationToDisplay = questionState.explanationText;
       this.showExplanation = true;
     } else {
-      // Hide or clear explanation text
       this.explanationToDisplay = '';
       this.showExplanation = false;
     }
