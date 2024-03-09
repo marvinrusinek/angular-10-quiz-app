@@ -149,20 +149,20 @@ export class CodelabQuizContentComponent
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(() => this.activatedRoute.firstChild),
-      filter(route => route !== null && route !== undefined),
-      switchMap(route => route.params),
-      map(params => +params['questionIndex'])
-    ).subscribe(questionIndex => {
-      const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndexValue);
+      switchMap(route => route ? route.params : of({})),
+      map(params => params['questionIndex'] ? +params['questionIndex'] : 0)  // Default to 0 (first question) if no index
+    ).subscribe((questionIndex: number) => {
+      this.currentQuestionIndexValue = questionIndex;
+      const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
       if (questionState && questionState.isAnswered) {
-        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndexValue);
+        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
         this.explanationTextService.setShouldDisplayExplanation(true);
       } else {
         this.explanationToDisplay = '';
         this.explanationTextService.setShouldDisplayExplanation(false);
       }
       this.cdRef.detectChanges();  // Force the view to update
-    });
+    });    
 
     this.explanationTextService.observeExplanationTextVisibility().subscribe(isDisplayed => {
       this.showExplanationText = isDisplayed;
