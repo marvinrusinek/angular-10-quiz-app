@@ -146,22 +146,22 @@ export class CodelabQuizContentComponent
     );
 
     // Listen to router navigation events
-    /* this.router.events.pipe(
+    this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(() => this.activatedRoute.firstChild),
       switchMap(route => route.params),
       map(params => +params['questionIndex'])
     ).subscribe(questionIndex => {
-      const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+      const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndexValue);
       if (questionState && questionState.isAnswered) {
-        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndexValue);
         this.explanationTextService.setShouldDisplayExplanation(true);
       } else {
         this.explanationToDisplay = '';
         this.explanationTextService.setShouldDisplayExplanation(false);
       }
       this.cdRef.detectChanges();  // Force the view to update
-    }); */
+    });
 
     this.explanationTextService.observeExplanationTextVisibility().subscribe(isDisplayed => {
       this.showExplanationText = isDisplayed;
