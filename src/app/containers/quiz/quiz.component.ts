@@ -802,6 +802,16 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
           // Set the question and options to display
           this.questionToDisplay = this.currentQuestion.questionText;
           this.optionsToDisplay = this.currentQuestion.options;
+
+          // Logic to initialize the explanation text for the first question
+          const firstQuestionState = this.quizStateService.getQuestionState(this.quizId, 0);
+          if (firstQuestionState && firstQuestionState.isAnswered) {
+            this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(0);
+            this.quizService.shouldDisplayExplanation = true;
+          } else {
+            this.explanationToDisplay = '';
+            this.quizService.shouldDisplayExplanation = false;
+          }
   
           // Initialize or update the question state, especially for handling explanations
           this.initializeOrUpdateQuestionState(0);
@@ -1274,6 +1284,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     try {
       if (this.currentQuestionIndex === 0) {
         console.log('Already at the first question. No action taken.');
+        this.initializeFirstQuestionText();
         await this.handleFirstQuestionState();
         this.isNavigating = false;
         return;
@@ -1285,7 +1296,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       console.log("PQ", previousQuestion);
       this.setCurrentQuestion(previousQuestion);
 
-      this.updateQuestionState(this.currentQuestionIndexValue);
+      this.updateQuestionState(this.currentQuestionIndex);
 
       this.updateNavigationAndExplanationState();
 
