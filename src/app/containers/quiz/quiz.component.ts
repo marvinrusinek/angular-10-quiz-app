@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, 
-  HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
+  HostListener, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription } from 'rxjs';
@@ -39,7 +39,7 @@ type AnimationState = 'animationStarted' | 'none';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [FormBuilder, QuizService, QuizDataService, QuizStateService, HighlightDirective]
 })
-export class QuizComponent implements OnInit, OnDestroy {
+export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() data: {
     questionText: string;
@@ -212,6 +212,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     }); */
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.currentQuestionIndex) {
+      this.updateExplanationForQuestion(this.currentQuestionIndex);
+    }
+  }
+  
   async loadQuestionDetails(questionIndex: number) {
     // Load the question data
     const question = await this.fetchQuestionDetails(questionIndex);
