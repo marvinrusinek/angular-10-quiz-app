@@ -3,8 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, combineLatest, firstValueFrom, from, 
   Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, distinctUntilChanged, finalize, map, shareReplay, switchMap,
-  takeUntil, tap, throwError } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, finalize, map, shareReplay, switchMap, takeUntil, tap, throwError } from 'rxjs/operators';
 import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
 
