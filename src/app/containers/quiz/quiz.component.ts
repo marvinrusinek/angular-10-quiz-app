@@ -940,6 +940,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       next: (questions) => {
         console.log(`Questions loaded:`, questions);
         this.questions = questions;
+        console.log(`Questions array after loading:`, this.questions);
         this.initializeQuestionForDisplay(0);
       },
       error: (error) => {
