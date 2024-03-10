@@ -1289,10 +1289,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     try {
       if (this.currentQuestionIndex === 0) {
         console.log('Already at the first question. No action taken.');
-        this.initializeFirstQuestionText();
+        //this.handleFirstQuestionBackNavigation();
+        //this.initializeFirstQuestionText();
         this.initializeQuestionForDisplay(0);
-        await this.updateExplanationForQuestion(0);
-        await this.handleFirstQuestionState();
+        //await this.updateExplanationForQuestion(0);
+        //await this.handleFirstQuestionState();
         this.isNavigating = false;
         return;
       }
@@ -1332,17 +1333,23 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  handleFirstQuestionBackNavigation(): void {
+    // Make sure to fetch or set the state for the first question
+    this.initializeQuestionForDisplay(0);
+  }
+
   initializeQuestionForDisplay(questionIndex: number): void {
     const questionState = this.quizStateService.questionStates.get(questionIndex);
     console.log(`Initializing display for question ${questionIndex}:`, questionState);
   
     if (questionState?.isAnswered) {
-      this.explanationToDisplay = questionState.explanationText;
-      this.showExplanation = true;
+      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      this.quizService.shouldDisplayExplanation = true;
     } else {
       this.explanationToDisplay = '';
-      this.showExplanation = false;
+      this.quizService.shouldDisplayExplanation = false;
     }
+    this.cdRef.detectChanges();
   }
   
 
