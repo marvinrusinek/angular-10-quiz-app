@@ -115,12 +115,11 @@ export class QuizStateService {
         if (!currentState.selectedOptions.some((selectedOption) => selectedOption.optionId === option.optionId)) {
           currentState.selectedOptions.push(option);
       
-          // Check 'option.correct' directly since it's optional; it will be 'undefined' or 'boolean'
           if (option.correct === true && currentState.numberOfCorrectAnswers < totalCorrectAnswers) {
             currentState.numberOfCorrectAnswers++;
           }
         }
-      });      
+      });    
     
       // Mark as answered if the number of correct answers is reached
       currentState.isAnswered = currentState.numberOfCorrectAnswers >= totalCorrectAnswers;
