@@ -937,7 +937,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   // Function to load all questions for the current quiz
   private loadQuizQuestions(): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
+      console.log(`Questions loaded:`, questions);
       this.questions = questions;
+      this.initializeQuestionForDisplay(0);
     });
   }
 
@@ -1342,7 +1344,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   initializeQuestionForDisplay(questionIndex: number): void {
-    if (!Array.isArray(this.questions) || this.questions.length <= questionIndex) {
+    if (!Array.isArray(this.questions) || questionIndex >= this.questions.length) {
       console.error(`Questions not loaded or invalid index: ${questionIndex}`);
       return;
     }
