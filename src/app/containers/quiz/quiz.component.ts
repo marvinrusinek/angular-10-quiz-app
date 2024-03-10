@@ -1352,7 +1352,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.explanationToDisplay = '';
       this.quizService.shouldDisplayExplanation = false;
     }
-    this.cdRef.detectChanges();
   }
   
 
