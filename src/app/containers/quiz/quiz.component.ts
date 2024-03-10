@@ -1349,7 +1349,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     console.log(`Initializing display for question ${questionIndex + 1}:`, question);
 
     // Log the explanation text specifically
-    console.log(`Explanation for question ${questionIndex + 1}:`, question.explanationText);
+    console.log(`Explanation for question ${questionIndex + 1}:`, question.explanation);
   
     if (questionState?.isAnswered) {
       this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
