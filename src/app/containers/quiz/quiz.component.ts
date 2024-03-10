@@ -193,7 +193,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
     this.activatedRoute.params.subscribe(params => {
       const questionIndexToNavigate = +params['questionIndex'] - 1;
-      this.initializeQuestionForDisplay(questionIndexToNavigate);
+      // this.initializeQuestionForDisplay(questionIndexToNavigate);
     });
 
     this.activatedRoute.paramMap.subscribe(params => {
@@ -940,7 +940,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       next: (questions) => {
         console.log(`Questions loaded:`, questions);
         this.questions = questions;
-        console.log(`Questions array after loading:`, this.questions);
+        console.log(`Questions array just before initialization:`, this.questions);
         this.initializeQuestionForDisplay(0);
       },
       error: (error) => {
@@ -1333,6 +1333,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     if (!Array.isArray(this.questions) || questionIndex >= this.questions.length) {
       console.error(`Questions not loaded or invalid index: ${questionIndex}`);
       return;
+    }
+
+    if (questionIndex === 0) {
+      this.explanationToDisplay = "Test explanation for the first question.";
+      this.quizService.shouldDisplayExplanation = true;
     }
   
     const questionState = this.quizStateService.questionStates.get(questionIndex);
