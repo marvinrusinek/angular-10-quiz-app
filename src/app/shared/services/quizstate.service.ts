@@ -111,17 +111,16 @@ export class QuizStateService {
       // Ensure selectedOptions is an array and update it based on stateUpdates
       currentState.selectedOptions = Array.isArray(currentState.selectedOptions) ? currentState.selectedOptions : [];
       
-      stateUpdates.selectedOptions.forEach((option: Option) => {
-        // Check if the option is already included based on a unique identifier (e.g., an option ID if available)
-        if (!currentState.selectedOptions.some((selectedOption: Option) => selectedOption.optionId === option.optionId)) { // Adjust 'id' as necessary
+      stateUpdates.selectedOptions.forEach((option) => {
+        if (!currentState.selectedOptions.some((selectedOption) => selectedOption.optionId === option.optionId)) {
           currentState.selectedOptions.push(option);
-    
-          // If the option is correct and we haven't reached the total correct answers, increment the count
-          if (option.correct && currentState.numberOfCorrectAnswers < totalCorrectAnswers) {
+      
+          // Check 'option.correct' directly since it's optional; it will be 'undefined' or 'boolean'
+          if (option.correct === true && currentState.numberOfCorrectAnswers < totalCorrectAnswers) {
             currentState.numberOfCorrectAnswers++;
           }
         }
-      });
+      });      
     
       // Mark as answered if the number of correct answers is reached
       currentState.isAnswered = currentState.numberOfCorrectAnswers >= totalCorrectAnswers;

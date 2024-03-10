@@ -1,7 +1,9 @@
+import { Option } from './Option.model';
+
 export interface QuestionState {
   isAnswered: boolean;
   isCorrect?: boolean;
-  selectedOptions: string[];
+  selectedOptions: Option[];
   explanationDisplayed?: boolean;
   explanationText?: string;
   numberOfCorrectAnswers?: number;
