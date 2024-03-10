@@ -227,6 +227,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     // Fetch and display the current question
     this.initializeQuestionStreams();
     this.loadQuizQuestions();
+
+    // Reset explanation text and flag here
+    this.explanationToDisplay = '';
+    this.quizService.shouldDisplayExplanation = false;
+
     this.createQuestionData();
     this.getQuestion();
     this.subscribeToCurrentQuestion(); 
@@ -936,21 +941,22 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   // Function to load all questions for the current quiz
   private loadQuizQuestions(): void {
+    this.isQuizDataLoaded = false;
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (questions) => {
-        console.log(`Questions loaded:`, questions);
         this.questions = questions;
-        console.log(`Questions array just before initialization:`, this.questions);
         this.initializeQuestionForDisplay(0);
+        this.isQuizDataLoaded = true;
       },
       error: (error) => {
         console.error('Failed to load questions:', error);
+        this.isQuizDataLoaded = true;
       },
       complete: () => {
         console.log('Question loading completed.');
       }
     });
-  }
+  }  
 
   createQuestionData(): void {
     const createQuestionData = (question: QuizQuestion | null, options: Option[] | null) => ({
@@ -1324,20 +1330,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  handleFirstQuestionBackNavigation(): void {
-    // Make sure to fetch or set the state for the first question
-    this.initializeQuestionForDisplay(0);
-  }
-
   initializeQuestionForDisplay(questionIndex: number): void {
     if (!Array.isArray(this.questions) || questionIndex >= this.questions.length) {
       console.error(`Questions not loaded or invalid index: ${questionIndex}`);
       return;
-    }
-
-    if (questionIndex === 0) {
-      this.explanationToDisplay = "Test explanation for the first question.";
-      this.quizService.shouldDisplayExplanation = true;
     }
   
     const questionState = this.quizStateService.questionStates.get(questionIndex);
