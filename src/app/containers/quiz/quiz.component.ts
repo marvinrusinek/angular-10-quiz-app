@@ -1255,15 +1255,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
     try {
       const totalQuestions: number = await this.getTotalQuestions();
-      if (this.currentQuestionIndex >= totalQuestions - 1) {
-        this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
-        console.log('End of quiz reached.');
-        return;
-      }
+      console.log('Total Questions:', totalQuestions, 'Current Index:', this.currentQuestionIndex);
 
-      if (this.currentQuestionIndex < totalQuestions - 1) {
-        this.currentQuestionIndex++;
-
+      this.currentQuestionIndex = this.currentQuestionIndex < totalQuestions - 1 ? this.currentQuestionIndex + 1 : this.currentQuestionIndex;
+        
+      if (this.currentQuestionIndex < totalQuestions) {
         const nextQuestion = await this.quizService.getNextQuestion(this.currentQuestionIndex);
         if (nextQuestion) {
           this.setCurrentQuestion(nextQuestion);
@@ -1274,7 +1270,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
         this.resetUI();
       } else {
-        console.log("Cannot navigate to invalid index.");
+        // Navigate to results if at the end of the quiz
+        this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+        console.log('End of quiz reached.');
       }
     } catch (error) {
       console.error('Error occurred while advancing to the next question:', error);
