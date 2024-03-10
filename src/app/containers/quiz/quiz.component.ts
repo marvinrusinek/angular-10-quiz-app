@@ -1249,30 +1249,29 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
-
+  
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
-
+  
     try {
       const totalQuestions: number = await this.getTotalQuestions();
-      console.log('Total Questions:', totalQuestions, 'Current Index:', this.currentQuestionIndex);
-
-      this.currentQuestionIndex = this.currentQuestionIndex < totalQuestions - 1 ? this.currentQuestionIndex + 1 : this.currentQuestionIndex;
-        
-      if (this.currentQuestionIndex < totalQuestions) {
+  
+      if (this.currentQuestionIndex < totalQuestions - 1) {
+        this.currentQuestionIndex++;
+  
+        // Proceed with fetching the next question and updating the UI
         const nextQuestion = await this.quizService.getNextQuestion(this.currentQuestionIndex);
         if (nextQuestion) {
           this.setCurrentQuestion(nextQuestion);
         }
-
+  
         this.updateNavigationAndExplanationState();
         await this.updateExplanationForQuestion(this.currentQuestionIndex);
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
         this.resetUI();
       } else {
-        // Navigate to results if at the end of the quiz
-        this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         console.log('End of quiz reached.');
+        this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
       }
     } catch (error) {
       console.error('Error occurred while advancing to the next question:', error);
@@ -1280,7 +1279,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.isNavigating = false;
     }
   }
-
+  
   async advanceToPreviousQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -1290,9 +1289,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.setIsNavigatingToPrevious(true);
   
     try {
-      // Decrement the question index only if greater than 0, otherwise keep it at 0
       this.currentQuestionIndex = this.currentQuestionIndex > 0 ? this.currentQuestionIndex - 1 : 0;
-      console.log('Navigated to question index:', this.currentQuestionIndex);
   
       // Fetch and set question data for the current question index
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
