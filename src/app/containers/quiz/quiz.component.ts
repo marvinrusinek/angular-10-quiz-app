@@ -1342,6 +1342,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   initializeQuestionForDisplay(questionIndex: number): void {
+    if (!this.questions || questionIndex < 0 || questionIndex >= this.questions.length) {
+      console.error(`Attempted to access invalid questionIndex: ${questionIndex} or questions array is not initialized`, this.questions);
+      return;
+    }
+
     const questionState = this.quizStateService.questionStates.get(questionIndex);
     console.log(`Initializing display for question ${questionIndex}:`, questionState);
 
