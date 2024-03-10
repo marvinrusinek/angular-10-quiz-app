@@ -1342,8 +1342,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   initializeQuestionForDisplay(questionIndex: number): void {
-    if (!this.questions || questionIndex < 0 || questionIndex >= this.questions.length) {
-      console.error(`Attempted to access invalid questionIndex: ${questionIndex} or questions array is not initialized`, this.questions);
+    if (!Array.isArray(this.questions) || this.questions.length <= questionIndex) {
+      console.error(`Questions not loaded or invalid index: ${questionIndex}`);
       return;
     }
 
