@@ -192,8 +192,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     // this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
 
     this.activatedRoute.params.subscribe(params => {
-      const questionIndex = +params['questionIndex'];
-      this.initializeQuestionForDisplay(questionIndex);
+      const questionIndexToNavigate = +params['questionIndex'] - 1;
+      this.initializeQuestionForDisplay(questionIndexToNavigate);
     });
 
     this.activatedRoute.paramMap.subscribe(params => {
@@ -1292,55 +1292,32 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.setIsNavigatingToPrevious(true);
   
     try {
-      console.log('Current Question Index before check:', this.currentQuestionIndex);
-
-      this.currentQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
-      console.log('Current Question Index after decrement:', this.currentQuestionIndex);
-
-      if (this.currentQuestionIndex === 0) {
-        console.log('Navigating back to the first question.');
-        const questionState = this.quizStateService.questionStates.get(0);
-        console.log('First question state on navigating back:', questionState);
-
-        //this.handleFirstQuestionBackNavigation();
-        //this.initializeFirstQuestionText();
-        this.initializeQuestionForDisplay(0);
-        //await this.updateExplanationForQuestion(0);
-        //await this.handleFirstQuestionState();
-        this.isNavigating = false;
-        this.resetUI();
-        return;
-      }
-
-      const previousQuestion = this.questions[this.currentQuestionIndex];
-      console.log("PQ", previousQuestion);
-      this.setCurrentQuestion(previousQuestion);
-      this.initializeQuestionForDisplay(this.currentQuestionIndex);
-      this.updateQuestionState(this.currentQuestionIndex);
-
-      this.updateNavigationAndExplanationState();
-
-      await this.updateExplanationForQuestion(this.currentQuestionIndex);
+      // Decrement the question index only if greater than 0, otherwise keep it at 0.
+      this.currentQuestionIndex = this.currentQuestionIndex > 0 ? this.currentQuestionIndex - 1 : 0;
+      console.log('Navigated to question index:', this.currentQuestionIndex);
+  
+      // Fetch and set question data for the current question index
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
   
+      // Update the display for the current question
+      this.initializeQuestionForDisplay(this.currentQuestionIndex);
+  
+      // Optionally, if the explanation should be shown immediately upon navigating back, uncomment the next line
+      // await this.updateExplanationForQuestion(this.currentQuestionIndex);
+  
+      // Update the UI as necessary
       this.resetUI();
-      this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1])
-        .then(() => {
-          this.updateExplanationForQuestion(this.currentQuestionIndex)
-            .then(() => {
-              console.log('Explanation updated after navigation');
-            })
-          .catch(error => {
-            console.error('Error updating explanation after navigation:', error);
-          });
-        })
-      .catch(error => {
-        console.error('Navigation error:', error);
-      });
+  
+      // Navigate to the correct URL if using Angular Router
+      await this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1])
+        .then(() => console.log('Navigation successful'))
+        .catch(error => console.error('Navigation error:', error));
+    
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
       this.isNavigating = false;
+      this.quizService.setIsNavigatingToPrevious(false);
     }
   }
 
