@@ -936,10 +936,18 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   // Function to load all questions for the current quiz
   private loadQuizQuestions(): void {
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
-      console.log(`Questions loaded:`, questions);
-      this.questions = questions;
-      this.initializeQuestionForDisplay(0);
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: (questions) => {
+        console.log(`Questions loaded:`, questions);
+        this.questions = questions;
+        this.initializeQuestionForDisplay(0);
+      },
+      error: (error) => {
+        console.error('Failed to load questions:', error);
+      },
+      complete: () => {
+        console.log('Question loading completed.');
+      }
     });
   }
 
