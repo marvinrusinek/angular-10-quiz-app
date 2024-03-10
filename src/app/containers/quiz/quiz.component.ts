@@ -192,7 +192,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     // this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
 
     this.activatedRoute.params.subscribe(params => {
-      const questionIndex = +params['questionIndex'] || 0;
+      const questionIndex = +params['questionIndex'];
       this.initializeQuestionForDisplay(questionIndex);
     });
 
