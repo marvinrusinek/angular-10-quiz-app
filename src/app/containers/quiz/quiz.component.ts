@@ -1292,8 +1292,16 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.setIsNavigatingToPrevious(true);
   
     try {
+      console.log('Current Question Index before check:', this.currentQuestionIndex);
+
+      this.currentQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
+      console.log('Current Question Index after decrement:', this.currentQuestionIndex);
+
       if (this.currentQuestionIndex === 0) {
-        console.log('Already at the first question. No action taken.');
+        console.log('Navigating back to the first question.');
+        const questionState = this.quizStateService.questionStates.get(0);
+        console.log('First question state on navigating back:', questionState);
+
         //this.handleFirstQuestionBackNavigation();
         //this.initializeFirstQuestionText();
         this.initializeQuestionForDisplay(0);
@@ -1303,9 +1311,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         this.resetUI();
         return;
       }
-  
-      this.currentQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
-      console.log("CQI::::::::", this.currentQuestionIndex);
 
       const previousQuestion = this.questions[this.currentQuestionIndex];
       console.log("PQ", previousQuestion);
@@ -1344,30 +1349,23 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.initializeQuestionForDisplay(0);
   }
 
-  async initializeQuestionForDisplay(questionIndex: number): Promise<void> {
+  initializeQuestionForDisplay(questionIndex: number): void {
     if (!Array.isArray(this.questions) || questionIndex >= this.questions.length) {
       console.error(`Questions not loaded or invalid index: ${questionIndex}`);
       return;
     }
-
+  
     const questionState = this.quizStateService.questionStates.get(questionIndex);
     console.log(`Initializing display for question ${questionIndex}:`, questionState);
-
-    const question = this.questions[questionIndex];
-    console.log(`Initializing display for question ${questionIndex + 1}:`, question);
-
-    // Log the explanation text specifically
-    console.log(`Explanation for question ${questionIndex + 1}:`, question.explanation);
   
     if (questionState?.isAnswered) {
-      this.explanationToDisplay = await this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
       this.quizService.shouldDisplayExplanation = true;
     } else {
       this.explanationToDisplay = '';
       this.quizService.shouldDisplayExplanation = false;
     }
-  }
-  
+  }  
 
   updateQuestionState(index: number) {
     const questionState = this.quizStateService.getQuestionState(this.quizId, index);
