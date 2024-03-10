@@ -1307,7 +1307,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       // Update the UI
       this.resetUI();
   
-      // Navigate to the correct URL if using Angular Router
+      // Navigate to the correct URL
       await this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1])
         .then(() => console.log('Navigation successful'))
         .catch(error => console.error('Navigation error:', error));
