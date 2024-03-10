@@ -241,8 +241,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.currentQuestionIndex) {
+    /* if (changes.currentQuestionIndex) {
       this.updateExplanationForQuestion(this.currentQuestionIndex);
+    } */
+    if (changes['currentQuestionIndex']) {
+      this.initializeQuestionForDisplay(this.currentQuestionIndex);
     }
   }
 
