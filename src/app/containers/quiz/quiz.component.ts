@@ -1292,7 +1292,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.setIsNavigatingToPrevious(true);
   
     try {
-      // Decrement the question index only if greater than 0, otherwise keep it at 0.
+      // Decrement the question index only if greater than 0, otherwise keep it at 0
       this.currentQuestionIndex = this.currentQuestionIndex > 0 ? this.currentQuestionIndex - 1 : 0;
       console.log('Navigated to question index:', this.currentQuestionIndex);
   
@@ -1302,10 +1302,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       // Update the display for the current question
       this.initializeQuestionForDisplay(this.currentQuestionIndex);
   
-      // Optionally, if the explanation should be shown immediately upon navigating back, uncomment the next line
       // await this.updateExplanationForQuestion(this.currentQuestionIndex);
   
-      // Update the UI as necessary
+      // Update the UI
       this.resetUI();
   
       // Navigate to the correct URL if using Angular Router
