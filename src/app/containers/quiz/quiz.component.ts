@@ -166,7 +166,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     this.activatedRoute.params.subscribe(params => {
-      const questionIndex = +params['questionIndex'];
+      const questionIndex = +params['questionIndex'] - 1;
       this.updateExplanationForQuestion(questionIndex);
     });
 
