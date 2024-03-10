@@ -133,47 +133,6 @@ export class QuizStateService {
     // Save the updated state
     this.setQuestionState(quizId, questionIndex, newState);
   }
-  
-  /* updateQuestionState(quizId: string, questionIndex: number, stateUpdates: Partial<QuestionState>): void {
-    const currentState = this.getQuestionState(quizId, questionIndex) || {};
-    const newState = { ...currentState, ...stateUpdates };
-    
-    // Update the state in your storage (array, object, service, etc.)
-    this.questionStates[quizId][questionIndex] = newState;
-
-    if (typeof selectedOptionId === 'undefined') {
-      console.error('SelectedOptionId is undefined', { questionId, isCorrect });
-      return;
-    }
-
-    // Retrieve the current state for the question in the specified quiz
-    let currentState = this.getQuestionState(quizId, questionId) || {
-      isAnswered: false,
-      numberOfCorrectAnswers: 0,
-      selectedOptions: [],
-      explanationDisplayed: false
-    };
-
-    // Ensure selectedOptions is an array before using includes and push
-    if (Array.isArray(currentState.selectedOptions)) {
-      if (!currentState.selectedOptions.includes(selectedOptionId.toString())) {
-        currentState.selectedOptions.push(selectedOptionId.toString());
-
-        if (isCorrect && currentState.numberOfCorrectAnswers < totalCorrectAnswers) {
-          currentState.numberOfCorrectAnswers++;
-        }
-      }
-    } else {
-      console.error('selectedOptions is not an array', { currentState });
-      currentState.selectedOptions = [selectedOptionId.toString()];
-    }
-
-    currentState.isAnswered = true;
-    currentState.explanationDisplayed = true;
-
-    // Save the updated state for the specified quiz and question
-    this.setQuestionState(quizId, questionId, currentState);
-  } */
 
   createDefaultQuestionState(): QuestionState {
     return {
