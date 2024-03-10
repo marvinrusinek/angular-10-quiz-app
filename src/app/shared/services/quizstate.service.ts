@@ -27,8 +27,6 @@ export class QuizStateService {
 
   private quizQuestionCreated = false;
 
-  private answeredQuestions: boolean[] = [];
-
   constructor() {
     this.questionStates = new Map<number, QuestionState>();
   }
@@ -99,22 +97,43 @@ export class QuizStateService {
     console.log(`[After] State for quizId: ${quizId}, questionId: ${questionId}:`, state);
     return state;
   }
-  
 
-  updateQuestionState(quizId: string, questionIndex: number, stateUpdates: Partial<QuestionState>): void {
+  updateQuestionState(quizId: string, questionIndex: number, stateUpdates: Partial<QuestionState>, totalCorrectAnswers: number): void {
     // Retrieve the current state for the question or initialize if not present
-    const currentState = this.getQuestionState(quizId, questionIndex) || {
+    let currentState = this.getQuestionState(quizId, questionIndex) || {
       isAnswered: false,
-      selectedOptions: []
+      selectedOptions: [],
+      numberOfCorrectAnswers: 0,  // Ensure this property is properly initialized
     };
-
-    // Merge the current state with the updates
+  
+    // If updating selected options and the question has correct answers to track
+    if (stateUpdates.selectedOptions && totalCorrectAnswers > 0) {
+      // Ensure selectedOptions is an array and update it based on stateUpdates
+      currentState.selectedOptions = Array.isArray(currentState.selectedOptions) ? currentState.selectedOptions : [];
+      
+      stateUpdates.selectedOptions.forEach((option: Option) => {
+        // Check if the option is already included based on a unique identifier (e.g., an option ID if available)
+        if (!currentState.selectedOptions.some((selectedOption: Option) => selectedOption.optionId === option.optionId)) { // Adjust 'id' as necessary
+          currentState.selectedOptions.push(option);
+    
+          // If the option is correct and we haven't reached the total correct answers, increment the count
+          if (option.correct && currentState.numberOfCorrectAnswers < totalCorrectAnswers) {
+            currentState.numberOfCorrectAnswers++;
+          }
+        }
+      });
+    
+      // Mark as answered if the number of correct answers is reached
+      currentState.isAnswered = currentState.numberOfCorrectAnswers >= totalCorrectAnswers;
+    }
+  
+    // Merge the current state with other updates not related to selected options
     const newState = { ...currentState, ...stateUpdates };
-
-    // Save the updated state for the specified quiz and question
+  
+    // Save the updated state
     this.setQuestionState(quizId, questionIndex, newState);
   }
-
+  
   /* updateQuestionState(quizId: string, questionIndex: number, stateUpdates: Partial<QuestionState>): void {
     const currentState = this.getQuestionState(quizId, questionIndex) || {};
     const newState = { ...currentState, ...stateUpdates };
@@ -236,14 +255,11 @@ export class QuizStateService {
   }
 
   checkIfQuestionIsAnswered(questionIndex: number): boolean {
-    return this.answeredQuestions[questionIndex] === true;
+    const questionState = this.questionStates.get(questionIndex);
+    return questionState?.isAnswered === true;
   }
 
   markQuestionAsAnswered(questionIndex: number, explanationText: string): void {
-    // Mark the question as answered
-    this.answeredQuestions[questionIndex] = true;
-  
-    // Update the question state with the explanation text
     this.questionStates.set(questionIndex, {
       isAnswered: true,
       selectedOptions: [],
