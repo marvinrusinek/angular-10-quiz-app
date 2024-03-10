@@ -1298,6 +1298,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       }
   
       this.currentQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
+      console.log("CQI::::::::", this.currentQuestionIndex);
 
       const previousQuestion = this.questions[this.currentQuestionIndex];
       console.log("PQ", previousQuestion);
