@@ -1300,6 +1300,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         //await this.updateExplanationForQuestion(0);
         //await this.handleFirstQuestionState();
         this.isNavigating = false;
+        this.resetUI();
         return;
       }
   
@@ -1343,7 +1344,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.initializeQuestionForDisplay(0);
   }
 
-  initializeQuestionForDisplay(questionIndex: number): void {
+  async initializeQuestionForDisplay(questionIndex: number): Promise<void> {
     if (!Array.isArray(this.questions) || questionIndex >= this.questions.length) {
       console.error(`Questions not loaded or invalid index: ${questionIndex}`);
       return;
@@ -1359,7 +1360,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     console.log(`Explanation for question ${questionIndex + 1}:`, question.explanation);
   
     if (questionState?.isAnswered) {
-      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      this.explanationToDisplay = await this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
       this.quizService.shouldDisplayExplanation = true;
     } else {
       this.explanationToDisplay = '';
