@@ -40,7 +40,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() toggleVisibility: EventEmitter<void> = new EventEmitter<void>();
   @Output() optionClicked: EventEmitter<void> = new EventEmitter<void>();
   @Output() optionSelected: EventEmitter<boolean> = new EventEmitter<boolean>();
-  @Output() questionAnswered = new EventEmitter<number>();
+  @Output() questionAnswered = new EventEmitter<boolean>();
   @Output() isAnswerSelectedChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
   @Output() isAnsweredChange: EventEmitter<boolean> =
@@ -1184,7 +1184,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     await this.processAnswer(selectedOption);
   
     // Emit an event to notify QuizComponent that processing is complete
-    this.questionAnswered.emit();  
+    this.questionAnswered.emit(true); 
   }
 
   private validateForm(): boolean {
