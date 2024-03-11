@@ -1339,28 +1339,16 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     const questionState = this.quizStateService.questionStates.get(questionIndex);
     console.log(`Initializing display for question ${questionIndex}:`, questionState);
   
-    // Specific handling for the first question
-    if (questionIndex === 0) {
-      // Check if the first question has been answered and should display its explanation
-      if (questionState?.isAnswered) {
-        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-        this.quizService.shouldDisplayExplanation = true;
-      } else {
-        this.explanationToDisplay = '';
-        this.quizService.shouldDisplayExplanation = false;
-      }
-      return;
-    }
-  
-    // Handling for questions other than the first
+    // Set explanation display based on whether the question has been answered
     if (questionState?.isAnswered) {
       this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
       this.quizService.shouldDisplayExplanation = true;
     } else {
+      // Reset explanation display for unanswered questions
       this.explanationToDisplay = '';
       this.quizService.shouldDisplayExplanation = false;
     }
-  }   
+  }
 
   updateQuestionState(index: number) {
     const questionState = this.quizStateService.getQuestionState(this.quizId, index);
