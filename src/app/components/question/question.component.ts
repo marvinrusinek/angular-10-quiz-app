@@ -1209,8 +1209,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async processAnswer(selectedOption: any): Promise<boolean> {
     if (!selectedOption || !this.currentQuestion.options.find(opt => opt.optionId === selectedOption.id)) {
-        console.error("Invalid or unselected option.");
-        return false;
+      console.error("Invalid or unselected option.");
+      return false;
     }
 
     this.answers.push({
@@ -1221,9 +1221,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     let isCorrect = false;
     try {
-        isCorrect = await this.quizService.checkIfAnsweredCorrectly();
+      isCorrect = await this.quizService.checkIfAnsweredCorrectly();
     } catch (error) {
-        console.error("Error checking answer correctness:", error);
+      console.error("Error checking answer correctness:", error);
     }
 
     const explanationText = this.currentQuestion.explanation;
