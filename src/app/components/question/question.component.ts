@@ -855,13 +855,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Update the state to reflect the selected option
     const optionId = option.optionId ?? index;
+    const totalCorrectAnswers = this.getTotalCorrectAnswers(currentQuestion);
+
     this.quizStateService.updateQuestionState(
       this.quizId,
       this.currentQuestionIndex,
       {
-        selectedOptions: [optionId.toString()],
+        selectedOptions: [option],
         isCorrect: option.correct ?? false
-      }
+      },
+      totalCorrectAnswers
     );
 
     // Decide whether to show the explanation based on the current question index
