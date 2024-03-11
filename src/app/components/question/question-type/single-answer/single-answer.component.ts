@@ -110,12 +110,12 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     this.destroyed$.complete();
   }
 
-  onOptionClick(option: Option, index: number, event?: MouseEvent): void {
+  onOptionClick(option: Option, event?: MouseEvent): void {
     if (event) {
       event.stopPropagation();
     }
   
-    super.onOptionClicked(option, index);
+    super.onOptionClicked(option);
     this.selectedOption = option;
     this.showFeedback = true;
   }
