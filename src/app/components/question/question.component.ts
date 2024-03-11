@@ -40,7 +40,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() toggleVisibility: EventEmitter<void> = new EventEmitter<void>();
   @Output() optionClicked: EventEmitter<void> = new EventEmitter<void>();
   @Output() optionSelected: EventEmitter<boolean> = new EventEmitter<boolean>();
-  @Output() questionAnswered = new EventEmitter<void>();
+  @Output() questionAnswered = new EventEmitter<number>();
   @Output() isAnswerSelectedChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
   @Output() isAnsweredChange: EventEmitter<boolean> =
@@ -60,7 +60,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() optionsToDisplay: Option[];
   @Input() currentQuestion: QuizQuestion;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
-  @Input() currentQuestionIndex = 0;
+  @Input() currentQuestionIndex: number = 0;
   @Input() previousQuestionIndex: number;
   @Input() quizId: string | null | undefined = '';
   @Input() multipleAnswer: BehaviorSubject<boolean> =
