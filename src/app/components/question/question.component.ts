@@ -806,25 +806,37 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
     this.quizService.addSelectedOption(option);
-  
+
     try {
       const currentQuestion = await this.getCurrentQuestion();
-      if (currentQuestion) {
-        this.handleOptionSelection(option, index, currentQuestion);
-        await this.markQuestionAsAnswered(this.quizId, this.currentQuestionIndex, true);
-        this.explanationTextService.setShouldDisplayExplanation(true);
-        const explanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-        this.explanationTextService.setCurrentQuestionExplanation(explanationText);
-        this.quizStateService.updateQuestionState(this.quizId, this.currentQuestionIndex, { isAnswered: true });
-        this.questionAnswered.emit();
-      } else {
+      if (!currentQuestion) {
         console.error("Could not retrieve the current question.");
+        return;
       }
+
+      this.handleOptionSelection(option, index, currentQuestion);
+      await this.processCurrentQuestion(currentQuestion);
+      this.questionAnswered.emit();
     } catch (error) {
-      console.error("An error occurred while fetching the current question:", error);
+      console.error("An error occurred while processing the option click:", error);
     }
-  } 
-    
+  }
+
+  private async processCurrentQuestion(currentQuestion: QuizQuestion): Promise<void> {
+    await this.markQuestionAsAnswered(this.quizId, this.currentQuestionIndex, true);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+
+    const explanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+    this.explanationTextService.setCurrentQuestionExplanation(explanationText);
+
+    const totalCorrectAnswers = this.getTotalCorrectAnswers(currentQuestion);
+    this.quizStateService.updateQuestionState(this.quizId, this.currentQuestionIndex, { isAnswered: true },totalCorrectAnswers);
+  }
+
+  private getTotalCorrectAnswers(currentQuestion: QuizQuestion): number {
+    return currentQuestion.options.filter(option => option.correct).length;
+  }
+     
   async getCurrentQuestion(): Promise<QuizQuestion | null> {
     const currentQuestion = await firstValueFrom(this.quizStateService.currentQuestion$.pipe(take(1)));
     if (this.quizService.isQuizQuestion(currentQuestion)) {
