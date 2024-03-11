@@ -1177,20 +1177,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async onSubmit(): Promise<void> {
     if (!this.validateForm()) {
-      return; // Early return if form validation fails
+      return;
     }
-
+  
     const selectedOption = this.questionForm.get('selectedOption').value;
     await this.processAnswer(selectedOption);
-
-    const currentQuiz: Quiz = await firstValueFrom(this.selectedQuiz);
-
-    if (this.currentQuestionIndex === currentQuiz.questions.length - 1) {
-      this.handleQuizCompletion();
-    } else {
-      this.moveToNextQuestion();
-    }
+  
+    // Emit an event to notify QuizComponent that processing is complete
+    this.questionAnswered.emit();  
   }
+  
 
   private validateForm(): boolean {
     if (this.questionForm.invalid) {
