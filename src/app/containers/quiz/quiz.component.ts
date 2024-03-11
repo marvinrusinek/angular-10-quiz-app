@@ -1607,7 +1607,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   async fetchAndInitializeQuestions(): Promise<void> {
     try {
-      // Use firstValueFrom to convert the Observable to a Promise
+      // Convert the Observable to a Promise
       this.questionsArray = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
       console.log('Questions fetched and initialized:', this.questionsArray);
     } catch (error) {
