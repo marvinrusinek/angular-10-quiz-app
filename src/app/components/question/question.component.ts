@@ -1208,24 +1208,40 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private async processAnswer(selectedOption: any): Promise<boolean> {
+    if (!selectedOption || !this.currentQuestion.options.find(opt => opt.optionId === selectedOption.id)) {
+        console.error("Invalid or unselected option.");
+        return false;
+    }
+
     this.answers.push({
-      question: this.currentQuestion,
-      questionIndex: this.currentQuestionIndex,
-      selectedOption: selectedOption
+        question: this.currentQuestion,
+        questionIndex: this.currentQuestionIndex,
+        selectedOption: selectedOption
     });
 
-    const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
+    let isCorrect = false;
+    try {
+        isCorrect = await this.quizService.checkIfAnsweredCorrectly();
+    } catch (error) {
+        console.error("Error checking answer correctness:", error);
+    }
+
     const explanationText = this.currentQuestion.explanation;
 
     const quizId = this.quizService.getCurrentQuizId();
     const questionId = this.currentQuestionIndex;
 
+    // Update the state to include the selected option and adjust the number of correct answers
+    const selectedOptions = this.currentQuestion.selectedOptions || [];
+    selectedOptions.push(selectedOption); // Add the newly selected option
+    const numberOfCorrectAnswers = selectedOptions.filter(opt => opt.correct).length;
+
     this.quizStateService.setQuestionState(quizId, questionId, {
       isAnswered: true,
       isCorrect: isCorrect,
       explanationText: explanationText,
-      selectedOptions: [],
-      numberOfCorrectAnswers: 0
+      selectedOptions: selectedOptions,
+      numberOfCorrectAnswers: numberOfCorrectAnswers
     });
 
     this.quizService.playSound(isCorrect);
