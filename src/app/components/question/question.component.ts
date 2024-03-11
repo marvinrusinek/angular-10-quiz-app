@@ -883,16 +883,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.explanationTextService.toggleExplanationDisplay(isOptionSelected);
   }
 
-  private updateAnswersForOption(option: Option): void {
-    const answerIndex = this.answers.findIndex(
-      (answer) => answer === option.value
-    );
+  private updateAnswersForOption(selectedOption: Option): void {
+    // Check if the selected option is already in the answers array
+    const isOptionSelected = this.answers.some(answer => answer.id === selectedOption.optionId);
 
-    if (answerIndex !== -1) {
-      this.answers[answerIndex] = true;
+    // If the option is not already selected, add it to the answers array
+    if (!isOptionSelected) {
+      this.answers.push(selectedOption);
     }
 
-    // Emit the updated answers
+    // Emit the updated answers array
     this.quizService.answersSubject.next(this.answers);
   }
 
