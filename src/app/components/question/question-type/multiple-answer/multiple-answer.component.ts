@@ -121,12 +121,12 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.destroyed$.complete();
   }
 
-  onOptionClick(option: Option, event?: MouseEvent): void {
+  onOptionClick(option: Option, index: number, event?: MouseEvent): void {
     if (event) {
       event.stopPropagation();
     }
   
-    super.onOptionClicked(option);
+    super.onOptionClicked(option, index);
     this.selectedOption = option;
     this.showFeedback = true;
   }
