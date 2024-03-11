@@ -191,10 +191,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
     // this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
 
-    this.activatedRoute.params.subscribe(params => {
-      const questionIndexToNavigate = +params['questionIndex'] - 1;
-      // this.initializeQuestionForDisplay(questionIndexToNavigate);
-    });
+    /* this.activatedRoute.params.subscribe(params => {
+      const questionIndex = +params['questionIndex'] - 1;
+    }); */
 
     this.activatedRoute.paramMap.subscribe(params => {
       this.quizId = params.get('quizId');
@@ -1336,9 +1335,24 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
   
+    // Retrieve the state for the current question
     const questionState = this.quizStateService.questionStates.get(questionIndex);
     console.log(`Initializing display for question ${questionIndex}:`, questionState);
   
+    // Specific handling for the first question
+    if (questionIndex === 0) {
+      // Check if the first question has been answered and should display its explanation
+      if (questionState?.isAnswered) {
+        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+        this.quizService.shouldDisplayExplanation = true;
+      } else {
+        this.explanationToDisplay = '';
+        this.quizService.shouldDisplayExplanation = false;
+      }
+      return;
+    }
+  
+    // Handling for questions other than the first
     if (questionState?.isAnswered) {
       this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
       this.quizService.shouldDisplayExplanation = true;
@@ -1346,7 +1360,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.explanationToDisplay = '';
       this.quizService.shouldDisplayExplanation = false;
     }
-  }  
+  }   
 
   updateQuestionState(index: number) {
     const questionState = this.quizStateService.getQuestionState(this.quizId, index);
