@@ -1662,9 +1662,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.shouldDisplayOptions = newValue;
   }
 
-
-  handleQuestionAnswered(questionIndex: number): void {
-    console.log(`Question answered event received for question index: ${questionIndex}`);
-    this.updateExplanationForQuestion(questionIndex);
-  }  
+  handleQuestionAnswered(): void {
+    console.log("Question processing completed, event received.");
+    this.updateExplanationForQuestion(this.currentQuestionIndex).then(() => {
+      console.log("Explanation updated for current question index:", this.currentQuestionIndex);
+    });
+  }
 }
