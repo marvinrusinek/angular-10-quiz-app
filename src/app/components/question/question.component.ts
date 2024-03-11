@@ -804,7 +804,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizStateService.setQuestionState(quizId, questionIndex, questionState);
   }
 
-  async onOptionClicked(option: Option): Promise<void> {
+  async onOptionClicked(option: Option, index: number): Promise<void> {
     this.quizService.addSelectedOption(option);
 
     try {
@@ -814,7 +814,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         return;
       }
 
-      this.handleOptionSelection(option, currentQuestion);
+      this.handleOptionSelection(option, index, currentQuestion);
       await this.processCurrentQuestion(currentQuestion);
       this.questionAnswered.emit();
     } catch (error) {
@@ -847,7 +847,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  async handleOptionSelection(option: Option, currentQuestion: QuizQuestion): Promise<void> {
+  async handleOptionSelection(option: Option, index: number, currentQuestion: QuizQuestion): Promise<void> {
     this.processOptionSelection(currentQuestion, option);
     this.updateAnswersForOption(option);
     this.checkAndHandleCorrectAnswer();
