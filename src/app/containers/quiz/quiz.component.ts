@@ -614,19 +614,19 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         .pipe(
           filter((quizzes: Quiz[]) => quizzes.length > 0),
           first()
-          .subscribe((quizzes: Quiz[]) => {
-            const currentQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-            if (currentQuiz) {
-              this.quizDataService.setCurrentQuiz(currentQuiz);
-              this.currentQuiz = currentQuiz;
-              resolve();
-            } else {
-              reject(`Quiz with ID ${quizId} not found`);
-            }
-          })
         )
+        .subscribe((quizzes: Quiz[]) => {
+          const currentQuiz = quizzes.find(quiz => quiz.quizId === quizId);
+          if (currentQuiz) {
+            this.quizDataService.setCurrentQuiz(currentQuiz);
+            this.currentQuiz = currentQuiz;
+            resolve();
+          } else {
+            reject(`Quiz with ID ${quizId} not found`);
+          }
+        });
     });
-  }
+  }  
   
   private initializeQuizState(): void {
     // Find the current quiz object by quizId
