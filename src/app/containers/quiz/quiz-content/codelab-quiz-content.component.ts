@@ -134,8 +134,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.shouldDisplayCorrectAnswers = true;
 
     this.quizStateService.getCurrentQuestionIndex$().subscribe(index => {
-      this.currentQuestionIndex = index;
-      const state = this.quizStateService.getQuestionState(index);
+      this.currentQuestionIndexValue = index;
+      const state = this.quizStateService.getQuestionState(this.quizId, index);
       if (state) {
         this.explanationText = state.explanationText;
         this.showExplanation = state.explanationDisplayed;
