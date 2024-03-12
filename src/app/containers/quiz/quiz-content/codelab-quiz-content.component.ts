@@ -1,43 +1,15 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input,
+  OnChanges, OnDestroy, OnInit, Output, SimpleChanges
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  combineLatest,
-  firstValueFrom,
-  forkJoin,
-  Observable,
-  of,
-  Subject,
-  Subscription
-} from 'rxjs';
-import {
-  catchError,
-  distinctUntilChanged,
-  filter,
-  map,
-  mergeMap,
-  startWith,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-  withLatestFrom
-} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of,
+  Subject, Subscription } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, map, mergeMap, startWith, switchMap,
+  take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
-import { QuestionType } from '../../shared/models/question-type.enum';
+import { QuestionType } from '../../../shared/models/question-type.enum';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
@@ -45,12 +17,6 @@ import { QuizQuestionManagerService } from '../../../shared/services/quizquestio
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
-
-enum QuestionType {
-  SingleAnswer = 'single_answer',
-  MultipleAnswer = 'multiple_answer',
-  TrueFalse = 'true_false'
-}
 
 @Component({
   selector: 'codelab-quiz-content-component',
