@@ -12,6 +12,7 @@ export class QuizStateService {
     = new BehaviorSubject<QuizQuestion | null>(null);
   private currentQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestion$: Observable<QuizQuestion> = this.currentQuestionSubject.asObservable();
+  private currentQuestionIndex = new BehaviorSubject<number>(0);
 
   currentOptionsSubject = new BehaviorSubject<Option[]>([]);
   currentOptions$: Observable<Option[]> = this.currentOptionsSubject.asObservable();
@@ -29,6 +30,16 @@ export class QuizStateService {
 
   constructor() {
     this.questionStates = new Map<number, QuestionState>();
+  }
+  
+  // Method to set the current question index
+  setCurrentQuestionIndex(index: number): void {
+    this.currentQuestionIndex.next(index); // Update the BehaviorSubject's value
+  }
+
+  // Method to get an observable for the current question index
+  getCurrentQuestionIndex$() {
+    return this.currentQuestionIndex.asObservable(); // Return the observable for subscribers
   }
 
   saveState(quizId: string): void {
