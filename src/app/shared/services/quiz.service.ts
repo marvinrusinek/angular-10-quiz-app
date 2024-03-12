@@ -977,8 +977,9 @@ export class QuizService implements OnDestroy {
 
   getCurrentQuestion(): Observable<QuizQuestion> {
     const quizId = this.getCurrentQuizId();
-
+  
     return this.getQuestionsForQuiz(quizId).pipe(
+      map(data => data.questions), // Transform the structure here
       tap((questions: QuizQuestion[]) => {
         this.questions = questions;
         this.questionLoadingSubject.next(true);
@@ -988,23 +989,20 @@ export class QuizService implements OnDestroy {
         console.error('Error getting quiz questions:', error);
         this.questionLoadingSubject.next(false);
         this.loadingQuestions = false;
-        // Return an observable that emits an error, ensuring the return type is consistent
         return throwError(() => new Error('Error getting quiz questions'));
       }),
       switchMap((questions: QuizQuestion[]) => {
         if (Array.isArray(questions) && questions.length > 0) {
           const currentQuestionIndex = this.currentQuestionIndex ?? 0;
-          // Ensure we're emitting a QuizQuestion or a suitable fallback
           const currentQuestion = questions[currentQuestionIndex] ?? this.getFallbackQuestion();
           this.currentQuestionSubject.next(currentQuestion);
           return this.currentQuestionSubject.asObservable();
         } else {
-          // Provide a fallback observable for when questions are not available
           return of(this.getFallbackQuestion());
         }
       })
     );
-  }
+  }  
 
   getFallbackQuestion(): QuizQuestion {
     // Check if quizData is available and has at least one question
