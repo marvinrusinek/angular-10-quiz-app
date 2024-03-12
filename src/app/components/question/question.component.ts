@@ -833,7 +833,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizStateService.updateQuestionState(this.quizId, this.currentQuestionIndex, { isAnswered: true },totalCorrectAnswers);
 
     const updatedState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
-    console.log(updatedState);
+    console.log("UPDATED STATE", updatedState);
   }
 
   private getTotalCorrectAnswers(currentQuestion: QuizQuestion): number {
