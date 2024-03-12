@@ -831,6 +831,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     const totalCorrectAnswers = this.getTotalCorrectAnswers(currentQuestion);
     this.quizStateService.updateQuestionState(this.quizId, this.currentQuestionIndex, { isAnswered: true },totalCorrectAnswers);
+
+    const updatedState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
+    console.log(updatedState);
   }
 
   private getTotalCorrectAnswers(currentQuestion: QuizQuestion): number {
