@@ -63,8 +63,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   explanationDisplayed = false;
 
   numberOfCorrectAnswers = 0;
-  numberOfCorrectAnswers$: BehaviorSubject<string> =
-    new BehaviorSubject<string>('0');
+  numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
   shouldDisplayNumberOfCorrectAnswers: boolean;
   shouldDisplayCorrectAnswers = false;
   private shouldDisplayCorrectAnswersSubject = new BehaviorSubject<boolean>(false);
