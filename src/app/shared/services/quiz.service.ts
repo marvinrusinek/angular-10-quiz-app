@@ -887,7 +887,7 @@ export class QuizService implements OnDestroy {
     const quizScore: QuizScore = {
       quizId: this.selectedQuiz.quizId,
       attemptDateTime: new Date(),
-      score: this.calculateTotalCorrectAnswers(userAnswers), // Pass the user answers to calculate the score
+      score: this.calculateCorrectAnswers(userAnswers), // Pass the user answers to calculate the score
       totalQuestions: this.questions.length,
     };
     this.quizScore = quizScore;
