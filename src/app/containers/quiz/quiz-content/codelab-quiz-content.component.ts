@@ -24,9 +24,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
   styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CodelabQuizContentComponent
-  implements OnInit, OnChanges, OnDestroy
-{
+export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy {
   @Output() explanationTextChanged = new EventEmitter<string>();
   @Output() shouldDisplayExplanationChanged = new EventEmitter<boolean>();
   @Output() shouldDisplayOptionsChanged = new EventEmitter<boolean>();
@@ -47,9 +45,7 @@ export class CodelabQuizContentComponent
   currentQuestionIndexValue: number;
   currentQuestion$: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
-  currentOptions$: BehaviorSubject<Option[] | null> = new BehaviorSubject<
-    Option[]
-  >([]);
+  currentOptions$: BehaviorSubject<Option[] | null> = new BehaviorSubject<Option[]>([]);
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
   previousQuestion$: Observable<QuizQuestion | null>;
