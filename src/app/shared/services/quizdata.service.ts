@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
 import { catchError, delay, distinctUntilChanged, filter, map, retryWhen, shareReplay, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
@@ -233,22 +233,20 @@ export class QuizDataService implements OnDestroy {
     questionIndex: number
   ): Observable<QuizQuestion | null> {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
-      switchMap(([question]) => {
+      switchMap(([question]): Observable<QuizQuestion | null> => {
         if (!question) {
-          return of(null); // Question not found
+          return of(null);
         }
-
-        return of(question);
+  
+        return of(question as QuizQuestion);
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('Error getting quiz question:', error);
         const customError = new Error('An error occurred while fetching data.');
-        return new Observable((observer) => {
-          observer.error(customError);
-        });
+        return throwError(() => customError);
       }),
       distinctUntilChanged()
-    ); 
+    ) as Observable<QuizQuestion | null>;
   }
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
