@@ -104,6 +104,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$: Observable<string | null> =
     this.explanationTextSource.asObservable();
+  explanationVisibility: boolean[] = [];
 
   private combinedQuestionDataSubject = new BehaviorSubject<{
     question: QuizQuestion;
@@ -1282,6 +1283,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         this.updateNavigationAndExplanationState();
         await this.updateExplanationForQuestion(this.currentQuestionIndex);
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+
+        // Fetch and set the explanation visibility for the current question
+        await this.fetchAndSetExplanationVisibility(this.currentQuestionIndex);
+
         this.resetUI();
       } else {
         console.log('End of quiz reached.');
@@ -1307,6 +1312,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   
       // Fetch and set question data for the current question index
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+
+      // Fetch and set the explanation visibility for the current question
+      await this.fetchAndSetExplanationVisibility(this.currentQuestionIndex);
   
       // Update the display for the current question
       this.initializeQuestionForDisplay(this.currentQuestionIndex);
@@ -1348,6 +1356,19 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.explanationToDisplay = '';
       this.quizService.shouldDisplayExplanation = false;
     }
+  }
+
+  async fetchAndSetExplanationVisibility(questionIndex: number): Promise<void> {
+    const shouldShowExplanation = this.explanationVisibility[questionIndex] ?? false;
+    this.showExplanation = shouldShowExplanation;
+  }
+
+  viewExplanation(questionIndex: number): void {
+    // Set the explanation to be visible for the current question
+    this.explanationVisibility[questionIndex] = true;
+    
+    // Update the UI to reflect this change
+    this.showExplanation = true;
   }
 
   updateQuestionState(index: number) {
