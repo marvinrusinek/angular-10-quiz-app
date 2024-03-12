@@ -435,18 +435,18 @@ export class QuizDataService implements OnDestroy {
     currentQuestion$: Observable<QuizQuestion>,
     options$: Observable<Option[]>,
     questionIndex: number
-  ): Observable<[QuizQuestion, Option[]]> {
+  ): Observable<[QuizQuestion, Option[]] | null> {
     return combineLatest([currentQuestion$, options$]).pipe(
       filter(([question, options]) => !!question && !!options),
-      map(([question, options]) => {
-        if (!question || question?.options === undefined) {
+      map(([question, options]): [QuizQuestion, Option[]] => {
+        if (!question || question.options === undefined) {
           throw new Error('Question not found');
         }
-
-        if (questionIndex >= question?.options?.length) {
+  
+        if (questionIndex >= question.options.length) {
           throw new Error('Question index out of bounds');
         }
-
+  
         return [question, options];
       }),
       catchError((error: HttpErrorResponse) => {
@@ -459,6 +459,7 @@ export class QuizDataService implements OnDestroy {
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+  
 
   setQuestionType(question: QuizQuestion): void {
     const numCorrectAnswers = question.options.filter((option) => option.correct).length;
