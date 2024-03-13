@@ -84,7 +84,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
 
-  combinedText$: Observable<string>;
+  // combinedText$: Observable<string>;
+  combinedText$: Observable<{ explanationText: string; showExplanationText: boolean }>;
 
   private destroy$ = new Subject<void>();
 
@@ -133,17 +134,22 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   ngOnInit(): void {
     this.shouldDisplayCorrectAnswers = true;
 
-    this.quizStateService.getCurrentQuestionIndex$().subscribe(index => {
-      this.currentQuestionIndexValue = index;
-      const state = this.quizStateService.getQuestionState(this.quizId, index);
-      if (state) {
-        this.explanationText = state.explanationText;
-        this.showExplanationText = state.explanationDisplayed;
-      } else {
-        this.explanationText = '';
-        this.showExplanationText = false;
-      }
-    });
+    this.combinedText$ = this.quizStateService.getCurrentQuestionIndex$().pipe(
+      map(index => {
+        const state = this.quizStateService.getQuestionState(this.quizId, index);
+        if (state) {
+          return {
+            explanationText: state.explanationText,
+            showExplanationText: state.explanationDisplayed
+          };
+        } else {
+          return {
+            explanationText: '',
+            showExplanationText: false
+          };
+        }
+      })
+    );
 
     this.initializeQuestionIndexSubscription();
     this.initializeResetQuizSubscription();
@@ -166,7 +172,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.setDisplayStateForCorrectAnswers(currentQuestionValue);
       this.updateCorrectAnswersDisplayState();
 
-      if (changes.currentQuestionIndexValue && !changes.currentQuestionIndex.isFirstChange()) {
+      if (changes.currentQuestionIndexValue && !changes.currentQuestionIndexValue.isFirstChange()) {
         // Get the new current question index
         const newIndex = changes.currentQuestionIndexValue.currentValue;
         
