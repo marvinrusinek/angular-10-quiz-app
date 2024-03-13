@@ -9,6 +9,7 @@ import { catchError, distinctUntilChanged, filter, map, mergeMap, startWith, swi
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
+import { QuestionState } from '../../../shared/models/QuestionState.model';
 import { QuestionType } from '../../../shared/models/question-type.enum';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -86,6 +87,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // combinedText$: Observable<string>;
   combinedText$: Observable<{ explanationText: string; showExplanationText: boolean }>;
+  textToDisplay: string = '';
 
   private destroy$ = new Subject<void>();
 
@@ -590,11 +592,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return textToDisplay;
       })
     );
-  }
-
-  
-  private shouldShowCorrectAnswers(shouldDisplayExplanation: boolean): boolean {
-    return !shouldDisplayExplanation && this.isCurrentQuestionMultipleAnswer();
   }
   
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
