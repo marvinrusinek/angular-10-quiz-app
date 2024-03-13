@@ -1356,6 +1356,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.explanationToDisplay = '';
       this.quizService.shouldDisplayExplanation = false;
     }
+
+    console.log(`Should display explanation: ${this.quizService.shouldDisplayExplanation}`);
+    console.log(`Explanation to display: ${this.explanationToDisplay}`);
   }
 
   async fetchAndSetExplanationVisibility(questionIndex: number): Promise<void> {
