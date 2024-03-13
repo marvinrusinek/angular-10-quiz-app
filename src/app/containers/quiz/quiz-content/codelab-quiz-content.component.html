@@ -1,7 +1,7 @@
 <ng-container *ngIf="combinedQuestionData$ | async">
   <section id="question">
     <h3 question-content>
-      <span *ngIf="combinedText$ | async as combinedText">
+      <span *ngIf="explanationDisplayed && combinedText$ | async as combinedText">
         {{ combinedText }}
       </span>
       <span class="number-correct"
