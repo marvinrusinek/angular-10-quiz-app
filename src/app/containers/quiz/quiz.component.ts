@@ -1254,9 +1254,13 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   setCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestion = question;
+    // Log the current question index for debugging
+    console.log("Current Question Index:", this.currentQuestionIndex);
+  
     this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
     console.log("Explanation to Display::::", this.explanationToDisplay);
   }
+ 
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
