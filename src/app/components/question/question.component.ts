@@ -823,10 +823,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private async processCurrentQuestion(currentQuestion: QuizQuestion): Promise<void> {
-    await this.markQuestionAsAnswered(this.quizId, this.currentQuestionIndex, true);
     this.explanationTextService.setShouldDisplayExplanation(true);
 
     const explanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+    this.quizStateService.markQuestionAsAnswered(this.currentQuestionIndex, explanationText);
+    await this.markQuestionAsAnswered(this.quizId, this.currentQuestionIndex, true);
     this.explanationTextService.setCurrentQuestionExplanation(explanationText);
 
     const totalCorrectAnswers = this.getTotalCorrectAnswers(currentQuestion);
