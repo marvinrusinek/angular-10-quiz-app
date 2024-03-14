@@ -728,6 +728,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       const selectedQuestion = this.questions[questionIndex];
       this.questionToDisplay = selectedQuestion.questionText;
       this.optionsToDisplay = selectedQuestion.options;
+
+      this.updateExplanationText(questionIndex);
     } else {
       console.warn(`Invalid question index: ${questionIndex}. Unable to update the question display.`);
     }
@@ -742,10 +744,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       // If answered, fetch and set the formatted explanation text for the question
       this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
       this.explanationTextService.setShouldDisplayExplanation(true);
+      this.showExplanation = true;
     } else {
       // If not answered, clear the explanation text and set the display flag to false
       this.explanationToDisplay = '';
       this.explanationTextService.setShouldDisplayExplanation(false);
+      this.showExplanation = false;
     }
   }
   
