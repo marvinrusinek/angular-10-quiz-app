@@ -1295,6 +1295,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         // Fetch and set the explanation visibility for the current question
         await this.fetchAndSetExplanationVisibility(this.currentQuestionIndex);
 
+        this.updateExplanationText(this.currentQuestionIndex);
+
         this.resetUI();
       } else {
         console.log('End of quiz reached.');
@@ -1323,6 +1325,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
       // Fetch and set the explanation visibility for the current question
       await this.fetchAndSetExplanationVisibility(this.currentQuestionIndex);
+
+      this.updateExplanationText(this.currentQuestionIndex);
   
       // Update the display for the current question
       this.initializeQuestionForDisplay(this.currentQuestionIndex);
