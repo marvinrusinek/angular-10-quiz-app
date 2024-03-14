@@ -1295,6 +1295,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         // Fetch and set the explanation visibility for the current question
         await this.fetchAndSetExplanationVisibility(this.currentQuestionIndex);
 
+        this.updateQuestionDisplay(this.currentQuestionIndex);
         this.updateExplanationText(this.currentQuestionIndex);
 
         this.resetUI();
@@ -1325,11 +1326,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
       // Fetch and set the explanation visibility for the current question
       await this.fetchAndSetExplanationVisibility(this.currentQuestionIndex);
-
-      this.updateExplanationText(this.currentQuestionIndex);
   
       // Update the display for the current question
       this.initializeQuestionForDisplay(this.currentQuestionIndex);
+
+      this.updateQuestionDisplay(this.currentQuestionIndex);
+      this.updateExplanationText(this.currentQuestionIndex);
   
       // await this.updateExplanationForQuestion(this.currentQuestionIndex);
   
