@@ -807,7 +807,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   } */
 
-  initializeFirstQuestionText(): void {
+  /* initializeFirstQuestionText(): void {
     this.resetQuestionState();
   
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
@@ -864,7 +864,43 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     // console.log("Explanation text for question", this.currentQuestionIndex + 1, ":", this.explanationToDisplay);
 
     this.cdRef.detectChanges();
+  } */
+
+  initializeFirstQuestionText(): void {
+    this.resetQuestionState();
+    
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: (questions: QuizQuestion[]) => {
+        if (questions && questions.length > 0) {
+          this.questions = questions;
+          this.currentQuestion = questions[0];
+          this.questionToDisplay = this.currentQuestion.questionText;
+          this.optionsToDisplay = this.currentQuestion.options;
+  
+          // Initialize or update the state for all questions
+          questions.forEach((_, index) => this.initializeOrUpdateQuestionState(index));
+        } else {
+          this.handleNoQuestionsAvailable();
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching questions:', err);
+        this.handleQuestionsLoadingError();
+      }
+    });
   }
+  
+  initializeOrUpdateQuestionState(questionIndex: number): void {
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    if (questionState.isAnswered) {
+      this.explanationToDisplay = questionIndex === 0 ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex) : '';
+      this.quizService.shouldDisplayExplanation = questionIndex === 0 ? true : false;
+    } else {
+      this.explanationToDisplay = questionIndex === 0 ? '' : this.explanationToDisplay;
+      this.quizService.shouldDisplayExplanation = questionIndex === 0 ? false : this.quizService.shouldDisplayExplanation;
+    }
+    this.cdRef.detectChanges();
+  }  
   
   handleExplanationForQuestion(questionIndex: number): void {
     if (!this.currentQuestion) {
