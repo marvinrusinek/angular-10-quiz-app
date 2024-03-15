@@ -846,25 +846,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log("UPDATED STATE", updatedState);
   }
 
-  async updateExplanationText(questionIndex: number): Promise<void> {
-    // Get the state of the question at the given index
+  updateExplanationText(questionIndex: number): void {
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
-    
-    // Check if the question has been answered
+  
     if (questionState.isAnswered) {
-      // If answered, set the formatted explanation text for the question
-      this.explanationToDisplay = await this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-      this.showExplanation = true; // Use this flag to control the display in your template
+      const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      this.explanationToDisplayChange.emit(explanationText); // Emit the explanation text
+      this.showExplanationChange.emit(true); // Emit the flag to show the explanation
     } else {
-      // If not answered or there's no state, clear the explanation text and set the display flag to false
-      this.explanationToDisplay = '';
-      this.showExplanation = false;
+      this.explanationToDisplayChange.emit(''); // Clear the explanation text
+      this.showExplanationChange.emit(false); // Emit the flag to hide the explanation
     }
-  
-    // Trigger change detection to update the UI
-    this.cdRef.detectChanges(); // Make sure you have injected ChangeDetectorRef as cdRef in your constructor
   }
-  
 
   private getTotalCorrectAnswers(currentQuestion: QuizQuestion): number {
     return currentQuestion.options.filter(option => option.correct).length;
