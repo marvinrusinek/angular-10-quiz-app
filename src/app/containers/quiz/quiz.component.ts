@@ -1742,4 +1742,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       console.log("Explanation updated for current question index:", this.currentQuestionIndex);
     });
   }
+
+  handleExplanationToDisplayChange(explanationText: string): void {
+    this.explanationToDisplay = explanationText;
+  }
+
+  handleShowExplanationChange(show: boolean): void {
+    this.showExplanation = show;
+  }
 }
