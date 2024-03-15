@@ -890,7 +890,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
   
-  initializeOrUpdateQuestionState(questionIndex: number): void {
+  /* initializeOrUpdateQuestionState(questionIndex: number): void {
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
     if (questionState.isAnswered) {
       this.explanationToDisplay = questionIndex === 0 ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex) : '';
@@ -900,7 +900,23 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.shouldDisplayExplanation = questionIndex === 0 ? false : this.quizService.shouldDisplayExplanation;
     }
     this.cdRef.detectChanges();
-  }  
+  } */
+
+  initializeOrUpdateQuestionState(questionIndex: number): void {
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+  
+    // Always update the display based on the current question's state, not just the first question
+    if (questionState.isAnswered) {
+      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      this.showExplanation = true; // Use a component-level flag to control the explanation display in the template
+    } else {
+      this.explanationToDisplay = '';
+      this.showExplanation = false;
+    }
+  
+    this.cdRef.detectChanges(); // Ensure UI updates to reflect the new state
+  }
+  
   
   handleExplanationForQuestion(questionIndex: number): void {
     if (!this.currentQuestion) {
@@ -1356,6 +1372,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   
     try {
       this.currentQuestionIndex = this.currentQuestionIndex > 0 ? this.currentQuestionIndex - 1 : 0;
+      this.initializeOrUpdateQuestionState(this.currentQuestionIndex);
   
       // Fetch and set question data for the current question index
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
