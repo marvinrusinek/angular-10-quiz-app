@@ -1724,18 +1724,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  handleExplanationTextChanged(newText: string) {
-    this.explanationText = newText;
-  }
-
-  handleShouldDisplayExplanationChanged(newValue: boolean) {
-    this.quizService.shouldDisplayExplanation = newValue;
-  }
-
-  handleShouldDisplayOptionsChanged(newValue: boolean) {
-    this.shouldDisplayOptions = newValue;
-  }
-
   handleQuestionAnswered(): void {
     console.log("Question processing completed, event received.");
     this.updateExplanationForQuestion(this.currentQuestionIndex).then(() => {
@@ -1745,6 +1733,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   handleExplanationToDisplayChange(explanationText: string): void {
     this.explanationToDisplay = explanationText;
+    this.cdRef.detectChanges();
   }
 
   handleShowExplanationChange(show: boolean): void {
