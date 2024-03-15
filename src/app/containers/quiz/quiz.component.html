@@ -47,6 +47,8 @@
             [selectionMessage]="selectionMessage$ | async"
             [showFeedback]="showFeedback"
             (questionAnswered)="handleQuestionAnswered()"
+            (explanationToDisplayChange)="handleExplanationToDisplayChange($event)"
+            (showExplanationChange)="handleShowExplanationChange($event)"
           ></codelab-quiz-question>
         </ng-container>
       </ng-container>
