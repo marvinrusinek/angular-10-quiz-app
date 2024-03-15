@@ -45,6 +45,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     new EventEmitter<boolean>();
   @Output() isAnsweredChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
+  @Output() explanationToDisplayChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() showExplanationChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() isAnswered = false;;
   @Input() data: {
     questionText: string;
