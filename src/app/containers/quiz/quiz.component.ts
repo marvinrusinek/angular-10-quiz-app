@@ -902,7 +902,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.cdRef.detectChanges();
   } */
 
-  initializeOrUpdateQuestionState(questionIndex: number): void {
+  /* initializeOrUpdateQuestionState(questionIndex: number): void {
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
   
     // Always update the display based on the current question's state, not just the first question
@@ -915,7 +915,20 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   
     this.cdRef.detectChanges(); // Ensure UI updates to reflect the new state
+  } */
+
+  initializeOrUpdateQuestionState(questionIndex: number): void {
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    if (questionState.isAnswered) {
+      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      this.showExplanation = true;
+    } else {
+      this.explanationToDisplay = '';
+      this.showExplanation = false;
+    }
+    this.cdRef.detectChanges();
   }
+  
   
   
   handleExplanationForQuestion(questionIndex: number): void {
