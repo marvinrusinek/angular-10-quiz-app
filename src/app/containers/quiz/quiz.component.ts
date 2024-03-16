@@ -265,7 +265,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.timerService.stopTimer(null);
   }
   
-  async loadQuestionDetails(questionIndex: number) {
+  async loadQuestionDetails(questionIndex: number): Promise<void> {
     // Load the question data
     const question = await this.fetchQuestionDetails(questionIndex);
     this.currentQuestion = question;
