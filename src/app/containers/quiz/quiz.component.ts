@@ -270,7 +270,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     const question = await this.fetchQuestionDetails(questionIndex);
     this.currentQuestion = question;
   
-    // Now, check if we should display the explanation for this question
+    // Check if the explanation for this question should be displayed
     const displayExplanation = this.shouldDisplayExplanation();
     if (displayExplanation) {
       this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
