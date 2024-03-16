@@ -153,9 +153,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.options = this.getOptionsForQuestion();
-    this.selectedOption = this.question ? this.getSelectedOption() : undefined;
-
     this.logInitialData();
     this.initializeQuizQuestion();
     this.subscribeToRouterEvents();
@@ -212,6 +209,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.initialized = true;
     this.initializeSelectedQuiz();
     this.initializeSelectedOption();
+    this.initializeQuestionOptions();
     this.subscribeToActivatedRouteParams();
 
     try {
@@ -301,6 +299,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     of(this.selectedOption)
       .pipe(tap((option: Option) => this.selectedOption$.next(option)))
       .subscribe();
+  }
+
+  private initializeQuestionOptions(): void {
+    this.options = this.getOptionsForQuestion();
+    this.selectedOption = this.question ? this.getSelectedOption() : undefined;
   }
 
   private async loadQuizQuestions(): Promise<void> {
