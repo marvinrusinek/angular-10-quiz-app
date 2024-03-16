@@ -142,8 +142,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOption: [''],
     });
 
-    this.options = this.getOptionsForQuestion();
-
     this.sharedVisibilitySubscription =
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
         this.handlePageVisibilityChange(isHidden);
