@@ -152,10 +152,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
     
 
-    this.initializeQuestionIndexSubscription();
-    this.initializeResetQuizSubscription();
-    this.initializeExplanationDisplaySubscription();
-    this.initializeExplanationTextSubscription();
+    this.initializeSubscriptions();
 
     this.restoreQuestionState();
     this.subscribeToQuestionState();
@@ -200,6 +197,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
     this.explanationTextService.resetStateBetweenQuestions();
+  }
+
+  initializeSubscriptions(): void {
+    this.initializeQuestionIndexSubscription();
+    this.initializeResetQuizSubscription();
+    this.initializeExplanationDisplaySubscription();
+    this.initializeExplanationTextSubscription();
   }
 
   private initializeQuestionIndexSubscription(): void {
