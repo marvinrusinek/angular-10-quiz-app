@@ -1386,7 +1386,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     try {
       this.currentQuestionIndex = this.currentQuestionIndex > 0 ? this.currentQuestionIndex - 1 : 0;
       this.initializeOrUpdateQuestionState(this.currentQuestionIndex);
-  
+      this.updateNavigationAndExplanationState();
       // Fetch and set question data for the current question index
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
 
