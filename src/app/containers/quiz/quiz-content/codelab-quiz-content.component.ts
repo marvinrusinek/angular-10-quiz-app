@@ -125,7 +125,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.explanationToDisplay = '';
         this.explanationTextService.setShouldDisplayExplanation(false);
       }
-      this.cdRef.detectChanges();  // Force the view to update
     });    
 
     this.explanationTextService.observeExplanationTextVisibility().subscribe(isDisplayed => {
