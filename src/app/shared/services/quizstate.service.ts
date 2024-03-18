@@ -26,6 +26,10 @@ export class QuizStateService {
   questionStates: Map<number, QuestionState> = new Map();
   private quizStates: { [quizId: string]: Map<number, QuestionState> } = {};
 
+  private explanationVisibilityStates: boolean[] = [];
+  private explanationVisibilitySubject = new BehaviorSubject<boolean[]>(this.explanationVisibilityStates);
+  public explanationVisibility$ = this.explanationVisibilitySubject.asObservable();
+
   private quizQuestionCreated = false;
 
   constructor() {
@@ -163,6 +167,22 @@ export class QuizStateService {
       // Apply the default state to each question using its index as the identifier within the specific quiz's state map
       this.quizStates[quizId].set(index, defaultState);
     });
+  }
+
+  initializeStates(questionCount: number): void {
+    this.explanationVisibilityStates = new Array(questionCount).fill(false);
+    this.explanationVisibilitySubject.next(this.explanationVisibilityStates);
+  }
+
+  setExplanationVisibility(questionIndex: number, isVisible: boolean): void {
+    if (this.explanationVisibilityStates[questionIndex] !== undefined) {
+      this.explanationVisibilityStates[questionIndex] = isVisible;
+      this.explanationVisibilitySubject.next(this.explanationVisibilityStates);
+    }
+  }
+
+  getExplanationVisibility(questionIndex: number): boolean {
+    return this.explanationVisibilityStates[questionIndex] || false;
   }
 
   updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
