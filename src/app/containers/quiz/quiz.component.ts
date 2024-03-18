@@ -1400,6 +1400,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.updateExplanationText(this.currentQuestionIndex);
   
       // await this.updateExplanationForQuestion(this.currentQuestionIndex);
+
+      const isExplanationVisible = this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
+      this.updateExplanationVisibility(isExplanationVisible);
   
       // Update the UI
       this.resetUI();
@@ -1508,15 +1511,20 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   
     // Update the progress percentage based on the new current question index
     this.updateProgressPercentage();
-
-    // Update the explanation visibility based on whether the question has been answered
-    this.updateExplanationVisibility();
   }
 
-  updateExplanationVisibility(): void {
+  updateExplanationVisibility(isExplanationVisible: boolean): void {
+    // Update the local component state to reflect this visibility
+    this.explanationVisible = isExplanationVisible;
+  
     const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
-    this.explanationTextService.setShouldDisplayExplanation(questionState.isAnswered);
-  }  
+  
+    if (questionState.isAnswered) {
+      this.explanationTextService.setShouldDisplayExplanation(this.explanationVisible);
+    } else {
+      this.explanationTextService.setShouldDisplayExplanation(false);
+    }
+  }
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
     try {
