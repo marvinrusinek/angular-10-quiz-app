@@ -217,6 +217,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.updateExplanationForQuestion(questionIndex);
     });
 
+    this.quizStateService.initializeStates(this.totalQuestions);
+
     // Fetch additional quiz data
     this.fetchQuizData();
 
