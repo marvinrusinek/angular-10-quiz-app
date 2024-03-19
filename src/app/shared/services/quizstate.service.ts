@@ -118,7 +118,7 @@ export class QuizStateService {
     let currentState = this.getQuestionState(quizId, questionIndex) || {
       isAnswered: false,
       selectedOptions: [],
-      numberOfCorrectAnswers: 0,  // Ensure this property is properly initialized
+      numberOfCorrectAnswers: 0  // Ensure this property is properly initialized
     };
   
     // If updating selected options and the question has correct answers to track
