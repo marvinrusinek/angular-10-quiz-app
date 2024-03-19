@@ -9,6 +9,10 @@
       >
         {{ correctAnswersText$ | async }}
       </span>
+
+      <div *ngIf="isExplanationVisible">
+        <p>{{ explanationToDisplay }}</p>
+      </div>
     </h3>
   </section>
 </ng-container>
