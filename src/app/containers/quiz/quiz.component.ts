@@ -105,6 +105,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   explanationText$: Observable<string | null> =
     this.explanationTextSource.asObservable();
   explanationVisibility: boolean[] = [];
+  explanationVisible = false;
 
   private combinedQuestionDataSubject = new BehaviorSubject<{
     question: QuizQuestion;
