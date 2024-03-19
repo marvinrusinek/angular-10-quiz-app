@@ -591,7 +591,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(([shouldDisplayExplanation, formattedExplanation, isMultipleAnswer]) => {
         let textToDisplay = '';
 
-        if (shouldDisplayExplanation && formattedExplanation) {
+        if (this.isExplanationVisible && shouldDisplayExplanation && formattedExplanation) {
           textToDisplay = formattedExplanation;
           this.shouldDisplayCorrectAnswers = false;
         } else {
