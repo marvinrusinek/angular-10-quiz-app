@@ -1528,6 +1528,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.explanationTextService.setShouldDisplayExplanation(false);
     }
+
+    this.cdRef.detectChanges();
   }
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {

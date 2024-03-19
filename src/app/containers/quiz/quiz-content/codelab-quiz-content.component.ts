@@ -143,6 +143,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     this.combinedText$ = this.quizStateService.getCurrentQuestionIndex$().pipe(
       map(index => {
+        this.isExplanationVisible = this.quizStateService.getExplanationVisibility(index);
         console.log('Current index:', index);
         const state = this.quizStateService.getQuestionState(this.quizId, index);
         console.log('State for index:', state);
