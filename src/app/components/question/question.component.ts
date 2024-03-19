@@ -106,6 +106,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   correctAnswersLoaded = false;
   sharedVisibilitySubscription: Subscription;
   isExplanationTextDisplayed = false;
+  isExplanationVisible = false;
   isNavigatingToPrevious = false;
   isLoading = true;
   isLoadingQuestions = false;
@@ -809,30 +810,42 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
     this.quizService.addSelectedOption(option);
-
+  
     try {
       const currentQuestion = await this.getCurrentQuestion();
       if (!currentQuestion) {
         console.error("Could not retrieve the current question.");
         return;
       }
-
+  
       this.handleOptionSelection(option, index, currentQuestion);
       await this.processCurrentQuestion(currentQuestion);
       this.questionAnswered.emit();
-
+  
       // Retrieve the explanation text for the question
       const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-
+  
       // Mark the question as answered and set the explanation to be displayed
       this.quizStateService.markQuestionAsAnswered(this.currentQuestionIndex, explanationText);
-
-      // Update the UI to reflect the new state
-      this.updateExplanationText(this.currentQuestionIndex);
+  
+      // Set isExplanationVisible to true to display the explanation
+      this.isExplanationVisible = true;  // Ensure this property is declared in your component
+  
+      // Update the UI to reflect the new state, including displaying the explanation
+      this.updateExplanationContent();  // Ensure this method updates the UI based on isExplanationVisible
+  
     } catch (error) {
       console.error("An error occurred while processing the option click:", error);
     }
   }
+  
+  updateExplanationContent(): void {
+    // Set the explanation text based on whether the explanation is supposed to be visible
+    this.explanationText = this.isExplanationVisible ? this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex) : '';
+    // Trigger change detection to update the UI
+    this.cdRef.detectChanges();
+  }
+  
 
   private async processCurrentQuestion(currentQuestion: QuizQuestion): Promise<void> {
     this.explanationTextService.setShouldDisplayExplanation(true);
