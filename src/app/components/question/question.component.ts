@@ -821,6 +821,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.handleOptionSelection(option, index, currentQuestion);
       await this.processCurrentQuestion(currentQuestion);
       this.questionAnswered.emit();
+
+      this.quizStateService.setExplanationVisibility(this.currentQuestionIndex, true);
   
       // Retrieve the explanation text for the question
       const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
