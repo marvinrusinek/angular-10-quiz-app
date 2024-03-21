@@ -1346,8 +1346,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.setIsNavigatingToPrevious(false);
   
     try {
-      // const totalQuestions: number = await this.getTotalQuestions();
-  
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
   
