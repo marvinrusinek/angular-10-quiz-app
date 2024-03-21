@@ -1365,6 +1365,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         this.updateQuestionDisplay(this.currentQuestionIndex);
         this.updateExplanationText(this.currentQuestionIndex);
 
+        const isExplanationVisible = this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
+        this.updateExplanationVisibility(isExplanationVisible);
+
         this.resetUI();
       } else {
         console.log('End of quiz reached.');
@@ -1382,7 +1385,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
-    
+
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(true);
   
