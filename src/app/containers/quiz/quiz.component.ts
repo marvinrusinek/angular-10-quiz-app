@@ -1401,7 +1401,16 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.initializeOrUpdateQuestionState(this.currentQuestionIndex);
       this.updateNavigationAndExplanationState();
 
+      // Specifically check if we're navigating back to the first question
+      if (this.currentQuestionIndex === 0) {
+        // Ensure the explanation for the first question is handled correctly
+        // This might involve a specific check or setting based on your app's logic
+        const isFirstQuestionAnswered = this.checkIfQuestionAnswered(0);
+        this.quizStateService.setExplanationVisibility(0, isFirstQuestionAnswered);
+      }
+
       const isExplanationVisible = this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
+      this.updateExplanationVisibility(isExplanationVisible);
 
       // Fetch and set question data for the current question index
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
@@ -1416,8 +1425,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.updateExplanationText(this.currentQuestionIndex);
   
       // await this.updateExplanationForQuestion(this.currentQuestionIndex);
-
-      this.updateExplanationVisibility(isExplanationVisible);
   
       // Update the UI
       this.resetUI();
