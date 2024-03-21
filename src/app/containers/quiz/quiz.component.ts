@@ -1382,6 +1382,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
+    
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(true);
   
