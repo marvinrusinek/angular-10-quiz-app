@@ -1389,6 +1389,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   
     try {
       this.currentQuestionIndex = this.currentQuestionIndex > 0 ? this.currentQuestionIndex - 1 : 0;
+
+      const previousQuestionIndex = this.currentQuestionIndex;
+      const previousQuestionAnswered = this.checkIfQuestionAnswered(previousQuestionIndex);  
+      this.quizStateService.setExplanationVisibility(previousQuestionIndex, previousQuestionAnswered);
+      this.currentQuestionIndex = previousQuestionIndex;
+
       this.initializeOrUpdateQuestionState(this.currentQuestionIndex);
       this.updateNavigationAndExplanationState();
       // Fetch and set question data for the current question index
@@ -1422,6 +1428,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.isNavigating = false;
       this.quizService.setIsNavigatingToPrevious(false);
     }
+  }
+
+  checkIfQuestionAnswered(questionIndex: number): boolean {
+    // Check if the answer at the given index is not null or undefined
+    return this.answers[questionIndex] !== null && this.answers[questionIndex] !== undefined;
   }
 
   initializeQuestionForDisplay(questionIndex: number): void {
