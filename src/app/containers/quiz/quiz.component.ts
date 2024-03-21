@@ -1399,6 +1399,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
       this.initializeOrUpdateQuestionState(this.currentQuestionIndex);
       this.updateNavigationAndExplanationState();
+
+      const isExplanationVisible = this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
+
       // Fetch and set question data for the current question index
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
 
@@ -1413,7 +1416,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   
       // await this.updateExplanationForQuestion(this.currentQuestionIndex);
 
-      const isExplanationVisible = this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
       this.updateExplanationVisibility(isExplanationVisible);
   
       // Update the UI
