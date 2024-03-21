@@ -1390,7 +1390,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.setIsNavigatingToPrevious(true);
   
     try {
-      this.currentQuestionIndex = this.currentQuestionIndex > 0 ? this.currentQuestionIndex - 1 : 0;
+      // this.currentQuestionIndex = this.currentQuestionIndex > 0 ? this.currentQuestionIndex - 1 : 0;
+      this.currentQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
 
       const previousQuestionIndex = this.currentQuestionIndex;
       const previousQuestionAnswered = this.checkIfQuestionAnswered(previousQuestionIndex);  
