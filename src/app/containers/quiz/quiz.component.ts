@@ -220,6 +220,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
     this.quizStateService.initializeStates(this.totalQuestions);
     this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
+    this.quizStateService.setExplanationVisibility(0, true);
 
     // Fetch additional quiz data
     this.fetchQuizData();
@@ -1407,10 +1408,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         // This might involve a specific check or setting based on your app's logic
         const isFirstQuestionAnswered = this.checkIfQuestionAnswered(0);
         this.quizStateService.setExplanationVisibility(0, isFirstQuestionAnswered);
+        this.updateExplanationVisibility(true);
       }
 
-      const isExplanationVisible = this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
-      this.updateExplanationVisibility(isExplanationVisible);
+      // const isExplanationVisible = this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
+      // this.updateExplanationVisibility(isExplanationVisible);
 
       // Fetch and set question data for the current question index
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
