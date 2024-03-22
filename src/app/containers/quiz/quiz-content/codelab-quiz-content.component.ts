@@ -63,6 +63,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   displayCorrectAnswersText = false;
   explanationDisplayed = false;
   isExplanationVisible = false;
+  private visibilitySubscription: Subscription;
 
   numberOfCorrectAnswers = 0;
   numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
@@ -156,6 +157,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         };
       })
     );
+
+    this.visibilitySubscription = this.quizStateService.explanationVisibility$.subscribe(
+      isVisible => this.isExplanationVisible = isVisible
+    );
     
 
     this.initializeSubscriptions();
@@ -203,6 +208,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
     this.explanationTextService.resetStateBetweenQuestions();
+    this.visibilitySubscription.unsubscribe();
   }
 
   initializeSubscriptions(): void {
