@@ -1382,6 +1382,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   async advanceToPreviousQuestion(): Promise<void> {
+    // Guard against multiple simultaneous navigations
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1391,10 +1392,18 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.setIsNavigatingToPrevious(true);
   
     try {
-      this.currentQuestionIndex = this.currentQuestionIndex > 0 ? this.currentQuestionIndex - 1 : 0;
+      /* this.currentQuestionIndex = this.currentQuestionIndex > 0 ? this.currentQuestionIndex - 1 : 0;
 
       const previousQuestionAnswered = this.checkIfQuestionAnswered(this.currentQuestionIndex);  
-      this.quizStateService.setExplanationVisibility(this.currentQuestionIndex, previousQuestionAnswered);
+      this.quizStateService.setExplanationVisibility(this.currentQuestionIndex, previousQuestionAnswered); */
+
+      const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
+      const previousQuestionAnswered = this.checkIfQuestionAnswered(previousQuestionIndex);
+
+      this.quizStateService.setExplanationVisibility(previousQuestionIndex, previousQuestionAnswered);
+
+      // Update the current question index
+      this.currentQuestionIndex = previousQuestionIndex;
       
       this.initializeOrUpdateQuestionState(this.currentQuestionIndex);
       this.updateNavigationAndExplanationState();
