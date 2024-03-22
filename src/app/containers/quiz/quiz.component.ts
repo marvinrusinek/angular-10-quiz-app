@@ -130,6 +130,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   questionToDisplay = '';
   optionsToDisplay: Option[] = [];
   explanationToDisplay = '';
+  isExplanationVisible = false;
 
   questionsArray: QuizQuestion[] = [];
   isQuizDataLoaded = false;
