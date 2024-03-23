@@ -160,6 +160,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     this.visibilitySubscription = this.quizStateService.explanationVisibility$.subscribe(
       (visibilityStates: boolean[]) => {
+        console.log(`Visibility States Update:`, visibilityStates);
+        console.log(`Current Question Index:`, this.currentQuestionIndexValue);
         this.isExplanationVisible = visibilityStates[this.currentQuestionIndexValue] || false;
         this.cdRef.detectChanges();
       }
