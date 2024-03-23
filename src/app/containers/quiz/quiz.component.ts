@@ -1683,6 +1683,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
+    const questionAnswered = this.checkIfQuestionAnswered(questionIndex);
+    this.quizStateService.setExplanationVisibility(questionIndex, questionAnswered);
+
     // Adjust for one-based URL index
     const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
