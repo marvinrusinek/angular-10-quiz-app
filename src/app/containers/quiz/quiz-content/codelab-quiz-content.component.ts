@@ -5,7 +5,7 @@ import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of,
   Subject, Subscription } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, mergeMap, startWith, switchMap,
-  take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+  take, takeUntil, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
