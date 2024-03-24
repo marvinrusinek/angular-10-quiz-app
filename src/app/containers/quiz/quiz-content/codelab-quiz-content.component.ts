@@ -9,7 +9,6 @@ import { catchError, distinctUntilChanged, filter, map, mergeMap, startWith, swi
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
-import { QuestionState } from '../../../shared/models/QuestionState.model';
 import { QuestionType } from '../../../shared/models/question-type.enum';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
