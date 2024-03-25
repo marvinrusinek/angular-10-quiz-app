@@ -1,6 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef,
-  Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit,
-  Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
