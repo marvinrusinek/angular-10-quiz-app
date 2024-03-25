@@ -1443,9 +1443,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.resetUI();
   
       // Navigate to the correct URL
-      await this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1])
+      /* await this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1])
         .then(() => console.log('Navigation successful'))
-        .catch(error => console.error('Navigation error:', error));
+        .catch(error => console.error('Navigation error:', error)); */
     
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
