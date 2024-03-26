@@ -1406,7 +1406,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
   
-  // New combined method for preparing question data and UI
+  // combined method for preparing question data and UI
   async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
     await this.fetchAndSetQuestionData(questionIndex);
     this.initializeQuestionForDisplay(questionIndex);
