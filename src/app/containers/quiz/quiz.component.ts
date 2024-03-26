@@ -1462,7 +1462,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
       const previousQuestionAnswered = this.checkIfQuestionAnswered(previousQuestionIndex);
 
-      this.quizStateService.setExplanationVisibility(previousQuestionIndex, true);
+      this.quizStateService.setExplanationVisibility(previousQuestionIndex, previousQuestionAnswered);
 
       this.isExplanationVisible = previousQuestionAnswered;
 
