@@ -1475,9 +1475,14 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       if (this.currentQuestionIndex === 0) {
         // const isFirstQuestionAnswered = this.checkIfQuestionAnswered(0);
         // this.quizStateService.setExplanationVisibility(0, isFirstQuestionAnswered);
+        
+        // this.quizStateService.setExplanationVisibility(0, true);
+        // this.isExplanationVisible = this.quizStateService.getExplanationVisibility(0);
+        // this.updateExplanationVisibility(this.isExplanationVisible);
+
+        this.isExplanationVisible = true;
+        this.updateExplanationText(0);
         this.quizStateService.setExplanationVisibility(0, true);
-        this.isExplanationVisible = this.quizStateService.getExplanationVisibility(0);
-        this.updateExplanationVisibility(this.isExplanationVisible);
       }
 
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
