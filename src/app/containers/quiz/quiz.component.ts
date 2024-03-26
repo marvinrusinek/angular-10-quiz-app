@@ -1351,25 +1351,16 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
   
-        // Proceed with fetching the next question and updating the UI
-        const nextQuestion = await this.quizService.getNextQuestion(this.currentQuestionIndex);
-        if (nextQuestion) {
-          this.setCurrentQuestion(nextQuestion);
-        }
+        // Use the newly introduced prepareQuestionForDisplay to simplify the logic
+        await this.prepareQuestionForDisplay(this.currentQuestionIndex);
   
+        // Update navigation and explanation states
         this.updateNavigationAndExplanationState();
-        await this.updateExplanationForQuestion(this.currentQuestionIndex);
-        await this.fetchAndSetQuestionData(this.currentQuestionIndex);
-
-        // Fetch and set the explanation visibility for the current question
-        await this.fetchAndSetExplanationVisibility(this.currentQuestionIndex);
-
-        this.updateQuestionDisplay(this.currentQuestionIndex);
-        this.updateExplanationText(this.currentQuestionIndex);
-
+  
+        // Update explanation visibility based on the state from the quizStateService
         const isExplanationVisible = this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
         this.updateExplanationVisibility(isExplanationVisible);
-
+  
         this.resetUI();
       } else {
         console.log('End of quiz reached.');
@@ -1487,6 +1478,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     await this.fetchAndSetQuestionData(questionIndex);
     this.initializeQuestionForDisplay(questionIndex);
     this.updateQuestionDisplay(questionIndex);
+    this.updateExplanationText(questionIndex);
   }
   
 
