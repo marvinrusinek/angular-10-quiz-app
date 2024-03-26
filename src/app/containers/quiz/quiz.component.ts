@@ -1478,7 +1478,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
-      await this.fetchAndSetExplanationVisibility(this.currentQuestionIndex);
+      // await this.fetchAndSetExplanationVisibility(this.currentQuestionIndex);
 
       this.initializeQuestionForDisplay(this.currentQuestionIndex);
 
