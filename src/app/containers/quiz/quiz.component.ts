@@ -1454,54 +1454,41 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
-
+  
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(true);
-
+  
     try {
       const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
-      const previousQuestionAnswered = this.checkIfQuestionAnswered(previousQuestionIndex);
-
-      this.quizStateService.setExplanationVisibility(previousQuestionIndex, previousQuestionAnswered);
-
-      // this.isExplanationVisible = previousQuestionAnswered;
-      this.isExplanationVisible = true;
-
+      // Simplify explanation visibility logic by directly checking if the previous question was answered
+      this.isExplanationVisible = this.checkIfQuestionAnswered(previousQuestionIndex);
+  
       this.currentQuestionIndex = previousQuestionIndex;
-      
-      this.initializeOrUpdateQuestionState(this.currentQuestionIndex);
-      this.updateNavigationAndExplanationState();
-
-      if (this.currentQuestionIndex === 0) {
-        // const isFirstQuestionAnswered = this.checkIfQuestionAnswered(0);
-        // this.quizStateService.setExplanationVisibility(0, isFirstQuestionAnswered);
-        
-        // this.quizStateService.setExplanationVisibility(0, true);
-        // this.isExplanationVisible = this.quizStateService.getExplanationVisibility(0);
-        // this.updateExplanationVisibility(this.isExplanationVisible);
-
-        this.isExplanationVisible = true;
-        this.updateExplanationText(0);
-        this.quizStateService.setExplanationVisibility(0, true);
-      }
-
-      await this.fetchAndSetQuestionData(this.currentQuestionIndex);
-      // await this.fetchAndSetExplanationVisibility(this.currentQuestionIndex);
-
-      this.initializeQuestionForDisplay(this.currentQuestionIndex);
-
-      this.updateQuestionDisplay(this.currentQuestionIndex);
+  
+      // Combine fetching data and initializing question state into a single method for clarity
+      await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+  
+      // Explicitly set explanation visibility based on the current state
+      this.quizStateService.setExplanationVisibility(previousQuestionIndex, this.isExplanationVisible);
       this.updateExplanationText(this.currentQuestionIndex);
-
+  
       this.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
       this.isNavigating = false;
       this.quizService.setIsNavigatingToPrevious(false);
+      this.cdRef.detectChanges();
     }
-    this.cdRef.detectChanges();
   }
+  
+  // New combined method for preparing question data and UI
+  async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
+    await this.fetchAndSetQuestionData(questionIndex);
+    this.initializeQuestionForDisplay(questionIndex);
+    this.updateQuestionDisplay(questionIndex);
+  }
+  
 
 
   checkIfQuestionAnswered(questionIndex: number): boolean {
