@@ -132,6 +132,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.showExplanationText = isDisplayed;
     });
 
+    this.quizStateService.getExplanationVisibility().subscribe(isVisible => {
+      this.isExplanationVisible = isVisible;
+      this.cdRef.detectChanges(); // Manually trigger change detection
+    });
+
     /* this.currentQuestionIndex$.subscribe(index => {
       this.isExplanationVisible = this.quizStateService.getExplanationVisibility(index);
       this.cdRef.detectChanges();
