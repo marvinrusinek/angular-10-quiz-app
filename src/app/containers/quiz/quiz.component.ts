@@ -1373,73 +1373,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
   
-  /* async advanceToPreviousQuestion(): Promise<void> {
-    // Guard against multiple simultaneous navigations
-    if (this.isNavigating) {
-      console.warn('Navigation already in progress. Aborting.');
-      return;
-    }
-
-    this.isNavigating = true;
-    this.quizService.setIsNavigatingToPrevious(true);
-  
-    try {
-      // this.currentQuestionIndex = this.currentQuestionIndex > 0 ? this.currentQuestionIndex - 1 : 0;
-
-      // const previousQuestionAnswered = this.checkIfQuestionAnswered(this.currentQuestionIndex);  
-      // this.quizStateService.setExplanationVisibility(this.currentQuestionIndex, previousQuestionAnswered);
-
-      const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
-      const previousQuestionAnswered = this.checkIfQuestionAnswered(previousQuestionIndex);
-
-      // this.quizStateService.setExplanationVisibility(previousQuestionIndex, previousQuestionAnswered);
-      this.quizStateService.setExplanationVisibility(previousQuestionIndex, true);
-
-      this.isExplanationVisible = previousQuestionAnswered;
-
-      // Update the current question index
-      this.currentQuestionIndex = previousQuestionIndex;
-      
-      this.initializeOrUpdateQuestionState(this.currentQuestionIndex);
-      this.updateNavigationAndExplanationState();
-
-      // Specifically check if we're navigating back to the first question
-      if (this.currentQuestionIndex === 0) {
-        // Ensure the explanation for the first question is handled correctly
-        // This might involve a specific check or setting based on your app's logic
-        const isFirstQuestionAnswered = this.checkIfQuestionAnswered(0);
-        this.quizStateService.setExplanationVisibility(0, isFirstQuestionAnswered);
-        const isExplanationVisible = this.quizStateService.getExplanationVisibility(0);
-        this.updateExplanationVisibility(isExplanationVisible);
-      }
-
-      // const isExplanationVisible = this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
-      // this.updateExplanationVisibility(isExplanationVisible);
-
-      // Fetch and set question data for the current question index
-      await this.fetchAndSetQuestionData(this.currentQuestionIndex);
-
-      // Fetch and set the explanation visibility for the current question
-      await this.fetchAndSetExplanationVisibility(this.currentQuestionIndex);
-  
-      // Update the display for the current question
-      this.initializeQuestionForDisplay(this.currentQuestionIndex);
-
-      this.updateQuestionDisplay(this.currentQuestionIndex);
-      this.updateExplanationText(this.currentQuestionIndex);
-  
-      // await this.updateExplanationForQuestion(this.currentQuestionIndex);
-  
-      // Update the UI
-      this.resetUI();
-    } catch (error) {
-      console.error('Error occurred while navigating to the previous question:', error);
-    } finally {
-      this.isNavigating = false;
-      this.quizService.setIsNavigatingToPrevious(false);
-    }
-  } */
-
   async advanceToPreviousQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -1480,8 +1413,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.updateQuestionDisplay(questionIndex);
     this.updateExplanationText(questionIndex);
   }
-  
-
 
   checkIfQuestionAnswered(questionIndex: number): boolean {
     // Check if the answer at the given index is not null or undefined
