@@ -1391,6 +1391,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   
       // Combine fetching data and initializing question state into a single method for clarity
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+
+      this.updateNavigationAndExplanationState();
   
       // Explicitly set explanation visibility based on the current state
       this.quizStateService.setExplanationVisibility(previousQuestionIndex, this.isExplanationVisible);
