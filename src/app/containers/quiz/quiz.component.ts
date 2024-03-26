@@ -1418,7 +1418,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   checkIfQuestionAnswered(questionIndex: number): boolean {
     // Check if the answer at the given index is not null or undefined
-    return this.quizService.answers[questionIndex] !== null && this.quizService.answers[questionIndex] !== undefined;
+    return this.quizService.selectedOptions[questionIndex] !== null && this.quizService.selectedOptions[questionIndex] !== undefined;
   }
 
   initializeQuestionForDisplay(questionIndex: number): void {
