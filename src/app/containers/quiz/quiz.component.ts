@@ -1495,6 +1495,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.isNavigating = false;
       this.quizService.setIsNavigatingToPrevious(false);
     }
+    this.cdRef.detectChanges();
   }
 
 
