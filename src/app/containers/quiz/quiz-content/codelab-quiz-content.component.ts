@@ -586,7 +586,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   }
 
-  private determineTextToDisplay(
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]: [QuizQuestion, QuizQuestion, string, boolean]
   ): Observable<string> {
     if ((!nextQuestion || !nextQuestion.questionText) && (!previousQuestion || !previousQuestion.questionText)) {
@@ -612,7 +612,38 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return textToDisplay;
       })
     );
+  } */
+
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]: [QuizQuestion, QuizQuestion, string, boolean]
+  ): Observable<string> {
+    if ((!nextQuestion || !nextQuestion.questionText) && (!previousQuestion || !previousQuestion.questionText)) {
+      return of('');
+    }
+  
+    return combineLatest([
+      of(shouldDisplayExplanation),
+      of(formattedExplanation),
+      this.isCurrentQuestionMultipleAnswer()
+    ]).pipe(
+      map(([shouldDisplayExplanation, formattedExplanation, isMultipleAnswer]) => {
+        let textToDisplay = '';
+  
+        // Check if the explanation should be displayed
+        if (shouldDisplayExplanation && formattedExplanation) {
+          textToDisplay = formattedExplanation;
+          this.shouldDisplayCorrectAnswers = false;
+        } else {
+          // Use nextQuestion's text if available, otherwise use previousQuestion's text
+          textToDisplay = nextQuestion?.questionText || previousQuestion?.questionText || '';
+          this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
+        }
+  
+        return textToDisplay;
+      })
+    );
   }
+  
   
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
