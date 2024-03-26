@@ -1389,7 +1389,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   
       this.currentQuestionIndex = previousQuestionIndex;
   
-      // Combine fetching data and initializing question state into a single method for clarity
+      // Combine fetching data and initializing question state into a single method
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
       // Update navigation and explanation states
