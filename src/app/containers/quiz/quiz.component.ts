@@ -1394,7 +1394,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   
       // Explicitly set explanation visibility based on the current state
       this.quizStateService.setExplanationVisibility(previousQuestionIndex, this.isExplanationVisible);
-      this.updateExplanationText(this.currentQuestionIndex);
   
       this.resetUI();
     } catch (error) {
