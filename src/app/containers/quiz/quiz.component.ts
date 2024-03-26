@@ -1382,7 +1382,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
   
-  async advanceToPreviousQuestion(): Promise<void> {
+  /* async advanceToPreviousQuestion(): Promise<void> {
     // Guard against multiple simultaneous navigations
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -1393,10 +1393,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.setIsNavigatingToPrevious(true);
   
     try {
-      /* this.currentQuestionIndex = this.currentQuestionIndex > 0 ? this.currentQuestionIndex - 1 : 0;
+      // this.currentQuestionIndex = this.currentQuestionIndex > 0 ? this.currentQuestionIndex - 1 : 0;
 
-      const previousQuestionAnswered = this.checkIfQuestionAnswered(this.currentQuestionIndex);  
-      this.quizStateService.setExplanationVisibility(this.currentQuestionIndex, previousQuestionAnswered); */
+      // const previousQuestionAnswered = this.checkIfQuestionAnswered(this.currentQuestionIndex);  
+      // this.quizStateService.setExplanationVisibility(this.currentQuestionIndex, previousQuestionAnswered);
 
       const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
       const previousQuestionAnswered = this.checkIfQuestionAnswered(previousQuestionIndex);
@@ -1447,7 +1447,52 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.isNavigating = false;
       this.quizService.setIsNavigatingToPrevious(false);
     }
+  } */
+
+  async advanceToPreviousQuestion(): Promise<void> {
+    if (this.isNavigating) {
+      console.warn('Navigation already in progress. Aborting.');
+      return;
+    }
+
+    this.isNavigating = true;
+    this.quizService.setIsNavigatingToPrevious(true);
+
+    try {
+      const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
+      const previousQuestionAnswered = this.checkIfQuestionAnswered(previousQuestionIndex);
+
+      this.quizStateService.setExplanationVisibility(previousQuestionIndex, true);
+
+      this.isExplanationVisible = previousQuestionAnswered;
+
+      this.currentQuestionIndex = previousQuestionIndex;
+      
+      this.initializeOrUpdateQuestionState(this.currentQuestionIndex);
+      this.updateNavigationAndExplanationState();
+
+      if (this.currentQuestionIndex === 0) {
+        const isFirstQuestionAnswered = this.checkIfQuestionAnswered(0);
+        this.quizStateService.setExplanationVisibility(0, isFirstQuestionAnswered);
+      }
+
+      await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+      await this.fetchAndSetExplanationVisibility(this.currentQuestionIndex);
+
+      this.initializeQuestionForDisplay(this.currentQuestionIndex);
+
+      this.updateQuestionDisplay(this.currentQuestionIndex);
+      this.updateExplanationText(this.currentQuestionIndex);
+
+      this.resetUI();
+    } catch (error) {
+      console.error('Error occurred while navigating to the previous question:', error);
+    } finally {
+      this.isNavigating = false;
+      this.quizService.setIsNavigatingToPrevious(false);
+    }
   }
+
 
   checkIfQuestionAnswered(questionIndex: number): boolean {
     // Check if the answer at the given index is not null or undefined
