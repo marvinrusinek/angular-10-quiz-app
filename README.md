@@ -26,7 +26,7 @@ The <a href="https://stackblitz.com/edit/angular-10-quiz-app">Angular Quiz App</
 
 Start your adventure by visiting the Angular Codelab website. Click below and take the first step towards Angular mastery:
 
-🔗 <b>codelab.fun</b>
+🔗 <b><a href="https://www.codelab.fun">codelab.fun</a></b>
 
 Prepare to elevate your Angular skills, enjoy every challenge, and most importantly — have fun along the way!
 
