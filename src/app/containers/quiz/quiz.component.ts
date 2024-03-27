@@ -1351,7 +1351,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
   
-        // Use the newly introduced prepareQuestionForDisplay to simplify the logic
+        // Combine fetching data and initializing question state into a single method
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
   
         // Update navigation and explanation states
