@@ -1701,6 +1701,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     // Step 1: Reset quiz-specific states and services
     this.quizService.resetAll();
     this.currentQuestionIndex = 0;  // Reset to the first question's index
+    this.progressPercentage = 0; // Reset the progressPercentage to 0
     this.explanationTextService.resetExplanationText();  // Clears any existing explanation text
 
     // Step 2: Reset the timer synchronously
