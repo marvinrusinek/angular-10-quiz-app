@@ -575,7 +575,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.previousQuestion$.pipe(startWith(null)),
       this.explanationTextService.formattedExplanation$.pipe(startWith('')),
       this.explanationTextService.shouldDisplayExplanation$,
-      this.quizStateService.getCurrentQuestionIndex$().pipe(startWith(0)) // Ensure current question index is included
+      this.quizStateService.getCurrentQuestionIndex$().pipe(startWith(0))
     ]).pipe(
       switchMap(params => this.determineTextToDisplay(params)),
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
