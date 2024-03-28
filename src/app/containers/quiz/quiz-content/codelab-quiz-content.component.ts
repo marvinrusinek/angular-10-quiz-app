@@ -569,7 +569,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
   }
 
-  private setupCombinedTextObservable(): void {
+  /* private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
       this.nextQuestion$.pipe(startWith(null)),
       this.previousQuestion$.pipe(startWith(null)),
@@ -612,7 +612,49 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return textToDisplay;
       })
     );
+  } */
+
+  private setupCombinedTextObservable(): void {
+    this.combinedText$ = combineLatest([
+      this.nextQuestion$.pipe(startWith(null)),
+      this.previousQuestion$.pipe(startWith(null)),
+      this.explanationTextService.formattedExplanation$.pipe(startWith('')),
+      this.explanationTextService.shouldDisplayExplanation$,
+      this.quizStateService.getCurrentQuestionIndex$().pipe(startWith(0)) // Ensure current question index is included
+    ]).pipe(
+      switchMap(([nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]) =>
+        this.determineTextToDisplay(nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex) // Pass current index to determineTextToDisplay
+      ),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+      startWith(''),
+      catchError((error: Error) => {
+        console.error('Error in combinedText$ observable:', error);
+        return of('');
+      })
+    );
   }
+  
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]: [QuizQuestion, QuizQuestion, string, boolean, number]
+  ): Observable<string> {
+    // Additional logic to handle when to display the explanation based on the current question index
+    return this.quizStateService.getQuestionState$(this.quizId, currentIndex).pipe(
+      map(questionState => {
+        let textToDisplay = '';
+  
+        if (shouldDisplayExplanation && formattedExplanation && questionState?.explanationDisplayed) {
+          textToDisplay = formattedExplanation;
+          this.shouldDisplayCorrectAnswers = false;
+        } else {
+          textToDisplay = this.questionToDisplay || '';
+          this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && this.isCurrentQuestionMultipleAnswer();
+        }
+  
+        return textToDisplay;
+      })
+    );
+  }
+  
   
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
