@@ -631,27 +631,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       })
     );
   }
-  
-  /* private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]: [QuizQuestion, QuizQuestion, string, boolean, number]
-  ): Observable<string> {
-    // Additional logic to handle when to display the explanation based on the current question index
-    return this.quizStateService.getQuestionState(this.quizId, currentIndex).pipe(
-      map(questionState => {
-        let textToDisplay = '';
-  
-        if (shouldDisplayExplanation && formattedExplanation && questionState?.explanationDisplayed) {
-          textToDisplay = formattedExplanation;
-          this.shouldDisplayCorrectAnswers = false;
-        } else {
-          textToDisplay = this.questionToDisplay || '';
-          this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && this.isCurrentQuestionMultipleAnswer();
-        }
-  
-        return textToDisplay;
-      })
-    );
-  } */
 
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]: [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
