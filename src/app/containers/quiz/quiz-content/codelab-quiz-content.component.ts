@@ -675,9 +675,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   }
   
-  
-  
-  
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
       take(1), // Take the first value emitted and then complete
