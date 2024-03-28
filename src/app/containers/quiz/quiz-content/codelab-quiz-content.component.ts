@@ -658,7 +658,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   ): Observable<string> {
     const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
     
-    // Use 'switchMap' or another appropriate operator to handle the Observable from 'isCurrentQuestionMultipleAnswer'
     return this.isCurrentQuestionMultipleAnswer().pipe(
       map(isMultipleAnswer => {
         let textToDisplay = '';
@@ -668,7 +667,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           this.shouldDisplayCorrectAnswers = false;
         } else {
           textToDisplay = this.questionToDisplay || '';
-          // 'isMultipleAnswer' is now a boolean value, not an Observable
           this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
         }
   
