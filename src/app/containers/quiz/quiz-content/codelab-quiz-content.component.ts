@@ -568,52 +568,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }
     });
   }
-
-  /* private setupCombinedTextObservable(): void {
-    this.combinedText$ = combineLatest([
-      this.nextQuestion$.pipe(startWith(null)),
-      this.previousQuestion$.pipe(startWith(null)),
-      this.explanationTextService.formattedExplanation$.pipe(startWith('')),
-      this.explanationTextService.shouldDisplayExplanation$
-    ]).pipe(
-      switchMap(this.determineTextToDisplay.bind(this)),
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-      startWith(''),
-      catchError((error: Error) => {
-        console.error('Error in combinedText$ observable:', error);
-        return of('');
-      })
-    );
-  }
-
-  private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation]: [QuizQuestion, QuizQuestion, string, boolean]
-  ): Observable<string> {
-    if ((!nextQuestion || !nextQuestion.questionText) && (!previousQuestion || !previousQuestion.questionText)) {
-      return of('');
-    }
-
-    return combineLatest([
-      of(shouldDisplayExplanation),
-      of(formattedExplanation),
-      this.isCurrentQuestionMultipleAnswer()
-    ]).pipe(
-      map(([shouldDisplayExplanation, formattedExplanation, isMultipleAnswer]) => {
-        let textToDisplay = '';
-
-        if (shouldDisplayExplanation && formattedExplanation) {
-          textToDisplay = formattedExplanation;
-          this.shouldDisplayCorrectAnswers = false;
-        } else {
-          textToDisplay = this.questionToDisplay || '';
-          this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
-        }
-
-        return textToDisplay;
-      })
-    );
-  } */
-
+  
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
       this.nextQuestion$.pipe(startWith(null)),
