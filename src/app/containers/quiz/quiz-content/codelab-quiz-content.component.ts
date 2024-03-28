@@ -656,21 +656,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]: [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
   ): Observable<string> {
-    // Immediately return an Observable using 'of' if getQuestionState returns a non-Observable value
     const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
     
-    let textToDisplay = '';
+    // Use 'switchMap' or another appropriate operator to handle the Observable from 'isCurrentQuestionMultipleAnswer'
+    return this.isCurrentQuestionMultipleAnswer().pipe(
+      map(isMultipleAnswer => {
+        let textToDisplay = '';
   
-    if (shouldDisplayExplanation && formattedExplanation && questionState?.explanationDisplayed) {
-      textToDisplay = formattedExplanation;
-      this.shouldDisplayCorrectAnswers = false;
-    } else {
-      textToDisplay = this.questionToDisplay || '';
-      this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && this.isCurrentQuestionMultipleAnswer();
-    }
+        if (shouldDisplayExplanation && formattedExplanation && questionState?.explanationDisplayed) {
+          textToDisplay = formattedExplanation;
+          this.shouldDisplayCorrectAnswers = false;
+        } else {
+          textToDisplay = this.questionToDisplay || '';
+          // 'isMultipleAnswer' is now a boolean value, not an Observable
+          this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
+        }
   
-    return of(textToDisplay); // Wrap the result in an Observable
+        return textToDisplay;
+      })
+    );
   }
+  
   
   
   
