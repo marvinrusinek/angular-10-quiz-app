@@ -622,9 +622,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.explanationTextService.shouldDisplayExplanation$,
       this.quizStateService.getCurrentQuestionIndex$().pipe(startWith(0)) // Ensure current question index is included
     ]).pipe(
-      switchMap(([nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]) =>
-        this.determineTextToDisplay(nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex) // Pass current index to determineTextToDisplay
-      ),
+      switchMap(params => this.determineTextToDisplay(params)),
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
       startWith(''),
       catchError((error: Error) => {
@@ -634,11 +632,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   }
   
-  private determineTextToDisplay(
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]: [QuizQuestion, QuizQuestion, string, boolean, number]
   ): Observable<string> {
     // Additional logic to handle when to display the explanation based on the current question index
-    return this.quizStateService.getQuestionState$(this.quizId, currentIndex).pipe(
+    return this.quizStateService.getQuestionState(this.quizId, currentIndex).pipe(
       map(questionState => {
         let textToDisplay = '';
   
@@ -653,7 +651,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return textToDisplay;
       })
     );
+  } */
+
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]: [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
+  ): Observable<string> {
+    // Immediately return an Observable using 'of' if getQuestionState returns a non-Observable value
+    const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
+    
+    let textToDisplay = '';
+  
+    if (shouldDisplayExplanation && formattedExplanation && questionState?.explanationDisplayed) {
+      textToDisplay = formattedExplanation;
+      this.shouldDisplayCorrectAnswers = false;
+    } else {
+      textToDisplay = this.questionToDisplay || '';
+      this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && this.isCurrentQuestionMultipleAnswer();
+    }
+  
+    return of(textToDisplay); // Wrap the result in an Observable
   }
+  
   
   
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
