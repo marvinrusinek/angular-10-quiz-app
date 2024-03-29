@@ -514,24 +514,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }
     });
   }
-  
-  /* private setupCombinedTextObservable(): void {
-    this.combinedText$ = combineLatest([
-      this.nextQuestion$.pipe(startWith(null)),
-      this.previousQuestion$.pipe(startWith(null)),
-      this.explanationTextService.formattedExplanation$.pipe(startWith('')),
-      this.explanationTextService.shouldDisplayExplanation$,
-      this.quizStateService.getCurrentQuestionIndex$().pipe(startWith(0))
-    ]).pipe(
-      switchMap(params => this.determineTextToDisplay(params)),
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-      startWith(''),
-      catchError((error: Error) => {
-        console.error('Error in combinedText$ observable:', error);
-        return of('');
-      })
-    );
-  } */
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
