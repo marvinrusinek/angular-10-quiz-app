@@ -587,7 +587,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   }
 
-  private determineTextToDisplay(
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]: [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
   ): Observable<string> {
     const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
@@ -607,7 +607,35 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return textToDisplay;
       })
     );
+  } */
+
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
+    [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
+  ): Observable<string> {
+    const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
+  
+    // Display explanation for the first question or based on questionState's properties
+    const displayExplanation = currentIndex === 0 || (shouldDisplayExplanation && questionState?.explanationDisplayed);
+  
+    return this.isCurrentQuestionMultipleAnswer().pipe(
+      map(isMultipleAnswer => {
+        let textToDisplay = '';
+  
+        // Use the new displayExplanation condition to determine when to show formattedExplanation
+        if (displayExplanation && formattedExplanation) {
+          textToDisplay = formattedExplanation;
+          this.shouldDisplayCorrectAnswers = false;
+        } else {
+          textToDisplay = this.questionToDisplay || '';
+          this.shouldDisplayCorrectAnswers = !displayExplanation && isMultipleAnswer;
+        }
+  
+        return textToDisplay;
+      })
+    );
   }
+  
   
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
