@@ -587,28 +587,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   }
 
-  /* private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]: [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
-  ): Observable<string> {
-    const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
-    
-    return this.isCurrentQuestionMultipleAnswer().pipe(
-      map(isMultipleAnswer => {
-        let textToDisplay = '';
-  
-        if (shouldDisplayExplanation && formattedExplanation && questionState?.explanationDisplayed) {
-          textToDisplay = formattedExplanation;
-          this.shouldDisplayCorrectAnswers = false;
-        } else {
-          textToDisplay = this.questionToDisplay || '';
-          this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
-        }
-  
-        return textToDisplay;
-      })
-    );
-  } */
-
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
@@ -635,7 +613,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       })
     );
   }
-  
   
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
