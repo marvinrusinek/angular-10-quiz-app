@@ -108,24 +108,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.quizService.getIsNavigatingToPrevious().subscribe(
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
-
-    // Listen to router navigation events
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      map(() => this.activatedRoute.firstChild),
-      switchMap(route => route ? route.params : of({})),
-      map(params => params['questionIndex'] ? +params['questionIndex'] : 0)  // Default to 0 (first question) if no index
-    ).subscribe((questionIndex: number) => {
-      this.currentQuestionIndexValue = questionIndex;
-      const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
-      if (questionState && questionState.isAnswered) {
-        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-        this.explanationTextService.setShouldDisplayExplanation(true);
-      } else {
-        this.explanationToDisplay = '';
-        this.explanationTextService.setShouldDisplayExplanation(false);
-      }
-    });
   }
 
   ngOnInit(): void {
