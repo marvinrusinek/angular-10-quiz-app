@@ -801,13 +801,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* async markQuestionAsAnswered(quizId: string, questionIndex: number, showExplanation: boolean) {
-    const questionState = this.quizStateService.getQuestionState(quizId, questionIndex) || this.quizStateService.createDefaultQuestionState();
-    questionState.isAnswered = true;
-    questionState.explanationDisplayed = showExplanation;
-    this.quizStateService.setQuestionState(quizId, questionIndex, questionState);
-  } */
-
   async onOptionClicked(option: Option, index: number): Promise<void> {
     this.quizService.addSelectedOption(option);
   
@@ -821,47 +814,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.handleOptionSelection(option, index, currentQuestion);
       await this.processCurrentQuestion(currentQuestion);
       this.questionAnswered.emit();
-
-      // this.quizStateService.setExplanationVisibility(this.currentQuestionIndex, true);
   
       // Retrieve the explanation text for the question
       const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-  
-      // Mark the question as answered and set the explanation to be displayed
-      // this.quizStateService.markQuestionAsAnswered(this.currentQuestionIndex, explanationText);
-  
-      // Set isExplanationVisible to true to display the explanation
-      // this.isExplanationVisible = true;  // Ensure this property is declared in your component
-  
-      // Update the UI to reflect the new state, including displaying the explanation
-      this.updateExplanationContent();  // Ensure this method updates the UI based on isExplanationVisible
-  
     } catch (error) {
       console.error("An error occurred while processing the option click:", error);
     }
-  }
-  
-  updateExplanationContent(): void {
-    // Set the explanation text based on whether the explanation is supposed to be visible
-    this.explanationText = this.isExplanationVisible ? this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex) : '';
-    // Trigger change detection to update the UI
-    this.cdRef.detectChanges();
-  }
-  
+  }  
 
   private async processCurrentQuestion(currentQuestion: QuizQuestion): Promise<void> {
     this.explanationTextService.setShouldDisplayExplanation(true);
 
     const explanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-    // this.quizStateService.markQuestionAsAnswered(this.currentQuestionIndex, explanationText);
-    // await this.markQuestionAsAnswered(this.quizId, this.currentQuestionIndex, true);
     this.explanationTextService.setCurrentQuestionExplanation(explanationText);
 
     const totalCorrectAnswers = this.getTotalCorrectAnswers(currentQuestion);
     this.quizStateService.updateQuestionState(this.quizId, this.currentQuestionIndex, { isAnswered: true },totalCorrectAnswers);
 
     const updatedState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
-    console.log("UPDATED STATE", updatedState);
   }
 
   updateExplanationText(questionIndex: number): void {
