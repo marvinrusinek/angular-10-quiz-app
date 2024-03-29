@@ -169,11 +169,6 @@ export class QuizStateService {
     });
   }
 
-  initializeStates(questionCount: number): void {
-    this.explanationVisibilityStates = new Array(questionCount).fill(false);
-    this.explanationVisibilitySubject.next(this.explanationVisibilityStates);
-  }
-
   setExplanationVisibility(questionIndex: number, isVisible: boolean): void {
     if (this.explanationVisibilityStates[questionIndex] !== undefined) {
       this.explanationVisibilityStates[questionIndex] = isVisible;

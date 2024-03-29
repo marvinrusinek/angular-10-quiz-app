@@ -197,10 +197,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
 
-    // this.quizStateService.initializeStates(this.totalQuestions);
-    // this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
-    // this.quizStateService.setExplanationVisibility(0, true);
-
     // Fetch additional quiz data
     this.fetchQuizData();
 
