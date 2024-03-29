@@ -1051,11 +1051,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.quizId, this.currentQuestionIndex, option.optionId
     );
   
-    // Mark the current question as answered in the quiz state service
-    /* this.markQuestionAsAnswered(
-      this.quizService.quizId, this.currentQuestionIndex, true
-    ); */
-  
     const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex) || 'No explanation available';
     this.explanationTextService.setExplanationText(explanationText);
     
