@@ -1617,6 +1617,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.progressPercentage = 0; // Reset the progressPercentage to 0
     this.explanationTextService.resetExplanationText();  // Clears any existing explanation text
 
+    // Reset the current question index to the first question
+    this.quizStateService.setCurrentQuestionIndex(0);
+    // Reset any other relevant state, such as explanation visibility
+    this.explanationTextService.setShouldDisplayExplanation(false);
+
     // Step 2: Reset the timer synchronously
     this.timerService.stopTimer((elapsedTime: number) => {
       this.elapsedTimeDisplay = elapsedTime;
