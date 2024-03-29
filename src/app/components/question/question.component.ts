@@ -822,16 +822,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.processCurrentQuestion(currentQuestion);
       this.questionAnswered.emit();
 
-      this.quizStateService.setExplanationVisibility(this.currentQuestionIndex, true);
+      // this.quizStateService.setExplanationVisibility(this.currentQuestionIndex, true);
   
       // Retrieve the explanation text for the question
       const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
   
       // Mark the question as answered and set the explanation to be displayed
-      this.quizStateService.markQuestionAsAnswered(this.currentQuestionIndex, explanationText);
+      // this.quizStateService.markQuestionAsAnswered(this.currentQuestionIndex, explanationText);
   
       // Set isExplanationVisible to true to display the explanation
-      this.isExplanationVisible = true;  // Ensure this property is declared in your component
+      // this.isExplanationVisible = true;  // Ensure this property is declared in your component
   
       // Update the UI to reflect the new state, including displaying the explanation
       this.updateExplanationContent();  // Ensure this method updates the UI based on isExplanationVisible

@@ -197,9 +197,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
 
-    this.quizStateService.initializeStates(this.totalQuestions);
-    this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
-    this.quizStateService.setExplanationVisibility(0, true);
+    // this.quizStateService.initializeStates(this.totalQuestions);
+    // this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
+    // this.quizStateService.setExplanationVisibility(0, true);
 
     // Fetch additional quiz data
     this.fetchQuizData();
@@ -1333,8 +1333,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         this.updateNavigationAndExplanationState();
   
         // Update explanation visibility based on the state from the quizStateService
-        const isExplanationVisible = this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
-        this.updateExplanationVisibility(isExplanationVisible);
+        // const isExplanationVisible = this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
+        // this.updateExplanationVisibility(isExplanationVisible);
   
         this.resetUI();
       } else {
@@ -1371,7 +1371,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.updateNavigationAndExplanationState();
   
       // Explicitly set explanation visibility based on the current state
-      this.quizStateService.setExplanationVisibility(previousQuestionIndex, this.isExplanationVisible);
+      // this.quizStateService.setExplanationVisibility(previousQuestionIndex, this.isExplanationVisible);
   
       this.resetUI();
     } catch (error) {
@@ -1597,8 +1597,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    const questionAnswered = this.checkIfQuestionAnswered(questionIndex);
-    this.quizStateService.setExplanationVisibility(questionIndex, questionAnswered);
+    // const questionAnswered = this.checkIfQuestionAnswered(questionIndex);
+    // this.quizStateService.setExplanationVisibility(questionIndex, questionAnswered);
 
     // Adjust for one-based URL index
     const adjustedIndexForUrl = questionIndex + 1;
