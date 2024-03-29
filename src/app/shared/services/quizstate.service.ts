@@ -168,11 +168,7 @@ export class QuizStateService {
       this.quizStates[quizId].set(index, defaultState);
     });
   }
-
-  getExplanationVisibility(questionIndex: number): boolean {
-    return this.explanationVisibilityStates[questionIndex] || false;
-  }
-
+  
   updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
     if (question$ === null || question$ === undefined) {
       throw new Error('Question$ is null or undefined.');
