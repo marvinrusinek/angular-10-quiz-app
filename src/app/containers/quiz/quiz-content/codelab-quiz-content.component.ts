@@ -87,7 +87,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
 
   combinedText$: Observable<string>;
-  // combinedText$: Observable<{ explanationText: string; showExplanationText: boolean }>;
   textToDisplay: string = '';
 
   private destroy$ = new Subject<void>();
@@ -607,7 +606,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       })
     );
   }
-  
+
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
