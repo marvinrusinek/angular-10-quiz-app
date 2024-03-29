@@ -231,15 +231,6 @@ export class QuizStateService {
     return questionState?.isAnswered === true;
   }
 
-  markQuestionAsAnswered(questionIndex: number, explanationText: string): void {
-    this.questionStates.set(questionIndex, {
-      isAnswered: true,
-      selectedOptions: [],
-      explanationText: explanationText,
-      explanationDisplayed: true
-    });
-  }  
-
   /* not being used, potentially remove...
   updateCorrectAnswersText(newText: string): void {
     this.correctAnswersTextSource.next(newText);
