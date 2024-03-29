@@ -801,12 +801,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  async markQuestionAsAnswered(quizId: string, questionIndex: number, showExplanation: boolean) {
+  /* async markQuestionAsAnswered(quizId: string, questionIndex: number, showExplanation: boolean) {
     const questionState = this.quizStateService.getQuestionState(quizId, questionIndex) || this.quizStateService.createDefaultQuestionState();
     questionState.isAnswered = true;
     questionState.explanationDisplayed = showExplanation;
     this.quizStateService.setQuestionState(quizId, questionIndex, questionState);
-  }
+  } */
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
     this.quizService.addSelectedOption(option);
@@ -853,8 +853,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.explanationTextService.setShouldDisplayExplanation(true);
 
     const explanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-    this.quizStateService.markQuestionAsAnswered(this.currentQuestionIndex, explanationText);
-    await this.markQuestionAsAnswered(this.quizId, this.currentQuestionIndex, true);
+    // this.quizStateService.markQuestionAsAnswered(this.currentQuestionIndex, explanationText);
+    // await this.markQuestionAsAnswered(this.quizId, this.currentQuestionIndex, true);
     this.explanationTextService.setCurrentQuestionExplanation(explanationText);
 
     const totalCorrectAnswers = this.getTotalCorrectAnswers(currentQuestion);
@@ -1082,9 +1082,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     );
   
     // Mark the current question as answered in the quiz state service
-    this.markQuestionAsAnswered(
+    /* this.markQuestionAsAnswered(
       this.quizService.quizId, this.currentQuestionIndex, true
-    );
+    ); */
   
     const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex) || 'No explanation available';
     this.explanationTextService.setExplanationText(explanationText);
