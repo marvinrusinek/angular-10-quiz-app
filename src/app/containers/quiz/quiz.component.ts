@@ -167,17 +167,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.quizReset$.subscribe(() => {
       this.updateComponentState();
     });
-
-    /* this.activatedRoute.params.subscribe(params => {
-      const questionIndex = +params['questionIndex'] - 1;
-      this.updateExplanationForQuestion(questionIndex);
-    });
-
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
-      this.updateExplanationForQuestion(this.currentQuestionIndex);
-    }); */
   }
 
   @HostListener('window:focus', ['$event'])
@@ -207,17 +196,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Quiz ID is not available.');
       }
     });
-
-    /* this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      map(() => this.activatedRoute.firstChild),
-      filter(route => route !== null && route !== undefined),
-      switchMap(route => route.params),
-      takeUntil(this.destroy$)
-    ).subscribe(params => {
-      const questionIndex = +params['questionIndex'];
-      this.updateExplanationForQuestion(questionIndex);
-    }); */
 
     this.quizStateService.initializeStates(this.totalQuestions);
     this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
@@ -252,9 +230,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    /* if (changes.currentQuestionIndex) {
-      this.updateExplanationForQuestion(this.currentQuestionIndex);
-    } */
     if (changes['currentQuestionIndex']) {
       this.initializeQuestionForDisplay(this.currentQuestionIndex);
     }
@@ -1569,28 +1544,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* async updateExplanationForQuestion(questionIndex: number): Promise<void> {
-    try {
-      const questionState = await this.quizStateService.getQuestionState(this.quizId, questionIndex);
-      const questionIsAnswered = questionState && questionState.isAnswered;
-      console.log("QIA", questionIsAnswered);
-  
-      if (questionIsAnswered) {
-        // Fetch and set the explanation text for the answered question
-        this.explanationToDisplay = await this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-        this.quizService.shouldDisplayExplanation = true;
-      } else {
-        // Reset the explanation display for unanswered questions
-        this.explanationToDisplay = '';
-        this.quizService.shouldDisplayExplanation = false;
-      }  
-
-      this.cdRef.detectChanges();
-    } catch (error) {
-      console.error('Error in updateExplanationForQuestion:', error);
-    }
-  } */
-
   private async isQuestionIndexValid(questionIndex: number): Promise<boolean> {
     const totalQuestions: number = await this.getTotalQuestions();
     const isValid = questionIndex >= 0 && questionIndex < totalQuestions;
@@ -1768,20 +1721,4 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
   }
-
-  /* handleQuestionAnswered(): void {
-    console.log("Question processing completed, event received.");
-    this.updateExplanationForQuestion(this.currentQuestionIndex).then(() => {
-      console.log("Explanation updated for current question index:", this.currentQuestionIndex);
-    });
-  }
-
-  handleExplanationToDisplayChange(explanationText: string): void {
-    this.explanationToDisplay = explanationText;
-    this.cdRef.detectChanges();
-  }
-
-  handleShowExplanationChange(show: boolean): void {
-    this.showExplanation = show;
-  } */
 }
