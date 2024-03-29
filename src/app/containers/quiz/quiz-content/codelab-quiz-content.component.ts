@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input,
   OnChanges, OnDestroy, OnInit, Output, SimpleChanges
 } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of,
   Subject, Subscription } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, mergeMap, startWith, switchMap,
@@ -99,7 +99,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
     private activatedRoute: ActivatedRoute,
-    private router: Router,
     private cdRef: ChangeDetectorRef
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
