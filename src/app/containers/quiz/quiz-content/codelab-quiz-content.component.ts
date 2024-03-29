@@ -86,8 +86,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
 
-  // combinedText$: Observable<string>;
-  combinedText$: Observable<{ explanationText: string; showExplanationText: boolean }>;
+  combinedText$: Observable<string>;
+  // combinedText$: Observable<{ explanationText: string; showExplanationText: boolean }>;
   textToDisplay: string = '';
 
   private destroy$ = new Subject<void>();
@@ -595,21 +595,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.explanationTextService.shouldDisplayExplanation$,
       this.quizStateService.getCurrentQuestionIndex$().pipe(startWith(0))
     ]).pipe(
-      switchMap(params => this.determineTextToDisplay(params)),
-      map(textToDisplay => ({
-        explanationText: textToDisplay, // Assuming this is the explanation text
-        showExplanationText: true // Or some condition to determine if the explanation text should be shown
-      })),
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-      startWith({ explanationText: '', showExplanationText: false }), // Ensure the initial value matches the expected type
+      // switchMap(params => this.determineTextToDisplay(params)),
+      switchMap((params: [QuizQuestion | null, QuizQuestion | null, string, boolean, number]) =>
+        this.determineTextToDisplay(params)
+      ),
+      distinctUntilChanged(),
+      startWith(''),
       catchError((error: Error) => {
         console.error('Error in combinedText$ observable:', error);
-        return of({ explanationText: '', showExplanationText: false }); // Error fallback value matches the expected type
+        return of('');
       })
     );
   }
   
-
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
