@@ -21,9 +21,6 @@
           [explanationText]="explanationText$ | async"
           [shouldDisplayExplanation]="isExplanationVisible"
           [correctAnswersText]="correctAnswersText"
-          (explanationTextChanged)="handleExplanationTextChanged($event)"
-          (shouldDisplayExplanationChanged)="handleShouldDisplayExplanationChanged($event)"
-          (shouldDisplayOptionsChanged)="handleShouldDisplayOptionsChanged($event)"
         >
         </codelab-quiz-content-component> 
         <ng-content select="[question-content]"></ng-content>
@@ -48,9 +45,6 @@
             [selectionMessage]="selectionMessage$ | async"
             [showFeedback]="showFeedback"
             (questionAnswered)="handleQuestionAnswered()"
-            (explanationToDisplayChange)="handleExplanationToDisplayChange($event)"
-            (showExplanationChange)="handleShowExplanationChange($event)"
-            explanationToDisplayChange
           ></codelab-quiz-question>
         </ng-container>
       </ng-container>
