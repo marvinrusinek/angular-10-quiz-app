@@ -569,7 +569,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
   }
   
-  private setupCombinedTextObservable(): void {
+  /* private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
       this.nextQuestion$.pipe(startWith(null)),
       this.previousQuestion$.pipe(startWith(null)),
@@ -585,7 +585,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return of('');
       })
     );
+  } */
+
+  private setupCombinedTextObservable(): void {
+    this.combinedText$ = combineLatest([
+      this.nextQuestion$.pipe(startWith(null)),
+      this.previousQuestion$.pipe(startWith(null)),
+      this.explanationTextService.formattedExplanation$.pipe(startWith('')),
+      this.explanationTextService.shouldDisplayExplanation$,
+      this.quizStateService.getCurrentQuestionIndex$().pipe(startWith(0))
+    ]).pipe(
+      switchMap(params => this.determineTextToDisplay(params)),
+      map(textToDisplay => ({
+        explanationText: textToDisplay, // Assuming this is the explanation text
+        showExplanationText: true // Or some condition to determine if the explanation text should be shown
+      })),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+      startWith({ explanationText: '', showExplanationText: false }), // Ensure the initial value matches the expected type
+      catchError((error: Error) => {
+        console.error('Error in combinedText$ observable:', error);
+        return of({ explanationText: '', showExplanationText: false }); // Error fallback value matches the expected type
+      })
+    );
   }
+  
 
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
