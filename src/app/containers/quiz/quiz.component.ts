@@ -168,7 +168,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.updateComponentState();
     });
 
-    this.activatedRoute.params.subscribe(params => {
+    /* this.activatedRoute.params.subscribe(params => {
       const questionIndex = +params['questionIndex'] - 1;
       this.updateExplanationForQuestion(questionIndex);
     });
@@ -177,7 +177,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       this.updateExplanationForQuestion(this.currentQuestionIndex);
-    });
+    }); */
   }
 
   @HostListener('window:focus', ['$event'])
@@ -208,7 +208,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
 
-    this.router.events.pipe(
+    /* this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(() => this.activatedRoute.firstChild),
       filter(route => route !== null && route !== undefined),
@@ -217,7 +217,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe(params => {
       const questionIndex = +params['questionIndex'];
       this.updateExplanationForQuestion(questionIndex);
-    });
+    }); */
 
     this.quizStateService.initializeStates(this.totalQuestions);
     this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
@@ -1569,7 +1569,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  async updateExplanationForQuestion(questionIndex: number): Promise<void> {
+  /* async updateExplanationForQuestion(questionIndex: number): Promise<void> {
     try {
       const questionState = await this.quizStateService.getQuestionState(this.quizId, questionIndex);
       const questionIsAnswered = questionState && questionState.isAnswered;
@@ -1589,7 +1589,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('Error in updateExplanationForQuestion:', error);
     }
-  }
+  } */
 
   private async isQuestionIndexValid(questionIndex: number): Promise<boolean> {
     const totalQuestions: number = await this.getTotalQuestions();
@@ -1769,7 +1769,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  handleQuestionAnswered(): void {
+  /* handleQuestionAnswered(): void {
     console.log("Question processing completed, event received.");
     this.updateExplanationForQuestion(this.currentQuestionIndex).then(() => {
       console.log("Explanation updated for current question index:", this.currentQuestionIndex);
@@ -1783,5 +1783,5 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   handleShowExplanationChange(show: boolean): void {
     this.showExplanation = show;
-  }
+  } */
 }
