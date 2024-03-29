@@ -1329,13 +1329,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         // Combine fetching data and initializing question state into a single method
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
   
-        // Update navigation and explanation states
-        this.updateNavigationAndExplanationState();
-  
-        // Update explanation visibility based on the state from the quizStateService
-        // const isExplanationVisible = this.quizStateService.getExplanationVisibility(this.currentQuestionIndex);
-        // this.updateExplanationVisibility(isExplanationVisible);
-  
         this.resetUI();
       } else {
         console.log('End of quiz reached.');
@@ -1345,6 +1338,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Error occurred while advancing to the next question:', error);
     } finally {
       this.isNavigating = false;
+      this.quizService.setIsNavigatingToPrevious(false);
     }
   }
   
@@ -1367,19 +1361,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       // Combine fetching data and initializing question state into a single method
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
-      // Update navigation and explanation states
-      this.updateNavigationAndExplanationState();
-  
-      // Explicitly set explanation visibility based on the current state
-      // this.quizStateService.setExplanationVisibility(previousQuestionIndex, this.isExplanationVisible);
-  
       this.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
       this.isNavigating = false;
       this.quizService.setIsNavigatingToPrevious(false);
-      this.cdRef.detectChanges();
     }
   }
   
