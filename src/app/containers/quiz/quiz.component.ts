@@ -1324,8 +1324,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   
         // Combine fetching data and initializing question state into a single method
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-
-        this.updateNavigationAndExplanationState();
   
         this.resetUI();
       } else {
@@ -1359,8 +1357,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       // Combine fetching data and initializing question state into a single method
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
-      this.updateNavigationAndExplanationState();
-
       this.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
@@ -1376,6 +1372,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.initializeQuestionForDisplay(questionIndex);
     this.updateQuestionDisplay(questionIndex);
     this.updateExplanationText(questionIndex);
+    this.updateNavigationAndExplanationState();
   }
 
   checkIfQuestionAnswered(questionIndex: number): boolean {
