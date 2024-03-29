@@ -19,7 +19,6 @@
           [explanationToDisplay]="explanationToDisplay"
           [options]="optionsToDisplay"
           [explanationText]="explanationText$ | async"
-          [shouldDisplayExplanation]="isExplanationVisible"
           [correctAnswersText]="correctAnswersText"
         >
         </codelab-quiz-content-component> 
@@ -44,7 +43,6 @@
             (answersChange)="checkIfAnsweredCorrectly()"
             [selectionMessage]="selectionMessage$ | async"
             [showFeedback]="showFeedback"
-            (questionAnswered)="handleQuestionAnswered()"
           ></codelab-quiz-question>
         </ng-container>
       </ng-container>
