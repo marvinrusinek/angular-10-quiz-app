@@ -1403,11 +1403,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     console.log(`Explanation to display: ${this.explanationToDisplay}`);
   }
 
-  async fetchAndSetExplanationVisibility(questionIndex: number): Promise<void> {
-    const shouldShowExplanation = this.explanationVisibility[questionIndex] ?? false;
-    this.showExplanation = shouldShowExplanation;
-  }
-
   viewExplanation(questionIndex: number): void {
     // Set the explanation to be visible for the current question
     this.explanationVisibility[questionIndex] = true;
@@ -1579,9 +1574,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
       return;
     }
-
-    // const questionAnswered = this.checkIfQuestionAnswered(questionIndex);
-    // this.quizStateService.setExplanationVisibility(questionIndex, questionAnswered);
 
     // Adjust for one-based URL index
     const adjustedIndexForUrl = questionIndex + 1;

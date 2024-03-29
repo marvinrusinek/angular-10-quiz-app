@@ -169,13 +169,6 @@ export class QuizStateService {
     });
   }
 
-  setExplanationVisibility(questionIndex: number, isVisible: boolean): void {
-    if (this.explanationVisibilityStates[questionIndex] !== undefined) {
-      this.explanationVisibilityStates[questionIndex] = isVisible;
-      this.explanationVisibilitySubject.next(this.explanationVisibilityStates);
-    }
-  }
-
   getExplanationVisibility(questionIndex: number): boolean {
     return this.explanationVisibilityStates[questionIndex] || false;
   }
