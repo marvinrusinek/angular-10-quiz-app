@@ -130,31 +130,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.explanationTextService.observeExplanationTextVisibility().subscribe(isDisplayed => {
       this.showExplanationText = isDisplayed;
     });
-
-    /* this.currentQuestionIndex$.subscribe(index => {
-      this.isExplanationVisible = this.quizStateService.getExplanationVisibility(index);
-      this.cdRef.detectChanges();
-    }); */
   }
 
   ngOnInit(): void {
     this.shouldDisplayCorrectAnswers = true;
-
-    /* this.combinedText$ = this.quizStateService.getCurrentQuestionIndex$().pipe(
-      map(index => {
-        this.isExplanationVisible = this.quizStateService.getExplanationVisibility(index);
-        console.log('Current index:', index);
-        const state = this.quizStateService.getQuestionState(this.quizId, index);
-        console.log('State for index:', state);
-        return state ? {
-          explanationText: state.explanationText,
-          showExplanationText: state.explanationDisplayed
-        } : {
-          explanationText: '',
-          showExplanationText: false
-        };
-      })
-    ); */
 
     this.visibilitySubscription = this.quizStateService.explanationVisibility$.subscribe(
       (visibilityStates: boolean[]) => {
@@ -165,7 +144,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }
     );
     
-
     this.initializeSubscriptions();
 
     this.restoreQuestionState();
