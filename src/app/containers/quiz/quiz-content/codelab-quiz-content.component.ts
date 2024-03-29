@@ -589,16 +589,4 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.quizService.updateQuestionText(this.questionText);
     this.quizService.updateCorrectAnswersText(this.correctAnswersText);
   }
-
-  updateExplanationText(newText: string) {
-    this.explanationTextChanged.emit(newText);
-  }
-
-  updateShouldDisplayExplanation(newValue: boolean) {
-    this.shouldDisplayExplanationChanged.emit(newValue);
-  }
-
-  updateShouldDisplayOptions(newValue: boolean) {
-    this.shouldDisplayOptionsChanged.emit(newValue);
-  }
 }
