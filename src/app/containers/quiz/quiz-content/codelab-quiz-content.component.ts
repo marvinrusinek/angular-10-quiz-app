@@ -125,25 +125,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.explanationToDisplay = '';
         this.explanationTextService.setShouldDisplayExplanation(false);
       }
-    });    
-
-    this.explanationTextService.observeExplanationTextVisibility().subscribe(isDisplayed => {
-      this.showExplanationText = isDisplayed;
     });
   }
 
   ngOnInit(): void {
     this.shouldDisplayCorrectAnswers = true;
 
-    this.visibilitySubscription = this.quizStateService.explanationVisibility$.subscribe(
-      (visibilityStates: boolean[]) => {
-        console.log(`Visibility States Update:`, visibilityStates);
-        console.log(`Current Question Index::::`, this.quizService.currentQuestionIndex);
-        this.isExplanationVisible = visibilityStates[this.quizService.currentQuestionIndex] || false;
-        this.cdRef.detectChanges();
-      }
-    );
-    
     this.initializeSubscriptions();
 
     this.restoreQuestionState();
