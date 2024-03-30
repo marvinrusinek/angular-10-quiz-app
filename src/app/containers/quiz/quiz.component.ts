@@ -1647,16 +1647,19 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.questionsArray = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
       console.log('Questions fetched and initialized:', this.questionsArray);
 
-      // Initialize or set the display for the first question
-      this.setQuestionDisplay(this.questionsArray[0]);
+      // Immediately update the UI with the first question
+      if (this.questionsArray && this.questionsArray.length > 0) {
+        this.updateQuestionDisplay(this.questionsArray[0]);
+      }
     } catch (error) {
       console.error('Failed to fetch and initialize questions:', error);
       throw error;
     }
   }
 
-  setQuestionDisplay(question: QuizQuestion): void {
+  updateQuestionDisplay(question: QuizQuestion): void {
     this.questionToDisplay = question.questionText;
+    this.cdRef.detectChanges();
   }
 
   initializeQuestionState(): void {
