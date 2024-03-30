@@ -742,7 +742,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   initializeFirstQuestion(): void {
-    console.log("Initializing first question...");
     this.resetQuestionState();
     
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(take(1)).subscribe({
