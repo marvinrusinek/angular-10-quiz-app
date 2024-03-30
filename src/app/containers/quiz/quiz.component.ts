@@ -1601,46 +1601,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   private resetQuestionState(): void {
     this.currentQuestion = null;
-    // this.questionToDisplay = '';
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
   }
-
-  /* restartQuiz(): void {
-    // Initialize or clear question states at the beginning of the quiz restart
-    this.initializeQuestionState();  // Initialize all question states
-    this.clearSelectedOptions();  // Clear selected options for all questions
-
-    // Step 1: Reset quiz-specific states and services
-    this.quizService.resetAll();
-    this.currentQuestionIndex = 0;  // Reset to the first question's index
-    this.progressPercentage = 0; // Reset the progressPercentage to 0
-    this.explanationTextService.resetExplanationText();  // Clears any existing explanation text
-
-    // Reset the current question index to the first question
-    this.quizStateService.setCurrentQuestionIndex(0);
-    // Reset any other relevant state, such as explanation visibility
-    this.explanationTextService.setShouldDisplayExplanation(false);
-
-    // Step 2: Reset the timer synchronously
-    this.timerService.stopTimer((elapsedTime: number) => {
-      this.elapsedTimeDisplay = elapsedTime;
-    });
-    this.timerService.resetTimer();
-
-    // Step 3: Refetch questions and reinitialize states related to questions and explanations
-    this.fetchAndInitializeQuestions().then(() => {
-      // Step 4: Set up the display state for explanations after ensuring questions are refetched
-      return this.setDisplayStateForExplanationsAfterRestart();
-    }).then(() => {
-      // Step 5: Navigate to the first question and reset UI only after all previous steps are complete
-      return this.router.navigate(['/question/', this.quizId, 1]);
-    }).then(() => {
-      this.resetUI(); // Reset UI after successful navigation
-    }).catch(error => {
-      console.error('Error during quiz restart:', error);
-    });
-  } */
 
   restartQuiz(): void {
     // Initialize or clear question states at the beginning of the quiz restart
