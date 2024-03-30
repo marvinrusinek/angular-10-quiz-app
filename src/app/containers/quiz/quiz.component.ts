@@ -741,70 +741,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* initializeFirstQuestion(): void {
-    this.resetQuestionState();
-  
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: (questions: QuizQuestion[]) => {
-        if (questions && questions.length > 0) {
-          this.questions = questions;
-          this.currentQuestion = questions[0];
-  
-          // Set the question and options to display
-          this.questionToDisplay = this.currentQuestion.questionText;
-          this.optionsToDisplay = this.currentQuestion.options;
-  
-          // Handle explanation text for the first question
-          this.handleExplanationForQuestion(0);
-        } else {
-          // Handle the case with no questions available
-          this.handleNoQuestionsAvailable();
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching questions:', err);
-        this.handleQuestionsLoadingError();
-      }
-    });
-  } */
-
-  /* initializeFirstQuestion(): void {
-    this.resetQuestionState();
-  
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: (questions: QuizQuestion[]) => {
-        if (questions && questions.length > 0) {
-          this.questions = questions;
-          this.currentQuestion = questions[0];
-  
-          // Set the question and options to display
-          this.questionToDisplay = this.currentQuestion.questionText;
-          this.optionsToDisplay = this.currentQuestion.options;
-
-          // Logic to initialize the explanation text for the first question
-          const firstQuestionState = this.quizStateService.getQuestionState(this.quizId, 0);
-          if (firstQuestionState && firstQuestionState.isAnswered) {
-            this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(0);
-            this.quizService.shouldDisplayExplanation = true;
-          } else {
-            this.explanationToDisplay = '';
-            this.quizService.shouldDisplayExplanation = false;
-          }
-  
-          // Initialize or update the question state, especially for handling explanations
-          this.initializeOrUpdateQuestionState(0);
-        } else {
-          // Handle the case with no questions available
-          this.handleNoQuestionsAvailable();
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching questions:', err);
-        this.handleQuestionsLoadingError();
-      }
-    });
-  }
-
   initializeOrUpdateQuestionState(questionIndex: number): void {
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
   
@@ -825,7 +761,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     // console.log("Explanation text for question", this.currentQuestionIndex + 1, ":", this.explanationToDisplay);
 
     this.cdRef.detectChanges();
-  } */
+  }
 
   initializeFirstQuestion(): void {
     console.log("Initializing first question...");
