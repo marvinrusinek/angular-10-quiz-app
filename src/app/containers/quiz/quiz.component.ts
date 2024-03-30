@@ -675,7 +675,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
 
       if (adjustedIndex === 0) {
-        this.initializeFirstQuestionText();
+        this.initializeFirstQuestion();
       } else {
         this.updateQuestionDisplay(adjustedIndex);
       }
@@ -741,7 +741,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* initializeFirstQuestionText(): void {
+  /* initializeFirstQuestion(): void {
     this.resetQuestionState();
   
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
@@ -768,7 +768,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   } */
 
-  /* initializeFirstQuestionText(): void {
+  /* initializeFirstQuestion(): void {
     this.resetQuestionState();
   
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
@@ -827,10 +827,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.cdRef.detectChanges();
   } */
 
-  initializeFirstQuestionText(): void {
+  initializeFirstQuestion(): void {
     this.resetQuestionState();
     
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+    this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(take(1)).subscribe({
       next: (questions: QuizQuestion[]) => {
         if (questions && questions.length > 0) {
           this.questions = questions;
@@ -1663,7 +1663,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
     this.timerService.resetTimer();
   
-    this.initializeFirstQuestionText();
+    this.initializeFirstQuestion();
   
     this.setDisplayStateForExplanationsAfterRestart().then(() => {
        // Navigate to the first question and reset UI only after all previous steps are complete
