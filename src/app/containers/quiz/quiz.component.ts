@@ -741,24 +741,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  initializeOrUpdateQuestionState(questionIndex: number): void {
-    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
-  
-    // Ensure selectedOptions is initialized
-    if (!questionState.selectedOptions) {
-      questionState.selectedOptions = [];
-    }
-  
-    // Update the explanation text based on the question state
-    if (questionState.isAnswered) {
-      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-    } else {
-      this.explanationToDisplay = '';
-      this.explanationTextService.setShouldDisplayExplanation(false);
-    }
-  }
-
   initializeFirstQuestion(): void {
     console.log("Initializing first question...");
     this.resetQuestionState();
@@ -786,14 +768,24 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   initializeOrUpdateQuestionState(questionIndex: number): void {
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+  
+    // Ensure selectedOptions is initialized
+    if (!questionState.selectedOptions) {
+      questionState.selectedOptions = [];
+    }
+  
+    // Update the explanation text based on the question state
     if (questionState.isAnswered) {
       this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      this.explanationTextService.setShouldDisplayExplanation(true);
       this.showExplanation = true;
     } else {
       this.explanationToDisplay = '';
+      this.explanationTextService.setShouldDisplayExplanation(false);
       this.showExplanation = false;
     }
-    this.cdRef.detectChanges();
+
+    this.cdRef.detectChanges(); // Manually trigger change detection
   }
   
   handleExplanationForQuestion(questionIndex: number): void {
