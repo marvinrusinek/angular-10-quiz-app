@@ -751,7 +751,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
           this.currentQuestion = questions[0];
           this.questionToDisplay = this.currentQuestion.questionText;
           this.optionsToDisplay = this.currentQuestion.options;
-  
+
+          if (this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)) {
+            this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
+          }
+
           // Initialize or update the state for all questions
           questions.forEach((_, index) => this.initializeOrUpdateQuestionState(index));
         } else {
