@@ -1663,22 +1663,16 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
     this.timerService.resetTimer();
   
-    // Call initializeFirstQuestionText to refetch and set up the first question
     this.initializeFirstQuestionText();
   
-    // The rest of the logic might need adjustment based on how initializeFirstQuestionText works.
-    // If it's asynchronous or involves navigation, consider waiting for its completion before proceeding.
-    
-    // Optional: Adjust the following steps based on the behavior of initializeFirstQuestionText
-  
-    // this.setDisplayStateForExplanationsAfterRestart().then(() => {
-    //   // Navigate to the first question and reset UI only after all previous steps are complete
-    //   return this.router.navigate(['/question/', this.quizId, 1]);
-    // }).then(() => {
-    //   this.resetUI(); // Reset UI after successful navigation
-    // }).catch(error => {
-    //   console.error('Error during quiz restart:', error);
-    // });
+    this.setDisplayStateForExplanationsAfterRestart().then(() => {
+       // Navigate to the first question and reset UI only after all previous steps are complete
+       return this.router.navigate(['/question/', this.quizId, 1]);
+     }).then(() => {
+       this.resetUI(); // Reset UI after successful navigation
+     }).catch(error => {
+       console.error('Error during quiz restart:', error);
+     });
   }  
 
   async fetchAndInitializeQuestions(): Promise<void> {
