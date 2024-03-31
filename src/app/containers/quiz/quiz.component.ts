@@ -1308,7 +1308,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     if (questionState.isAnswered) {
       this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
       this.explanationTextService.setShouldDisplayExplanation(true);
-      questionState.explanationDisplayed = true; // Ensure this property is updated
+      questionState.explanationDisplayed = true;
     } else {
       this.explanationToDisplay = '';
       this.explanationTextService.setShouldDisplayExplanation(false);
@@ -1542,6 +1542,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.timerService.resetTimer();
   
     this.initializeFirstQuestion();
+    this.handleFirstQuestionState();
   
     this.setDisplayStateForExplanationsAfterRestart().then(() => {
        // Navigate to the first question and reset UI only after all previous steps are complete
