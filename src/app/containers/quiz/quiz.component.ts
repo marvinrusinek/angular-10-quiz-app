@@ -1297,7 +1297,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.showExplanation = true;
   }
 
-  updateQuestionState(index: number) {
+  /* updateQuestionState(index: number) {
     const questionState = this.quizStateService.getQuestionState(this.quizId, index);
     if (questionState && questionState.isAnswered) {
       this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
@@ -1307,7 +1307,33 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.explanationTextService.setShouldDisplayExplanation(false);
     }
     this.cdRef.detectChanges();  // Force the view to update
+  } */
+
+  updateQuestionState(index: number) {
+    let questionState = this.quizStateService.getQuestionState(this.quizId, index);
+  
+    // Initialize questionState if it's not already set
+    if (!questionState) {
+      questionState = { isAnswered: false, explanationDisplayed: false, selectedOptions: [] };
+    }
+  
+    if (questionState.isAnswered) {
+      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      questionState.explanationDisplayed = true; // Ensure this property is updated
+    } else {
+      this.explanationToDisplay = '';
+      this.explanationTextService.setShouldDisplayExplanation(false);
+      questionState.explanationDisplayed = false;
+    }
+  
+    // Persist the updated state
+    this.quizStateService.setQuestionState(this.quizId, index, questionState);
+  
+    // Force the view to update
+    this.cdRef.detectChanges();
   }
+  
 
   async handleFirstQuestionState(): Promise<void> {
     // Check if the first question has been answered and needs to display its explanation
