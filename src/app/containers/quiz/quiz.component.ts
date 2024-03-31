@@ -1297,18 +1297,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.showExplanation = true;
   }
 
-  /* updateQuestionState(index: number) {
-    const questionState = this.quizStateService.getQuestionState(this.quizId, index);
-    if (questionState && questionState.isAnswered) {
-      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-    } else {
-      this.explanationToDisplay = '';
-      this.explanationTextService.setShouldDisplayExplanation(false);
-    }
-    this.cdRef.detectChanges();  // Force the view to update
-  } */
-
   updateQuestionState(index: number) {
     let questionState = this.quizStateService.getQuestionState(this.quizId, index);
   
