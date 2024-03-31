@@ -126,6 +126,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   numberOfCorrectAnswers: number;
   score: number;
   elapsedTimeDisplay: number;
+  shouldDisplayCorrectAnswersFlag = false;
 
   questionToDisplay = '';
   optionsToDisplay: Option[] = [];
@@ -751,7 +752,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
           this.currentQuestion = questions[0];
           this.questionToDisplay = this.currentQuestion.questionText;
           this.optionsToDisplay = this.currentQuestion.options;
-          this.shouldDisplayCorrectAnswers = false;
+          this.shouldDisplayCorrectAnswersFlag = false;
 
           if (this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)) {
             this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
