@@ -39,6 +39,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input() options!: Option[];
   @Input() options$: Observable<Option[]>;
   @Input() correctAnswersText = '';
+  @Input() shouldDisplayCorrectAnswers = false;
   quizId = '';
   questionIndex: number;
   questionText = '';
