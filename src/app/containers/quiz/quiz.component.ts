@@ -745,7 +745,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   initializeFirstQuestion(): void {
     this.resetQuestionState();
     
-    this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(take(1)).subscribe({
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (questions: QuizQuestion[]) => {
         if (questions && questions.length > 0) {
           this.questions = questions;
