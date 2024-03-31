@@ -741,7 +741,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.resetQuestionState();
     
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: (questions: QuizQuestion[]) => {
+      next: async (questions: QuizQuestion[]) => {
         if (questions && questions.length > 0) {
           this.questions = questions;
           this.currentQuestion = questions[0];
@@ -755,6 +755,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
           // Initialize or update the state for all questions
           questions.forEach((_, index) => this.initializeOrUpdateQuestionState(index));
+
+          // Call handleFirstQuestionState after the questions are initialized
+          await this.handleFirstQuestionState();
         } else {
           this.handleNoQuestionsAvailable();
         }
