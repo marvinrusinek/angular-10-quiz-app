@@ -222,14 +222,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
   }
 
-  // Example from a component handling question updates
   handleQuestionUpdate(question: QuizQuestion): void {
     if (this.quizStateService.isMultipleAnswerQuestion(question)) {
       this.quizService.updateCorrectAnswersText(
         this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.quizService.numberOfCorrectAnswers)
       );
     } else {
-      // Optionally clear the message or set a default message for single-answer questions
       this.quizService.updateCorrectAnswersText("Select one answer");
     }
   }
