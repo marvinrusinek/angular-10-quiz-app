@@ -192,11 +192,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     // Fetch and display the current question
     this.initializeQuestionStreams();
     this.loadQuizQuestions();
-
-    // Reset explanation text and flag here
-    // this.explanationToDisplay = '';
-    // this.quizService.shouldDisplayExplanation = false;
-
     this.createQuestionData();
     this.getQuestion();
     this.subscribeToCurrentQuestion(); 
