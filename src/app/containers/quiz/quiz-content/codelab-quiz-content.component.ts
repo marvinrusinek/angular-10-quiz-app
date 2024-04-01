@@ -343,7 +343,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
 
-  private calculateAndDisplayNumberOfCorrectAnswers(): void {
+  /* private calculateAndDisplayNumberOfCorrectAnswers(): void {
     // Calculate the number of correct answers
     this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
       this.quizStateService.currentQuestion.value.options
@@ -356,7 +356,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     // Update the correct answers text source
     this.correctAnswersTextSource.next(correctAnswersText);
+  } */
+
+  private calculateAndDisplayNumberOfCorrectAnswers(): void {
+    const currentIndex = this.quizStateService.getCurrentQuestionIndex();
+    const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
+
+    if (!questionState.explanationDisplayed || currentIndex !== 0) {
+      // Calculate the number of correct answers
+      this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
+        this.quizStateService.currentQuestion.value.options
+      );
+
+      // Get the text for the number of correct answers
+      const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+        this.numberOfCorrectAnswers
+      );
+
+      // Update the correct answers text source
+      this.correctAnswersTextSource.next(correctAnswersText);
+    } else {
+      this.correctAnswersTextSource.next('');
+    }
   }
+
 
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
