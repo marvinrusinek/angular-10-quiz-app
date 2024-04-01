@@ -1345,7 +1345,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.resetUI();
-    // this.router.navigate(['/question/', this.quizId, 1]);
   }
 
   advanceToResults(): void {
