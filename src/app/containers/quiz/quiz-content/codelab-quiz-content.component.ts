@@ -359,27 +359,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   } */
 
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
-    const currentIndex = this.quizStateService.getCurrentQuestionIndex$();
-    const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
+    // Subscribe to the currentIndex Observable to get its value
+    this.quizStateService.getCurrentQuestionIndex$().subscribe(currentIndex => {
+      const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
 
-    if (!questionState.explanationDisplayed || currentIndex !== 0) {
-      // Calculate the number of correct answers
-      this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
-        this.quizStateService.currentQuestion.value.options
-      );
+      // Perform your logic within the subscription
+      if (!questionState.explanationDisplayed || currentIndex !== 0) {
+        this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
+          this.quizStateService.currentQuestion.value.options
+        );
 
-      // Get the text for the number of correct answers
-      const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-        this.numberOfCorrectAnswers
-      );
+        const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+          this.numberOfCorrectAnswers
+        );
 
-      // Update the correct answers text source
-      this.correctAnswersTextSource.next(correctAnswersText);
-    } else {
-      this.correctAnswersTextSource.next('');
-    }
+        this.correctAnswersTextSource.next(correctAnswersText);
+      } else {
+        this.correctAnswersTextSource.next('');
+      }
+    });
   }
-
 
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
