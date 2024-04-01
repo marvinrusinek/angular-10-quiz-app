@@ -815,7 +815,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.processCurrentQuestion(currentQuestion);
       this.questionAnswered.emit();
   
-      this.updateQuestionStateForExplanation(questionIndex);
+      this.updateQuestionStateForExplanation(this.currentQuestionIndex);
     } catch (error) {
       console.error("An error occurred while processing the option click:", error);
     }
@@ -829,8 +829,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     const totalCorrectAnswers = this.getTotalCorrectAnswers(currentQuestion);
     this.quizStateService.updateQuestionState(this.quizId, this.currentQuestionIndex, { isAnswered: true },totalCorrectAnswers);
-
-    const updatedState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
   }
 
   updateQuestionStateForExplanation(index: number): void {
