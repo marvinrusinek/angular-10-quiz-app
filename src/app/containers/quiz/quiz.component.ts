@@ -738,7 +738,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   initializeFirstQuestion(): void {
-    this.resetQuestionState();
+    this.resetQuestionDisplayState();
     
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: async (questions: QuizQuestion[]) => {
@@ -1521,8 +1521,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private resetQuestionState(): void {
-    this.currentQuestion = null;
+  private resetQuestionDisplayState(): void {
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
   }
