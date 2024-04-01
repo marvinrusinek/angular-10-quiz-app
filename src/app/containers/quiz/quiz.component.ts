@@ -1280,14 +1280,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  viewExplanation(questionIndex: number): void {
-    // Set the explanation to be visible for the current question
-    this.explanationVisibility[questionIndex] = true;
-    
-    // Update the UI to reflect this change
-    this.showExplanation = true;
-  }
-
   updateQuestionState(index: number): void {
     let questionState = this.quizStateService.getQuestionState(this.quizId, index);
   
