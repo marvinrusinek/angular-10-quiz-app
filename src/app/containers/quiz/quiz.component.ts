@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, 
-  HostListener, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+  HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription } from 'rxjs';
@@ -153,6 +153,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     private highlightDirective: HighlightDirective,
     private activatedRoute: ActivatedRoute,
     private router: Router,
+    private ngZone: NgZone,
     private cdRef: ChangeDetectorRef
   ) {
     this.elapsedTimeDisplay = 0;
