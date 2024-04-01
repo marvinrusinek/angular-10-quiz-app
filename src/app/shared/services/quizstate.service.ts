@@ -101,15 +101,11 @@ export class QuizStateService {
     }
   
     let state = this.quizStates[quizId].get(questionId);
-    console.log(`[Before] State for quizId: ${quizId}, questionId: ${questionId}:`, state);
-  
     if (state === undefined) {
-      // If there's no state for the given questionId, create a default state
       state = this.createDefaultQuestionState();
       this.quizStates[quizId].set(questionId, state); // Store the default state in the quiz's state map
     }
   
-    console.log(`[After] State for quizId: ${quizId}, questionId: ${questionId}:`, state);
     return state;
   }
 
