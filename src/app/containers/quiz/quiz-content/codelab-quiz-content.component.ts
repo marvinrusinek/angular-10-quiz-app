@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, In
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of,
   Subject, Subscription } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, map, mergeMap, startWith, switchMap,
+import { catchError, distinctUntilChanged, map, mergeMap, startWith, switchMap,
   take, takeUntil, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
