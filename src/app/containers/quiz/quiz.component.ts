@@ -1324,7 +1324,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   // Helper method to decide if the number of correct answers should be displayed
-  async shouldShowNumberOfCorrectAnswers(questionState, index): Promise<boolean> {
+  async shouldShowNumberOfCorrectAnswers(questionState: QuestionState, index: number): Promise<boolean> {
     const question = this.questions[index];
     const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(question));
   
