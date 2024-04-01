@@ -815,8 +815,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.processCurrentQuestion(currentQuestion);
       this.questionAnswered.emit();
   
-      // Retrieve the explanation text for the question
-      const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+      this.updateQuestionStateForExplanation(questionIndex);
     } catch (error) {
       console.error("An error occurred while processing the option click:", error);
     }
@@ -832,6 +831,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizStateService.updateQuestionState(this.quizId, this.currentQuestionIndex, { isAnswered: true },totalCorrectAnswers);
 
     const updatedState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
+  }
+
+  updateQuestionStateForExplanation(index: number): void {
+    let questionState = this.quizStateService.getQuestionState(this.quizId, index);
+  
+    if (!questionState) {
+      questionState = { isAnswered: false, explanationDisplayed: false, selectedOptions: [] };
+    }
+  
+    questionState.explanationDisplayed = true;
+      questionState.isAnswered = true;
+  
+    // Save the updated state
+    this.quizStateService.setQuestionState(this.quizId, index, questionState);
+  
+    this.displayExplanation(index);
   }
 
   updateExplanationText(questionIndex: number): void {
