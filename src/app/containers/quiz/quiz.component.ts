@@ -1268,7 +1268,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   
     // Retrieve the state for the current question
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
-    console.log(`Initializing display for question ${questionIndex}:`, questionState);
   
     // Set explanation display based on whether the question has been answered
     if (questionState?.isAnswered) {
