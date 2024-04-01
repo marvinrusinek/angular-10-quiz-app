@@ -359,7 +359,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   } */
 
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
-    const currentIndex = this.quizStateService.getCurrentQuestionIndex();
+    const currentIndex = this.quizStateService.getCurrentQuestionIndex$();
     const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
 
     if (!questionState.explanationDisplayed || currentIndex !== 0) {
