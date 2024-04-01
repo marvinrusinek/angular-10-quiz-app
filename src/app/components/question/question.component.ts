@@ -839,12 +839,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   
     questionState.explanationDisplayed = true;
-      questionState.isAnswered = true;
+    questionState.isAnswered = true;
   
     // Save the updated state
     this.quizStateService.setQuestionState(this.quizId, index, questionState);
-  
-    this.displayExplanation(index);
   }
 
   updateExplanationText(questionIndex: number): void {
