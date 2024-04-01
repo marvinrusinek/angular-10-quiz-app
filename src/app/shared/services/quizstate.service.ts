@@ -87,7 +87,6 @@ export class QuizStateService {
     this.quizStates[quizId].set(questionId, state);
   }
   
-
   // Method to get the state of a question by its ID
   getQuestionState(quizId: string, questionId: number): QuestionState | undefined {
     // Initialize the state map for this quiz if it doesn't exist
@@ -215,11 +214,6 @@ export class QuizStateService {
 
   getQuizQuestionCreated(): boolean {
     return this.quizQuestionCreated;
-  }
-
-  checkIfQuestionIsAnswered(questionIndex: number): boolean {
-    const questionState = this.questionStates.get(questionIndex);
-    return questionState?.isAnswered === true;
   }
 
   /* not being used, potentially remove...
