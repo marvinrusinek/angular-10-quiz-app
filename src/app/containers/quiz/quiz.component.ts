@@ -1291,7 +1291,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.showExplanation = true;
   }
 
-  updateQuestionState(index: number) {
+  updateQuestionState(index: number): void {
     let questionState = this.quizStateService.getQuestionState(this.quizId, index);
   
     // Initialize questionState if it's not already set
@@ -1299,6 +1299,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       questionState = { isAnswered: false, explanationDisplayed: false, selectedOptions: [] };
     }
   
+    // Update the explanation display logic
     if (questionState.isAnswered) {
       this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
       this.explanationTextService.setShouldDisplayExplanation(true);
@@ -1308,6 +1309,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.explanationTextService.setShouldDisplayExplanation(false);
       questionState.explanationDisplayed = false;
     }
+
+    if (this.shouldShowNumberOfCorrectAnswers(questionState, index)) {
+      this.shouldDisplayCorrectAnswersFlag = true;
+    } else {
+      this.shouldDisplayCorrectAnswersFlag = false;
+    }
   
     // Persist the updated state
     this.quizStateService.setQuestionState(this.quizId, index, questionState);
@@ -1315,7 +1322,14 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     // Force the view to update
     this.cdRef.detectChanges();
   }
+
+  // Helper method to decide if the number of correct answers should be displayed
+  async shouldShowNumberOfCorrectAnswers(questionState, index): Promise<boolean> {
+    const question = this.questions[index];
+    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(question));
   
+    return questionState.isAnswered && isMultipleAnswer;
+  }
 
   async handleFirstQuestionState(): Promise<void> {
     // Check if the first question has been answered and needs to display its explanation
