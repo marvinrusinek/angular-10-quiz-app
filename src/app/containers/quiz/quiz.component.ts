@@ -1553,13 +1553,13 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.handleFirstQuestionState();
   
     this.setDisplayStateForExplanationsAfterRestart().then(() => {
-       // Navigate to the first question and reset UI only after all previous steps are complete
-       return this.router.navigate(['/question/', this.quizId, 1]);
+      // Navigate to the first question and reset UI only after all previous steps are complete
+      return this.router.navigate(['/question/', this.quizId, 1]);
      }).then(() => {
-       this.resetUI(); // Reset UI after successful navigation
+      this.resetUI(); // Reset UI after successful navigation
      }).catch(error => {
-       console.error('Error during quiz restart:', error);
-     });
+      console.error('Error during quiz restart:', error);
+    });
   }  
 
   async fetchAndInitializeQuestions(): Promise<void> {
