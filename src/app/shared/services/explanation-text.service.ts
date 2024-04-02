@@ -201,10 +201,6 @@ export class ExplanationTextService {
     this.isExplanationTextDisplayedSource.next(isDisplayed);
   }
 
-  observeExplanationTextVisibility(): Observable<boolean> {
-    return this.isExplanationTextDisplayedSource.asObservable();
-  }  
-
   setShouldDisplayExplanation(shouldDisplay: boolean): void {
     this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
