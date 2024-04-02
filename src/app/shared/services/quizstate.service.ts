@@ -26,10 +26,6 @@ export class QuizStateService {
   questionStates: Map<number, QuestionState> = new Map();
   private quizStates: { [quizId: string]: Map<number, QuestionState> } = {};
 
-  private explanationVisibilityStates: boolean[] = [];
-  private explanationVisibilitySubject = new BehaviorSubject<boolean[]>(this.explanationVisibilityStates);
-  public explanationVisibility$ = this.explanationVisibilitySubject.asObservable();
-
   private quizQuestionCreated = false;
 
   constructor() {
