@@ -1541,7 +1541,7 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  navigateToResults() {
+  navigateToResults(): void {
     this.quizCompleted = true;
     this.router.navigate([QuizRoutes.RESULTS, this.quizId]);
   }
@@ -1564,10 +1564,6 @@ export class QuizService implements OnDestroy {
       this.quizData = null;
       this.questions = [];
     }
-  }
-
-  resetUserSelection(): void {
-    this.selectedOption$.next('');
   }
 
   resetAll(): void {
@@ -1598,7 +1594,7 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  playSound(isCorrect) {
+  playSound(isCorrect: boolean): void {
     // Initialize sounds only if they haven't been loaded yet
     if (!this.correctSound || !this.incorrectSound) {
       this.initializeSounds();
