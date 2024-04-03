@@ -44,9 +44,9 @@ export class QuizDataService implements OnDestroy {
     private http: HttpClient,
     private activatedRoute: ActivatedRoute
   ) {
+    this.quizzes$ = new BehaviorSubject<Quiz[]>([]);
     this.selectedQuiz$ = new BehaviorSubject<Quiz | null>(this.selectedQuiz);
     this.selectedQuizSubject = new BehaviorSubject<Quiz>(null);
-    this.quizzes$ = new BehaviorSubject<Quiz[]>([]);
 
     this.loadQuizzesData();
   }
