@@ -276,20 +276,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  findCurrentMultipleAnswerQuestionIndex(): number {
-    if (!this.questions || this.questions.length === 0) {
-      console.error('No questions available');
-      return -1;
-    }
-
-    const currentQuestion = this.questions[this.currentQuestionIndex];
-    if (currentQuestion && currentQuestion.type === QuestionType.MultipleAnswer) {
-      return this.currentQuestionIndex;
-    }
-
-    return -1;
-  }
-  
   async fetchQuizData(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params['quizId'];

@@ -490,6 +490,20 @@ export class QuizService implements OnDestroy {
     return answer !== null && typeof answer === 'object' && 'questionType' in answer;
   }
 
+  findCurrentMultipleAnswerQuestionIndex(): number {
+    if (!this.questions || this.questions.length === 0) {
+      console.error('No questions available');
+      return -1;
+    }
+
+    const currentQuestion = this.questions[this.currentQuestionIndex];
+    if (currentQuestion && currentQuestion.type === QuestionType.MultipleAnswer) {
+      return this.currentQuestionIndex;
+    }
+
+    return -1;
+  }
+
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
 
