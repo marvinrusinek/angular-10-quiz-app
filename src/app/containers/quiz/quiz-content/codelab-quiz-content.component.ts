@@ -337,33 +337,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       });
   }
 
-  // Function to check if it's a single-answer question with an explanation
+  // Helper function to check if it's a single-answer question with an explanation
   private isSingleAnswerWithExplanation(isMultipleAnswer: boolean, isExplanationDisplayed: boolean): boolean {
     return !isMultipleAnswer && isExplanationDisplayed;
   }
-
-
-  /* private calculateAndDisplayNumberOfCorrectAnswers(): void {
-    // Calculate the number of correct answers
-    this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
-      this.quizStateService.currentQuestion.value.options
-    );
-
-    // Get the text for the number of correct answers
-    const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-      this.numberOfCorrectAnswers
-    );
-
-    // Update the correct answers text source
-    this.correctAnswersTextSource.next(correctAnswersText);
-  } */
 
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
     // Subscribe to the currentIndex Observable to get its value
     this.quizStateService.getCurrentQuestionIndex$().subscribe(currentIndex => {
       const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
 
-      // Perform your logic within the subscription
       if (!questionState.explanationDisplayed || currentIndex !== 0) {
         this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
           this.quizStateService.currentQuestion.value.options
