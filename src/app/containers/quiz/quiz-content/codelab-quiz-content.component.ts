@@ -262,7 +262,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     if (this.quizId) {
       return forkJoin([
         this.quizDataService.getQuestionsForQuiz(this.quizId),
-        // this.quizDataService.getAllExplanationTextsForQuiz(this.quizId)
+        this.quizDataService.getAllExplanationTextsForQuiz(this.quizId) // possibly remove
       ]).pipe(
         map(([questions, explanationTexts]) => [questions, explanationTexts])
       );
