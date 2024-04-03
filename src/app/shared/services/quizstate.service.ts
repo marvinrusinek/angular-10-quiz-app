@@ -31,11 +31,6 @@ export class QuizStateService {
   constructor() {
     this.questionStates = new Map<number, QuestionState>();
   }
-  
-  // Method to set the current question index
-  setCurrentQuestionIndex(index: number): void {
-    this.currentQuestionIndex.next(index); // Update the BehaviorSubject's value
-  }
 
   // Method to get an observable for the current question index
   getCurrentQuestionIndex$() {

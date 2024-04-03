@@ -415,7 +415,6 @@ export class QuizDataService implements OnDestroy {
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
-  
 
   setQuestionType(question: QuizQuestion): void {
     const numCorrectAnswers = question.options.filter((option) => option.correct).length;
