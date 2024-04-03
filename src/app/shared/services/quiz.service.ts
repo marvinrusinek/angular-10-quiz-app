@@ -114,7 +114,6 @@ export class QuizService implements OnDestroy {
   explanationTextSubscription: Subscription = null;
   displayExplanation = false;
   shouldDisplayExplanation = false;
-  selectionMessage: string;
 
   currentAnswer = '';
   nextQuestionText = '';
