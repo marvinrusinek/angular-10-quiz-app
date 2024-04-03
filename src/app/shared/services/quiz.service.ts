@@ -1458,14 +1458,6 @@ export class QuizService implements OnDestroy {
     }, [] as Option[]);
   }
 
-  isQuizSelected(): boolean {
-    return this.selectedQuizId !== null;
-  }
-
-  getSelectedQuiz(): Observable<Quiz> {
-    return this.selectedQuiz$;
-  }
-
   sendCorrectCountToResults(value: number): void {
     this.correctAnswersCountSubject.next(value);
   }
