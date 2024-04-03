@@ -422,9 +422,4 @@ export class QuizDataService implements OnDestroy {
     question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
     this.questionType = question.type;
   }
-
-  setCurrentQuestionIndex(index: number): void {
-    this.currentQuestionIndex = index;
-    this.currentQuestionIndex$.next(this.currentQuestionIndex);
-  }
 }

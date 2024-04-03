@@ -962,7 +962,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const questionIndex = parseInt(params.get('questionIndex') || '0');
-    this.quizDataService.setCurrentQuestionIndex(questionIndex);
+    this.quizService.setCurrentQuestionIndex(questionIndex);
 
     if (quizId) {
       this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
@@ -1528,7 +1528,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.explanationTextService.resetExplanationText();  // Clears any existing explanation text
   
     // Reset the current question index to the first question
-    this.quizStateService.setCurrentQuestionIndex(0);
+    this.quizService.setCurrentQuestionIndex(0);
     // Reset any other relevant state, such as explanation visibility
     this.explanationTextService.setShouldDisplayExplanation(false);
   
