@@ -47,11 +47,46 @@ export class QuizDataService implements OnDestroy {
     this.selectedQuiz$ = new BehaviorSubject<Quiz | null>(this.selectedQuiz);
     this.selectedQuizSubject = new BehaviorSubject<Quiz>(null);
     this.quizzes$ = new BehaviorSubject<Quiz[]>([]);
+
+    this.loadQuizzesData();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  loadQuizzesData(): void {
+    this.http
+      .get<Quiz[]>(this.quizUrl)
+      .pipe(
+        tap((quizzes: Quiz[]) => {
+          this.quizzes$.next(quizzes);
+          this.quizzes = quizzes;
+          if (quizzes.length > 0) {
+            this.selectedQuiz = quizzes[0];
+            this.selectedQuiz$.next(this.selectedQuiz);
+          }
+        }),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Error loading quizzes:', error);
+          return [];
+        })
+      )
+      .subscribe();
+  }
+
+  getQuizData(quizId: string): Observable<QuizQuestion[]> {
+    return this.http.get<Quiz[]>(this.quizUrl).pipe(
+      map((quizzes: Quiz[]) => {
+        const selectedQuiz = quizzes.find((quiz) => quiz.quizId === quizId);
+        return selectedQuiz ? selectedQuiz.questions : [];
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error fetching quiz data:', error);
+        return of([]);
+      })
+    );
   }
 
   getQuizzes(): Observable<Quiz[]> {
@@ -69,6 +104,16 @@ export class QuizDataService implements OnDestroy {
 
   setCurrentQuiz(quiz: Quiz): void {
     this.currentQuizSubject.next(quiz);
+  }
+
+  setSelectedQuiz(quiz: Quiz | null): void {
+    this.selectedQuiz = quiz;
+    this.selectedQuiz$.next(quiz);
+    this.selectedQuiz$
+      .pipe(take(1), distinctUntilChanged())
+      .subscribe((selectedQuiz: Quiz) => {
+        this.selectedQuizSubject.next(selectedQuiz);
+      });
   }
 
   setSelectedQuizById(quizId: string): Observable<void> {
@@ -91,14 +136,13 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  setSelectedQuiz(quiz: Quiz | null): void {
-    this.selectedQuiz = quiz;
-    this.selectedQuiz$.next(quiz);
-    this.selectedQuiz$
-      .pipe(take(1), distinctUntilChanged())
-      .subscribe((selectedQuiz: Quiz) => {
-        this.selectedQuizSubject.next(selectedQuiz);
-      });
+  getSelectedQuiz(): Observable<Quiz | null> {
+    return this.selectedQuiz$.pipe(
+      distinctUntilChanged(),
+      filter((selectedQuiz: Quiz) => !!selectedQuiz),
+      take(1),
+      catchError(() => of(null))
+    );
   }
 
   getQuiz(quizId: string): Observable<Quiz> {
@@ -415,10 +459,27 @@ export class QuizDataService implements OnDestroy {
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+  
 
   setQuestionType(question: QuizQuestion): void {
     const numCorrectAnswers = question.options.filter((option) => option.correct).length;
     question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
     this.questionType = question.type;
+  }
+
+  setCurrentQuestionIndex(index: number): void {
+    this.currentQuestionIndex = index;
+    this.currentQuestionIndex$.next(this.currentQuestionIndex);
+  }
+
+  submitQuiz(quiz: Quiz): Observable<any> {
+    const submitUrl = `${this.quizUrl}/results/${quiz.quizId}`;
+    return this.http.post(submitUrl, quiz).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error(`Error submitting quiz ${quiz.quizId}`, error);
+        throw new Error(`Error submitting quiz ${quiz.quizId}`);
+      }),
+      distinctUntilChanged()
+    );
   }
 }
