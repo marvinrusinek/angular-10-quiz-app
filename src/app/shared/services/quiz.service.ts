@@ -789,18 +789,6 @@ export class QuizService implements OnDestroy {
     await firstValueFrom(this.getCurrentQuestion());
   }
 
-  /* loadQuestions(): Observable<QuizQuestion[]> {
-    const quizId = this.getCurrentQuizId();
-
-    if (this.currentQuestionPromise) {
-      return from(this.currentQuestionPromise).pipe(
-        switchMap(() => this.loadQuestionsInternal(quizId))
-      );
-    }
-
-    return this.loadQuestionsInternal(quizId);
-  } */
-
   loadQuestions(): Observable<QuizQuestion[]> {
     const quizId = this.getCurrentQuizId();
   
