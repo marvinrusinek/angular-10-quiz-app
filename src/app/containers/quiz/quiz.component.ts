@@ -1354,7 +1354,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       // Fetch question details for the given index
-      const questionDetails = await this.fetchQuestionDetails(questionIndex);
+      const questionDetails = await firstValueFrom(of(this.fetchQuestionDetails(questionIndex)));
       if (questionDetails) {
         const { questionText, options, explanation } = questionDetails;
 
