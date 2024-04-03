@@ -565,26 +565,25 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }  
   
   private initializeQuizState(): void {
-    // Find the current quiz object by quizId
     const currentQuiz = this.quizService.findQuizByQuizId(this.quizId);
     if (!currentQuiz) {
       console.error(`Quiz not found: Quiz ID ${this.quizId}`);
       return;
     }
-
-    if (!Array.isArray(currentQuiz.questions)) {
+  
+    if (!Array.isArray(currentQuiz.questions) || currentQuiz.questions.length === 0) {
       console.error(`Questions data is invalid or not loaded for Quiz ID ${this.quizId}`);
       return;
     }
-
+  
     if (!this.isValidQuestionIndex(this.currentQuestionIndex, currentQuiz.questions)) {
       console.error(`Invalid question index: Quiz ID ${this.quizId}, Question Index (0-based) ${this.currentQuestionIndex}`);
       return;
     }
-
+  
     const currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
     this.updateQuizUIForNewQuestion(currentQuestion);
-  }
+  }  
 
   private updateQuizUIForNewQuestion(question: QuizQuestion): void {
     if (!question) {
