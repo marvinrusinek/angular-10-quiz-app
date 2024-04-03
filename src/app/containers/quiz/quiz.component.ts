@@ -188,7 +188,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
     // Initialize quiz-related properties
     this.initializeQuiz();
-    this.retrieveTotalQuestionsCount();
 
     // Fetch and display the current question
     this.initializeQuestionStreams();
@@ -227,7 +226,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     // Load the question data
     const question = await this.fetchQuestionDetails(questionIndex);
     this.currentQuestion = question;
-  
+
+    this.retrieveTotalQuestionsCount();
+
     // Check if the explanation for this question should be displayed
     const displayExplanation = this.shouldDisplayExplanation();
     if (displayExplanation) {
