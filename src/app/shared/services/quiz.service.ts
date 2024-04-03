@@ -1264,7 +1264,7 @@ export class QuizService implements OnDestroy {
   
     // Find the index of the current question
     const currentIndex = this.selectedQuiz.questions.findIndex(
-      (q) => q.questionText === question.questionText
+      (q) => q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
     );
   
     if (currentIndex === -1) {
@@ -1275,7 +1275,7 @@ export class QuizService implements OnDestroy {
     // Calculate the index of the next question
     const nextIndex = currentIndex + 1;
   
-    if (nextIndex < this.selectedQuiz.questions.length) {
+    if (nextIndex <= this.selectedQuiz.questions.length - 1) {
       const nextQuestion = this.selectedQuiz.questions[nextIndex];
   
       if (nextQuestion && nextQuestion.options) {
