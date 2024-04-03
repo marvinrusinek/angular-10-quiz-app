@@ -1183,7 +1183,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private emitUIUpdateEvents(): void {
     this.isAnswerSelectedChange.emit(true);
     this.toggleVisibility.emit();
-    this.updateFeedbackVisibility();
   }
 
   updateCombinedQuestionData(
@@ -1196,12 +1195,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       correctAnswersText: this.quizService.getCorrectAnswersAsString(),
       currentOptions: this.currentOptions,
     });
-  }
-
-  updateFeedbackVisibility(): void {
-    const isOptionSelected = this.selectedOptions.length > 0;
-    const isFeedbackVisible = isOptionSelected && this.selectedOption && this.showFeedbackForOption[this.selectedOption.optionId];
-    this.showFeedback = isFeedbackVisible;
   }
 
   isSelectedOption(option: Option): boolean {
