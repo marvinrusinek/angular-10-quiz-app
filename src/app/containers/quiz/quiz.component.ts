@@ -615,7 +615,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   // Method to find the index of a question
-  findQuestionIndex(question): number {
+  findQuestionIndex(question: QuizQuestion): number {
     if (!this.quizService.selectedQuiz || !Array.isArray(this.quizService.selectedQuiz.questions)) {
       console.error('Quiz data is not properly initialized or questions are not available.');
       return -1; // Indicate failure to find the index
