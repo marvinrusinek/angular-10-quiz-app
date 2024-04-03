@@ -163,10 +163,6 @@ export class QuizService implements OnDestroy {
   public correctAnswersLoaded$: Observable<boolean> =
     this.correctAnswersLoadedSubject.asObservable();
 
-  private badgeTextSource = new BehaviorSubject<string>('');
-  badgeText = this.badgeTextSource.asObservable();
-  private questionTextSource = new BehaviorSubject<string>('');
-  questionText = this.questionTextSource.asObservable();
   // private correctAnswersCountTextSource = new BehaviorSubject<string>('');
   private correctAnswersCountTextSource = new BehaviorSubject<string>('Select answers');
   correctAnswersCountText$ = this.correctAnswersCountTextSource.asObservable();
@@ -592,14 +588,6 @@ export class QuizService implements OnDestroy {
         this.updateCorrectCountForResults(this.correctCount + 1);
       }
     }
-  }
-
-  updateBadgeText(newBadgeText: string) {
-    this.badgeTextSource.next(newBadgeText);
-  }
-
-  updateQuestionText(newQuestionText: string) {
-    this.questionTextSource.next(newQuestionText);
   }
 
   updateCorrectAnswersText(newText: string): void {
