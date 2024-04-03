@@ -1401,7 +1401,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     const type = options.length > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
 
     let question: QuizQuestion = { questionText, options, explanation, type };
-
     this.quizDataService.setQuestionType(question);
 
     return question;
