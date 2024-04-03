@@ -47,33 +47,11 @@ export class QuizDataService implements OnDestroy {
     this.selectedQuiz$ = new BehaviorSubject<Quiz | null>(this.selectedQuiz);
     this.selectedQuizSubject = new BehaviorSubject<Quiz>(null);
     this.quizzes$ = new BehaviorSubject<Quiz[]>([]);
-
-    this.loadQuizzesData();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  loadQuizzesData(): void {
-    this.http
-      .get<Quiz[]>(this.quizUrl)
-      .pipe(
-        tap((quizzes: Quiz[]) => {
-          this.quizzes$.next(quizzes);
-          this.quizzes = quizzes;
-          if (quizzes.length > 0) {
-            this.selectedQuiz = quizzes[0];
-            this.selectedQuiz$.next(this.selectedQuiz);
-          }
-        }),
-        catchError((error: HttpErrorResponse) => {
-          console.error('Error loading quizzes:', error);
-          return [];
-        })
-      )
-      .subscribe();
   }
 
   getQuizData(quizId: string): Observable<QuizQuestion[]> {
