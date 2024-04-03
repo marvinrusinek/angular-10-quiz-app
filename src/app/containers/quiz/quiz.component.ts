@@ -591,13 +591,19 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    this.quizService.setCurrentQuestion(question);
+    const questionIndex = this.findQuestionIndex(question);
+    this.quizService.setCurrentQuestion(questionIndex);
 
     // Reset UI elements and messages as needed
     this.selectionMessageService.updateSelectionMessage('');
     this.selectedOption$.next(null);
     this.explanationTextService.explanationText$.next('');
     this.cdRef.detectChanges();
+  }
+
+  // Method to find the index of a question
+  private findQuestionIndex(question: QuizQuestion): number {
+    return this.quizService.selectedQuiz.questions.findIndex(q => q.explanation === question.explanation);
   }
 
   subscribeRouterAndInit(): void {
