@@ -636,10 +636,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  isQuestionAnswered(): boolean {
-    return this.isOptionSelected;
-  }
-
   async setCurrentQuestionIndex(index: number): Promise<void> {
     try {
       if (!this.quizId) {

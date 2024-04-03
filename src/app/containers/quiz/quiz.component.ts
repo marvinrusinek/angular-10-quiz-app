@@ -1095,10 +1095,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.animationState$.next('none');
   }
 
-  isQuestionAnswered(): boolean {
-    return this.isOptionSelected;
-  }
-
   isNextDisabled(): boolean {
     return typeof this.selectedAnswerField === 'undefined';
   } // might remove
