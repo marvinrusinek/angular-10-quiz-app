@@ -173,6 +173,10 @@ export class QuizService implements OnDestroy {
   public currentQuestionText$: Observable<string> =
     this.currentQuestionTextSubject.asObservable();
 
+  private badgeTextSource = new BehaviorSubject<string>('');
+  badgeText = this.badgeTextSource.asObservable();
+  private questionTextSource = new BehaviorSubject<string>('');
+  questionText = this.questionTextSource.asObservable();
   // private correctAnswersCountTextSource = new BehaviorSubject<string>('');
   private correctAnswersCountTextSource = new BehaviorSubject<string>('Select answers');
   correctAnswersCountText$ = this.correctAnswersCountTextSource.asObservable();
@@ -598,6 +602,14 @@ export class QuizService implements OnDestroy {
         this.updateCorrectCountForResults(this.correctCount + 1);
       }
     }
+  }
+
+  updateBadgeText(newBadgeText: string) {
+    this.badgeTextSource.next(newBadgeText);
+  }
+
+  updateQuestionText(newQuestionText: string) {
+    this.questionTextSource.next(newQuestionText);
   }
 
   updateCorrectAnswersText(newText: string): void {
@@ -1517,7 +1529,8 @@ export class QuizService implements OnDestroy {
   handleQuestionChange(question: any, selectedOptions: any[], options: Option[]): void {
     // Logic to update options based on the question
     if (question) {
-      options = question.options;
+      options = question.options; // Assuming 'options' is a mutable array reference passed from the component
+      // Reset state logic here, if it's generic enough to be shared
     }
 
     // Logic to mark options as selected based on selectedOptions array
@@ -1529,7 +1542,7 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  navigateToResults(): void {
+  navigateToResults() {
     this.quizCompleted = true;
     this.router.navigate([QuizRoutes.RESULTS, this.quizId]);
   }
@@ -1552,6 +1565,10 @@ export class QuizService implements OnDestroy {
       this.quizData = null;
       this.questions = [];
     }
+  }
+
+  resetUserSelection(): void {
+    this.selectedOption$.next('');
   }
 
   resetAll(): void {
@@ -1582,7 +1599,7 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  playSound(isCorrect: boolean): void {
+  playSound(isCorrect) {
     // Initialize sounds only if they haven't been loaded yet
     if (!this.correctSound || !this.incorrectSound) {
       this.initializeSounds();
