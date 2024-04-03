@@ -54,19 +54,6 @@ export class QuizDataService implements OnDestroy {
     this.destroy$.complete();
   }
 
-  getQuizData(quizId: string): Observable<QuizQuestion[]> {
-    return this.http.get<Quiz[]>(this.quizUrl).pipe(
-      map((quizzes: Quiz[]) => {
-        const selectedQuiz = quizzes.find((quiz) => quiz.quizId === quizId);
-        return selectedQuiz ? selectedQuiz.questions : [];
-      }),
-      catchError((error: HttpErrorResponse) => {
-        console.error('Error fetching quiz data:', error);
-        return of([]);
-      })
-    );
-  }
-
   getQuizzes(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       tap((quizzes) => {
