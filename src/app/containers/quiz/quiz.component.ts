@@ -1130,8 +1130,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
               const correctAnswerOptions: Option[] =
                 currentQuestion.options.filter((option) => option.correct);
 
-              this.quizDataService.setQuestionType(currentQuestion);
-
               // Display the question and options on the screen for each question
               this.currentQuestion = currentQuestion;
               this.options = currentQuestion.options;
