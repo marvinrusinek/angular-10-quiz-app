@@ -1260,38 +1260,23 @@ export class QuizService implements OnDestroy {
   }
   
   setCurrentQuestion(index: number): void {
-    // Assume this.selectedQuiz is already set and contains the quiz data, including an array of questions
     if (!this.selectedQuiz || !Array.isArray(this.selectedQuiz.questions)) {
       console.error('Quiz data is not properly initialized.');
       return;
     }
   
-    // Validate the index to ensure it's within the bounds of the questions array
     if (index < 0 || index >= this.selectedQuiz.questions.length) {
-      console.error('Invalid question index:', index);
-      return; // Early return to prevent processing an invalid index
-    }
-  
-    const question = this.selectedQuiz.questions[index];
-  
-    // Check if the question is properly defined
-    if (!question || !question.options) {
-      console.error('Invalid question data at index:', index, question);
+      console.error(`Invalid question index: ${index}`);
       return;
     }
   
-    // If everything is valid, proceed to set the current question and its options
-    this.currentQuestion.next(question); // Assuming currentQuestion is a BehaviorSubject or similar
+    const question = this.selectedQuiz.questions[index];
+    if (!question || !Array.isArray(question.options)) {
+      console.error(`Invalid question data at index: ${index}`, question);
+      return;
+    }
   
-    const options = question.options.map(option => ({
-      value: option.value, // Adjust these property names based on your actual data structure
-      text: option.text
-    }));
-  
-    this.optionsSource.next(options); // Assuming optionsSource is also a BehaviorSubject or similar
-  
-    // Update any other relevant state, such as the current question index
-    this.currentQuestionIndex = index; // Track the current index in your component/service
+    this.currentQuestion.next(question);
   }
   
   // Sets the current question and the next question along with an explanation text.
