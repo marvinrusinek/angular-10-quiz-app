@@ -607,11 +607,6 @@ export class QuizService implements OnDestroy {
     this.correctAnswersCountTextSource.next(newText);
   }
 
-  // New method to get the current text value directly
-  getCurrentCorrectAnswersText(): string {
-    return this.correctAnswersCountTextSource.value;
-  }
-
   private updateCorrectCountForResults(value: number): void {
     this.correctCount = value;
     this.sendCorrectCountToResults(this.correctCount);
