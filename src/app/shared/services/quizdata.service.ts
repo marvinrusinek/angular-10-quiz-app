@@ -427,15 +427,4 @@ export class QuizDataService implements OnDestroy {
     this.currentQuestionIndex = index;
     this.currentQuestionIndex$.next(this.currentQuestionIndex);
   }
-
-  submitQuiz(quiz: Quiz): Observable<any> {
-    const submitUrl = `${this.quizUrl}/results/${quiz.quizId}`;
-    return this.http.post(submitUrl, quiz).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.error(`Error submitting quiz ${quiz.quizId}`, error);
-        throw new Error(`Error submitting quiz ${quiz.quizId}`);
-      }),
-      distinctUntilChanged()
-    );
-  }
 }
