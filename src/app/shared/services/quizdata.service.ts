@@ -106,16 +106,6 @@ export class QuizDataService implements OnDestroy {
     this.currentQuizSubject.next(quiz);
   }
 
-  setSelectedQuiz(quiz: Quiz | null): void {
-    this.selectedQuiz = quiz;
-    this.selectedQuiz$.next(quiz);
-    this.selectedQuiz$
-      .pipe(take(1), distinctUntilChanged())
-      .subscribe((selectedQuiz: Quiz) => {
-        this.selectedQuizSubject.next(selectedQuiz);
-      });
-  }
-
   setSelectedQuizById(quizId: string): Observable<void> {
     return this.getQuizzes().pipe(
       switchMap((quizzes: Quiz[]) => {
@@ -134,6 +124,16 @@ export class QuizDataService implements OnDestroy {
       }),
       takeUntil(this.destroy$)
     );
+  }
+
+  setSelectedQuiz(quiz: Quiz | null): void {
+    this.selectedQuiz = quiz;
+    this.selectedQuiz$.next(quiz);
+    this.selectedQuiz$
+      .pipe(take(1), distinctUntilChanged())
+      .subscribe((selectedQuiz: Quiz) => {
+        this.selectedQuizSubject.next(selectedQuiz);
+      });
   }
 
   getQuiz(quizId: string): Observable<Quiz> {
