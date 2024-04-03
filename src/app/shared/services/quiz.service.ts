@@ -1275,7 +1275,7 @@ export class QuizService implements OnDestroy {
     // Calculate the index of the next question
     const nextIndex = currentIndex + 1;
   
-    if (nextIndex <= this.selectedQuiz.questions.length - 1) {
+    if (nextIndex < this.selectedQuiz.questions.length) {
       const nextQuestion = this.selectedQuiz.questions[nextIndex];
   
       if (nextQuestion && nextQuestion.options) {
