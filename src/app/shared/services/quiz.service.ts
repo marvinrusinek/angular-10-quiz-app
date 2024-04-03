@@ -1272,29 +1272,33 @@ export class QuizService implements OnDestroy {
       return;
     }
   
-    // Calculate the index of the next question
-    const nextIndex = currentIndex + 1;
+    // Check if the current question is the last one
+    if (currentIndex === -1 || currentIndex >= this.selectedQuiz.questions.length) {
+      console.error('Invalid current or next question index:', currentIndex);
+      return;
+    }
   
-    if (nextIndex < this.selectedQuiz.questions.length) {
-      const nextQuestion = this.selectedQuiz.questions[nextIndex];
+    // Calculate the index of the next question, ensuring it doesn't go beyond the last question
+    const nextIndex = currentIndex + 1; // No need to check if nextIndex is less than questions.length - 1 here because we've already checked if currentIndex is the last question
   
-      if (nextQuestion && nextQuestion.options) {
-        // Emit the next question and its options
-        this.currentQuestion.next(nextQuestion);
+    // Retrieve the next question based on nextIndex
+    const nextQuestion = this.selectedQuiz.questions[nextIndex];
   
-        const options: Option[] = nextQuestion.options.map((option) => ({
-          value: option.value,
-          text: option.text
-        }));
+    if (nextQuestion && nextQuestion.options) {
+      // Emit the next question and its options
+      this.currentQuestion.next(nextQuestion);
   
-        this.optionsSource.next(options);
-      } else {
-        console.error('Invalid next question:', nextQuestion);
-      }
+      const options: Option[] = nextQuestion.options.map((option) => ({
+        value: option.value,
+        text: option.text
+      }));
+  
+      this.optionsSource.next(options);
     } else {
-      console.log('End of quiz reached. Current question is the last one.');
+      console.error('Invalid next question:', nextQuestion);
     }
   }
+  
   
   // Sets the current question and the next question along with an explanation text.
   setCurrentQuestionAndNext(
