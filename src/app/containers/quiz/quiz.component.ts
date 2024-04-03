@@ -166,9 +166,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
 
-    this.quizService.quizReset$.subscribe(() => {
+    /* this.quizService.quizReset$.subscribe(() => {
       this.updateComponentState();
-    });
+    }); */
   }
 
   @HostListener('window:focus', ['$event'])
@@ -289,17 +289,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
     return -1;
   }
-
-  updateComponentState(): void {
-    this.quizService.getCurrentQuestion().pipe(
-      takeUntil(this.unsubscribe$)
-    ).subscribe((question: QuizQuestion) => {
-      this.currentQuestion = question;
-      this.options = question?.options || [];
-      this.loadExplanationTextForCurrentQuestion();
-    });
-  }
-
+  
   async fetchQuizData(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params['quizId'];
@@ -1077,19 +1067,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Error fetching total questions:', error);
       }
     });
-  }
-
-  loadExplanationTextForCurrentQuestion(): void {
-    this.explanationText = '';
-    const currentQuestion = this.quizData[this.currentQuestionIndex];
-
-    if (this.quizService.isQuizQuestion(currentQuestion)) {
-      this.explanationTextService.setNextExplanationText(
-        currentQuestion.explanation
-      );
-    } else {
-      this.explanationTextService.setNextExplanationText('');
-    }
   }
 
   animationDoneHandler(): void {
