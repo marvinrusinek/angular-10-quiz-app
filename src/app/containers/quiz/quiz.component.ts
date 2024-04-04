@@ -443,7 +443,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
     this.quizData = quizData.questions;
     this.quizId = quizId;
-    this.processQuizData(questionIndex, quizData);
+    const index = parseInt(questionIndex, 10);
+    this.processQuizData(index, quizData);
   }
 
   private processQuizData(questionIndex: number, quizData: any): void {
