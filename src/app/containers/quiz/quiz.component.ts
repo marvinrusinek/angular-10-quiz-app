@@ -447,23 +447,25 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private processQuizData(questionIndex: number, quizData: any): void {
-    const currentQuestionIndex = questionIndex - 1;
+    console.log(`Processing quiz data for index ${questionIndex}:`, quizData);
   
-    // Directly use quizData if it represents the current quiz
     if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
-      console.error(`Quiz data is not properly initialized or questions are not available for Quiz ID ${this.quizId}`);
+      console.error(`Quiz data is invalid or not loaded for Quiz ID ${this.quizId}`);
       return;
     }
   
-    if (!this.isValidQuestionIndex(currentQuestionIndex, quizData.questions)) {
-      console.error(`Invalid question index: Quiz ID ${this.quizId}, Question Index ${currentQuestionIndex}`);
+    if (questionIndex < 0 || questionIndex >= quizData.questions.length) {
+      console.error(`Invalid question index: ${questionIndex} for Quiz ID ${this.quizId}`);
       return;
     }
   
-    // Assuming the rest of your logic is correct and quizData represents the current quiz
-    this.initializeQuizState();
-    this.setExplanationTextForCurrentQuestion(quizData, currentQuestionIndex);
-  }  
+    const currentQuestion = quizData.questions[questionIndex];
+    console.log(`Current question:`, currentQuestion);
+  
+    // Assuming other initialization logic follows...
+  }
+  
+
 
   isValidQuestionIndex(index: number, questions: QuizQuestion[] | undefined): boolean {
     if (!questions) {
