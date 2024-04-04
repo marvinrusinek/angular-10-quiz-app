@@ -278,43 +278,40 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   async fetchQuizData(): Promise<void> {
     try {
-        const quizId = this.activatedRoute.snapshot.params['quizId'];
-        const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
-        // Ensure questionIndex is parsed as an integer
-        const questionIndex = parseInt(questionIndexParam, 10);
+      const quizId = this.activatedRoute.snapshot.params['quizId'];
+      const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
+      const questionIndex = parseInt(questionIndexParam, 10);
 
-        if (isNaN(questionIndex)) {
-            console.error('Invalid question index:', questionIndexParam);
-            return;
-        }
+      if (isNaN(questionIndex)) {
+        console.error('Invalid question index:', questionIndexParam);
+        return;
+      }
 
-        // Use zero-based index for internal logic if necessary
-        const zeroBasedQuestionIndex = questionIndex - 1;
+      // Use zero-based index for internal logic if necessary
+      const zeroBasedQuestionIndex = questionIndex - 1;
 
-        const quizData = await this.fetchQuizDataFromService();
+      const quizData = await this.fetchQuizDataFromService();
 
-        const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
-        if (!selectedQuiz) {
-            console.error('Selected quiz not found in quizData.');
-            return;
-        }
+      const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
+      if (!selectedQuiz) {
+        console.error('Selected quiz not found in quizData.');
+        return;
+      }
 
-        this.initializeSelectedQuizData(selectedQuiz);
+      this.initializeSelectedQuizData(selectedQuiz);
 
-        // Ensure that question data is fetched using the correct index
-        const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
-        if (!questionData) {
-            console.error('Question data could not be fetched.');
-            this.data = null;
-            return;
-        }
+      // Ensure that question data is fetched using the correct index
+      const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
+      if (!questionData) {
+        console.error('Question data could not be fetched.');
+        this.data = null;
+        return;
+      }
 
-        this.initializeAndPrepareQuestion(questionData, quizId);
-
-        // Use the original questionIndex for subscribing to questions
-        this.subscribeToQuestions(quizId, questionIndex);
+      this.initializeAndPrepareQuestion(questionData, quizId);
+      this.subscribeToQuestions(quizId, questionIndex);
     } catch (error) {
-        console.error('Error in fetchQuizData:', error);
+      console.error('Error in fetchQuizData:', error);
     }
   }
 
