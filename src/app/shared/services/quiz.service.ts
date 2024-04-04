@@ -1561,7 +1561,7 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  playSound(isCorrect) {
+  playSound(isCorrect: boolean): void {
     // Initialize sounds only if they haven't been loaded yet
     if (!this.correctSound || !this.incorrectSound) {
       this.initializeSounds();
