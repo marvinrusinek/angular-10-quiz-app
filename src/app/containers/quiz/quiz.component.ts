@@ -179,12 +179,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    const quizId = this.activatedRoute.snapshot.params['quizId'];
-    await this.fetchQuizData(quizId);
-
     // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
+
+    // const quizId = this.activatedRoute.snapshot.params['quizId'];
+    this.fetchQuizData();
 
     // Initialize quiz-related properties
     this.initializeQuiz();
@@ -276,7 +276,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* async fetchQuizData(): Promise<void> {
+  async fetchQuizData(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params['quizId'];
       const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
@@ -315,10 +315,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('Error in fetchQuizData:', error);
     }
-  } */
+  }
 
-  async fetchQuizData(quizId: string): Promise<void> {
+  /* async fetchQuizData(quizId: string): Promise<void> {
     try {
+        // Assuming 'questionIndexParam' comes from route parameters
         const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
         const questionIndex = parseInt(questionIndexParam, 10);
 
@@ -327,44 +328,48 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
             return;
         }
 
-        // Use zero-based index for internal logic if necessary
+        // Adjust to zero-based index if your logic requires it
         const zeroBasedQuestionIndex = questionIndex - 1;
 
-        // Directly fetch the selected quiz based on quizId
+        // Fetch the selected quiz
         const selectedQuiz = await this.fetchQuizDataFromService(quizId);
-        console.log("SQ:::", selectedQuiz);
-
         if (!selectedQuiz) {
             console.error('Selected quiz not found for quizId:', quizId);
             return;
         }
+        console.log("Fetched Quiz:", selectedQuiz);
 
-        // Ensure that selectedQuiz is properly set for subsequent use
-        this.quizService.setSelectedQuiz(selectedQuiz); // Set the selectedQuiz in the QuizService
+        // Set the selected quiz for global access within the service
+        this.quizService.setSelectedQuiz(selectedQuiz);
 
-        // Proceed with using selectedQuiz now that it's guaranteed to be set
+        // Initialize quiz-related data based on the fetched quiz
         this.processQuizData(zeroBasedQuestionIndex, selectedQuiz);
-        this.initializeSelectedQuizData(selectedQuiz); // Initialize quiz data based on selectedQuiz
+        this.initializeSelectedQuizData(selectedQuiz);
 
-        // Ensure that question data is fetched using the correct index and prepare the question for display
+        // Fetch and prepare the specific question for display
         const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
         if (questionData) {
             this.initializeAndPrepareQuestion(questionData, quizId);
         } else {
             console.error('Question data could not be fetched.');
-            this.data = null;
+            this.data = null;  // Make sure 'this.data' is correctly handled in your component
             return;
         }
 
-        // After all the necessary data has been fetched and initialized, set the current question
-        this.quizService.setCurrentQuestion(zeroBasedQuestionIndex);
+        // Set the current question in the quiz service, ensuring the question exists
+        if (zeroBasedQuestionIndex >= 0 && zeroBasedQuestionIndex < selectedQuiz.questions.length) {
+            this.quizService.setCurrentQuestion(zeroBasedQuestionIndex);
+        } else {
+            console.error('Invalid question index:', zeroBasedQuestionIndex);
+        }
 
-        // Subscribe to questions if needed, after setting up the current question
+        // Optional: Subscribe to question changes if your app requires it
         this.subscribeToQuestions(quizId, questionIndex);
     } catch (error) {
         console.error('Error in fetchQuizData:', error);
     }
-  }
+  } */
+
 
 
   private async fetchQuizDataFromService(quizId: string): Promise<Quiz | undefined> {
