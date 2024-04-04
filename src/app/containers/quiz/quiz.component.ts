@@ -449,15 +449,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe(this.processRouteData.bind(this));
   }
 
-  private adjustAndValidateIndex(index: string): number {
-    const questionIndex = parseInt(index, 10) - 1; // Adjust if necessary
-    if (isNaN(questionIndex) || questionIndex < 0) {
-      console.error('Invalid question index:', index);
-      return -1;
-    }
-    return questionIndex;
-  }
-
   private processRouteData({ quizId, questionIndex, quizData }): void {
     if (!quizData || !quizId) {
       console.error('quizData or quizId is undefined.');
@@ -471,6 +462,15 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     if (this.questionIndex !== -1) {
       this.processQuizData(this.questionIndex, this.quizService.selectedQuiz);
     }
+  }
+
+  private adjustAndValidateIndex(index: string): number {
+    const questionIndex = parseInt(index, 10) - 1; // Adjust if necessary
+    if (isNaN(questionIndex) || questionIndex < 0) {
+      console.error('Invalid question index:', index);
+      return -1;
+    }
+    return questionIndex;
   }
 
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
