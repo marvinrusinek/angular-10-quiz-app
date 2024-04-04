@@ -299,8 +299,14 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         return;
       }
 
+      // Set the selectedQuiz in the QuizService right after it's fetched
+      this.quizService.setSelectedQuiz(selectedQuiz);  // Make sure you have a setter method for selectedQuiz in your QuizService
+
+      // Now that selectedQuiz is set, proceed with processing the quiz data
       this.processQuizData(zeroBasedQuestionIndex, selectedQuiz);
-      this.initializeSelectedQuizData(selectedQuiz);
+
+      // Initialize quiz data based on selectedQuiz
+      this.initializeSelectedQuizData(this.quizService.selectedQuiz);  // Access selectedQuiz from QuizService
 
       // Ensure that question data is fetched using the correct index
       const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
@@ -310,7 +316,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         return;
       }
 
+      // Initialize and prepare the question based on fetched question data
       this.initializeAndPrepareQuestion(questionData, quizId);
+
+      // Subscribe to questions using the quizId and the questionIndex
       this.subscribeToQuestions(quizId, questionIndex);
     } catch (error) {
       console.error('Error in fetchQuizData:', error);
@@ -459,9 +468,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.quizId = quizId;
     
     this.questionIndex = this.adjustAndValidateIndex(questionIndex);
-    if (this.questionIndex !== -1) {
-      this.processQuizData(this.questionIndex, this.quizService.selectedQuiz);
-    }
   }
 
   private adjustAndValidateIndex(index: string): number {
