@@ -292,21 +292,15 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
       // Directly fetch the selected quiz based on quizId
       const selectedQuiz = await this.fetchQuizDataFromService(quizId);
-      console.log("SQ:::", selectedQuiz);
+      console.log("SQ::", selectedQuiz);
 
       if (!selectedQuiz) {
         console.error('Selected quiz not found for quizId:', quizId);
         return;
       }
 
-      // Set the selectedQuiz in the QuizService right after it's fetched
-      this.quizService.setSelectedQuiz(selectedQuiz);  // Make sure you have a setter method for selectedQuiz in your QuizService
-
-      // Now that selectedQuiz is set, proceed with processing the quiz data
       this.processQuizData(zeroBasedQuestionIndex, selectedQuiz);
-
-      // Initialize quiz data based on selectedQuiz
-      this.initializeSelectedQuizData(this.quizService.selectedQuiz);  // Access selectedQuiz from QuizService
+      this.initializeSelectedQuizData(selectedQuiz);
 
       // Ensure that question data is fetched using the correct index
       const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
@@ -316,10 +310,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         return;
       }
 
-      // Initialize and prepare the question based on fetched question data
       this.initializeAndPrepareQuestion(questionData, quizId);
-
-      // Subscribe to questions using the quizId and the questionIndex
       this.subscribeToQuestions(quizId, questionIndex);
     } catch (error) {
       console.error('Error in fetchQuizData:', error);
