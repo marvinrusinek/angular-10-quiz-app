@@ -238,6 +238,7 @@ export class QuizService implements OnDestroy {
 
   setSelectedQuiz(selectedQuiz: Quiz): void {
     this.selectedQuiz$.next(selectedQuiz);
+    this.selectedQuiz = selectedQuiz;
   }
 
   setQuizData(quizData: Quiz[]): void {
