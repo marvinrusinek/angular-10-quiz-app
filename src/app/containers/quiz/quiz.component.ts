@@ -290,7 +290,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       // Use zero-based index for internal logic if necessary
       const zeroBasedQuestionIndex = questionIndex - 1;
 
-      const quizData = await this.fetchQuizDataFromService();
+      const quizData = await this.fetchQuizDataFromService(quizId);
 
       const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
       if (!selectedQuiz) {
@@ -315,9 +315,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-
-  private async fetchQuizDataFromService(): Promise<Quiz[]> {
-    return await firstValueFrom(this.quizService.getQuizData());
+  private async fetchQuizDataFromService(quizId: string): Promise<Quiz | undefined> {
+    const quizzes = await firstValueFrom(this.quizService.getQuizData());
+    const selectedQuiz = quizzes.find(quiz => quiz.quizId === quizId);
+    return selectedQuiz;
   }
 
   private findSelectedQuiz(quizData: Quiz[], quizId: string): Quiz | undefined {
