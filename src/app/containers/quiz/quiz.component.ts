@@ -312,7 +312,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         this.initializeAndPrepareQuestion(questionData, quizId);
 
         // Use the original questionIndex for subscribing to questions
-        this.subscribeToQuestions(quizId, questionIndex.toString());
+        this.subscribeToQuestions(quizId, questionIndex);
     } catch (error) {
         console.error('Error in fetchQuizData:', error);
     }
