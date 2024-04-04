@@ -290,7 +290,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       // Use zero-based index for internal logic if necessary
       const zeroBasedQuestionIndex = questionIndex - 1;
 
-      const quizData = await this.fetchQuizDataFromService(quizId);
+      const quizData = await this.fetchQuizDataFromService();
 
       const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
       if (!selectedQuiz) {
@@ -316,12 +316,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
 
-  private async fetchQuizDataFromService(quizId: string): Promise<Quiz | null> {
-    const quizzes = await firstValueFrom(this.quizService.getQuizData());
-
-    // Find the specific quiz by quizId
-    const selectedQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-    return selectedQuiz ?? null; // Return the found quiz or null if not found
+  private async fetchQuizDataFromService(): Promise<Quiz[]> {
+    return await firstValueFrom(this.quizService.getQuizData());
   }
 
   private findSelectedQuiz(quizData: Quiz[], quizId: string): Quiz | undefined {
