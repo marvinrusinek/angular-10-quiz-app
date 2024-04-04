@@ -184,7 +184,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.initializeRouteParams();
 
     // Fetch additional quiz data
-    this.fetchQuizData();
+    const quizId = this.activatedRoute.snapshot.params['quizId'];
+    await this.fetchQuizData(quizId);
 
     // Initialize quiz-related properties
     this.initializeQuiz();
@@ -317,9 +318,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  async fetchQuizData(): Promise<void> {
+  async fetchQuizData(quizId: string): Promise<void> {
     try {
-        const quizId = this.activatedRoute.snapshot.params['quizId'];
         const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
         const questionIndex = parseInt(questionIndexParam, 10);
 
@@ -343,7 +343,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         // Ensure that selectedQuiz is properly set for subsequent use
         this.quizService.setSelectedQuiz(selectedQuiz); // Set the selectedQuiz in the QuizService
 
-        // Now that selectedQuiz is guaranteed to be set, proceed with other initializations
+        // Proceed with using selectedQuiz now that it's guaranteed to be set
         this.processQuizData(zeroBasedQuestionIndex, selectedQuiz);
         this.initializeSelectedQuizData(selectedQuiz); // Initialize quiz data based on selectedQuiz
 
@@ -366,6 +366,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Error in fetchQuizData:', error);
     }
   }
+
 
   private async fetchQuizDataFromService(quizId: string): Promise<Quiz | undefined> {
     const quizzes = await firstValueFrom(this.quizService.getQuizData());
