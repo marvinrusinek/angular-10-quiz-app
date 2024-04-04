@@ -341,22 +341,27 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         }
 
         // Ensure that selectedQuiz is properly set for subsequent use
-        this.quizService.setSelectedQuiz(selectedQuiz); // Make sure this method exists in QuizService and correctly updates selectedQuiz
+        this.quizService.setSelectedQuiz(selectedQuiz); // Set the selectedQuiz in the QuizService
 
-        // Proceed with using selectedQuiz now that it's guaranteed to be set
+        // Now that selectedQuiz is guaranteed to be set, proceed with other initializations
         this.processQuizData(zeroBasedQuestionIndex, selectedQuiz);
-        this.initializeSelectedQuizData(selectedQuiz);  // Assuming this method does some setup based on selectedQuiz
+        this.initializeSelectedQuizData(selectedQuiz); // Initialize quiz data based on selectedQuiz
 
-        // Ensure that question data is fetched using the correct index
+        // Ensure that question data is fetched using the correct index and prepare the question for display
         const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
-        if (!questionData) {
+        if (questionData) {
+            this.initializeAndPrepareQuestion(questionData, quizId);
+        } else {
             console.error('Question data could not be fetched.');
             this.data = null;
             return;
         }
 
-        this.initializeAndPrepareQuestion(questionData, quizId);  // Ensure this method correctly initializes the question for display
-        this.subscribeToQuestions(quizId, questionIndex);  // Make sure subscription logic is correct and it doesn't override necessary data
+        // After all the necessary data has been fetched and initialized, set the current question
+        this.quizService.setCurrentQuestion(zeroBasedQuestionIndex);
+
+        // Subscribe to questions if needed, after setting up the current question
+        this.subscribeToQuestions(quizId, questionIndex);
     } catch (error) {
         console.error('Error in fetchQuizData:', error);
     }
