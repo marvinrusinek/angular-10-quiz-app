@@ -312,7 +312,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         this.initializeAndPrepareQuestion(questionData, quizId);
 
         // Use the original questionIndex for subscribing to questions
-        this.subscribeToQuestions(quizId, questionIndex);
+        this.subscribeToQuestions(quizId, questionIndex.toString());
     } catch (error) {
         console.error('Error in fetchQuizData:', error);
     }
@@ -374,11 +374,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private subscribeToQuestions(quizId: string, questionIndex: string): void {
+  private subscribeToQuestions(quizId: string, questionIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
-      const numericIndex = +questionIndex;
-      if (!isNaN(numericIndex)) {
-        this.quizService.setCurrentQuestionIndex(numericIndex);
+      if (questionIndex >= 0 && questionIndex < questions.length) {
+        this.quizService.setCurrentQuestionIndex(questionIndex);
       } else {
         console.error('Invalid questionIndex:', questionIndex);
         return;
