@@ -294,12 +294,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       const selectedQuiz = await this.fetchQuizDataFromService(quizId);
       console.log("SQ:::", selectedQuiz);
 
-      // Check if selectedQuiz is defined
       if (!selectedQuiz) {
         console.error('Selected quiz not found for quizId:', quizId);
         return;
       }
 
+      this.processQuizData(zeroBasedQuestionIndex, selectedQuiz);
       this.initializeSelectedQuizData(selectedQuiz);
 
       // Ensure that question data is fetched using the correct index
