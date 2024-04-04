@@ -179,13 +179,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    const quizId = this.activatedRoute.snapshot.params['quizId'];
+    await this.fetchQuizData(quizId);
+
     // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
-
-    // Fetch additional quiz data
-    const quizId = this.activatedRoute.snapshot.params['quizId'];
-    await this.fetchQuizData(quizId);
 
     // Initialize quiz-related properties
     this.initializeQuiz();
