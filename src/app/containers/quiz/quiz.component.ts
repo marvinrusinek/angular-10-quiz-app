@@ -290,7 +290,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       // Use zero-based index for internal logic if necessary
       const zeroBasedQuestionIndex = questionIndex - 1;
 
-      const quizData = await this.fetchQuizDataFromService();
+      const quizData = await this.fetchQuizDataFromService(quizId);
 
       const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
       if (!selectedQuiz) {
