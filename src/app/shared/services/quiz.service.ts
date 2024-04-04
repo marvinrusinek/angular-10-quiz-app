@@ -1279,7 +1279,7 @@ export class QuizService implements OnDestroy {
   
     const question = this.selectedQuiz.questions[index];
     if (!question) {
-      console.error(`Invalid question data at index: ${index}`, question);
+      console.error(`Selected Question at index ${index} is undefined`, question);
       return;
     }
   
