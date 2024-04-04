@@ -320,7 +320,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     const quizzes = await firstValueFrom(this.quizService.getQuizData());
 
     // Find the specific quiz by quizId
-    const selectedQuiz = quizzes.find(quiz => quiz.id === quizId);
+    const selectedQuiz = quizzes.find(quiz => quiz.quizId === quizId);
     return selectedQuiz ?? null; // Return the found quiz or null if not found
   }
 
