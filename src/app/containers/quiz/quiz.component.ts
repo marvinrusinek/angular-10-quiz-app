@@ -292,6 +292,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
       // Directly fetch the selected quiz based on quizId
       const selectedQuiz = await this.fetchQuizDataFromService(quizId);
+      console.log("SQ:::", selectedQuiz);
 
       // Check if selectedQuiz is defined
       if (!selectedQuiz) {
@@ -472,26 +473,24 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private processQuizData(questionIndex: number, quizData: any): void {
-    console.log(`Processing quiz data for index ${questionIndex}:`, quizData);
-  
-    if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
-      console.error(`Quiz data is invalid or not loaded for Quiz ID ${this.quizId}`);
-      return;
+  private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
+    console.log(`Processing quiz data for index ${questionIndex}:`, selectedQuiz);
+
+    if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
+        console.error(`Quiz data is invalid or not loaded for Quiz ID ${this.quizId}`);
+        return;
     }
-  
-    if (questionIndex < 0 || questionIndex >= quizData.questions.length) {
-      console.error(`Invalid question index: ${questionIndex} for Quiz ID ${this.quizId}`);
-      return;
+
+    if (questionIndex < 0 || questionIndex >= selectedQuiz.questions.length) {
+        console.error(`Invalid question index: ${questionIndex} for Quiz ID ${this.quizId}`);
+        return;
     }
-  
-    const currentQuestion = quizData.questions[questionIndex];
+
+    const currentQuestion = selectedQuiz.questions[questionIndex];
     console.log(`Current question:`, currentQuestion);
-  
+
     // Assuming other initialization logic follows...
   }
-  
-
 
   isValidQuestionIndex(index: number, questions: QuizQuestion[] | undefined): boolean {
     if (!questions) {
