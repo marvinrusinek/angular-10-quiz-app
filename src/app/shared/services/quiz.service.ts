@@ -1267,7 +1267,6 @@ export class QuizService implements OnDestroy {
   }
   
   setCurrentQuestion(index: number): void {
-    console.log("SCQ SQ:", this.selectedQuiz);
     if (!this.selectedQuiz || !Array.isArray(this.selectedQuiz.questions)) {
       console.error('Quiz data is not properly initialized.');
       return;
@@ -1279,7 +1278,7 @@ export class QuizService implements OnDestroy {
     }
   
     const question = this.selectedQuiz.questions[index];
-    if (!question || !Array.isArray(question.options)) {
+    if (!question) {
       console.error(`Invalid question data at index: ${index}`, question);
       return;
     }
