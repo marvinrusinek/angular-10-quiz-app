@@ -183,7 +183,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
 
-    // const quizId = this.activatedRoute.snapshot.params['quizId'];
+    // ...
     this.fetchQuizData();
 
     // Initialize quiz-related properties
@@ -317,61 +317,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Error in fetchQuizData:', error);
     }
   }
-
-  /* async fetchQuizData(quizId: string): Promise<void> {
-    try {
-        // Assuming 'questionIndexParam' comes from route parameters
-        const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
-        const questionIndex = parseInt(questionIndexParam, 10);
-
-        if (isNaN(questionIndex)) {
-            console.error('Invalid question index:', questionIndexParam);
-            return;
-        }
-
-        // Adjust to zero-based index if your logic requires it
-        const zeroBasedQuestionIndex = questionIndex - 1;
-
-        // Fetch the selected quiz
-        const selectedQuiz = await this.fetchQuizDataFromService(quizId);
-        if (!selectedQuiz) {
-            console.error('Selected quiz not found for quizId:', quizId);
-            return;
-        }
-        console.log("Fetched Quiz:", selectedQuiz);
-
-        // Set the selected quiz for global access within the service
-        this.quizService.setSelectedQuiz(selectedQuiz);
-
-        // Initialize quiz-related data based on the fetched quiz
-        this.processQuizData(zeroBasedQuestionIndex, selectedQuiz);
-        this.initializeSelectedQuizData(selectedQuiz);
-
-        // Fetch and prepare the specific question for display
-        const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
-        if (questionData) {
-            this.initializeAndPrepareQuestion(questionData, quizId);
-        } else {
-            console.error('Question data could not be fetched.');
-            this.data = null;  // Make sure 'this.data' is correctly handled in your component
-            return;
-        }
-
-        // Set the current question in the quiz service, ensuring the question exists
-        if (zeroBasedQuestionIndex >= 0 && zeroBasedQuestionIndex < selectedQuiz.questions.length) {
-            this.quizService.setCurrentQuestion(zeroBasedQuestionIndex);
-        } else {
-            console.error('Invalid question index:', zeroBasedQuestionIndex);
-        }
-
-        // Optional: Subscribe to question changes if your app requires it
-        this.subscribeToQuestions(quizId, questionIndex);
-    } catch (error) {
-        console.error('Error in fetchQuizData:', error);
-    }
-  } */
-
-
 
   private async fetchQuizDataFromService(quizId: string): Promise<Quiz | undefined> {
     const quizzes = await firstValueFrom(this.quizService.getQuizData());
