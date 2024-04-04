@@ -278,30 +278,50 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   async fetchQuizData(): Promise<void> {
     try {
-      const quizId = this.activatedRoute.snapshot.params['quizId'];
-      const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
-      const zeroBasedQuestionIndex = questionIndex - 1;
+        // Step 1: Validate Route Parameters
+        const quizId = this.activatedRoute.snapshot.params['quizId'];
+        const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
+        const questionIndex = parseInt(questionIndexParam, 10);
 
-      const quizData = await this.fetchQuizDataFromService();
+        // Validate questionIndex and adjust for zero-based indexing
+        if (isNaN(questionIndex)) {
+            console.error('Invalid question index:', questionIndexParam);
+            return;
+        }
+        const zeroBasedQuestionIndex = questionIndex - 1;
 
-      const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
-      if (!selectedQuiz) {
-        console.error('Selected quiz not found in quizData.');
-        return;
-      }
-      this.initializeSelectedQuizData(selectedQuiz);
+        // Fetch quiz data
+        const quizData = await this.fetchQuizDataFromService();
+        if (!quizData) {
+            console.error('Quiz data could not be fetched.');
+            return;
+        }
 
-      // Now that explanations are initialized, fetch question data
-      const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
-      if (questionData) {
+        // Step 2 & 3: Check for selectedQuiz and validate questions array
+        const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
+        if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
+            console.error('Selected quiz not found or questions are missing in quizData.');
+            return;
+        }
+
+        // Initialize selected quiz data
+        this.initializeSelectedQuizData(selectedQuiz);
+
+        // Step 4: Fetch and validate question data
+        const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
+        if (!questionData || !Array.isArray(questionData.options) || questionData.options.length === 0) {
+            console.error('Question data is invalid or missing options.');
+            this.data = null;
+            return;
+        }
+
+        // Initialize and prepare the question
         this.initializeAndPrepareQuestion(questionData, quizId);
-      } else {
-        this.data = null;
-      }
 
-      this.subscribeToQuestions(quizId, questionIndex);
+        // Step 7: Subscribe to questions with corrected index
+        this.subscribeToQuestions(quizId, zeroBasedQuestionIndex + 1);  // Adjust index if necessary
     } catch (error) {
-      console.error('Error in fetchQuizData:', error);
+        console.error('Error in fetchQuizData:', error);
     }
   }
 
