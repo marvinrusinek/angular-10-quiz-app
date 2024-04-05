@@ -471,19 +471,16 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
-        console.error(`Quiz data is invalid or not loaded for Quiz ID ${this.quizId}`);
-        return;
+      console.error(`Quiz data is invalid or not loaded for Quiz ID ${this.quizId}`);
+      return;
     }
 
     if (questionIndex < 0 || questionIndex >= selectedQuiz.questions.length) {
-        console.error(`Invalid question index: ${questionIndex} for Quiz ID ${this.quizId}`);
-        return;
+      console.error(`Invalid question index: ${questionIndex} for Quiz ID ${this.quizId}`);
+      return;
     }
 
     const currentQuestion = selectedQuiz.questions[questionIndex];
-    console.log(`Current question:`, currentQuestion);
-
-    // Assuming other initialization logic follows...
   }
 
   isValidQuestionIndex(index: number, questions: QuizQuestion[] | undefined): boolean {
