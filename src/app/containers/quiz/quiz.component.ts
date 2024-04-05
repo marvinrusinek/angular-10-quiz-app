@@ -1589,7 +1589,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       if (explanation) {
         this.explanationTextService.setExplanationText(explanation);
         this.explanationTextService.setShouldDisplayExplanation(true);
-        console.log('Explanation set:', explanation);
         resolve();
       } else {
         console.warn('No explanation available for the first question');
