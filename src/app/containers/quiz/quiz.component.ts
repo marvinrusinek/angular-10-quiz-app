@@ -475,7 +475,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    if (questionIndex < 0 || questionIndex >= selectedQuiz.questions.length) {
+    if (!this.isValidQuestionIndex(questionIndex, selectedQuiz.questions)) {
       console.error(`Invalid question index: ${questionIndex} for Quiz ID ${this.quizId}`);
       return;
     }
