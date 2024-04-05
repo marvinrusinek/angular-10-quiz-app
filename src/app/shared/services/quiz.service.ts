@@ -680,9 +680,9 @@ export class QuizService implements OnDestroy {
       }
 
       // Validate the index
-      if (index >= 0 && index <= questions.length) {
-        this.currentQuestionIndex = index;
-        this.currentQuestionIndexSource.next(index);
+      if (index >= 1 && index <= questions.length) {
+        this.currentQuestionIndex = index - 1;
+        this.currentQuestionIndexSource.next(index - 1);
       } else {
         console.error('Invalid question index:', index);
       }
