@@ -287,13 +287,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         return;
       }
 
-      // Use zero-based index for internal logic if necessary
+      // Use zero-based index for internal logic
       const zeroBasedQuestionIndex = questionIndex - 1;
 
       // Directly fetch the selected quiz based on quizId
       const selectedQuiz = await this.fetchQuizDataFromService(quizId);
-      console.log("SQ::", selectedQuiz);
-
       if (!selectedQuiz) {
         console.error('Selected quiz not found for quizId:', quizId);
         return;
