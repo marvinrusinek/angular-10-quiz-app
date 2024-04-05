@@ -461,7 +461,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private adjustAndValidateIndex(index: string): number {
-    const questionIndex = parseInt(index, 10) - 1; // Adjust if necessary
+    const questionIndex = parseInt(index, 10) - 1;
     if (isNaN(questionIndex) || questionIndex < 0) {
       console.error('Invalid question index:', index);
       return -1;
