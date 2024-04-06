@@ -1520,6 +1520,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.clearSelectedOptions();  // Clear selected options for all questions
 
     this.selectionMessageService.selectionMessageSubject.next('');
+    this.selectOptionText = '';
   
     // Step 1: Reset quiz-specific states and services
     this.quizService.resetAll();
