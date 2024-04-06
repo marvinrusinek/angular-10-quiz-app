@@ -322,10 +322,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     return selectedQuiz;
   }
 
-  private findSelectedQuiz(quizData: Quiz[], quizId: string): Quiz | undefined {
-    return quizData.find((quiz: Quiz) => quiz.quizId === quizId);
-  }
-
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
     this.quizService.setQuizData([selectedQuiz]);
     this.quizService.setSelectedQuiz(selectedQuiz);
