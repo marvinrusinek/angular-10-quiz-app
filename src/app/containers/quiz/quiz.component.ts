@@ -183,6 +183,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     // Subscribe to router events and initialize
     this.notifyOnNavigationEnd();
     this.subscribeRouterAndInit();
+    this.subscribeToSelectedQuiz();
     this.initializeRouteParams();
 
     // Fetch additional quiz data
@@ -799,7 +800,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   
     return this.quizService.selectedQuiz.questions.findIndex(q => q.explanation === question.explanation);
-  }  
+  }
 
   subscribeRouterAndInit(): void {
     this.getNextQuestion();
@@ -856,6 +857,16 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     
       this.currentQuiz = quizData;
     });      
+  }
+
+  subscribeToSelectedQuiz(): void {
+    this.quizSubscription = this.quizService.selectedQuiz$.subscribe(quiz => {
+      if (quiz && Array.isArray(quiz.questions)) {
+        console.log('Received selected quiz:', quiz);
+      } else {
+        console.error('Quiz data is not properly initialized or questions are not available.');
+      }
+    });
   }
 
   initializeRouteParams(): void {
