@@ -564,7 +564,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.initializeQuizState();
   
     // Set the explanation text for the current question
-    this.setExplanationTextForCurrentQuestion(currentQuestion, questionIndex);
+    this.setExplanationTextForCurrentQuestion(currentQuestion);
   
     // Reset the selection message to prompt user to select an option
     this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
@@ -580,12 +580,20 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     return index >= 0 && index < questions.length;
   }
 
-  private setExplanationTextForCurrentQuestion(quiz: Quiz, index: number): void {
+  /* private setExplanationTextForCurrentQuestion(quiz: Quiz, index: number): void {
     const question = quiz.questions[index];
     if (this.quizService.isQuizQuestion(question)) {
       this.explanationTextService.setNextExplanationText(question.explanation);
     } else {
       console.error('Question not found:', index);
+    }
+  } */
+
+  private setExplanationTextForCurrentQuestion(question: QuizQuestion): void {
+    if (this.quizService.isQuizQuestion(question)) {
+      this.explanationTextService.setNextExplanationText(question.explanation);
+    } else {
+      console.error('Invalid question:', question);
     }
   }
 
