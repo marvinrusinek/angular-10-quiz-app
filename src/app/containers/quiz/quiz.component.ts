@@ -169,6 +169,14 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.quizReset$.subscribe(() => {
       this.updateComponentState();
     });
+
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      // Check if the route change corresponds to a new question
+      // and reset the selection message as needed
+      this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
+    });
   }
 
   @HostListener('window:focus', ['$event'])
