@@ -15,17 +15,18 @@ export class QuizResolverService implements Resolve<QuizQuestion[]> {
 
   async resolve(route: ActivatedRouteSnapshot): Promise<QuizQuestion[]> {
     const quizId = route.params['quizId'];
-
-    const response = await firstValueFrom(this.quizService.getQuestionsForQuiz(quizId));
-    if (!response || !Array.isArray(response.questions)) {
+    try {
+      const response = await firstValueFrom(this.quizService.getQuestionsForQuiz(quizId));
+      if (response && Array.isArray(response.questions)) {
+        const questions = response.questions;
+        const explanations = questions.map(question => question.explanation);
+        this.explanationTextService.initializeExplanationTexts(explanations);
+        return questions;
+      }
       console.error('Response is invalid or questions are not available');
-      return [];
+    } catch (error) {
+      console.error('Failed to fetch quiz questions:', error);
     }
-
-    const questions = response.questions;
-    const explanations = questions.map(question => question.explanation);
-    this.explanationTextService.initializeExplanationTexts(explanations);
-
-    return questions;
+    return [];
   }
 }
