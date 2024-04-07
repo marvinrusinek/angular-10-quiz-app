@@ -135,6 +135,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   questionsArray: QuizQuestion[] = [];
   isQuizDataLoaded = false;
 
+  private quizSubscription: Subscription;
+
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
@@ -204,6 +206,18 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
     this.loadQuestionDetails(this.currentQuestionIndex);
 
+    this.quizSubscription = this.quizService.selectedQuiz$.subscribe(quiz => {
+      if (quiz) {
+        // Handle the updated quiz data
+        console.log('Received selected quiz:', quiz);
+        // Perform actions with the quiz data, such as setting component state
+        // this.currentQuiz = quiz; for example
+      } else {
+        // Handle the case where quiz is null or undefined
+        console.log('No quiz data available');
+      }
+    });
+
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe((text: string) => {
@@ -224,6 +238,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.unsubscribe$.complete();
     this.selectedQuiz$.next(null);
     this.routerSubscription.unsubscribe();
+    this.quizSubscription.unsubscribe();
     this.currentQuestionSubscriptions.unsubscribe();
     this.timerService.stopTimer(null);
   }
