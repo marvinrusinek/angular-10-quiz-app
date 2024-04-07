@@ -210,10 +210,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       if (quiz) {
         // Handle the updated quiz data
         console.log('Received selected quiz:', quiz);
-        // Perform actions with the quiz data, such as setting component state
-        // this.currentQuiz = quiz; for example
+        this.currentQuiz = quiz;
       } else {
-        // Handle the case where quiz is null or undefined
         console.log('No quiz data available');
       }
     });
