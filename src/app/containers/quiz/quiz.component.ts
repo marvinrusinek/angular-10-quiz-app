@@ -188,14 +188,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     // Fetch additional quiz data
     this.fetchQuizData();
 
-    this.quizService.selectedQuiz$.pipe(
-      filter(quiz => !!quiz)  // Ensure quiz is not null
-    ).subscribe(quiz => {
-      this.currentQuiz = quiz;
-      console.log('Received selected quiz:', quiz);
-      // Additional logic to handle quiz data
-    });
-
     // Initialize quiz-related properties
     this.initializeQuiz();
     this.retrieveTotalQuestionsCount();
