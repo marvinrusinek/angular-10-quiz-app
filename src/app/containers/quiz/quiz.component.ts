@@ -815,7 +815,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     // Subscribe to the resolved data
-    this.activatedRoute.data.subscribe(data => {
+    /* this.activatedRoute.data.subscribe(data => {
       // Ensure that data.quizData is defined and is an array
       if (!data.quizData || !Array.isArray(data.quizData) || data.quizData.length === 0) {
         console.error("Quiz data is undefined, not an array, or empty");
@@ -832,7 +832,19 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       } else {
         console.error("The first quiz has no questions");
       }
-    });
+    }); */
+
+    this.activatedRoute.data.subscribe(data => {
+      const quizData: Quiz = data.quizData;
+      if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
+        console.error("Quiz data is undefined, or there are no questions");
+        return;
+      }
+    
+      // Handle quiz questions
+      const explanations = quizData.questions.map(question => question.explanation);
+      this.explanationTextService.initializeExplanationTexts(explanations);
+    });    
   }
 
   initializeRouteParams(): void {
