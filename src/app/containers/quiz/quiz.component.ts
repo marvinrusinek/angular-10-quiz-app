@@ -552,14 +552,24 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       console.error(`Quiz data is invalid or not loaded for Quiz ID ${this.quizId}`);
       return;
     }
-
+  
     if (!this.isValidQuestionIndex(questionIndex, selectedQuiz.questions)) {
       console.error(`Invalid question index: ${questionIndex} for Quiz ID ${this.quizId}`);
       return;
     }
-
+  
     const currentQuestion = selectedQuiz.questions[questionIndex];
+  
+    // Initialize the quiz state for the current question
+    this.initializeQuizState();
+  
+    // Set the explanation text for the current question
+    this.setExplanationTextForCurrentQuestion(currentQuestion, questionIndex);
+  
+    // Reset the selection message to prompt user to select an option
+    this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
   }
+  
 
   isValidQuestionIndex(index: number, questions: QuizQuestion[] | undefined): boolean {
     if (!questions) {
