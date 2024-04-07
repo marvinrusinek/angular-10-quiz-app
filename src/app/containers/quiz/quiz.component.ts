@@ -731,7 +731,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.updateQuizUIForNewQuestion(currentQuestion);
   }
 
-  private updateQuizUIForNewQuestion(question: QuizQuestion): void {
+  /* private updateQuizUIForNewQuestion(question: QuizQuestion): void {
     if (!question) {
       console.error('Invalid question:', question);
       return;
@@ -744,7 +744,33 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOption$.next(null);
     this.explanationTextService.explanationText$.next('');
     this.cdRef.detectChanges();
+  } */
+
+  private updateQuizUIForNewQuestion(question: QuizQuestion): void {
+    if (!question) {
+      console.error('Invalid question:', question);
+      return;
+    }
+
+    const questionIndex = this.findQuestionIndex(question);
+    this.quizService.setCurrentQuestion(questionIndex);
+
+    // Reset UI elements and messages as needed
+    this.selectionMessageService.updateSelectionMessage('');
+    this.selectedOption$.next(null);
+    this.explanationTextService.explanationText$.next('');
+    this.cdRef.detectChanges();
   }
+
+  // Method to find the index of a question
+  findQuestionIndex(question: QuizQuestion): number {
+    if (!this.quizService.selectedQuiz || !Array.isArray(this.quizService.selectedQuiz.questions)) {
+      console.error('Quiz data is not properly initialized or questions are not available.');
+      return -1; // Indicate failure to find the index
+    }
+  
+    return this.quizService.selectedQuiz.questions.findIndex(q => q.explanation === question.explanation);
+  }  
 
   subscribeRouterAndInit(): void {
     this.getNextQuestion();
