@@ -533,7 +533,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.processQuizData(questionIndex, quizData);
   }
 
-  private processQuizData(questionIndex: number, quizData: any): void {
+  /* private processQuizData(questionIndex: number, quizData: any): void {
     const currentQuestionIndex = questionIndex - 1;
     const questions = quizData.questions || [];
     const currentQuiz = questions.find(() => this.quizId === this.quizId);
@@ -545,6 +545,20 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
     this.initializeQuizState();
     this.setExplanationTextForCurrentQuestion(currentQuiz, currentQuestionIndex);
+  } */
+
+  private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
+    if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
+      console.error(`Quiz data is invalid or not loaded for Quiz ID ${this.quizId}`);
+      return;
+    }
+
+    if (!this.isValidQuestionIndex(questionIndex, selectedQuiz.questions)) {
+      console.error(`Invalid question index: ${questionIndex} for Quiz ID ${this.quizId}`);
+      return;
+    }
+
+    const currentQuestion = selectedQuiz.questions[questionIndex];
   }
 
   isValidQuestionIndex(index: number, questions: QuizQuestion[] | undefined): boolean {
