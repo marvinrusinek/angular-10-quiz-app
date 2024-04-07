@@ -299,7 +299,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  async fetchQuizData(): Promise<void> {
+  /* async fetchQuizData(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params['quizId'];
       const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
@@ -326,10 +326,56 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('Error in fetchQuizData:', error);
     }
+  } */
+
+  async fetchQuizData(): Promise<void> {
+    try {
+      const quizId = this.activatedRoute.snapshot.params['quizId'];
+      const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
+      const questionIndex = parseInt(questionIndexParam, 10);
+
+      if (isNaN(questionIndex)) {
+        console.error('Invalid question index:', questionIndexParam);
+        return;
+      }
+
+      // Use zero-based index for internal logic
+      const zeroBasedQuestionIndex = questionIndex - 1;
+
+      // Directly fetch the selected quiz based on quizId
+      const selectedQuiz = await this.fetchQuizDataFromService(quizId);
+      if (!selectedQuiz) {
+        console.error('Selected quiz not found for quizId:', quizId);
+        return;
+      }
+
+      this.processQuizData(zeroBasedQuestionIndex, selectedQuiz);
+      this.initializeSelectedQuizData(selectedQuiz);
+
+      // Ensure that question data is fetched using the correct index
+      const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
+      if (!questionData) {
+        console.error('Question data could not be fetched.');
+        this.data = null;
+        return;
+      }
+
+      this.initializeAndPrepareQuestion(questionData, quizId);
+      this.quizService.setCurrentQuestion(zeroBasedQuestionIndex);
+      this.subscribeToQuestions(quizId, questionIndex);
+    } catch (error) {
+      console.error('Error in fetchQuizData:', error);
+    }
   }
 
-  private async fetchQuizDataFromService(): Promise<Quiz[]> {
+  /* private async fetchQuizDataFromService(): Promise<Quiz[]> {
     return await firstValueFrom(this.quizService.getQuizData());
+  } */
+
+  private async fetchQuizDataFromService(quizId: string): Promise<Quiz | undefined> {
+    const quizzes = await firstValueFrom(this.quizService.getQuizData());
+    const selectedQuiz = quizzes.find(quiz => quiz.quizId === quizId);
+    return selectedQuiz;
   }
 
   private findSelectedQuiz(quizData: Quiz[], quizId: string): Quiz | undefined {
@@ -383,11 +429,29 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private subscribeToQuestions(quizId: string, questionIndex: string): void {
+  /* private subscribeToQuestions(quizId: string, questionIndex: string): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
       const numericIndex = +questionIndex;
       if (!isNaN(numericIndex)) {
         this.quizService.setCurrentQuestionIndex(numericIndex);
+      } else {
+        console.error('Invalid questionIndex:', questionIndex);
+        return;
+      }
+
+      this.quizService.setQuestions(questions);
+      this.quizService.setTotalQuestions(questions.length);
+
+      if (!this.quizService.questionsLoaded) {
+        this.quizService.updateQuestions(quizId);
+      }
+    });
+  } */
+
+  private subscribeToQuestions(quizId: string, questionIndex: number): void {
+    this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
+      if (questionIndex >= 0 && questionIndex < questions.length) {
+        this.quizService.setCurrentQuestionIndex(questionIndex);
       } else {
         console.error('Invalid questionIndex:', questionIndex);
         return;
