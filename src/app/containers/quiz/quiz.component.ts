@@ -835,17 +835,24 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }); */
 
     this.activatedRoute.data.subscribe(data => {
-      console.log('Resolved data:', data);
-      const quizData: Quiz = data.quizData;
+      const resolvedQuizData = data.quizData;
+      if (!resolvedQuizData || !Array.isArray(resolvedQuizData) || resolvedQuizData.length === 0) {
+        console.error("Resolved quiz data is undefined, not an array, or empty");
+        return;
+      }
+    
+      // Access the first element of the array to get the Quiz object
+      const quizData = resolvedQuizData[0];
       if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
         console.error("Quiz data is undefined, or there are no questions");
         return;
       }
     
-      // Handle quiz questions
       const explanations = quizData.questions.map(question => question.explanation);
       this.explanationTextService.initializeExplanationTexts(explanations);
-    });    
+    
+      this.currentQuiz = quizData;
+    });      
   }
 
   initializeRouteParams(): void {
