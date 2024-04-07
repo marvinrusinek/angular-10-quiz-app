@@ -170,12 +170,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.quizReset$.subscribe(() => {
       this.updateComponentState();
     });
-
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
-      this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
-    });
   }
 
   @HostListener('window:focus', ['$event'])
@@ -187,6 +181,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     // Subscribe to router events and initialize
+    this.notifyOnNavigationEnd();
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
 
@@ -314,6 +309,14 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.currentQuestion = question;
       this.options = question?.options || [];
       this.loadExplanationTextForCurrentQuestion();
+    });
+  }
+
+  private notifyOnNavigationEnd(): void {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
     });
   }
 
