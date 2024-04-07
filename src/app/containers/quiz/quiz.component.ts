@@ -839,14 +839,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }); */
 
     this.activatedRoute.data.subscribe(data => {
-      const resolvedQuizData = data.quizData;
-      if (!resolvedQuizData || !Array.isArray(resolvedQuizData) || resolvedQuizData.length === 0) {
-        console.error("Resolved quiz data is undefined, not an array, or empty");
-        return;
-      }
-    
-      // Access the first element of the array to get the Quiz object
-      const quizData = resolvedQuizData[0];
+      const quizData: Quiz = data.quizData; // Directly accessing quizData from the resolved data
       if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
         console.error("Quiz data is undefined, or there are no questions");
         return;
@@ -855,8 +848,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       const explanations = quizData.questions.map(question => question.explanation);
       this.explanationTextService.initializeExplanationTexts(explanations);
     
+      // Use the quiz data directly
       this.currentQuiz = quizData;
-    });      
+    
+      // If you need to set the quiz data in the QuizService, you can do so here
+      this.quizService.setSelectedQuiz(quizData);
+    });   
   }
 
   subscribeToSelectedQuiz(): void {
