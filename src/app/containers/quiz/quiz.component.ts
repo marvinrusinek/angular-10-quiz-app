@@ -675,7 +675,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }  
   
-  private initializeQuizState(): void {
+  /* private initializeQuizState(): void {
     // Find the current quiz object by quizId
     const currentQuiz = this.quizService.findQuizByQuizId(this.quizId);
     if (!currentQuiz) {
@@ -694,6 +694,40 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     const currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
+    this.updateQuizUIForNewQuestion(currentQuestion);
+  } */
+
+  private initializeQuizState(): void {
+    const currentQuiz = this.quizService.findQuizByQuizId(this.quizId);
+  
+    // Check if the currentQuiz object is found
+    if (!currentQuiz) {
+      console.error(`Quiz not found: Quiz ID ${this.quizId}`);
+      return;
+    }
+  
+    // Check if the questions property exists, is an array, and is not empty
+    if (!Array.isArray(currentQuiz.questions) || currentQuiz.questions.length === 0) {
+      console.error(`Questions data is invalid or not loaded for Quiz ID ${this.quizId}`);
+      return;
+    }
+  
+    // Ensure the currentQuestionIndex is valid for the currentQuiz's questions array
+    if (!this.isValidQuestionIndex(this.currentQuestionIndex, currentQuiz.questions)) {
+      console.error(`Invalid question index: Quiz ID ${this.quizId}, Question Index (0-based) ${this.currentQuestionIndex}`);
+      return;
+    }
+  
+    // Retrieve the current question using the valid index
+    const currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
+  
+    // Check if the currentQuestion is defined before proceeding
+    if (!currentQuestion) {
+      console.error(`Current question is undefined: Quiz ID ${this.quizId}, Question Index ${this.currentQuestionIndex}`);
+      return;
+    }
+  
+    // Proceed to update the UI for the new question if all checks pass
     this.updateQuizUIForNewQuestion(currentQuestion);
   }
 
