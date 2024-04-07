@@ -163,7 +163,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.subscribeToAnswers();
-    this.subscribeToSelectionMessage();
+    // this.subscribeToSelectionMessage();
     this.subscriptionToOptions();
     this.logFinalData();
   }
@@ -419,13 +419,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
-  private subscribeToSelectionMessage(): void {
+  /* private subscribeToSelectionMessage(): void {
     this.selectionMessageService.selectionMessage$.subscribe(
       (message: string) => {
         this.selectionMessage = message;
       }
     );
-  }
+  } */
 
   private subscriptionToOptions(): void {
     this.quizService.currentOptions$.subscribe((options) => {
