@@ -8,7 +8,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from './quiz.service';
 
 @Injectable({ providedIn: 'root' })
-export class QuizResolverService implements Resolve<QuizQuestion[]> {
+export class QuizResolverService implements Resolve<Quiz | null> {
   constructor(
     private quizService: QuizService
   ) {}
