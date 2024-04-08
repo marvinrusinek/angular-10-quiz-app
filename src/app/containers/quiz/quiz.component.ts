@@ -366,6 +366,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
       // Directly fetch the selected quiz based on quizId
       const selectedQuiz = await this.fetchQuizDataFromService(quizId);
+      console.log("SQ", selectedQuiz);
       if (!selectedQuiz) {
         console.error('Selected quiz not found for quizId:', quizId);
         return;
@@ -498,7 +499,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   private initializeQuiz(): void {
     this.prepareQuizSession();
     this.initializeQuizDependencies();
-    this.subscribeToRouteParams();
+    this.initializeQuizBasedOnRouteParams();
   }
 
   private prepareQuizSession(): void {
@@ -545,21 +546,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
   }
 
-  private subscribeToRouteParams(): void {
-    this.activatedRoute.paramMap
-      .pipe(switchMap((params: ParamMap) => this.handleRouteParams(params)))
-      .subscribe(this.processRouteData.bind(this));
-  }
-
-  private processRouteData({ quizId, questionIndex, quizData }): void {
-    if (!quizData || !quizId) {
-      console.error('quizData or quizId is undefined.');
-      return;
-    }
-
-    this.quizData = quizData.questions;
-    this.quizId = quizId;
-    this.processQuizData(questionIndex, quizData);
+  private initializeQuizBasedOnRouteParams(): void {
+    this.activatedRoute.paramMap.pipe(
+      switchMap((params: ParamMap) => this.handleRouteParams(params))
+    ).subscribe();  // Triggers the observable chain in handleRouteParams
   }
 
   /* private processQuizData(questionIndex: number, quizData: any): void {
@@ -577,8 +567,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
-    console.log(`Processing Quiz ID: ${selectedQuiz.quizId} with Question Index: ${questionIndex}`);
-    console.log(`Total Questions Available: ${selectedQuiz.questions.length}`);
+    console.log(`Zero-Based Question Index: ${questionIndex}`);
+    console.log(`Total Questions Available in Selected Quiz: ${selectedQuiz.questions.length}`);
 
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
       console.error(`Quiz data is invalid or not loaded for Quiz ID ${this.quizId}`);
