@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Resolve, ActivatedRouteSnapshot } from '@angular/router';
-import { Observable } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 
-import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+import { ExplanationTextService } from './explanation-text.service';
 import { QuizService } from './quiz.service';
 
 @Injectable({ providedIn: 'root' })
-export class QuizResolverService implements Resolve<Quiz | null> {
+export class QuizResolverService implements Resolve<QuizQuestion[] | null> {
   constructor(
-    private quizService: QuizService
+    private quizService: QuizService,
+    private explanationTextService: ExplanationTextService
   ) {}
 
   async resolve(route: ActivatedRouteSnapshot): Promise<QuizQuestion[]> {
