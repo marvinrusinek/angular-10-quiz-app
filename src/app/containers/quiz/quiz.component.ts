@@ -592,7 +592,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
   }
   
-  isValidQuestionIndex(index: number, data: unknown): boolean {
+  isValidQuestionIndex(index: number, data: any): boolean {
     // First check if data is a Quiz object with a questions array
     if (typeof data === 'object' && data !== null && 'questions' in data) {
       const quiz = data as Quiz;
