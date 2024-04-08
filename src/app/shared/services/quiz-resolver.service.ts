@@ -9,7 +9,7 @@ import { ExplanationTextService } from './explanation-text.service';
 import { QuizService } from './quiz.service';
 
 @Injectable({ providedIn: 'root' })
-export class QuizResolverService implements Resolve<QuizQuestion[] | null> {
+export class QuizResolverService implements Resolve<Quiz | null> {
   constructor(
     private quizService: QuizService,
     private explanationTextService: ExplanationTextService
