@@ -13,20 +13,19 @@ export class QuizResolverService implements Resolve<Quiz | null> {
     private quizService: QuizService
   ) {}
 
-  resolve(route: ActivatedRouteSnapshot): Observable<Quiz | null> {
+  async resolve(route: ActivatedRouteSnapshot): Promise<QuizQuestion[]> {
     const quizId = route.params['quizId'];
-    return this.quizService.getQuizData().pipe(
-      map(response => {
-        if (response && Array.isArray(response.questions)) {
-          return response;
-        }
-        console.error('Response is invalid or questions are not available');
-        return null;  // Return null or an empty object if the response is invalid
-      }),
-      catchError(error => {
-        console.error('Failed to fetch quiz data:', error);
-        return null;  // Handle error and return null or an empty object
-      })
-    );
-  }
+
+    const response = await firstValueFrom(this.quizService.getQuestionsForQuiz(quizId));
+    if (!response || !Array.isArray(response.questions)) {
+      console.error('Response is invalid or questions are not available');
+      return [];
+    }
+
+    const questions = response.questions;
+    const explanations = questions.map(question => question.explanation);
+    this.explanationTextService.initializeExplanationTexts(explanations);
+
+    return questions;
+  } 
 }
