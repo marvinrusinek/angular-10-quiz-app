@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Resolve, ActivatedRouteSnapshot } from '@angular/router';
+import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
