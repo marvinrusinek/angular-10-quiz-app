@@ -239,7 +239,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   
   async loadQuestionDetails(questionIndex: number): Promise<void> {
     // Load the question data
-    const question = await this.fetchQuestionDetails(questionIndex);
+    const question = await firstValueFrom(of(this.fetchQuestionDetails(questionIndex)));
     this.currentQuestion = question;
   
     // Check if the explanation for this question should be displayed
