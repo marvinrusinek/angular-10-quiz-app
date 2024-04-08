@@ -16,7 +16,7 @@ export class QuizResolverService implements Resolve<QuizQuestion[]> {
 
   resolve(route: ActivatedRouteSnapshot): Observable<Quiz | null> {
     const quizId = route.params['quizId'];
-    return this.quizService.getQuizData(quizId).pipe(
+    return this.quizService.getQuizData().pipe(
       map(response => {
         if (response && Array.isArray(response.questions)) {
           return response;
