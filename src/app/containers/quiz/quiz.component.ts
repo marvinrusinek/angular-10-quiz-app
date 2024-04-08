@@ -321,35 +321,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  /* async fetchQuizData(): Promise<void> {
-    try {
-      const quizId = this.activatedRoute.snapshot.params['quizId'];
-      const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
-      const zeroBasedQuestionIndex = questionIndex - 1;
-
-      const quizData = await this.fetchQuizDataFromService();
-
-      const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
-      if (!selectedQuiz) {
-        console.error('Selected quiz not found in quizData.');
-        return;
-      }
-      this.initializeSelectedQuizData(selectedQuiz);
-
-      // Now that explanations are initialized, fetch question data
-      const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
-      if (questionData) {
-        this.initializeAndPrepareQuestion(questionData, quizId);
-      } else {
-        this.data = null;
-      }
-
-      this.subscribeToQuestions(quizId, questionIndex);
-    } catch (error) {
-      console.error('Error in fetchQuizData:', error);
-    }
-  } */
-
   async fetchQuizData(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params['quizId'];
@@ -391,10 +362,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* private async fetchQuizDataFromService(): Promise<Quiz[]> {
-    return await firstValueFrom(this.quizService.getQuizData());
-  } */
-
   private async fetchQuizDataFromService(quizId: string): Promise<Quiz | undefined> {
     try {
       const quizzes = await firstValueFrom(this.quizService.getQuizData());
@@ -406,10 +373,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       console.error(`Error fetching quizzes:`, error);
       return undefined;
     }
-  } 
-
-  private findSelectedQuiz(quizData: Quiz[], quizId: string): Quiz | undefined {
-    return quizData.find((quiz: Quiz) => quiz.quizId === quizId);
   }
 
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
@@ -458,25 +421,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       console.log('Correct Answer Options:', correctAnswerOptions);
     });
   }
-
-  /* private subscribeToQuestions(quizId: string, questionIndex: string): void {
-    this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
-      const numericIndex = +questionIndex;
-      if (!isNaN(numericIndex)) {
-        this.quizService.setCurrentQuestionIndex(numericIndex);
-      } else {
-        console.error('Invalid questionIndex:', questionIndex);
-        return;
-      }
-
-      this.quizService.setQuestions(questions);
-      this.quizService.setTotalQuestions(questions.length);
-
-      if (!this.quizService.questionsLoaded) {
-        this.quizService.updateQuestions(quizId);
-      }
-    });
-  } */
 
   private subscribeToQuestions(quizId: string, questionIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
@@ -552,20 +496,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe();  // Triggers the observable chain in handleRouteParams
   }
 
-  /* private processQuizData(questionIndex: number, quizData: any): void {
-    const currentQuestionIndex = questionIndex - 1;
-    const questions = quizData.questions || [];
-    const currentQuiz = questions.find(() => this.quizId === this.quizId);
-
-    if (!currentQuiz || !this.isValidQuestionIndex(currentQuestionIndex, currentQuiz.questions)) {
-      console.error('No quiz found or invalid currentQuestionIndex:', currentQuestionIndex);
-      return;
-    }
-
-    this.initializeQuizState();
-    this.setExplanationTextForCurrentQuestion(currentQuiz, currentQuestionIndex);
-  } */
-
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     console.log(`Zero-Based Question Index: ${questionIndex}`);
     console.log(`Total Questions Available in Selected Quiz: ${selectedQuiz.questions.length}`);
@@ -607,16 +537,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
   
-
-  /* private setExplanationTextForCurrentQuestion(quiz: Quiz, index: number): void {
-    const question = quiz.questions[index];
-    if (this.quizService.isQuizQuestion(question)) {
-      this.explanationTextService.setNextExplanationText(question.explanation);
-    } else {
-      console.error('Question not found:', index);
-    }
-  } */
-
   private setExplanationTextForCurrentQuestion(question: QuizQuestion): void {
     if (this.quizService.isQuizQuestion(question)) {
       this.explanationTextService.setNextExplanationText(question.explanation);
@@ -711,28 +631,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }  
   
-  /* private initializeQuizState(): void {
-    // Find the current quiz object by quizId
-    const currentQuiz = this.quizService.findQuizByQuizId(this.quizId);
-    if (!currentQuiz) {
-      console.error(`Quiz not found: Quiz ID ${this.quizId}`);
-      return;
-    }
-
-    if (!Array.isArray(currentQuiz.questions)) {
-      console.error(`Questions data is invalid or not loaded for Quiz ID ${this.quizId}`);
-      return;
-    }
-
-    if (!this.isValidQuestionIndex(this.currentQuestionIndex, currentQuiz.questions)) {
-      console.error(`Invalid question index: Quiz ID ${this.quizId}, Question Index (0-based) ${this.currentQuestionIndex}`);
-      return;
-    }
-
-    const currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
-    this.updateQuizUIForNewQuestion(currentQuestion);
-  } */
-
   private initializeQuizState(): void {
     const currentQuiz = this.quizService.findQuizByQuizId(this.quizId);
   
@@ -766,21 +664,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     // Proceed to update the UI for the new question if all checks pass
     this.updateQuizUIForNewQuestion(currentQuestion);
   }
-
-  /* private updateQuizUIForNewQuestion(question: QuizQuestion): void {
-    if (!question) {
-      console.error('Invalid question:', question);
-      return;
-    }
-
-    this.quizService.setCurrentQuestion(question);
-
-    // Reset UI elements and messages as needed
-    this.selectionMessageService.updateSelectionMessage('');
-    this.selectedOption$.next(null);
-    this.explanationTextService.explanationText$.next('');
-    this.cdRef.detectChanges();
-  } */
 
   private updateQuizUIForNewQuestion(question: QuizQuestion): void {
     if (!question) {
@@ -824,26 +707,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.handleParamMap(params);
     });
 
-    // Subscribe to the resolved data
-    /* this.activatedRoute.data.subscribe(data => {
-      // Ensure that data.quizData is defined and is an array
-      if (!data.quizData || !Array.isArray(data.quizData) || data.quizData.length === 0) {
-        console.error("Quiz data is undefined, not an array, or empty");
-        return;
-      }
-
-      // Assign the resolved quiz data array to this.quizData
-      this.quizData = data.quizData;
-
-      // Check if the first quiz in the array has questions and handle them
-      if (this.quizData[0].questions) {
-        const explanations = this.quizData[0].questions.map(question => question.explanation);
-        this.explanationTextService.initializeExplanationTexts(explanations);
-      } else {
-        console.error("The first quiz has no questions");
-      }
-    }); */
-
     this.activatedRoute.data.subscribe(data => {
       const quizData: Quiz = data.quizData; // Directly accessing quizData from the resolved data
       if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
@@ -855,9 +718,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.explanationTextService.initializeExplanationTexts(explanations);
     
       // Use the quiz data directly
-      this.currentQuiz = quizData;
-    
-      // If you need to set the quiz data in the QuizService, you can do so here
+      this.currentQuiz = quizData;    
       this.quizService.setSelectedQuiz(quizData);
     });   
   }
@@ -1390,12 +1251,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   setCurrentQuestion(question: QuizQuestion): void {
-    this.currentQuestion = question;
-    // Log the current question index for debugging
-    console.log("Current Question Index:", this.currentQuestionIndex);
-  
+    this.currentQuestion = question;  
     this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-    console.log("Explanation to Display::::", this.explanationToDisplay);
   }
  
 
