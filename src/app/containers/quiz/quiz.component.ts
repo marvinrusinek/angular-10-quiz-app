@@ -135,6 +135,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   questionsArray: QuizQuestion[] = [];
   isQuizDataLoaded = false;
 
+  private quizSubscription: Subscription;
+
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
@@ -181,6 +183,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     // Subscribe to router events and initialize
     this.notifyOnNavigationEnd();
     this.subscribeRouterAndInit();
+    this.subscribeToSelectedQuiz();
     this.initializeRouteParams();
 
     // Fetch additional quiz data
@@ -198,6 +201,16 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.subscribeToCurrentQuestion(); 
 
     this.loadQuestionDetails(this.currentQuestionIndex);
+
+    this.quizSubscription = this.quizService.selectedQuiz$.subscribe(quiz => {
+      if (quiz) {
+        // Handle the updated quiz data
+        console.log('Received selected quiz:', quiz);
+        this.currentQuiz = quiz;
+      } else {
+        console.log('No quiz data available');
+      }
+    });
 
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
@@ -219,6 +232,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.unsubscribe$.complete();
     this.selectedQuiz$.next(null);
     this.routerSubscription.unsubscribe();
+    this.quizSubscription.unsubscribe();
     this.currentQuestionSubscriptions.unsubscribe();
     this.timerService.stopTimer(null);
   }
@@ -580,9 +594,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   
   isValidQuestionIndex(index: number, data: any): boolean {
     // First check if data is a Quiz object with a questions array
-    if (typeof data === 'object' && data !== null && 'questions' in data) {
-      const quiz = data as Quiz;
-      return index >= 0 && index < quiz.questions.length;
+    if (typeof data === 'object' && data !== null && 'questions' in data && Array.isArray(data.questions)) {
+      return index >= 0 && index < data.questions.length;
     } 
     // Next, check if data is directly an array of QuizQuestion
     else if (Array.isArray(data)) {
@@ -593,6 +606,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       return false;
     }
   }
+  
 
   /* private setExplanationTextForCurrentQuestion(quiz: Quiz, index: number): void {
     const question = quiz.questions[index];
@@ -846,6 +860,16 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       // If you need to set the quiz data in the QuizService, you can do so here
       this.quizService.setSelectedQuiz(quizData);
     });   
+  }
+
+  subscribeToSelectedQuiz(): void {
+    this.quizSubscription = this.quizService.selectedQuiz$.subscribe(quiz => {
+      if (quiz && Array.isArray(quiz.questions)) {
+        console.log('Received selected quiz:', quiz);
+      } else {
+        console.error('Quiz data is not properly initialized or questions are not available.');
+      }
+    });
   }
 
   initializeRouteParams(): void {
