@@ -303,7 +303,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
+      if (this.currentQuestionIndex === this.totalQuestions - 1) {
+        this.selectionMessageService.selectionMessageSubject.next("Please click the 'Show Your Score' button");
+      } else {      
+        this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
+      }
     });
   }
 
