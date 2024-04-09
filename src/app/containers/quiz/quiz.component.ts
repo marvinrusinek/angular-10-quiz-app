@@ -1150,19 +1150,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  /* loadExplanationTextForCurrentQuestion(): void {
-    this.explanationText = '';
-    const currentQuestion = this.quizData[this.currentQuestionIndex];
-
-    if (this.quizService.isQuizQuestion(currentQuestion)) {
-      this.explanationTextService.setNextExplanationText(
-        currentQuestion.explanation
-      );
-    } else {
-      this.explanationTextService.setNextExplanationText('');
-    }
-  } */
-
   loadExplanationTextForCurrentQuestion(): void {
     this.explanationText = '';
     if (this.quizData && this.quizData.length > this.currentQuestionIndex) {
