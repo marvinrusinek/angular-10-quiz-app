@@ -129,6 +129,9 @@ export class QuizService implements OnDestroy {
 
   checkedShuffle: boolean;
 
+  private badgeTextSource = new BehaviorSubject<string>('Question 1 of X');
+  badgeText$ = this.badgeTextSource.asObservable();
+
   private optionsSource: Subject<Option[]> = new Subject<Option[]>();
   optionsSubject: BehaviorSubject<Option[] | null> = new BehaviorSubject<
     Option[] | null
@@ -1580,7 +1583,8 @@ export class QuizService implements OnDestroy {
 
   updateBadgeText(questionNumber: number, totalQuestions: number): void {
     if (questionNumber > 0 && questionNumber <= totalQuestions) {
-      this.badgeText = 'Question ' + questionNumber + ' of ' + totalQuestions;
+      this.badgeText = `Question ${questionNumber} of ${totalQuestions}`;
+      this.badgeTextSource.next(this.badgeText);
     }
   }
 }
