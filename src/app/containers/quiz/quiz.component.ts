@@ -326,7 +326,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
       // Directly fetch the selected quiz based on quizId
       const selectedQuiz = await this.fetchQuizDataFromService(quizId);
-      console.log("SQ", selectedQuiz);
       if (!selectedQuiz) {
         console.error('Selected quiz not found for quizId:', quizId);
         return;
