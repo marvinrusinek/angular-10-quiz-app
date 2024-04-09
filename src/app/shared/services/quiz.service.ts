@@ -47,8 +47,6 @@ export class QuizService implements OnDestroy {
   isOptionSelected = false;
   isNavigating = false;
   badgeText: string;
-  private badgeTextSource = new BehaviorSubject<string>('');
-  badgeText$ = this.badgeTextSource.asObservable();
 
   currentQuestionPromise: Promise<QuizQuestion>;
 
@@ -164,6 +162,9 @@ export class QuizService implements OnDestroy {
     new BehaviorSubject<boolean>(false);
   public correctAnswersLoaded$: Observable<boolean> =
     this.correctAnswersLoadedSubject.asObservable();
+
+  private badgeTextSource = new BehaviorSubject<string>('');
+  badgeText = this.badgeTextSource.asObservable();
 
   private questionTextSource = new BehaviorSubject<string>('');
   questionText = this.questionTextSource.asObservable();
