@@ -816,6 +816,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.questionAnswered.emit();
   
       this.updateQuestionStateForExplanation(this.currentQuestionIndex);
+
+      // Trigger message update in QuizService
+      this.quizService.triggerMessageUpdate();
     } catch (error) {
       console.error("An error occurred while processing the option click:", error);
     }
