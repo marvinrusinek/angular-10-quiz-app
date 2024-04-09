@@ -680,12 +680,11 @@ export class QuizService implements OnDestroy {
       }
 
       // Validate the index
-      if (index >= 1 && index <= questions.length) {
-        const adjustedIndex = index - 1;
-        this.currentQuestionIndex = adjustedIndex;
-        this.currentQuestionIndexSource.next(adjustedIndex);
+      if (index >= 0 && index < questions.length) {
+        this.currentQuestionIndex = index;
+        this.currentQuestionIndexSource.next(index);
       } else {
-        console.error('Invalid question index:', index);
+        console.error(`Invalid question index: ${index}. Total questions available: ${questions.length}`);
       }
     } catch (error) {
       console.error('Error setting current question index:', error);
