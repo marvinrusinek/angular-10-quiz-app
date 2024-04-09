@@ -46,7 +46,7 @@ export class QuizService implements OnDestroy {
   nextQuestion: QuizQuestion;
   isOptionSelected = false;
   isNavigating = false;
-  badgeText: string;
+  // badgeText: string;
 
   currentQuestionPromise: Promise<QuizQuestion>;
 
