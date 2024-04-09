@@ -1583,8 +1583,4 @@ export class QuizService implements OnDestroy {
       this.badgeText = 'Question ' + questionNumber + ' of ' + totalQuestions;
     }
   }
-
-  updateQuestionBadge(): void {
-    this.updateBadgeText(this.badgeText, this.totalQuestions);
-  }
 }
