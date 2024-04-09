@@ -8,8 +8,8 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { ReplaySubject, of, Subject } from 'rxjs';
-import { catchError, switchMap, takeUntil, throwError } from 'rxjs/operators';
+import { ReplaySubject, of, Subject, throwError } from 'rxjs';
+import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
