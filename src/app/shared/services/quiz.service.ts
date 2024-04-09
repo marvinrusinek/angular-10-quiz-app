@@ -46,6 +46,7 @@ export class QuizService implements OnDestroy {
   nextQuestion: QuizQuestion;
   isOptionSelected = false;
   isNavigating = false;
+  badgeText: string;
 
   currentQuestionPromise: Promise<QuizQuestion>;
 
@@ -613,9 +614,9 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  updateBadgeText(newBadgeText: string) {
+  /* updateBadgeText(newBadgeText: string) {
     this.badgeTextSource.next(newBadgeText);
-  }
+  } */
 
   updateQuestionText(newQuestionText: string) {
     this.questionTextSource.next(newQuestionText);
@@ -1575,5 +1576,15 @@ export class QuizService implements OnDestroy {
     } else {
       this.incorrectSound.play();
     }
-  } 
+  }
+
+  updateBadgeText(questionNumber: number, totalQuestions: number): void {
+    if (questionNumber > 0 && questionNumber <= totalQuestions) {
+      this.badgeText = 'Question ' + questionNumber + ' of ' + totalQuestions;
+    }
+  }
+
+  updateQuestionBadge(): void {
+    this.updateBadgeText(this.badgeText);
+  }
 }

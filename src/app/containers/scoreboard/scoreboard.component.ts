@@ -57,12 +57,12 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe((totalQuestions: number) => {
       if (totalQuestions !== null) {
         this.totalQuestions = totalQuestions;
-        this.updateBadgeText(this.questionNumber, totalQuestions); // Update badgeText here
+        this.quizService.updateBadgeText(this.questionNumber, totalQuestions); // Update badgeText here
       }
       return of(totalQuestions);
     });
 
-    this.updateQuestionBadge();
+    this.quizService.updateQuestionBadge();
   }
   
   ngOnChanges(changes: SimpleChanges): void {
@@ -82,15 +82,5 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-  }
-
-  updateBadgeText(questionNumber: number, totalQuestions: number): void {
-    if (questionNumber > 0 && questionNumber <= totalQuestions) {
-      this.badgeText = 'Question ' + questionNumber + ' of ' + totalQuestions;
-    }
-  }
-
-  updateQuestionBadge(): void {
-    this.quizService.updateBadgeText(this.badgeText);
   }
 }
