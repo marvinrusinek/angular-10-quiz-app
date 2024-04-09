@@ -303,13 +303,14 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      if (this.currentQuestionIndex === this.totalQuestions - 1) {
+      // Check if it's the last question and if it has been answered
+      if (this.currentQuestionIndex === this.totalQuestions - 1 && this.quizService.isAnswered(this.currentQuestionIndex)) {
         this.selectionMessageService.selectionMessageSubject.next("Please click the 'Show Your Score' button");
       } else {      
         this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
       }
     });
-  }
+  }  
 
   async fetchQuizData(): Promise<void> {
     try {
