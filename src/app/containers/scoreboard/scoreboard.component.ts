@@ -35,9 +35,9 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute
   ) {
-    /* this.quizService.badgeText.subscribe(updatedText => {
+    this.quizService.badgeText.subscribe(updatedText => {
       this.badgeText = updatedText;
-    }); */
+    });
   }
 
   ngOnInit(): void {

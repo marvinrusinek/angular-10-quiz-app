@@ -129,7 +129,7 @@ export class QuizService implements OnDestroy {
 
   checkedShuffle: boolean;
 
-  private badgeTextSource = new BehaviorSubject<string>('');
+  private badgeTextSource = new BehaviorSubject<string>('Question 1 of X');
   badgeText$ = this.badgeTextSource.asObservable();
 
   private optionsSource: Subject<Option[]> = new Subject<Option[]>();
