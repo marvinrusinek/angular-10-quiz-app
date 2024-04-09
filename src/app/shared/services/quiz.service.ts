@@ -512,48 +512,51 @@ export class QuizService implements OnDestroy {
   }
 
   async checkIfAnsweredCorrectly(): Promise<boolean> {
-    console.log('Answers:', this.answers);
+    console.log('Answers::', this.answers);
 
-    // Fetch the Quiz
+    let foundQuiz;
     try {
-      const foundQuiz = await this.fetchAndFindQuiz(this.quizId);
+      foundQuiz = await this.fetchAndFindQuiz(this.quizId);
       if (!foundQuiz) {
-        console.error('Quiz not found');
+        console.error(`Quiz not found for ID: ${this.quizId}`);
         return false;
       }
-      this.quiz = foundQuiz;
     } catch (error) {
       console.error('Error fetching quiz:', error);
       return false;
     }
+    this.quiz = foundQuiz;
 
-    // Validate Current Question
     if (!this.validateAndSetCurrentQuestion(this.quiz, this.currentQuestionIndex)) {
-      console.error('Invalid current question');
       return false;
     }
 
     const currentQuestionValue = this.currentQuestion.getValue();
+    const answers = this.answers;
 
-    // Validate Answers
-    if (!currentQuestionValue || !this.answers || this.answers.length === 0) {
-      console.error('No current question or answers provided');
+    // Check if currentQuestionValue and answers are defined and not empty
+    if (!currentQuestionValue || !answers || answers.length === 0) {
       return false;
     }
 
-    // Determine Correctness of Answers
-    try {
-      const correctAnswerFound = await this.determineCorrectAnswer(currentQuestionValue, this.answers);
-
-      // Update Score
-      const isAnswerCorrect = correctAnswerFound.includes(true);
-      this.incrementScore(this.answers, isAnswerCorrect, this.multipleAnswer);
-        
-      return isAnswerCorrect;
-    } catch (error) {
-      console.error('Error determining correct answer:', error);
+    if (!this.validateAnswers(currentQuestionValue, answers)) {
       return false;
     }
+
+    const correctAnswerFound = await this.determineCorrectAnswer(currentQuestionValue, answers);
+
+    if (correctAnswerFound.includes(true)) {
+      // The answer is correct, update the score accordingly
+      this.incrementScore(this.answers, true, this.multipleAnswer);
+    } else {
+      // The answer is incorrect, update the score accordingly
+      this.incrementScore(this.answers, false, this.multipleAnswer);
+    }
+
+    // ...rest of function logic...
+    // Process user answers, update score, etc.
+
+    return correctAnswerFound.includes(true);
   }
 
   async fetchAndFindQuiz(quizId: string): Promise<Quiz | null> {
