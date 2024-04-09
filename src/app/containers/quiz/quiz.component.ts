@@ -1150,7 +1150,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  loadExplanationTextForCurrentQuestion(): void {
+  /* loadExplanationTextForCurrentQuestion(): void {
     this.explanationText = '';
     const currentQuestion = this.quizData[this.currentQuestionIndex];
 
@@ -1161,8 +1161,20 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.explanationTextService.setNextExplanationText('');
     }
-  }
+  } */
 
+  loadExplanationTextForCurrentQuestion(): void {
+    this.explanationText = '';
+    if (this.quizData && this.quizData.length > this.currentQuestionIndex) {
+      const currentQuestion = this.quizData[this.currentQuestionIndex];
+      if (currentQuestion && this.quizService.isQuizQuestion(currentQuestion)) {
+        this.explanationTextService.setNextExplanationText(currentQuestion.explanation);
+      }
+    } else {
+      this.explanationTextService.setNextExplanationText('');
+    }
+  }
+  
   animationDoneHandler(): void {
     this.animationState$.next('none');
   }
