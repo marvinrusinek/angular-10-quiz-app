@@ -8,7 +8,7 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { ReplaySubject, of, Subject, throwError } from 'rxjs';
+import { ReplaySubject, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
@@ -63,8 +63,9 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       return of(totalQuestions);
     });
 
-    this.badgeTextSub = this.quizService.badgeText$.subscribe((updatedText) => {
-      this.badgeText = updatedText;
+    this.badgeTextSub = this.quizService.badgeText$.subscribe((text) => {
+      console.log('Received badge text:', text); // For debugging
+      this.badgeText = text;
     });
 
     // this.quizService.updateQuestionBadge();
