@@ -617,9 +617,12 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /* updateBadgeText(newBadgeText: string) {
-    this.badgeTextSource.next(newBadgeText);
-  } */
+  updateBadgeText(questionNumber: number, totalQuestions: number): void {
+    if (questionNumber > 0 && questionNumber <= totalQuestions) {
+      this.badgeText = `Question ${questionNumber} of ${totalQuestions}`;
+      this.badgeTextSource.next(this.badgeText);
+    }
+  }
 
   updateQuestionText(newQuestionText: string) {
     this.questionTextSource.next(newQuestionText);
@@ -1578,13 +1581,6 @@ export class QuizService implements OnDestroy {
       this.correctSound.play();
     } else {
       this.incorrectSound.play();
-    }
-  }
-
-  updateBadgeText(questionNumber: number, totalQuestions: number): void {
-    if (questionNumber > 0 && questionNumber <= totalQuestions) {
-      this.badgeText = `Question ${questionNumber} of ${totalQuestions}`;
-      this.badgeTextSource.next(this.badgeText);
     }
   }
 }
