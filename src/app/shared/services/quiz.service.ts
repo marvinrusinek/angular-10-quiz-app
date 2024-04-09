@@ -543,20 +543,17 @@ export class QuizService implements OnDestroy {
       return false;
     }
 
-    const correctAnswerFound = await this.determineCorrectAnswer(currentQuestionValue, answers);
+    try {
+      const correctAnswerFound = await this.determineCorrectAnswer(currentQuestionValue, this.answers);
 
-    if (correctAnswerFound.includes(true)) {
-      // The answer is correct, update the score accordingly
-      this.incrementScore(this.answers, true, this.multipleAnswer);
-    } else {
-      // The answer is incorrect, update the score accordingly
-      this.incrementScore(this.answers, false, this.multipleAnswer);
+      const isCorrect = correctAnswerFound.includes(true);
+      this.incrementScore(this.answers, isCorrect, this.multipleAnswer); // Update score based on the correctness
+
+      return isCorrect; // Return the result
+    } catch (error) {
+      console.error('Error determining the correct answer:', error);
+      return false;
     }
-
-    // ...rest of function logic...
-    // Process user answers, update score, etc.
-
-    return correctAnswerFound.includes(true);
   }
 
   async fetchAndFindQuiz(quizId: string): Promise<Quiz | null> {
