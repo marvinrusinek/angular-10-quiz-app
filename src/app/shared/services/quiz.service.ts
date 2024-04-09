@@ -679,7 +679,7 @@ export class QuizService implements OnDestroy {
         return;
       }
 
-      const zeroBasedQuestionIndex = index - 1;
+      const zeroBasedQuestionIndex = Math.max(0, index - 1);
 
       // Validate the index
       if (zeroBasedQuestionIndex >= 0 && zeroBasedQuestionIndex <= questions.length - 1) {
