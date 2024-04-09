@@ -48,7 +48,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       }),
       catchError((error: Error) => {
         console.error('Error in switchMap: ', error);
-        return throwError(error);
+        return throwError(() => error);
       })
     ).subscribe((totalQuestions: number) => {
       if (totalQuestions !== null) {
