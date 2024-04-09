@@ -47,6 +47,8 @@ export class QuizService implements OnDestroy {
   isOptionSelected = false;
   isNavigating = false;
   badgeText: string;
+  private badgeTextSource = new BehaviorSubject<string>('');
+  badgeText$ = this.badgeTextSource.asObservable();
 
   currentQuestionPromise: Promise<QuizQuestion>;
 
@@ -128,9 +130,6 @@ export class QuizService implements OnDestroy {
   correctMessage: string;
 
   checkedShuffle: boolean;
-
-  private badgeTextSource = new BehaviorSubject<string>('');
-  badgeText$ = this.badgeTextSource.asObservable();
 
   private optionsSource: Subject<Option[]> = new Subject<Option[]>();
   optionsSubject: BehaviorSubject<Option[] | null> = new BehaviorSubject<
@@ -619,8 +618,8 @@ export class QuizService implements OnDestroy {
 
   updateBadgeText(questionNumber: number, totalQuestions: number): void {
     if (questionNumber > 0 && questionNumber <= totalQuestions) {
-      this.badgeText = `Question ${questionNumber} of ${totalQuestions}`;
-      this.badgeTextSource.next(this.badgeText);
+      const badgeText = `Question ${questionNumber} of ${totalQuestions}`;
+      this.badgeTextSource.next(badgeText);
     }
   }
 
