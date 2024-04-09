@@ -27,7 +27,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   totalQuestions$ = new ReplaySubject<number>(1);
   questionNumber: number;
   badgeText: string;
-  private badgeTextSub: Subscription;
+  private badgeTextSubscription: Subscription;
   unsubscribe$ = new Subject<void>();
 
   constructor(
@@ -63,12 +63,9 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       return of(totalQuestions);
     });
 
-    this.badgeTextSub = this.quizService.badgeText$.subscribe((text) => {
-      console.log('Received badge text:', text); // For debugging
+    this.badgeTextSubscription = this.quizService.badgeText$.subscribe((text) => {
       this.badgeText = text;
     });
-
-    // this.quizService.updateQuestionBadge();
   }
   
   ngOnChanges(changes: SimpleChanges): void {
@@ -88,5 +85,6 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+    this.badgeTextSubscription.unsubscribe();
   }
 }
