@@ -350,9 +350,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   private async fetchQuizDataFromService(quizId: string): Promise<Quiz | undefined> {
     try {
       const quizzes = await firstValueFrom(this.quizService.getQuizData());
-      console.log(`Fetched quizzes:`, quizzes);
       const selectedQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-      console.log(`Selected quiz for ID ${quizId}:`, selectedQuiz);
       return selectedQuiz;
     } catch (error) {
       console.error(`Error fetching quizzes:`, error);
