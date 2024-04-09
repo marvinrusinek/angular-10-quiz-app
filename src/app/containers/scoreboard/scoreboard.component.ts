@@ -64,6 +64,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     this.badgeTextSubscription = this.quizService.badgeText$.subscribe((text) => {
+      console.log(`Received badge text: ${text}`); // Debugging log
       this.badgeText = text;
     });
   }
