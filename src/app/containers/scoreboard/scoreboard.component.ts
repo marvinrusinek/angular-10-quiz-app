@@ -63,9 +63,8 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       return of(totalQuestions);
     });
 
-    this.badgeTextSub = this.quizService.badgeText$.subscribe((text) => {
-      console.log('Received badge text:', text); // For debugging
-      this.badgeText = text;
+    this.badgeTextSub = this.quizService.badgeText$.subscribe((updatedText) => {
+      this.badgeText = updatedText;
     });
 
     // this.quizService.updateQuestionBadge();
