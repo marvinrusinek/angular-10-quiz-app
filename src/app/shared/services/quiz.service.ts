@@ -514,7 +514,7 @@ export class QuizService implements OnDestroy {
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
 
-    let foundQuiz;
+    let foundQuiz: Quiz;
     try {
       foundQuiz = await this.fetchAndFindQuiz(this.quizId);
       if (!foundQuiz) {
