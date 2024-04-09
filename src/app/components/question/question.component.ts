@@ -817,8 +817,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       this.updateQuestionStateForExplanation(this.currentQuestionIndex);
 
-      // Trigger message update in QuizService
-      this.quizService.triggerMessageUpdate();
+      let message = 'Please select an option to continue...';
+      if (this.currentQuestionIndex === this.totalQuestions - 1 && this.quizService.isAnswered(this.quizService.currentQuestionIndex)) {
+        message = "Please click the 'Show Your Score' button...";
+      }
+
+      // Use SelectionMessageService to update the message
+      this.selectionMessageService.updateSelectionMessage(message);
     } catch (error) {
       console.error("An error occurred while processing the option click:", error);
     }
