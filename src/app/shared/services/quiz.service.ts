@@ -497,6 +497,19 @@ export class QuizService implements OnDestroy {
     return answer !== null && typeof answer === 'object' && 'questionType' in answer;
   }
 
+  updateSelectionMessage(): void {
+    if (this.currentQuestionIndex === this.totalQuestions - 1 && this.isAnswered(this.currentQuestionIndex)) {
+      this.selectionMessageService.selectionMessageSubject.next("Please click the 'Show Your Score' button...");
+    } else {
+      this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
+    }
+  }
+  
+  // Public method to be called from components
+  triggerMessageUpdate(): void {
+    this.updateSelectionMessage();
+  }
+
   findCurrentMultipleAnswerQuestionIndex(): number {
     if (!this.questions || this.questions.length === 0) {
       console.error('No questions available');
