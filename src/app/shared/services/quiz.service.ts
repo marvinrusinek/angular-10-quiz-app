@@ -1585,6 +1585,6 @@ export class QuizService implements OnDestroy {
   }
 
   updateQuestionBadge(): void {
-    this.updateBadgeText(this.badgeText);
+    this.updateBadgeText(this.badgeText, this.totalQuestions);
   }
 }
