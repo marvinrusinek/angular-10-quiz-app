@@ -202,16 +202,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
     this.loadQuestionDetails(this.currentQuestionIndex);
 
-    this.quizSubscription = this.quizService.selectedQuiz$.subscribe(quiz => {
-      if (quiz) {
-        // Handle the updated quiz data
-        console.log('Received selected quiz:', quiz);
-        this.currentQuiz = quiz;
-      } else {
-        console.log('No quiz data available');
-      }
-    });
-
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe((text: string) => {
