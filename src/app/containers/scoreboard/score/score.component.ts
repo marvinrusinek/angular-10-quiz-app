@@ -58,6 +58,11 @@ export class ScoreComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.isPercentage = true;
 
+    this.totalQuestions$.subscribe((total) => {
+      this.totalQuestions = total;
+      this.displayNumericalScore();
+    });
+
     this.subscription = combineLatest([
       this.correctAnswersCount$.pipe(
         takeUntil(this.unsubscribeTrigger$),
