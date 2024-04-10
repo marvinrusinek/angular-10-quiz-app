@@ -500,50 +500,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.resetForm();
   }
 
-  private processCombinedQuestionData(question: QuizQuestion): Observable<any> {
-    // Fetch all quizzes and find the one containing the question
-    return this.quizService.getQuizData().pipe(
-      map((quizzes: Quiz[]) => {
-        const relatedQuiz = quizzes.find(quiz => quiz.questions.some(q => q.questionText === question.questionText));
-        if (!relatedQuiz) {
-          throw new Error(`Quiz containing the question not found`);
-        }
-
-        // Find the index of the question in the quiz
-        const questionIndex = relatedQuiz.questions.findIndex(q => q.questionText === question.questionText);
-
-        // If additional data is needed, like specific question details
-        const questionData = this.quizService.getQuestionData(relatedQuiz.quizId, questionIndex);
-        if (!questionData) {
-          throw new Error('Question data not found');
-        }
-
-        // Combine the question with its related quiz and additional data
-        return {
-          question: question,
-          quiz: relatedQuiz,
-          additionalData: questionData
-        };
-      }),
-      catchError((error: Error) => {
-        console.error('Error processing combined question data:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  private updateCurrentQuestionAndCorrectAnswers(question: QuizQuestion): void {
-    this.updateCurrentQuestion(question);
-    this.checkAndUpdateCorrectAnswers(question);
-  }
-
-  private checkAndUpdateCorrectAnswers(question: QuizQuestion): void {
-    const currentCorrectAnswers = this.quizService.correctAnswers.get(question.questionText);
-    if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
-      this.quizService.setCorrectAnswers(question, question.options);
-    }
-  }
-
   private subscribeToCorrectMessage(): void {
     this.quizService.correctMessage$.subscribe(message => {
       console.log('Correct Message Updated:', message);
@@ -591,10 +547,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   public getCorrectAnswers(): number[] {
     this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
     return this.correctAnswers;
-  }
-
-  private updateCurrentQuestion(question: QuizQuestion): void {
-    this.currentQuestion = question;
   }
 
   private updateCorrectAnswers(): void {
