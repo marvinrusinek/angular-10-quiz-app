@@ -595,7 +595,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
-
   async getNextQuestion(): Promise<void> {
     try {
       const nextQuestion = await this.quizService.getNextQuestion(this.currentQuestionIndex);
