@@ -299,15 +299,15 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  /* private notifyOnNavigationEnd(): void {
+  private notifyOnNavigationEnd(): void {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      this.updateSelectionMessage();
+      // this.updateSelectionMessage();
     });
   }
 
-  private updateSelectionMessage(): void {
+  /* private updateSelectionMessage(): void {
     if (this.currentQuestionIndex === this.totalQuestions - 1) {
       if (this.quizService.isAnswered(this.currentQuestionIndex)) {
         this.selectionMessageService.selectionMessageSubject.next("Please click the 'Show Your Score' button...");
