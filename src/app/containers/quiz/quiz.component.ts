@@ -299,7 +299,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private notifyOnNavigationEnd(): void {
+  /* private notifyOnNavigationEnd(): void {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
@@ -317,7 +317,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
     }
-  }  
+  } */
 
   async fetchQuizData(): Promise<void> {
     try {

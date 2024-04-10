@@ -965,9 +965,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.showFeedbackForOption = { [option.optionId]: true };
     this.showFeedback = true;
     this.selectedOption = option;
-    this.selectionMessageService.updateSelectionMessage(
+    /* this.selectionMessageService.updateSelectionMessage(
       'Please click the next button to continue...'
-    );
+    ); */
+
+    if (this.currentQuestionIndex === this.totalQuestions - 1) {
+      // Assuming isAnswered takes the current question index and checks if the question is answered
+      if (this.quizService.isAnswered(this.currentQuestionIndex)) {
+        this.selectionMessageService.updateSelectionMessage("Please click the 'Show Your Score' button...");
+      } else {
+        // If it's the last question but not answered yet (for multiple-choice where multiple selections are possible)
+        this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
+      }
+    } else {
+      this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
+    }
   
     // Update the selected option in the quiz service and mark the question as answered
     this.quizService.updateSelectedOptions(
