@@ -500,49 +500,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.resetForm();
   }
 
-  // not being called, potentially remove, but might need for getting correct answers text to display
-  private loadQuestionsForQuiz(quizId: string): void {
-    if (!this.isValidQuizId(quizId)) return;
-
-    this.quizDataService.getQuestionsForQuiz(quizId)
-      .pipe(
-        tap(questions => this.processFetchedQuestions(questions, quizId)),
-        switchMap(questions => this.handleQuestionsSwitchMap(questions))
-      )
-      .subscribe({
-        next: () => console.log('Subscription next handler'),
-        error: error => console.error('Error while loading quiz questions:', error),
-        complete: () => console.log('Subscription complete handler')
-      });
-
-    this.subscribeToCorrectMessage();
-  }
-
-  private isValidQuizId(quizId: string): boolean {
-    if (!quizId) {
-      console.error('quizId is null or undefined.');
-      return false;
-    }
-    return true;
-  }
-
-  private processFetchedQuestions(questions: QuizQuestion[], quizId: string): void {
-    if (questions && questions.length > 0) {
-      this.currentQuestion = questions[0];
-      this.updateCurrentQuestionAndCorrectAnswers(this.currentQuestion);
-    } else {
-      console.error('No questions found for quiz with ID:', quizId);
-    }
-  }
-
-  private handleQuestionsSwitchMap(questions: QuizQuestion[]): Observable<any> {
-    if (questions && questions.length > 0) {
-      return this.processCombinedQuestionData(this.currentQuestion);
-    } else {
-      return of(undefined);
-    }
-  }
-
   private processCombinedQuestionData(question: QuizQuestion): Observable<any> {
     // Fetch all quizzes and find the one containing the question
     return this.quizService.getQuizData().pipe(
