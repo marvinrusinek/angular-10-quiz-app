@@ -570,7 +570,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private fetchQuestionAndOptions(): void {
+  /* private fetchQuestionAndOptions(): void {
     if (document.hidden) {
       console.log('Document is hidden, not loading question');
       return;
@@ -585,7 +585,27 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
           console.log('Question or options not found');
         }
       });
+  } */
+  private fetchQuestionAndOptions(): void {
+    if (document.hidden) {
+      console.log('Document is hidden, not loading question');
+      return;
+    }
+
+    this.quizDataService
+      .getQuestionAndOptions(this.quizId, this.questionIndex)
+      .pipe(
+        map(([question, options]) => [question || null, options || null]),
+      )
+      .subscribe(([question, options]) => {
+        if (question && options) {
+          this.quizStateService.updateCurrentQuizState(of(question));
+        } else {
+          console.log('Question or options not found');
+        }
+      });
   }
+
 
   async getNextQuestion(): Promise<void> {
     try {
