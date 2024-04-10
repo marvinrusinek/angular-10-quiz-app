@@ -346,6 +346,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } finally {
       this.isLoading = false;
     }
+
+    this.cdRef.detectChanges();
   }
 
   /* private initializeCorrectAnswerOptions(): void {
