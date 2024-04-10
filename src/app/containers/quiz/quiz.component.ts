@@ -310,10 +310,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   private updateSelectionMessage(): void {
     console.log(`Current Index: ${this.currentQuestionIndex}, Total Questions: ${this.totalQuestions}, Is Answered: ${this.quizService.isAnswered()}`);
 
-    if (this.currentQuestionIndex === this.totalQuestions - 1 && this.quizService.isAnswered(this.currentQuestionIndex)) {
-      this.selectionMessageService.selectionMessageSubject.next("Please click the 'Show Your Score' button...");
-    } else {
-      this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
+    if (this.currentQuestionIndex === this.totalQuestions - 1) {
+      console.log('Last question reached');
+      if (this.isQuestionAnswered()) {
+        console.log('Last question answered');
+        this.selectionMessageService.selectionMessageSubject.next("Please click the 'Show Your Score' button...");
+      }
     }
   }
 
