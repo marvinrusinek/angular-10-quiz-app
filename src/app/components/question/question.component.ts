@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef,
-  Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges
+  Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -128,7 +128,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef,
-    protected router: Router
+    protected router: Router,
+    protected ngZone: NgZone
   ) {
     this.quizService = quizService;
     this.quizDataService = quizDataService;
@@ -164,7 +165,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
-        this.loadQuizQuestions();
+        this.ngZone.run(() => {
+          this.loadQuizQuestions();
+        });
       }
     });
 
