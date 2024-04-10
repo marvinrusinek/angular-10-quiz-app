@@ -164,7 +164,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
-        this.initializeQuestionOptions(); // Re-initialize options when tab becomes visible
+        this.loadQuizQuestions();
       }
     });
 
