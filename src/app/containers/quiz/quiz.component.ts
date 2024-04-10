@@ -570,22 +570,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  /* private fetchQuestionAndOptions(): void {
-    if (document.hidden) {
-      console.log('Document is hidden, not loading question');
-      return;
-    }
-
-    this.quizDataService
-      .getQuestionAndOptions(this.quizId, this.questionIndex)
-      .subscribe(([question, options]) => {
-        if (question && options) {
-          this.quizStateService.updateCurrentQuizState(of(question));
-        } else {
-          console.log('Question or options not found');
-        }
-      });
-  } */
   private fetchQuestionAndOptions(): void {
     if (document.hidden) {
       console.log('Document is hidden, not loading question');
