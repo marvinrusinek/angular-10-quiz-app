@@ -595,7 +595,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.quizDataService
       .getQuestionAndOptions(this.quizId, this.questionIndex)
       .pipe(
+        map(data => Array.isArray(data) ? data : [null, null]),
         map(([question, options]) => [question || null, options || null]),
+        catchError(error => {
+          console.error('Error fetching question and options:', error);
+          return of([null, null]);
+        })
       )
       .subscribe(([question, options]) => {
         if (question && options) {
