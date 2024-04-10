@@ -162,6 +162,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.initializeQuiz();
     }
 
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        this.initializeQuestionOptions(); // Re-initialize options when tab becomes visible
+      }
+    });
+
     this.subscribeToAnswers();
     this.subscriptionToOptions();
     this.logFinalData();
@@ -187,6 +193,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.questionsObservableSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
     this.sharedVisibilitySubscription?.unsubscribe();
+    document.removeEventListener('visibilitychange', this.initializeQuestionOptions.bind(this));
   }
 
   trackByFn(option: Option): number {
