@@ -308,21 +308,16 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateSelectionMessage(): void {
-    console.log(`Current question index: ${this.currentQuestionIndex}, Total questions: ${this.totalQuestions}`);
     if (this.currentQuestionIndex === this.totalQuestions - 1) {
-      console.log('Last question reached');
-      // Directly check the state indicating the last question is answered
-      if (this.answers[this.currentQuestionIndex]) {
-        console.log('Last question answered, updating message to show score');
+      if (this.quizService.isAnswered(this.currentQuestionIndex)) {
         this.selectionMessageService.selectionMessageSubject.next("Please click the 'Show Your Score' button...");
       } else {
-        console.log('Last question not answered yet, showing continue message');
         this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
       }
     } else {
       this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
     }
-  }
+  }  
 
   async fetchQuizData(): Promise<void> {
     try {
