@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, 
-  HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+  HostListener, Input, NgZone, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription } from 'rxjs';
@@ -39,7 +39,7 @@ type AnimationState = 'animationStarted' | 'none';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [FormBuilder, QuizService, QuizDataService, QuizStateService, HighlightDirective]
 })
-export class QuizComponent implements OnInit, OnChanges, OnDestroy {
+export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() data: {
     questionText: string;
@@ -204,12 +204,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe((text: string) => {
       this.correctAnswersText = text;
     }); */
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['currentQuestionIndex']) {
-      this.initializeQuestionForDisplay(this.currentQuestionIndex);
-    }
   }
 
   ngOnDestroy(): void {
