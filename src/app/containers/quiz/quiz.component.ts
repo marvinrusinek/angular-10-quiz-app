@@ -850,31 +850,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.cdRef.detectChanges(); // Manually trigger change detection
   }
   
-  handleExplanationForQuestion(questionIndex: number): void {
-    if (!this.currentQuestion) {
-      console.error("currentQuestion is undefined");
-      return;
-    }
-  
-    if (!this.currentQuestion.selectedOptions) {
-      this.currentQuestion.selectedOptions = [];
-    }
-  
-    if (this.shouldDisplayExplanationForQuestion(this.currentQuestion)) {
-      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-  
-      if (!this.explanationToDisplay) {
-        console.warn("Explanation text is empty for question index", questionIndex);
-      }
-  
-      this.explanationTextService.setShouldDisplayExplanation(true);
-    } else {
-      console.log("Not displaying explanation for question index", questionIndex);
-      this.explanationToDisplay = '';
-      this.explanationTextService.setShouldDisplayExplanation(false);
-    }
-  }  
-  
   handleNoQuestionsAvailable(): void {
     this.questions = [];
     this.currentQuestion = null;
