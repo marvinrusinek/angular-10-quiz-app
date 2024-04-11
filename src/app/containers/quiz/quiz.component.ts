@@ -864,10 +864,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.explanationToDisplay = 'Error loading explanation.';
   }  
 
-  shouldDisplayExplanationForQuestion(question: QuizQuestion): boolean {
-    return question.selectedOptions && question.selectedOptions.length > 0;
-  }
-  
   initializeQuestionStreams(): void {
     // Initialize questions stream
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
