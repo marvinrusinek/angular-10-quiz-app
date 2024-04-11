@@ -331,7 +331,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       this.initializeAndPrepareQuestion(questionData, quizId);
       this.quizService.setCurrentQuestion(zeroBasedQuestionIndex);
-      this.subscribeToQuestions(quizId, questionIndex);
     } catch (error) {
       console.error('Error in fetchQuizData:', error);
     }
@@ -392,24 +391,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.correctAnswersLoadedSubject.next(true);
 
       console.log('Correct Answer Options:', correctAnswerOptions);
-    });
-  }
-
-  private subscribeToQuestions(quizId: string, questionIndex: number): void {
-    this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
-      if (questionIndex >= 0 && questionIndex < questions.length) {
-        this.quizService.setCurrentQuestionIndex(questionIndex);
-      } else {
-        console.error('Invalid questionIndex:', questionIndex);
-        return;
-      }
-
-      this.quizService.setQuestions(questions);
-      this.quizService.setTotalQuestions(questions.length);
-
-      if (!this.quizService.questionsLoaded) {
-        this.quizService.updateQuestions(quizId);
-      }
     });
   }
 
