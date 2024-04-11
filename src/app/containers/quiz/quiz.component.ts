@@ -197,8 +197,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion(); 
 
-    this.loadQuestionDetails(this.currentQuestionIndex);
-
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe((text: string) => {
@@ -217,20 +215,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.timerService.stopTimer(null);
   }
   
-  async loadQuestionDetails(questionIndex: number): Promise<void> {
-    // Load the question data
-    const question = await firstValueFrom(of(this.fetchQuestionDetails(questionIndex)));
-    this.currentQuestion = question;
-  
-    // Check if the explanation for this question should be displayed
-    const displayExplanation = this.shouldDisplayExplanation();
-    if (displayExplanation) {
-      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-    } else {
-      this.explanationToDisplay = '';
-    }
-  }
-
   // Public getter methods for determining UI state based on current quiz and question data.
   public get shouldDisplayContent(): boolean {
     return !!this.data?.questionText && !!this.questionToDisplay;
