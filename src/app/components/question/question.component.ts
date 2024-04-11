@@ -970,7 +970,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     ); */
 
     // After answering, check if it's the last question
-    if (this.currentQuestionIndex === this.totalQuestions - 1) {
+    if (this.currentQuestionIndex === this.quizService.totalQuestions - 1) {
       // If it's the last question, check if it has been answered
       if (this.quizService.isAnswered(this.currentQuestionIndex)) {
         // Update the message to prompt the user to see their score
