@@ -279,7 +279,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private notifyOnNavigationEnd(): void {
     this.router.events.pipe(
-      filter((event: Event) => event instanceof NavigationEnd)
+      filter((event: RouterEvent) => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.updateSelectionMessage();
     });
