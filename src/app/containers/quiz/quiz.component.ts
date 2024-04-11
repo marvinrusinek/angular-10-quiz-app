@@ -1609,17 +1609,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
      }).catch(error => {
       console.error('Error during quiz restart:', error);
     });
-  }  
-
-  async fetchAndInitializeQuestions(): Promise<void> {
-    try {
-      // Convert the Observable to a Promise
-      this.questionsArray = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
-      console.log('Questions fetched and initialized:', this.questionsArray);
-    } catch (error) {
-      console.error('Failed to fetch and initialize questions:', error);
-      throw error;
-    }
   }
 
   initializeQuestionState(): void {
