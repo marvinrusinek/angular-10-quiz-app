@@ -471,6 +471,10 @@ export class QuizService implements OnDestroy {
   } */
 
   isAnswered(questionIndex: number): boolean {
+    return !!this.answers[questionIndex];
+  }
+
+  /* isAnswered(questionIndex: number): boolean {
     if (!this.answers || questionIndex < 0 || questionIndex >= this.answers.length) {
       return false;  // Answers array is not initialized or index is out of bounds
     }
@@ -491,7 +495,7 @@ export class QuizService implements OnDestroy {
     }
     
     return !!answer;
-  }
+  } */
 
   isAnswerValid(answer: any): answer is { questionType: string } {
     return answer !== null && typeof answer === 'object' && 'questionType' in answer;
