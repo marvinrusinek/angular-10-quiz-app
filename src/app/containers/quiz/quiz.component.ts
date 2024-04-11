@@ -1312,7 +1312,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const firstQuestionState = await firstValueFrom(of(this.quizStateService.getQuestionState(this.quizId, 0)));
     if (firstQuestionState && firstQuestionState.isAnswered) {
       // Fetch and display the explanation for the first question
-      this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(0));
+      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(0);
       this.quizService.shouldDisplayExplanation = true;
     } else {
       // Reset any explanation text if the first question hasn't been answered
