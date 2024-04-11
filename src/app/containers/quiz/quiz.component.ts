@@ -1149,6 +1149,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   /************** template logic functions ******************/
+  // currently not being used
   isMultipleCorrectAnswers(): boolean {
     return this.numberOfCorrectAnswers > 1;
   }
@@ -1169,12 +1170,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Error fetching total questions:', error);
     });   
   }
-
-  setCurrentQuestion(question: QuizQuestion): void {
-    this.currentQuestion = question;  
-    this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-  }
- 
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
