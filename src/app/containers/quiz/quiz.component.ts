@@ -1248,38 +1248,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  updateQuestionState(index: number): void {
-    let questionState = this.quizStateService.getQuestionState(this.quizId, index);
-  
-    // Initialize questionState if it's not already set
-    if (!questionState) {
-      questionState = { isAnswered: false, explanationDisplayed: false, selectedOptions: [] };
-    }
-  
-    // Update the explanation display logic
-    if (questionState.isAnswered) {
-      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-      questionState.explanationDisplayed = true;
-    } else {
-      this.explanationToDisplay = '';
-      this.explanationTextService.setShouldDisplayExplanation(false);
-      questionState.explanationDisplayed = false;
-    }
-
-    if (this.shouldShowNumberOfCorrectAnswers(questionState, index)) {
-      this.shouldDisplayCorrectAnswersFlag = true;
-    } else {
-      this.shouldDisplayCorrectAnswersFlag = false;
-    }
-  
-    // Persist the updated state
-    this.quizStateService.setQuestionState(this.quizId, index, questionState);
-  
-    // Force the view to update
-    this.cdRef.detectChanges();
-  }
-
   // Helper method to decide if the number of correct answers should be displayed
   async shouldShowNumberOfCorrectAnswers(questionState: QuestionState, index: number): Promise<boolean> {
     const question = this.questions[index];
