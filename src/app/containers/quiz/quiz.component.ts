@@ -1589,7 +1589,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     // Reset any other relevant state, such as explanation visibility
     this.explanationTextService.setShouldDisplayExplanation(false);
 
-
+    // Update the badge text for badge question ID 1 with the total number of questions
     this.quizService.updateBadgeText(1, this.totalQuestions);
   
     // Step 2: Reset the timer synchronously
