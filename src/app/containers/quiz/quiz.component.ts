@@ -216,12 +216,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
   
   // Public getter methods for determining UI state based on current quiz and question data.
-  public get shouldDisplayContent(): boolean {
-    return !!this.data?.questionText && !!this.questionToDisplay;
-  }
-
   public get isContentAvailable(): boolean {
     return !!this.data?.questionText || !!this.data?.correctAnswersText;
+  }
+  
+  public get shouldDisplayContent(): boolean {
+    return !!this.data?.questionText && !!this.questionToDisplay;
   }
 
   public get shouldApplyLastQuestionClass(): boolean {
