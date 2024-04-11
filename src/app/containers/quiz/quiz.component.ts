@@ -1350,21 +1350,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.updateProgressPercentage();
   }
 
-  updateExplanationVisibility(isExplanationVisible: boolean): void {
-    // Update the local component state to reflect this visibility
-    this.explanationVisible = isExplanationVisible;
-  
-    const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
-  
-    if (questionState.isAnswered) {
-      this.explanationTextService.setShouldDisplayExplanation(this.explanationVisible);
-    } else {
-      this.explanationTextService.setShouldDisplayExplanation(false);
-    }
-
-    this.cdRef.detectChanges();
-  }
-
   private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
     try {
       this.animationState$.next('animationStarted');
