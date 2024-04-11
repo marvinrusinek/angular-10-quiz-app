@@ -836,25 +836,11 @@ export class QuizComponent implements OnInit, OnDestroy {
         });
 
         this.currentQuestionIndex = 0;
-        this.setNextQuestionAndOptions();
       }
     });
 
     const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
     const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
-  }
-
-  setNextQuestionAndOptions() {
-    this.questions$.pipe(
-      take(1), // Take the first emission of questions and complete
-      map(questions => questions[this.currentQuestionIndex]) // Get the current question based on the index
-    ).subscribe((question: QuizQuestion) => {
-      if (question) {
-        this.currentQuestion = question;
-        this.currentOptions = question.options;
-        this.explanationToDisplay = this.shouldDisplayExplanation() ? question.explanation : '';
-      }
-    });
   }
 
   // Function to load all questions for the current quiz
