@@ -158,6 +158,11 @@ export class QuizService implements OnDestroy {
   public correctAnswersLoaded$: Observable<boolean> =
     this.correctAnswersLoadedSubject.asObservable();
 
+  // not used
+  private correctAnswersAvailabilitySubject = new BehaviorSubject<boolean>(false);
+  correctAnswersAvailability$ =
+  this.correctAnswersAvailabilitySubject.asObservable();
+
   private badgeTextSource = new BehaviorSubject<string>('');
   badgeText = this.badgeTextSource.asObservable();
 
