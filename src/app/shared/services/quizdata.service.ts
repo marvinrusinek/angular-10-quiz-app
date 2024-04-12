@@ -467,11 +467,6 @@ export class QuizDataService implements OnDestroy {
     this.questionType = question.type;
   }
 
-  setCurrentQuestionIndex(index: number): void {
-    this.currentQuestionIndex = index;
-    this.currentQuestionIndex$.next(this.currentQuestionIndex);
-  }
-
   submitQuiz(quiz: Quiz): Observable<any> {
     const submitUrl = `${this.quizUrl}/results/${quiz.quizId}`;
     return this.http.post(submitUrl, quiz).pipe(
