@@ -119,24 +119,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       const currentQuestionValue = changes.currentQuestion.currentValue.value;
       this.setDisplayStateForCorrectAnswers(currentQuestionValue);
       this.updateCorrectAnswersDisplayState();
-
-      if (changes.currentQuestionIndexValue && !changes.currentQuestionIndexValue.isFirstChange()) {
-        // Get the new current question index
-        const newIndex = changes.currentQuestionIndexValue.currentValue;
-        
-        // Fetch the state for the new current question
-        const state = this.quizStateService.getQuestionState(this.quizId, newIndex);
-  
-        // Update component state based on the fetched question state
-        if (state && state.isAnswered) {
-          this.explanationText = state.explanationText;
-          this.showExplanationText = state.explanationDisplayed;
-        } else {
-          // Reset the explanation text if the question is not answered or there's no state
-          this.explanationText = '';
-          this.showExplanationText = false;
-        }
-      }
     }
   }
 
