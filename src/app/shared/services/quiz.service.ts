@@ -791,11 +791,11 @@ export class QuizService implements OnDestroy {
         this.updateQuestions(quizId);
       }),
       catchError((error: any) => {
-        console.error('Error getting quiz questions:', error);
         this.questionLoadingSubject.next(false);
         this.loadingQuestions = false;
         this.currentQuestionPromise = null;
-        return throwError(error);
+        console.error('Error getting quiz questions:', error);
+        return throwError(() => new Error('Error getting quiz questions'));
       }),
       finalize(() => {
         this.questionLoadingSubject.next(false);
