@@ -288,7 +288,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   private updateSelectionMessage(): void {
     if (this.currentQuestionIndex === this.totalQuestions - 1) {
       if (this.quizService.isAnswered(this.currentQuestionIndex)) {
-        this.selectionMessageService.selectionMessageSubject.next("Please click the 'Show Your Score' button...");
+        this.selectionMessageService.selectionMessageSubject.next("Please click the 'Show Results' button...");
       } else {
         this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
       }
