@@ -199,6 +199,7 @@ export class QuizService implements OnDestroy {
 
   correctSound: Howl;
   incorrectSound: Howl;
+  private soundsLoaded = false;
 
   constructor(
     private explanationTextService: ExplanationTextService,
@@ -1484,9 +1485,12 @@ export class QuizService implements OnDestroy {
   }
 
   /********* sound functions ***********/
-  initializeSounds(): void {
-    this.correctSound = this.loadSound('http://www.marvinrusinek.com/sound-correct.mp3', 'Correct');
-    this.incorrectSound = this.loadSound('http://www.marvinrusinek.com/sound-incorrect.mp3', 'Incorrect');
+  private initializeSounds(): void {
+    if (!this.soundsLoaded) {
+      this.correctSound = this.loadSound('http://www.marvinrusinek.com/sound-correct.mp3', 'Correct');
+      this.incorrectSound = this.loadSound('http://www.marvinrusinek.com/sound-incorrect.mp3', 'Incorrect');
+      this.soundsLoaded = true;
+    }
   }
 
   loadSound(url, soundName) {
