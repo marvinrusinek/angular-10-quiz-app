@@ -1005,17 +1005,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   handleLastQuestionAnsweredMessage(): void {
-    this.quizService.getTotalQuestions().subscribe(totalQuestions => {
-      if (this.currentQuestionIndex === totalQuestions - 1) {
-        if (this.quizService.isAnswered(this.currentQuestionIndex)) {
-          this.selectionMessageService.updateSelectionMessage("Please click the 'Show Your Score' button...");
+    this.quizService.getTotalQuestions().subscribe({
+      next: (totalQuestions) => {
+        if (this.currentQuestionIndex === totalQuestions - 1) {
+          if (this.quizService.isAnswered(this.currentQuestionIndex)) {
+            this.selectionMessageService.updateSelectionMessage("Please click the 'Show Your Score' button...");
+          } else {
+            this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
+          }
         } else {
-          this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
+          this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
         }
-      } else {
-        this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
-      }
-    });
+      },
+      error: (error) => console.error('Failed to fetch total questions:', error)
+    });    
   }
 
   async setExplanationText(questionIndex: number): Promise<void> {
