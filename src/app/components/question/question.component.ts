@@ -974,7 +974,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // After answering, check if it's the last question
     this.quizService.getTotalQuestions().subscribe(totalQuestions => {
       console.log(`Current index: ${this.currentQuestionIndex + 1}, Total Questions: ${totalQuestions}`);
-      if (this.currentQuestionIndex + 1 === totalQuestions) {
+      if (this.currentQuestionIndex === totalQuestions - 1) {
         console.log('Last question reached.');  // Debug log
 
         if (this.quizService.isAnswered(this.currentQuestionIndex)) {
