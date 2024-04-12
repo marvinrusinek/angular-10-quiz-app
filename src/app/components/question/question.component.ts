@@ -1,6 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef,
-  Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject,
@@ -969,20 +967,27 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       'Please click the next button to continue...'
     ); */
 
+    
+    console.log(`Question ${this.currentQuestionIndex + 1} answered.`); // Debug log
+
+
     // After answering, check if it's the last question
-    if (this.currentQuestionIndex === this.quizService.totalQuestions - 1) {
-      // If it's the last question, check if it has been answered
-      if (this.quizService.isAnswered(this.currentQuestionIndex)) {
-        // Update the message to prompt the user to see their score
-        this.selectionMessageService.updateSelectionMessage("Please click the 'Show Your Score' button...");
+    this.quizService.getTotalQuestions().subscribe(totalQuestions => {
+      console.log(`Current index: ${this.currentQuestionIndex + 1}, Total Questions: ${totalQuestions}`);
+      if (this.currentQuestionIndex + 1 === totalQuestions) {
+        console.log('Last question reached.');  // Debug log
+
+        if (this.quizService.isAnswered(this.currentQuestionIndex)) {
+          console.log("Updating message to 'Show Your Score'.");  // Debug log
+          this.selectionMessageService.updateSelectionMessage("Please click the 'Show Your Score' button...");
+        } else {
+          // This part might be unnecessary if the question is always answered at this point
+          this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
+        }
       } else {
-        // This else part might not be necessary if the question is guaranteed to be answered at this point
-        this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
+        this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
       }
-    } else {
-      // If it's not the last question, prompt the user to move to the next question
-      this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
-    }
+    });
   
     // Update the selected option in the quiz service and mark the question as answered
     this.quizService.updateSelectedOptions(
