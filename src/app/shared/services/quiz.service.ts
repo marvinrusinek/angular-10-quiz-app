@@ -1071,7 +1071,7 @@ export class QuizService implements OnDestroy {
       continueQuizId: this.continueQuizId,
       completedQuizId: this.completedQuizId,
       quizCompleted: this.quizCompleted,
-      status: this.status,
+      status: this.status
     };
     return quizSelectionParams;
   }
