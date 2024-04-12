@@ -225,7 +225,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           return;
         }
 
-        this.setQuestions(questions);
         this.explanationTexts = explanationTexts;
         this.initializeCurrentQuestionIndex();
         this.subscribeToCurrentQuestion();
@@ -250,15 +249,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private initializeCurrentQuestionIndex(): void {
     this.quizService.currentQuestionIndex = 0;
     this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
-  }
-
-  private setQuestions(questions: QuizQuestion[]): void {
-    this.questions = questions;
-    this.quizService.currentQuestionIndex$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((index: number) => {
-        this.currentQuestionIndexValue = index;
-      });
   }
 
   private subscribeToCurrentQuestion(): void {
