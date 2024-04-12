@@ -1009,7 +1009,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       next: (totalQuestions) => {
         if (this.currentQuestionIndex === totalQuestions - 1) {
           if (this.quizService.isAnswered(this.currentQuestionIndex)) {
-            this.selectionMessageService.updateSelectionMessage("Please click the 'Show Results' button...");
+            this.selectionMessageService.updateSelectionMessage("Please click the Show Results button");
           } else {
             this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
           }
