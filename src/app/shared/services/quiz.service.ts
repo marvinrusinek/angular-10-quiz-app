@@ -826,10 +826,6 @@ export class QuizService implements OnDestroy {
     this.totalQuestionsSubject.next(totalQuestions);
   }
 
-  displayExplanationText(show: boolean): void {
-    this.shouldDisplayExplanation = show;
-  }
-
   shouldExplanationBeDisplayed(): boolean {
     return this.shouldDisplayExplanation;
   }
@@ -854,10 +850,6 @@ export class QuizService implements OnDestroy {
     return this.http.post<void>(`${this.quizUrl}/quiz/scores`, quizScore);
   }
   
-  getQuizLength(): number {
-    return this.selectedQuiz.questions.length;
-  }
-
   getNextQuestion(currentQuestionIndex: number): Promise<QuizQuestion | undefined> {
     return new Promise((resolve) => {
       const currentQuiz = this.getCurrentQuiz();
