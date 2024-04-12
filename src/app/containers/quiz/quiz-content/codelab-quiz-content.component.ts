@@ -57,7 +57,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   displayCorrectAnswersText = false;
   explanationDisplayed = false;
-  isExplanationVisible = false;
 
   numberOfCorrectAnswers = 0;
   numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
