@@ -963,13 +963,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.showFeedbackForOption = { [option.optionId]: true };
     this.showFeedback = true;
     this.selectedOption = option;
-    /* this.selectionMessageService.updateSelectionMessage(
-      'Please click the next button to continue...'
-    ); */
-
-    
-    console.log(`Question ${this.currentQuestionIndex + 1} answered.`); // Debug log
-
 
     // After answering, check if it's the last question
     this.quizService.getTotalQuestions().subscribe(totalQuestions => {
