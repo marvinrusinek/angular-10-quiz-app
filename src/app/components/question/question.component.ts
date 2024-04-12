@@ -965,22 +965,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOption = option;
 
     // After answering, check if it's the last question
-    this.quizService.getTotalQuestions().subscribe(totalQuestions => {
-      console.log(`Current index: ${this.currentQuestionIndex + 1}, Total Questions: ${totalQuestions}`);
-      if (this.currentQuestionIndex === totalQuestions - 1) {
-        console.log('Last question reached.');  // Debug log
-
-        if (this.quizService.isAnswered(this.currentQuestionIndex)) {
-          console.log("Updating message to 'Show Your Score'.");  // Debug log
-          this.selectionMessageService.updateSelectionMessage("Please click the 'Show Your Score' button...");
-        } else {
-          // This part might be unnecessary if the question is always answered at this point
-          this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
-        }
-      } else {
-        this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
-      }
-    });
+    this.handleLastQuestionAnsweredMessage();
   
     // Update the selected option in the quiz service and mark the question as answered
     this.quizService.updateSelectedOptions(
@@ -1017,6 +1002,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       'Please select an option to continue...'
     );
     this.quizQuestionManagerService.setExplanationText(null);
+  }
+
+  handleLastQuestionAnsweredMessage(): void {
+    this.quizService.getTotalQuestions().subscribe(totalQuestions => {
+      console.log(`Current index: ${this.currentQuestionIndex + 1}, Total Questions: ${totalQuestions}`);
+      if (this.currentQuestionIndex === totalQuestions - 1) {
+        console.log('Last question reached.');  // Debug log
+
+        if (this.quizService.isAnswered(this.currentQuestionIndex)) {
+          console.log("Updating message to 'Show Your Score'.");  // Debug log
+          this.selectionMessageService.updateSelectionMessage("Please click the 'Show Your Score' button...");
+        } else {
+          // This part might be unnecessary if the question is always answered at this point
+          this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
+        }
+      } else {
+        this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
+      }
+    });
   }
 
   async setExplanationText(questionIndex: number): Promise<void> {
