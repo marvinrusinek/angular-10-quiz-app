@@ -25,9 +25,6 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy {
-  @Output() explanationTextChanged = new EventEmitter<string>();
-  @Output() shouldDisplayExplanationChanged = new EventEmitter<boolean>();
-  @Output() shouldDisplayOptionsChanged = new EventEmitter<boolean>();
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
