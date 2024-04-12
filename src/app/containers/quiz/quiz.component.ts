@@ -237,7 +237,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !this.isQuizDataLoaded || this.currentQuestionIndex >= this.totalQuestions - 1;
   }
   
-  public get shouldHideShowScoreButton(): boolean {
+  public get shouldHideShowResultsButton(): boolean {
     // Hide if data isn't loaded or not on the last question
     return !this.isQuizDataLoaded || this.currentQuestionIndex < this.totalQuestions - 1;
   }  
