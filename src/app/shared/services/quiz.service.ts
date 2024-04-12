@@ -790,7 +790,7 @@ export class QuizService implements OnDestroy {
         this.questions = questions;
         this.updateQuestions(quizId);
       }),
-      catchError((error: any) => {
+      catchError((error: Error) => {
         this.questionLoadingSubject.next(false);
         this.loadingQuestions = false;
         this.currentQuestionPromise = null;
