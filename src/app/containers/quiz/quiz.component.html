@@ -104,6 +104,7 @@
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
               aria-label="Next Question"
+              [disabled]="!isAnswerSelected()"
             >
               <i class="material-icons">navigate_next</i>
             </button>
