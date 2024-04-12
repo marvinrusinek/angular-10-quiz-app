@@ -277,6 +277,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
+  isAnswerSelected(): boolean {
+    return this.currentQuestion.selectedOptions !== undefined;
+  }  
+
   private notifyOnNavigationEnd(): void {
     this.router.events.pipe(
       filter((event: RouterEvent) => event instanceof NavigationEnd)
