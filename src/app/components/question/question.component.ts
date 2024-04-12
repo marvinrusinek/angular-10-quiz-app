@@ -1018,7 +1018,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }
       },
       error: (error) => console.error('Failed to fetch total questions:', error)
-    });    
+    });
   }
 
   async setExplanationText(questionIndex: number): Promise<void> {
