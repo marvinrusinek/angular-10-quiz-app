@@ -167,10 +167,6 @@ export class QuizService implements OnDestroy {
   private correctAnswersCountTextSource = new BehaviorSubject<string>('Select answers');
   correctAnswersCountText$ = this.correctAnswersCountTextSource.asObservable();
 
-  private correctAnswersAvailabilitySubject = new BehaviorSubject<boolean>(false);
-  correctAnswersAvailability$ =
-    this.correctAnswersAvailabilitySubject.asObservable();
-
   private nextExplanationTextSource = new BehaviorSubject<string>('');
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
