@@ -109,7 +109,7 @@
             </button>
           </div>
   
-          <div class="show-score-nav" [hidden]="shouldHideShowScoreButton">
+          <div class="show-score-nav" [hidden]="shouldHideShowResultsButton">
             <button
               type="submit"
               mat-raised-button
@@ -119,7 +119,7 @@
               (window:keydown.Enter)="advanceToResults()"
               (window:keydown.ArrowRight)="advanceToResults()"
               class="btn btn-outline-primary"
-              aria-label="Show Your Score"
+              aria-label="Show Results"
             >
               <i class="material-icons">score</i>&nbsp;&nbsp;<strong
                 >Show Results</strong
