@@ -466,52 +466,8 @@ export class QuizService implements OnDestroy {
     this.answerStatus.next(status);
   }
 
-  /* isAnswered(): boolean {
-    return !!this.answers[this.currentQuestionIndex];
-  } */
-
   isAnswered(questionIndex: number): boolean {
     return !!this.selectedOptions[questionIndex];
-  }
-
-  /* isAnswered(questionIndex: number): boolean {
-    if (!this.answers || questionIndex < 0 || questionIndex >= this.answers.length) {
-      return false;  // Answers array is not initialized or index is out of bounds
-    }
-
-    const answer = this.answers[questionIndex];
-    // For multiple-answer questions, check if any options have been selected
-    if (
-      this.isAnswerValid(answer) &&
-      answer?.questionType === QuestionType.MultipleAnswer
-    ) {
-      const selectedOptionsArray = this.selectedOptions[questionIndex] as unknown as any[];
-      return !!(
-        answer &&
-        this.selectedOptions &&
-        Array.isArray(selectedOptionsArray) &&
-        selectedOptionsArray.length > 0
-      );
-    }
-    
-    return !!answer;
-  } */
-
-  isAnswerValid(answer: any): answer is { questionType: string } {
-    return answer !== null && typeof answer === 'object' && 'questionType' in answer;
-  }
-
-  updateSelectionMessage(): void {
-    if (this.currentQuestionIndex === this.totalQuestions - 1 && this.isAnswered(this.currentQuestionIndex)) {
-      this.selectionMessageService.selectionMessageSubject.next("Please click the 'Show Your Score' button...");
-    } else {
-      this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
-    }
-  }
-  
-  // Public method to be called from components
-  triggerMessageUpdate(): void {
-    this.updateSelectionMessage();
   }
 
   findCurrentMultipleAnswerQuestionIndex(): number {
