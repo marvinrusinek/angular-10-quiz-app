@@ -1255,12 +1255,6 @@ export class QuizService implements OnDestroy {
     this.nextExplanationTextSource.next(explanationText);
   }
 
-  setCurrentOptions(options: Option[]): void {
-    console.log('setCurrentOptions called with:', options);
-    this.data.currentOptions = options;
-    this.currentOptionsSubject.next(options);
-  }
-
   setChecked(value: boolean): void {
     this.checkedShuffle = value;
   }
