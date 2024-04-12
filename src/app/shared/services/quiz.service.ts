@@ -209,7 +209,6 @@ export class QuizService implements OnDestroy {
   ) {
     this.initializeData();
     this.loadData();
-    this.setupSubscriptions();
 
     const initialText = localStorage.getItem('correctAnswersText') || 'Please select an answer';
     this.correctAnswersCountTextSource.next(initialText);
@@ -338,12 +337,6 @@ export class QuizService implements OnDestroy {
     this.quizResources = QUIZ_RESOURCES || [];
 
     this.currentQuestion$ = this.currentQuestionSource.asObservable();
-  }
-
-  setupSubscriptions(): void {
-    this.currentQuestion.subscribe((question) => {
-      this.question = question;
-    });
   }
 
   getQuestionData(
