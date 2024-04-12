@@ -471,7 +471,7 @@ export class QuizService implements OnDestroy {
   } */
 
   isAnswered(questionIndex: number): boolean {
-    return !!this.answers[questionIndex];
+    return !!this.selectedOptions[questionIndex];
   }
 
   /* isAnswered(questionIndex: number): boolean {
