@@ -93,8 +93,6 @@ export class QuizService implements OnDestroy {
   numberOfCorrectAnswers: number;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
-  multipleAnswerSubject: BehaviorSubject<boolean> =
-    new BehaviorSubject<boolean>(false);
   multipleAnswer = false;
 
   currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
