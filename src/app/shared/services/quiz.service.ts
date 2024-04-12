@@ -1082,11 +1082,6 @@ export class QuizService implements OnDestroy {
     this.questionDataSubject.next(data);
   }
 
-  public setNextOptions(options: Option[]): void {
-    this.previousOptionsSubject.next(this.nextOptionsSubject.getValue());
-    this.nextOptionsSubject.next(options);
-  }
-
   setCorrectAnswers(
     question: QuizQuestion,
     options: Option[]
