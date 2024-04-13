@@ -784,6 +784,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         error
       );
     }
+
+    this.playSound();
   }
 
   private async processCurrentQuestion(
@@ -1374,7 +1376,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  playSound(selectedOption: Option): void {
+  /* playSound(selectedOption: Option): void {
     if (!selectedOption) {
       console.log('Selected option is undefined or null.');
       return;
@@ -1408,14 +1410,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.timerService.stopTimer(() => {
       this.quizService.playSoundForOption(selectedOption.correct);
     });
-  }
+  } */
 
-  playCorrectSoundTest(): void {
-    let audio = new Audio('http://www.marvinrusinek.com/sound-correct.mp3');
+  playSound(): void {
+    const audio = new Audio('http://www.marvinrusinek.com/sound-correct.mp3');
     audio.play().then(() => {
       console.log('Playback succeeded!');
     }).catch(error => {
-      console.log('Playback failed:', error);
+      console.error('Playback failed:', error);
     });
   }
 }
