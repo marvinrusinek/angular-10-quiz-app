@@ -1539,11 +1539,16 @@ export class QuizService implements OnDestroy {
           this.incorrectSound = sound;
         }
         sound.once('load', () => console.log(`${isCorrect ? 'Correct' : 'Incorrect'} sound loaded`));
-        sound.once('loaderror', (id, error) => console.error(`Load error on ${isCorrect ? 'Correct' : 'Incorrect'} sound:`, error));
+        sound.once('loaderror', (id, error) => {
+          console.error(`Load error on ${isCorrect ? 'Correct' : 'Incorrect'} sound:`, error);
+          URL.revokeObjectURL(objectUrl);  // Clean up the object URL to avoid memory leaks
+        });
       },
-      error => console.error('Error loading audio via HttpClient:', error)
+      error => {
+        console.error('Error fetching audio:', error);
+      }
     );
-  }
+  }  
 
   play(): void {
     if (this.sound) {
