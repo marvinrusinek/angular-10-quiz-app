@@ -785,7 +785,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
     }
 
-    this.playSound();
+    this.playSound(option);
   }
 
   private async processCurrentQuestion(
