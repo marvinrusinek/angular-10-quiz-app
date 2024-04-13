@@ -1496,6 +1496,7 @@ export class QuizService implements OnDestroy {
   private loadSound(url: string, soundName: string): Howl {
     return new Howl({
       src: [url],
+      html5: true,
       onload: () => {
         console.log(`${soundName} sound loaded`);
       },
