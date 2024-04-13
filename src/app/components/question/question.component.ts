@@ -785,7 +785,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
     }
 
-    this.playSound(option);
+    this.quizService.playIncorrectSound();
+
+    //this.testDirectPlay();
+
+    //const isCorrect = option.correct === true;
+    //console.log("Option correctness status:", isCorrect);
+    //this.quizService.playSound(isCorrect);
+    // this.playSound(option);
+  }
+
+  testDirectPlay(): void {
+    this.quizService.correctSound.volume(1); // Ensure volume is at maximum
+    this.quizService.incorrectSound.volume(1); // Ensure volume is at maximum
+    this.quizService.correctSound.play();
+    this.quizService.incorrectSound.play();
   }
 
   private async processCurrentQuestion(
