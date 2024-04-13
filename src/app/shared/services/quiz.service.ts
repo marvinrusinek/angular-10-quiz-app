@@ -199,6 +199,7 @@ export class QuizService implements OnDestroy {
 
   correctSound: Howl | undefined;
   incorrectSound: Howl | undefined;
+  private sound: Howl;
   private soundsLoaded = false;
 
   constructor(
@@ -213,7 +214,8 @@ export class QuizService implements OnDestroy {
     const initialText = localStorage.getItem('correctAnswersText') || 'Please select an answer';
     this.correctAnswersCountTextSource.next(initialText);
 
-    this.initializeSounds();
+    // this.initializeSounds();
+    this.loadSounds();
   }
 
   ngOnDestroy(): void {
@@ -1487,58 +1489,104 @@ export class QuizService implements OnDestroy {
   }
 
   /********* sound functions ***********/
-  initializeSounds(): void {
+  /* initializeSounds(): void {
     if (!this.soundsLoaded) {
-      this.correctSound = this.loadSound('http://www.marvinrusinek.com/sound-correct.mp3', 'Correct');
-      this.incorrectSound = this.loadSound('http://www.marvinrusinek.com/sound-incorrect.mp3', 'Incorrect');
+      this.correctSound = this.loadSound('https://www.marvinrusinek.com/sound-correct.mp3', 'Correct');
+      this.incorrectSound = this.loadSound('https://www.marvinrusinek.com/sound-incorrect.mp3', 'Incorrect');
       this.soundsLoaded = true;
-    }
-  }
-
-  private loadSound(url: string, soundName: string): Howl {
-    return new Howl({
-      src: [url],
-      html5: true,
-      onload: () => {
-        console.log(`${soundName} sound loaded`);
-      },
-      onplay: () => {
-        console.log(`${soundName} sound playing...`);
-      },
-      onloaderror: (id, error) => {
-        console.error(`${soundName} failed to load`, error);
-        alert(`${soundName} failed to load: ${error}`);
-      }
-    });
-  }
-
-  /* playSound(isCorrect: boolean): void {
-    // Initialize sounds only if they haven't been loaded yet
-    if (!this.correctSound || !this.incorrectSound) {
-      this.initializeSounds();
-    }
-
-    // Play the appropriate sound based on the answer correctness
-    if (isCorrect) {
-      this.correctSound.play();
-    } else {
-      this.incorrectSound.play();
     }
   } */
 
-  public playSound(isCorrect: boolean): void {
-    if (isCorrect && this.correctSound) {
+  /* loadSound(url: string, soundName: string): Howl {
+    return new Howl({
+      src: [url],
+      html5: true,
+      onload: () => console.log(`${soundName} sound loaded`),
+      onplay: () => console.log(`${soundName} sound playing`),
+      onloaderror: (id, error) => console.error(`${soundName} failed to load`, error),
+      onplayerror: (id, error) => {
+        console.error(`${soundName} playback error`, error);
+      }
+    });
+  } */
+
+  /* private initSound() {
+    this.sound = new Howl({
+      src: ['http://www.marvinrusinek.com/sound-correct.mp3'],
+      html5: true, // Use HTML5 Audio by default.
+      onload: () => console.log('Sound loaded!'),
+      onloaderror: (id, error) => console.error('Load Error:', error),
+      onplayerror: (id, error) => console.error('Play Error:', error)
+    });
+  } */
+
+  private loadSounds() {
+    this.loadSound('/assets/audio/sound-correct.mp3', true);
+    this.loadSound('/assets/audio/sound-incorrect.mp3', false);
+  }
+
+  private loadSound(url: string, isCorrect: boolean) {
+    this.http.get(url, { responseType: 'blob' }).subscribe(
+      blob => {
+        const objectUrl = URL.createObjectURL(blob);
+        const sound = new Howl({
+          src: [objectUrl],
+          html5: true,
+        });
+        if (isCorrect) {
+          this.correctSound = sound;
+        } else {
+          this.incorrectSound = sound;
+        }
+        sound.once('load', () => console.log(`${isCorrect ? 'Correct' : 'Incorrect'} sound loaded`));
+        sound.once('loaderror', (id, error) => console.error(`Load error on ${isCorrect ? 'Correct' : 'Incorrect'} sound:`, error));
+      },
+      error => console.error('Error loading audio via HttpClient:', error)
+    );
+  }
+
+  play(): void {
+    if (this.sound) {
+      this.sound.play();
+    } else {
+      console.log('Sound not initialized or failed to load');
+    }
+  }
+  
+  playCorrectSound() {
+    if (this.correctSound) {
       this.correctSound.play();
-    } else if (!isCorrect && this.incorrectSound) {
-      this.incorrectSound.play();
+    } else {
+      console.error('Correct sound not initialized');
     }
   }
 
-  public playSoundForOption(isCorrect: boolean): void {
-    if (isCorrect) {
-      this.correctSound?.play();
+  playIncorrectSound() {
+    if (this.incorrectSound) {
+      this.incorrectSound.play();
     } else {
-      this.incorrectSound?.play();
+      console.error('Incorrect sound not initialized');
     }
   }
+
+  playSound(isCorrect: boolean): void {
+    const sound = isCorrect ? this.correctSound : this.incorrectSound;
+    if (sound) {
+      sound.play();
+    } else {
+      console.error('Sound not initialized:', isCorrect ? 'Correct' : 'Incorrect');
+    }
+  }
+
+  testPlaySound(): void {
+    if (this.correctSound && this.incorrectSound) {
+      console.log('Testing correct sound:');
+      this.correctSound.play();
+      console.log('Testing incorrect sound:');
+      this.incorrectSound.play();
+    } else {
+      console.error('Sounds not loaded.');
+    }
+  }
+  
 }
