@@ -1327,7 +1327,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
   }
 
-  playSound(selectedOption: Option): void {
+  /* playSound(selectedOption: Option): void {
     if (!selectedOption) {
       console.log('Selected option is undefined or null.');
       return;
@@ -1371,5 +1371,41 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }
       });
     }
+  } */
+
+  playSound(selectedOption: Option): void {
+    if (!selectedOption) {
+      console.log('Selected option is undefined or null.');
+      return;
+    }
+
+    console.log('Selected option:', selectedOption.text);
+
+    // Check if 'this.currentQuestion' and 'this.currentQuestion.options' are defined
+    if (!this.currentQuestion || !this.currentQuestion.options) {
+      console.log('Current question or options are undefined or null.');
+      return;
+    }
+
+    const optionIndex = this.currentQuestion.options.findIndex(option => option.text === selectedOption.text);
+
+    if (optionIndex === undefined || optionIndex === null) {
+      console.log('Option index is undefined or null');
+      return;
+    }
+
+    console.log('Option index:', optionIndex);
+
+    // Log the correctness and delegate sound playing to QuizService
+    if (selectedOption.correct) {
+      console.log('Selected option is correct, playing correct sound...');
+    } else {
+      console.log('Selected option is incorrect, playing incorrect sound...');
+    }
+
+    // Stop timer and play sound based on correctness
+    this.timerService.stopTimer(() => {
+      this.quizService.playSoundForOption(selectedOption.correct);
+    });
   }
 }
