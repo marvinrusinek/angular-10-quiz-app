@@ -197,8 +197,8 @@ export class QuizService implements OnDestroy {
   destroy$ = new Subject<void>();
   private quizUrl = 'assets/data/quiz.json';
 
-  correctSound: Howl;
-  incorrectSound: Howl;
+  correctSound: Howl | undefined;
+  incorrectSound: Howl | undefined;
   private soundsLoaded = false;
 
   constructor(
