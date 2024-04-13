@@ -1409,4 +1409,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.playSoundForOption(selectedOption.correct);
     });
   }
+
+  playCorrectSoundTest(): void {
+    let audio = new Audio('http://www.marvinrusinek.com/sound-correct.mp3');
+    audio.play().then(() => {
+      console.log('Playback succeeded!');
+    }).catch(error => {
+      console.log('Playback failed:', error);
+    });
+  }
 }
