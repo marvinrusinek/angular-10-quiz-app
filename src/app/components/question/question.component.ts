@@ -786,6 +786,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.quizService.playIncorrectSound();
+    this.quizService.play();
 
     //this.testDirectPlay();
 

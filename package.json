@@ -30,7 +30,7 @@
     "core-js": "3.6.5",
     "hammerjs": "^2.0.8",
     "hover.css": "2.3.2",
-    "howler": "2.0.0",
+    "howler": "latest",
     "ionic": "5.4.16",
     "ionic/angular": "*",
     "jquery": "3.5.1",
