@@ -1504,6 +1504,7 @@ export class QuizService implements OnDestroy {
       },
       onloaderror: (id, error) => {
         console.error(`${soundName} failed to load`, error);
+        alert(`${soundName} failed to load: ${error}`);
       }
     });
   }
