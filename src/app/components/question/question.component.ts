@@ -1413,7 +1413,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   playSound(): void {
-    const audio = new Audio('http://www.marvinrusinek.com/sound-correct.mp3');
+    const audioUrl = 'http://www.marvinrusinek.com/sound-correct.mp3';  // Ensure this URL is absolutely correct
+    const audio = new Audio(audioUrl);
     audio.play().then(() => {
       console.log('Playback succeeded!');
     }).catch(error => {
