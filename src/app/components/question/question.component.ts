@@ -1330,7 +1330,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
   }
 
-  /* playSound(selectedOption: Option): void {
+  playSound(selectedOption: Option): void {
     if (!selectedOption) {
       console.log('Selected option is undefined or null.');
       return;
@@ -1374,7 +1374,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }
       });
     }
-  } */
+  }
 
   /* playSound(selectedOption: Option): void {
     if (!selectedOption) {
@@ -1412,7 +1412,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   } */
 
-  playSound(): void {
+  /* playSound(): void {
     const audioUrl = 'http://www.marvinrusinek.com/sound-correct.mp3';  // Ensure this URL is absolutely correct
     const audio = new Audio(audioUrl);
     audio.play().then(() => {
@@ -1420,5 +1420,5 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }).catch(error => {
       console.error('Playback failed:', error);
     });
-  }
+  } */
 }
