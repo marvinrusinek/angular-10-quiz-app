@@ -215,7 +215,9 @@ export class QuizService implements OnDestroy {
     this.correctAnswersCountTextSource.next(initialText);
 
     // this.initializeSounds();
-    this.loadSounds();
+    // this.loadSounds();
+    this.loadSound('/assets/audio/sound-correct.mp3', true);
+    this.loadSound('/assets/audio/sound-incorrect.mp3', false);
   }
 
   ngOnDestroy(): void {
@@ -1526,28 +1528,29 @@ export class QuizService implements OnDestroy {
   }
 
   private loadSound(url: string, isCorrect: boolean) {
-    this.http.get(url, { responseType: 'blob' }).subscribe(
-      blob => {
-        const objectUrl = URL.createObjectURL(blob);
-        const sound = new Howl({
-          src: [objectUrl],
-          html5: true,
-        });
-        if (isCorrect) {
-          this.correctSound = sound;
-        } else {
-          this.incorrectSound = sound;
-        }
-        sound.once('load', () => console.log(`${isCorrect ? 'Correct' : 'Incorrect'} sound loaded`));
-        sound.once('loaderror', (id, error) => {
-          console.error(`Load error on ${isCorrect ? 'Correct' : 'Incorrect'} sound:`, error);
-          URL.revokeObjectURL(objectUrl);  // Clean up the object URL to avoid memory leaks
-        });
-      },
-      error => {
-        console.error('Error fetching audio:', error);
-      }
-    );
+    this.http.get(url, { responseType: 'blob' })
+      .pipe(
+        tap(blob => {
+          const objectUrl = URL.createObjectURL(blob);
+          const sound = new Howl({
+            src: [objectUrl],
+            html5: true,
+            onload: () => console.log(`${isCorrect ? 'Correct' : 'Incorrect'} sound loaded`),
+            onloaderror: (id, error) => console.error(`Load error on ${isCorrect ? 'Correct' : 'Incorrect'} sound:`, error),
+            onplayerror: (id, error) => console.error(`${isCorrect ? 'Correct' : 'Incorrect'} play error:`, error)
+          });
+          if (isCorrect) {
+            this.correctSound = sound;
+          } else {
+            this.incorrectSound = sound;
+          }
+        }),
+        catchError(error => {
+          console.error('Error fetching audio:', error);
+          return of(null); // Handle the error and return an Observable that can be subscribed to
+        })
+      )
+      .subscribe();
   }  
 
   play(): void {
