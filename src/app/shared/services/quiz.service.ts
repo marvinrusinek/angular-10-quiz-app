@@ -1493,7 +1493,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  loadSound(url, soundName) {
+  private loadSound(url: string, soundName: string): Howl {
     return new Howl({
       src: [url],
       onload: () => {
@@ -1502,10 +1502,13 @@ export class QuizService implements OnDestroy {
       onplay: () => {
         console.log(`${soundName} sound playing...`);
       },
+      onloaderror: (id, error) => {
+        console.error(`${soundName} failed to load`, error);
+      }
     });
   }
 
-  playSound(isCorrect: boolean): void {
+  /* playSound(isCorrect: boolean): void {
     // Initialize sounds only if they haven't been loaded yet
     if (!this.correctSound || !this.incorrectSound) {
       this.initializeSounds();
@@ -1516,6 +1519,22 @@ export class QuizService implements OnDestroy {
       this.correctSound.play();
     } else {
       this.incorrectSound.play();
+    }
+  } */
+
+  public playSound(isCorrect: boolean): void {
+    if (isCorrect && this.correctSound) {
+      this.correctSound.play();
+    } else if (!isCorrect && this.incorrectSound) {
+      this.incorrectSound.play();
+    }
+  }
+
+  public playSoundForOption(isCorrect: boolean): void {
+    if (isCorrect) {
+      this.correctSound?.play();
+    } else {
+      this.incorrectSound?.play();
     }
   }
 }
