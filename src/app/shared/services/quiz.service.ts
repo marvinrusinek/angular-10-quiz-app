@@ -212,6 +212,8 @@ export class QuizService implements OnDestroy {
 
     const initialText = localStorage.getItem('correctAnswersText') || 'Please select an answer';
     this.correctAnswersCountTextSource.next(initialText);
+
+    this.initializeSounds();
   }
 
   ngOnDestroy(): void {

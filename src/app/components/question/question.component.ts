@@ -1335,6 +1335,31 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('Selected option is undefined or null.');
       return;
     }
+  
+    console.log('Selected option:', selectedOption.text);
+  
+    // Check if 'this.currentQuestion' and 'this.currentQuestion.options' are defined
+    if (!this.currentQuestion || !this.currentQuestion.options) {
+      console.log('Current question or options are undefined or null.');
+      return;
+    }
+  
+    // Directly play the sound based on the correctness of the selected option
+    if (selectedOption.correct) {
+      console.log('Selected option is correct, playing correct sound...');
+      this.quizService.correctSound?.play();
+    } else {
+      console.log('Selected option is incorrect, playing incorrect sound...');
+      this.quizService.incorrectSound?.play();
+    }
+  }
+  
+
+  /* playSound(selectedOption: Option): void {
+    if (!selectedOption) {
+      console.log('Selected option is undefined or null.');
+      return;
+    }
 
     console.log('Selected option:', selectedOption.text);
 
@@ -1374,7 +1399,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }
       });
     }
-  }
+  } */
 
   /* playSound(selectedOption: Option): void {
     if (!selectedOption) {
