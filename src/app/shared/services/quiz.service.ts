@@ -1607,16 +1607,22 @@ export class QuizService implements OnDestroy {
   }
 
   // Load sound with correct handling for success and errors
+  // Update error handling in loadSound to identify common issues such as CORS
   loadSound(url: string, soundName: string): Howl {
     return new Howl({
       src: [url],
       html5: true,
+      xhr: { // Ensure CORS settings are configured correctly
+        method: 'GET',
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        },
+        withCredentials: false
+      },
       onload: () => console.log(`${soundName} sound loaded`),
       onplay: () => console.log(`${soundName} sound playing`),
-      onloaderror: (id, error) =>
-        console.error(`${soundName} failed to load`, error),
-      onplayerror: (id, error) =>
-        console.error(`${soundName} playback error`, error),
+      onloaderror: (id, error) => console.error(`${soundName} failed to load`, error),
+      onplayerror: (id, error) => console.error(`${soundName} playback error`, error)
     });
   }
 
