@@ -123,15 +123,6 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  getSelectedQuiz(): Observable<Quiz | null> {
-    return this.selectedQuiz$.pipe(
-      distinctUntilChanged(),
-      filter((selectedQuiz: Quiz) => !!selectedQuiz),
-      take(1),
-      catchError(() => of(null))
-    );
-  }
-
   getQuiz(quizId: string): Observable<Quiz> {
     if (!quizId) {
       throw new Error('quizId parameter is null or undefined');
