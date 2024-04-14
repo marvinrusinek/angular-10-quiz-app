@@ -216,8 +216,8 @@ export class QuizService implements OnDestroy {
 
     // this.initializeSounds();
     // this.loadSounds();
-    this.loadSound('/assets/audio/sound-correct.mp3', true);
-    this.loadSound('/assets/audio/sound-incorrect.mp3', false);
+    // this.loadSound('/assets/audio/sound-correct.mp3', true);
+    // this.loadSound('/assets/audio/sound-incorrect.mp3', false);
   }
 
   ngOnDestroy(): void {
@@ -1522,12 +1522,12 @@ export class QuizService implements OnDestroy {
     });
   } */
 
-  private loadSounds() {
+  /* private loadSounds() {
     this.loadSound('/assets/audio/sound-correct.mp3', true);
     this.loadSound('/assets/audio/sound-incorrect.mp3', false);
-  }
+  } */
 
-  private loadSound(url: string, isCorrect: boolean) {
+  /* private loadSound(url: string, isCorrect: boolean) {
     this.http.get(url, { responseType: 'blob' })
       .pipe(
         tap(blob => {
@@ -1551,42 +1551,42 @@ export class QuizService implements OnDestroy {
         })
       )
       .subscribe();
-  }  
+  } */
 
-  play(): void {
+  /* play(): void {
     if (this.sound) {
       this.sound.play();
     } else {
       console.log('Sound not initialized or failed to load');
     }
-  }
+  } */
   
-  playCorrectSound() {
+  /* playCorrectSound() {
     if (this.correctSound) {
       this.correctSound.play();
     } else {
       console.error('Correct sound not initialized');
     }
-  }
+  } */
 
-  playIncorrectSound() {
+  /* playIncorrectSound() {
     if (this.incorrectSound) {
       this.incorrectSound.play();
     } else {
       console.error('Incorrect sound not initialized');
     }
-  }
+  } */
 
-  playSound(isCorrect: boolean): void {
+  /* playSound(isCorrect: boolean): void {
     const sound = isCorrect ? this.correctSound : this.incorrectSound;
     if (sound) {
       sound.play();
     } else {
       console.error('Sound not initialized:', isCorrect ? 'Correct' : 'Incorrect');
     }
-  }
+  } */
 
-  testPlaySound(): void {
+  /* testPlaySound(): void {
     if (this.correctSound && this.incorrectSound) {
       console.log('Testing correct sound:');
       this.correctSound.play();
@@ -1595,6 +1595,5 @@ export class QuizService implements OnDestroy {
     } else {
       console.error('Sounds not loaded.');
     }
-  }
-  
+  } */
 }

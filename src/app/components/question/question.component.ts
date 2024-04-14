@@ -784,7 +784,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         error
       );
     }
-
+    console.log(Howler._codecs);
     this.quizService.playIncorrectSound();
     this.quizService.play();
 
