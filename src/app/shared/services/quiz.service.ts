@@ -1592,21 +1592,23 @@ export class QuizService implements OnDestroy {
 
   /********* sound functions ***********/
   // Ensure sounds are initialized before attempting to play them
-  // Ensure the paths to the local sound files are correct and verify that the files are properly loaded
+  // Adjust the relative paths based on the actual location of the assets
   initializeSounds(): void {
     if (!this.soundsLoaded) {
-      const basePath = 'assets/audio/'; // Define base path for local audio files
+      const correctSoundUrl = 'assets/audio/sound-correct.mp3'; // Use absolute path from the src directory
+      const incorrectSoundUrl = 'assets/audio/sound-incorrect.mp3'; // Use absolute path from the directory
       this.correctSound = this.loadSound(
-        `${basePath}sound-correct.mp3`, // Correct path concatenation for local files
+        correctSoundUrl, // Ensure path is relative to the src directory
         'Correct'
       );
       this.incorrectSound = this.loadSound(
-        `${basePath}sound-incorrect.mp3`, // Correct path concatenation for local files
+        incorrectSoundUrl, // Ensure path is relative to the src directory
         'Incorrect'
       );
       this.soundsLoaded = true;
     }
   }
+
 
   // Load sound with correct handling for success and errors
   // Adjust the loadSound method to handle potential issues with the audio files themselves or network access
