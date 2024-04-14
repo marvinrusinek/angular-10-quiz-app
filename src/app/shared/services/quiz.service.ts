@@ -1607,24 +1607,23 @@ export class QuizService implements OnDestroy {
   }
 
   // Load sound with correct handling for success and errors
-  // Update error handling in loadSound to identify common issues such as CORS
+  // Adjust the loadSound method to handle potential issues with the audio files themselves or network access
   loadSound(url: string, soundName: string): Howl {
     return new Howl({
       src: [url],
-      html5: true,
-      xhr: { // Ensure CORS settings are configured correctly
-        method: 'GET',
-        headers: {
-          'Access-Control-Allow-Origin': '*'
-        },
-        withCredentials: false
-      },
+      html5: true, // Opting for HTML5 to bypass Web Audio API's stricter CORS requirements
+      preload: true, // Ensure the sound is preloaded
       onload: () => console.log(`${soundName} sound loaded`),
-      onplay: () => console.log(`${soundName} sound playing`),
-      onloaderror: (id, error) => console.error(`${soundName} failed to load`, error),
-      onplayerror: (id, error) => console.error(`${soundName} playback error`, error)
+      onloaderror: (id, error) => console.error(`${soundName} failed to load`, error, `from ${url}`),
+      onplayerror: (id, error) => {
+        // Attempt to recover from playback error by reloading the sound
+        console.error(`${soundName} playback error`, error);
+        this.loadSound(url, soundName); // Retry loading the sound
+      }
     });
   }
+
+
 
   // Add this method to your QuizService or component
   playSoundOnOptionClick(isCorrect: boolean): void {
