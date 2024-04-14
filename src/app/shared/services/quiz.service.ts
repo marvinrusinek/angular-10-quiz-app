@@ -1594,22 +1594,23 @@ export class QuizService implements OnDestroy {
   // Ensure sounds are initialized before attempting to play them
   // Adjust the relative paths based on the actual location of the assets
   // Validate that the asset paths are accessible from the public directory and ensure server settings allow static file access
+  // Implement a local file check and configure Angular to correctly serve assets
   initializeSounds(): void {
     if (!this.soundsLoaded) {
-      // Use absolute path from the root of your host, assuming Angular's assets are served correctly
-      const correctSoundUrl = '/assets/audio/sound-correct.mp3'; 
-      const incorrectSoundUrl = '/assets/audio/sound-incorrect.mp3'; 
+      // Check that the 'assets' directory is correctly configured in your angular.json file to be included in the build
+      const basePath = './assets/audio/'; // Ensure paths are relative to the root where Angular serves static files
       this.correctSound = this.loadSound(
-        correctSoundUrl, // Confirm path starts with a slash if relative to the root
+        `${basePath}sound-correct.mp3`, // Properly configured path to local file
         'Correct'
       );
       this.incorrectSound = this.loadSound(
-        incorrectSoundUrl, // Confirm path starts with a slash if relative to the root
+        `${basePath}sound-incorrect.mp3`, // Properly configured path to local file
         'Incorrect'
       );
       this.soundsLoaded = true;
     }
   }
+
 
 
 
