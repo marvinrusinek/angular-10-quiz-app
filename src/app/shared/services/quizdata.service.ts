@@ -438,7 +438,6 @@ export class QuizDataService implements OnDestroy {
     );
   }
   
-
   setQuestionType(question: QuizQuestion): void {
     const numCorrectAnswers = question.options.filter((option) => option.correct).length;
     question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
