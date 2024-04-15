@@ -1119,7 +1119,13 @@ export class QuizService implements OnDestroy {
     }
   
     if (this.quizData && this.quizData.length > this.indexOfQuizId && this.indexOfQuizId >= 0) {
-      const quizId = this.quizData[this.indexOfQuizId].quizId;
+      const quiz = this.quizData[this.indexOfQuizId];
+      if (!quiz) {
+        console.error('Quiz data not found at the given index.');
+        return;
+      }
+  
+      const quizId = quiz.quizId;
       console.log('Quiz ID:', quizId);
   
       const questionsForQuiz = this.getQuestionsForQuiz(quizId);
@@ -1146,7 +1152,13 @@ export class QuizService implements OnDestroy {
     console.log('Index of Quiz:', this.indexOfQuizId);
   
     if (this.quizData && this.quizData.length > this.indexOfQuizId && this.indexOfQuizId >= 0) {
-      const quizId = this.quizData[this.indexOfQuizId].quizId;
+      const quiz = this.quizData[this.indexOfQuizId];
+      if (!quiz) {
+        console.error('Quiz data not found at the given index.');
+        return;
+      }
+  
+      const quizId = quiz.quizId;
       console.log('Quiz ID:', quizId);
   
       const questionsForQuiz = this.getQuestionsForQuiz(quizId);
@@ -1174,6 +1186,7 @@ export class QuizService implements OnDestroy {
       console.error('No quiz data available or invalid index.');
     }
   }
+  
 
   // generically shuffle arrays in-place using Durstenfeld's shuffling algorithm
   shuffle<T>(arg: T[]): T[] {
