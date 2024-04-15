@@ -1125,20 +1125,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  // generically shuffle arrays in-place using Durstenfeld's shuffling algorithm
-  shuffle<T>(arg: T[]): T[] {
-    if (!arg || arg.length === 0) {
-      return arg;
-    }
-
-    for (let i = arg.length - 1; i >= 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arg[i], arg[j]] = [arg[j], arg[i]];
-    }
-
-    return arg;
-  }
-
   returnQuizSelectionParams(): QuizSelectionParams {
     const quizSelectionParams = {
       startedQuizId: this.startedQuizId,
