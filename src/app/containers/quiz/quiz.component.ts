@@ -206,7 +206,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }); */
 
      // Check if audio is available and can be played
-    let audioElement: HTMLAudioElement = document.getElementById('quizAudio') as HTMLAudioElement;
+    /* let audioElement: HTMLAudioElement = document.getElementById('quizAudio') as HTMLAudioElement;
 
     // Enhance debugging by logging media capabilities and MIME type support directly
     console.log('MP3 support:', document.createElement('audio').canPlayType('audio/mpeg'));
@@ -222,11 +222,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     })
     .catch(error => {
       console.error('Error fetching MP3 file through proxy:', error);
-    });
+    }); */
 
-
-
-    if (audioElement) {
+    /* if (audioElement) {
       audioElement.oncanplay = () => {
         console.log('Audio is ready to play!');
         this.audioAvailable = true; // Ensure controls are visible when audio is ready
@@ -238,7 +236,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       audioElement.load(); // Try loading the audio to test if it's available
     } else {
       console.error('Audio element not found in the template.');
-    }
+    } */
+
+    var audio = new Audio();
+    audio.src = "http://www.marvinrusinek.com/sound-correct.mp3";
+    audio.load();
+    audio.play();
   }
 
   private logAudioErrorDetails(e: Event): void {
