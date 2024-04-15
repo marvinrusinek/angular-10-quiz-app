@@ -212,7 +212,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('MP3 support:', document.createElement('audio').canPlayType('audio/mpeg'));
 
     // Simple fetch to test network access to the MP3 file
-    fetch('https://www.marvinrusinek.com/sound-correct.mp3')
+    fetch('https://cors-anywhere.herokuapp.com/http://www.marvinrusinek.com/sound-correct.mp3')
     .then(response => {
       if (response.ok) {
         console.log('MP3 file accessed successfully.');
@@ -221,8 +221,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     })
     .catch(error => {
-      console.error('Error fetching MP3 file:', error);
+      console.error('Error fetching MP3 file through proxy:', error);
     });
+
 
 
     if (audioElement) {
