@@ -205,24 +205,47 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.correctAnswersText = text;
     }); */
 
-    // Test audio availability without hiding controls to understand behavior
-    const audioTest = new Audio('http://www.marvinrusinek.com/sound-correct.mp3');
-    audioTest.oncanplaythrough = () => {
-      console.log('Audio can be played!');
-      this.audioAvailable = true; // Ensures controls remain if dynamically toggled
-    };
-    audioTest.onerror = (e) => {
-      console.error('Error loading audio:', e);
-      this.audioAvailable = false; // Log error and consider keeping controls visible for testing
-    };
+     // Attach event listeners directly to the audio element for detailed diagnostics
+     let audioElement: HTMLAudioElement = document.getElementById('quizAudio') as HTMLAudioElement;
 
-    // Optional: Force reload the audio source to verify dynamic changes
-    setTimeout(() => {
-      this.audioAvailable = !this.audioAvailable; // Toggle to trigger Angular change detection
-      setTimeout(() => {
-        this.audioAvailable = !this.audioAvailable; // Toggle back after short delay
-      }, 1000);
-    }, 5000);
+     if (audioElement) {
+       audioElement.oncanplaythrough = () => {
+         console.log('Audio can be played through!');
+       };
+       audioElement.onerror = (e: Event) => {
+         console.error('Error loading audio:', e);
+         this.logAudioErrorDetails(e);
+       };
+       audioElement.load(); // Explicitly call load to trigger the source setup
+     } else {
+       console.error('Audio element not found in the template.');
+     }
+  }
+
+  private logAudioErrorDetails(e: Event): void {
+    const audioElement: HTMLAudioElement = (e.target as HTMLAudioElement);
+    if (!audioElement) {
+      console.error('Event target is not an HTMLAudioElement.');
+      return;
+    }
+    console.error('Audio error code:', audioElement.error?.code);
+    console.error('Audio error message:', audioElement.error?.message);
+    switch (audioElement.error?.code) {
+      case MediaError.MEDIA_ERR_ABORTED:
+        console.error('Audio loading aborted.');
+        break;
+      case MediaError.MEDIA_ERR_NETWORK:
+        console.error('Audio loading failed due to a network error.');
+        break;
+      case MediaError.MEDIA_ERR_DECODE:
+        console.error('Audio decoding failed due to corruption or unsupported features.');
+        break;
+      case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+        console.error('Audio format is not supported or source not found.');
+        break;
+      default:
+        console.error('An unknown error occurred.');
+    }
   }
 
   ngOnDestroy(): void {
