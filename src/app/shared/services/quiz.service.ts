@@ -1593,15 +1593,13 @@ export class QuizService implements OnDestroy {
   /********* sound functions ***********/
   initializeSounds(): void {
     if (!this.soundsLoaded) {
-      // Ensure the paths are correctly configured to load from a reliable source
-      const correctSoundPath = 'assets/audio/sound-correct.mp3'; // Local path within Angular project
-      const incorrectSoundPath = 'assets/audio/sound-incorrect.mp3'; // Local path within Angular project
+      const basePath = 'assets/audio/';
       this.correctSound = this.loadSound(
-        correctSoundPath,
+        `${basePath}sound-correct.mp3`,
         'Correct'
       );
       this.incorrectSound = this.loadSound(
-        incorrectSoundPath,
+        `${basePath}sound-incorrect.mp3`,
         'Incorrect'
       );
       this.soundsLoaded = true;
@@ -1611,13 +1609,17 @@ export class QuizService implements OnDestroy {
   loadSound(url: string, soundName: string): Howl {
     return new Howl({
       src: [url],
-      html5: true, // Ensures use of HTML5 audio for better compatibility
-      preload: true, // Ensures the audio is loaded before it's needed
+      html5: true, // Use HTML5 to avoid CORS issues with Web Audio API
+      preload: 'auto', // Change from true to 'auto' for proper attribute usage
       onload: () => console.log(`${soundName} sound loaded`),
-      onloaderror: (id, error) => console.error(`${soundName} failed to load`, error),
+      onloaderror: (id, error) => {
+        console.error(`${soundName} failed to load`, error);
+        console.error(`Check if the file ${url} exists and is accessible. Also, confirm the server is configured to serve .mp3 files.`);
+      },
       onplayerror: (id, error) => console.error(`${soundName} playback error`, error)
     });
-  }
+}
+
 
   // Call this method to play the correct sound
   playCorrectSound(): void {
