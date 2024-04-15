@@ -29,6 +29,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+  private currentQuiz: Quiz;
+  private quizSubscription: Subscription;
 
   imagePath = '../../../assets/images/milestones/';
   introImg = '';
@@ -49,11 +51,17 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.subscribeToSelectedQuiz();
     this.handleRouteParameters();
     this.initializeSelectedQuiz();
+
+    this.quizSubscription = this.quizService.selectedQuiz$.subscribe(quiz => {
+      this.currentQuiz = quiz;
+      console.log("Current Selected Quiz:", this.currentQuiz);
+    });
   }
   
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.quizSubscription.unsubscribe();
   }
 
   private initializeData(): void {
@@ -94,7 +102,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     const isChecked = event.checked;
     this.quizService.setChecked(isChecked);
   
-    console.log("Selected Quiz at onChange:", this.selectedQuiz);
+    console.log("Selected Quiz at onChange:", this.selectedQuiz$.getValue());
   
     if (isChecked && this.selectedQuiz) {
       console.log("Quiz", this.selectedQuiz);
