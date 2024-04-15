@@ -1132,10 +1132,10 @@ export class QuizService implements OnDestroy {
       questionsForQuiz.subscribe(questions => {
         console.log('Questions for Quiz:', questions);
   
-        if (questions && questions.length > 0) {
+        if (questions && questions[0].length > 0) {
           if (this.checkedShuffle) {
             console.log('Shuffling questions...');
-            this.shuffle(questions);
+            this.shuffle(questions[0]);
             console.log('Shuffled questions:', questions);
           }
         } else {
@@ -1165,7 +1165,7 @@ export class QuizService implements OnDestroy {
       questionsForQuiz.subscribe(questions => {
         console.log('Questions for Quiz:', questions);
   
-        if (questions && questions.length > 0 && this.currentQuestionIndex >= 0 && this.currentQuestionIndex < questions.length) {
+        if (questions && questions[0].length > 0 && this.currentQuestionIndex >= 0 && this.currentQuestionIndex < questions[0].length) {
           const currentQuestion = questions[this.currentQuestionIndex];
           console.log('Current Question:', currentQuestion);
   
