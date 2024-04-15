@@ -93,8 +93,11 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     const isChecked = event.checked;
     this.quizService.setChecked(isChecked);
 
+    console.log("IOQI", this.quizService.indexOfQuizId);
+
     if (isChecked && this.quizService.indexOfQuizId !== undefined && this.quizService.indexOfQuizId !== null) {
       const quiz = this.quizData[this.quizService.indexOfQuizId];
+      console.log("QUIZ", quiz);
       if (quiz) {
         this.quizDataService.getQuestionsForQuiz(quiz.quizId).subscribe(questions => {
           this.quizService.shuffleQuestions(questions);
