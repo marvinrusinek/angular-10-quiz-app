@@ -139,6 +139,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
 
+  audioAvailable: boolean = true;
+
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
@@ -202,6 +204,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe((text: string) => {
       this.correctAnswersText = text;
     }); */
+
+    // Check if the audio can be played in the current browser environment
+    const audioTest = new Audio();
+    audioTest.src = 'http://www.marvinrusinek.com/sound-correct.mp3';
+    audioTest.oncanplaythrough = () => {
+      console.log('Audio can be played!');
+      this.audioAvailable = true;
+    };
+    audioTest.onerror = () => {
+      console.log('Audio cannot be played.');
+      this.audioAvailable = false;
+    };
   }
 
   ngOnDestroy(): void {
