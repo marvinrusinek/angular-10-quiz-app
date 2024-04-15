@@ -1112,7 +1112,7 @@ export class QuizService implements OnDestroy {
   shuffleQuestions(): void {
     console.log('Quiz Data:', this.quizData);
     console.log('Index of Quiz:', this.indexOfQuizId);
-    
+  
     // Check if indexOfQuizId is undefined or null
     if (typeof this.indexOfQuizId === 'undefined' || this.indexOfQuizId === null) {
       console.error('indexOfQuizId is not set.');
@@ -1129,22 +1129,13 @@ export class QuizService implements OnDestroy {
       const questionsForQuiz = this.getQuestionsForQuiz(quizId);
       console.log('Questions for Quiz:', questionsForQuiz);
   
-      // Check if questions exist and the index is within bounds
-      if (questionsForQuiz && questionsForQuiz.length > this.indexOfQuizId && this.indexOfQuizId >= 0) {
-        // Retrieve the quiz question
-        const quizQuestion = questionsForQuiz[this.indexOfQuizId];
-        console.log('Quiz Question:', quizQuestion);
-  
-        // Check if the quiz question is an array
-        if (Array.isArray(quizQuestion)) {
-          // Shuffle the questions if checkedShuffle is true
-          if (this.checkedShuffle) {
-            console.log('Shuffling questions...');
-            this.shuffle(quizQuestion);
-            console.log('Shuffled questions:', quizQuestion);
-          }
-        } else {
-          console.error('Invalid data structure for questions.');
+      // Updated check if questions exist
+      if (questionsForQuiz && questionsForQuiz.length > 0) {
+        // Shuffle the questions if checkedShuffle is true
+        if (this.checkedShuffle) {
+          console.log('Shuffling questions...');
+          this.shuffle(questionsForQuiz);
+          console.log('Shuffled questions:', questionsForQuiz);
         }
       } else {
         console.error('No questions found for the quiz or invalid index.');
@@ -1154,7 +1145,6 @@ export class QuizService implements OnDestroy {
     }
   }
   
-
   shuffleAnswers(): void {
     console.log('Quiz Data:', this.quizData);
     console.log('Index of Quiz:', this.indexOfQuizId);
@@ -1169,45 +1159,30 @@ export class QuizService implements OnDestroy {
       const questionsForQuiz = this.getQuestionsForQuiz(quizId);
       console.log('Questions for Quiz:', questionsForQuiz);
   
-      // Check if questions exist and the index is within bounds
-      if (questionsForQuiz && questionsForQuiz.length > this.indexOfQuizId && this.indexOfQuizId >= 0) {
-        // Retrieve the quiz question
-        const quizQuestion = questionsForQuiz[this.indexOfQuizId];
-        console.log('Quiz Question:', quizQuestion);
+      // Updated check if questions exist and currentQuestionIndex is within bounds
+      if (questionsForQuiz && questionsForQuiz.length > 0 && this.currentQuestionIndex >= 0 && this.currentQuestionIndex < questionsForQuiz.length) {
+        // Retrieve the current question
+        const currentQuestion = questionsForQuiz[this.currentQuestionIndex];
+        console.log('Current Question:', currentQuestion);
   
-        // Check if the quiz question is an array
-        if (Array.isArray(quizQuestion)) {
-          // Check if currentQuestionIndex is within bounds
-          if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < quizQuestion.length) {
-            // Retrieve the current question
-            const currentQuestion = quizQuestion[this.currentQuestionIndex];
-            console.log('Current Question:', currentQuestion);
-  
-            // Check if the current question and its options exist
-            if (currentQuestion && currentQuestion.questions && Array.isArray(currentQuestion.questions.options)) {
-              // Shuffle the options if checkedShuffle is true
-              if (this.checkedShuffle) {
-                console.log('Shuffling answers...');
-                this.shuffle(currentQuestion.questions.options);
-                console.log('Shuffled answers:', currentQuestion.questions.options);
-              }
-            } else {
-              console.error('Questions property or options are missing or undefined for current question.');
-            }
-          } else {
-            console.error('Invalid current question index.');
+        // Check if the current question and its options exist
+        if (currentQuestion && currentQuestion.questions && Array.isArray(currentQuestion.questions.options)) {
+          // Shuffle the options if checkedShuffle is true
+          if (this.checkedShuffle) {
+            console.log('Shuffling answers...');
+            this.shuffle(currentQuestion.questions.options);
+            console.log('Shuffled answers:', currentQuestion.questions.options);
           }
         } else {
-          console.error('Invalid data structure for questions.');
+          console.error('Questions property or options are missing or undefined for current question.');
         }
       } else {
-        console.error('No questions found for the quiz or invalid index.');
+        console.error('Invalid current question index or no questions found.');
       }
     } else {
       console.error('No quiz data available or invalid index.');
     }
   }
-  
 
   // generically shuffle arrays in-place using Durstenfeld's shuffling algorithm
   shuffle<T>(arg: T[]): T[] {
