@@ -1109,84 +1109,21 @@ export class QuizService implements OnDestroy {
     this.highScores = this.highScoresLocal;
   }
 
-  shuffleQuestions(): void {
-    console.log('Quiz Data:', this.quizData);
-    console.log('Index of Quiz:', this.indexOfQuizId);
-  
-    if (typeof this.indexOfQuizId === 'undefined' || this.indexOfQuizId === null) {
-      console.error('indexOfQuizId is not set.');
-      return;
-    }
-  
-    if (this.quizData && this.quizData.length > this.indexOfQuizId && this.indexOfQuizId >= 0) {
-      const quiz = this.quizData[this.indexOfQuizId];
-      if (!quiz) {
-        console.error('Quiz data not found at the given index.');
-        return;
-      }
-  
-      const quizId = quiz.quizId;
-      console.log('Quiz ID:', quizId);
-  
-      const questionsForQuiz = this.getQuestionsForQuiz(quizId);
-      questionsForQuiz.subscribe(questions => {
-        console.log('Questions for Quiz:', questions);
-  
-        if (questions && questions[0].length > 0) {
-          if (this.checkedShuffle) {
-            console.log('Shuffling questions...');
-            this.shuffle(questions[0]);
-            console.log('Shuffled questions:', questions);
-          }
-        } else {
-          console.error('No questions found for the quiz or invalid index.');
-        }
-      });
-    } else {
-      console.error('No quiz data available or invalid index.');
+  shuffleQuestions(questions: any[]): void {
+    if (this.checkedShuffle && questions && questions.length > 0) {
+      console.log('Shuffling questions...');
+      Utils.shuffle(questions);
+      console.log('Shuffled questions:', questions);
     }
   }
-  
-  shuffleAnswers(): void {
-    console.log('Quiz Data:', this.quizData);
-    console.log('Index of Quiz:', this.indexOfQuizId);
-  
-    if (this.quizData && this.quizData.length > this.indexOfQuizId && this.indexOfQuizId >= 0) {
-      const quiz = this.quizData[this.indexOfQuizId];
-      if (!quiz) {
-        console.error('Quiz data not found at the given index.');
-        return;
-      }
-  
-      const quizId = quiz.quizId;
-      console.log('Quiz ID:', quizId);
-  
-      const questionsForQuiz = this.getQuestionsForQuiz(quizId);
-      questionsForQuiz.subscribe(questions => {
-        console.log('Questions for Quiz:', questions);
-  
-        if (questions && questions[0].length > 0 && this.currentQuestionIndex >= 0 && this.currentQuestionIndex < questions[0].length) {
-          const currentQuestion = questions[this.currentQuestionIndex];
-          console.log('Current Question:', currentQuestion);
-  
-          if (currentQuestion && currentQuestion.questions && Array.isArray(currentQuestion.questions.options)) {
-            if (this.checkedShuffle) {
-              console.log('Shuffling answers...');
-              this.shuffle(currentQuestion.questions.options);
-              console.log('Shuffled answers:', currentQuestion.questions.options);
-            }
-          } else {
-            console.error('Questions property or options are missing or undefined for current question.');
-          }
-        } else {
-          console.error('Invalid current question index or no questions found.');
-        }
-      });
-    } else {
-      console.error('No quiz data available or invalid index.');
+
+  shuffleAnswers(answers: any[]): void {
+    if (this.checkedShuffle && answers && answers.length > 0) {
+      console.log('Shuffling answers...');
+      Utils.shuffle(answers);
+      console.log('Shuffled answers:', answers);
     }
   }
-  
 
   // generically shuffle arrays in-place using Durstenfeld's shuffling algorithm
   shuffle<T>(arg: T[]): T[] {
