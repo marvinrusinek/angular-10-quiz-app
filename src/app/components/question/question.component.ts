@@ -700,7 +700,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Call the isMultipleAnswer function to determine if the question is a multiple-answer question
     data.isMultipleAnswer =
-      await this.quizStateService.isMultipleAnswerQuestion(this.question);
+      firstValueFrom(of(await this.quizStateService.isMultipleAnswerQuestion(this.question)));
   }
 
   setQuestionOptions(): void {
@@ -752,7 +752,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.alreadyAnswered = false;
   }
 
-  private clearSelection(): void {
+  // not being used
+  /* private clearSelection(): void {
     if (this.correctAnswers && this.correctAnswers.length === 1) {
       if (this.currentQuestion && this.currentQuestion.options) {
         this.currentQuestion.options.forEach((option) => {
@@ -761,7 +762,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         });
       }
     }
-  }
+  } */
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
     this.quizService.addSelectedOption(option);
