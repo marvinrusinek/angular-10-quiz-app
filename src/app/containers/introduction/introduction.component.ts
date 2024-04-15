@@ -64,10 +64,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   private loadQuizzes(): void {
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((quizzes: QuizQuestion[]) => {
-      this.quizData = quizzes;
-      console.log('Quiz Data Loaded:', this.quizData);
-    });
+    this.quizData = this.selectedQuiz;
   }
   
   private subscribeToSelectedQuiz(): void {
