@@ -25,6 +25,7 @@ import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
+import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
