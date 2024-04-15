@@ -24,7 +24,7 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 export class IntroductionComponent implements OnInit, OnDestroy {
   @Output() quizSelected = new EventEmitter<string>();
   quiz: Quiz;
-  quizData: QuizQuestion[];
+  quizData: Quiz[];
   quizzes: any[];
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
@@ -46,7 +46,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeData();
-    this.loadQuizzes();
     this.subscribeToSelectedQuiz();
     this.handleRouteParameters();
     this.initializeSelectedQuiz();
@@ -61,10 +60,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.quizId = this.selectedQuiz?.quizId;
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     this.questionText = this.getQuestionText(this.selectedQuiz?.questions.length);
-  }
-
-  private loadQuizzes(): void {
-    this.quizData = this.selectedQuiz;
   }
   
   private subscribeToSelectedQuiz(): void {
@@ -98,26 +93,24 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     console.log('Checkbox state changed:', event.checked);
     const isChecked = event.checked;
     this.quizService.setChecked(isChecked);
-
-    console.log("IOQI", this.quizService.indexOfQuizId);
-    console.log("QUIZDATA", this.quizData);
-
-    if (isChecked && this.quizData && this.quizService.indexOfQuizId !== undefined && this.quizService.indexOfQuizId !== null) {
-      const quiz = this.quizData[this.quizService.indexOfQuizId];
-      console.log("Selected Quiz:", quiz);
-
-      if (quiz) {
-        this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
-          this.quizService.shuffleQuestions(questions);
-          questions.forEach(question => {
-            if (question.options && Array.isArray(question.options)) {
-              this.quizService.shuffleAnswers(question.options);
-            }
-          });
+  
+    console.log("Selected Quiz at onChange:", this.selectedQuiz);
+  
+    if (isChecked && this.selectedQuiz) {
+      console.log("Quiz", this.selectedQuiz);
+      this.quizDataService.getQuestionsForQuiz(this.selectedQuiz.quizId).subscribe(questions => {
+        this.quizService.shuffleQuestions(questions);
+        questions.forEach(question => {
+          if (question.options && Array.isArray(question.options)) {
+            this.quizService.shuffleAnswers(question.options);
+          }
         });
-      }
+      });
+    } else {
+      console.error('No selected quiz available or checkbox is unchecked');
     }
   }
+  
 
   onStartQuiz(quizId: string): void {
     if (!quizId) {
