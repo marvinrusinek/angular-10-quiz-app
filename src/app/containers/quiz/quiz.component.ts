@@ -205,17 +205,24 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.correctAnswersText = text;
     }); */
 
-    // Check if the audio can be played in the current browser environment
-    const audioTest = new Audio();
-    audioTest.src = 'http://www.marvinrusinek.com/sound-correct.mp3';
+    // Test audio availability without hiding controls to understand behavior
+    const audioTest = new Audio('http://www.marvinrusinek.com/sound-correct.mp3');
     audioTest.oncanplaythrough = () => {
       console.log('Audio can be played!');
-      this.audioAvailable = true;
+      this.audioAvailable = true; // Ensures controls remain if dynamically toggled
     };
-    audioTest.onerror = () => {
-      console.log('Audio cannot be played.');
-      this.audioAvailable = false;
+    audioTest.onerror = (e) => {
+      console.error('Error loading audio:', e);
+      this.audioAvailable = false; // Log error and consider keeping controls visible for testing
     };
+
+    // Optional: Force reload the audio source to verify dynamic changes
+    setTimeout(() => {
+      this.audioAvailable = !this.audioAvailable; // Toggle to trigger Angular change detection
+      setTimeout(() => {
+        this.audioAvailable = !this.audioAvailable; // Toggle back after short delay
+      }, 1000);
+    }, 5000);
   }
 
   ngOnDestroy(): void {
