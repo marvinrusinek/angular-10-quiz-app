@@ -1593,32 +1593,37 @@ export class QuizService implements OnDestroy {
   /********* sound functions ***********/
   initializeSounds(): void {
     if (!this.soundsLoaded) {
-      const basePath = 'assets/audio/';
+      const correctSoundUrl = 'assets/audio/sound-correct.mp3'; // Verify the exact path and filename
+      const incorrectSoundUrl = 'assets/audio/sound-incorrect.mp3'; // Verify the exact path and filename
       this.correctSound = this.loadSound(
-        `${basePath}sound-correct.mp3`,
+        correctSoundUrl, // Using relative path from the project root
         'Correct'
       );
       this.incorrectSound = this.loadSound(
-        `${basePath}sound-incorrect.mp3`,
+        incorrectSoundUrl, // Using relative path from the project root
         'Incorrect'
       );
       this.soundsLoaded = true;
     }
   }
-
+  
   loadSound(url: string, soundName: string): Howl {
+    const fullUrl = `${window.location.origin}/${url}`; // Construct full URL to check accessibility
     return new Howl({
-      src: [url],
-      html5: true, // Use HTML5 to avoid CORS issues with Web Audio API
-      preload: 'auto', // Change from true to 'auto' for proper attribute usage
+      src: [fullUrl],
+      html5: true, // HTML5 audio mode to ensure compatibility
+      preload: 'auto', // Ensure the sound is loaded before it's needed
       onload: () => console.log(`${soundName} sound loaded`),
       onloaderror: (id, error) => {
-        console.error(`${soundName} failed to load`, error);
-        console.error(`Check if the file ${url} exists and is accessible. Also, confirm the server is configured to serve .mp3 files.`);
+        console.error(`${soundName} failed to load from ${fullUrl}`, error);
+        console.error('Possible causes: file does not exist, path is incorrect, or server is not configured to serve .mp3 files.');
       },
-      onplayerror: (id, error) => console.error(`${soundName} playback error`, error)
+      onplayerror: (id, error) => {
+        console.error(`${soundName} playback error`, error);
+        console.error('Ensure browser supports audio playback and no network issues are preventing loading.');
+      }
     });
-}
+  }
 
 
   // Call this method to play the correct sound
