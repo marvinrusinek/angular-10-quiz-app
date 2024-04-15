@@ -34,6 +34,7 @@ import {
   tap,
 } from 'rxjs/operators';
 
+import { Utils } from '../../shared/utils/utils';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -738,7 +739,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
         // Shuffle options only if the shuffleOptions boolean is true
         if (this.shuffleOptions) {
-          this.quizService.shuffle(this.currentOptions);
+          Utils.shuffle(this.currentOptions);
         }
       });
   }
