@@ -97,10 +97,18 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     const isChecked = event.checked;
     this.quizService.setChecked(isChecked);
     if (isChecked) {
+      // Ensure indexOfQuizId is properly set before shuffling
+      if (typeof this.quizService.indexOfQuizId === 'undefined' || this.quizService.indexOfQuizId === null) {
+        // Set indexOfQuizId to a default value or retrieve it from a source
+        // For example, setting it to 0 for the first quiz
+        this.quizService.indexOfQuizId = 0;
+      }
+      // Shuffle questions and answers
       this.quizService.shuffleQuestions();
       this.quizService.shuffleAnswers();
     }
   }
+  
 
   onStartQuiz(quizId: string): void {
     if (!quizId) {
