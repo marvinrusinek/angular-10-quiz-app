@@ -45,6 +45,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeData();
+    this.loadQuizzes();
     this.subscribeToSelectedQuiz();
     this.handleRouteParameters();
     this.initializeSelectedQuiz();
@@ -59,6 +60,13 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.quizId = this.selectedQuiz?.quizId;
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     this.questionText = this.getQuestionText(this.selectedQuiz?.questions.length);
+  }
+
+  private loadQuizzes(): void {
+    this.quizDataService.getQuizzes().subscribe(quizzes => {
+      this.quizData = quizzes;
+      console.log('Quiz Data Loaded:', this.quizData);
+    });
   }
   
   private subscribeToSelectedQuiz(): void {
