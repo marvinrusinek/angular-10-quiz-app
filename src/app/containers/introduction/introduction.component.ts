@@ -94,11 +94,12 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.quizService.setChecked(isChecked);
 
     console.log("IOQI", this.quizService.indexOfQuizId);
+    console.log("QUIZDATA", this.quizData);
 
     if (isChecked && this.quizData && this.quizService.indexOfQuizId !== undefined && this.quizService.indexOfQuizId !== null) {
       const quiz = this.quizData[this.quizService.indexOfQuizId];
       console.log("Selected Quiz:", quiz);
-      
+
       if (quiz) {
         this.quizDataService.getQuestionsForQuiz(quiz.quizId).subscribe(questions => {
           this.quizService.shuffleQuestions(questions);
@@ -136,7 +137,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       });
   }
 
-  get milestone(): string {
+  public get milestone(): string {
     const milestone = this.selectedQuiz?.milestone || 'Milestone not found';
     return milestone;
   }
