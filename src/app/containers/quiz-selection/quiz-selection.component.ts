@@ -63,18 +63,19 @@ export class QuizSelectionComponent implements OnInit {
       });
   }
 
-  onSelect(quizId: string): void {
+  onSelect(quizId: string, index: number): void {
     try {
       if (!quizId) {
         throw new Error('Quiz ID is null or undefined');
       }
-
+  
+      this.quizService.setIndexOfQuizId(index);
       this.quizService.quizId = quizId;
       this.router.navigate([QuizRoutes.INTRO, quizId]);
     } catch (error) {
       console.error(error.message);
     }
-  }
+  }  
 
   selectQuiz(quiz: Quiz): void {
     this.selectedQuiz = quiz;
