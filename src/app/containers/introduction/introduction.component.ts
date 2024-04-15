@@ -88,27 +88,28 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.selectedQuiz = this.quizDataService.selectedQuiz$.getValue();
   }
 
-  /* onChange($event): void {
-    this.quizService.setChecked($event.checked);
-  } */
-
   onChange(event: any): void {
     console.log('Checkbox state changed:', event.checked);
     const isChecked = event.checked;
     this.quizService.setChecked(isChecked);
-    if (isChecked) {
-      // Ensure indexOfQuizId is properly set before shuffling
-      if (typeof this.quizService.indexOfQuizId === 'undefined' || this.quizService.indexOfQuizId === null) {
-        // Set indexOfQuizId to a default value or retrieve it from a source
-        // For example, setting it to 0 for the first quiz
-        this.quizService.indexOfQuizId = 0;
+
+    if (isChecked && typeof this.quizService.indexOfQuizId !== 'undefined' && this.quizService.indexOfQuizId !== null) {
+      if (this.quizData && this.quizData.length > this.quizService.indexOfQuizId) {
+        const quiz = this.quizData[this.quizService.indexOfQuizId];
+        if (quiz) {
+          this.quizDataService.getQuestionsForQuiz(quiz.quizId).subscribe(questions => {
+            this.quizService.shuffleQuestions(questions);
+
+            questions.forEach(question => {
+              if (question.options && Array.isArray(question.options)) {
+                this.quizService.shuffleAnswers(question.options);
+              }
+            });
+          });
+        }
       }
-      // Shuffle questions and answers
-      this.quizService.shuffleQuestions();
-      this.quizService.shuffleAnswers();
     }
   }
-  
 
   onStartQuiz(quizId: string): void {
     if (!quizId) {
