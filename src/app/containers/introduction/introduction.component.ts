@@ -88,8 +88,17 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.selectedQuiz = this.quizDataService.selectedQuiz$.getValue();
   }
 
-  onChange($event): void {
+  /* onChange($event): void {
     this.quizService.setChecked($event.checked);
+  } */
+
+  onChange(event: any): void {
+    const isChecked = event.checked;
+    this.quizService.setChecked(isChecked);
+    if (isChecked) {
+      this.quizService.shuffleQuestions();
+      this.quizService.shuffleAnswers();
+    }
   }
 
   onStartQuiz(quizId: string): void {
