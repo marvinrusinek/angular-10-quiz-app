@@ -110,7 +110,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.log("Selected Quiz:", quiz);
 
       if (quiz) {
-        this.quizDataService.getQuestionsForQuiz(quiz.quizId).subscribe(questions => {
+        this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
           this.quizService.shuffleQuestions(questions);
           questions.forEach(question => {
             if (question.options && Array.isArray(question.options)) {
@@ -132,7 +132,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .getQuizById(quizId)
       .pipe(
         catchError((error) => {
-          console.error(`Error fetching quiz::::: ${error}`);
+          console.error(`Error fetching quiz: ${error}`);
           return throwError(error);
         })
       )
