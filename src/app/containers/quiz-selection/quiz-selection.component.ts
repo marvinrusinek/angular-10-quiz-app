@@ -76,10 +76,15 @@ export class QuizSelectionComponent implements OnInit {
     }
   }
 
-  selectQuiz(quiz: Quiz): void {
+  /* selectQuiz(quiz: Quiz): void {
     this.selectedQuiz = quiz;
-  }
+  } */
 
+  selectQuiz(quiz: Quiz, index: number): void {
+    this.selectedQuiz = quiz;
+    this.quizService.setIndexOfQuizId(index);
+  }
+  
   getQuizTileStyles(quiz: Quiz) {
     return {
       background: 'url(' + quiz.image + ') no-repeat center 10px',
