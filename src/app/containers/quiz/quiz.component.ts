@@ -211,6 +211,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Enhance debugging by logging media capabilities and MIME type support directly
     console.log('MP3 support:', document.createElement('audio').canPlayType('audio/mpeg'));
 
+    // Simple fetch to test network access to the MP3 file
+    fetch('https://www.marvinrusinek.com/sound-correct.mp3')
+    .then(response => {
+      if (response.ok) {
+        console.log('MP3 file accessed successfully.');
+      } else {
+        console.error('Failed to fetch MP3 file. Status:', response.status);
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching MP3 file:', error);
+    });
+
+
     if (audioElement) {
       audioElement.oncanplay = () => {
         console.log('Audio is ready to play!');
