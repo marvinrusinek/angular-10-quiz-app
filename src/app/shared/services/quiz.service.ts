@@ -9,7 +9,7 @@ import {
   Observable,
   of,
   Subject,
-  throwError,
+  throwError
 } from 'rxjs';
 import {
   catchError,
@@ -19,7 +19,7 @@ import {
   shareReplay,
   switchMap,
   takeUntil,
-  tap,
+  tap
 } from 'rxjs/operators';
 import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
