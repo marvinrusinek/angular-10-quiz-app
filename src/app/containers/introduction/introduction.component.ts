@@ -11,6 +11,7 @@ import { BehaviorSubject, Subject, throwError } from 'rxjs';
 import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 
@@ -23,7 +24,7 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 export class IntroductionComponent implements OnInit, OnDestroy {
   @Output() quizSelected = new EventEmitter<string>();
   quiz: Quiz;
-  quizData: Quiz[];
+  quizData: QuizQuestion[];
   quizzes: any[];
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
@@ -63,7 +64,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   private loadQuizzes(): void {
-    this.quizDataService.getQuizzes().subscribe(quizzes => {
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((quizzes: QuizQuestion[]) => {
       this.quizData = quizzes;
       console.log('Quiz Data Loaded:', this.quizData);
     });
