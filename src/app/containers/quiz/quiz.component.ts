@@ -5,6 +5,7 @@ import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router }
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, filter, first, map, switchMap, take, takeUntil } from 'rxjs/operators';
 
+import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuizStatus } from '../../shared/models/quiz-status.enum';
 import { QuestionType } from '../../shared/models/question-type.enum';
@@ -1000,7 +1001,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ) as Option[];
 
     if (this.selectedQuiz && this.options.length > 1) {
-      this.quizService.shuffle(this.options);
+      Utils.shuffle(this.options);
     }
 
     this.setOptions();
