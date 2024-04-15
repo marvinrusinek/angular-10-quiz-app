@@ -1591,39 +1591,39 @@ export class QuizService implements OnDestroy {
   }
 
   /********* sound functions ***********/
+  // Implement a check to directly confirm the accessibility of the audio files from StackBlitz's hosted environment
   initializeSounds(): void {
     if (!this.soundsLoaded) {
-      const correctSoundUrl = 'assets/audio/sound-correct.mp3'; // Verify the exact path and filename
-      const incorrectSoundUrl = 'assets/audio/sound-incorrect.mp3'; // Verify the exact path and filename
+      const baseHostedUrl = 'https://angular-10-quiz-app.stackblitz.io/assets/audio/'; // Adjust this URL if your project is hosted elsewhere
       this.correctSound = this.loadSound(
-        correctSoundUrl, // Using relative path from the project root
+        `${baseHostedUrl}sound-correct.mp3`, // Absolute URL from the hosting environment
         'Correct'
       );
       this.incorrectSound = this.loadSound(
-        incorrectSoundUrl, // Using relative path from the project root
+        `${baseHostedUrl}sound-incorrect.mp3`, // Absolute URL from the hosting environment
         'Incorrect'
       );
       this.soundsLoaded = true;
     }
   }
-  
+
   loadSound(url: string, soundName: string): Howl {
-    const fullUrl = `${window.location.origin}/${url}`; // Construct full URL to check accessibility
     return new Howl({
-      src: [fullUrl],
-      html5: true, // HTML5 audio mode to ensure compatibility
-      preload: 'auto', // Ensure the sound is loaded before it's needed
+      src: [url],
+      html5: true, // Using HTML5 for better cross-browser compatibility
+      preload: 'auto', // Automatically preload the sound
       onload: () => console.log(`${soundName} sound loaded`),
       onloaderror: (id, error) => {
-        console.error(`${soundName} failed to load from ${fullUrl}`, error);
-        console.error('Possible causes: file does not exist, path is incorrect, or server is not configured to serve .mp3 files.');
+        console.error(`${soundName} failed to load from ${url}`, error);
+        console.error('Verify the file exists at the specified URL and check the server for proper MIME type configuration.');
       },
       onplayerror: (id, error) => {
         console.error(`${soundName} playback error`, error);
-        console.error('Ensure browser supports audio playback and no network issues are preventing loading.');
+        console.error('Playback issue, possibly due to file corruption or unsupported format.');
       }
     });
   }
+
 
 
   // Call this method to play the correct sound
