@@ -93,6 +93,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   } */
 
   onChange(event: any): void {
+    console.log('Checkbox state changed:', event.checked);
     const isChecked = event.checked;
     this.quizService.setChecked(isChecked);
     if (isChecked) {
