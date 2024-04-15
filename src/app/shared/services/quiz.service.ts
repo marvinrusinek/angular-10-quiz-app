@@ -139,7 +139,7 @@ export class QuizService implements OnDestroy {
   // correctOptions: string;
   correctMessage: string;
 
-  checkedShuffle: boolean;
+  private checkedShuffle = false;
 
   private optionsSource: Subject<Option[]> = new Subject<Option[]>();
   optionsSubject: BehaviorSubject<Option[] | null> = new BehaviorSubject<
