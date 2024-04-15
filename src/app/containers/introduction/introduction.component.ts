@@ -93,20 +93,17 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     const isChecked = event.checked;
     this.quizService.setChecked(isChecked);
 
-    if (isChecked && typeof this.quizService.indexOfQuizId !== 'undefined' && this.quizService.indexOfQuizId !== null) {
-      if (this.quizData && this.quizData.length > this.quizService.indexOfQuizId) {
-        const quiz = this.quizData[this.quizService.indexOfQuizId];
-        if (quiz) {
-          this.quizDataService.getQuestionsForQuiz(quiz.quizId).subscribe(questions => {
-            this.quizService.shuffleQuestions(questions);
-
-            questions.forEach(question => {
-              if (question.options && Array.isArray(question.options)) {
-                this.quizService.shuffleAnswers(question.options);
-              }
-            });
+    if (isChecked && this.indexOfQuizId !== undefined && this.indexOfQuizId !== null) {
+      const quiz = this.quizData[this.indexOfQuizId];
+      if (quiz) {
+        this.questionService.getQuestionsForQuiz(quiz.quizId).subscribe(questions => {
+          this.quizService.shuffleQuestions(questions);
+          questions.forEach(question => {
+            if (question.answers && Array.isArray(question.answers)) {
+              this.quizService.shuffleAnswers(question.answers);
+            }
           });
-        }
+        });
       }
     }
   }
