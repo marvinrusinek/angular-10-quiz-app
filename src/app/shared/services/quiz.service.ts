@@ -1591,16 +1591,19 @@ export class QuizService implements OnDestroy {
   }
 
   /********* sound functions ***********/
-  // Implement a check to directly confirm the accessibility of the audio files from StackBlitz's hosted environment
   initializeSounds(): void {
     if (!this.soundsLoaded) {
-      const baseHostedUrl = 'https://angular-10-quiz-app.stackblitz.io/assets/audio/'; // Adjust this URL if your project is hosted elsewhere
+      // URLs are directly accessible, ensure that you manually check these URLs in a web browser.
+      const baseHostedUrl = 'https://angular-10-quiz-app.stackblitz.io/assets/audio/';
+      console.log('Attempting to load correct sound from:', `${baseHostedUrl}sound-correct.mp3`);
+      console.log('Attempting to load incorrect sound from:', `${baseHostedUrl}sound-incorrect.mp3`);
+
       this.correctSound = this.loadSound(
-        `${baseHostedUrl}sound-correct.mp3`, // Absolute URL from the hosting environment
+        `${baseHostedUrl}sound-correct.mp3`, // Use the full URL confirmed to be accessible in a browser
         'Correct'
       );
       this.incorrectSound = this.loadSound(
-        `${baseHostedUrl}sound-incorrect.mp3`, // Absolute URL from the hosting environment
+        `${baseHostedUrl}sound-incorrect.mp3`, // Use the full URL confirmed to be accessible in a browser
         'Incorrect'
       );
       this.soundsLoaded = true;
@@ -1610,21 +1613,19 @@ export class QuizService implements OnDestroy {
   loadSound(url: string, soundName: string): Howl {
     return new Howl({
       src: [url],
-      html5: true, // Using HTML5 for better cross-browser compatibility
-      preload: 'auto', // Automatically preload the sound
-      onload: () => console.log(`${soundName} sound loaded`),
+      html5: true, // Continue using HTML5 audio for compatibility
+      preload: 'auto', // Preload the sound
+      onload: () => console.log(`${soundName} sound successfully loaded from ${url}`),
       onloaderror: (id, error) => {
         console.error(`${soundName} failed to load from ${url}`, error);
-        console.error('Verify the file exists at the specified URL and check the server for proper MIME type configuration.');
+        console.error('Action required: Verify the file is present at the URL. Confirm that StackBlitz or your hosting environment supports serving .mp3 files with the correct MIME type. Additionally, check if there are any network or security settings that may be preventing the files from loading.');
       },
       onplayerror: (id, error) => {
-        console.error(`${soundName} playback error`, error);
-        console.error('Playback issue, possibly due to file corruption or unsupported format.');
+        console.error(`${soundName} playback error from ${url}`, error);
+        console.error('Possible playback issue, consider checking file encoding or consulting StackBlitz support/documentation for media file hosting limitations.');
       }
     });
   }
-
-
 
   // Call this method to play the correct sound
   playCorrectSound(): void {
