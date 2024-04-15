@@ -205,21 +205,22 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.correctAnswersText = text;
     }); */
 
-     // Attach event listeners directly to the audio element for detailed diagnostics
-     let audioElement: HTMLAudioElement = document.getElementById('quizAudio') as HTMLAudioElement;
+     // Check if audio is available and can be played
+    let audioElement: HTMLAudioElement = document.getElementById('quizAudio') as HTMLAudioElement;
 
-     if (audioElement) {
-       audioElement.oncanplaythrough = () => {
-         console.log('Audio can be played through!');
-       };
-       audioElement.onerror = (e: Event) => {
-         console.error('Error loading audio:', e);
-         this.logAudioErrorDetails(e);
-       };
-       audioElement.load(); // Explicitly call load to trigger the source setup
-     } else {
-       console.error('Audio element not found in the template.');
-     }
+    if (audioElement) {
+      audioElement.oncanplay = () => {
+        console.log('Audio is ready to play!');
+        this.audioAvailable = true; // Ensure controls are visible when audio is ready
+      };
+      audioElement.onerror = () => {
+        console.error('Error loading audio.');
+        this.audioAvailable = false; // Hide controls if there is an error
+      };
+      audioElement.load(); // Try loading the audio to test if it's available
+    } else {
+      console.error('Audio element not found in the template.');
+    }
   }
 
   private logAudioErrorDetails(e: Event): void {
