@@ -1112,6 +1112,12 @@ export class QuizService implements OnDestroy {
   shuffleQuestions(): void {
     console.log('Quiz Data:', this.quizData);
     console.log('Index of Quiz:', this.indexOfQuizId);
+    
+    // Check if indexOfQuizId is undefined or null
+    if (typeof this.indexOfQuizId === 'undefined' || this.indexOfQuizId === null) {
+      console.error('indexOfQuizId is not set.');
+      return;
+    }
   
     // Check if quizData exists and the index is within bounds
     if (this.quizData && this.quizData.length > this.indexOfQuizId && this.indexOfQuizId >= 0) {
@@ -1147,6 +1153,7 @@ export class QuizService implements OnDestroy {
       console.error('No quiz data available or invalid index.');
     }
   }
+  
 
   shuffleAnswers(): void {
     console.log('Quiz Data:', this.quizData);
