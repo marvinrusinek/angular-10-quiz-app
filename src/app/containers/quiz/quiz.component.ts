@@ -208,6 +208,9 @@ export class QuizComponent implements OnInit, OnDestroy {
      // Check if audio is available and can be played
     let audioElement: HTMLAudioElement = document.getElementById('quizAudio') as HTMLAudioElement;
 
+    // Enhance debugging by logging media capabilities and MIME type support directly
+    console.log('MP3 support:', document.createElement('audio').canPlayType('audio/mpeg'));
+
     if (audioElement) {
       audioElement.oncanplay = () => {
         console.log('Audio is ready to play!');
