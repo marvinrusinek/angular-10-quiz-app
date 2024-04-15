@@ -1591,42 +1591,44 @@ export class QuizService implements OnDestroy {
   }
 
   /********* sound functions ***********/
-  // Ensure sounds are initialized before attempting to play them
-  // Adjust the relative paths based on the actual location of the assets
-  // Validate that the asset paths are accessible from the public directory and ensure server settings allow static file access
-  // Implement a local file check and configure Angular to correctly serve assets
   initializeSounds(): void {
     if (!this.soundsLoaded) {
-      // Check that the 'assets' directory is correctly configured in your angular.json file to be included in the build
-      const basePath = './assets/audio/'; // Ensure paths are relative to the root where Angular serves static files
+      // Since the URL is correct but loading fails, ensure that the server is properly serving the audio MIME type
+      // You might need to check if StackBlitz or your hosting environment properly serves MP3 files
+      const correctSoundPath = 'https://angular-10-quiz-app.stackblitz.io/assets/audio/sound-correct.mp3';
+      const incorrectSoundPath = 'https://angular-10-quiz-app.stackblitz.io/assets/audio/sound-incorrect.mp3';
       this.correctSound = this.loadSound(
-        `${basePath}sound-correct.mp3`, // Properly configured path to local file
+        correctSoundPath,
         'Correct'
       );
       this.incorrectSound = this.loadSound(
-        `${basePath}sound-incorrect.mp3`, // Properly configured path to local file
+        incorrectSoundPath,
         'Incorrect'
       );
       this.soundsLoaded = true;
+
+      // Log details if the files are still not loading
+      console.error('Ensure that the server is configured to serve audio files with the appropriate MIME type and that files are not corrupted.');
     }
   }
 
-
-
-
   // Load sound with correct handling for success and errors
-  // Adjust the loadSound method to handle potential issues with the audio files themselves or network access
+  // Refactor the loadSound method to include more robust error handling and diagnostics
   loadSound(url: string, soundName: string): Howl {
     return new Howl({
       src: [url],
-      html5: true, // Opting for HTML5 to bypass Web Audio API's stricter CORS requirements
-      preload: true, // Ensure the sound is preloaded
+      html5: true, // Continue using HTML5 to utilize more forgiving CORS settings
+      preload: true, // Preload the sound to ensure it is loaded before play attempts
       onload: () => console.log(`${soundName} sound loaded`),
-      onloaderror: (id, error) => console.error(`${soundName} failed to load`, error, `from ${url}`),
+      onloaderror: (id, error) => {
+        console.error(`${soundName} failed to load`, error, `URL attempted: ${url}`);
+        // Additional diagnostic message to check file accessibility
+        console.error(`Check if the URL is accessible directly in the browser and the server allows MP3 content type: ${url}`);
+      },
       onplayerror: (id, error) => {
-        // Attempt to recover from playback error by reloading the sound
         console.error(`${soundName} playback error`, error);
-        this.loadSound(url, soundName); // Retry loading the sound
+        // Do not automatically retry to prevent potential infinite loops
+        console.error(`Check network conditions and browser console for further details.`);
       }
     });
   }
