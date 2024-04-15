@@ -1593,10 +1593,9 @@ export class QuizService implements OnDestroy {
   /********* sound functions ***********/
   initializeSounds(): void {
     if (!this.soundsLoaded) {
-      // Since the URL is correct but loading fails, ensure that the server is properly serving the audio MIME type
-      // You might need to check if StackBlitz or your hosting environment properly serves MP3 files
-      const correctSoundPath = 'https://angular-10-quiz-app.stackblitz.io/assets/audio/sound-correct.mp3';
-      const incorrectSoundPath = 'https://angular-10-quiz-app.stackblitz.io/assets/audio/sound-incorrect.mp3';
+      // Ensure the paths are correctly configured to load from a reliable source
+      const correctSoundPath = 'assets/audio/sound-correct.mp3'; // Local path within Angular project
+      const incorrectSoundPath = 'assets/audio/sound-incorrect.mp3'; // Local path within Angular project
       this.correctSound = this.loadSound(
         correctSoundPath,
         'Correct'
@@ -1606,31 +1605,36 @@ export class QuizService implements OnDestroy {
         'Incorrect'
       );
       this.soundsLoaded = true;
-
-      // Log details if the files are still not loading
-      console.error('Ensure that the server is configured to serve audio files with the appropriate MIME type and that files are not corrupted.');
     }
   }
 
-  // Load sound with correct handling for success and errors
-  // Refactor the loadSound method to include more robust error handling and diagnostics
   loadSound(url: string, soundName: string): Howl {
     return new Howl({
       src: [url],
-      html5: true, // Continue using HTML5 to utilize more forgiving CORS settings
-      preload: true, // Preload the sound to ensure it is loaded before play attempts
+      html5: true, // Ensures use of HTML5 audio for better compatibility
+      preload: true, // Ensures the audio is loaded before it's needed
       onload: () => console.log(`${soundName} sound loaded`),
-      onloaderror: (id, error) => {
-        console.error(`${soundName} failed to load`, error, `URL attempted: ${url}`);
-        // Additional diagnostic message to check file accessibility
-        console.error(`Check if the URL is accessible directly in the browser and the server allows MP3 content type: ${url}`);
-      },
-      onplayerror: (id, error) => {
-        console.error(`${soundName} playback error`, error);
-        // Do not automatically retry to prevent potential infinite loops
-        console.error(`Check network conditions and browser console for further details.`);
-      }
+      onloaderror: (id, error) => console.error(`${soundName} failed to load`, error),
+      onplayerror: (id, error) => console.error(`${soundName} playback error`, error)
     });
+  }
+
+  // Call this method to play the correct sound
+  playCorrectSound(): void {
+    if (this.correctSound) {
+      this.correctSound.play();
+    } else {
+      console.error('Correct sound not initialized');
+    }
+  }
+
+  // Call this method to play the incorrect sound
+  playIncorrectSound(): void {
+    if (this.incorrectSound) {
+      this.incorrectSound.play();
+    } else {
+      console.error('Incorrect sound not initialized');
+    }
   }
 
 
