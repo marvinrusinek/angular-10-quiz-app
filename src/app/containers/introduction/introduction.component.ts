@@ -95,7 +95,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
     console.log("IOQI", this.quizService.indexOfQuizId);
 
-    if (isChecked && this.quizService.indexOfQuizId !== undefined && this.quizService.indexOfQuizId !== null) {
+    if (isChecked && this.quizData && this.quizService.indexOfQuizId !== undefined && this.quizService.indexOfQuizId !== null) {
       const quiz = this.quizData[this.quizService.indexOfQuizId];
       console.log("QUIZ", quiz);
       if (quiz) {
