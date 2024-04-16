@@ -134,8 +134,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   onChange(event: MatCheckboxChange): void {
     console.log(event);  // Check the entire event object
-    if (event.target && typeof event.target.checked === 'boolean') {
-      this.isChecked.next(event.target.checked);
+    if (event && typeof event.checked === 'boolean') {
+      this.isChecked.next(event.checked);
     } else {
       console.error('Event target or checked property is undefined');
     }
