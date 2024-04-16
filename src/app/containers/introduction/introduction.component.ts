@@ -60,32 +60,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  private fetchAndHandleQuestions(quizId: string): void {
-    this.quizDataService.getQuestionsForQuiz(quizId).pipe(
-      switchMap((questions: QuizQuestion[] | QuizQuestion) => {
-        // Type guard to check if questions is an array
-        if (Array.isArray(questions)) {
-          this.quizService.shuffleQuestions(questions);
-          return of(questions);  // Convert back to Observable if not using in switchMap
-        } else {
-          // If it's a single question, convert it to an array
-          this.quizService.shuffleQuestions([questions]);
-          return of([questions]);  // Convert back to Observable if not using in switchMap
-        }
-      }),
-      catchError(error => {
-        console.error('Failed to load questions for quiz:', error);
-        return of([]); // Handle error by returning an empty array
-      })
-    ).subscribe((questions: QuizQuestion[]) => {
-      questions.forEach(question => {
-        if (question.options && Array.isArray(question.options)) {
-          this.quizService.shuffleAnswers(question.options);
-        }
-      });
-    });
-  }
-
   private initializeData(): void {
     this.quizId = this.selectedQuiz?.quizId;
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
@@ -131,7 +105,32 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     // Adding the subscription to the consolidated subscription object
     this.subscriptions.add(subscription);
   }
-  
+
+  private fetchAndHandleQuestions(quizId: string): void {
+    this.quizDataService.getQuestionsForQuiz(quizId).pipe(
+      switchMap((questions: QuizQuestion[] | QuizQuestion) => {
+        // Type guard to check if questions is an array
+        if (Array.isArray(questions)) {
+          this.quizService.shuffleQuestions(questions);
+          return of(questions);  // Convert back to Observable if not using in switchMap
+        } else {
+          // If it's a single question, convert it to an array
+          this.quizService.shuffleQuestions([questions]);
+          return of([questions]);  // Convert back to Observable if not using in switchMap
+        }
+      }),
+      catchError(error => {
+        console.error('Failed to load questions for quiz:', error);
+        return of([]); // Handle error by returning an empty array
+      })
+    ).subscribe((questions: QuizQuestion[]) => {
+      questions.forEach(question => {
+        if (question.options && Array.isArray(question.options)) {
+          this.quizService.shuffleAnswers(question.options);
+        }
+      });
+    });
+  }
 
   onChange(event: any): void {
     this.isChecked.next(event.checked); // Emit the checkbox state
