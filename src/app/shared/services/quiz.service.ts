@@ -1321,7 +1321,7 @@ export class QuizService implements OnDestroy {
     this.nextExplanationTextSource.next(explanationText);
   }
 
-  setChecked(isChecked: boolean): void {
+  setCheckedShuffle(isChecked: boolean): void {
     this.checkedShuffle = isChecked;
   }
 
