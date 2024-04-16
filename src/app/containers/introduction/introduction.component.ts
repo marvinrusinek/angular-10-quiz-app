@@ -135,16 +135,15 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
 
   onChange(event: Event): void {
-    if (event.target) {
-      console.log('Event Target:', event.target);  // Log only the target to reduce complexity
-      const checkbox = event.target as HTMLInputElement;
-      console.log('Checkbox checked:', checkbox.checked);
+    console.log('Event type:', event.type);  // Confirming the type of event
+    const target = event.target as HTMLInputElement;  // Cast once, safely
+    if (target) {
+      console.log('Checkbox state:', target.checked);
     } else {
-      console.log('Event target is undefined');
-      console.error('Complete Event:', event);  // Log the complete event only on error
+      console.error('Event target is undefined. Event:', event);
     }
   }
-
+  
   onStartQuiz(quizId: string): void {
     if (!quizId) {
       console.error('No quiz selected');
