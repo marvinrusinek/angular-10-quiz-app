@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   OnDestroy,
@@ -44,7 +45,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     private quizService: QuizService,
     private quizDataService: QuizDataService,
     private activatedRoute: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -119,7 +121,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     ).subscribe((questions: QuizQuestion[]) => {
       this.shuffledQuestions = questions; // Assign shuffled questions
       this.handleQuestionOptions(questions);
-      this.cdr.detectChanges(); // Manually trigger change detection after updating questions
+      this.cdRef.detectChanges(); // Manually trigger change detection after updating questions
     });
   }
 
@@ -129,7 +131,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         this.quizService.shuffleAnswers(question.options);
       }
     });
-    this.cdr.detectChanges(); // Ensure updates to options are detected too
+    this.cdRef.detectChanges(); // Ensure updates to options are detected too
   }
   
   onCheckboxChange(event: MatCheckboxChange): void {
