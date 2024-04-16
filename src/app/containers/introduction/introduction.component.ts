@@ -135,7 +135,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges(); // Ensure updates to options are detected too
   }
   
-  /* onCheckboxChange(event: MatCheckboxChange): void {
+  onCheckboxChange(event: MatCheckboxChange): void {
     console.log('Checkbox change event:', event);
   
     // Update the shuffle state in the service
@@ -143,11 +143,11 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   
     // Update any local or additional states if necessary
     this.isChecked.next(event.checked);
-  } */
-
-  onCheckboxChange(checked: boolean): void {
-    this.quizService.setCheckedShuffle(checked);
   }
+
+  /* onCheckboxChange(checked: boolean): void {
+    this.quizService.setCheckedShuffle(checked);
+  } */
   
   onStartQuiz(quizId: string): void {
     if (!quizId) {
