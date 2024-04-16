@@ -117,11 +117,15 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       }),
       takeUntil(this.destroy$)
     ).subscribe((questions: QuizQuestion[]) => {
-      questions.forEach(question => {
-        if (question.options && Array.isArray(question.options)) {
-          this.quizService.shuffleAnswers(question.options);
-        }
-      });
+      this.handleQuestionOptions(questions);
+    });
+  }
+
+  private handleQuestionOptions(questions: QuizQuestion[]): void {
+    questions.forEach(question => {
+      if (question.options && Array.isArray(question.options)) {
+        this.quizService.shuffleAnswers(question.options);
+      }
     });
   }
   
