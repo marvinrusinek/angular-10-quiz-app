@@ -77,7 +77,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   private fetchAndHandleQuestions(quizId: string): void {
     this.quizDataService.getQuestionsForQuiz(quizId)
       .pipe(
-        takeUntil(this.destroy$)  // Ensures unsubscription when the component is destroyed
+        takeUntil(this.destroy$)
       )
       .subscribe(
         questions => {
