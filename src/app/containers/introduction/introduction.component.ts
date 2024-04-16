@@ -109,7 +109,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuestionsForQuiz(quizId).pipe(
       switchMap((questions: QuizQuestion[]) => {
         this.quizService.shuffleQuestions(questions);
-        return of(questions); // Continue with shuffled questions
+        return of([...questions]); // Ensures a new array reference, aiding change detection
       }),
       catchError(error => {
         console.error('Failed to load questions for quiz:', error);
@@ -117,7 +117,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       }),
       takeUntil(this.destroy$)
     ).subscribe((questions: QuizQuestion[]) => {
+      this.shuffledQuestions = questions; // Assign shuffled questions
       this.handleQuestionOptions(questions);
+      this.cdr.detectChanges(); // Manually trigger change detection after updating questions
     });
   }
 
@@ -127,6 +129,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         this.quizService.shuffleAnswers(question.options);
       }
     });
+    this.cdr.detectChanges(); // Ensure updates to options are detected too
   }
   
   onCheckboxChange(event: MatCheckboxChange): void {
