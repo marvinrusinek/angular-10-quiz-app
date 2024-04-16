@@ -1175,7 +1175,6 @@ export class QuizService implements OnDestroy {
     return questions;
   }
 
-
   shuffleAnswers(answers: Option[]): Option[] {
     if (this.checkedShuffle && answers && answers.length > 0) {
       return Utils.shuffleArray(answers);
