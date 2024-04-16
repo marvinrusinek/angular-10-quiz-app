@@ -7,7 +7,7 @@ import {
   Output
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, Subject, Subscription, throwError } from 'rxjs';
+import { BehaviorSubject, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -75,28 +75,22 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   private fetchAndHandleQuestions(quizId: string): void {
-    this.quizDataService.getQuestionsForQuiz(quizId)
-      .pipe(
-        takeUntil(this.destroy$)
-      )
-      .subscribe(
-        questions => {
-          console.log("Questions before shuffle:", questions);
-          this.quizService.shuffleQuestions(questions);
-          console.log("Questions after shuffle:", questions);
-  
-          questions.forEach(question => {
-            if (question.options && Array.isArray(question.options)) {
-              console.log("Options before shuffle for question", question.options);
-              this.quizService.shuffleAnswers(question.options);
-              console.log("Options after shuffle for question", question.options);
-            }
-          });
-        },
-        error => {
-          console.error('Failed to load questions for quiz:', error);
+    this.quizDataService.getQuestionsForQuiz(quizId).pipe(
+      switchMap(questions => {
+        this.quizService.shuffleQuestions(questions);
+        return questions;
+      }),
+      catchError(error => {
+        console.error('Failed to load questions for quiz:', error);
+        return of([]); // Handle error by returning an empty array
+      })
+    ).subscribe(questions => {
+      questions.forEach(question => {
+        if (question.options && Array.isArray(question.options)) {
+          this.quizService.shuffleAnswers(question.options);
         }
-      );
+      });
+    });
   }
 
   private initializeData(): void {
