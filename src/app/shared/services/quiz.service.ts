@@ -395,7 +395,7 @@ export class QuizService implements OnDestroy {
       return {
         questionText: currentQuestion.questionText,
         correctAnswersText: correctAnswersText,
-        currentOptions: currentQuestion.options,
+        currentOptions: currentQuestion.options
       };
     }
 
