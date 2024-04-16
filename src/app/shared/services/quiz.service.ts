@@ -818,7 +818,7 @@ export class QuizService implements OnDestroy {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       map((questions: QuizQuestion[]) => questions.filter(question => (question as any).quizId === quizId)),
       tap((filteredQuestions: QuizQuestion[]) => {
-        if (this.checkedShuffle) {
+        if (this.checkedShuffle.value) {
           // creating a new array for immutability
           const shuffled = [...filteredQuestions];
           this.shuffleQuestions(shuffled);
