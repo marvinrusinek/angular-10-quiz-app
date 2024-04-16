@@ -1116,7 +1116,7 @@ export class QuizService implements OnDestroy {
 
   shuffleQuestions(questions: QuizQuestion[]): void {
     if (this.checkedShuffle && questions && questions.length > 0) {
-      Utils.shuffle(questions);
+      Utils.shuffleArray(questions);
     } else {
       console.log('Skipping shuffle or no questions available.');
     }
@@ -1124,7 +1124,7 @@ export class QuizService implements OnDestroy {
 
   shuffleAnswers(answers: Option[]): void {
     if (this.checkedShuffle && answers && answers.length > 0) {
-      Utils.shuffle(answers);
+      Utils.shuffleArray(answers);
     } else {
       console.log('Skipping shuffle or no answers available.');
     }
