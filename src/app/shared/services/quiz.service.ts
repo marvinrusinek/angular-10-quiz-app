@@ -749,6 +749,9 @@ export class QuizService implements OnDestroy {
     if (!this.questions$) {
       this.questions$ = this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
         tap((questions: QuizQuestion[]) => {
+          if (this.checkedShuffle) {
+            this.shuffleQuestions(questions);
+          }
           this.questions = questions;
         }),
         catchError((error: any) => {
@@ -770,6 +773,11 @@ export class QuizService implements OnDestroy {
           return (question as any).quizId === quizId;
         })
       ),
+      tap((filteredQuestions: QuizQuestion[]) => {
+        if (this.checkedShuffle) {
+          this.shuffleQuestions(filteredQuestions);
+        }
+      }),
       catchError((error: HttpErrorResponse) => {
         console.error('An error occurred while loading questions:', error);
         throw new Error('Something went wrong.');
