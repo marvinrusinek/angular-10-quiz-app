@@ -750,15 +750,16 @@ export class QuizService implements OnDestroy {
       this.questions$ = this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
         tap((questions: QuizQuestion[]) => {
           if (this.checkedShuffle) {
-            this.shuffleQuestions(questions);
+            this.questions = this.shuffleQuestions([...questions]); // Shuffle a copy of the array
+          } else {
+            this.questions = questions;
           }
-          this.questions = questions;
         }),
         catchError((error: any) => {
           console.error('Error fetching questions:', error);
           return of([]);
         }),
-        shareReplay({ bufferSize: 1, refCount: true })
+        shareReplay({ bufferSize: 1, refCount: true }) // Ensure the latest fetched data is replayed to new subscribers
       );
     }
     return this.questions$;
