@@ -108,9 +108,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   private fetchAndHandleQuestions(quizId: string): void {
     this.quizDataService.getQuestionsForQuiz(quizId).pipe(
       switchMap((questions: QuizQuestion[]) => {
-        console.log('Before shuffle:', questions.map(q => ({...q}))); // Log deep copy of questions
         this.quizService.shuffleQuestions(questions);
-        console.log('After shuffle:', questions);
         return of(questions); // Continue with shuffled questions
       }),
       catchError(error => {
@@ -121,9 +119,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     ).subscribe((questions: QuizQuestion[]) => {
       questions.forEach(question => {
         if (question.options && Array.isArray(question.options)) {
-          console.log('Options before shuffle:', [...question.options]); // Make a shallow copy for logging
           this.quizService.shuffleAnswers(question.options);
-          console.log('Options after shuffle:', question.options);
         }
       });
     });
