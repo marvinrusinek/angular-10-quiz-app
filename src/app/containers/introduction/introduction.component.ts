@@ -127,14 +127,14 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     });
   }
   
-  /* onChange(event: any): void {
-    console.log(event.target);  // Check what element is targeted
-    console.log(event.target.checked);  // Verify it logs the expected true/false
+  onChange(event: any): void {
+    // console.log(event.target);  // Check what element is targeted
+    // console.log(event.target.checked);  // Verify it logs the expected true/false
     this.isChecked.next(event.checked); // Emit the checkbox state
-  } */
+  }
 
 
-  onChange(event: Event): void {
+  /* onChange(event: Event): void {
     console.log('Event:', event);
     const checkbox = event.target as HTMLInputElement;
     if (checkbox) {
@@ -142,7 +142,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     } else {
       console.error('Event target is undefined');
     }
-  }
+  } */
   
   onStartQuiz(quizId: string): void {
     if (!quizId) {
