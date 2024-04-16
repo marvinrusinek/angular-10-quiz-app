@@ -1163,12 +1163,13 @@ export class QuizService implements OnDestroy {
 
   shuffleQuestions(questions: QuizQuestion[]): QuizQuestion[] {
     if (this.checkedShuffle && questions && questions.length > 0) {
-      this.questionDataSubject.next(questions);
-      return Utils.shuffleArray(questions);
+      const shuffledQuestions = Utils.shuffleArray([...questions]);  // Shuffle a copy to maintain immutability
+      this.questionDataSubject.next(shuffledQuestions);  // Emit the shuffled questions
+      return shuffledQuestions;
     } else {
       console.log('Skipping shuffle or no questions available.');
+      return questions;
     }
-    return questions;
   }
 
   shuffleAnswers(answers: Option[]): Option[] {
