@@ -52,20 +52,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.subscribeToSelectedQuiz();
     this.handleRouteParameters();
     this.initializeSelectedQuiz();
-
-    const subscription = this.isChecked.pipe(
-      withLatestFrom(this.quizDataService.selectedQuiz$),
-      tap(([checked, selectedQuiz]) => {
-        if (checked && selectedQuiz) {
-          this.fetchAndHandleQuestions(selectedQuiz.quizId);
-        } else {
-          console.error('No selected quiz available or checkbox is unchecked');
-        }
-      })
-    ).subscribe();
-
-    // Adding the subscription to the consolidated subscription object
-    this.subscriptions.add(subscription);
+    this.handleQuizSelectionAndFetchQuestions();
   }
   
   ngOnDestroy(): void {
@@ -132,6 +119,24 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   private initializeSelectedQuiz(): void {
     this.selectedQuiz = this.quizDataService.selectedQuiz$.getValue();
   }
+
+  private handleQuizSelectionAndFetchQuestions(): void {
+    const subscription = this.isChecked.pipe(
+      withLatestFrom(this.quizDataService.selectedQuiz$),
+      tap(([checked, selectedQuiz]) => {
+        console.log(`Checkbox is checked: ${checked}, Selected quiz available: ${selectedQuiz !== null}`);
+        if (checked && selectedQuiz) {
+          this.fetchAndHandleQuestions(selectedQuiz.quizId);
+        } else {
+          console.log('Waiting for checkbox to be checked and quiz to be selected');
+        }
+      })
+    ).subscribe();
+  
+    // Adding the subscription to the consolidated subscription object
+    this.subscriptions.add(subscription);
+  }
+  
 
   onChange(event: any): void {
     this.isChecked.next(event.checked); // Emit the checkbox state
