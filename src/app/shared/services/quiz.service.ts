@@ -828,7 +828,7 @@ export class QuizService implements OnDestroy {
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('An error occurred while loading questions:', error);
-        return throwError('Something went wrong.');
+        return throwError(() => new Error('Something went wrong.'));
       }),
       map((filteredQuestions: QuizQuestion[]) => {
         return { quizId, questions: [...filteredQuestions] };
