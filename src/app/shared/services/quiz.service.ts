@@ -816,10 +816,16 @@ export class QuizService implements OnDestroy {
 
   getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-      map((questions: QuizQuestion[]) => questions.filter(question => (question as any).quizId === quizId)),
+      map((questions: QuizQuestion[]) => {
+        console.log("Fetched questions for quiz ID:", quizId); // Log fetched data
+        return questions.filter(question => (question as any).quizId === quizId);
+      }),
       map(filteredQuestions => {
+        console.log("Filtered questions before shuffle:", filteredQuestions.map(q => q.questionText)); // Adjust for actual property
         if (this.checkedShuffle.value) {
-          return { quizId, questions: this.shuffleQuestions([...filteredQuestions]) };
+          const shuffled = this.shuffleQuestions([...filteredQuestions]);
+          console.log("Shuffled questions:", shuffled.map(q => q.questionText)); // Adjust for actual property
+          return { quizId, questions: shuffled };
         }
         return { quizId, questions: filteredQuestions };
       }),
