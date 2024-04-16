@@ -1001,7 +1001,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ) as Option[];
 
     if (this.selectedQuiz && this.options.length > 1) {
-      Utils.shuffle(this.options);
+      Utils.shuffleArray(this.options);
     }
 
     this.setOptions();
