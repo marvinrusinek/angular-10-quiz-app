@@ -1166,20 +1166,23 @@ export class QuizService implements OnDestroy {
     this.highScores = this.highScoresLocal;
   }
 
-  shuffleQuestions(questions: QuizQuestion[]): void {
+  shuffleQuestions(questions: QuizQuestion[]): QuizQuestion[] {
     if (this.checkedShuffle && questions && questions.length > 0) {
       Utils.shuffleArray(questions);
     } else {
       console.log('Skipping shuffle or no questions available.');
     }
+    return questions;
   }
 
-  shuffleAnswers(answers: Option[]): void {
+
+  shuffleAnswers(answers: Option[]): Option[] {
     if (this.checkedShuffle && answers && answers.length > 0) {
       Utils.shuffleArray(answers);
     } else {
       console.log('Skipping shuffle or no answers available.');
     }
+    return answers;
   }
 
   returnQuizSelectionParams(): QuizSelectionParams {
