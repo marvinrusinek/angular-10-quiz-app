@@ -33,6 +33,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
   private isChecked = new Subject<boolean>();
   private subscriptions: Subscription = new Subscription();
+  shuffledQuestions: QuizQuestion[];
 
   imagePath = '../../../assets/images/milestones/';
   introImg = '';
@@ -119,6 +120,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       }),
       takeUntil(this.destroy$)
     ).subscribe((questions: QuizQuestion[]) => {
+      this.shuffledQuestions = questions;
       this.handleQuestionOptions(questions);
       this.cdRef.detectChanges(); // Manually trigger change detection after updating questions
     });
