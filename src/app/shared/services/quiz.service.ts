@@ -1375,8 +1375,23 @@ export class QuizService implements OnDestroy {
 
   setCheckedShuffle(isChecked: boolean): void {
     this.checkedShuffle.next(isChecked);
-    console.log("Shuffle state updated to:", isChecked);
+    this.fetchAndShuffleQuestions();
   }
+
+  fetchAndShuffleQuestions(): void {
+    this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
+        tap(questions => {
+            if (this.checkedShuffle.value) {
+                Utils.shuffleArray(questions);
+                questions.forEach(question => {
+                    if (question.options) {
+                        Utils.shuffleArray(question.options);
+                    }
+                });
+            }
+        })
+    ).subscribe(questions => this.questions$.next(questions));
+}
 
   setResources(value: Resource[]): void {
     this.resources = value;
