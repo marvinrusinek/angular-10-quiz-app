@@ -764,7 +764,7 @@ export class QuizService implements OnDestroy {
     return this.questions$;
   }
 
-  getQuestionsForQuiz(
+  /* getQuestionsForQuiz(
     quizId: string
   ): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
@@ -790,8 +790,32 @@ export class QuizService implements OnDestroy {
         (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
       )
     );
-  }
+  } */
 
+  getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
+    return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
+      map((questions: QuizQuestion[]) => questions.filter(question => (question as any).quizId === quizId)),
+      tap((filteredQuestions: QuizQuestion[]) => {
+        if (this.checkedShuffle) {
+          // Ensure we're creating a new array for immutability
+          const shuffled = [...filteredQuestions];
+          this.shuffleQuestions(shuffled);
+          filteredQuestions.length = 0; // Clear the original array
+          filteredQuestions.push(...shuffled); // Push shuffled questions back to maintain reference if needed elsewhere
+        }
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('An error occurred while loading questions:', error);
+        return throwError('Something went wrong.');
+      }),
+      map((filteredQuestions: QuizQuestion[]) => {
+        // You might need to update current question or perform other updates here
+        return { quizId, questions: [...filteredQuestions] }; // Use spread to ensure a new reference
+      }),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    );
+  }
+ 
   updateCorrectMessageText(message: string): void {
     this.correctMessage$.next(message);
   }
