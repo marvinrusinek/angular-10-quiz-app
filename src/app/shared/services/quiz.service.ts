@@ -824,7 +824,7 @@ export class QuizService implements OnDestroy {
         console.log("Filtered questions before shuffle:", filteredQuestions.map(q => q.questionText)); // Adjust for actual property
         if (this.checkedShuffle.value) {
           const shuffled = this.shuffleQuestions([...filteredQuestions]);
-          console.log("Shuffled questions:", shuffled.map(q => q.questionText)); // Adjust for actual property
+          console.log("Shuffled questions:", shuffled.map(q => q.questionText));
           return { quizId, questions: shuffled };
         }
         return { quizId, questions: filteredQuestions };
