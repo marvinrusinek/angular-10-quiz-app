@@ -107,30 +107,37 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   private fetchAndHandleQuestions(quizId: string): void {
     this.quizDataService.getQuestionsForQuiz(quizId).pipe(
+      tap(rawData => console.log('Raw data from API:', rawData)), // Log raw data from the API
       switchMap((questions: QuizQuestion[] | QuizQuestion) => {
-        // Type guard to check if questions is an array
         if (Array.isArray(questions)) {
+          console.log('Received an array of questions:', questions);
           this.quizService.shuffleQuestions(questions);
-          return of(questions);  // Convert back to Observable if not using in switchMap
+          return of(questions);
         } else {
-          // If it's a single question, convert it to an array
+          console.log('Received a single question, converting to array:', questions);
           this.quizService.shuffleQuestions([questions]);
-          return of([questions]);  // Convert back to Observable if not using in switchMap
+          return of([questions]);
         }
       }),
       catchError(error => {
         console.error('Failed to load questions for quiz:', error);
-        return of([]); // Handle error by returning an empty array
+        return of([]); // Return an empty array on error
       })
     ).subscribe((questions: QuizQuestion[]) => {
+      if (questions.length === 0) {
+        console.log('No questions available to process.');
+        return;
+      }
       questions.forEach(question => {
-        if (question.options && Array.isArray(question.options)) {
+        if (!question.options || question.options.length === 0) {
+          console.log(`No options available to shuffle for question ID ${question.id}`);
+        } else {
           this.quizService.shuffleAnswers(question.options);
         }
       });
     });
   }
-
+  
   onChange(event: any): void {
     this.isChecked.next(event.checked); // Emit the checkbox state
   }
