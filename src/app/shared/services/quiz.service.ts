@@ -1119,7 +1119,7 @@ export class QuizService implements OnDestroy {
     this.highScores = this.highScoresLocal;
   }
 
-  shuffleQuestions(questions: any[]): void {
+  shuffleQuestions(questions: QuizQuestion[]): void {
     if (this.checkedShuffle && questions && questions.length > 0) {
       console.log('Shuffling questions...');
       Utils.shuffle(questions);
@@ -1128,7 +1128,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  shuffleAnswers(answers: any[]): void {
+  shuffleAnswers(answers: Option[]): void {
     if (this.checkedShuffle && answers && answers.length > 0) {
       console.log('Shuffling answers...');
       Utils.shuffle(answers);
