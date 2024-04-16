@@ -11,6 +11,7 @@ import { BehaviorSubject, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 
@@ -75,15 +76,22 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   private fetchAndHandleQuestions(quizId: string): void {
     this.quizDataService.getQuestionsForQuiz(quizId).pipe(
-      switchMap(questions => {
-        this.quizService.shuffleQuestions(questions);
-        return questions;
+      switchMap((questions: QuizQuestion[] | QuizQuestion) => {
+        // Type guard to check if questions is an array
+        if (Array.isArray(questions)) {
+          this.quizService.shuffleQuestions(questions);
+          return of(questions);  // Convert back to Observable if not using in switchMap
+        } else {
+          // If it's a single question, convert it to an array
+          this.quizService.shuffleQuestions([questions]);
+          return of([questions]);  // Convert back to Observable if not using in switchMap
+        }
       }),
       catchError(error => {
         console.error('Failed to load questions for quiz:', error);
         return of([]); // Handle error by returning an empty array
       })
-    ).subscribe(questions => {
+    ).subscribe((questions: QuizQuestion[]) => {
       questions.forEach(question => {
         if (question.options && Array.isArray(question.options)) {
           this.quizService.shuffleAnswers(question.options);
