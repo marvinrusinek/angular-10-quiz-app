@@ -60,7 +60,8 @@ export class QuizService implements OnDestroy {
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
-  questions$: Observable<QuizQuestion[]>;
+  // questions$: Observable<QuizQuestion[]>;
+  questions$ = new BehaviorSubject<QuizQuestion[]>([]);
   nextQuestion: QuizQuestion;
   isOptionSelected = false;
   isNavigating = false;
@@ -1380,18 +1381,21 @@ export class QuizService implements OnDestroy {
 
   fetchAndShuffleQuestions(): void {
     this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-        tap(questions => {
-            if (this.checkedShuffle.value) {
-                Utils.shuffleArray(questions);
-                questions.forEach(question => {
-                    if (question.options) {
-                        Utils.shuffleArray(question.options);
-                    }
-                });
+      tap(questions => {
+        if (this.checkedShuffle.value) {
+          Utils.shuffleArray(questions);
+          questions.forEach(question => {
+            if (question.options) {
+              Utils.shuffleArray(question.options);
             }
-        })
-    ).subscribe(questions => this.questions$.next(questions));
-}
+          });
+        }
+      })
+    ).subscribe(
+      questions => this.questions$.next(questions), // Correct usage of next on BehaviorSubject
+      error => console.error('Error fetching questions:', error)
+    );
+  }
 
   setResources(value: Resource[]): void {
     this.resources = value;
