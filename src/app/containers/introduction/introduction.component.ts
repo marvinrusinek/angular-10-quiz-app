@@ -7,8 +7,8 @@ import {
   Output
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, Subject, throwError } from 'rxjs';
-import { catchError, switchMap, takeUntil } from 'rxjs/operators';
+import { BehaviorSubject, Subject, Subscription, throwError } from 'rxjs';
+import { catchError, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -29,8 +29,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
-  private currentQuiz: Quiz;
-  private quizSubscription: Subscription;
+  currentQuiz: Quiz;
+  private isChecked = new BehaviorSubject<boolean>(false);
+  private subscriptions: Subscription = new Subscription();
 
   imagePath = '../../../assets/images/milestones/';
   introImg = '';
@@ -52,16 +53,42 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.handleRouteParameters();
     this.initializeSelectedQuiz();
 
-    this.quizSubscription = this.quizService.selectedQuiz$.subscribe(quiz => {
-      this.currentQuiz = quiz;
-      console.log("Current Selected Quiz:", this.currentQuiz);
-    });
+    const subscription = this.isChecked.pipe(
+      withLatestFrom(this.quizDataService.selectedQuiz$),
+      tap(([checked, selectedQuiz]) => {
+        if (checked && selectedQuiz) {
+          this.fetchAndHandleQuestions(selectedQuiz.quizId);
+        } else {
+          console.error('No selected quiz available or checkbox is unchecked');
+        }
+      })
+    ).subscribe();
+
+    // Adding the subscription to the consolidated subscription object
+    this.subscriptions.add(subscription);
   }
   
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.quizSubscription.unsubscribe();
+    this.subscriptions.unsubscribe();
+  }
+
+  private fetchAndHandleQuestions(quizId: string): void {
+    this.quizDataService.getQuestionsForQuiz(quizId).subscribe(
+      questions => {
+        this.quizService.shuffleQuestions(questions);
+        questions.forEach(question => {
+          if (question.options && Array.isArray(question.options)) {
+            this.quizService.shuffleAnswers(question.options);
+          }
+        });
+      },
+      error => {
+        // Logging or handling errors appropriately
+        console.error('Failed to load questions for quiz:', error);
+      }
+    );
   }
 
   private initializeData(): void {
@@ -98,27 +125,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   onChange(event: any): void {
-    console.log('Checkbox state changed:', event.checked);
-    const isChecked = event.checked;
-    this.quizService.setChecked(isChecked);
-  
-    console.log("Selected Quiz at onChange:", this.selectedQuiz$.getValue());
-  
-    if (isChecked && this.selectedQuiz) {
-      console.log("Quiz", this.selectedQuiz);
-      this.quizDataService.getQuestionsForQuiz(this.selectedQuiz.quizId).subscribe(questions => {
-        this.quizService.shuffleQuestions(questions);
-        questions.forEach(question => {
-          if (question.options && Array.isArray(question.options)) {
-            this.quizService.shuffleAnswers(question.options);
-          }
-        });
-      });
-    } else {
-      console.error('No selected quiz available or checkbox is unchecked');
-    }
+    this.isChecked.next(event.checked); // Emit the checkbox state
   }
-  
 
   onStartQuiz(quizId: string): void {
     if (!quizId) {
