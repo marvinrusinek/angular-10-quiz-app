@@ -119,7 +119,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       }),
       takeUntil(this.destroy$)
     ).subscribe((questions: QuizQuestion[]) => {
-      this.shuffledQuestions = questions; // Assign shuffled questions
       this.handleQuestionOptions(questions);
       this.cdRef.detectChanges(); // Manually trigger change detection after updating questions
     });
