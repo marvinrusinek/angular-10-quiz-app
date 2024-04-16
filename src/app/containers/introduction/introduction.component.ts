@@ -7,6 +7,7 @@ import {
   Output
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { BehaviorSubject, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
@@ -131,7 +132,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.isChecked.next(event.checked); // Emit the checkbox state
   } */
 
-  onChange(event: any): void {
+  onChange(event: MatCheckboxChange): void {
     console.log(event);  // Check the entire event object
     if (event.target && typeof event.target.checked === 'boolean') {
       this.isChecked.next(event.target.checked);
@@ -139,7 +140,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('Event target or checked property is undefined');
     }
   }
-  
   
   onStartQuiz(quizId: string): void {
     if (!quizId) {
