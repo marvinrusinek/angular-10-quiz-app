@@ -136,18 +136,15 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   // In your Angular component
   onChange(event: Event): void {
-    const target = event.target as HTMLInputElement;  // More specific type
+    console.log(event);
+    const target = event.target as HTMLInputElement; // Safely cast to the correct type
     if (target) {
       console.log('Checkbox checked:', target.checked);
-      if (typeof target.checked === 'boolean') {
-        this.isChecked.next(target.checked);
-      } else {
-        console.error('Checked property not boolean:', target.checked);
-      }
     } else {
       console.error('Event target is undefined');
     }
   }
+  
 
 
   onStartQuiz(quizId: string): void {
