@@ -817,7 +817,7 @@ export class QuizService implements OnDestroy {
       map((questions: QuizQuestion[]) => questions.filter(question => (question as any).quizId === quizId)),
       tap((filteredQuestions: QuizQuestion[]) => {
         if (this.checkedShuffle) {
-          // Ensure we're creating a new array for immutability
+          // creating a new array for immutability
           const shuffled = [...filteredQuestions];
           this.shuffleQuestions(shuffled);
           filteredQuestions.length = 0; // Clear the original array
@@ -829,8 +829,7 @@ export class QuizService implements OnDestroy {
         return throwError('Something went wrong.');
       }),
       map((filteredQuestions: QuizQuestion[]) => {
-        // You might need to update current question or perform other updates here
-        return { quizId, questions: [...filteredQuestions] }; // Use spread to ensure a new reference
+        return { quizId, questions: [...filteredQuestions] };
       }),
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     );
