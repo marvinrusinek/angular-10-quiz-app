@@ -817,21 +817,15 @@ export class QuizService implements OnDestroy {
   getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       map((questions: QuizQuestion[]) => questions.filter(question => (question as any).quizId === quizId)),
-      tap((filteredQuestions: QuizQuestion[]) => {
+      map(filteredQuestions => {
         if (this.checkedShuffle.value) {
-          // creating a new array for immutability
-          const shuffled = [...filteredQuestions];
-          this.shuffleQuestions(shuffled);
-          filteredQuestions.length = 0; // Clear the original array
-          filteredQuestions.push(...shuffled); // Push shuffled questions back to maintain reference if needed elsewhere
+          return { quizId, questions: this.shuffleQuestions([...filteredQuestions]) };
         }
+        return { quizId, questions: filteredQuestions };
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('An error occurred while loading questions:', error);
-        return throwError(() => new Error('Something went wrong.'));
-      }),
-      map((filteredQuestions: QuizQuestion[]) => {
-        return { quizId, questions: [...filteredQuestions] };
+        return throwError(() => new Error('Failed to load questions'));
       }),
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     );
