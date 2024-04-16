@@ -198,7 +198,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.loadQuizQuestions();
     this.createQuestionData();
     this.getQuestion();
-    this.subscribeToCurrentQuestion(); 
+    this.subscribeToCurrentQuestion();
+    
+    this.quizService.questionDataSubject.subscribe(
+      (shuffledQuestions) => {
+        this.questions = shuffledQuestions;
+        this.cdRef.detectChanges(); // Force update
+      },
+      (error) => {
+        console.error("Error subscribing to questions:", error);
+      },
+      () => {
+        console.log("Subscription completed"); // Optional, depending on your use case
+      }
+    );
 
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
