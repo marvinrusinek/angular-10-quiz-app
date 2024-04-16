@@ -1375,6 +1375,7 @@ export class QuizService implements OnDestroy {
 
   setCheckedShuffle(isChecked: boolean): void {
     this.checkedShuffle.next(isChecked);
+    console.log("Shuffle state updated to:", isChecked);
   }
 
   setResources(value: Resource[]): void {
