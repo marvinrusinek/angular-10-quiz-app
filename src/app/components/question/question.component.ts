@@ -739,7 +739,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
         // Shuffle options only if the shuffleOptions boolean is true
         if (this.shuffleOptions) {
-          Utils.shuffle(this.currentOptions);
+          Utils.shuffleArray(this.currentOptions);
         }
       });
   }
