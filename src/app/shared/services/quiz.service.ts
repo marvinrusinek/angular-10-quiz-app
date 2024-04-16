@@ -54,7 +54,7 @@ export class QuizService implements OnDestroy {
   } = {
     questionText: '',
     correctAnswersText: '',
-    currentOptions: [],
+    currentOptions: []
   };
   quizzes: Quiz[] = [];
   quizResources: QuizResource[];
@@ -224,7 +224,7 @@ export class QuizService implements OnDestroy {
 
   correctSound: Howl | undefined;
   incorrectSound: Howl | undefined;
-  private sound: Howl;
+  private sound: Howl | undefined;
   private soundsLoaded = false;
 
   constructor(
@@ -1190,7 +1190,7 @@ export class QuizService implements OnDestroy {
       continueQuizId: this.continueQuizId,
       completedQuizId: this.completedQuizId,
       quizCompleted: this.quizCompleted,
-      status: this.status,
+      status: this.status
     };
     return quizSelectionParams;
   }
