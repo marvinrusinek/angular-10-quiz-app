@@ -140,7 +140,9 @@ export class QuizService implements OnDestroy {
   // correctOptions: string;
   correctMessage: string;
 
-  private checkedShuffle = false;
+  // private checkedShuffle = false;
+  private checkedShuffle = new BehaviorSubject<boolean>(false);
+  checkedShuffle$ = this.checkedShuffle.asObservable();
 
   private optionsSource: Subject<Option[]> = new Subject<Option[]>();
   optionsSubject: BehaviorSubject<Option[] | null> = new BehaviorSubject<
