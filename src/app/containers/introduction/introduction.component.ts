@@ -107,32 +107,22 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   private fetchAndHandleQuestions(quizId: string): void {
     this.quizDataService.getQuestionsForQuiz(quizId).pipe(
-      tap(rawData => console.log('Raw data from API:', rawData)), // Log raw data from the API
-      switchMap((questions: QuizQuestion[] | QuizQuestion) => {
-        if (Array.isArray(questions)) {
-          console.log('Received an array of questions:', questions);
-          this.quizService.shuffleQuestions(questions);
-          return of(questions);
-        } else {
-          console.log('Received a single question, converting to array:', questions);
-          this.quizService.shuffleQuestions([questions]);
-          return of([questions]);
-        }
+      switchMap((questions: QuizQuestion[]) => {
+        console.log('Before shuffle:', questions.map(q => ({...q}))); // Log deep copy of questions
+        this.quizService.shuffleQuestions(questions);
+        console.log('After shuffle:', questions);
+        return of(questions); // Continue with shuffled questions
       }),
       catchError(error => {
         console.error('Failed to load questions for quiz:', error);
         return of([]); // Return an empty array on error
       })
     ).subscribe((questions: QuizQuestion[]) => {
-      if (questions.length === 0) {
-        console.log('No questions available to process.');
-        return;
-      }
       questions.forEach(question => {
-        if (!question.options || question.options.length === 0) {
-          console.log(`No options available to shuffle for question ID ${question.id}`);
-        } else {
+        if (question.options && Array.isArray(question.options)) {
+          console.log('Options before shuffle:', [...question.options]); // Make a shallow copy for logging
           this.quizService.shuffleAnswers(question.options);
+          console.log('Options after shuffle:', question.options);
         }
       });
     });
