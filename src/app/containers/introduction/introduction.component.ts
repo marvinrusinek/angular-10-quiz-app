@@ -30,7 +30,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   selectedQuiz: Quiz | null;
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
   currentQuiz: Quiz;
-  private isChecked = new BehaviorSubject<boolean>(false);
+  private isChecked = new Subject<boolean>();
   private subscriptions: Subscription = new Subscription();
 
   imagePath = '../../../assets/images/milestones/';
@@ -93,7 +93,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     const subscription = this.isChecked.pipe(
       withLatestFrom(this.quizDataService.selectedQuiz$),
       tap(([checked, selectedQuiz]) => {
-        console.log(`Checkbox is checked: ${checked}, Selected quiz available: ${selectedQuiz !== null}`);
         if (checked && selectedQuiz) {
           this.fetchAndHandleQuestions(selectedQuiz.quizId);
         } else {
