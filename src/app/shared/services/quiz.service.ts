@@ -276,7 +276,6 @@ export class QuizService implements OnDestroy {
 
   setIndexOfQuizId(index: number): void {
     this.indexOfQuizId = index;
-    console.log("IndexOfQuizId Set:", this.indexOfQuizId);
   }
 
   getIndexOfQuizId(): number | null {
