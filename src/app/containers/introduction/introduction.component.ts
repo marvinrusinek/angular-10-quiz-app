@@ -75,20 +75,28 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   private fetchAndHandleQuestions(quizId: string): void {
-    this.quizDataService.getQuestionsForQuiz(quizId).subscribe(
-      questions => {
-        this.quizService.shuffleQuestions(questions);
-        questions.forEach(question => {
-          if (question.options && Array.isArray(question.options)) {
-            this.quizService.shuffleAnswers(question.options);
-          }
-        });
-      },
-      error => {
-        // Logging or handling errors appropriately
-        console.error('Failed to load questions for quiz:', error);
-      }
-    );
+    this.quizDataService.getQuestionsForQuiz(quizId)
+      .pipe(
+        takeUntil(this.destroy$)  // Ensures unsubscription when the component is destroyed
+      )
+      .subscribe(
+        questions => {
+          console.log("Questions before shuffle:", questions);
+          this.quizService.shuffleQuestions(questions);
+          console.log("Questions after shuffle:", questions);
+  
+          questions.forEach(question => {
+            if (question.options && Array.isArray(question.options)) {
+              console.log("Options before shuffle for question", question.options);
+              this.quizService.shuffleAnswers(question.options);
+              console.log("Options after shuffle for question", question.options);
+            }
+          });
+        },
+        error => {
+          console.error('Failed to load questions for quiz:', error);
+        }
+      );
   }
 
   private initializeData(): void {
