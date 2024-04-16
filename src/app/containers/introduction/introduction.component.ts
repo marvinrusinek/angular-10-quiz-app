@@ -133,13 +133,13 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   } */
 
   onCheckboxChange(event: MatCheckboxChange): void {
-    console.log(event);  // Check the entire event object
+    console.log('Checkbox change event:', event);
+  
+    // Update the shuffle state in the service
     this.quizService.setCheckedShuffle(event.checked);
-    if (event && typeof event.checked === 'boolean') {
-      this.isChecked.next(event.checked);
-    } else {
-      console.error('Event target or checked property is undefined');
-    }
+  
+    // Update any local or additional states if necessary
+    this.isChecked.next(event.checked);
   }
   
   onStartQuiz(quizId: string): void {
