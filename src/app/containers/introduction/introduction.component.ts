@@ -51,7 +51,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.initializeData();
     this.subscribeToSelectedQuiz();
     this.handleRouteParameters();
-    this.initializeSelectedQuiz();
     this.handleQuizSelectionAndFetchQuestions();
   }
   
@@ -114,10 +113,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .subscribe((quiz: Quiz) => {
         this.quizDataService.setSelectedQuiz(quiz);
       });
-  }
-  
-  private initializeSelectedQuiz(): void {
-    this.selectedQuiz = this.quizDataService.selectedQuiz$.getValue();
   }
 
   private handleQuizSelectionAndFetchQuestions(): void {
