@@ -1373,7 +1373,7 @@ export class QuizService implements OnDestroy {
   }
 
   setCheckedShuffle(isChecked: boolean): void {
-    this.checkedShuffle = isChecked;
+    this.checkedShuffle.next(isChecked);
   }
 
   setResources(value: Resource[]): void {
