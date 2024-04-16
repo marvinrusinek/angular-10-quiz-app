@@ -128,10 +128,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     });
   }
   
-  /* onChange(event: any): void {
-    this.isChecked.next(event.checked); // Emit the checkbox state
-  } */
-
   onCheckboxChange(event: MatCheckboxChange): void {
     console.log('Checkbox change event:', event);
   
