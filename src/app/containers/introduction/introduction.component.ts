@@ -116,7 +116,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       catchError(error => {
         console.error('Failed to load questions for quiz:', error);
         return of([]); // Return an empty array on error
-      })
+      }),
+      takeUntil(this.destroy$)
     ).subscribe((questions: QuizQuestion[]) => {
       questions.forEach(question => {
         if (question.options && Array.isArray(question.options)) {
