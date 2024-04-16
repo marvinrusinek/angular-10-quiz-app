@@ -127,9 +127,19 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     });
   }
   
-  onChange(event: any): void {
+  /* onChange(event: any): void {
     this.isChecked.next(event.checked); // Emit the checkbox state
+  } */
+
+  onChange(event: any): void {
+    console.log(event);  // Check the entire event object
+    if (event.target && typeof event.target.checked === 'boolean') {
+      this.isChecked.next(event.target.checked);
+    } else {
+      console.error('Event target or checked property is undefined');
+    }
   }
+  
   
   onStartQuiz(quizId: string): void {
     if (!quizId) {
