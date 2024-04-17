@@ -1388,35 +1388,36 @@ export class QuizService implements OnDestroy {
   } */
 
   fetchAndShuffleQuestions(quizId: string): void {
+    if (!quizId) {
+        console.error("Received null or undefined quizId");
+        return;  // Exit the function if quizId is not valid
+    }
+
     this.http.get<any>(this.quizUrl)
-      .pipe(
-        map(response => {
-          console.log("API Response:", response);
-          // Handle both wrapped and unwrapped responses
-          const quizzes = response.quizzes || response;
-          if (!Array.isArray(quizzes)) {
-            throw new Error("Unexpected data format");
-          }
-          const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-          if (!foundQuiz) {
-            throw new Error(`Quiz with ID ${quizId} not found.`);
-          }
-          return foundQuiz.questions;
-        }),
-        tap(questions => {
-          if (this.checkedShuffle && questions.length > 0) {
-            this.shuffleQuestions(questions);
-          }
-        }),
-        catchError(error => {
-          console.error('Failed to fetch or process questions:', error.message);
-          return throwError(() => new Error('Error processing quizzes'));
-        })
-      ).subscribe(
-        questions => this.questions$.next(questions),
-        error => console.error('Error in subscription:', error)
-      );
+        .pipe(
+            map(response => {
+                const quizzes = response.quizzes || response;
+                const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
+                if (!foundQuiz) {
+                    throw new Error(`Quiz with ID ${quizId} not found.`);
+                }
+                return foundQuiz.questions;
+            }),
+            tap(questions => {
+                if (this.checkedShuffle && questions.length > 0) {
+                    this.shuffleQuestions(questions);
+                }
+            }),
+            catchError(error => {
+                console.error('Failed to fetch or process questions:', error);
+                return throwError(() => new Error('Error processing quizzes'));
+            })
+        ).subscribe(
+            questions => this.questions$.next(questions),
+            error => console.error('Error in subscription:', error)
+        );
   }
+
 
   setResources(value: Resource[]): void {
     this.resources = value;
