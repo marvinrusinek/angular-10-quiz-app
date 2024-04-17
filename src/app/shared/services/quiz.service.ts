@@ -8,6 +8,7 @@ import {
   from,
   Observable,
   of,
+  ReplaySubject, 
   Subject,
   throwError
 } from 'rxjs';
@@ -61,7 +62,8 @@ export class QuizService implements OnDestroy {
   question: QuizQuestion;
   questions: QuizQuestion[];
   // questions$: Observable<QuizQuestion[]>;
-  questions$ = new BehaviorSubject<QuizQuestion[]>([]);
+  // questions$ = new BehaviorSubject<QuizQuestion[]>([]);
+  questions$ = new ReplaySubject<QuizQuestion[]>(1);
   nextQuestion: QuizQuestion;
   isOptionSelected = false;
   isNavigating = false;

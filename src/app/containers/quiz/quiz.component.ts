@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter,
   HostListener, Input, NgZone, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, filter, first, map, switchMap, take, takeUntil } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
