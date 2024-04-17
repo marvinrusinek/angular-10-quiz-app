@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter,
   HostListener, Input, NgZone, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, filter, first, map, switchMap, take, takeUntil } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
@@ -70,6 +70,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuiz: Quiz;
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject(null);
   routerSubscription: Subscription;
+  subscription: Subscription;
   private currentQuestionSubscriptions = new Subscription();
   resources: Resource[];
   answers = [];
@@ -213,7 +214,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     ); */
 
-    this.quizService.questions$.subscribe({
+    this.subscription = this.quizService.questions$.subscribe({
       next: (questions) => {
         if (questions && questions.length > 0) {
           this.questions = questions;
@@ -309,6 +310,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
     this.selectedQuiz$.next(null);
     this.routerSubscription.unsubscribe();
+    this.subscription.unsubscribe();
     this.currentQuestionSubscriptions.unsubscribe();
     this.timerService.stopTimer(null);
   }
