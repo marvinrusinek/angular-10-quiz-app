@@ -1388,9 +1388,10 @@ export class QuizService implements OnDestroy {
   } */
 
   fetchAndShuffleQuestions(quizId: string): void {
-    this.http.get<{ quizzes: any[] }>(this.quizUrl)
+    this.http.get<{ quizzes: any[] }>(this.quizUrl)  // Assuming the response includes a 'quizzes' array
         .pipe(
             map(response => {
+                if (!response.quizzes) throw new Error("Quizzes data is missing from the response");
                 const foundQuiz = response.quizzes.find(quiz => quiz.quizId === quizId);
                 if (!foundQuiz) throw new Error(`Quiz with ID ${quizId} not found.`);
                 return foundQuiz.questions;
@@ -1398,11 +1399,6 @@ export class QuizService implements OnDestroy {
             tap(questions => {
                 if (this.checkedShuffle && questions.length > 0) {
                     this.shuffleQuestions(questions);
-                    questions.forEach(question => {
-                        if (question.options) {
-                            this.shuffleOptions(question.options);
-                        }
-                    });
                 }
             }),
             catchError(error => {
