@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {
   BehaviorSubject,
   combineLatest,
@@ -789,53 +789,25 @@ export class QuizService implements OnDestroy {
     return this.questions$;
   }
 
-  /* getQuestionsForQuiz(
-    quizId: string
-  ): Observable<{ quizId: string; questions: QuizQuestion[] }> {
-    return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-      map((questions: QuizQuestion[]) =>
-        questions.filter((question: QuizQuestion) => {
-          return (question as any).quizId === quizId;
-        })
-      ),
-      tap((filteredQuestions: QuizQuestion[]) => {
-        if (this.checkedShuffle) {
-          this.shuffleQuestions(filteredQuestions);
-        }
-      }),
-      catchError((error: HttpErrorResponse) => {
-        console.error('An error occurred while loading questions:', error);
-        throw new Error('Something went wrong.');
-      }),
-      map((filteredQuestions: QuizQuestion[]) => {
-        this.updateCurrentQuestion();
-        return { quizId, questions: filteredQuestions };
-      }),
-      distinctUntilChanged(
-        (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
-      )
-    );
-  } */
-
   getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-        map(questions => questions.filter(question => (question as any).quizId === quizId)),
-        tap(filteredQuestions => {
-            if (this.checkedShuffle.value) {
-                Utils.shuffleArray(filteredQuestions);  // Shuffle questions
-                filteredQuestions.forEach(question => {
-                    if (question.options) {
-                        Utils.shuffleArray(question.options);  // Shuffle options within each question
-                    }
-                });
+      map(questions => questions.filter(question => (question as any).quizId === quizId)),
+      tap(filteredQuestions => {
+        if (this.checkedShuffle.value) {
+          Utils.shuffleArray(filteredQuestions);  // Shuffle questions
+          filteredQuestions.forEach(question => {
+            if (question.options) {
+              Utils.shuffleArray(question.options);  // Shuffle options within each question
             }
-        }),
-        map(filteredQuestions => ({ quizId, questions: filteredQuestions })),
-        catchError(error => {
-            console.error('An error occurred while loading questions:', error);
-            return throwError(() => new Error('Failed to load questions'));
-        }),
-        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+          });
+        }
+      }),
+      map(filteredQuestions => ({ quizId, questions: filteredQuestions })),
+      catchError(error => {
+        console.error('An error occurred while loading questions:', error);
+        return throwError(() => new Error('Failed to load questions'));
+      }),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     );
   }
  
