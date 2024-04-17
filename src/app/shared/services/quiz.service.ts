@@ -1380,34 +1380,28 @@ export class QuizService implements OnDestroy {
   }
 
   fetchAndShuffleQuestions(quizId: string): void {
-    this.http.get<{quizId: string, questions: QuizQuestion[]}[]>(this.quizUrl).pipe(
-      map(quizzes => {
-        // Find the correct quiz based on quizId and return its questions
-        const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-        return foundQuiz ? foundQuiz.questions : [];
-      }),
-      tap(questions => {
-        if (this.checkedShuffle.value) {
-          Utils.shuffleArray(questions);
-          questions.forEach(question => {
-            if (question.options) {
-              Utils.shuffleArray(question.options);
+    this.http.get<Quiz[]>(this.quizUrl).pipe(
+        map(quizzes => {
+            const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
+            return foundQuiz ? foundQuiz.questions : [];
+        }),
+        tap(questions => {
+            console.log("Fetched and filtered questions:", questions.map(q => q.questionText));
+            if (this.checkedShuffle.value && questions.length > 0) {
+                Utils.shuffleArray(questions);
+                questions.forEach(question => {
+                    if (question.options) {
+                        Utils.shuffleArray(question.options);
+                    }
+                });
             }
-          });
-        }
-        console.log("Emitting shuffled questions:", questions.map(q => q.questionText));
-      })
+        })
     ).subscribe({
-      next: (questions) => {
-        console.log("About to emit questions to subscribers:", questions.map(q => q.questionText));
-        this.questions$.next(questions);
-      },
-      error: (error) => {
-        console.error('Error fetching questions:', error);
-      },
-      complete: () => {
-        console.log('Data fetching and processing complete.');
-      }
+        next: (questions) => {
+            console.log("About to emit questions:", questions.map(q => q.questionText));
+            this.questions$.next(questions);
+        },
+        error: (error) => console.error('Error fetching questions:', error)
     });
   }
 
