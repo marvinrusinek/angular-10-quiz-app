@@ -1380,11 +1380,11 @@ export class QuizService implements OnDestroy {
   }
 
   fetchAndShuffleQuestions(quizId: string): void {
-    this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-        map(questions => {
-            // Assuming each item in the array is a quiz object that contains an array of questions
-            const quiz = questions.find(quiz => quiz.quizId === quizId);
-            return quiz ? quiz.questions : [];
+    this.http.get<{quizId: string, questions: QuizQuestion[]}[]>(this.quizUrl).pipe(
+        map(quizzes => {
+            // Find the correct quiz based on quizId and return its questions
+            const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
+            return foundQuiz ? foundQuiz.questions : [];
         }),
         tap(questions => {
             console.log("Fetched questions for quiz ID:", quizId, questions);
@@ -1402,7 +1402,6 @@ export class QuizService implements OnDestroy {
         error => console.error('Error fetching questions:', error)
     );
   }
-
 
   setResources(value: Resource[]): void {
     this.resources = value;
