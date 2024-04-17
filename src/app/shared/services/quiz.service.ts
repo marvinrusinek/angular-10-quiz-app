@@ -1356,35 +1356,35 @@ export class QuizService implements OnDestroy {
   fetchAndShuffleQuestions(quizId: string): void {
     console.log("fetchAndShuffleQuestions called with ID:", quizId);
     this.http.get<any[]>(this.quizUrl).pipe(
-        map(quizzes => {
-            console.log("Quizzes fetched:", quizzes);
-            const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-            if (!foundQuiz) {
-                console.error("Quiz with ID", quizId, "not found.");
-                throw new Error(`Quiz with ID ${quizId} not found.`);
-            }
-            return foundQuiz.questions;
-        }),
-        tap(questions => {
-            console.log("Fetched and filtered questions before shuffle:", questions.map(q => q.questionText));
-            const originalOrder = questions.map(q => q.questionText); // Save original order
-            if (this.checkedShuffle.value && questions.length > 0) {
-                Utils.shuffleArray(questions);
-                questions.forEach(question => {
-                    if (question.options && question.options.length > 0) {
-                        Utils.shuffleArray(question.options);
-                    }
-                });
-            }
-            console.log("Original order:", originalOrder);
-            console.log("Shuffled order:", questions.map(q => q.questionText));
-        })
+      map(quizzes => {
+        console.log("Quizzes fetched:", quizzes);
+        const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
+        if (!foundQuiz) {
+          console.error("Quiz with ID", quizId, "not found.");
+          throw new Error(`Quiz with ID ${quizId} not found.`);
+        }
+        return foundQuiz.questions;
+      }),
+      tap(questions => {
+        console.log("Fetched and filtered questions before shuffle:", questions.map(q => q.questionText));
+        const originalOrder = questions.map(q => q.questionText); // Save original order
+        if (this.checkedShuffle.value && questions.length > 0) {
+          Utils.shuffleArray(questions);
+          questions.forEach(question => {
+          if (question.options && question.options.length > 0) {
+            Utils.shuffleArray(question.options);
+          }
+        });
+      }
+      console.log("Original order:", originalOrder);
+      console.log("Shuffled order:", questions.map(q => q.questionText));
+    })
     ).subscribe({
-        next: (questions) => {
-            console.log("Emitting shuffled questions:", questions.map(q => q.questionText));
-            this.questions$.next(questions);
-        },
-        error: (error) => console.error('Error fetching and processing questions:', error)
+      next: (questions) => {
+        console.log("Emitting shuffled questions:", questions.map(q => q.questionText));
+        this.questions$.next(questions);
+      },
+      error: (error) => console.error('Error fetching and processing questions:', error)
     });
   }
 
