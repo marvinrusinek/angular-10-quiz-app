@@ -216,6 +216,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.subscription = this.quizService.questions$.subscribe(
       questions => {
+        console.log("Received questions:", questions);
           if (questions && questions.length > 0) {
               this.questions = questions;
               console.log("Updated questions in component for display:", questions.map(q => q.questionText));
