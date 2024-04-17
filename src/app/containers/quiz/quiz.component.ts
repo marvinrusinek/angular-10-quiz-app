@@ -182,6 +182,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+
+
     // Subscribe to router events and initialize
     this.notifyOnNavigationEnd();
     this.subscribeRouterAndInit();
@@ -200,6 +202,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.createQuestionData();
     this.getQuestion();
     this.subscribeToCurrentQuestion();
+
+    console.log("QuizComponent ngOnInit called.");
+    this.testSubscribeToQuestions(); 
     
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
@@ -213,20 +218,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log("Subscription completed"); // Optional, depending on your use case
       }
     ); */
-
-    this.subscription = this.quizService.questions$.subscribe(
-      questions => {
-        console.log("Received questions:", questions);
-          if (questions && questions.length > 0) {
-              this.questions = questions;
-              console.log("Updated questions in component for display:", questions.map(q => q.questionText));
-          } else {
-              console.log("No questions available or empty questions array received.");
-          }
-          this.cdRef.detectChanges();  // Ensuring UI updates
-      },
-      error => console.error("Error receiving questions in component:", error)
-    );
 
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
@@ -272,6 +263,24 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.load();
     audio.play();
   }
+
+  testSubscribeToQuestions(): void {
+    console.log("Testing subscription to questions.");
+    this.subscription = this.quizService.questions$.subscribe(
+        questions => {
+            console.log("Received questions:", questions);
+            if (questions && questions.length > 0) {
+                this.questions = questions;
+                console.log("Updated questions in component for display:", questions.map(q => q.questionText));
+            } else {
+                console.log("No questions available or empty questions array received.");
+            }
+            this.cdRef.detectChanges();  // Ensuring UI updates
+        },
+        error => console.error("Error receiving questions in component:", error)
+    );
+  }
+
 
   private logAudioErrorDetails(e: Event): void {
     const audioElement: HTMLAudioElement = (e.target as HTMLAudioElement);
