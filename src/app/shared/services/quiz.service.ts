@@ -1425,6 +1425,10 @@ export class QuizService implements OnDestroy {
       ); 
   }
 
+  getShuffledQuestions(): QuizQuestion[] {
+    return this.shuffledQuestions;
+  }
+
   setResources(value: Resource[]): void {
     this.resources = value;
   }
