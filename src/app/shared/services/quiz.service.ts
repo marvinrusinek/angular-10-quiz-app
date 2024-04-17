@@ -1388,31 +1388,27 @@ export class QuizService implements OnDestroy {
   } */
 
   fetchAndShuffleQuestions(quizId: string): void {
-    this.http.get<any>(this.quizUrl)  // Assuming the API might not wrap quizzes in an object
+    this.http.get<{ quizzes: Quiz[] }>(this.quizUrl)
         .pipe(
             map(response => {
-                // Handle both wrapped and unwrapped responses
-                const quizzes = response.quizzes || response;
-                if (!Array.isArray(quizzes)) {
-                    throw new Error("Unexpected data format");
-                }
-                const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-                if (!foundQuiz) {
-                    throw new Error(`Quiz with ID ${quizId} not found.`);
-                }
+                const foundQuiz = response.quizzes.find(quiz => quiz.quizId === quizId);
+                if (!foundQuiz) throw new Error(`Quiz with ID ${quizId} not found.`);
                 return foundQuiz.questions;
             }),
             tap(questions => {
-                if (this.checkedShuffle && questions.length > 0) {
-                    this.shuffleQuestions(questions);
-                }
+                const shuffledQuestions = this.shuffleQuestions(questions);  // Shuffles the order of the questions
+                shuffledQuestions.forEach(question => {
+                    if (question.options) {
+                        question.options = this.shuffleAnswers(question.options);  // Shuffles the order of the options
+                    }
+                });
             }),
             catchError(error => {
                 console.error('Failed to fetch or process questions:', error);
                 return throwError(() => new Error('Error processing quizzes'));
             })
         ).subscribe(
-            questions => this.questions$.next(questions),
+            questions => this.questionDataSubject.next(questions),
             error => console.error('Error in subscription:', error)
         );
   }
