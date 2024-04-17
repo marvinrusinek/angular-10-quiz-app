@@ -269,25 +269,24 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log("Testing subscription to questions.");
     console.log("QUESTIONS$", this.quizService.questions$);
     this.subscription = this.quizService.questions$.subscribe({
-        next: (questions) => {
-            console.log("Received questions:", questions);
-            if (questions && questions.length > 0) {
-                this.questions = questions;
-                console.log("Updated questions in component for display:", questions.map(q => q.questionText));
-            } else {
-                console.log("No questions available or empty questions array received.");
-            }
-            this.cdRef.detectChanges();  // Ensuring UI updates
-        },
-        error: (error) => {
-            console.error("Error receiving questions in component:", error);
-        },
-        complete: () => {
-            console.log("Subscription completed.");
+      next: (questions) => {
+        console.log("Received questions:", questions);
+        if (questions && questions.length > 0) {
+          this.questions = questions;
+          console.log("Updated questions in component for display:", questions.map(q => q.questionText));
+        } else {
+          console.log("No questions available or empty questions array received.");
         }
+        this.cdRef.detectChanges();  // Ensuring UI updates
+      },
+      error: (error) => {
+        console.error("Error receiving questions in component:", error);
+      },
+      complete: () => {
+        console.log("Subscription completed.");
+      }
     });
   }
-
 
   private logAudioErrorDetails(e: Event): void {
     const audioElement: HTMLAudioElement = (e.target as HTMLAudioElement);
