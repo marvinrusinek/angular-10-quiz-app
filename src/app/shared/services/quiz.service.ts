@@ -1388,30 +1388,31 @@ export class QuizService implements OnDestroy {
   } */
 
   fetchAndShuffleQuestions(quizId: string): void {
-    this.http.get<any[]>(this.quizUrl).pipe(
-      map(quizzes => {
-        const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-        if (!foundQuiz) {
-          throw new Error(`Quiz with ID ${quizId} not found.`);
-        }
-        return foundQuiz ? foundQuiz.questions : [];
-      }),
-      tap(questions => {
-        if (this.checkedShuffle) {
-          this.shuffleQuestions(questions);
-        }
-      }),
-      catchError(error => {
-        console.error('Failed to fetch or process questions:', error);
-        return throwError(() => new Error('Error processing quizzes'));
-      })
-    ).subscribe(
-      questions => {
-        this.questions$.next(questions);
-        console.log("Questions emitted to ReplaySubject:", questions);
-      },
-      error => console.error('Error in subscription:', error)
-    );
+    this.http.get<{ quizzes: any[] }>(this.quizUrl)
+        .pipe(
+            map(response => {
+                const foundQuiz = response.quizzes.find(quiz => quiz.quizId === quizId);
+                if (!foundQuiz) throw new Error(`Quiz with ID ${quizId} not found.`);
+                return foundQuiz.questions;
+            }),
+            tap(questions => {
+                if (this.checkedShuffle && questions.length > 0) {
+                    this.shuffleQuestions(questions);
+                    questions.forEach(question => {
+                        if (question.options) {
+                            this.shuffleOptions(question.options);
+                        }
+                    });
+                }
+            }),
+            catchError(error => {
+                console.error('Failed to fetch or process questions:', error);
+                return throwError(() => new Error('Error processing quizzes'));
+            })
+        ).subscribe(
+            questions => this.questions$.next(questions),
+            error => console.error('Error in subscription:', error)
+        );
   }
 
   setResources(value: Resource[]): void {
