@@ -200,7 +200,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
     
-    this.quizService.questionDataSubject.subscribe(
+    /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
         this.questions = shuffledQuestions;
         this.cdRef.detectChanges(); // Force update
@@ -211,7 +211,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       () => {
         console.log("Subscription completed"); // Optional, depending on your use case
       }
-    );
+    ); */
+
+    this.quizService.questions$.subscribe(questions => {
+      this.questions = questions;
+      this.cdRef.detectChanges();
+    });
 
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
