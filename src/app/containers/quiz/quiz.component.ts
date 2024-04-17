@@ -182,7 +182,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-
+    console.log("QuizComponent ngOnInit called.");
+    console.log("QuizComponent subscribing to questions.");
+    this.testSubscribeToQuestions();
 
     // Subscribe to router events and initialize
     this.notifyOnNavigationEnd();
@@ -202,10 +204,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.createQuestionData();
     this.getQuestion();
     this.subscribeToCurrentQuestion();
-
-    console.log("QuizComponent ngOnInit called.");
-    console.log("QuizComponent subscribing to questions.");
-    this.testSubscribeToQuestions(); 
     
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
