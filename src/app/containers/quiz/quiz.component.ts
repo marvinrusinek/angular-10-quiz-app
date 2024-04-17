@@ -182,9 +182,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    console.log("QuizComponent ngOnInit called.");
-    console.log("QuizComponent subscribing to questions.");
-    this.testSubscribeToQuestions();
+    // console.log("QuizComponent ngOnInit called.");
+    // console.log("QuizComponent subscribing to questions.");
+    // this.testSubscribeToQuestions();
+
+    this.questions = this.quizService.getShuffledQuestions();
+    this.cdRef.detectChanges(); // Ensuring UI updates if using OnPush strategy
+    console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
 
     // Subscribe to router events and initialize
     this.notifyOnNavigationEnd();
