@@ -215,9 +215,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.quizService.questions$.subscribe(
       questions => {
+        if (questions) {
           this.questions = questions;
           console.log("Updated questions in component for display:", questions.map(q => q.questionText));
-          this.cdRef.detectChanges(); // Force update if using OnPush change detection strategy
+          this.cdRef.detectChanges();
+        } else {
+          console.log("No questions received yet.");
+        }
       },
       error => console.error("Error receiving questions in component:", error)
     );
