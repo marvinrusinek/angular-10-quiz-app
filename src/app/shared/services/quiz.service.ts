@@ -1413,7 +1413,10 @@ export class QuizService implements OnDestroy {
           return throwError(() => new Error('Error processing quizzes'));
         })
       ).subscribe(
-        questions => this.questions$.next(questions),
+        questions => {
+          this.questions$.next(questions);  // Emitting the shuffled questions
+          console.log("Emitting shuffled questions:", questions);
+        },
         error => console.error('Error in subscription:', error)
       ); 
   }
