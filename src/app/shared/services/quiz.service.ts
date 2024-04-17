@@ -1387,16 +1387,15 @@ export class QuizService implements OnDestroy {
         return foundQuiz ? foundQuiz.questions : [];
       }),
       tap(questions => {
-        console.log("Fetched questions before shuffle:", questions.map(q => q.questionText));
         if (this.checkedShuffle.value) {
-          Utils.shuffleArray(questions);
-          questions.forEach(question => {
-            console.log("Options before shuffle for question:", question.questionText, question.options.map(o => o.text));
-            Utils.shuffleArray(question.options);
-            console.log("Options after shuffle for question:", question.questionText, question.options.map(o => o.text));
-          });
+            Utils.shuffleArray(questions);
+            questions.forEach(question => {
+                if (question.options) {
+                    Utils.shuffleArray(question.options);
+                }
+            });
         }
-        console.log("Questions after shuffle:", questions.map(q => q.questionText));
+        console.log("Emitting shuffled questions:", questions.map(q => q.questionText));
       })
     ).subscribe(
       questions => this.questions$.next(questions),
