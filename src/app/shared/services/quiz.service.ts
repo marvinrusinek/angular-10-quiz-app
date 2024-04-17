@@ -1415,7 +1415,7 @@ export class QuizService implements OnDestroy {
       ).subscribe(
         questions => {
           this.questions$.next(questions);  // Emitting the shuffled questions
-          console.log("Emitting shuffled questions:", questions);
+          console.log("Emitting shuffled questions from service:", questions.map(q => q.questionText));
         },
         error => console.error('Error in subscription:', error)
       ); 
