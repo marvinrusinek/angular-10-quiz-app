@@ -129,7 +129,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   elapsedTimeDisplay: number;
   shouldDisplayCorrectAnswersFlag = false;
 
-  questionToDisplay = '';
+  // questionToDisplay = '';
+  questionToDisplay: QuizQuestion;
   optionsToDisplay: Option[] = [];
   explanationToDisplay = '';
   isExplanationVisible = false;
@@ -187,7 +188,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // this.testSubscribeToQuestions();
 
     this.questions = this.quizService.getShuffledQuestions();
-    this.updateQuestionDisplay();
+    this.updateQuestionDisplayForShuffledQuestions();
     this.cdRef.detectChanges(); // Ensuring UI updates if using OnPush strategy
     console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
 
@@ -268,7 +269,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  updateQuestionDisplay(): void {
+  updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay = this.questions[this.currentQuestionIndex];
   }
 
