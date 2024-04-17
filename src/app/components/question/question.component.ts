@@ -235,7 +235,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     );
   }
 
-  trackByFn(option: Option): number {
+  trackByOption(option: Option): number {
     return option.optionId;
   }
 
