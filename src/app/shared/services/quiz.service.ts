@@ -1392,7 +1392,7 @@ export class QuizService implements OnDestroy {
             return foundQuiz.questions;
         }),
         tap(questions => {
-            console.log("Fetched and filtered questions before shuffle:", questions.map(q => q.questionText));
+            const originalOrder = questions.map(q => q.questionText); // Save original order
             if (this.checkedShuffle.value && questions.length > 0) {
                 Utils.shuffleArray(questions);
                 questions.forEach(question => {
@@ -1401,7 +1401,8 @@ export class QuizService implements OnDestroy {
                     }
                 });
             }
-            console.log("Questions after shuffle:", questions.map(q => q.questionText));
+            console.log("Original order:", originalOrder);
+            console.log("Shuffled order:", questions.map(q => q.questionText));
         })
     ).subscribe({
         next: (questions) => {
