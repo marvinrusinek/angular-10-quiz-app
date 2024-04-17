@@ -1382,6 +1382,7 @@ export class QuizService implements OnDestroy {
   fetchAndShuffleQuestions(): void {
     this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
         tap(questions => {
+          console.log("Raw fetched questions:", questions);
           if (this.checkedShuffle.value) {
             console.log("Pre-shuffle questions:", questions.map(q => q.questionText));
             Utils.shuffleArray(questions);
