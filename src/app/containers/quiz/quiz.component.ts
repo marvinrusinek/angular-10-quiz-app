@@ -266,8 +266,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   testSubscribeToQuestions(): void {
     console.log("Testing subscription to questions.");
-    this.subscription = this.quizService.questions$.subscribe(
-        questions => {
+    this.subscription = this.quizService.questions$.subscribe({
+        next: (questions) => {
             console.log("Received questions:", questions);
             if (questions && questions.length > 0) {
                 this.questions = questions;
@@ -277,8 +277,13 @@ export class QuizComponent implements OnInit, OnDestroy {
             }
             this.cdRef.detectChanges();  // Ensuring UI updates
         },
-        error => console.error("Error receiving questions in component:", error)
-    );
+        error: (error) => {
+            console.error("Error receiving questions in component:", error);
+        },
+        complete: () => {
+            console.log("Subscription completed.");
+        }
+    });
   }
 
 
