@@ -213,18 +213,23 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     ); */
 
-    this.quizService.questions$.subscribe(
-      questions => {
+    this.quizService.questions$.subscribe({
+      next: (questions) => {
         if (questions && questions.length > 0) {
           this.questions = questions;
           console.log("Updated questions in component for display:", questions.map(q => q.questionText));
-          this.cdRef.detectChanges();
+          this.cdRef.detectChanges();  // Ensuring UI updates
         } else {
           console.log("No questions available or empty questions array received.");
         }
       },
-      error => console.error("Error receiving questions in component:", error)
-    );
+      error: (error) => {
+        console.error("Error receiving questions in component:", error);
+      },
+      complete: () => {
+        console.log("Subscription completed.");
+      }
+    });
 
     /* this.quizService.getCorrectAnswersText().pipe(
       takeUntil(this.unsubscribe$)
