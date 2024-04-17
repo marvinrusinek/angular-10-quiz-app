@@ -1171,6 +1171,13 @@ export class QuizService implements OnDestroy {
     if (this.checkedShuffle && questions && questions.length > 0) {
       const shuffledQuestions = Utils.shuffleArray([...questions]);  // Shuffle a copy to maintain immutability
       this.questionDataSubject.next(shuffledQuestions);  // Emit the shuffled questions
+      
+      // Testing the shuffle logic
+      console.log("Original array:", [1, 2, 3, 4, 5]);
+      console.log("Shuffled array 1:", Utils.shuffleArray([1, 2, 3, 4, 5]));
+      console.log("Shuffled array 2:", Utils.shuffleArray([1, 2, 3, 4, 5]));
+      console.log("Shuffled array 3:", Utils.shuffleArray([1, 2, 3, 4, 5]));
+
       return shuffledQuestions;
     } else {
       console.log('Skipping shuffle or no questions available.');
