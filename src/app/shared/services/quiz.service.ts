@@ -1382,9 +1382,10 @@ export class QuizService implements OnDestroy {
   }
 
   fetchAndShuffleQuestions(quizId: string): void {
-    console.log("TESTING");
+    console.log("fetchAndShuffleQuestions called with ID:", quizId);
     this.http.get<any[]>(this.quizUrl).pipe(
         map(quizzes => {
+            console.log("Quizzes fetched:", quizzes);
             const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
             if (!foundQuiz) {
                 console.error("Quiz with ID", quizId, "not found.");
