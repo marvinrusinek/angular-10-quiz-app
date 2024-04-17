@@ -1382,41 +1382,32 @@ export class QuizService implements OnDestroy {
   }
 
   fetchAndShuffleQuestions(quizId: string): void {
-    this.http.get<Quiz[]>(this.quizUrl).pipe(
+    this.http.get<any[]>(this.quizUrl).pipe(
         map(quizzes => {
-            // Attempt to find the quiz matching the given quizId
             const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-            if (!foundQuiz) {
-                throw new Error(`Quiz with ID ${quizId} not found.`);
-            }
-            return foundQuiz.questions;
+            return foundQuiz ? foundQuiz.questions : [];
         }),
         tap(questions => {
-            console.log("Fetched and filtered questions:", questions.map(q => q.questionText));
-            if (this.checkedShuffle.value && questions.length > 0) {
-                Utils.shuffleArray(questions); // Shuffle questions
+            if (!questions.length) {
+                console.log("No questions found for quiz ID:", quizId);
+                throw new Error('No questions found.');
+            }
+            if (this.checkedShuffle.value) {
+                Utils.shuffleArray(questions);
                 questions.forEach(question => {
-                    if (question.options && question.options.length > 0) {
-                        Utils.shuffleArray(question.options); // Shuffle options within each question
+                    if (question.options) {
+                        Utils.shuffleArray(question.options);
                     }
                 });
             }
-        }),
-        catchError(error => {
-            console.error('Error in processing questions:', error);
-            return throwError(() => new Error('Failed to process questions'));
+            console.log("Questions ready to emit:", questions.map(q => q.questionText));
         })
     ).subscribe({
         next: (questions) => {
-            console.log("About to emit questions:", questions.map(q => q.questionText));
-            this.questions$.next(questions); // Emit the processed questions
+            this.questions$.next(questions);
+            console.log("Questions emitted:", questions.map(q => q.questionText));
         },
-        error: (error) => {
-            console.error('Error fetching questions:', error);
-        },
-        complete: () => {
-            console.log('Fetch and shuffle operation completed.');
-        }
+        error: (error) => console.error('Error fetching and processing questions:', error)
     });
   }
 
