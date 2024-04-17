@@ -1388,25 +1388,25 @@ export class QuizService implements OnDestroy {
       }),
       tap(questions => {
         if (this.checkedShuffle.value) {
-            Utils.shuffleArray(questions);
-            questions.forEach(question => {
-                if (question.options) {
-                    Utils.shuffleArray(question.options);
-                }
-            });
+          Utils.shuffleArray(questions);
+          questions.forEach(question => {
+            if (question.options) {
+              Utils.shuffleArray(question.options);
+            }
+          });
         }
         console.log("Emitting shuffled questions:", questions.map(q => q.questionText));
       })
     ).subscribe({
       next: (questions) => {
-          console.log("About to emit questions to subscribers:", questions.map(q => q.questionText));
-          this.questions$.next(questions);
+        console.log("About to emit questions to subscribers:", questions.map(q => q.questionText));
+        this.questions$.next(questions);
       },
       error: (error) => {
-          console.error('Error fetching questions:', error);
+        console.error('Error fetching questions:', error);
       },
       complete: () => {
-          console.log('Data fetching and processing complete.');
+        console.log('Data fetching and processing complete.');
       }
     });
   }
