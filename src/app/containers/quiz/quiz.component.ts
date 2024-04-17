@@ -187,6 +187,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // this.testSubscribeToQuestions();
 
     this.questions = this.quizService.getShuffledQuestions();
+    this.updateQuestionDisplay();
     this.cdRef.detectChanges(); // Ensuring UI updates if using OnPush strategy
     console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
 
@@ -265,6 +266,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.src = "http://www.marvinrusinek.com/sound-correct.mp3";
     audio.load();
     audio.play();
+  }
+
+  updateQuestionDisplay(): void {
+    this.questionToDisplay = this.questions[this.currentQuestionIndex];
   }
 
   testSubscribeToQuestions(): void {
