@@ -1398,7 +1398,6 @@ export class QuizService implements OnDestroy {
       }),
       tap(questions => {
         if (this.checkedShuffle) {
-          // Assuming shuffle logic is here
           this.shuffleQuestions(questions);
         }
       }),
