@@ -1354,7 +1354,6 @@ export class QuizService implements OnDestroy {
   }
 
   fetchAndShuffleQuestions(quizId: string): void {
-    console.log("fetchAndShuffleQuestions called with ID:", quizId);
     this.http.get<any[]>(this.quizUrl).pipe(
       map(quizzes => {
         console.log("Quizzes fetched:", quizzes);
@@ -1366,7 +1365,6 @@ export class QuizService implements OnDestroy {
         return foundQuiz.questions;
       }),
       tap(questions => {
-        console.log("Fetched and filtered questions before shuffle:", questions.map(q => q.questionText));
         const originalOrder = questions.map(q => q.questionText); // Save original order
         if (this.checkedShuffle.value && questions.length > 0) {
           Utils.shuffleArray(questions);
@@ -1381,6 +1379,7 @@ export class QuizService implements OnDestroy {
     })
     ).subscribe({
       next: (questions) => {
+        console.log("Emitting questions from ReplaySubject", questions);
         console.log("Emitting shuffled questions:", questions.map(q => q.questionText));
         this.questions$.next(questions);
       },

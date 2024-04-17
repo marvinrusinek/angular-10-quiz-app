@@ -266,6 +266,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   testSubscribeToQuestions(): void {
     console.log("Testing subscription to questions.");
+    console.log("QUESTIONS$", this.quizService.questions$);
     this.subscription = this.quizService.questions$.subscribe({
         next: (questions) => {
             console.log("Received questions:", questions);
