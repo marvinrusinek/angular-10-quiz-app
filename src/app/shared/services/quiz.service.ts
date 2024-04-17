@@ -1397,10 +1397,18 @@ export class QuizService implements OnDestroy {
         }
         console.log("Emitting shuffled questions:", questions.map(q => q.questionText));
       })
-    ).subscribe(
-      questions => this.questions$.next(questions),
-      error => console.error('Error fetching questions:', error)
-    );
+    ).subscribe({
+      next: (questions) => {
+          console.log("About to emit questions to subscribers:", questions.map(q => q.questionText));
+          this.questions$.next(questions);
+      },
+      error: (error) => {
+          console.error('Error fetching questions:', error);
+      },
+      complete: () => {
+          console.log('Data fetching and processing complete.');
+      }
+    });
   }
 
   setResources(value: Resource[]): void {
