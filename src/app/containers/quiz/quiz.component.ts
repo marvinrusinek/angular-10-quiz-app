@@ -204,6 +204,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.subscribeToCurrentQuestion();
 
     console.log("QuizComponent ngOnInit called.");
+    console.log("QuizComponent subscribing to questions.");
     this.testSubscribeToQuestions(); 
     
     /* this.quizService.questionDataSubject.subscribe(

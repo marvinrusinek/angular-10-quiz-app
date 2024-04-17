@@ -1353,7 +1353,7 @@ export class QuizService implements OnDestroy {
     this.fetchAndShuffleQuestions(this.quizId);
   }
 
-  fetchAndShuffleQuestions(quizId: string): void {
+  /* fetchAndShuffleQuestions(quizId: string): void {
     this.http.get<any[]>(this.quizUrl).pipe(
       map(quizzes => {
         console.log("Quizzes fetched:", quizzes);
@@ -1385,6 +1385,34 @@ export class QuizService implements OnDestroy {
       },
       error: (error) => console.error('Error fetching and processing questions:', error)
     });
+  } */
+
+  fetchAndShuffleQuestions(quizId: string): void {
+    this.http.get<any[]>(this.quizUrl).pipe(
+      map(quizzes => {
+        const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
+        if (!foundQuiz) {
+          throw new Error(`Quiz with ID ${quizId} not found.`);
+        }
+        return foundQuiz ? foundQuiz.questions : [];
+      }),
+      tap(questions => {
+        if (this.checkedShuffle) {
+          // Assuming shuffle logic is here
+          this.shuffleQuestions(questions);
+        }
+      }),
+      catchError(error => {
+        console.error('Failed to fetch or process questions:', error);
+        return throwError(() => new Error('Error processing quizzes'));
+      })
+    ).subscribe(
+      questions => {
+        this.questions$.next(questions);
+        console.log("Questions emitted to ReplaySubject:", questions);
+      },
+      error => console.error('Error in subscription:', error)
+    );
   }
 
   setResources(value: Resource[]): void {
