@@ -1379,27 +1379,30 @@ export class QuizService implements OnDestroy {
     this.fetchAndShuffleQuestions();
   }
 
-  fetchAndShuffleQuestions(): void {
+  fetchAndShuffleQuestions(quizId: string): void {
     this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
+        map(questions => {
+            // Assuming each item in the array is a quiz object that contains an array of questions
+            const quiz = questions.find(quiz => quiz.quizId === quizId);
+            return quiz ? quiz.questions : [];
+        }),
         tap(questions => {
-          console.log("Raw fetched questions:", questions);
-          if (this.checkedShuffle.value) {
-            console.log("Pre-shuffle questions:", questions.map(q => q.questionText));
-            Utils.shuffleArray(questions);
-            questions.forEach(question => {
-                console.log("Pre-shuffle options for question:", question.questionText, question.options);
-                Utils.shuffleArray(question.options);
-                console.log("Post-shuffle options for question:", question.questionText, question.options);
-            });
-            console.log("Post-shuffle questions:", questions.map(q => q.questionText));
-          }
+            console.log("Fetched questions for quiz ID:", quizId, questions);
+            if (this.checkedShuffle.value) {
+                Utils.shuffleArray(questions);
+                questions.forEach(question => {
+                    if (question.options) {
+                        Utils.shuffleArray(question.options);
+                    }
+                });
+            }
         })
-    ).subscribe({
-        next: (questions) => this.questions$.next(questions),
-        error: (error) => console.error('Error fetching questions:', error),
-        complete: () => console.log('Fetch and shuffle complete.')
-    });
+    ).subscribe(
+        questions => this.questions$.next(questions),
+        error => console.error('Error fetching questions:', error)
+    );
   }
+
 
   setResources(value: Resource[]): void {
     this.resources = value;
