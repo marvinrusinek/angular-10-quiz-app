@@ -1409,6 +1409,7 @@ export class QuizService implements OnDestroy {
             console.log("Questions before shuffle in service:", questions.map(q => q.questionText));
             Utils.shuffleArray(questions);
             console.log("Questions after shuffle in service:", questions.map(q => q.questionText));
+            this.shuffledQuestions = questions;  // Store shuffled questions
           }
         }),
         catchError(error => {
