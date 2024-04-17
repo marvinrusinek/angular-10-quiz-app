@@ -1388,12 +1388,18 @@ export class QuizService implements OnDestroy {
   } */
 
   fetchAndShuffleQuestions(quizId: string): void {
-    this.http.get<{ quizzes: any[] }>(this.quizUrl)  // Assuming the response includes a 'quizzes' array
+    this.http.get<any>(this.quizUrl)  // Assuming the API might not wrap quizzes in an object
         .pipe(
             map(response => {
-                if (!response.quizzes) throw new Error("Quizzes data is missing from the response");
-                const foundQuiz = response.quizzes.find(quiz => quiz.quizId === quizId);
-                if (!foundQuiz) throw new Error(`Quiz with ID ${quizId} not found.`);
+                // Handle both wrapped and unwrapped responses
+                const quizzes = response.quizzes || response;
+                if (!Array.isArray(quizzes)) {
+                    throw new Error("Unexpected data format");
+                }
+                const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
+                if (!foundQuiz) {
+                    throw new Error(`Quiz with ID ${quizId} not found.`);
+                }
                 return foundQuiz.questions;
             }),
             tap(questions => {
