@@ -1381,26 +1381,26 @@ export class QuizService implements OnDestroy {
 
   fetchAndShuffleQuestions(quizId: string): void {
     this.http.get<{quizId: string, questions: QuizQuestion[]}[]>(this.quizUrl).pipe(
-        map(quizzes => {
-            // Find the correct quiz based on quizId and return its questions
-            const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-            return foundQuiz ? foundQuiz.questions : [];
-        }),
-        tap(questions => {
-          console.log("Fetched questions before shuffle:", questions.map(q => q.questionText));
-          if (this.checkedShuffle.value) {
-              Utils.shuffleArray(questions);
-              questions.forEach(question => {
-                  console.log("Options before shuffle for question:", question.questionText, question.options.map(o => o.text));
-                  Utils.shuffleArray(question.options);
-                  console.log("Options after shuffle for question:", question.questionText, question.options.map(o => o.text));
-              });
-          }
-          console.log("Questions after shuffle:", questions.map(q => q.questionText));
-        })
+      map(quizzes => {
+        // Find the correct quiz based on quizId and return its questions
+        const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
+        return foundQuiz ? foundQuiz.questions : [];
+      }),
+      tap(questions => {
+        console.log("Fetched questions before shuffle:", questions.map(q => q.questionText));
+        if (this.checkedShuffle.value) {
+          Utils.shuffleArray(questions);
+          questions.forEach(question => {
+            console.log("Options before shuffle for question:", question.questionText, question.options.map(o => o.text));
+            Utils.shuffleArray(question.options);
+            console.log("Options after shuffle for question:", question.questionText, question.options.map(o => o.text));
+          });
+        }
+        console.log("Questions after shuffle:", questions.map(q => q.questionText));
+      })
     ).subscribe(
-        questions => this.questions$.next(questions),
-        error => console.error('Error fetching questions:', error)
+      questions => this.questions$.next(questions),
+      error => console.error('Error fetching questions:', error)
     );
   }
 
