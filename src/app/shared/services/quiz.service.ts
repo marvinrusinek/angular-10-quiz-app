@@ -1376,7 +1376,7 @@ export class QuizService implements OnDestroy {
 
   setCheckedShuffle(isChecked: boolean): void {
     this.checkedShuffle.next(isChecked);
-    this.fetchAndShuffleQuestions();
+    this.fetchAndShuffleQuestions(this.quizId);
   }
 
   fetchAndShuffleQuestions(quizId: string): void {
