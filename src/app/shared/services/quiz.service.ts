@@ -1385,27 +1385,28 @@ export class QuizService implements OnDestroy {
     this.http.get<any[]>(this.quizUrl).pipe(
         map(quizzes => {
             const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-            return foundQuiz ? foundQuiz.questions : [];
+            if (!foundQuiz) {
+                console.error("Quiz with ID", quizId, "not found.");
+                throw new Error(`Quiz with ID ${quizId} not found.`);
+            }
+            return foundQuiz.questions;
         }),
         tap(questions => {
-            if (!questions.length) {
-                console.log("No questions found for quiz ID:", quizId);
-                throw new Error('No questions found.');
-            }
-            if (this.checkedShuffle.value) {
+            console.log("Fetched and filtered questions before shuffle:", questions.map(q => q.questionText));
+            if (this.checkedShuffle.value && questions.length > 0) {
                 Utils.shuffleArray(questions);
                 questions.forEach(question => {
-                    if (question.options) {
+                    if (question.options && question.options.length > 0) {
                         Utils.shuffleArray(question.options);
                     }
                 });
             }
-            console.log("Questions ready to emit:", questions.map(q => q.questionText));
+            console.log("Questions after shuffle:", questions.map(q => q.questionText));
         })
     ).subscribe({
         next: (questions) => {
+            console.log("Emitting shuffled questions:", questions.map(q => q.questionText));
             this.questions$.next(questions);
-            console.log("Questions emitted:", questions.map(q => q.questionText));
         },
         error: (error) => console.error('Error fetching and processing questions:', error)
     });
