@@ -1381,20 +1381,21 @@ export class QuizService implements OnDestroy {
 
   fetchAndShuffleQuestions(): void {
     this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-      tap(questions => {
-        if (this.checkedShuffle.value) {
-          Utils.shuffleArray(questions);
-          questions.forEach(question => {
-            if (question.options) {
-              Utils.shuffleArray(question.options);
+        tap(questions => {
+            if (this.checkedShuffle.value) {
+                Utils.shuffleArray(questions);
+                questions.forEach(question => {
+                    if (question.options) {
+                        Utils.shuffleArray(question.options);
+                    }
+                });
             }
-          });
-        }
-      })
-    ).subscribe(
-      questions => this.questions$.next(questions), // Correct usage of next on BehaviorSubject
-      error => console.error('Error fetching questions:', error)
-    );
+        })
+    ).subscribe({
+        next: (questions) => this.questions$.next(questions),
+        error: (error) => console.error('Error fetching questions:', error),
+        complete: () => console.log('Fetch and shuffle complete.')
+    });
   }
 
   setResources(value: Resource[]): void {
