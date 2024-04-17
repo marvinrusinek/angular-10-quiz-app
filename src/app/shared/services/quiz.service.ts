@@ -1171,7 +1171,7 @@ export class QuizService implements OnDestroy {
     if (this.checkedShuffle && questions && questions.length > 0) {
       const shuffledQuestions = Utils.shuffleArray([...questions]);  // Shuffle a copy to maintain immutability
       this.questionDataSubject.next(shuffledQuestions);  // Emit the shuffled questions
-      
+
       // Testing the shuffle logic
       console.log("Original array:", [1, 2, 3, 4, 5]);
       console.log("Shuffled array 1:", Utils.shuffleArray([1, 2, 3, 4, 5]));
@@ -1389,14 +1389,16 @@ export class QuizService implements OnDestroy {
   fetchAndShuffleQuestions(): void {
     this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
         tap(questions => {
-            if (this.checkedShuffle.value) {
-                Utils.shuffleArray(questions);
-                questions.forEach(question => {
-                    if (question.options) {
-                        Utils.shuffleArray(question.options);
-                    }
-                });
-            }
+          if (this.checkedShuffle.value) {
+            console.log("Pre-shuffle questions:", questions.map(q => q.questionText));
+            Utils.shuffleArray(questions);
+            questions.forEach(question => {
+                console.log("Pre-shuffle options for question:", question.questionText, question.options);
+                Utils.shuffleArray(question.options);
+                console.log("Post-shuffle options for question:", question.questionText, question.options);
+            });
+            console.log("Post-shuffle questions:", questions.map(q => q.questionText));
+          }
         })
     ).subscribe({
         next: (questions) => this.questions$.next(questions),
