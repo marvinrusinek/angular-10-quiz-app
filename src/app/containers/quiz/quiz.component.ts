@@ -572,11 +572,31 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
   }
 
-  private initializeQuizBasedOnRouteParams(): void {
+  /* private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => this.handleRouteParams(params))
     ).subscribe();  // Triggers the observable chain in handleRouteParams
+  } */
+
+  private initializeQuizBasedOnRouteParams(): void {
+    this.activatedRoute.paramMap.pipe(
+      switchMap((params: ParamMap) => this.handleRouteParams(params))
+    ).subscribe({
+      next: ({ quizId, questionIndex, quizData }) => {
+        // Update the component's state with the fetched data
+        if (quizData && quizData.questions.length > questionIndex) {
+          this.currentQuiz = quizData;
+          this.currentQuestion = quizData.questions[questionIndex];
+        } else {
+          console.error('Invalid question index or quiz data');
+        }
+      },
+      error: error => {
+        console.error('Failed to load quiz data', error);
+      }
+    });
   }
+
 
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
