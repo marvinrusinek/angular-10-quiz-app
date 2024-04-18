@@ -1705,20 +1705,11 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  playCorrectSound(): void {
-    let correctSound = new Audio();
-    // Proxy the HTTP URL through an HTTPS proxy
-    correctSound.src = 'https://cors-anywhere.herokuapp.com/http://www.marvinrusinek.com/sound-correct.mp3';
   
-    correctSound.onerror = (e) => {
-      console.error('Failed to load the sound file:', e);
-    };
   
-    correctSound.oncanplaythrough = () => {
-      console.log('Audio is ready to play!');
-      correctSound.play();
-    };
-  }
+  
+  
+  
   
   
 
