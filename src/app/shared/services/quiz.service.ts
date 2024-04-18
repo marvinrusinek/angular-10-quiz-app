@@ -1707,9 +1707,9 @@ export class QuizService implements OnDestroy {
 
   playCorrectSound(): void {
     let correctSound = new Audio();
-    // Use a full path. Adjust the path as necessary if StackBlitz needs a different structure.
-    correctSound.src = 'https://www.marvinrusinek.com/sound-correct.mp3';
-    
+    // Proxy the HTTP URL through an HTTPS proxy
+    correctSound.src = 'https://cors-anywhere.herokuapp.com/http://www.marvinrusinek.com/sound-correct.mp3';
+  
     correctSound.onerror = (e) => {
       console.error('Failed to load the sound file:', e);
     };
@@ -1718,9 +1718,8 @@ export class QuizService implements OnDestroy {
       console.log('Audio is ready to play!');
       correctSound.play();
     };
-  
-    // correctSound.load(); // This is actually unnecessary as setting src on a new Audio object will automatically start loading the file
   }
+  
   
 
   // Call this method to play the incorrect sound
