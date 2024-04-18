@@ -586,7 +586,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('Fetched quiz data:', quizData);  // Log the complete quiz data
         console.log('Received question index:', questionIndex);  // Log the received index
   
-        if (quizData && Array.isArray(quizData.questions) && quizData.questions.length > questionIndex && questionIndex >= 0) {
+        if (quizData && Array.isArray(quizData.questions) && questionIndex >= 0 && questionIndex < quizData.questions.length) {
           this.currentQuiz = quizData;
           this.currentQuestion = quizData.questions[questionIndex];
           console.log('Current question set to:', this.currentQuestion);
