@@ -1561,17 +1561,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.resetAll();
     this.currentQuestionIndex = 0;  // Reset to the first question's index
     this.progressPercentage = 0; // Reset the progressPercentage to 0
-    this.explanationTextService.resetExplanationText();  // Clears any existing explanation text
   
     // Reset the current question index to the first question
     this.quizService.setCurrentQuestionIndex(0);
-    // Reset any other relevant state, such as explanation visibility
-    this.explanationTextService.setShouldDisplayExplanation(false);
 
-    // Update the badge text for badge question ID 1 with the total number of questions
-    this.quizService.updateBadgeText(1, this.totalQuestions);
-
-    // Navigate to the first question of the current quiz
     this.router.navigate(['/question', this.quizId, 1])
       .then(success => {
         if (success) {
@@ -1581,6 +1574,13 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       })
       .catch(err => console.error('Navigation error:', err));
+
+    // Reset any other relevant state, such as explanation visibility
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.resetExplanationText();  // Clears any existing explanation text
+
+    // Update the badge text for badge question ID 1 with the total number of questions
+    this.quizService.updateBadgeText(1, this.totalQuestions);
   
     // Step 2: Reset the timer synchronously
     this.timerService.stopTimer((elapsedTime: number) => {
@@ -1593,10 +1593,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.setDisplayStateForExplanationsAfterRestart().then(() => {
       // Navigate to the first question and reset UI only after all previous steps are complete
-      return this.router.navigate(['/question/', this.quizId, 1]);
-     }).then(() => {
+      return this.router.navigate(['/question', this.quizId, 1]);
+    }).then(() => {
       this.resetUI(); // Reset UI after successful navigation
-     }).catch(error => {
+    }).catch(error => {
       console.error('Error during quiz restart:', error);
     });
   }
