@@ -25,7 +25,7 @@ const routes: Routes = [
   {
     path: 'question/:quizId/:questionIndex',
     component: QuizComponent,
-    canActivate: [QuizGuard],
+    // canActivate: [QuizGuard],
     resolve: { quizData: QuizResolverService },
     runGuardsAndResolvers: 'always'
   },
@@ -36,7 +36,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { enableTracing: true })],
+  imports: [RouterModule.forRoot(routes, { enableTracing: false })],
   exports: [RouterModule]
 })
 export class QuizRoutingModule {}
