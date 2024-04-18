@@ -1571,8 +1571,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Update the badge text for badge question ID 1 with the total number of questions
     this.quizService.updateBadgeText(1, this.totalQuestions);
 
-    // Navigate to the first question
-    this.router.navigate(['/quiz'], { queryParams: { questionIndex: 1 } });
+    // Navigate to the first question of the current quiz
+    this.router.navigate(['/question', this.quizId, 1])
+      .then(success => {
+        if (success) {
+          console.log('Navigation to first question succeeded.');
+        } else {
+          console.log('Navigation to first question failed.');
+        }
+      })
+      .catch(err => console.error('Navigation error:', err));
   
     // Step 2: Reset the timer synchronously
     this.timerService.stopTimer((elapsedTime: number) => {
