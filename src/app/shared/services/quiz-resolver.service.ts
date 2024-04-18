@@ -14,7 +14,10 @@ export class QuizResolverService implements Resolve<Quiz | null> {
     const quizId = route.params['quizId'];
 
     return this.quizService.getQuizData().pipe(
-      map(quizzes => quizzes.find(quiz => quiz.quizId === quizId) || null),
+      map(quizzes => {
+        console.log("Quizzes loaded:", quizzes);
+        return quizzes.find(quiz => quiz.quizId === quizId) || null;
+      }),
       catchError(error => {
         console.error(`Error resolving quiz data for ID ${quizId}:`, error);
         return of(null);
