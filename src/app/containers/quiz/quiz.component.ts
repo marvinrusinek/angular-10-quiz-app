@@ -580,7 +580,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
-      switchMap((params: ParamMap) => this.handleRouteParams(params))
+      switchMap((params: ParamMap) => this.handleRouteParams(params)),
+      takeUntil(this.destroy$)
     ).subscribe({
       next: ({ quizId, questionIndex, quizData }) => {
         // Update the component's state with the fetched data
