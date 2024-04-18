@@ -1705,14 +1705,23 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  // Call this method to play the correct sound
   playCorrectSound(): void {
-    if (this.correctSound) {
-      this.correctSound.play();
-    } else {
-      console.error('Correct sound not initialized');
-    }
+    let correctSound = new Audio();
+    // Use a full path. Adjust the path as necessary if StackBlitz needs a different structure.
+    correctSound.src = 'http://www.marvinrusinek.com/sound-correct.mp3';
+    
+    correctSound.onerror = (e) => {
+      console.error('Failed to load the sound file:', e);
+    };
+  
+    correctSound.oncanplaythrough = () => {
+      console.log('Audio is ready to play!');
+      correctSound.play();
+    };
+  
+    correctSound.load(); // This is actually unnecessary as setting src on a new Audio object will automatically start loading the file
   }
+  
 
   // Call this method to play the incorrect sound
   playIncorrectSound(): void {
