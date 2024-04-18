@@ -16,26 +16,22 @@ const routes: Routes = [
   },
   {
     path: 'select',
-    component: QuizSelectionComponent,
-    pathMatch: 'full'
+    component: QuizSelectionComponent
   },
   {
     path: 'intro/:quizId',
-    component: IntroductionComponent,
-    pathMatch: 'full'
+    component: IntroductionComponent
   },
   {
     path: 'question/:quizId/:questionIndex',
     component: QuizComponent,
-    pathMatch: 'full',
     canActivate: [QuizGuard],
     resolve: { quizData: QuizResolverService },
     runGuardsAndResolvers: 'always'
   },
   {
     path: 'results/:quizId',
-    component: ResultsComponent,
-    pathMatch: 'full'
+    component: ResultsComponent
   }
 ];
 
