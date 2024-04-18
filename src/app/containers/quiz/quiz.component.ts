@@ -215,13 +215,16 @@ export class QuizComponent implements OnInit, OnDestroy {
       switchMap(params => {
         const quizId = params.get('quizId');
         const questionIndex = +params.get('questionIndex');
-        return this.getQuestion();
+        return this.getQuestion(quizId, questionIndex); // Now this returns an Observable
       })
-    ).subscribe(question => {
-      this.currentQuestion = question as QuizQuestion;
-    }, error => {
-      console.error('Failed to load the question.', error);
-    });
+    ).subscribe(
+      question => {
+        this.currentQuestion = question as QuizQuestion;
+      },
+      error => {
+        console.error('Failed to load the question.', error);
+      }
+    );
     
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
