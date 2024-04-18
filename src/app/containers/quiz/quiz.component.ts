@@ -938,7 +938,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
   
-  async getQuestion(): Promise<void> {
+  /* async getQuestion(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params.quizId;
       const currentQuestionIndex = this.currentQuestionIndex;
@@ -963,6 +963,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error fetching question and options:', error);
     }
+  } */
+
+  getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
+    return this.quizDataService.getQuestionAndOptions(quizId, questionIndex).pipe(
+      map(([question, options]) => {
+        this.handleQuestion(question);
+        this.handleOptions(options);
+        return question;
+      })
+    );
   }
 
   initializeFirstQuestion(): void {
