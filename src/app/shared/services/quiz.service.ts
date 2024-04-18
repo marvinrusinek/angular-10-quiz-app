@@ -8,7 +8,7 @@ import {
   from,
   Observable,
   of,
-  ReplaySubject, 
+  ReplaySubject,
   Subject,
   throwError
 } from 'rxjs';
@@ -597,10 +597,7 @@ export class QuizService implements OnDestroy {
     return true;
   }
 
-  async determineCorrectAnswer(
-    question: QuizQuestion,
-    answers: any[]
-  ): Promise<boolean[]> {
+  async determineCorrectAnswer(question: QuizQuestion, answers: any[]): Promise<boolean[]> {
     return await Promise.all(
       answers.map(async (answer) => {
         const option = question.options && question.options[answer];
@@ -811,7 +808,7 @@ export class QuizService implements OnDestroy {
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     );
   }
- 
+
   updateCorrectMessageText(message: string): void {
     this.correctMessage$.next(message);
   }
@@ -1422,7 +1419,7 @@ export class QuizService implements OnDestroy {
           console.log("Emitting shuffled questions from service:", questions.map(q => q.questionText));
         },
         error => console.error('Error in subscription:', error)
-      ); 
+      );
   }
 
   getShuffledQuestions(): QuizQuestion[] {
