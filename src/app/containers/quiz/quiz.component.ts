@@ -218,7 +218,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         return this.getQuestion();
       })
     ).subscribe(question => {
-      this.currentQuestion = question;
+      this.currentQuestion = question as QuizQuestion;
     }, error => {
       console.error('Failed to load the question.', error);
     });
