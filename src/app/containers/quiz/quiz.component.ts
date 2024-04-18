@@ -580,21 +580,19 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
-      switchMap((params: ParamMap) => this.handleRouteParams(params)),
-      takeUntil(this.destroy$)
+      switchMap((params: ParamMap) => this.handleRouteParams(params))
     ).subscribe({
       next: ({ quizId, questionIndex, quizData }) => {
-        // Update the component's state with the fetched data
+        console.log('Fetched data:', quizData); // Log fetched data
         if (quizData && quizData.questions.length > questionIndex) {
           this.currentQuiz = quizData;
           this.currentQuestion = quizData.questions[questionIndex];
+          console.log('Current question:', this.currentQuestion); // Log current question
         } else {
           console.error('Invalid question index or quiz data');
         }
       },
-      error: error => {
-        console.error('Failed to load quiz data', error);
-      }
+      error: error => console.error('Failed to load quiz data', error)
     });
   }
 
