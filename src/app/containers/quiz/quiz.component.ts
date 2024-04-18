@@ -835,7 +835,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             console.error("Quiz data is undefined, or there are no questions");
             // Navigate away or show an error message
             this.router.navigate(['/select']).then(() => {
-                this.messageService.show('No quiz data available.');
+                console.log('No quiz data available.');
             });
             return;
         }
