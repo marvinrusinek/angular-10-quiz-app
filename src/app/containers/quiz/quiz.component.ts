@@ -1560,7 +1560,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Step 1: Reset quiz-specific states and services
     this.quizService.resetAll();
     this.currentQuestionIndex = 0;  // Reset to the first question's index
-    this.questionIndex = 1;
+    this.questionIndex = 1; // need to update the questionIndex in the URL when quiz resets...
     this.progressPercentage = 0; // Reset the progressPercentage to 0
     this.explanationTextService.resetExplanationText();  // Clears any existing explanation text
   
