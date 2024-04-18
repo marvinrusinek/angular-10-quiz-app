@@ -1560,7 +1560,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Step 1: Reset quiz-specific states and services
     this.quizService.resetAll();
     this.currentQuestionIndex = 0;  // Reset to the first question's index
-    this.questionIndex = 1; // need to update the questionIndex in the URL when quiz resets...
     this.progressPercentage = 0; // Reset the progressPercentage to 0
     this.explanationTextService.resetExplanationText();  // Clears any existing explanation text
   
@@ -1571,6 +1570,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Update the badge text for badge question ID 1 with the total number of questions
     this.quizService.updateBadgeText(1, this.totalQuestions);
+
+    // Navigate to the first question
+    this.router.navigate(['/quiz'], { queryParams: { questionIndex: 1 } });
   
     // Step 2: Reset the timer synchronously
     this.timerService.stopTimer((elapsedTime: number) => {
