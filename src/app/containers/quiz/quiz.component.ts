@@ -211,7 +211,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    this.activatedRoute.paramMap.pipe(
+    /* this.activatedRoute.paramMap.pipe(
       switchMap(params => {
         const quizId = params.get('quizId');
         const questionIndex = +params.get('questionIndex');
@@ -224,7 +224,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       error => {
         console.error('Failed to load the question.', error);
       }
-    );
+    ); */
     
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
