@@ -811,40 +811,40 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Subscribe to router events
     this.routerSubscription = this.router.events.pipe(
-        filter((event: RouterEvent): event is NavigationEnd => event instanceof NavigationEnd),
-        switchMap(() => {
-            const newQuizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-            if (this.quizId !== newQuizId) {
-                this.quizId = newQuizId;  // Only update quizId if it has changed.
-                return this.activatedRoute.paramMap;
-            }
-            return this.activatedRoute.paramMap; // Consider if reassignment is necessary here
-        }),
-        takeUntil(this.unsubscribe$)  // Automatically unsubscribe when component is destroyed
+      filter((event: RouterEvent): event is NavigationEnd => event instanceof NavigationEnd),
+      switchMap(() => {
+        const newQuizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+        if (this.quizId !== newQuizId) {
+          this.quizId = newQuizId;  // Only update quizId if it has changed.
+          return this.activatedRoute.paramMap;
+        }
+        return this.activatedRoute.paramMap; // Consider if reassignment is necessary here
+      }),
+      takeUntil(this.unsubscribe$)  // Automatically unsubscribe when component is destroyed
     ).subscribe((params: ParamMap) => {
-        this.questionIndex = +params.get('questionIndex') || 0;
-        this.handleParamMap(params);
+      this.questionIndex = +params.get('questionIndex') || 0;
+      this.handleParamMap(params);
     });
 
     // Subscribe to the ActivatedRoute data observable
     this.activatedRoute.data.pipe(
-        takeUntil(this.unsubscribe$)  // Prevent memory leaks
+      takeUntil(this.unsubscribe$)  // Prevent memory leaks
     ).subscribe(data => {
-        const quizData: Quiz = data.quizData;
-        if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
-            console.error("Quiz data is undefined, or there are no questions");
-            // Navigate away or show an error message
-            this.router.navigate(['/select']).then(() => {
-                console.log('No quiz data available.');
-            });
-            return;
-        }
+      const quizData: Quiz = data.quizData;
+      if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
+        console.error("Quiz data is undefined, or there are no questions");
+        // Navigate away or show an error message
+        this.router.navigate(['/select']).then(() => {
+          console.log('No quiz data available.');
+        });
+        return;
+      }
 
-        const explanations = quizData.questions.map(question => question.explanation);
-        this.explanationTextService.initializeExplanationTexts(explanations);
+      const explanations = quizData.questions.map(question => question.explanation);
+      this.explanationTextService.initializeExplanationTexts(explanations);
 
-        this.currentQuiz = quizData;    
-        this.quizService.setSelectedQuiz(quizData);
+      this.currentQuiz = quizData;    
+      this.quizService.setSelectedQuiz(quizData);
     });
   }
 
