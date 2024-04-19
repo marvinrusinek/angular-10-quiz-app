@@ -1193,12 +1193,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
     const quizId = params.get('quizId');
     const questionIndex = parseInt(params.get('questionIndex'), 10);
-    if (isNaN(questionIndex)) {
-      throw new Error('Question index is not a valid number');
-    }
-  
-    return this.quizService.getQuizData(quizId).pipe(
-      map(quizData => {
+    return this.quizService.getQuizData().pipe(
+      map(quizzes => {
+        const quizData = quizzes.find(quiz => quiz.quizId === quizId);
         if (!quizData || !quizData.questions) {
           throw new Error('Quiz data is missing or incorrectly formatted');
         }
