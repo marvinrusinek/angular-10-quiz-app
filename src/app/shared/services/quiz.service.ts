@@ -246,7 +246,7 @@ export class QuizService implements OnDestroy {
       localStorage.getItem('correctAnswersText') || 'Please select an answer';
     this.correctAnswersCountTextSource.next(initialText);
 
-    this.initializeSounds();
+    // this.initializeSounds();
   }
 
   ngOnDestroy(): void {
@@ -1669,7 +1669,7 @@ export class QuizService implements OnDestroy {
   }
 
   /********* sound functions ***********/
-  initializeSounds(): void {
+  /* initializeSounds(): void {
     if (!this.soundsLoaded) {
       // URLs are directly accessible, ensure that you manually check these URLs in a web browser.
       const baseHostedUrl = 'https://angular-10-quiz-app.stackblitz.io/assets/audio/';
@@ -1686,9 +1686,9 @@ export class QuizService implements OnDestroy {
       );
       this.soundsLoaded = true;
     }
-  }
+  } */
 
-  loadSound(url: string, soundName: string): Howl {
+  /* loadSound(url: string, soundName: string): Howl {
     return new Howl({
       src: [url],
       html5: true, // Continue using HTML5 audio for compatibility
@@ -1703,14 +1703,8 @@ export class QuizService implements OnDestroy {
         console.error('Possible playback issue, consider checking file encoding or consulting StackBlitz support/documentation for media file hosting limitations.');
       }
     });
-  }
+  } */
 
-  
-  
-  
-  
-  
-  
   
 
   // Call this method to play the incorrect sound
@@ -1725,7 +1719,7 @@ export class QuizService implements OnDestroy {
 
 
   // Add this method to your QuizService or component
-  playSoundOnOptionClick(isCorrect: boolean): void {
+  /* playSoundOnOptionClick(isCorrect: boolean): void {
     this.initializeSounds(); // Make sure sounds are loaded
     const sound = isCorrect ? this.correctSound : this.incorrectSound;
     if (sound) {
@@ -1736,5 +1730,5 @@ export class QuizService implements OnDestroy {
         isCorrect ? 'Correct' : 'Incorrect'
       );
     }
-  }
+  } */
 }
