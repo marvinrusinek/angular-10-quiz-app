@@ -864,7 +864,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  handleAudioPlayback(isCorrect: boolean): void {
+  /* handleAudioPlayback(isCorrect: boolean): void {
     const audioSrc = isCorrect ? this.correctAudioSource : this.incorrectAudioSource;
     let audio = new Audio(audioSrc);
     audio.play().then(() => {
@@ -873,8 +873,46 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error("Error playing audio:", error);
       // Handle specific errors, e.g., User didn't interact with the document first.
     });
-  }
+  } */
 
+  handleAudioPlayback(isCorrect: boolean): void {
+    const audioSrc = isCorrect ? this.correctAudioSource : this.incorrectAudioSource;
+    let audio = new Audio(audioSrc);
+
+    audio.oncanplaythrough = () => {
+        console.log("Audio is ready and can play through without interruption.");
+        audio.play().catch(error => {
+            console.error("Error while trying to play audio:", error);
+        });
+    };
+
+    audio.onerror = () => {
+        console.error("Error loading audio source:", audio.error);
+        // Log specific error details if available
+        if (audio.error) {
+            console.log(`Media error code: ${audio.error.code}`);
+            switch (audio.error.code) {
+                case MediaError.MEDIA_ERR_ABORTED:
+                    console.error("Audio loading aborted.");
+                    break;
+                case MediaError.MEDIA_ERR_NETWORK:
+                    console.error("Audio loading failed due to a network error.");
+                    break;
+                case MediaError.MEDIA_ERR_DECODE:
+                    console.error("Audio decoding failed due to a corrupted data or unsupported feature.");
+                    break;
+                case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                    console.error("Audio format not supported or source not found.");
+                    break;
+                default:
+                    console.error("An unknown error occurred.");
+                    break;
+            }
+        }
+    };
+
+    audio.load();  // Explicitly call load if needed, though setting src usually suffices.
+  }
 
   private getTotalCorrectAnswers(currentQuestion: QuizQuestion): number {
     return currentQuestion.options.filter((option) => option.correct).length;
