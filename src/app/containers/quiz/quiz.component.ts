@@ -599,18 +599,26 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: ({ quizId, questionIndex, quizData }) => {
         console.log('Fetched quiz data:', quizData);
+  
+        // Safety check for quizData and quizData.questions
+        if (!quizData || !quizData.questions) {
+          console.error('Quiz data or questions array is undefined');
+          return; // Exit the function if data is not valid
+        }
+  
         console.log(`Question index: ${questionIndex}, Number of questions: ${quizData.questions.length}`);
-        if (quizData && quizData.questions && questionIndex >= 0 && questionIndex < quizData.questions.length) {
+        if (questionIndex >= 0 && questionIndex < quizData.questions.length) {
           this.currentQuiz = quizData;
           this.currentQuestion = quizData.questions[questionIndex];
           console.log('Current question set to:', this.currentQuestion);
         } else {
-          console.error('Invalid question index or quiz data');
+          console.error('Invalid question index');
         }
       },
       error: error => console.error('Failed to load quiz data', error)
     });
-  }  
+  }
+    
 
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
