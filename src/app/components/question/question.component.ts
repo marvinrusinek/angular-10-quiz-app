@@ -143,6 +143,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isPaused = false;
   private initialized = false;
 
+  correctAudioSource = 'http://www.marvinrusinek.com/sound-correct.mp3';
+  incorrectAudioSource = 'http://www.marvinrusinek.com/sound-incorrect.mp3';
+  playCorrectSound = false;
+  playIncorrectSound = false;
+
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
