@@ -25,6 +25,7 @@
     "@ng-bootstrap/ng-bootstrap": "7.0.0",
     "@types/howler": "^2.2.11",
     "@types/lodash": "^4.14.202",
+    "ang-music-player": "^0.0.4",
     "bootstrap": "4.5.3",
     "codelab-quiz-models/*": "*",
     "core-js": "3.6.5",

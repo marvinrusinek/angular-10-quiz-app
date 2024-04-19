@@ -24,6 +24,8 @@
   </ng-container>
 </form>-->
 
+<audio-player *ngIf="playCorrectSound" [src]="correctAudioSource"></audio-player>
+<audio-player *ngIf="playIncorrectSound" [src]="incorrectAudioSource"></audio-player>
 
 <form [formGroup]="questionForm" [ngSwitch]="multipleAnswer" (ngSubmit)="onSubmit()">
   <ng-container *ngIf="shouldDisplayTextContent">
