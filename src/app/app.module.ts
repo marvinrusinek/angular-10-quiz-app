@@ -19,6 +19,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IonicModule } from '@ionic/angular';
+import { AngMusicPlayerModule } from  'ang-music-player';
 
 import { AppComponent } from './app.component';
 import { IntroductionComponent } from './containers/introduction/introduction.component';
@@ -110,6 +111,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     MatToolbarModule,
     NgbModule,
     FontAwesomeModule,
+    AngMusicPlayerModule,
     IonicModule.forRoot()
   ],
   exports: [
