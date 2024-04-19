@@ -1303,7 +1303,7 @@ export class QuizService implements OnDestroy {
 
   setQuestions(value: QuizQuestion[]): void {
     this.questions = value;
-    this.questions$ = of(this.questions);
+    this.questions$.next(this.questions);
   }
 
   setCurrentQuestion(index: number): void {
