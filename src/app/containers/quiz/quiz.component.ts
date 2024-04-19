@@ -597,25 +597,19 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => this.handleRouteParams(params))
     ).subscribe({
-      next: ({ quizId, questionIndex, quizData }: { quizId: string; questionIndex: number; quizData: QuizData }) => {
-        console.log('Fetched quiz data:', quizData);
-        // Ensure quizData.questions actually contains QuizSection objects
-        if (quizData && Array.isArray(quizData.questions) && quizData.questions.length > 0 && quizData.questions[0].questions) {
-          const actualQuestions = quizData.questions[0].questions; // Accessing the nested questions
-          if (questionIndex >= 0 && questionIndex < actualQuestions.length) {
-            this.currentQuiz = quizData;
-            this.currentQuestion = actualQuestions[questionIndex];
-            console.log('Current question set to:', this.currentQuestion);
-          } else {
-            console.error('Invalid question index or out of range');
-          }
+      next: ({ quizId, questionIndex, quizData }) => {
+        if (quizData && quizData.questions && questionIndex >= 0 && questionIndex < quizData.questions.length) {
+          this.currentQuiz = quizData;
+          this.currentQuestion = quizData.questions[questionIndex];
+          console.log('Current question set to:', this.currentQuestion);
         } else {
-          console.error('Invalid quiz data or structure');
+          console.error('Invalid question index or quiz data');
         }
       },
       error: error => console.error('Failed to load quiz data', error)
     });
   }
+  
 
 
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
