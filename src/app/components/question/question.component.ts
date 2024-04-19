@@ -149,11 +149,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   // Correct and incorrect audio sources
   correctAudioSource: AudioItem = {
-    url: 'http://marvinrusinek.com/sound-correct.mp3',
+    url: '../../../assets/audio/sound-correct.mp3',
     title: 'Correct Answer'
   };
   incorrectAudioSource: AudioItem = {
-    url: 'http://marvinrusinek.com/sound-incorrect.mp3',
+    url: '../../../assets/audio/sound-incorrect.mp3',
     title: 'Incorrect Answer'
   };
 
