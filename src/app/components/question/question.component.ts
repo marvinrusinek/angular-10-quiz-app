@@ -219,7 +219,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.subscribeToAnswers();
     this.subscriptionToOptions();
-    this.quizService.initializeSounds();
+    // this.quizService.initializeSounds();
     this.logFinalData();
   }
 
