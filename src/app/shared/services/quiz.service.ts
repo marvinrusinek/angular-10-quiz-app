@@ -61,9 +61,7 @@ export class QuizService implements OnDestroy {
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
-  questions$: Observable<QuizQuestion[]>;
-  // questions$ = new BehaviorSubject<QuizQuestion[]>([]);
-  // questions$ = new ReplaySubject<QuizQuestion[]>(1);
+  questions$ = new BehaviorSubject<QuizQuestion[]>([]);
   nextQuestion: QuizQuestion;
   isOptionSelected = false;
   isNavigating = false;
