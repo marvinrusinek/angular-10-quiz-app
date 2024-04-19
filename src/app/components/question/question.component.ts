@@ -941,7 +941,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } 
   } */
 
-  handleAudioPlayback(isCorrect: boolean): void {
+  /* handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
       this.audioList.push(this.correctAudioSource);
     } else {
@@ -950,7 +950,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Reset the audio list after playback
     setTimeout(() => this.audioList = [], 1000);
+  } */
+
+  handleAudioPlayback(isCorrect: boolean): void {
+    this.audioList = isCorrect ? [this.correctAudioSource] : [this.incorrectAudioSource];
+
+    // Reset the audio list after playback to ensure the component refreshes
+    setTimeout(() => {
+        this.audioList = [];
+    }, 1000); // Adjust this time based on the length of audio
   }
+
 
   private getTotalCorrectAnswers(currentQuestion: QuizQuestion): number {
     return currentQuestion.options.filter((option) => option.correct).length;
