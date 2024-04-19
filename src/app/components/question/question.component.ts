@@ -943,9 +943,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
-      this.audioList.push([this.correctAudioSource]);
+      this.audioList.push(this.correctAudioSource);
     } else {
-      this.audioList.push([this.incorrectAudioSource]);
+      this.audioList.push(this.incorrectAudioSource);
     }
 
     // Reset the audio list after playback
