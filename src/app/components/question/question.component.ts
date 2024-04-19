@@ -875,7 +875,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   } */
 
-  handleAudioPlayback(isCorrect: boolean): void {
+  /* handleAudioPlayback(isCorrect: boolean): void {
     const audioSrc = isCorrect ? this.correctAudioSource : this.incorrectAudioSource;
     let audio = new Audio(audioSrc);
 
@@ -912,6 +912,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     };
 
     audio.load();  // Explicitly call load if needed, though setting src usually suffices.
+  } */
+
+  handleAudioPlayback(isCorrect: boolean): void {
+    if (isCorrect) {
+        this.playCorrectSound = true;
+        this.cdRef.detectChanges(); // Force update to the view
+        setTimeout(() => {
+            this.playCorrectSound = false;
+            this.cdRef.detectChanges(); // Update the view after stopping the sound
+        }, 1000);
+    } else {
+        this.playIncorrectSound = true;
+        this.cdRef.detectChanges();
+        setTimeout(() => {
+            this.playIncorrectSound = false;
+            this.cdRef.detectChanges();
+        }, 1000);
+    }
   }
 
   private getTotalCorrectAnswers(currentQuestion: QuizQuestion): number {
