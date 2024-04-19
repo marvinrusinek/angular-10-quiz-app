@@ -774,31 +774,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.addSelectedOption(option);
 
     try {
-      const currentQuestion = await this.getCurrentQuestion();
-      if (!currentQuestion) {
-        console.error('Could not retrieve the current question.');
-        return;
-      }
+        const currentQuestion = await this.getCurrentQuestion();
+        if (!currentQuestion) {
+            console.error('Could not retrieve the current question.');
+            return;
+        }
 
-      this.handleOptionSelection(option, index, currentQuestion);
-      await this.processCurrentQuestion(currentQuestion);
-      this.questionAnswered.emit();
+        this.handleOptionSelection(option, index, currentQuestion);
+        await this.processCurrentQuestion(currentQuestion);
+        this.questionAnswered.emit();
 
-      this.updateQuestionStateForExplanation(this.currentQuestionIndex);
+        this.updateQuestionStateForExplanation(this.currentQuestionIndex);
+
+        // Determine correctness after processing the question to ensure up-to-date state
+        const isCorrect = this.quizService.checkIfAnsweredCorrectly();
+        this.handleAudioPlayback(isCorrect);
     } catch (error) {
-      console.error(
-        'An error occurred while processing the option click:',
-        error
-      );
-    }
-
-    const isCorrect = this.quizService.checkIfAnsweredCorrectly();
-    if (isCorrect) {
-      this.playCorrectSound = true;
-      setTimeout(() => this.playCorrectSound = false, 1000); // Reset the flag after playback
-    } else {
-      this.playIncorrectSound = true;
-      setTimeout(() => this.playIncorrectSound = false, 1000); // Reset the flag after playback
+        console.error('An error occurred while processing the option click:', error);
     }
   }
 
@@ -859,6 +851,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.explanationToDisplayChange.emit(''); // Clear the explanation text
       this.showExplanationChange.emit(false); // Emit the flag to hide the explanation
+    }
+  }
+
+  handleAudioPlayback(isCorrect: boolean): void {
+    if (isCorrect) {
+      this.playCorrectSound = true;
+      setTimeout(() => this.playCorrectSound = false, 1000); // Reset the flag after playback
+    } else {
+      this.playIncorrectSound = true;
+      setTimeout(() => this.playIncorrectSound = false, 1000); // Reset the flag after playback
     }
   }
 
