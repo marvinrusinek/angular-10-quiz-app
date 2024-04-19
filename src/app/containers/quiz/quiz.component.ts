@@ -598,6 +598,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       switchMap((params: ParamMap) => this.handleRouteParams(params))
     ).subscribe({
       next: ({ quizId, questionIndex, quizData }) => {
+        console.log('Fetched quiz data:', quizData);
         if (quizData && quizData.questions && questionIndex >= 0 && questionIndex < quizData.questions.length) {
           this.currentQuiz = quizData;
           this.currentQuestion = quizData.questions[questionIndex];
@@ -609,8 +610,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: error => console.error('Failed to load quiz data', error)
     });
   }
-  
-
 
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
@@ -1167,7 +1166,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleRouteParams(params: ParamMap): Observable<
+  /* handleRouteParams(params: ParamMap): Observable<
     { quizId: string; questionIndex: number;
       quizData: { quizId: string; questions: QuizQuestion[] } }> {
     const quizId = params.get('quizId');
@@ -1180,7 +1179,20 @@ export class QuizComponent implements OnInit, OnDestroy {
         quizData
       }))
     );
+  } */
+
+  handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
+    const quizId = params.get('quizId');
+    const questionIndex = parseInt(params.get('questionIndex'), 10);
+    return this.quizService.getQuizData(quizId).pipe(
+      map(quizData => ({
+        quizId,
+        questionIndex,
+        quizData  // Ensure quizData is of type Quiz
+      }))
+    );
   }
+  
 
   private handleQuizData(
     quiz: Quiz,
