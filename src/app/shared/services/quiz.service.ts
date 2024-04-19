@@ -1314,7 +1314,7 @@ export class QuizService implements OnDestroy {
       return;
     }
 
-    if (index < 0 || index >= this.selectedQuiz.questions.length) {
+    if (index < 0 || index >= this.selectedQuiz.questions.length - 1) {
       console.error(`Invalid question index: ${index}`);
       return;
     }
