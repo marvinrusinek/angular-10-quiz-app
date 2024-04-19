@@ -35,6 +35,7 @@ import {
 } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
+import { AudioItem } from '../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -1416,7 +1417,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       numberOfCorrectAnswers: numberOfCorrectAnswers,
     });
 
-    this.quizService.playSound(isCorrect);
+    // this.quizService.playSound(isCorrect);
 
     return isCorrect;
   }
@@ -1433,7 +1434,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
   }
 
-  playSound(selectedOption: Option): void {
+  /* playSound(selectedOption: Option): void {
     if (!selectedOption) {
       console.log('Selected option is undefined or null.');
       return;
@@ -1455,8 +1456,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('Selected option is incorrect, playing incorrect sound...');
       this.quizService.incorrectSound?.play();
     }
-  }
-  
+  } */
 
   /* playSound(selectedOption: Option): void {
     if (!selectedOption) {
