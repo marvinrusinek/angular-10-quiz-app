@@ -1274,6 +1274,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const selectedOption = this.questionForm.get('selectedOption').value;
     await this.processAnswer(selectedOption);
 
+    const isCorrect = this.quizService.checkIfAnsweredCorrectly(); // Your method to check if the answer is correct
+    if (isCorrect) {
+      this.playCorrectSound = true;
+      setTimeout(() => this.playCorrectSound = false, 1000); // Reset the flag after playback
+    } else {
+      this.playIncorrectSound = true;
+      setTimeout(() => this.playIncorrectSound = false, 1000); // Reset the flag after playback
+    }
+
     // Emit an event to notify QuizComponent that processing is complete
     this.questionAnswered.emit(true);
   }
