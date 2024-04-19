@@ -61,9 +61,9 @@ export class QuizService implements OnDestroy {
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
-  // questions$: Observable<QuizQuestion[]>;
+  questions$: Observable<QuizQuestion[]>;
   // questions$ = new BehaviorSubject<QuizQuestion[]>([]);
-  questions$ = new ReplaySubject<QuizQuestion[]>(1);
+  // questions$ = new ReplaySubject<QuizQuestion[]>(1);
   nextQuestion: QuizQuestion;
   isOptionSelected = false;
   isNavigating = false;
@@ -1314,7 +1314,7 @@ export class QuizService implements OnDestroy {
       return;
     }
 
-    if (index < 0 || index > this.selectedQuiz.questions.length - 1) {
+    if (index < 0 || index >= this.selectedQuiz.questions.length) {
       console.error(`Invalid question index: ${index}`);
       return;
     }
