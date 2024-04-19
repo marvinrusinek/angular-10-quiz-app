@@ -854,7 +854,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  handleAudioPlayback(isCorrect: boolean): void {
+  /* handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
       this.playCorrectSound = true;
       setTimeout(() => this.playCorrectSound = false, 1000); // Reset the flag after playback
@@ -862,7 +862,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.playIncorrectSound = true;
       setTimeout(() => this.playIncorrectSound = false, 1000); // Reset the flag after playback
     }
+  } */
+
+  handleAudioPlayback(isCorrect: boolean): void {
+    const audioSrc = isCorrect ? this.correctAudioSource : this.incorrectAudioSource;
+    let audio = new Audio(audioSrc);
+    audio.play().then(() => {
+      console.log("Audio started playing!");
+    }).catch(error => {
+      console.error("Error playing audio:", error);
+      // Handle specific errors, e.g., User didn't interact with the document first.
+    });
   }
+
 
   private getTotalCorrectAnswers(currentQuestion: QuizQuestion): number {
     return currentQuestion.options.filter((option) => option.correct).length;
