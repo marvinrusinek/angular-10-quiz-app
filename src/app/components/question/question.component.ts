@@ -143,10 +143,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isPaused = false;
   private initialized = false;
 
-  correctAudioSource = 'http://www.marvinrusinek.com/sound-correct.mp3';
-  incorrectAudioSource = 'http://www.marvinrusinek.com/sound-incorrect.mp3';
-  playCorrectSound = false;
-  playIncorrectSound = false;
+  // Define audio list array
+  audioList: AudioItem[] = [];
+
+  // Correct and incorrect audio sources
+  correctAudioSource: AudioItem = {
+    url: 'http://marvinrusinek.com/sound-correct.mp3',
+    title: 'Correct Answer'
+  };
+  incorrectAudioSource: AudioItem = {
+    url: 'http://marvinrusinek.com/sound-incorrect.mp3',
+    title: 'Incorrect Answer'
+  };
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -914,7 +922,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     audio.load();  // Explicitly call load if needed, though setting src usually suffices.
   } */
 
-  handleAudioPlayback(isCorrect: boolean): void {
+  /* handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
         this.playCorrectSound = true;
         this.cdRef.detectChanges(); // Force update to the view
@@ -929,7 +937,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.playIncorrectSound = false;
             this.cdRef.detectChanges();
         }, 1000);
+    } 
+  } */
+
+  handleAudioPlayback(isCorrect: boolean): void {
+    if (isCorrect) {
+      this.audioList = [this.correctAudioSource];
+    } else {
+      this.audioList = [this.incorrectAudioSource];
     }
+
+    // Reset the audio list after playback
+    setTimeout(() => this.audioList = [], 1000);
   }
 
   private getTotalCorrectAnswers(currentQuestion: QuizQuestion): number {
