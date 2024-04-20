@@ -753,7 +753,7 @@ export class QuizService implements OnDestroy {
           const processedQuestions = this.checkedShuffle ? this.shuffleQuestions([...questions]) : questions;
           this.questions$.next(processedQuestions); // Update BehaviorSubject with new data
         }),
-        catchError((error: any) => {
+        catchError((error: Error) => {
           console.error('Error fetching questions:', error);
           return of([]);
         }),
