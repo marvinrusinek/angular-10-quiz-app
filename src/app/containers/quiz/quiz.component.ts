@@ -603,7 +603,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Safety check for quizData and quizData.questions
         if (!quizData || !quizData.questions) {
           console.error('Quiz data or questions array is undefined');
-          return; // Exit the function if data is not valid
+          return;
         }
   
         console.log(`Question index: ${questionIndex}, Number of questions: ${quizData.questions.length}`);
