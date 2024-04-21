@@ -149,7 +149,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.quizService.setCheckedShuffle(checked);
   } */
   
-  onStartQuiz(quizId: string): void {
+  /* onStartQuiz(quizId: string): void {
     if (!quizId) {
       console.error('No quiz selected');
       return;
@@ -172,6 +172,38 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           this.router.navigate(['/select']);
         }
       });
+  } */
+
+  onStartQuiz(quizId: string): void {
+    if (!quizId) {
+        console.error('No quiz selected');
+        this.router.navigate(['/select']); // Ensure this is the desired fallback
+        return;
+    }
+  
+    this.quizDataService.getQuizById(quizId)
+        .pipe(
+            catchError((error) => {
+                console.error(`Error fetching quiz: ${error}`);
+                this.router.navigate(['/select']); // Ensure this is the desired fallback
+                return throwError(() => new Error('Failed to fetch quiz'));
+            })
+        )
+        .subscribe({
+            next: (quiz: Quiz) => {
+                if (quiz) {
+                    this.quizDataService.selectedQuizSubject.next(quiz);
+                    this.router.navigate(['/question', quiz.quizId, 1]); // Check this navigation
+                } else {
+                    console.error(`Quiz with ID ${quizId} not found`);
+                    this.router.navigate(['/select']); // Verify fallback
+                }
+            },
+            error: error => {
+                console.error('Subscription error:', error);
+                this.router.navigate(['/select']); // Check fallback behavior
+            }
+        });
   }
 
   public get milestone(): string {
