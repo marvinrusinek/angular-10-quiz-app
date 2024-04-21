@@ -43,6 +43,7 @@ import { ExplanationTextService } from '../../shared/services/explanation-text.s
 @Injectable({ providedIn: 'root' })
 export class QuizService implements OnDestroy {
   currentQuestionIndex = -1;
+  activeQuiz: Quiz;
   quiz: Quiz = QUIZ_DATA[this.currentQuestionIndex];
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
@@ -263,6 +264,11 @@ export class QuizService implements OnDestroy {
         return throwError(() => new Error('Error fetching quiz data'));
       })
     );
+  }
+
+  setActiveQuiz(quiz: Quiz): void {
+    this.activeQuiz = quiz;
+    this.questions$.next(quiz.questions);
   }
 
   setSelectedQuiz(selectedQuiz: Quiz): void {
