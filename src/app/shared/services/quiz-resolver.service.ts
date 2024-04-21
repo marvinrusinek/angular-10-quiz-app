@@ -12,11 +12,19 @@ export class QuizResolverService implements Resolve<Quiz | null> {
 
   resolve(route: ActivatedRouteSnapshot): Observable<Quiz | null> {
     const quizId = route.params['quizId'];
+    if (!quizId) {
+      console.error('Quiz ID is missing in the resolver');
+      return of(null);
+    }
 
     return this.quizService.getQuizData().pipe(
       map(quizzes => {
-        console.log("Quizzes loaded:", quizzes);
-        return quizzes.find(quiz => quiz.quizId === quizId) || null;
+        const quiz = quizzes.find(q => q.quizId === quizId);
+        if (!quiz) {
+          console.log(`No quiz found with ID: ${quizId}`);
+          return null;
+        }
+        return quiz;
       }),
       catchError(error => {
         console.error(`Error resolving quiz data for ID ${quizId}:`, error);
