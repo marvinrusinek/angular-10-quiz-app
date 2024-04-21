@@ -587,65 +587,31 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
   }
 
-  /* private initializeQuizBasedOnRouteParams(): void {
-    this.activatedRoute.paramMap.pipe(
-      switchMap((params: ParamMap) => this.handleRouteParams(params))
-    ).subscribe();  // Triggers the observable chain in handleRouteParams
-  } */
-
-  /* private initializeQuizBasedOnRouteParams(): void {
+  private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => this.handleRouteParams(params))
     ).subscribe({
       next: ({ quizId, questionIndex, quizData }) => {
         console.log('Fetched quiz data:', quizData);
-  
+
         // Safety check for quizData and quizData.questions
         if (!quizData || !quizData.questions) {
           console.error('Quiz data or questions array is undefined');
           return;
         }
-  
+
         console.log(`Question index: ${questionIndex}, Number of questions: ${quizData.questions.length}`);
-        if (questionIndex >= 0 && questionIndex < quizData.questions.length) {
-          this.currentQuiz = quizData;
-          this.currentQuestion = quizData.questions[questionIndex];
-          console.log('Current question set to:', this.currentQuestion);
-        } else {
-          console.error('Invalid question index');
-        }
+        this.quizService.setActiveQuiz(quizData);
+        
+        this.quizService.getQuestionByIndex(questionIndex).subscribe({
+          next: (question) => {
+            this.currentQuiz = quizData;
+            this.currentQuestion = question;
+          },
+          error: (error) => console.error('Failed to load the question:', error)
+        });
       },
       error: error => console.error('Failed to load quiz data', error)
-    });
-  } */
-
-  private initializeQuizBasedOnRouteParams(): void {
-    this.activatedRoute.paramMap.pipe(
-        switchMap((params: ParamMap) => this.handleRouteParams(params))
-    ).subscribe({
-        next: ({ quizId, questionIndex, quizData }) => {
-            console.log('Fetched quiz data:', quizData);
-
-            // Safety check for quizData and quizData.questions
-            if (!quizData || !quizData.questions) {
-                console.error('Quiz data or questions array is undefined');
-                return;
-            }
-
-            console.log(`Question index: ${questionIndex}, Number of questions: ${quizData.questions.length}`);
-            this.quizService.setActiveQuiz(quizData);  // Assume there's a method to set the active quiz in the service
-
-            // Now fetch the question by index from the quiz service
-            this.quizService.getQuestionByIndex(questionIndex).subscribe({
-                next: (question) => {
-                    this.currentQuiz = quizData;
-                    this.currentQuestion = question;
-                    console.log('Current question set to:', this.currentQuestion);
-                },
-                error: (error) => console.error('Failed to load the question:', error)
-            });
-        },
-        error: error => console.error('Failed to load quiz data', error)
     });
   }  
 
