@@ -169,6 +169,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           this.router.navigate(['/question', quiz.quizId, 1]); // Navigate to the first question
         } else {
           console.error(`Quiz with ID ${quizId} not found`);
+          this.router.navigate(['/select']);
         }
       });
   }
