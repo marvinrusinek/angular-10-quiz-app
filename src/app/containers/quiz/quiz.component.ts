@@ -1226,6 +1226,24 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   }
 
+  /* handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
+    const quizId = params.get('quizId');
+    const questionIndex = parseInt(params.get('questionIndex'), 10);
+    if (!quizId) {
+        console.error('Quiz ID is undefined or null');
+        throw new Error('Quiz ID is missing');
+    }
+    return this.quizService.getQuizData(quizId).pipe(
+        map(quizData => {
+            if (!quizData || !quizData.questions) {
+                throw new Error('Quiz data is missing or incorrectly formatted');
+            }
+            return { quizId, questionIndex, quizData };
+        })
+    );
+  } */
+
+
 
 
   private handleQuizData(
