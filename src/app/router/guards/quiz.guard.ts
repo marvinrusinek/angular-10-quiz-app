@@ -21,24 +21,7 @@ export class QuizGuard implements CanActivate {
     private router: Router
   ) {}
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
-    const quizId = route.params['quizId'];
-    return this.quizDataService.isValidQuiz(quizId).pipe(
-      tap(isValid => {
-        if (!isValid) {
-          console.error('Quiz ID is invalid or not found');
-          this.router.navigate(['/select']);
-        }
-      }),
-      catchError(error => {
-        console.error('Error checking quiz validity', error);
-        this.router.navigate(['/select']);
-        return of(false);
-      })
-    );
-  }
-
-  /* canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
+  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
     const quizId = route.params['quizId'];
     const questionIndex = +route.params['questionIndex'];
 
@@ -75,5 +58,5 @@ export class QuizGuard implements CanActivate {
         return of(false);
       })
     );
-  } */
+  }
 }
