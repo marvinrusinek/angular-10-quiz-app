@@ -260,22 +260,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* private subscribeToActivatedRouteParams(): void {
-    this.activatedRoute.params.subscribe((params) => {
-      this.quizId = params['quizId'];
-    });
-  } */
-
   private subscribeToActivatedRouteParams(): void {
     this.activatedRoute.paramMap.subscribe(params => {
-      const newQuizId = params.get('quizId');
-      const newQuestionIndex = parseInt(params.get('questionIndex'), 10);
-      console.log(`Detected parameter change: quizId=${newQuizId}, questionIndex=${newQuestionIndex}`);
+      const quizId = params.get('quizId');
+      const questionIndex = parseInt(params.get('questionIndex'), 10);
+      console.log(`Detected parameter change: quizId=${quizId}, questionIndex=${questionIndex}`);
 
-      if (newQuizId !== this.quizId || this.questionIndex !== newQuestionIndex) {
-        this.quizId = newQuizId;
-        this.questionIndex = newQuestionIndex;
-        this.loadQuiz(newQuizId, newQuestionIndex);
+      if (quizId !== this.quizId || this.questionIndex !== questionIndex) {
+        this.quizId = quizId;
+        this.questionIndex = questionIndex;
+        this.loadQuiz(quizId, questionIndex);
+        this.loadQuizQuestions();
       }
     });
   }
