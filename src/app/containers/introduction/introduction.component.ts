@@ -51,6 +51,12 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.quizDataService.selectedQuiz$.subscribe(quiz => {
+      this.selectedQuiz = quiz;
+      if (quiz) {
+        this.initializeData();  // Call initializeData only after quiz is set
+      }
+    });
     this.initializeData();
     this.subscribeToSelectedQuiz();
     this.handleRouteParameters();
@@ -65,6 +71,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   private initializeData(): void {
     this.quizId = this.selectedQuiz?.quizId;
+    console.log("QI FROM ID", this.quizId);
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     this.questionText = this.getQuestionText(this.selectedQuiz?.questions.length);
   }
