@@ -599,13 +599,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: ({ quizId, questionIndex, quizData }) => {
         console.log('Fetched quiz data:', quizData);
-  
+
         // Safety check for quizData and quizData.questions
         if (!quizData || !quizData.questions) {
           console.error('Quiz data or questions array is undefined');
           return;
         }
-  
+
         console.log(`Question index: ${questionIndex}, Number of questions: ${quizData.questions.length}`);
         if (questionIndex >= 0 && questionIndex < quizData.questions.length) {
           this.currentQuiz = quizData;
@@ -1262,7 +1262,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   } */
 
-  handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
+  /* handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
     const quizId = params.get('quizId');
     const questionIndex = parseInt(params.get('questionIndex'), 10);
     return this.quizService.getQuizData(quizId).pipe(  // Assuming getQuizData now accepts a quizId
@@ -1273,7 +1273,21 @@ export class QuizComponent implements OnInit, OnDestroy {
             return { quizId, questionIndex, quizData };
         })
     );
+  } */
+
+  handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
+    const quizId = params.get('quizId');
+    const questionIndex = parseInt(params.get('questionIndex'), 10);
+    return this.quizService.getQuizData(quizId).pipe(
+      map(quizData => {
+        if (!quizData || !quizData.questions) {
+          throw new Error('Quiz data is missing or incorrectly formatted');
+        }
+        return { quizId, questionIndex, quizData };
+      })
+    );
   }
+
 
 
   private handleQuizData(
