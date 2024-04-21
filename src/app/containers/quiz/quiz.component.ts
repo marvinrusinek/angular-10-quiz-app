@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter,
   HostListener, Input, NgZone, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, filter, first, map, switchMap, take, takeUntil } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
@@ -1251,17 +1251,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     const questionIndex = parseInt(params.get('questionIndex'), 10);
 
     return this.quizService.getQuizData().pipe(
-        map(quizzes => {
-            const quizData = quizzes.find(quiz => quiz.quizId === quizId);
-            if (!quizData || !quizData.questions) {
-                throw new Error('Quiz data is missing or incorrectly formatted');
-            }
-            return { quizId, questionIndex, quizData };
-        }),
-        catchError(error => {
-            console.error(`Error processing quiz data for quizId ${quizId}:`, error);
-            return throwError(() => new Error('Failed to load quiz data'));
-        })
+      map(quizzes => {
+        const quizData = quizzes.find(quiz => quiz.quizId === quizId);
+        if (!quizData || !quizData.questions) {
+          throw new Error('Quiz data is missing or incorrectly formatted');
+        }
+        return { quizId, questionIndex, quizData };
+      }),
+      catchError(error => {
+        console.error(`Error processing quiz data for quizId ${quizId}:`, error);
+        return throwError(() => new Error('Failed to load quiz data'));
+      })
     );
   }
 
