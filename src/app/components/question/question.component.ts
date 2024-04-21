@@ -111,6 +111,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     currentOptions: Option[];
   }> = new Subject();
 
+  questionIndex: number;
   questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
@@ -294,14 +295,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   private subscribeToActivatedRouteParams(): void {
-    // Listening to both quizId and questionIndex changes
     this.activatedRoute.paramMap.subscribe(params => {
-      const quizId = params.get('quizId');
-      const questionIndex = parseInt(params.get('questionIndex'), 10);
-      if (quizId !== this.quizId || this.questionIndex !== questionIndex) {
-        this.quizId = quizId;
-        this.questionIndex = questionIndex;
-        this.loadQuiz(quizId, questionIndex);
+      const newQuizId = params.get('quizId');
+      const newQuestionIndex = parseInt(params.get('questionIndex'), 10);
+      console.log(`Detected parameter change: quizId=${newQuizId}, questionIndex=${newQuestionIndex}`);
+
+      if (newQuizId !== this.quizId || this.questionIndex !== newQuestionIndex) {
+        this.quizId = newQuizId;
+        this.questionIndex = newQuestionIndex;
+        this.loadQuiz(newQuizId, newQuestionIndex);
       }
     });
   }
@@ -309,16 +311,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private loadQuiz(quizId: string, questionIndex: number): void {
     this.quizDataService.getQuizById(quizId).subscribe({
       next: (quiz: Quiz) => {
-        this.quiz = quiz;
-        if (quiz.questions && quiz.questions.length > 0 && questionIndex >= 1 && questionIndex <= quiz.questions.length) {
-          this.currentQuestion = quiz.questions[questionIndex - 1];
-        } else {
-          console.error('Question index out of range.');
+        if (!quiz || !quiz.questions || questionIndex < 1 || questionIndex > quiz.questions.length) {
+          console.error('Question index out of range or quiz data is invalid.');
+          return;
         }
+        this.quiz = quiz;  // Update the quiz data
+        this.currentQuestion = quiz.questions[questionIndex - 1];  // Update the current question
+        console.log('Loaded question:', this.currentQuestion);
       },
-      error: (err) => {
-        console.error('Error loading the quiz:', err);
-      }
+      error: err => console.error('Error loading the quiz:', err)
     });
   }
 
@@ -967,7 +968,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.playIncorrectSound = false;
             this.cdRef.detectChanges();
         }, 1000);
-    } 
+    }
   } */
 
   /* handleAudioPlayback(isCorrect: boolean): void {
@@ -1001,7 +1002,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     setTimeout(() => {
         this.audioList = [];
     }, 1000);  // Ensure audio has time to play before clearing
-  } 
+  }
 
   private getTotalCorrectAnswers(currentQuestion: QuizQuestion): number {
     return currentQuestion.options.filter((option) => option.correct).length;
@@ -1490,15 +1491,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('Selected option is undefined or null.');
       return;
     }
-  
+
     console.log('Selected option:', selectedOption.text);
-  
+
     // Check if 'this.currentQuestion' and 'this.currentQuestion.options' are defined
     if (!this.currentQuestion || !this.currentQuestion.options) {
       console.log('Current question or options are undefined or null.');
       return;
     }
-  
+
     // Directly play the sound based on the correctness of the selected option
     if (selectedOption.correct) {
       console.log('Selected option is correct, playing correct sound...');
