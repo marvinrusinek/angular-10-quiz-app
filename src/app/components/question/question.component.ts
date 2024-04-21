@@ -287,9 +287,38 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private subscribeToActivatedRouteParams(): void {
+  /* private subscribeToActivatedRouteParams(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
+    });
+  } */
+
+  private subscribeToActivatedRouteParams(): void {
+    // Listening to both quizId and questionIndex changes
+    this.activatedRoute.paramMap.subscribe(params => {
+      const quizId = params.get('quizId');
+      const questionIndex = parseInt(params.get('questionIndex'), 10);
+      if (quizId !== this.quizId || this.questionIndex !== questionIndex) {
+        this.quizId = quizId;
+        this.questionIndex = questionIndex;
+        this.loadQuiz(quizId, questionIndex);
+      }
+    });
+  }
+
+  private loadQuiz(quizId: string, questionIndex: number): void {
+    this.quizDataService.getQuizById(quizId).subscribe({
+      next: (quiz: Quiz) => {
+        this.quiz = quiz;
+        if (quiz.questions && quiz.questions.length > 0 && questionIndex >= 1 && questionIndex <= quiz.questions.length) {
+          this.currentQuestion = quiz.questions[questionIndex - 1];
+        } else {
+          console.error('Question index out of range.');
+        }
+      },
+      error: (err) => {
+        console.error('Error loading the quiz:', err);
+      }
     });
   }
 
