@@ -18,5 +18,5 @@ export class QuizResolverService implements Resolve<Quiz | null> {
 
     console.log('Resolving quiz data for ID:', quizId);
     return this.quizService.getQuizData();
-    }
+  }
 }
