@@ -89,13 +89,6 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  isValidQuiz(quizId: string): Observable<boolean> {
-    return this.http.get<Quiz>(`/api/quizzes/${quizId}`).pipe(
-      map(quiz => !!quiz && quiz.questions.length > 0),
-      catchError(() => of(false))
-    );
-  }
-
   setCurrentQuiz(quiz: Quiz): void {
     this.currentQuizSubject.next(quiz);
   }
@@ -156,7 +149,7 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  /* getQuizById(quizId: string): Observable<Quiz> {
+  getQuizById(quizId: string): Observable<Quiz> {
     if (!quizId) {
       throw new Error(`Quiz ID is undefined`);
     }
@@ -175,49 +168,6 @@ export class QuizDataService implements OnDestroy {
       ),
       shareReplay()
     );
-  } */
-
-  getQuizById(quizId: string): Observable<Quiz> {
-    if (!quizId) {
-        console.error('Quiz ID is undefined');
-        return throwError(() => new Error('Quiz ID is undefined'));
-    }
-
-    // If your API supports fetching a specific quiz by ID, use this:
-    return this.http.get<Quiz>(`${this.quizUrl}/${quizId}`).pipe(
-        catchError(error => {
-            console.error(`Error fetching quiz data for quizId ${quizId}:`, error);
-            return throwError(() => new Error(`Error fetching quiz data for quizId ${quizId}`));
-        }),
-        switchMap(quiz => {
-            if (!quiz) {
-                console.error(`Quiz with ID ${quizId} not found`);
-                return throwError(() => new Error(`Quiz with ID ${quizId} not found`));
-            }
-            return of(quiz);
-        }),
-        distinctUntilChanged((prevQuiz, currQuiz) => JSON.stringify(prevQuiz) === JSON.stringify(currQuiz)),
-        shareReplay(1) // Ensures that the quiz data is cached after the first subscription
-    );
-
-    // If your API does not support this and you need to fetch all and filter, comment out the above and uncomment the following:
-    
-    /* return this.http.get<Quiz[]>(this.quizUrl).pipe(
-        map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
-        switchMap(quiz => {
-            if (!quiz) {
-                console.error(`Quiz with ID ${quizId} not found`);
-                return throwError(() => new Error(`Quiz with ID ${quizId} not found`));
-            }
-            return of(quiz);
-        }),
-        catchError(error => {
-            console.error(`Error processing quiz data for quizId ${quizId}:`, error);
-            return throwError(() => new Error(`Error processing quiz data for quizId ${quizId}`));
-        }),
-        distinctUntilChanged((prevQuiz, currQuiz) => JSON.stringify(prevQuiz) === JSON.stringify(currQuiz)),
-        shareReplay(1)
-    ); */
   }
 
   getAllExplanationTextsForQuiz(quizId: string): Observable<string[]> {
