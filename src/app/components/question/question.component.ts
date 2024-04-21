@@ -270,7 +270,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.quizId = quizId;
         this.questionIndex = questionIndex;
         this.loadQuiz(quizId, questionIndex);
-        this.loadQuizQuestions();
       }
     });
   }
