@@ -1,38 +1,11 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  NgZone,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
+  EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit,
+  Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  combineLatest,
-  firstValueFrom,
-  Observable,
-  of,
-  ReplaySubject,
-  Subject,
-  Subscription,
-  throwError,
-} from 'rxjs';
-import {
-  catchError,
-  filter,
-  map,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, firstValueFrom, Observable,
+  of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { catchError, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
