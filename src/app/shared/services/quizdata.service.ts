@@ -89,6 +89,13 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
+  isValidQuiz(quizId: string): Observable<boolean> {
+    return this.http.get<Quiz>(`/api/quizzes/${quizId}`).pipe(
+      map(quiz => !!quiz && quiz.questions.length > 0),
+      catchError(() => of(false))
+    );
+  }
+
   setCurrentQuiz(quiz: Quiz): void {
     this.currentQuizSubject.next(quiz);
   }
