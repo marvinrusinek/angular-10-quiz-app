@@ -619,7 +619,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  private initializeQuizBasedOnRouteParams(): void {
+  /* private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
         switchMap((params: ParamMap) => this.handleRouteParams(params))
     ).subscribe({
@@ -647,7 +647,36 @@ export class QuizComponent implements OnInit, OnDestroy {
         },
         error: error => console.error('Failed to load quiz data', error)
     });
-  }  
+  } */
+
+  private initializeQuizBasedOnRouteParams(): void {
+    this.activatedRoute.paramMap.pipe(
+      switchMap((params: ParamMap) => this.handleRouteParams(params))
+    ).subscribe({
+      next: ({ quizId, questionIndex, quizData }) => {
+        console.log('Fetched quiz data:', quizData);
+
+        // Safety check for quizData and quizData.questions
+        if (!quizData || !quizData.questions) {
+          console.error('Quiz data or questions array is undefined');
+          return;
+        }
+
+        console.log(`Question index: ${questionIndex}, Number of questions: ${quizData.questions.length}`);
+        this.quizService.setActiveQuiz(quizData);
+
+        // Fetch the question by index from the quiz service
+        this.quizService.getQuestionByIndex(questionIndex).subscribe(question => {
+        this.currentQuiz = quizData;
+        this.currentQuestion = question;
+        console.log('Current question set to:', this.currentQuestion);
+      },
+      error => console.error('Failed to load the question:', error));
+      },
+      error: error => console.error('Failed to load quiz data', error)
+    });
+  }
+
 
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
