@@ -429,6 +429,12 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  getQuestionByIndex(index: number): Observable<any> {
+    return this.questions$.pipe(
+      map(questions => questions[index])
+    );
+  }
+
   getQuestionTextForIndex(index: number): string | undefined {
     const currentQuiz = this.getCurrentQuiz();
     if (
