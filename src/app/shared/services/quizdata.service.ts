@@ -184,7 +184,7 @@ export class QuizDataService implements OnDestroy {
     }
 
     // If your API supports fetching a specific quiz by ID, use this:
-    /* return this.http.get<Quiz>(`${this.quizUrl}/${quizId}`).pipe(
+    return this.http.get<Quiz>(`${this.quizUrl}/${quizId}`).pipe(
         catchError(error => {
             console.error(`Error fetching quiz data for quizId ${quizId}:`, error);
             return throwError(() => new Error(`Error fetching quiz data for quizId ${quizId}`));
@@ -198,11 +198,11 @@ export class QuizDataService implements OnDestroy {
         }),
         distinctUntilChanged((prevQuiz, currQuiz) => JSON.stringify(prevQuiz) === JSON.stringify(currQuiz)),
         shareReplay(1) // Ensures that the quiz data is cached after the first subscription
-    ); */
+    );
 
     // If your API does not support this and you need to fetch all and filter, comment out the above and uncomment the following:
     
-    return this.http.get<Quiz[]>(this.quizUrl).pipe(
+    /* return this.http.get<Quiz[]>(this.quizUrl).pipe(
         map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
         switchMap(quiz => {
             if (!quiz) {
@@ -217,7 +217,7 @@ export class QuizDataService implements OnDestroy {
         }),
         distinctUntilChanged((prevQuiz, currQuiz) => JSON.stringify(prevQuiz) === JSON.stringify(currQuiz)),
         shareReplay(1)
-    );
+    ); */
   }
 
   getAllExplanationTextsForQuiz(quizId: string): Observable<string[]> {
