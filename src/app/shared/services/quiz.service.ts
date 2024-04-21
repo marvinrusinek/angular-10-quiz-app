@@ -58,7 +58,6 @@ export class QuizService implements OnDestroy {
     currentOptions: []
   };
   quizzes: Quiz[] = [];
-  activeQuiz: Quiz;
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
@@ -269,11 +268,6 @@ export class QuizService implements OnDestroy {
   setSelectedQuiz(selectedQuiz: Quiz): void {
     this.selectedQuiz$.next(selectedQuiz);
     this.selectedQuiz = selectedQuiz;
-  }
-
-  setActiveQuiz(quiz: Quiz): void {
-    this.activeQuiz = quiz;
-    this.questions$.next(quiz.questions);
   }
 
   setQuizData(quizData: Quiz[]): void {
@@ -773,7 +767,7 @@ export class QuizService implements OnDestroy {
       ).subscribe();  // Start the Observable chain
     }
     return this.questions$.asObservable();
-  }
+  }  
 
   getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
@@ -1693,7 +1687,7 @@ export class QuizService implements OnDestroy {
     });
   } */
 
-
+  
 
   // Call this method to play the incorrect sound
   playIncorrectSound(): void {

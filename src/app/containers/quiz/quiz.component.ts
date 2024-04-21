@@ -587,34 +587,67 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
   }
 
-  private initializeQuizBasedOnRouteParams(): void {
+  /* private initializeQuizBasedOnRouteParams(): void {
+    this.activatedRoute.paramMap.pipe(
+      switchMap((params: ParamMap) => this.handleRouteParams(params))
+    ).subscribe();  // Triggers the observable chain in handleRouteParams
+  } */
+
+  /* private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => this.handleRouteParams(params))
     ).subscribe({
       next: ({ quizId, questionIndex, quizData }) => {
         console.log('Fetched quiz data:', quizData);
-
+  
         // Safety check for quizData and quizData.questions
         if (!quizData || !quizData.questions) {
           console.error('Quiz data or questions array is undefined');
           return;
         }
-
+  
         console.log(`Question index: ${questionIndex}, Number of questions: ${quizData.questions.length}`);
-        this.quizService.setActiveQuiz(quizData);
-
-        // Fetch the question by index from the quiz service
-        this.quizService.getQuestionByIndex(questionIndex).subscribe(question => {
-        this.currentQuiz = quizData;
-        this.currentQuestion = question;
-        console.log('Current question set to:', this.currentQuestion);
-      },
-      error => console.error('Failed to load the question:', error));
+        if (questionIndex >= 0 && questionIndex < quizData.questions.length) {
+          this.currentQuiz = quizData;
+          this.currentQuestion = quizData.questions[questionIndex];
+          console.log('Current question set to:', this.currentQuestion);
+        } else {
+          console.error('Invalid question index');
+        }
       },
       error: error => console.error('Failed to load quiz data', error)
     });
-  }
+  } */
 
+  private initializeQuizBasedOnRouteParams(): void {
+    this.activatedRoute.paramMap.pipe(
+        switchMap((params: ParamMap) => this.handleRouteParams(params))
+    ).subscribe({
+        next: ({ quizId, questionIndex, quizData }) => {
+            console.log('Fetched quiz data:', quizData);
+
+            // Safety check for quizData and quizData.questions
+            if (!quizData || !quizData.questions) {
+                console.error('Quiz data or questions array is undefined');
+                return;
+            }
+
+            console.log(`Question index: ${questionIndex}, Number of questions: ${quizData.questions.length}`);
+            this.quizService.setActiveQuiz(quizData);  // Assume there's a method to set the active quiz in the service
+
+            // Now fetch the question by index from the quiz service
+            this.quizService.getQuestionByIndex(questionIndex).subscribe({
+                next: (question) => {
+                    this.currentQuiz = quizData;
+                    this.currentQuestion = question;
+                    console.log('Current question set to:', this.currentQuestion);
+                },
+                error: (error) => console.error('Failed to load the question:', error)
+            });
+        },
+        error: error => console.error('Failed to load quiz data', error)
+    });
+  }  
 
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
@@ -1200,7 +1233,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   } */
 
-  /* handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
+  handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
     const quizId = params.get('quizId');
     const questionIndex = parseInt(params.get('questionIndex'), 10);
     return this.quizService.getQuizData(quizId).pipe(  // Assuming getQuizData now accepts a quizId
@@ -1211,39 +1244,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             return { quizId, questionIndex, quizData };
         })
     );
-  } */
-
-  handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
-    const quizId = params.get('quizId');
-    const questionIndex = parseInt(params.get('questionIndex'), 10);
-    return this.quizService.getQuizData(quizId).pipe(
-      map(quizData => {
-        if (!quizData || !quizData.questions) {
-          throw new Error('Quiz data is missing or incorrectly formatted');
-        }
-        return { quizId, questionIndex, quizData };
-      })
-    );
   }
-
-  /* handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
-    const quizId = params.get('quizId');
-    const questionIndex = parseInt(params.get('questionIndex'), 10);
-    if (!quizId) {
-        console.error('Quiz ID is undefined or null');
-        throw new Error('Quiz ID is missing');
-    }
-    return this.quizService.getQuizData(quizId).pipe(
-        map(quizData => {
-            if (!quizData || !quizData.questions) {
-                throw new Error('Quiz data is missing or incorrectly formatted');
-            }
-            return { quizId, questionIndex, quizData };
-        })
-    );
-  } */
-
-
 
 
   private handleQuizData(
