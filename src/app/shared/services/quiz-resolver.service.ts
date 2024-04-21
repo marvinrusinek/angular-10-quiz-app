@@ -13,7 +13,7 @@ export class QuizResolverService implements Resolve<Quiz | null> {
   resolve(route: ActivatedRouteSnapshot): Observable<Quiz | null> {
     const quizId = route.params['quizId'];
 
-    return this.quizService.getQuizData().pipe(
+    /* return this.quizService.getQuizData().pipe(
       map(quizzes => {
         console.log("Quizzes loaded:", quizzes);
         return quizzes.find(quiz => quiz.quizId === quizId) || null;
@@ -22,6 +22,13 @@ export class QuizResolverService implements Resolve<Quiz | null> {
         console.error(`Error resolving quiz data for ID ${quizId}:`, error);
         return of(null);
       })
-    );
-  }
+    ); */
+
+    if (!quizId) {
+      console.error('Quiz ID is missing in resolver');
+      throw new Error('Quiz ID is required');
+    }
+    console.log('Resolving quiz data for ID:', quizId);
+    return this.quizService.getQuizData(quizId);
+    }
 }
