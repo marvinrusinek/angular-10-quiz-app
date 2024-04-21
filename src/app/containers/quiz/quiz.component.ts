@@ -1209,7 +1209,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const questionIndex = parseInt(params.get('questionIndex'), 10);
 
     return this.quizService.getQuizData().pipe(
-      map(quizzes => {
+      map((quizzes: Quiz[]) => {
         const quizData = quizzes.find(quiz => quiz.quizId === quizId);
         if (!quizData || !quizData.questions) {
           throw new Error('Quiz data is missing or incorrectly formatted');
