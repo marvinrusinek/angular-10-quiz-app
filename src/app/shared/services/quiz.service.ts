@@ -58,6 +58,7 @@ export class QuizService implements OnDestroy {
     currentOptions: []
   };
   quizzes: Quiz[] = [];
+  activeQuiz: Quiz;
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
@@ -268,6 +269,11 @@ export class QuizService implements OnDestroy {
   setSelectedQuiz(selectedQuiz: Quiz): void {
     this.selectedQuiz$.next(selectedQuiz);
     this.selectedQuiz = selectedQuiz;
+  }
+
+  setActiveQuiz(quiz: Quiz): void {
+    this.activeQuiz = quiz;
+    this.questions$.next(quiz.questions);
   }
 
   setQuizData(quizData: Quiz[]): void {
