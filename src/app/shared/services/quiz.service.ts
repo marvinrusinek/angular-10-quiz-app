@@ -266,16 +266,6 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  /* getQuizData(quizId: string): Observable<Quiz> {
-    return this.http.get<Quiz>(`${this.quizUrl}/${quizId}`).pipe(
-        catchError((error) => {
-          console.error('Error fetching quiz data for ID ' + quizId + ':', error);
-          return throwError(() => new Error('Error fetching quiz data for ID ' + quizId));
-        })
-    );
-  } */
-
-
   setSelectedQuiz(selectedQuiz: Quiz): void {
     this.selectedQuiz$.next(selectedQuiz);
     this.selectedQuiz = selectedQuiz;
