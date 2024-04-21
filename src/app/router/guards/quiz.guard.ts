@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizDataService } from '../../shared/services/quizdata.service';
@@ -25,34 +25,35 @@ export class QuizGuard implements CanActivate {
     const quizId = route.params['quizId'];
     const questionIndex = +route.params['questionIndex'];
 
-    return this.quizDataService.selectedQuizSubject.pipe(
-      switchMap((selectedQuiz: Quiz) => {
-        if (!selectedQuiz) {
+    // Use isValidQuiz to check if the quiz is valid
+    return this.quizDataService.isValidQuiz(quizId).pipe(
+      switchMap(isValid => {
+        if (!isValid) {
           this.router.navigate(['/select']);
           return of(false);
         }
 
-        const totalQuestions = selectedQuiz.questions.length;
-
-        // Check if it's the introduction route
-        if (questionIndex === 0) {
-          return of(true);
-        }
-
-        // Check if questionIndex is out of range
-        if (questionIndex > totalQuestions) {
-          this.router.navigate([`${QuizRoutes.RESULTS}${quizId}`]); // Navigate to results page
-          return of(false);
-        } else if (questionIndex < 1) {
-          this.router.navigate([QuizRoutes.QUESTION, quizId, 1]);
-          return of(false);
-        }
-
-        // Allow navigation to the question route
-        return of(true);
+        // If the quiz is valid, continue checking the question index
+        return this.quizDataService.getQuizById(quizId).pipe(
+          map((quiz: Quiz) => {
+            const totalQuestions = quiz.questions.length;
+            if (questionIndex === 0 || (questionIndex > 0 && questionIndex <= totalQuestions)) {
+              return true; // Valid quiz and question index
+            } else if (questionIndex > totalQuestions) {
+              this.router.navigate(['/results', quizId]); // Navigate to results page
+              return false;
+            }
+            return false;
+          }),
+          catchError(error => {
+            console.error(`Error fetching quiz data: ${error}`);
+            this.router.navigate(['/select']);
+            return of(false);
+          })
+        );
       }),
-      catchError((error: Error) => {
-        console.error(`Error fetching selected quiz: ${error}`);
+      catchError(error => {
+        console.error(`Error validating quiz: ${error}`);
         this.router.navigate(['/select']);
         return of(false);
       })
