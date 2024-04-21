@@ -175,6 +175,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   } */
 
   onStartQuiz(quizId: string): void {
+    console.log("QI", quizId);
     if (!quizId) {
         console.error('No quiz selected');
         this.router.navigate(['/select']); // Ensure this is the desired fallback
