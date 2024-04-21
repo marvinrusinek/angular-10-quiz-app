@@ -51,12 +51,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.quizDataService.selectedQuiz$.subscribe(quiz => {
-      this.selectedQuiz = quiz;
-      if (quiz) {
-        this.initializeData();  // Call initializeData only after quiz is set
-      }
-    });
     this.initializeData();
     this.subscribeToSelectedQuiz();
     this.handleRouteParameters();
@@ -71,7 +65,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   private initializeData(): void {
     this.quizId = this.selectedQuiz?.quizId;
-    console.log("QI FROM ID", this.quizId);
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     this.questionText = this.getQuestionText(this.selectedQuiz?.questions.length);
   }
@@ -156,7 +149,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.quizService.setCheckedShuffle(checked);
   } */
   
-  /* onStartQuiz(quizId: string): void {
+  onStartQuiz(quizId: string): void {
     if (!quizId) {
       console.error('No quiz selected');
       return;
@@ -176,42 +169,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           this.router.navigate(['/question', quiz.quizId, 1]); // Navigate to the first question
         } else {
           console.error(`Quiz with ID ${quizId} not found`);
-          this.router.navigate(['/select']);
         }
       });
-  } */
-
-  onStartQuiz(quizId: string): void {
-    console.log("QI", quizId);
-    if (!quizId) {
-        console.error('No quiz selected');
-        this.router.navigate(['/select']); // Ensure this is the desired fallback
-        return;
-    }
-  
-    this.quizDataService.getQuizById(quizId)
-        .pipe(
-            catchError((error) => {
-                console.error(`Error fetching quiz: ${error}`);
-                this.router.navigate(['/select']); // Ensure this is the desired fallback
-                return throwError(() => new Error('Failed to fetch quiz'));
-            })
-        )
-        .subscribe({
-            next: (quiz: Quiz) => {
-                if (quiz) {
-                    this.quizDataService.selectedQuizSubject.next(quiz);
-                    this.router.navigate(['/question', quiz.quizId, 1]); // Check this navigation
-                } else {
-                    console.error(`Quiz with ID ${quizId} not found`);
-                    this.router.navigate(['/select']); // Verify fallback
-                }
-            },
-            error: error => {
-                console.error('Subscription error:', error);
-                this.router.navigate(['/select']); // Check fallback behavior
-            }
-        });
   }
 
   public get milestone(): string {
