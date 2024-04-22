@@ -138,8 +138,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   questionsArray: QuizQuestion[] = [];
   isQuizDataLoaded = false;
 
-  routeSub: Subscription;
-
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
@@ -395,7 +393,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
       console.log("Subscription was not initialized or already handled.");
     }
-    this.routeSub.unsubscribe();
     this.currentQuestionSubscriptions.unsubscribe();
     this.timerService.stopTimer(null);
   }
