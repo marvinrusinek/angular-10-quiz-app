@@ -299,15 +299,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private loadQuiz(quizId: string, questionIndex: number): void {
     this.quizDataService.getQuizById(quizId).subscribe({
       next: (quiz: Quiz) => {
-        if (!quiz || !quiz.questions || questionIndex < 1 || questionIndex > quiz.questions.length) {
+        this.quiz = quiz;
+        if (quiz.questions && questionIndex >= 0 && questionIndex < quiz.questions.length) {
+          this.currentQuestion = quiz.questions[questionIndex];
+          this.cdRef.detectChanges(); // Force update
+        } else {
           console.error('Question index out of range or quiz data is invalid.');
-          return;
         }
-        this.quiz = quiz;  // Update the quiz data
-        this.currentQuestion = quiz.questions[questionIndex - 1];  // Update the current question
-        console.log('Loaded question:', this.currentQuestion);
       },
-      error: err => console.error('Error loading the quiz:', err)
+      error: err => {
+        console.error('Error loading the quiz:', err);
+      }
     });
   }
 
