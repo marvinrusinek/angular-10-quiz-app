@@ -239,6 +239,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
       this.cdRef.detectChanges();
     }
+
+    if (changes.quizId || changes.questionIndex) {
+      if (this.quizId && this.questionIndex != null) {
+        this.loadQuiz(this.quizId, this.questionIndex);
+      }
+    }
   }
 
   ngOnDestroy(): void {
