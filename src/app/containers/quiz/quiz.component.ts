@@ -890,24 +890,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  /* initializeRouteParams(): void {
-    this.activatedRoute.params.subscribe((params) => {
-      this.quizId = params['quizId'];
-
-      // Correctly handle the case where 'questionIndex' might be 0 or undefined
-      const routeQuestionIndex = params['questionIndex'] !== undefined ? +params['questionIndex'] : 0;
-
-      // Adjust for zero-based indexing
-      const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
-
-      if (adjustedIndex === 0) {
-        this.initializeFirstQuestion();
-      } else {
-        this.updateQuestionDisplay(adjustedIndex);
-      }
-    });
-  } */
-
   initializeRouteParams(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
@@ -919,8 +901,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
 
       if (adjustedIndex === 0) {
-          // Call the special initialization function for the first question
-          this.initializeFirstQuestion();
+        // Call the special initialization function for the first question
+        this.initializeFirstQuestion();
       } else {
         // Handle all other questions through a general update display function
         this.updateQuestionDisplay(adjustedIndex);
