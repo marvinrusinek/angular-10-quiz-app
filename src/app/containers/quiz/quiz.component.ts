@@ -228,12 +228,20 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     }, error => console.error('Error loading the quiz:', error)); */
 
-    this.routeSub = this.activatedRoute.params.subscribe(params => {
+    /* this.routeSub = this.activatedRoute.params.subscribe(params => {
       this.questionIndex = +params['questionIndex']; // Ensure conversion to number
       this.updateQuestionAndOptions();
+    }); */
+
+    this.activatedRoute.data.subscribe(data => {
+      const quiz = data.quizData;
+      if (!quiz || !quiz.questions) {
+        console.error('Invalid quiz data or missing questions');
+        return;
+      }
+      this.questions = quiz.questions;
+      this.updateQuestionAndOptions();
     });
-    
-       
     
     /* this.activatedRoute.paramMap.pipe(
       switchMap(params => {
