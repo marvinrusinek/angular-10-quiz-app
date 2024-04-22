@@ -908,7 +908,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  updateQuestionDisplay(questionIndex: number): void {
+  /* updateQuestionDisplay(questionIndex: number): void {
     // Check if the index is within the bounds of the questions array
     if (this.questions && questionIndex >= 0 && questionIndex < this.questions.length) {
       // Update the component properties with the details of the specified question
@@ -917,6 +917,23 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.optionsToDisplay = selectedQuestion.options;
 
       this.updateExplanationText(questionIndex);
+    } else {
+      console.warn(`Invalid question index: ${questionIndex}. Unable to update the question display.`);
+    }
+  } */
+
+  updateQuestionDisplay(questionIndex: number): void {
+    // Convert questionIndex to zero-based if it’s not already. This step depends on how questionIndex is incremented elsewhere in your code.
+    const zeroBasedIndex = questionIndex - 1;
+  
+    // Check if the zero-based index is within the bounds of the questions array
+    if (this.questions && zeroBasedIndex >= 0 && zeroBasedIndex < this.questions.length) {
+      // Access the array using the zero-based index
+      const selectedQuestion = this.questions[zeroBasedIndex];
+      this.questionToDisplay = selectedQuestion.questionText;
+      this.optionsToDisplay = selectedQuestion.options;
+  
+      this.updateExplanationText(zeroBasedIndex);  // Make sure this method also expects a zero-based index
     } else {
       console.warn(`Invalid question index: ${questionIndex}. Unable to update the question display.`);
     }
