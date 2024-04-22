@@ -138,6 +138,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   questionsArray: QuizQuestion[] = [];
   isQuizDataLoaded = false;
 
+  routeSub: Subscription;
+
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
@@ -226,20 +228,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     }, error => console.error('Error loading the quiz:', error)); */
 
-    this.activatedRoute.params.subscribe(params => {
-      this.questionIndex = +params['questionIndex'];
-      this.quizService.getQuestionByIndex(this.questionIndex).subscribe(question => {
-        if (question) {
-          this.question = question;
-          this.options = question.options;
-        } else {
-          // Handle the case where question is undefined
-          console.error('Question is undefined for index:', this.questionIndex);
-        }
-      }, error => {
-        console.error('Error fetching question:', error);
-      });
+    this.routeSub = this.activatedRoute.params.subscribe(params => {
+      this.questionIndex = +params['questionIndex']; // Ensure conversion to number
+      this.updateQuestionAndOptions();
     });
+    
        
     
     /* this.activatedRoute.paramMap.pipe(
@@ -315,6 +308,19 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
+  updateQuestionAndOptions(): void {
+    this.quizService.getQuestionByIndex(this.questionIndex).subscribe(question => {
+      if (question && question.options) {
+        this.question = question;
+        this.options = question.options;
+      } else {
+        console.error('No valid question or options found for index:', this.questionIndex);
+      }
+    }, error => {
+      console.error('Error fetching question from service:', error);
+    });
+  }
+
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay = this.questions[this.currentQuestionIndex];
   }
@@ -381,6 +387,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
       console.log("Subscription was not initialized or already handled.");
     }
+    this.routeSub.unsubscribe();
     this.currentQuestionSubscriptions.unsubscribe();
     this.timerService.stopTimer(null);
   }
