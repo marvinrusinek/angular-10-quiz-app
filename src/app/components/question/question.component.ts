@@ -327,10 +327,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const newQuestionIndex = parseInt(indexParam, 10);
       console.log(`Detected parameter change: quizId=${newQuizId}, questionIndex=${indexParam} (parsed: ${newQuestionIndex})`);
   
-      // Validate quizId and questionIndex before proceeding
       if (newQuizId && !isNaN(newQuestionIndex)) {
-        this.quiz = null;
-        this.currentQuestion = null;
         this.loadQuiz(newQuizId, newQuestionIndex);
       } else {
         console.error('Invalid parameters:', `quizId=${newQuizId}`, `questionIndex=${indexParam}`);
