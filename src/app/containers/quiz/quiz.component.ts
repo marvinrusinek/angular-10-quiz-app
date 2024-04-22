@@ -190,7 +190,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // this.testSubscribeToQuestions();
 
     this.questions = this.quizService.getShuffledQuestions();
-    this.updateQuestionDisplayForShuffledQuestions();
+    // this.updateQuestionDisplayForShuffledQuestions();
     this.cdRef.detectChanges(); // Ensuring UI updates if using OnPush strategy
     console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
 
@@ -322,7 +322,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   updateQuestionDisplayForShuffledQuestions(): void {
-    this.questionToDisplay = this.questions[this.currentQuestionIndex];
+    this.questionToDisplay = this.questions[this.currentQuestionIndex].questionText;
   }
 
   testSubscribeToQuestions(): void {
