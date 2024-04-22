@@ -317,7 +317,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('No valid question or options found for index:', this.questionIndex);
       }
     }, error => {
-      console.error('Error fetching question from service:', error);
+        console.error('Error fetching question from service:', error);
     });
   }
 
