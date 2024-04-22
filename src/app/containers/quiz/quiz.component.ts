@@ -910,8 +910,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-
-
   updateQuestionDisplay(questionIndex: number): void {
     const zeroBasedIndex = questionIndex - 1;
   
