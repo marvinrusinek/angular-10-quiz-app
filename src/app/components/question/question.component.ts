@@ -200,6 +200,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       })
     ); */
 
+    this.activatedRoute.data.subscribe(data => {
+      this.quiz = data.quizData;
+      if (this.quiz && this.quiz.questions) {
+        this.questionIndex = parseInt(this.activatedRoute.snapshot.paramMap.get('questionIndex'), 10) - 1;
+        if (this.questionIndex >= 0 && this.questionIndex < this.quiz.questions.length) {
+          this.currentQuestion = this.quiz.questions[this.questionIndex];
+        } else {
+          console.error('Question index out of range or quiz data is invalid.');
+        }
+      } else {
+        console.error('Quiz data is missing or invalid.');
+      }
+    });
+
     this.subscribeToAnswers();
     this.subscriptionToOptions();
     // this.quizService.initializeSounds();
