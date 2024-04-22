@@ -229,10 +229,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.params.subscribe(params => {
       this.questionIndex = +params['questionIndex'];
       this.quizService.getQuestionByIndex(this.questionIndex).subscribe(question => {
-        this.question = question;
-        this.options = question.options;
+        if (question && question.options) {
+          this.question = question;
+          this.options = question.options;
+        } else {
+          console.error('Question or options are undefined');
+        }
       });
-    });
+    });    
     
     /* this.activatedRoute.paramMap.pipe(
       switchMap(params => {
