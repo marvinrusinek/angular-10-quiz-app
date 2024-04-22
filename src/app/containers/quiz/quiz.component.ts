@@ -225,7 +225,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Question index out of range or quiz data is invalid.');
       }
     }, error => console.error('Error loading the quiz:', error));
-  }
+  
 
     /* this.activatedRoute.paramMap.pipe(
       switchMap(params => {
