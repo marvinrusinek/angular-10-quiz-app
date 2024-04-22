@@ -910,23 +910,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  /* updateQuestionDisplay(questionIndex: number): void {
-    const zeroBasedIndex = questionIndex - 1;
-  
-    if (this.questions && zeroBasedIndex >= 0 && zeroBasedIndex < this.questions.length) {
-      const selectedQuestion = this.questions[zeroBasedIndex];
-      this.questionToDisplay = selectedQuestion.questionText;
-      this.optionsToDisplay = selectedQuestion.options;
-  
-      this.updateExplanationText(zeroBasedIndex);
-    } else {
-      console.warn(`Invalid question index: ${questionIndex}. Unable to update the question display.`);
-    }
-  } */
-
   updateQuestionDisplay(questionIndex: number): void {
-    console.log(`Attempting to display question at index: ${questionIndex}, Available questions: ${this.questions.length}`);
-
     if (this.questions && questionIndex >= 0 && questionIndex < this.questions.length) {
       // Update the component properties with the details of the specified question
       const selectedQuestion = this.questions[questionIndex];
