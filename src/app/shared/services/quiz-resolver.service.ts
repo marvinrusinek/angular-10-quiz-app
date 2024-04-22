@@ -49,6 +49,10 @@ export class QuizResolverService implements Resolve<Quiz | null> {
           console.log(`No quiz found with ID: ${quizId}`);
           return null;
         }
+        if (!quiz.questions || quiz.questions.length === 0) {
+          console.error('Quiz has no questions:', quiz);
+          return null;
+        }
         return quiz;
       }),
       catchError(error => {
