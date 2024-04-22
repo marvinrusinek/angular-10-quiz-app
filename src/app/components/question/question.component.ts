@@ -343,7 +343,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         return; // Prevent further execution if quiz data is invalid
       }
   
-      // Check if the questionIndex is within the valid range
+      // Adjust questionIndex if it's 1-based (subtract 1 if it is)
+      questionIndex--;  // Adjust to zero-based index if needed
+  
+      // Check if the adjusted questionIndex is within the valid range
       if (questionIndex >= 0 && questionIndex < quiz.questions.length) {
         this.currentQuestion = quiz.questions[questionIndex];
         this.cdRef.detectChanges(); // Manually trigger change detection
@@ -353,7 +356,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }, error => {
       console.error('Error loading the quiz:', error);
     });
-  }  
+  }
+  
 
   private subscribeToAnswers(): void {
     this.quizService.answers$.subscribe((answers) => {
