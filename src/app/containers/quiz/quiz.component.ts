@@ -322,7 +322,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   updateQuestionDisplayForShuffledQuestions(): void {
-    this.questionToDisplay = this.questions[this.currentQuestionIndex];
+    this.questionToDisplay = this.questions[this.currentQuestionIndex].questionText;
   }
 
   testSubscribeToQuestions(): void {
