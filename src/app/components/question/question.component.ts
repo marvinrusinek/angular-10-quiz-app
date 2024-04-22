@@ -129,7 +129,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     url: '../../../../../../../assets/audio/sound-incorrect.mp3',
     title: 'Incorrect Answer'
   };
-
+  private subscriptions: Subscription = new Subscription();
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -190,13 +190,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
 
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-        const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-        const questionIndex = parseInt(this.activatedRoute.snapshot.paramMap.get('questionIndex'), 10) - 1;
-        this.loadQuiz(quizId, questionIndex);
-    });
+    this.subscriptions.add(
+      this.router.events.pipe(
+        filter(event => event instanceof NavigationEnd)
+      ).subscribe(() => {
+        this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+        this.questionIndex = parseInt(this.activatedRoute.snapshot.paramMap.get('questionIndex'), 10) - 1;
+        this.loadQuiz(this.quizId, this.questionIndex);
+      })
+    );
 
     this.subscribeToAnswers();
     this.subscriptionToOptions();
@@ -224,6 +226,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.questionsObservableSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
     this.sharedVisibilitySubscription?.unsubscribe();
+    this.subscriptions.unsubscribe();
     document.removeEventListener(
       'visibilitychange',
       this.initializeQuestionOptions.bind(this)
@@ -297,20 +300,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private loadQuiz(quizId: string, questionIndex: number): void {
-    this.quizDataService.getQuizById(quizId).subscribe({
-      next: (quiz: Quiz) => {
-        this.quiz = quiz;
-        if (quiz.questions && questionIndex >= 0 && questionIndex < quiz.questions.length) {
-          this.currentQuestion = quiz.questions[questionIndex];
-          this.cdRef.detectChanges(); // Force update
-        } else {
-          console.error('Question index out of range or quiz data is invalid.');
-        }
-      },
-      error: err => {
-        console.error('Error loading the quiz:', err);
+    this.quizDataService.getQuizById(quizId).subscribe(quiz => {
+      this.quiz = quiz;
+      if (quiz && quiz.questions && questionIndex >= 0 && questionIndex < quiz.questions.length) {
+        this.currentQuestion = quiz.questions[questionIndex];
+        this.cdr.detectChanges(); // Manually trigger change detection
+      } else {
+        console.error('Question index out of range or quiz data is invalid.');
       }
-    });
+    }, error => console.error('Error loading the quiz:', error));
   }
 
   private subscribeToAnswers(): void {
