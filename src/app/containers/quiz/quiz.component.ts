@@ -211,6 +211,22 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
+    this.activatedRoute.paramMap.pipe(
+      switchMap(params => {
+        this.quizId = params.get('quizId');
+        this.questionIndex = parseInt(params.get('questionIndex'), 10) - 1;
+        return this.quizDataService.getQuizById(this.quizId);
+      })
+    ).subscribe(quiz => {
+      this.quiz = quiz;
+      if (quiz && quiz.questions && this.questionIndex >= 0 && this.questionIndex < quiz.questions.length) {
+        this.currentQuestion = quiz.questions[this.questionIndex];
+      } else {
+        console.error('Question index out of range or quiz data is invalid.');
+      }
+    }, error => console.error('Error loading the quiz:', error));
+  }
+
     /* this.activatedRoute.paramMap.pipe(
       switchMap(params => {
         const quizId = params.get('quizId');
