@@ -435,7 +435,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getQuestionByIndex(index: number): Observable<any> {
+  getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
     return this.questions$.pipe(
       map(questions => {
         if (!questions || index < 0 || index >= questions.length) {
@@ -448,6 +448,10 @@ export class QuizService implements OnDestroy {
         if (!question || !question.options) {
           console.log(`No valid question or options found for index ${index}:`, question);
         }
+      }),
+      catchError(error => {
+        console.error('Error fetching question:', error);
+        return of(null);
       })
     );
   }
