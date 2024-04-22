@@ -320,7 +320,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private loadQuiz(quizId: string, questionIndex: number): void {
+  /* private loadQuiz(quizId: string, questionIndex: number): void {
     this.quizDataService.getQuizById(quizId).subscribe(quiz => {
       this.quiz = quiz;
       if (quiz && quiz.questions && questionIndex >= 0 && questionIndex < quiz.questions.length) {
@@ -330,7 +330,30 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Question index out of range or quiz data is invalid.');
       }
     }, error => console.error('Error loading the quiz:', error));
-  }
+  } */
+
+  private loadQuiz(quizId: string, questionIndex: number): void {
+    this.quizDataService.getQuizById(quizId).subscribe(quiz => {
+      this.quiz = quiz;
+      console.log('Loaded quiz data:', quiz); // Log the fetched quiz data for debugging
+  
+      // Validate the quiz data and questions array
+      if (!quiz || !Array.isArray(quiz.questions)) {
+        console.error('Quiz data is missing or has no questions array.');
+        return; // Prevent further execution if quiz data is invalid
+      }
+  
+      // Check if the questionIndex is within the valid range
+      if (questionIndex >= 0 && questionIndex < quiz.questions.length) {
+        this.currentQuestion = quiz.questions[questionIndex];
+        this.cdRef.detectChanges(); // Manually trigger change detection
+      } else {
+        console.error('Question index out of range or invalid.', 'Index:', questionIndex, 'Questions Length:', quiz.questions.length);
+      }
+    }, error => {
+      console.error('Error loading the quiz:', error);
+    });
+  }  
 
   private subscribeToAnswers(): void {
     this.quizService.answers$.subscribe((answers) => {
