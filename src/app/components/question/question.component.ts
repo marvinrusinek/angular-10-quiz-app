@@ -304,7 +304,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quiz = quiz;
       if (quiz && quiz.questions && questionIndex >= 0 && questionIndex < quiz.questions.length) {
         this.currentQuestion = quiz.questions[questionIndex];
-        this.cdr.detectChanges(); // Manually trigger change detection
+        this.cdRef.detectChanges(); // Manually trigger change detection
       } else {
         console.error('Question index out of range or quiz data is invalid.');
       }
