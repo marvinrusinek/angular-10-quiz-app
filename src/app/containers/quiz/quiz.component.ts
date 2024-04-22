@@ -229,14 +229,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.params.subscribe(params => {
       this.questionIndex = +params['questionIndex'];
       this.quizService.getQuestionByIndex(this.questionIndex).subscribe(question => {
-        if (question && question.options) {
+        if (question) {
           this.question = question;
           this.options = question.options;
         } else {
-          console.error('Question or options are undefined');
+          // Handle the case where question is undefined
+          console.error('Question is undefined for index:', this.questionIndex);
         }
+      }, error => {
+        console.error('Error fetching question:', error);
       });
-    });    
+    });
+       
     
     /* this.activatedRoute.paramMap.pipe(
       switchMap(params => {
