@@ -437,7 +437,12 @@ export class QuizService implements OnDestroy {
 
   getQuestionByIndex(index: number): Observable<any> {
     return this.questions$.pipe(
-      map(questions => (index >= 0 && index < questions.length) ? questions[index] : null)
+      tap(questions => console.log('Fetched questions:', questions)),  // Log fetched questions
+      map(questions => (index >= 0 && index < questions.length) ? questions[index] : null),
+      tap(question => {
+        if (!question) console.log(`No question found at index ${index}`);
+        else console.log(`Question at index ${index}:`, question);
+      })
     );
   }
 
