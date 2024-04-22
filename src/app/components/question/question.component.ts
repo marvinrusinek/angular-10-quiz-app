@@ -190,6 +190,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
 
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+        const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+        const questionIndex = parseInt(this.activatedRoute.snapshot.paramMap.get('questionIndex'), 10) - 1;
+        this.loadQuiz(quizId, questionIndex);
+    });
+
     this.subscribeToAnswers();
     this.subscriptionToOptions();
     // this.quizService.initializeSounds();
