@@ -321,10 +321,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private loadQuiz(quizId: string, questionIndex: number): void {
+    console.log('Received questionIndex:', questionIndex); // Log the index received by the function
+  
     this.quizDataService.getQuizById(quizId).subscribe({
       next: (quiz) => {
         this.quiz = quiz;
-        console.log('Loaded quiz data:', quiz);
+        console.log('Loaded quiz data:', quiz); // Log the fetched quiz data for debugging
   
         // Validate the quiz data and questions array
         if (!quiz || !Array.isArray(quiz.questions)) {
@@ -332,13 +334,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           return; // Prevent further execution if quiz data is invalid
         }
   
-        // Adjust questionIndex because it is 1-based
-        questionIndex--;
+        // Adjust questionIndex if it's 1-based (subtract 1 if it is)
+        questionIndex--;  // Adjust to zero-based index if needed
+  
+        console.log('Adjusted questionIndex:', questionIndex); // Log the adjusted index
   
         // Check if the adjusted questionIndex is within the valid range
         if (questionIndex >= 0 && questionIndex < quiz.questions.length) {
           this.currentQuestion = quiz.questions[questionIndex];
-          this.cdRef.detectChanges();
+          this.cdRef.detectChanges(); // Manually trigger change detection
         } else {
           console.error('Question index out of range or invalid.', 'Index:', questionIndex, 'Questions Length:', quiz.questions.length);
         }
@@ -347,7 +351,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Error loading the quiz:', error);
       }
     });
-  }
+  }  
 
   private subscribeToAnswers(): void {
     this.quizService.answers$.subscribe((answers) => {
