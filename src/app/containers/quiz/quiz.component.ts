@@ -890,7 +890,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  initializeRouteParams(): void {
+  /* initializeRouteParams(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
 
@@ -906,7 +906,23 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.updateQuestionDisplay(adjustedIndex);
       }
     });
+  } */
+
+  initializeRouteParams(): void {
+    this.activatedRoute.params.subscribe((params) => {
+      this.quizId = params['quizId'];
+
+      // Get the 'questionIndex' from URL, ensure it's a number, default to 1 if undefined
+      const routeQuestionIndex = params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
+
+      // Adjust for zero-based indexing
+      const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
+
+      // Update the display for any valid index
+      this.updateQuestionDisplay(adjustedIndex);
+    });
   }
+
 
   updateQuestionDisplay(questionIndex: number): void {
     const zeroBasedIndex = questionIndex - 1;
