@@ -190,7 +190,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
 
-    this.subscriptions.add(
+    /* this.subscriptions.add(
       this.router.events.pipe(
         filter(event => event instanceof NavigationEnd)
       ).subscribe(() => {
@@ -198,7 +198,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.questionIndex = parseInt(this.activatedRoute.snapshot.paramMap.get('questionIndex'), 10) - 1;
         this.loadQuiz(this.quizId, this.questionIndex);
       })
-    );
+    ); */
 
     this.subscribeToAnswers();
     this.subscriptionToOptions();
