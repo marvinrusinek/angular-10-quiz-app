@@ -5,12 +5,14 @@ import { catchError, map } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizService } from './quiz.service';
+import { QuizDataService } from './quizdata.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuizResolverService implements Resolve<Quiz | null> {
-  constructor(private quizService: QuizService) {}
+  constructor(private quizService: QuizService,
+    private quizDataService: QuizDataService) {}
 
-  resolve(route: ActivatedRouteSnapshot): Observable<Quiz | null> {
+  /* resolve(route: ActivatedRouteSnapshot): Observable<Quiz | null> {
     const quizId = route.params['quizId'];
     if (!quizId) {
       console.error('Quiz ID is missing in the resolver');
@@ -18,6 +20,29 @@ export class QuizResolverService implements Resolve<Quiz | null> {
     }
 
     return this.quizService.getQuizData().pipe(
+      map(quizzes => {
+        const quiz = quizzes.find(q => q.quizId === quizId);
+        if (!quiz) {
+          console.log(`No quiz found with ID: ${quizId}`);
+          return null;
+        }
+        return quiz;
+      }),
+      catchError(error => {
+        console.error(`Error resolving quiz data for ID ${quizId}:`, error);
+        return of(null);
+      })
+    );
+  } */
+
+  resolve(route: ActivatedRouteSnapshot): Observable<Quiz | null> {
+    const quizId = route.params['quizId'];
+    if (!quizId) {
+      console.error('Quiz ID is missing in the route parameters.');
+      return of(null);
+    }
+
+    return this.quizDataService.getQuizzes().pipe(
       map(quizzes => {
         const quiz = quizzes.find(q => q.quizId === quizId);
         if (!quiz) {
