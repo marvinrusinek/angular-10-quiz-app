@@ -1079,7 +1079,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationToDisplay = 'Error loading explanation.';
   }
 
-  initializeQuestionStreams(): void {
+  /* initializeQuestionStreams(): void {
     // Initialize questions stream
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
 
@@ -1097,6 +1097,51 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
     const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
+  } */
+
+  initializeQuestionStreams(): void {
+    // Initialize questions stream
+    this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
+
+    this.questions$.subscribe(questions => {
+      if (questions && questions.length > 0) {
+        // Reset and set initial state for each question
+        questions.forEach((question, index) => {
+          const defaultState = this.quizStateService.createDefaultQuestionState();
+          this.quizStateService.setQuestionState(this.quizId, index, defaultState);
+        });
+
+        // Properly set the initial question index
+        this.currentQuestionIndex = 0;
+
+        // Now fetch the next question and options using the currentQuestionIndex
+        this.fetchNextQuestionAndOptions();
+      } else {
+        console.error('No questions loaded or invalid question set for quiz:', this.quizId);
+      }
+  });
+}
+
+fetchNextQuestionAndOptions(): void {
+    // Fetch the next question based on the current question index
+    const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
+    nextQuestion$.subscribe(question => {
+      if (question) {
+        this.question = question;
+      } else {
+        console.error('Failed to fetch question for index:', this.currentQuestionIndex);
+      }
+    });
+
+    // Fetch the options for the current question index
+    const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
+    nextOptions$.subscribe(options => {
+      if (options) {
+        this.options = options;
+      } else {
+        console.error('Failed to fetch options for question index:', this.currentQuestionIndex);
+      }
+    });
   }
 
   // Function to load all questions for the current quiz
