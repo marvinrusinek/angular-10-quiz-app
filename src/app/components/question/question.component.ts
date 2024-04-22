@@ -327,21 +327,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const newQuestionIndex = parseInt(indexParam, 10);
       console.log(`Detected parameter change: quizId=${newQuizId}, questionIndex=${indexParam} (parsed: ${newQuestionIndex})`);
   
-      // Reset the state before loading new data
-      this.quiz = null;
-      this.currentQuestion = null;
-  
-      // Check if the newQuestionIndex is a number and not undefined, and the newQuizId is not null
-      if (!isNaN(newQuestionIndex) && newQuizId != null) {
+      // Validate quizId and questionIndex before proceeding
+      if (newQuizId && !isNaN(newQuestionIndex)) {
+        this.quiz = null;
+        this.currentQuestion = null;
         this.loadQuiz(newQuizId, newQuestionIndex);
       } else {
-        console.error('Invalid parameters provided:', `quizId=${newQuizId}`, `questionIndex=${indexParam}`);
-        // Consider adding error handling or fallback logic here
+        console.error('Invalid parameters:', `quizId=${newQuizId}`, `questionIndex=${indexParam}`);
       }
     });
   }
-  
-  
 
   private loadQuiz(quizId: string, questionIndex: number): void {
     this.quizDataService.getQuizById(quizId).subscribe({
