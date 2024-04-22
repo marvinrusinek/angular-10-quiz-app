@@ -320,36 +320,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  /* private loadQuiz(quizId: string, questionIndex: number): void {
-    this.quizDataService.getQuizById(quizId).subscribe(quiz => {
-      this.quiz = quiz;
-      if (quiz && quiz.questions && questionIndex >= 0 && questionIndex < quiz.questions.length) {
-        this.currentQuestion = quiz.questions[questionIndex];
-        this.cdRef.detectChanges(); // Manually trigger change detection
-      } else {
-        console.error('Question index out of range or quiz data is invalid.');
-      }
-    }, error => console.error('Error loading the quiz:', error));
-  } */
-
   private loadQuiz(quizId: string, questionIndex: number): void {
     this.quizDataService.getQuizById(quizId).subscribe(quiz => {
       this.quiz = quiz;
-      console.log('Loaded quiz data:', quiz); // Log the fetched quiz data for debugging
+      console.log('Loaded quiz data:', quiz);
   
       // Validate the quiz data and questions array
       if (!quiz || !Array.isArray(quiz.questions)) {
         console.error('Quiz data is missing or has no questions array.');
-        return; // Prevent further execution if quiz data is invalid
+        return;
       }
   
-      // Adjust questionIndex if it's 1-based (subtract 1 if it is)
-      questionIndex--;  // Adjust to zero-based index if needed
+      // questionIndex is 1-based so subtract 1 if it is
+      questionIndex--;
   
-      // Check if the adjusted questionIndex is within the valid range
       if (questionIndex >= 0 && questionIndex < quiz.questions.length) {
         this.currentQuestion = quiz.questions[questionIndex];
-        this.cdRef.detectChanges(); // Manually trigger change detection
+        this.cdRef.detectChanges();
       } else {
         console.error('Question index out of range or invalid.', 'Index:', questionIndex, 'Questions Length:', quiz.questions.length);
       }
