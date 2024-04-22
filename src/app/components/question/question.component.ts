@@ -306,7 +306,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   } */
 
-  private subscribeToActivatedRouteParams(): void {
+  /* private subscribeToActivatedRouteParams(): void {
     this.activatedRoute.paramMap.subscribe(params => {
       const newQuizId = params.get('quizId');
       const newQuestionIndex = parseInt(params.get('questionIndex'), 10);
@@ -318,7 +318,28 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
       this.loadQuiz(newQuizId, newQuestionIndex);
     });
+  } */
+
+  private subscribeToActivatedRouteParams(): void {
+    this.activatedRoute.paramMap.subscribe(params => {
+      const newQuizId = params.get('quizId');
+      const newQuestionIndex = parseInt(params.get('questionIndex'), 10);
+      console.log(`Detected parameter change: quizId=${newQuizId}, questionIndex=${newQuestionIndex}`);
+  
+      // Reset the state before loading new data
+      this.quiz = null;
+      this.currentQuestion = null;
+  
+      // Check if the newQuestionIndex is a number, and the newQuizId is not null
+      if (!isNaN(newQuestionIndex) && newQuizId) {
+        this.loadQuiz(newQuizId, newQuestionIndex);
+      } else {
+        console.error('Invalid parameters provided:', `quizId=${newQuizId}`, `questionIndex=${newQuestionIndex}`);
+        // Consider adding error handling or fallback logic here
+      }
+    });
   }
+  
 
   private loadQuiz(quizId: string, questionIndex: number): void {
     console.log('Received questionIndex:', questionIndex); // Log the index received by the function
