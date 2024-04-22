@@ -437,11 +437,17 @@ export class QuizService implements OnDestroy {
 
   getQuestionByIndex(index: number): Observable<any> {
     return this.questions$.pipe(
-      tap(questions => console.log('Fetched questions:', questions)),  // Log fetched questions
-      map(questions => (index >= 0 && index < questions.length) ? questions[index] : null),
+      map(questions => {
+        if (!questions || index < 0 || index >= questions.length) {
+          console.log(`Index ${index} is out of bounds or questions are undefined`);
+          return null;
+        }
+        return questions[index];
+      }),
       tap(question => {
-        if (!question) console.log(`No question found at index ${index}`);
-        else console.log(`Question at index ${index}:`, question);
+        if (!question || !question.options) {
+          console.log(`No valid question or options found for index ${index}:`, question);
+        }
       })
     );
   }
