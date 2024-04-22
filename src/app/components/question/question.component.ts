@@ -341,7 +341,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private loadQuiz(quizId: string, questionIndex: number): void {
     this.quizDataService.getQuizById(quizId).subscribe({
       next: (quiz) => {
-        if (quiz && Array.isArray(quiz.questions) && quiz.questions.length > questionIndex && questionIndex >= 0) {
+        if (quiz && quiz.questions && quiz.questions.length > questionIndex && questionIndex >= 0) {
           this.quiz = quiz;
           this.currentQuestion = quiz.questions[questionIndex];
           this.cdRef.detectChanges();
@@ -353,7 +353,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Error loading the quiz:', error);
       }
     });
-  }    
+  }      
 
   private subscribeToAnswers(): void {
     this.quizService.answers$.subscribe((answers) => {
