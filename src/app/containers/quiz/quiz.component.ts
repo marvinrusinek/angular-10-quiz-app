@@ -231,14 +231,23 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.updateQuestionAndOptions();
     }); */
 
-    this.activatedRoute.data.subscribe(data => {
-      const quiz = data.quizData;
-      if (!quiz || !quiz.questions) {
-        console.error('Invalid quiz data or missing questions');
-        return;
+    this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
+      console.log('All parameters:', params.keys);
+      const indexParam = params.get('questionIndex');
+      console.log('Received questionIndex from route:', indexParam);
+  
+      if (indexParam !== null) {
+        this.questionIndex = parseInt(indexParam, 10);
+        console.log('Parsed questionIndex:', this.questionIndex);
+  
+        if (!isNaN(this.questionIndex)) {
+          this.updateQuestionAndOptions();
+        } else {
+          console.error('Invalid questionIndex:', indexParam);
+        }
+      } else {
+        console.error('Missing questionIndex parameter');
       }
-      this.questions = quiz.questions;
-      this.updateQuestionAndOptions();
     });
     
     /* this.activatedRoute.paramMap.pipe(
