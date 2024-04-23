@@ -4,13 +4,11 @@ import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
-import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuizResolverService implements Resolve<Quiz | null> {
-  constructor(private quizService: QuizService,
-    private quizDataService: QuizDataService) {}
+  constructor(private quizDataService: QuizDataService) {}
 
   resolve(route: ActivatedRouteSnapshot): Observable<Quiz | null> | Promise<Quiz> | Quiz {
     const quizId = route.params['quizId'];
