@@ -334,6 +334,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   
     this.quizService.getQuestionByIndex(this.questionIndex).subscribe(question => {
+      console.log("QUESTION", question);
       if (question && question.options) {
         this.question = question;
         this.options = question.options;
