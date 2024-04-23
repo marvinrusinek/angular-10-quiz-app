@@ -437,27 +437,18 @@ export class QuizService implements OnDestroy {
 
   getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
     return this.questions$.pipe(
-      tap(questions => {
-        if (!questions) {
-          console.log('Questions array is null or undefined');
-        } else if (questions.length === 0) {
-          console.log('Questions array is empty');
-        }
-      }),
       map(questions => {
         if (!questions || index < 0 || index >= questions.length) {
-          console.log(`Index ${index} is out of bounds or questions are undefined`);
+          console.log(`Index ${index} is out of bounds, or questions are undefined`);
           return null;
         }
         return questions[index];
       }),
       tap(question => {
-        if (!question) {
-          console.log(`No question found at index ${index}`);
-        } else if (!question.options || question.options.length === 0) {
-          console.log(`No valid options found for question at index ${index}:`, question);
+        if (question && question.options && question.options.length > 0) {
+          console.log(`Question at index ${index} is valid, with options:`, question);
         } else {
-          console.log(`Question at index ${index} with options:`, question);
+          console.log(`No valid question or options found for index ${index}:`, question);
         }
       }),
       catchError(error => {
@@ -465,7 +456,7 @@ export class QuizService implements OnDestroy {
         return of(null);
       })
     );
-  }
+  }  
 
   getQuestionTextForIndex(index: number): string | undefined {
     const currentQuiz = this.getCurrentQuiz();
