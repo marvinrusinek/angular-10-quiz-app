@@ -369,10 +369,9 @@ export class QuizDataService implements OnDestroy {
     // Create observables for the current question and its options
     // If `quizId$` is an Observable<string>
     const quizId$: Observable<string> = of(quizId);
-
     const currentQuestion$ = quizId$.pipe(
-        switchMap((id: string) => this.getQuizQuestionByIdAndIndex(id, questionIndex)),
-        shareReplay(1)
+      switchMap((id: string) => this.getQuizQuestionByIdAndIndex(id, questionIndex)),
+      shareReplay(1)
     );
     const options$ = this.getQuestionOptions(currentQuestion$)
       .pipe(shareReplay(1));
