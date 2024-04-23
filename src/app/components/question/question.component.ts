@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
   EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit,
   Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, filter, first, map, take, takeUntil, tap } from 'rxjs/operators';
 
@@ -299,7 +299,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private subscribeToActivatedRouteParams(): void {
-    this.activatedRoute.paramMap.pipe(first()).subscribe(params => {
+    this.activatedRoute.paramMap.pipe(first()).subscribe((params: ParamMap) => {
       const newQuizId = params.get('quizId');
       const indexParam = params.get('questionIndex');
       const newQuestionIndex = parseInt(indexParam, 10);
