@@ -313,7 +313,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private loadQuiz(quizId: string, questionIndex: number): void {
+  /* private loadQuiz(quizId: string, questionIndex: number): void {
     this.quizDataService.getQuizById(quizId).subscribe({
       next: (quiz) => {
         if (quiz && quiz.questions && quiz.questions.length > questionIndex && questionIndex >= 0) {
@@ -328,7 +328,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Error loading the quiz:', error);
       }
     });
-  }      
+  } */
+  
+  private loadQuiz(quizId: string, questionIndex: number): void {
+    this.quizDataService.getQuizById(quizId).subscribe(quiz => {
+      if (quiz && quiz.questions && quiz.questions.length > questionIndex) {
+        this.currentQuestion = quiz.questions[questionIndex];
+      } else {
+        console.error('No valid question or options found for index:', questionIndex);
+      }
+    }, error => {
+      console.error('Error loading quiz data:', error);
+    });
+  }
+  
 
   private subscribeToAnswers(): void {
     this.quizService.answers$.subscribe((answers) => {
