@@ -333,17 +333,20 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
   
-    this.quizService.getQuestionByIndex(this.questionIndex).subscribe(question => {
-      console.log("QUESTION", question);
-      if (question && question.options) {
-        this.question = question;
-        this.options = question.options;
-      } else {
-        console.error('No valid question or options found for index:', this.questionIndex);
+    this.quizService.getQuestionByIndex(this.questionIndex).subscribe({
+      next: (question) => {
+        console.log("QUESTION", question);
+        if (question && question.options) {
+          this.question = question;
+          this.options = question.options;
+        } else {
+          console.error('No valid question or options found for index:', this.questionIndex);
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching question from service:', error);
       }
-    }, error => {
-      console.error('Error fetching question from service:', error);
-    });
+    });    
   }  
 
   updateQuestionDisplayForShuffledQuestions(): void {
