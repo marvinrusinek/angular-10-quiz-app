@@ -265,7 +265,7 @@ export class QuizDataService implements OnDestroy {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
       switchMap((result): Observable<QuizQuestion | null> => {
         if (!result) {
-          console.error('Expected a tuple with QuizQuestion and Options from getQuestionAndOptions but received null for index', questionIndex);
+          console.error(`Expected a tuple with QuizQuestion and Options from getQuestionAndOptions but received null for index ${questionIndex}`);
           return of(null);
         }
   
@@ -284,7 +284,8 @@ export class QuizDataService implements OnDestroy {
       }),
       distinctUntilChanged()
     );
-  }  
+  }
+  
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(
