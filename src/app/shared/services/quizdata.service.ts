@@ -321,7 +321,7 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  /* getQuestionAndOptions(
+  getQuestionAndOptions(
     quizId: string,
     questionIndex: number
   ): Observable<[QuizQuestion, Option[]]> {
@@ -355,35 +355,6 @@ export class QuizDataService implements OnDestroy {
     return this.questionAndOptionsSubject
       .asObservable()
       .pipe(distinctUntilChanged());
-  } */
-
-  getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
-    // Check if data for the current index is already loaded
-    if (this.hasQuestionAndOptionsLoaded && this.currentQuestionIndex === questionIndex) {
-      return this.questionAndOptionsSubject.asObservable().pipe(distinctUntilChanged());
-    }
-
-    // Fetching quiz data, though its result isn't directly used here
-    this.fetchQuizDataFromAPI().subscribe();
-
-    // Create observables for the current question and its options
-    // If `quizId$` is an Observable<string>
-    const quizId$: Observable<string> = of(quizId);
-    const currentQuestion$ = quizId$.pipe(
-      switchMap((id: string) => this.getQuizQuestionByIdAndIndex(id, questionIndex)),
-      shareReplay(1)
-    );
-    const options$ = this.getQuestionOptions(currentQuestion$)
-      .pipe(shareReplay(1));
-
-    // Process and update the BehaviorSubject
-    this.processQuestionAndOptions(currentQuestion$, options$, questionIndex).subscribe(questionAndOptions => {
-      this.questionAndOptionsSubject.next(questionAndOptions);
-      this.hasQuestionAndOptionsLoaded = true;
-      this.currentQuestionIndex = questionIndex;
-    });
-
-    return this.questionAndOptionsSubject.asObservable().pipe(distinctUntilChanged());
   }
 
   fetchQuizDataFromAPI(): Observable<Quiz[]> {
