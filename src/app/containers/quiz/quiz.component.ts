@@ -314,7 +314,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  updateQuestionAndOptions(): void {
+  /* updateQuestionAndOptions(): void {
     this.quizService.getQuestionByIndex(this.questionIndex).subscribe(question => {
       if (question && question.options) {
         this.question = question;
@@ -325,7 +325,26 @@ export class QuizComponent implements OnInit, OnDestroy {
     }, error => {
         console.error('Error fetching question from service:', error);
     });
+  } */
+
+  updateQuestionAndOptions(): void {
+    if (this.questionIndex == null || isNaN(this.questionIndex)) {
+      console.error('Question index is undefined or invalid:', this.questionIndex);
+      return;
+    }
+  
+    this.quizService.getQuestionByIndex(this.questionIndex).subscribe(question => {
+      if (question && question.options) {
+        this.question = question;
+        this.options = question.options;
+      } else {
+        console.error('No valid question or options found for index:', this.questionIndex);
+      }
+    }, error => {
+      console.error('Error fetching question from service:', error);
+    });
   }
+  
 
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay = this.questions[this.currentQuestionIndex].questionText;
