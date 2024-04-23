@@ -374,7 +374,6 @@ export class QuizDataService implements OnDestroy {
         switchMap((id: string) => this.getQuizQuestionByIdAndIndex(id, questionIndex)),
         shareReplay(1)
     );
-
     const options$ = this.getQuestionOptions(currentQuestion$)
       .pipe(shareReplay(1));
 
