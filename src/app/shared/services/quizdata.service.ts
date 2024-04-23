@@ -234,7 +234,7 @@ export class QuizDataService implements OnDestroy {
     ) as Observable<QuizQuestion | null>;
   } */
 
-  fetchQuizQuestionByIdAndIndex(
+  /* fetchQuizQuestionByIdAndIndex(
     quizId: string,
     questionIndex: number
   ): Observable<QuizQuestion | null> {
@@ -253,6 +253,30 @@ export class QuizDataService implements OnDestroy {
         console.error('Error getting quiz question:', error);
         const customError = new Error('An error occurred while fetching data.');
         return throwError(() => customError);
+      }),
+      distinctUntilChanged()
+    ) as Observable<QuizQuestion | null>;
+  } */
+
+  fetchQuizQuestionByIdAndIndex(
+    quizId: string,
+    questionIndex: number
+  ): Observable<QuizQuestion | null> {
+    return this.getQuestionAndOptions(quizId, questionIndex).pipe(
+      switchMap((result: [QuizQuestion, Option[]] | null): Observable<QuizQuestion | null> => {
+        // Ensure 'result' is a tuple and has elements before attempting to destructure
+        if (!Array.isArray(result) || result.length === 0 || !result[0] || !result[1]) {
+          console.error('Expected a tuple with QuizQuestion and Options from getQuestionAndOptions:', result);
+          return of(null);
+        }
+    
+        const [question, options] = result;
+        question.options = options; // Assuming your QuizQuestion structure can hold options directly
+        return of(question);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error getting quiz question:', error);
+        return throwError(() => new Error('An error occurred while fetching data: ' + error.message));
       }),
       distinctUntilChanged()
     ) as Observable<QuizQuestion | null>;
