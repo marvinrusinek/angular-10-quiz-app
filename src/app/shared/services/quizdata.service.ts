@@ -263,28 +263,23 @@ export class QuizDataService implements OnDestroy {
     questionIndex: number
   ): Observable<QuizQuestion | null> {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
-      switchMap((result: [QuizQuestion, Option[]] | null): Observable<QuizQuestion | null> => {
-        // Check if the result is null or elements within the tuple are undefined or null
+      switchMap((result): Observable<QuizQuestion | null> => {
         if (result === null || !result[0] || !result[1]) {
           console.error('Expected a tuple with QuizQuestion and Options from getQuestionAndOptions:', result);
           return of(null);
         }
-    
+  
         const [question, options] = result;
-        question.options = options; // Assuming your QuizQuestion structure can hold options directly
+        question.options = options;
         return of(question);
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('Error getting quiz question:', error);
-        const customError = new Error('An error occurred while fetching data: ' + error.message);
-        return throwError(() => customError);
+        return throwError(() => new Error('An error occurred while fetching data: ' + error.message));
       }),
       distinctUntilChanged()
-    ) as Observable<QuizQuestion | null>;
-  }
-
-  
-  
+    );
+  }  
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(
