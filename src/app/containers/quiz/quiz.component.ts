@@ -343,8 +343,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }, error => {
       console.error('Error fetching question from service:', error);
     });
-  }
-  
+  }  
 
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay = this.questions[this.currentQuestionIndex].questionText;
