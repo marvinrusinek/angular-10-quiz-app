@@ -298,34 +298,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* private subscribeToActivatedRouteParams(): void {
-    this.activatedRoute.paramMap.subscribe(params => {
-      const quizId = params.get('quizId');
-      const questionIndex = parseInt(params.get('questionIndex'), 10);
-      console.log(`Detected parameter change: quizId=${quizId}, questionIndex=${questionIndex}`);
-
-      if (quizId !== this.quizId || this.questionIndex !== questionIndex) {
-        this.quizId = quizId;
-        this.questionIndex = questionIndex;
-        this.loadQuiz(quizId, questionIndex);
-      }
-    });
-  } */
-
-  /* private subscribeToActivatedRouteParams(): void {
-    this.activatedRoute.paramMap.subscribe(params => {
-      const newQuizId = params.get('quizId');
-      const newQuestionIndex = parseInt(params.get('questionIndex'), 10);
-      console.log(`Detected parameter change: quizId=${newQuizId}, questionIndex=${newQuestionIndex}`);
-
-      // Reset the state before loading new data
-      this.quiz = null; 
-      this.currentQuestion = null;
-
-      this.loadQuiz(newQuizId, newQuestionIndex);
-    });
-  } */
-
   private subscribeToActivatedRouteParams(): void {
     this.activatedRoute.paramMap.subscribe(params => {
       const newQuizId = params.get('quizId');
