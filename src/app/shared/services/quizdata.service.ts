@@ -266,7 +266,7 @@ export class QuizDataService implements OnDestroy {
       switchMap((result): Observable<QuizQuestion | null> => {
         if (!result) {
           console.error(`Expected a tuple with QuizQuestion and Options from getQuestionAndOptions but received null for index ${questionIndex}`);
-          return of(null);
+          return of(null); // Return null and handle this appropriately in the UI.
         }
   
         const [question, options] = result;
@@ -275,7 +275,7 @@ export class QuizDataService implements OnDestroy {
           return of(null);
         }
   
-        question.options = options; // Assuming `question` structure can hold `options`
+        question.options = options;
         return of(question);
       }),
       catchError((error: HttpErrorResponse) => {
@@ -285,7 +285,6 @@ export class QuizDataService implements OnDestroy {
       distinctUntilChanged()
     );
   }
-  
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(
