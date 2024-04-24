@@ -321,7 +321,7 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  getQuestionAndOptions(
+  /* getQuestionAndOptions(
     quizId: string,
     questionIndex: number
   ): Observable<[QuizQuestion, Option[]]> {
@@ -355,6 +355,43 @@ export class QuizDataService implements OnDestroy {
     return this.questionAndOptionsSubject
       .asObservable()
       .pipe(distinctUntilChanged());
+  } */
+
+  getQuestionAndOptions(
+    quizId: string,
+    questionIndex: number
+): Observable<[QuizQuestion, Option[]]> {
+    if (
+        this.hasQuestionAndOptionsLoaded &&
+        this.currentQuestionIndex === questionIndex
+    ) {
+        return this.questionAndOptionsSubject.asObservable().pipe(distinctUntilChanged());
+    }
+
+    // Assuming fetchQuizDataFromAPI() is required to fetch some data relevant for obtaining the quiz question
+    // and that it outputs an observable which should ultimately resolve to provide quiz data:
+    return this.fetchQuizDataFromAPI().pipe(
+        switchMap(quizData => {
+            // Assuming we get something from quizData that is relevant for the next steps.
+            // You need to adjust this part based on what quizData contains and what you need.
+            const currentQuestion$ = this.getQuizQuestionByIdAndIndex(quizId, questionIndex).pipe(
+                shareReplay({refCount: true, bufferSize: 1})
+            );
+            const options$ = this.getQuestionOptions(currentQuestion$).pipe(
+                shareReplay({refCount: true, bufferSize: 1})
+            );
+
+            return this.processQuestionAndOptions(currentQuestion$, options$, questionIndex);
+        }),
+        tap(questionAndOptions => {
+            this.questionAndOptionsSubject.next(questionAndOptions);
+        }),
+        catchError(error => {
+            console.error('Error in processing quiz question and options:', error);
+            return of(null);
+        }),
+        distinctUntilChanged()
+    );
   }
 
   fetchQuizDataFromAPI(): Observable<Quiz[]> {
