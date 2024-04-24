@@ -440,30 +440,22 @@ export class QuizDataService implements OnDestroy {
     );
   } */
 
-  getQuizQuestionByIdAndIndex(
-    quiz$: Observable<Quiz[]>,
-    quizId: string,
-    questionIndex: number = 0
-  ): Observable<QuizQuestion | null> {
-    const quizId$ = quizId ? of(quizId) : this.activatedRoute.params.pipe(
-      map((params: ParamMap) => params['quizId']),
-      filter(id => !!id),
-      take(1)
-    );
-
-    return quizId$.pipe(
-      switchMap((id) => quiz$.pipe(
-        map((quizzes) => quizzes.find(quiz => quiz.quizId === id)),
-        switchMap(quiz => this.getQuestionFromQuiz(quiz, questionIndex))
-      )),
-      catchError((error: HttpErrorResponse) => {
+  getQuizQuestionByIdAndIndex(quiz$: Observable<Quiz[]>, quizId: string, questionIndex: number): Observable<QuizQuestion | null> {
+    return quiz$.pipe(
+      map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
+      switchMap(quiz => {
+        if (!quiz || !quiz.questions || quiz.questions.length <= questionIndex) {
+          console.error('Quiz data is missing or the index is out of range.');
+          return of(null);
+        }
+        return of(quiz.questions[questionIndex]);
+      }),
+      catchError(error => {
         console.error('Error fetching quiz question:', error);
         return of(null);
-      }),
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-      shareReplay({ bufferSize: 1, refCount: true })
+      })
     );
-  }
+  }  
 
   getQuestionFromQuiz(
     quiz: Quiz,
