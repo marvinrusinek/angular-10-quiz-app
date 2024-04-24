@@ -1167,22 +1167,35 @@ export class QuizComponent implements OnInit, OnDestroy {
   private subscribeToCurrentQuestion(): void {
     this.currentQuestionSubscriptions.add(
       this.quizService.getCurrentQuestionObservable()
-        .pipe(filter((question: QuizQuestion) => question !== null))
-        .subscribe((question: QuizQuestion) => {
-          this.currentQuestionType = question.type;
-        })
+        .pipe(
+          filter((question: QuizQuestion | null) => question !== null),
+          catchError(error => {
+            console.error('Error fetching current question:', error);
+            return of(null);
+          })
+        )
+        .subscribe(
+          (question: QuizQuestion) => {
+            this.currentQuestionType = question.type;
+          },
+          error => console.error('Error in question subscription:', error)
+        )
     );
 
     this.currentQuestionSubscriptions.add(
-      this.quizStateService.currentQuestion$.subscribe(question => {
-        if (question) {
-          this.currentQuestion = question;
-          this.options = question.options;
-        } else {
-          this.currentQuestion = null;
-          this.options = [];
-        }
-      })
+      this.quizStateService.currentQuestion$.subscribe(
+        question => {
+          if (question) {
+            this.currentQuestion = question;
+            this.options = question.options;
+          } else {
+            this.currentQuestion = null;
+            this.options = [];
+            console.error('Received null for current question.');
+          }
+        },
+        error => console.error('Error in current question stream:', error)
+      )
     );
   }
 
