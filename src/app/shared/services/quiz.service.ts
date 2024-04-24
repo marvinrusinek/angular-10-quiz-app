@@ -771,11 +771,15 @@ export class QuizService implements OnDestroy {
     return this.getQuizData().pipe(
       map(quizzes => {
         const selectedQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-        if (!selectedQuiz || !selectedQuiz.questions || selectedQuiz.questions.length === 0) {
-          throw new Error('No quiz found with the given ID or no questions available.');
+        if (!selectedQuiz) {
+          console.error(`No quiz found with ID: ${quizId}`);
+          throw new Error(`No quiz found with the given ID: ${quizId}`);
         }
-        const question = selectedQuiz.questions[questionIndex];
-        return question ? question : null;
+        if (!selectedQuiz.questions || selectedQuiz.questions.length <= questionIndex) {
+          console.error(`No questions available or index out of bounds for quiz ID: ${quizId}`);
+          throw new Error(`No questions available or index out of bounds for quiz ID: ${quizId}`);
+        }
+        return selectedQuiz.questions[questionIndex];
       }),
       catchError(error => {
         console.error('Error fetching specific question:', error);
