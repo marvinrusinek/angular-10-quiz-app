@@ -237,8 +237,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       if (indexParam !== null) {
         this.questionIndex = parseInt(indexParam, 10);
-        console.log('Parsed questionIndex:', this.questionIndex);
-  
+          
         if (!isNaN(this.questionIndex)) {
           this.updateQuestionAndOptions();
         } else {
