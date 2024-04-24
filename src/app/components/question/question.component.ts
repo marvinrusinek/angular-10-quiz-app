@@ -303,7 +303,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const newQuizId = params.get('quizId');
       const indexParam = params.get('questionIndex');
       const newQuestionIndex = parseInt(indexParam, 10);
-      console.log(`Detected parameter change: quizId=${newQuizId}, questionIndex=${indexParam} (parsed: ${newQuestionIndex})`);
   
       if (newQuizId && !isNaN(newQuestionIndex)) {
         this.loadQuiz(newQuizId, newQuestionIndex);
