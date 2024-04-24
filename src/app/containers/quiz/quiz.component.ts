@@ -1173,14 +1173,11 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.options = question.options;
         } else {
           console.error('Received null for current question.');
-          // Notify the user or attempt to reload the data
           this.currentQuestion = null;
           this.options = [];
         }
       },
-      error: (error) => {
-        console.error('Error when subscribing to current question:', error);
-      }
+      error: (error) => console.error('Error when subscribing to current question:', error)
     });
 
     // Subscription for state management of the current question
