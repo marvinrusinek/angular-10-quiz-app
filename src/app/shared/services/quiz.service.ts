@@ -769,8 +769,6 @@ export class QuizService implements OnDestroy {
 
   getCurrentQuestionByIndex(quizId: string, questionIndex: number): Observable<QuizQuestion | null> {
     const url = `${this.quizUrl}/question/${quizId}/${questionIndex}`;
-    console.log(`Fetching question from URL: ${url}`);
-
     return this.http.get<QuizQuestion>(url).pipe(
       map(question => {
         console.log('Fetched question:', question);
@@ -781,7 +779,7 @@ export class QuizService implements OnDestroy {
         return of(null);
       })
     );
-  }
+  }  
 
   getCurrentQuizId(): string {
     return this.quizId;
