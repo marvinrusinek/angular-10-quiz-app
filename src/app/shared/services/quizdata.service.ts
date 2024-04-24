@@ -394,33 +394,33 @@ export class QuizDataService implements OnDestroy {
     );
   } */
 
-  getQuestionAndOptions(
-    quizId: string,
-    questionIndex: number
-  ): Observable<[QuizQuestion, Option[]]> {
-    if (
-      this.hasQuestionAndOptionsLoaded &&
-      this.currentQuestionIndex === questionIndex
-    ) {
+  getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
+    // Check if the data has already been loaded and the index matches the current question index
+    if (this.hasQuestionAndOptionsLoaded && this.currentQuestionIndex === questionIndex) {
       return this.questionAndOptionsSubject.asObservable().pipe(distinctUntilChanged());
     }
-
+  
+    // Fetch new data from the API
     return this.fetchQuizDataFromAPI().pipe(
       switchMap(quizData => {
-        const quiz$ = of(quizData);
-        const currentQuestion$ = this.getQuizQuestionByIdAndIndex(quiz$, quizId, questionIndex).pipe(
-          shareReplay({ refCount: true, bufferSize: 1 })
-        );
-        const options$ = this.getQuestionOptions(currentQuestion$).pipe(
-          shareReplay({ refCount: true, bufferSize: 1 })
-        );
-
-        return this.processQuestionAndOptions(currentQuestion$, options$, questionIndex);
+        const currentQuestion = quizData.find(quiz => quiz.id === quizId)?.questions[questionIndex];
+        if (!currentQuestion) {
+          console.error('No valid question found for the given index:', questionIndex);
+          return of(null);
+        }
+        const options = currentQuestion.options;
+        if (!options) {
+          console.error('No options available for the question:', questionIndex);
+          return of(null);
+        }
+        return of([currentQuestion, options] as [QuizQuestion, Option[]]);
       }),
       tap(questionAndOptions => {
-        this.questionAndOptionsSubject.next(questionAndOptions);
-        this.hasQuestionAndOptionsLoaded = true;
-        this.currentQuestionIndex = questionIndex;
+        if (questionAndOptions) {
+          this.questionAndOptionsSubject.next(questionAndOptions);
+          this.hasQuestionAndOptionsLoaded = true;
+          this.currentQuestionIndex = questionIndex;
+        }
       }),
       catchError(error => {
         console.error('Error in processing quiz question and options:', error);
@@ -429,7 +429,7 @@ export class QuizDataService implements OnDestroy {
       distinctUntilChanged()
     );
   }
-
+  
   fetchQuizDataFromAPI(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       catchError((error: HttpErrorResponse) => {
