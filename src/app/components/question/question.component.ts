@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, filter, first, map, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, filter, first, map, skipWhile, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
@@ -1029,24 +1029,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async getCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
-      const currentQuestion = await firstValueFrom(
-        this.quizStateService.currentQuestion$.pipe(take(1))
-      );
-      if (this.quizService.isQuizQuestion(currentQuestion)) {
-        return currentQuestion;
-      } else {
-        console.error(
-          'Received value does not match QuizQuestion structure:',
-          currentQuestion
+        const currentQuestion = await firstValueFrom(
+            this.quizStateService.currentQuestion$.pipe(
+                skipWhile(question => question === null || !this.quizService.isQuizQuestion(question)), // Skip null and malformed data
+                take(1)
+            )
         );
-        // Return null or handle this case appropriately
-        return null;
-      }
+        return currentQuestion;
     } catch (error) {
-      console.error('Error fetching current question:', error);
-      return null;
+        console.error('Error fetching current question:', error);
+        return null;
     }
-  }  
+  }
 
   async handleOptionSelection(
     option: Option,
