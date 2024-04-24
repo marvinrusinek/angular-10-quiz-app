@@ -1039,6 +1039,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           'Received value does not match QuizQuestion structure:',
           currentQuestion
         );
+        // Consider what to do in this case, perhaps return a fallback or error state
         return null;
       }
     } catch (error) {
