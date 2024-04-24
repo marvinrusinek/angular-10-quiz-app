@@ -770,16 +770,13 @@ export class QuizService implements OnDestroy {
   getCurrentQuestionByIndex(quizId: string, questionIndex: number): Observable<QuizQuestion | null> {
     const url = `${this.quizUrl}/question/${quizId}/${questionIndex}`;
     return this.http.get<QuizQuestion>(url).pipe(
-      map(question => {
-        console.log('Fetched question:', question);
-        return question;
-      }),
+      map(question => question),
       catchError(error => {
         console.error('Error fetching question:', error);
         return of(null);
       })
     );
-  }  
+  }
 
   getCurrentQuizId(): string {
     return this.quizId;
