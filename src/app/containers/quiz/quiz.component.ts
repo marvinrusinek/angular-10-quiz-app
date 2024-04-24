@@ -1169,21 +1169,29 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.currentQuestionSubscriptions.add(
       this.quizService.getCurrentQuestionObservable()
         .pipe(
-          filter((question: QuizQuestion | null) => question !== null),
           catchError(error => {
             console.error('Error fetching current question:', error);
             return of(null); // Continue the stream with a null value on error
           })
         )
         .subscribe({
-          next: (question: QuizQuestion) => {
-            this.currentQuestionType = question.type;
+          next: (question: QuizQuestion | null) => {
+            if (question) {
+              this.currentQuestionType = question.type;
+              this.currentQuestion = question;
+              this.options = question.options;
+            } else {
+              // Properly handle the scenario when no question data is available
+              this.currentQuestion = null;
+              this.options = [];
+              console.error('Received null for current question. No data available.');
+            }
           },
           error: (error) => {
             console.error('Error in question subscription:', error);
           }
         })
-      );
+    );
 
     // Subscription for state management of the current question
     this.currentQuestionSubscriptions.add(
@@ -1195,7 +1203,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           } else {
             this.currentQuestion = null;
             this.options = [];
-            console.error('Received null for current question.');
+            console.error('Received null for current question. No fallback question available.');
           }
         },
         error: (error) => {
@@ -1204,6 +1212,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       })
     );
   }
+
 
   handleOptions(options: Option[]): void {
     if (!options || options.length === 0) {
