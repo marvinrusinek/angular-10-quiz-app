@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter,
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, filter, first, map, switchMap, take, takeUntil } from 'rxjs/operators';
+import { catchError, filter, first, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
@@ -1166,32 +1166,30 @@ export class QuizComponent implements OnInit, OnDestroy {
   // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
     // Subscription for getting the current question observable
-    this.currentQuestionSubscriptions.add(
-      this.quizService.getCurrentQuestionObservable()
-        .pipe(
-          catchError(error => {
-            console.error('Error fetching current question:', error);
-            return of(null); // Continue the stream with a null value on error
-          })
-        )
-        .subscribe({
-          next: (question: QuizQuestion | null) => {
-            if (question) {
-              this.currentQuestionType = question.type;
-              this.currentQuestion = question;
-              this.options = question.options;
-            } else {
-              // Properly handle the scenario when no question data is available
-              this.currentQuestion = null;
-              this.options = [];
-              console.error('Received null for current question. No data available.');
-            }
-          },
-          error: (error) => {
-            console.error('Error in question subscription:', error);
-          }
-        })
-    );
+    this.quizService.getCurrentQuestionObservable()
+    .pipe(
+      tap(question => console.log("Question received from service:", question)),
+      catchError(error => {
+        console.error('Error fetching current question:', error);
+        return of(null); // Continue the stream with a null value on error
+      })
+    )
+    .subscribe({
+      next: (question: QuizQuestion | null) => {
+        if (question) {
+          this.currentQuestion = question;
+          this.options = question.options;
+          console.log("Current question set with data");
+        } else {
+          this.currentQuestion = null;
+          this.options = [];
+          console.error('Received null for current question. No data available.');
+        }
+      },
+      error: (error) => {
+        console.error('Error in question subscription:', error);
+      }
+    });
 
     // Subscription for state management of the current question
     this.currentQuestionSubscriptions.add(
