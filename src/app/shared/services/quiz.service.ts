@@ -1049,7 +1049,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getCurrentQuestion(): Observable<QuizQuestion> {
+  /* getCurrentQuestion(): Observable<QuizQuestion> {
     const quizId = this.getCurrentQuizId();
 
     return this.getQuestionsForQuiz(quizId).pipe(
@@ -1075,6 +1075,40 @@ export class QuizService implements OnDestroy {
         } else {
           return of(this.getFallbackQuestion());
         }
+      })
+    );
+  } */
+
+  getCurrentQuestion(): Observable<QuizQuestion> {
+    const quizId = this.getCurrentQuizId();
+
+    return this.getQuestionsForQuiz(quizId).pipe(
+      tap({
+        next: (data) => {
+          this.questions = data.questions;
+          this.questionLoadingSubject.next(true);
+          this.loadingQuestions = false;
+        },
+        error: (error) => {
+          console.error('Error getting quiz questions:', error);
+          this.questionLoadingSubject.next(false);
+          this.loadingQuestions = false;
+        }
+      }),
+      map(data => data.questions),
+      switchMap((questions: QuizQuestion[]) => {
+        if (Array.isArray(questions) && questions.length > 0) {
+          const currentQuestionIndex = this.currentQuestionIndex ?? 0;
+          const currentQuestion = questions[currentQuestionIndex] ?? this.getFallbackQuestion();
+          this.currentQuestionSubject.next(currentQuestion);
+          return of(currentQuestion);
+        } else {
+          return of(this.getFallbackQuestion());
+        }
+      }),
+      catchError((error: Error) => {
+        console.error('Error in switchMap or map operations:', error);
+        return throwError(() => new Error('Error processing quiz questions'));
       })
     );
   }
