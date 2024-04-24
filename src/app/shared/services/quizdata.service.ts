@@ -400,16 +400,37 @@ export class QuizDataService implements OnDestroy {
     // Fetch new data from the API
     return this.fetchQuizDataFromAPI().pipe(
       switchMap(quizData => {
-        const currentQuestion = quizData.find(quiz => quiz.quizId === quizId)?.questions[questionIndex];
+        if (!quizData) {
+          console.error('Quiz data is empty or null');
+          return of(null);
+        }
+
+        // Finding the quiz by quizId
+        const quiz = quizData.find(quiz => quiz.quizId === quizId);
+        if (!quiz) {
+          console.error(`No quiz found for the quiz ID: ${quizId}`);
+          return of(null);
+        }
+
+        // Check if the questionIndex is within the bounds of the questions array
+        if (questionIndex < 0 || questionIndex >= quiz.questions.length) {
+          console.error(`Index ${questionIndex} out of bounds for quiz ID: ${quizId}`);
+          return of(null);
+        }
+
+        // Retrieve the question and its options
+        const currentQuestion = quiz.questions[questionIndex];
         if (!currentQuestion) {
-          console.error('No valid question found for the given index:', questionIndex);
+          console.error(`No valid question found at index ${questionIndex} for quiz ID: ${quizId}`);
           return of(null);
         }
+
         const options = currentQuestion.options;
-        if (!options) {
-          console.error('No options available for the question:', questionIndex);
+        if (!options || options.length === 0) {
+          console.error(`No options available for the question at index ${questionIndex} for quiz ID: ${quizId}`);
           return of(null);
         }
+
         return of([currentQuestion, options] as [QuizQuestion, Option[]]);
       }),
       tap(questionAndOptions => {
