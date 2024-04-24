@@ -444,13 +444,6 @@ export class QuizService implements OnDestroy {
         }
         return questions[index];
       }),
-      tap(question => {
-        if (question && question.options && question.options.length > 0) {
-          console.log(`Question at index ${index} is valid, with options:`, question);
-        } else {
-          console.log(`No valid question or options found for index ${index}:`, question);
-        }
-      }),
       catchError(error => {
         console.error('Error fetching question:', error);
         return of(null);
