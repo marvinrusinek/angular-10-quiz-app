@@ -1166,28 +1166,20 @@ export class QuizComponent implements OnInit, OnDestroy {
   // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
     // Subscription for getting the current question observable
-    this.quizService.getCurrentQuestionObservable()
-    .pipe(
-      tap(question => console.log("Question received from service:", question)),
-      catchError(error => {
-        console.error('Error fetching current question:', error);
-        return of(null); // Continue the stream with a null value on error
-      })
-    )
-    .subscribe({
-      next: (question: QuizQuestion | null) => {
+    this.quizService.getCurrentQuestionObservable().subscribe({
+      next: (question) => {
         if (question) {
           this.currentQuestion = question;
           this.options = question.options;
-          console.log("Current question set with data");
         } else {
+          console.error('Received null for current question.');
+          // Notify the user or attempt to reload the data
           this.currentQuestion = null;
           this.options = [];
-          console.error('Received null for current question. No data available.');
         }
       },
       error: (error) => {
-        console.error('Error in question subscription:', error);
+        console.error('Error when subscribing to current question:', error);
       }
     });
 
