@@ -403,7 +403,7 @@ export class QuizDataService implements OnDestroy {
     // Fetch new data from the API
     return this.fetchQuizDataFromAPI().pipe(
       switchMap(quizData => {
-        const currentQuestion = quizData.find(quiz => quiz.id === quizId)?.questions[questionIndex];
+        const currentQuestion = quizData.find(quiz => quiz.quizId === quizId)?.questions[questionIndex];
         if (!currentQuestion) {
           console.error('No valid question found for the given index:', questionIndex);
           return of(null);
