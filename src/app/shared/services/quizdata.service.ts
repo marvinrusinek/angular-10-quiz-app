@@ -404,33 +404,32 @@ export class QuizDataService implements OnDestroy {
           console.error('Quiz data is empty or null');
           return of(null);
         }
-
-        // Finding the quiz by quizId
+        
         const quiz = quizData.find(quiz => quiz.quizId === quizId);
         if (!quiz) {
           console.error(`No quiz found for the quiz ID: ${quizId}`);
           return of(null);
         }
-
-        // Check if the questionIndex is within the bounds of the questions array
-        if (questionIndex < 0 || questionIndex >= quiz.questions.length) {
+        
+        // Ensure questionIndex is a number and within bounds
+        questionIndex = (typeof questionIndex === 'number' && questionIndex >= 0) ? questionIndex : 0;
+        if (questionIndex >= quiz.questions.length) {
           console.error(`Index ${questionIndex} out of bounds for quiz ID: ${quizId}`);
           return of(null);
         }
-
-        // Retrieve the question and its options
+        
         const currentQuestion = quiz.questions[questionIndex];
         if (!currentQuestion) {
           console.error(`No valid question found at index ${questionIndex} for quiz ID: ${quizId}`);
           return of(null);
         }
-
+    
         const options = currentQuestion.options;
         if (!options || options.length === 0) {
           console.error(`No options available for the question at index ${questionIndex} for quiz ID: ${quizId}`);
           return of(null);
         }
-
+        
         return of([currentQuestion, options] as [QuizQuestion, Option[]]);
       }),
       tap(questionAndOptions => {
