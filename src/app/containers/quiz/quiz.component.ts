@@ -1201,19 +1201,21 @@ export class QuizComponent implements OnInit, OnDestroy {
           if (question) {
             this.currentQuestion = question;
             this.options = question.options;
+            console.log("Current question updated:", this.currentQuestion);
           } else {
+            console.error('Received null for current question. No fallback question available.');
             this.currentQuestion = null;
             this.options = [];
-            console.error('Received null for current question. No fallback question available.');
           }
         },
         error: (error) => {
           console.error('Error in current question stream:', error);
+          this.currentQuestion = null;
+          this.options = [];
         }
       })
     );
   }
-
 
   handleOptions(options: Option[]): void {
     if (!options || options.length === 0) {
