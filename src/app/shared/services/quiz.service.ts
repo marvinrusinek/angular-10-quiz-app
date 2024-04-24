@@ -364,9 +364,14 @@ export class QuizService implements OnDestroy {
 
   isQuizQuestion(obj: any): obj is QuizQuestion {
     return (
-      obj && 'questionText' in obj && 'options' in obj && 'explanation' in obj
+      obj !== null &&
+      typeof obj === 'object' &&
+      'questionText' in obj &&
+      'options' in obj &&
+      obj.options instanceof Array &&
+      'explanation' in obj
     );
-  }
+  }  
 
   initializeData(): void {
     this.quizData = QUIZ_DATA || [];
