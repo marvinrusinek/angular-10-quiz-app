@@ -1028,19 +1028,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<QuizQuestion | null> {
-    const currentQuestion = await firstValueFrom(
-      this.quizStateService.currentQuestion$.pipe(take(1))
-    );
-    if (this.quizService.isQuizQuestion(currentQuestion)) {
-      return currentQuestion;
-    } else {
-      console.error(
-        'Received value does not match QuizQuestion structure:',
-        currentQuestion
+    try {
+      const currentQuestion = await firstValueFrom(
+        this.quizStateService.currentQuestion$.pipe(take(1))
       );
+      if (this.quizService.isQuizQuestion(currentQuestion)) {
+        return currentQuestion;
+      } else {
+        console.error(
+          'Received value does not match QuizQuestion structure:',
+          currentQuestion
+        );
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching current question:', error);
       return null;
     }
-  }
+  }  
 
   async handleOptionSelection(
     option: Option,
