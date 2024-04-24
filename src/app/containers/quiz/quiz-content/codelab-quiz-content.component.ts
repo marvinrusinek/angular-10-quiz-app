@@ -333,27 +333,29 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // Subscribe to the currentIndex Observable to get its value
     this.quizStateService.getCurrentQuestionIndex$().subscribe({
       next: (currentIndex) => {
-        const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
+        // Fetch the current question directly using the currentIndex
+        this.quizStateService.getCurrentQuestionByIndex(currentIndex).subscribe({
+          next: (currentQuestion) => {
+            if (currentQuestion && currentQuestion.options) {
+              this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
+                currentQuestion.options
+              );
 
-        if (questionState && (!questionState.explanationDisplayed || currentIndex !== 0)) {
-          // Ensuring currentQuestion and its options are valid before proceeding
-          if (this.quizStateService.currentQuestion.value && this.quizStateService.currentQuestion.value.options) {
-            this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
-              this.quizStateService.currentQuestion.value.options
-            );
+              const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+                this.numberOfCorrectAnswers
+              );
 
-            const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-              this.numberOfCorrectAnswers
-            );
-
-            this.correctAnswersTextSource.next(correctAnswersText);
-          } else {
-            console.error('No valid current question or options available');
-            this.correctAnswersTextSource.next('Error: No valid question data available.');
+              this.correctAnswersTextSource.next(correctAnswersText);
+            } else {
+              console.error('No valid current question or options available');
+              this.correctAnswersTextSource.next('Error: No valid question data available.');
+            }
+          },
+          error: (error) => {
+            console.error('Error fetching current question:', error);
+            this.correctAnswersTextSource.next('Error fetching current question data.');
           }
-        } else {
-          this.correctAnswersTextSource.next('');
-        }
+        });
       },
       error: (err) => {
         console.error('Error retrieving current question index:', err);
