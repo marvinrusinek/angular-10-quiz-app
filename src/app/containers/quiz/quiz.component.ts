@@ -1168,26 +1168,32 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Subscription for getting the current question observable
     this.quizService.getCurrentQuestionObservable().pipe(
       retry(2),
+      filter(question => question !== null),
       catchError(error => {
         console.error('Error when subscribing to current question:', error);
-        return of(null); // Handle errors by completing the stream with a null value
+        // Return an observable of null to handle in next()
+        return of(null);
       })
     ).subscribe({
       next: (question) => {
-        console.log("MY Q", question);
         if (question) {
+          console.log("MY Q", question);
           this.currentQuestion = question;
           this.options = question.options;
         } else {
-          console.error('Received null for current question. Retrying or handling error...');
-          // Optionally handle retry here or set fallback values
+          // Log and handle case when all retries fail and data is still null
+          console.error('Received null for current question after retries. No valid data available.');
           this.currentQuestion = null;
           this.options = [];
         }
       },
-      error: (error) => console.error('Unhandled error when subscribing to current question:', error)
+      error: (error) => {
+        console.error('Unhandled error when subscribing to current question:', error);
+        this.currentQuestion = null;
+        this.options = [];
+      }
     });
-
+    
     // Subscription for state management of the current question
     this.currentQuestionSubscriptions.add(
       this.quizStateService.currentQuestion$.subscribe({
