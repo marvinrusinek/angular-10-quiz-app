@@ -651,8 +651,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       switchMap((params: ParamMap) => this.handleRouteParams(params))
     ).subscribe({
       next: ({ quizId, questionIndex, quizData }) => {
-        console.log('Fetched quiz data:', quizData);
-
         // Safety check for quizData and quizData.questions
         if (!quizData || !quizData.questions) {
           console.error('Quiz data or questions array is undefined');
