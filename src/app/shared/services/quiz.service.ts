@@ -768,11 +768,17 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuestionByIndex(quizId: string, questionIndex: number): Observable<QuizQuestion | null> {
-    const url = `${this.quizUrl}/question/${quizId}/${questionIndex}`;
-    return this.http.get<QuizQuestion>(url).pipe(
-      map(question => question),
+    return this.getQuizData().pipe(
+      map(quizzes => {
+        const selectedQuiz = quizzes.find(quiz => quiz.quizId === quizId);
+        if (!selectedQuiz || !selectedQuiz.questions || selectedQuiz.questions.length === 0) {
+          throw new Error('No quiz found with the given ID or no questions available.');
+        }
+        const question = selectedQuiz.questions[questionIndex];
+        return question ? question : null;
+      }),
       catchError(error => {
-        console.error('Error fetching question:', error);
+        console.error('Error fetching specific question:', error);
         return of(null);
       })
     );
