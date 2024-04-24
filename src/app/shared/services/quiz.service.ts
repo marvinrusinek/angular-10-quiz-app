@@ -1097,15 +1097,15 @@ export class QuizService implements OnDestroy {
       }),
       map(data => data.questions),
       switchMap((questions: QuizQuestion[]) => {
-        if (Array.isArray(questions) && questions.length > 0) {
-          const currentQuestionIndex = this.currentQuestionIndex ?? 0;
-          const currentQuestion = questions[currentQuestionIndex] ?? this.getFallbackQuestion();
-          this.currentQuestionSubject.next(currentQuestion);
-          return of(currentQuestion);
-        } else {
+        if (!Array.isArray(questions) || questions.length === 0) {
+          console.error('No questions available or invalid question data');
           return of(this.getFallbackQuestion());
         }
-      }),
+        const currentQuestionIndex = this.currentQuestionIndex ?? 0;
+        const currentQuestion = questions[currentQuestionIndex] ?? this.getFallbackQuestion();
+        this.currentQuestionSubject.next(currentQuestion);
+        return of(currentQuestion);
+      }),    
       catchError((error: Error) => {
         console.error('Error in switchMap or map operations:', error);
         return throwError(() => new Error('Error processing quiz questions'));
