@@ -1094,7 +1094,7 @@ export class QuizService implements OnDestroy {
           console.error('No questions available or invalid question data');
           return of(this.getFallbackQuestion());
         }
-        const currentQuestionIndex = this.currentQuestionIndex ?? 0;
+        const currentQuestionIndex = (this.currentQuestionIndex ?? 0) < questions.length ? (this.currentQuestionIndex ?? 0) : 0;
         const currentQuestion = questions[currentQuestionIndex] ?? this.getFallbackQuestion();
         this.currentQuestionSubject.next(currentQuestion);
         return of(currentQuestion);
