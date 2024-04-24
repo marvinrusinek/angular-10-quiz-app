@@ -357,7 +357,7 @@ export class QuizDataService implements OnDestroy {
       .pipe(distinctUntilChanged());
   } */
 
-  getQuestionAndOptions(
+  /* getQuestionAndOptions(
     quizId: string,
     questionIndex: number
 ): Observable<[QuizQuestion, Option[]]> {
@@ -385,6 +385,42 @@ export class QuizDataService implements OnDestroy {
         }),
         tap(questionAndOptions => {
             this.questionAndOptionsSubject.next(questionAndOptions);
+        }),
+        catchError(error => {
+            console.error('Error in processing quiz question and options:', error);
+            return of(null);
+        }),
+        distinctUntilChanged()
+    );
+  } */
+
+  getQuestionAndOptions(
+    quizId: string,
+    questionIndex: number
+): Observable<[QuizQuestion, Option[]]> {
+    if (
+        this.hasQuestionAndOptionsLoaded &&
+        this.currentQuestionIndex === questionIndex
+    ) {
+        return this.questionAndOptionsSubject.asObservable().pipe(distinctUntilChanged());
+    }
+
+    return this.fetchQuizDataFromAPI().pipe(
+        switchMap(quizData => {
+            const quiz$ = of(quizData); // Assuming quizData is directly the array of quizzes
+            const currentQuestion$ = this.getQuizQuestionByIdAndIndex(quiz$, quizId, questionIndex).pipe(
+                shareReplay({refCount: true, bufferSize: 1})
+            );
+            const options$ = this.getQuestionOptions(currentQuestion$).pipe(
+                shareReplay({refCount: true, bufferSize: 1})
+            );
+
+            return this.processQuestionAndOptions(currentQuestion$, options$, questionIndex);
+        }),
+        tap(questionAndOptions => {
+            this.questionAndOptionsSubject.next(questionAndOptions);
+            this.hasQuestionAndOptionsLoaded = true;
+            this.currentQuestionIndex = questionIndex;
         }),
         catchError(error => {
             console.error('Error in processing quiz question and options:', error);
