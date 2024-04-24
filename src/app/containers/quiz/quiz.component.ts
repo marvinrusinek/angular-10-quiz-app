@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter,
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, filter, first, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, filter, first, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
@@ -1166,18 +1166,26 @@ export class QuizComponent implements OnInit, OnDestroy {
   // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
     // Subscription for getting the current question observable
-    this.quizService.getCurrentQuestionObservable().subscribe({
+    this.quizService.getCurrentQuestionObservable().pipe(
+      retry(2),
+      catchError(error => {
+        console.error('Error when subscribing to current question:', error);
+        return of(null); // Handle errors by completing the stream with a null value
+      })
+    ).subscribe({
       next: (question) => {
+        console.log("MY Q", question);
         if (question) {
           this.currentQuestion = question;
           this.options = question.options;
         } else {
-          console.error('Received null for current question.');
+          console.error('Received null for current question. Retrying or handling error...');
+          // Optionally handle retry here or set fallback values
           this.currentQuestion = null;
           this.options = [];
         }
       },
-      error: (error) => console.error('Error when subscribing to current question:', error)
+      error: (error) => console.error('Unhandled error when subscribing to current question:', error)
     });
 
     // Subscription for state management of the current question
