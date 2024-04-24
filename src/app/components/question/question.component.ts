@@ -1029,16 +1029,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async getCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
-        const currentQuestion = await firstValueFrom(
-            this.quizStateService.currentQuestion$.pipe(
-                skipWhile(question => question === null || !this.quizService.isQuizQuestion(question)), // Skip null and malformed data
-                take(1)
-            )
-        );
-        return currentQuestion;
+      const currentQuestion = await firstValueFrom(
+        this.quizStateService.currentQuestion$.pipe(
+          skipWhile(question => question === null || !this.quizService.isQuizQuestion(question)), // Skip null and malformed data
+          take(1)
+        )
+      );
+      return currentQuestion;
     } catch (error) {
-        console.error('Error fetching current question:', error);
-        return null;
+      console.error('Error fetching current question:', error);
+      return null;
     }
   }
 
