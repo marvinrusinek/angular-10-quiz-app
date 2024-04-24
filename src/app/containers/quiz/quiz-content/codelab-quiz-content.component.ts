@@ -334,7 +334,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.quizStateService.getCurrentQuestionIndex$().subscribe({
       next: (currentIndex) => {
         // Fetch the current question directly using the currentIndex
-        this.quizService.getCurrentQuestionByIndex(currentIndex).subscribe({
+        this.quizService.getCurrentQuestionByIndex(this.quizId, currentIndex).subscribe({
           next: (currentQuestion) => {
             if (currentQuestion && currentQuestion.options) {
               this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
