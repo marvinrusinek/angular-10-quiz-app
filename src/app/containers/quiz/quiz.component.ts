@@ -1165,26 +1165,30 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
+    // Subscription for getting the current question observable
     this.currentQuestionSubscriptions.add(
       this.quizService.getCurrentQuestionObservable()
         .pipe(
           filter((question: QuizQuestion | null) => question !== null),
           catchError(error => {
             console.error('Error fetching current question:', error);
-            return of(null);
+            return of(null); // Continue the stream with a null value on error
           })
         )
-        .subscribe(
-          (question: QuizQuestion) => {
+        .subscribe({
+          next: (question: QuizQuestion) => {
             this.currentQuestionType = question.type;
           },
-          error => console.error('Error in question subscription:', error)
-        )
-    );
+          error: (error) => {
+            console.error('Error in question subscription:', error);
+          }
+        })
+      );
 
+    // Subscription for state management of the current question
     this.currentQuestionSubscriptions.add(
-      this.quizStateService.currentQuestion$.subscribe(
-        question => {
+      this.quizStateService.currentQuestion$.subscribe({
+        next: (question) => {
           if (question) {
             this.currentQuestion = question;
             this.options = question.options;
@@ -1194,8 +1198,10 @@ export class QuizComponent implements OnInit, OnDestroy {
             console.error('Received null for current question.');
           }
         },
-        error => console.error('Error in current question stream:', error)
-      )
+        error: (error) => {
+          console.error('Error in current question stream:', error);
+        }
+      })
     );
   }
 
