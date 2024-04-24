@@ -1171,17 +1171,14 @@ export class QuizComponent implements OnInit, OnDestroy {
       filter(question => question !== null),
       catchError(error => {
         console.error('Error when subscribing to current question:', error);
-        // Return an observable of null to handle in next()
         return of(null);
       })
     ).subscribe({
       next: (question) => {
         if (question) {
-          console.log("MY Q", question);
           this.currentQuestion = question;
           this.options = question.options;
         } else {
-          // Log and handle case when all retries fail and data is still null
           console.error('Received null for current question after retries. No valid data available.');
           this.currentQuestion = null;
           this.options = [];
