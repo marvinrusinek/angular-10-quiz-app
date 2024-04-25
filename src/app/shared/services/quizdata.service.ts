@@ -409,8 +409,12 @@ export class QuizDataService implements OnDestroy {
         
         const quiz = quizData.find(quiz => quiz.quizId.trim().toLowerCase() === quizId.trim().toLowerCase());
         if (!quiz) {
-          console.error(`No quiz found for the quiz ID: ${quizId}, available IDs:`, quizData.map(q => q.quizId));
-          return of(null);
+          console.error(`No quiz found for the quiz ID: '${quizId}'. Please select from available IDs:`, quizData.map(q => q.quizId));
+          // Optional: Return a specific error or null with more context
+          return of({
+            error: "Quiz not found",
+            availableQuizzes: quizData.map(q => q.quizId)
+          });
         }
         
         // Ensure questionIndex is a number and within bounds
