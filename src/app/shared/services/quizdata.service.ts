@@ -407,9 +407,8 @@ export class QuizDataService implements OnDestroy {
           return of(null);
         }
         
-        const quiz = quizData.find(quiz => quiz.quizId.toString() === quizId.toString());
+        const quiz = quizData.find(quiz => quiz.quizId.trim().toLowerCase() === quizId.trim().toLowerCase());
         if (!quiz) {
-          // Log an error and the ID being searched to help with debugging
           console.error(`No quiz found for the quiz ID: ${quizId}, available IDs:`, quizData.map(q => q.quizId));
           return of(null);
         }
