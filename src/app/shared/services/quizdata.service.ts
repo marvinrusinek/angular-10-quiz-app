@@ -401,14 +401,16 @@ export class QuizDataService implements OnDestroy {
     return this.fetchQuizDataFromAPI().pipe(
       tap(quizData => console.log('Fetched quiz data:', quizData)),
       switchMap(quizData => {
-        if (!quizData || !Array.isArray(quizData)) {
-          console.error('Quiz data is empty, null, or not an array');
+        // Check if quizData is properly structured and non-empty
+        if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
+          console.error('Quiz data is empty, null, or improperly formatted');
           return of(null);
         }
         
         const quiz = quizData.find(quiz => quiz.quizId.toString() === quizId.toString());
         if (!quiz) {
-          console.error(`No quiz found for the quiz ID: ${quizId}`);
+          // Log an error and the ID being searched to help with debugging
+          console.error(`No quiz found for the quiz ID: ${quizId}, available IDs:`, quizData.map(q => q.quizId));
           return of(null);
         }
         
