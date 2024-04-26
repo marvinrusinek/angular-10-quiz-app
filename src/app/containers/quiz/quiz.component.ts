@@ -751,6 +751,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (!this.quizId || this.quizId.trim() === '') {
+      console.error("Quiz ID is required but not provided.");
+      return;
+    }
+
     this.quizDataService
       .getQuestionAndOptions(this.quizId, this.questionIndex)
       .pipe(
