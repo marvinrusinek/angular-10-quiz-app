@@ -487,7 +487,7 @@ export class QuizDataService implements OnDestroy {
   
         if (this.currentQuestionIndex >= quiz.questions.length || this.currentQuestionIndex < 0) {
           console.error(`Index ${this.currentQuestionIndex} out of bounds for quiz ID: ${quizId}`);
-          return throwError(() => new Error(`Question index out of bounds: ${currentQuestionIndex}`));
+          return throwError(() => new Error(`Question index out of bounds: ${this.currentQuestionIndex}`));
         }
   
         const currentQuestion = quiz.questions[this.currentQuestionIndex];
@@ -497,7 +497,7 @@ export class QuizDataService implements OnDestroy {
         }
   
         if (!currentQuestion.options || currentQuestion.options.length === 0) {
-          console.error(`No options available for the question at index ${currentQuestionIndex} for quiz ID: ${quizId}`);
+          console.error(`No options available for the question at index ${this.currentQuestionIndex} for quiz ID: ${quizId}`);
           return throwError(() => new Error('No options available for the question'));
         }
   
