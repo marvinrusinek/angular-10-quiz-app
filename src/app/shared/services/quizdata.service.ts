@@ -373,7 +373,7 @@ export class QuizDataService implements OnDestroy {
     }
   
     // Fetch new data from the API
-    return this.fetchQuizDataFromAPI().pipe(
+    /* return this.fetchQuizDataFromAPI().pipe(
       tap(quizData => console.log('Fetched quiz data:', quizData)),
       switchMap(quizData => {
         // Check if quizData is properly structured and non-empty
@@ -425,7 +425,54 @@ export class QuizDataService implements OnDestroy {
         return of(null);
       }),
       distinctUntilChanged()
-    );
+    ); */
+
+    return this.fetchQuizDataFromAPI().pipe(
+      tap(quizData => console.log('Fetched quiz data:', quizData)),
+      switchMap(quizData => {
+        if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
+          console.error('Quiz data is empty, null, or improperly formatted');
+          return throwError(() => new Error('Invalid or empty quiz data'));
+        }
+        
+        const quiz = quizData.find(quiz => quiz.quizId.trim().toLowerCase() === quizId.trim().toLowerCase());
+        if (!quiz) {
+          console.error(`No quiz found for the quiz ID: '${quizId}'.`);
+          return throwError(() => new Error(`Quiz not found for ID: ${quizId}`));
+        }
+        
+        if (questionIndex >= quiz.questions.length || questionIndex < 0) {
+          console.error(`Index ${questionIndex} out of bounds for quiz ID: ${quizId}`);
+          return throwError(() => new Error(`Question index out of bounds: ${questionIndex}`));
+        }
+        
+        const currentQuestion = quiz.questions[this.currentQuestionIndex];
+        if (!currentQuestion) {
+          console.error(`No valid question found at index ${this.currentQuestionIndex} for quiz ID: ${quizId}`);
+          return throwError(() => new Error('No valid question found'));
+        }
+        
+        const options = currentQuestion.options;
+        if (!options || options.length === 0) {
+          console.error(`No options available for the question at index ${questionIndex} for quiz ID: ${quizId}`);
+          return throwError(() => new Error('No options available for the question'));
+        }
+        
+        return of([currentQuestion, options]);
+      }),
+      tap(questionAndOptions => {
+        if (questionAndOptions) {
+          this.questionAndOptionsSubject.next(questionAndOptions);
+          this.hasQuestionAndOptionsLoaded = true;
+          this.currentQuestionIndex = questionIndex;
+        }
+      }),
+      catchError(error => {
+        console.error('Error in processing quiz question and options:', error);
+        return throwError(() => error);
+      }),
+      distinctUntilChanged()
+    );    
   }
   
   fetchQuizDataFromAPI(): Observable<Quiz[]> {
