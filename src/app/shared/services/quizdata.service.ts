@@ -485,14 +485,14 @@ export class QuizDataService implements OnDestroy {
           return throwError(() => new Error(`Quiz not found for ID: ${quizId}`));
         }
   
-        if (currentQuestionIndex >= quiz.questions.length || currentQuestionIndex < 0) {
-          console.error(`Index ${currentQuestionIndex} out of bounds for quiz ID: ${quizId}`);
+        if (this.currentQuestionIndex >= quiz.questions.length || this.currentQuestionIndex < 0) {
+          console.error(`Index ${this.currentQuestionIndex} out of bounds for quiz ID: ${quizId}`);
           return throwError(() => new Error(`Question index out of bounds: ${currentQuestionIndex}`));
         }
   
-        const currentQuestion = quiz.questions[currentQuestionIndex];
+        const currentQuestion = quiz.questions[this.currentQuestionIndex];
         if (!currentQuestion) {
-          console.error(`No valid question found at index ${currentQuestionIndex} for quiz ID: ${quizId}`);
+          console.error(`No valid question found at index ${this.currentQuestionIndex} for quiz ID: ${quizId}`);
           return throwError(() => new Error('No valid question found'));
         }
   
