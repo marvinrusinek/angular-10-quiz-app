@@ -751,11 +751,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.quizId || this.quizId.trim() === '') {
-      console.error("Quiz ID is required but not provided.");
-      return;
-    }
-
     this.quizDataService
       .getQuestionAndOptions(this.quizId, this.questionIndex)
       .pipe(
@@ -1031,16 +1026,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Error fetching question and options:', error);
     }
   }
-
-  /* getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
-    return this.quizDataService.getQuestionAndOptions(quizId, questionIndex).pipe(
-      map(([question, options]) => {
-        this.handleQuestion(question);
-        this.handleOptions(options);
-        return question;
-      })
-    );
-  } */
 
   initializeFirstQuestion(): void {
     this.resetQuestionDisplayState();
