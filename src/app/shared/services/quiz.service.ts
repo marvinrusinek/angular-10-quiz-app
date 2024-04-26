@@ -1049,36 +1049,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /* getCurrentQuestion(): Observable<QuizQuestion> {
-    const quizId = this.getCurrentQuizId();
-
-    return this.getQuestionsForQuiz(quizId).pipe(
-      map((data) => data.questions), // Transform the structure here
-      tap((questions: QuizQuestion[]) => {
-        this.questions = questions;
-        this.questionLoadingSubject.next(true);
-        this.loadingQuestions = false;
-      }),
-      catchError((error: Error) => {
-        console.error('Error getting quiz questions:', error);
-        this.questionLoadingSubject.next(false);
-        this.loadingQuestions = false;
-        return throwError(() => new Error('Error getting quiz questions'));
-      }),
-      switchMap((questions: QuizQuestion[]) => {
-        if (Array.isArray(questions) && questions.length > 0) {
-          const currentQuestionIndex = this.currentQuestionIndex ?? 0;
-          const currentQuestion =
-            questions[currentQuestionIndex] ?? this.getFallbackQuestion();
-          this.currentQuestionSubject.next(currentQuestion);
-          return this.currentQuestionSubject.asObservable();
-        } else {
-          return of(this.getFallbackQuestion());
-        }
-      })
-    );
-  } */
-
   getCurrentQuestion(): Observable<QuizQuestion> {
     this.questionLoadingSubject.next(true); // Set loading to true at the start
     const quizId = this.getCurrentQuizId();
