@@ -289,6 +289,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.subscribeToCorrectAnswersAndData();
       console.log(`Initializing quiz with quizId: ${this.quizId}, currentQuestionIndex: ${this.currentQuestionIndex}`);
 
+      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
       if (this.quizId) {
         await this.quizDataService.asyncOperationToSetQuestion(
           this.quizId,
