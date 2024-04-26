@@ -399,10 +399,10 @@ export class QuizDataService implements OnDestroy {
           return of(null);
         }
         
-        const currentQuestion = (questionIndex >= 0 && questionIndex < quiz.questions.length) ? quiz.questions[questionIndex] : null;
+        const currentQuestion = (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < quiz.questions.length) ? quiz.questions[this.currentQuestionIndex] : null;
         if (!currentQuestion) {
-            console.error(`No valid question found at index ${questionIndex} for quiz ID: ${quizId}`);
-            return of(null);
+          console.error(`No valid question found at index ${this.currentQuestionIndex} for quiz ID: ${quizId}`);
+          return of(null);
         }
     
         const options = currentQuestion.options;
