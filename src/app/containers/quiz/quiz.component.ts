@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter,
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, filter, first, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, filter, first, map, retry, switchMap, take, takeUntil } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
@@ -183,13 +183,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    // console.log("QuizComponent ngOnInit called.");
-    // console.log("QuizComponent subscribing to questions.");
     // this.testSubscribeToQuestions();
 
     this.questions = this.quizService.getShuffledQuestions();
     // this.updateQuestionDisplayForShuffledQuestions();
-    this.cdRef.detectChanges(); // Ensuring UI updates if using OnPush strategy
+    this.cdRef.detectChanges();
     console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
 
     // Subscribe to router events and initialize
