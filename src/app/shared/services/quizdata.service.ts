@@ -214,7 +214,7 @@ export class QuizDataService implements OnDestroy {
   }
 
   fetchQuizQuestionByIdAndIndex(quizId: string, questionIndex: number): Observable<QuizQuestion | null> {
-    if (!quizId || quizId.trim() === '') {
+    if (!quizId) {
       console.error("Quiz ID is required but not provided.");
       return;
     }
