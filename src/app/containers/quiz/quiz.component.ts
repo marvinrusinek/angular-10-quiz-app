@@ -209,6 +209,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
+    // trying to get the routing working via URL
     /* this.activatedRoute.paramMap.pipe(
       switchMap(params => {
         this.quizId = params.get('quizId');
@@ -280,7 +281,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.correctAnswersText = text;
     }); */
 
-     // Check if audio is available and can be played
+
+    // Check if audio is available and can be played
     /* let audioElement: HTMLAudioElement = document.getElementById('quizAudio') as HTMLAudioElement;
 
     // Enhance debugging by logging media capabilities and MIME type support directly
@@ -874,38 +876,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.quizService.selectedQuiz.questions.findIndex(q => q.explanation === question.explanation);
   }
 
-  /* subscribeRouterAndInit(): void {
-    this.getNextQuestion();
-    this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
-
-    // Subscribe to router events
-    this.routerSubscription = this.router.events.pipe(
-      filter((event: RouterEvent): event is NavigationEnd => event instanceof NavigationEnd),
-      switchMap(() => {
-        this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-        return this.activatedRoute.paramMap;
-      })
-    ).subscribe((params: ParamMap) => {
-      this.questionIndex = +params.get('questionIndex') || 0;
-      this.handleParamMap(params);
-    });
-
-    this.activatedRoute.data.subscribe(data => {
-      const quizData: Quiz = data.quizData; // Directly accessing quizData from the resolved data
-      if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
-        console.error("Quiz data is undefined, or there are no questions");
-        return;
-      }
-
-      const explanations = quizData.questions.map(question => question.explanation);
-      this.explanationTextService.initializeExplanationTexts(explanations);
-
-      // Use the quiz data directly
-      this.currentQuiz = quizData;
-      this.quizService.setSelectedQuiz(quizData);
-    });
-  } */
-
   subscribeRouterAndInit(): void {
     this.getNextQuestion();  // Ensure this is the appropriate place to call this method.
     this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
@@ -1002,7 +972,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   async getQuestion(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params.quizId;
-      console.log("Retrieved quizId from route:", quizId);
       const currentQuestionIndex = this.currentQuestionIndex;
 
       if (!quizId || quizId.trim() === '') {
