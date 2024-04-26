@@ -394,7 +394,7 @@ export class QuizDataService implements OnDestroy {
         
         // Ensure questionIndex is a number and within bounds
         questionIndex = (typeof questionIndex === 'number' && questionIndex >= 0) ? questionIndex : 0;
-        if (questionIndex >= quiz.questions.length) {
+        if (questionIndex > quiz.questions.length - 1) {
           console.error(`Index ${questionIndex} out of bounds for quiz ID: ${quizId}`);
           return of(null);
         }
