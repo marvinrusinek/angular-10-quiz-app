@@ -999,12 +999,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   async getQuestion(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params.quizId;
+      console.log("Retrieved quizId from route:", quizId);
       const currentQuestionIndex = this.currentQuestionIndex;
 
+      if (!quizId || quizId.trim() === '') {
+        console.error("Quiz ID is required but not provided.");
+        return;
+      }
+
       const [question] = await firstValueFrom(
-        this.quizDataService.getQuestionAndOptions(quizId, currentQuestionIndex).pipe(
-          take(1)
-        )
+        this.quizDataService.getQuestionAndOptions(quizId, currentQuestionIndex).pipe(take(1))
       ) as [QuizQuestion, Option[]];
 
       this.question$ = of(question);
