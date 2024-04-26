@@ -287,7 +287,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     try {
       await this.loadQuizQuestions();
       this.subscribeToCorrectAnswersAndData();
-      console.log(`Initializing quiz with quizId: ${this.quizId}, currentQuestionIndex: ${this.currentQuestionIndex}`);
 
       this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
       if (this.quizId) {
@@ -298,6 +297,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       } else {
         console.error('Quiz ID is empty after initialization.');
       }
+      
       // this.initializeCorrectAnswerOptions();
       // this.subscribeToCorrectAnswers();
     } catch (error) {
