@@ -378,99 +378,6 @@ export class QuizDataService implements OnDestroy {
     }
   
     // Fetch new data from the API
-    /* return this.fetchQuizDataFromAPI().pipe(
-      tap(quizData => console.log('Fetched quiz data:', quizData)),
-      switchMap(quizData => {
-        // Check if quizData is properly structured and non-empty
-        if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
-          console.error('Quiz data is empty, null, or improperly formatted');
-          return of(null);
-        }
-        
-        const quiz = quizData.find(quiz => quiz.quizId.trim().toLowerCase() === quizId.trim().toLowerCase());
-        if (!quiz) {
-          console.error(`No quiz found for the quiz ID: '${quizId}'. Please select from available IDs:`, quizData.map(q => q.quizId));
-          // Optional: Return a specific error or null with more context
-          return of({
-            error: "Quiz not found",
-            availableQuizzes: quizData.map(q => q.quizId)
-          });
-        }
-        
-        // Ensure questionIndex is a number and within bounds
-        questionIndex = (typeof questionIndex === 'number' && questionIndex >= 0) ? questionIndex : 0;
-        if (questionIndex > quiz.questions.length) {
-          console.error(`Index ${questionIndex} out of bounds for quiz ID: ${quizId}`);
-          return of(null);
-        }
-        
-        const currentQuestion = (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < quiz.questions.length) ? quiz.questions[this.currentQuestionIndex] : null;
-        if (!currentQuestion) {
-          console.error(`No valid question found at index ${this.currentQuestionIndex} for quiz ID: ${quizId}`);
-          return of(null);
-        }
-    
-        const options = currentQuestion.options;
-        if (!options || options.length === 0) {
-          console.error(`No options available for the question at index ${questionIndex} for quiz ID: ${quizId}`);
-          return of(null);
-        }
-        
-        return of([currentQuestion, options] as [QuizQuestion, Option[]]);
-      }),
-      tap(questionAndOptions => {
-        if (questionAndOptions) {
-          this.questionAndOptionsSubject.next(questionAndOptions);
-          this.hasQuestionAndOptionsLoaded = true;
-          this.currentQuestionIndex = questionIndex;
-        }
-      }),
-      catchError(error => {
-        console.error('Error in processing quiz question and options:', error);
-        return of(null);
-      }),
-      distinctUntilChanged()
-    ); */
-
-    /* return this.fetchQuizDataFromAPI().pipe(
-      tap(quizData => console.log('Fetched quiz data:', quizData)),
-      switchMap(quizData => {
-        if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
-          console.error('Quiz data is empty, null, or improperly formatted');
-          return throwError(() => new Error('Invalid or empty quiz data'));
-        }
-  
-        const quiz = quizData.find(quiz => quiz.quizId.trim().toLowerCase() === quizId.trim().toLowerCase());
-        if (!quiz) {
-          console.error(`No quiz found for the quiz ID: '${quizId}'.`);
-          return of({ error: "Quiz not found", availableQuizzes: quizData.map(q => q.quizId) } as QuizDataError);
-        }
-  
-        if (this.currentQuestionIndex >= quiz.questions.length || this.currentQuestionIndex < 0) {
-          console.error(`Index ${this.currentQuestionIndex} out of bounds for quiz ID: ${quizId}`);
-          return throwError(() => new Error(`Question index out of bounds: ${this.currentQuestionIndex}`));
-        }
-  
-        const currentQuestion = quiz.questions[this.currentQuestionIndex];
-        if (!currentQuestion) {
-          console.error(`No valid question found at index ${this.currentQuestionIndex} for quiz ID: ${quizId}`);
-          return throwError(() => new Error('No valid question found'));
-        }
-  
-        if (!currentQuestion.options || currentQuestion.options.length === 0) {
-          console.error(`No options available for the question at index ${this.currentQuestionIndex} for quiz ID: ${quizId}`);
-          return throwError(() => new Error('No options available for the question'));
-        }
-  
-        return of([currentQuestion, currentQuestion.options] as [QuizQuestion, Option[]]);
-      }),
-      catchError(error => {
-        console.error('Error in processing quiz question and options:', error);
-        return of(null);  // Properly handle and convert to Observable of null
-      }),
-      distinctUntilChanged()
-    ); */
-
     return this.fetchQuizDataFromAPI().pipe(
       tap(quizData => console.log('Fetched quiz data:', quizData)),
       switchMap(quizData => {
@@ -505,7 +412,7 @@ export class QuizDataService implements OnDestroy {
       }),
       catchError(error => {
         console.error('Unhandled error:', error);
-        return throwError(() => error);  // Re-throw the error if not handled
+        return throwError(() => error);
       }),
       distinctUntilChanged()
     );
