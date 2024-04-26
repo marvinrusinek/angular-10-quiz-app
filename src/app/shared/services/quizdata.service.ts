@@ -213,51 +213,6 @@ export class QuizDataService implements OnDestroy {
     }
   }
 
-  /* fetchQuizQuestionByIdAndIndex(
-    quizId: string,
-    questionIndex: number
-  ): Observable<QuizQuestion | null> {
-    return this.getQuestionAndOptions(quizId, questionIndex).pipe(
-      switchMap(([question]): Observable<QuizQuestion | null> => {
-        if (!question) {
-          return of(null);
-        }
-  
-        return of(question as QuizQuestion);
-      }),
-      catchError((error: HttpErrorResponse) => {
-        console.error('Error getting quiz question:', error);
-        const customError = new Error('An error occurred while fetching data.');
-        return throwError(() => customError);
-      }),
-      distinctUntilChanged()
-    ) as Observable<QuizQuestion | null>;
-  } */
-
-  /* fetchQuizQuestionByIdAndIndex(
-    quizId: string,
-    questionIndex: number
-  ): Observable<QuizQuestion | null> {
-    return this.getQuestionAndOptions(quizId, questionIndex).pipe(
-      switchMap((result): Observable<QuizQuestion | null> => {
-        // Ensure 'result' is an array and has elements before attempting to destructure
-        if (!Array.isArray(result) || result.length === 0 || !result[0]) {
-          console.error('Expected an array with elements from getQuestionAndOptions:', result);
-          return of(null);
-        }
-  
-        const [question] = result;
-        return of(question as QuizQuestion);
-      }),
-      catchError((error: HttpErrorResponse) => {
-        console.error('Error getting quiz question:', error);
-        const customError = new Error('An error occurred while fetching data.');
-        return throwError(() => customError);
-      }),
-      distinctUntilChanged()
-    ) as Observable<QuizQuestion | null>;
-  } */
-
   fetchQuizQuestionByIdAndIndex(quizId: string, questionIndex: number): Observable<QuizQuestion | null> {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
       switchMap(result => {
