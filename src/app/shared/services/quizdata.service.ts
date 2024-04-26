@@ -203,6 +203,7 @@ export class QuizDataService implements OnDestroy {
   }
 
   async asyncOperationToSetQuestion(quizId: string, currentQuestionIndex: number): Promise<void> {
+    console.log(`Received quizId: ${quizId}, currentQuestionIndex: ${currentQuestionIndex}`);
     try {
       if (!quizId || currentQuestionIndex < 0) {
         console.error('Invalid quiz ID or question index');
