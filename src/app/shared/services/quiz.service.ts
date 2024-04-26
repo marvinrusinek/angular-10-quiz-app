@@ -1392,7 +1392,7 @@ export class QuizService implements OnDestroy {
           return throwError(() => new Error('Error processing quizzes'));
         })
       ).subscribe(
-        questions => {
+        (questions: QuizQuestion[]) => {
           this.questions$.next(questions);  // Emitting the shuffled questions
           console.log("Emitting shuffled questions from service:", questions.map(q => q.questionText));
         },
