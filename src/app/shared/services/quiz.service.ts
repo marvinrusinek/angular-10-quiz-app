@@ -1,27 +1,10 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import {
-  BehaviorSubject,
-  combineLatest,
-  firstValueFrom,
-  from,
-  Observable,
-  of,
-  ReplaySubject,
-  Subject,
-  throwError
-} from 'rxjs';
-import {
-  catchError,
-  distinctUntilChanged,
-  finalize,
-  map,
-  shareReplay,
-  switchMap,
-  takeUntil,
-  tap
-} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, firstValueFrom, from,
+  Observable, of, Subject, throwError } from 'rxjs';
+import { catchError, distinctUntilChanged, finalize, map,
+  shareReplay, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
 
@@ -1409,40 +1392,6 @@ export class QuizService implements OnDestroy {
     this.checkedShuffle.next(isChecked);
     this.fetchAndShuffleQuestions(this.quizId);
   }
-
-  /* fetchAndShuffleQuestions(quizId: string): void {
-    this.http.get<any[]>(this.quizUrl).pipe(
-      map(quizzes => {
-        console.log("Quizzes fetched:", quizzes);
-        const foundQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-        if (!foundQuiz) {
-          console.error("Quiz with ID", quizId, "not found.");
-          throw new Error(`Quiz with ID ${quizId} not found.`);
-        }
-        return foundQuiz.questions;
-      }),
-      tap(questions => {
-        const originalOrder = questions.map(q => q.questionText); // Save original order
-        if (this.checkedShuffle.value && questions.length > 0) {
-          Utils.shuffleArray(questions);
-          questions.forEach(question => {
-          if (question.options && question.options.length > 0) {
-            Utils.shuffleArray(question.options);
-          }
-        });
-      }
-      console.log("Original order:", originalOrder);
-      console.log("Shuffled order:", questions.map(q => q.questionText));
-    })
-    ).subscribe({
-      next: (questions) => {
-        console.log("Emitting questions from ReplaySubject", questions);
-        console.log("Emitting shuffled questions:", questions.map(q => q.questionText));
-        this.questions$.next(questions);
-      },
-      error: (error) => console.error('Error fetching and processing questions:', error)
-    });
-  } */
 
   fetchAndShuffleQuestions(quizId: string): void {
     if (!quizId) {
