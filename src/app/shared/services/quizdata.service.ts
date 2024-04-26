@@ -40,10 +40,7 @@ export class QuizDataService implements OnDestroy {
   private quizUrl = 'assets/data/quiz.json';
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private http: HttpClient,
-    private activatedRoute: ActivatedRoute
-  ) {
+  constructor(private http: HttpClient) {
     this.quizzes$ = new BehaviorSubject<Quiz[]>([]);
     this.selectedQuiz$ = new BehaviorSubject<Quiz | null>(this.selectedQuiz);
     this.selectedQuizSubject = new BehaviorSubject<Quiz>(null);
