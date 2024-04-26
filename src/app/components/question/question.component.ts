@@ -279,7 +279,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async initializeQuiz(): Promise<void> {
     this.initialized = true;
-    await this.subscribeToActivatedRouteParams();
+    this.subscribeToActivatedRouteParams();
     this.initializeSelectedQuiz();
     this.initializeSelectedOption();
     this.initializeQuestionOptions();
@@ -287,10 +287,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     try {
       await this.loadQuizQuestions();
       this.subscribeToCorrectAnswersAndData();
-      await this.quizDataService.asyncOperationToSetQuestion(
-        this.quizId,
-        this.currentQuestionIndex
-      );
+      console.log(`Initializing quiz with quizId: ${this.quizId}, currentQuestionIndex: ${this.currentQuestionIndex}`);
+
+      if (this.quizId) {
+        await this.quizDataService.asyncOperationToSetQuestion(
+          this.quizId,
+          this.currentQuestionIndex
+        );
+      } else {
+        console.error('Quiz ID is empty after initialization.');
+      }
       // this.initializeCorrectAnswerOptions();
       // this.subscribeToCorrectAnswers();
     } catch (error) {
