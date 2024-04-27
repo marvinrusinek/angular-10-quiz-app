@@ -289,7 +289,7 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
+  /* getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
     if (isNaN(questionIndex) || questionIndex < 0) {
       console.error('Invalid question index:', questionIndex);
       return throwError(() => new Error('Invalid question index'));
@@ -358,7 +358,7 @@ export class QuizDataService implements OnDestroy {
     }
   
     return of([currentQuestion, currentQuestion.options] as [QuizQuestion, Option[]]);
-  }
+  } */
   
   /* getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
     // Check if the data has already been loaded and the index matches the current question index
@@ -406,6 +406,60 @@ export class QuizDataService implements OnDestroy {
       distinctUntilChanged()
     );    
   } */
+
+  getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
+    if (this.hasQuestionAndOptionsLoaded && this.currentQuestionIndex === questionIndex) {
+      return this.getCachedQuestionAndOptions();
+    }
+
+    return this.fetchQuestionAndOptionsFromAPI(quizId, questionIndex);
+  }
+
+  private getCachedQuestionAndOptions(): Observable<[QuizQuestion, Option[]] | null> {
+    return this.questionAndOptionsSubject.asObservable().pipe(distinctUntilChanged());
+  }
+
+  private fetchQuestionAndOptionsFromAPI(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
+    return this.fetchQuizDataFromAPI().pipe(
+      switchMap(quizData => this.processQuizData(quizData, quizId, questionIndex)),
+      catchError(error => {
+        console.error('Unhandled error:', error);
+        return throwError(() => error);
+      }),
+      distinctUntilChanged()
+    );
+  }
+
+  private processQuizData(quizData: Quiz[], quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
+    if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
+      console.error('Quiz data is empty, null, or improperly formatted');
+      return throwError(() => new Error('Invalid or empty quiz data'));
+    }
+
+    const quiz = quizData.find(quiz => quiz.quizId.trim().toLowerCase() === quizId.trim().toLowerCase());
+    if (!quiz) {
+      console.error(`No quiz found for the quiz ID: '${quizId}'.`);
+      return throwError(() => new Error(`Quiz not found for ID: ${quizId}`));
+    }
+
+    if (questionIndex >= quiz.questions.length || questionIndex < 0) {
+      console.error(`Index ${questionIndex} out of bounds for quiz ID: ${quizId}`);
+      return throwError(() => new Error(`Question index out of bounds: ${questionIndex}`));
+    }
+
+    const currentQuestion = quiz.questions[questionIndex];
+    if (!currentQuestion) {
+      console.error(`No valid question found at index ${questionIndex} for quiz ID: ${quizId}`);
+      return throwError(() => new Error('No valid question found'));
+    }
+
+    if (!currentQuestion.options || currentQuestion.options.length === 0) {
+      console.error(`No options available for the question at index ${questionIndex} for quiz ID: ${quizId}`);
+      return throwError(() => new Error('No options available for the question'));
+    }
+
+    return of([currentQuestion, currentQuestion.options] as [QuizQuestion, Option[]]);
+  }
   
   fetchQuizDataFromAPI(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
