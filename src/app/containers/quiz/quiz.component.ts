@@ -646,15 +646,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
-        const quizId = params.get('quizId');
-        const questionIndex = parseInt(params.get('questionIndex') || '0', 10); // Ensure questionIndex is a number
+        const questionIndex = +params.get('questionIndex') || 0; // Ensure questionIndex is a number
         if (isNaN(questionIndex)) {
           console.error('Question index is not a valid number');
           return EMPTY; // Stops the stream if the index is not a valid number
         }
         return this.handleRouteParams(params);
       }),
-      switchMap(({ quizId, questionIndex, quizData }) => {
+      switchMap(({ quizData, questionIndex }) => {
         if (!quizData || !quizData.questions) {
           console.error('Quiz data or questions array is undefined');
           return EMPTY; // Stops the stream if quiz data is invalid
