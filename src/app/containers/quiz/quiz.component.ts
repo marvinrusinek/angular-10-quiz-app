@@ -372,7 +372,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  testSubscribeToQuestions(): void {
+  /* testSubscribeToQuestions(): void {
     console.log("Testing subscription to questions.");
     this.quizService.questions$
       .pipe(takeUntil(this.destroy$))
@@ -394,6 +394,20 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.log("Subscription completed.");
         }
       });
+  } */
+
+  testSubscribeToQuestions(): void { 
+    this.quizService.questions$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (questions: QuizQuestion[]) => {
+        // Update logic here
+        this.questions = questions;
+      },
+      error: (error) => {
+        console.error("Error:", error);
+      }
+    });  
   }
 
   private logAudioErrorDetails(e: Event): void {
