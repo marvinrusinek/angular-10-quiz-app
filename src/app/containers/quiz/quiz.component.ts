@@ -713,7 +713,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }),
       switchMap(data => {
         const { quizData, questionIndex } = data;
-        if (!quizData || !quizData.questions || questionIndex >= quizData.questions.length) {
+        if (!quizData || !quizData.questions || !Array.isArray(quizData.questions) || questionIndex >= quizData.questions.length) {
           console.error('Quiz data is invalid or the question index is out of bounds:', data);
           return EMPTY;
         }
