@@ -329,6 +329,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       },
       error: (error) => {
         console.error('Error loading quiz data:', error);
+      },
+      complete: () => {
+        console.log('Quiz data loading complete.');
       }
     });
   }
