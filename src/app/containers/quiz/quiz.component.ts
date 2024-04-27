@@ -694,8 +694,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
         console.log('Received valid index, fetching route parameters...');
         return this.handleRouteParams(params).pipe(
-          tap(data => console.log('Route parameters handled, data:', data)),
-          catchError(error => {
+          catchError((error: Error) => {
             console.error('Error in handling route parameters:', error);
             return EMPTY;
           })
