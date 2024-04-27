@@ -646,33 +646,34 @@ export class QuizComponent implements OnInit, OnDestroy {
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
-        const questionIndex = +params.get('questionIndex') || 0; // Ensure questionIndex is a number
+        const questionIndex = +params.get('questionIndex');
         if (isNaN(questionIndex) || questionIndex < 0) {
-          console.error('Question index is not a valid number or is negative');
-          return EMPTY; // Stops the stream if the index is not a valid number or negative
+          console.error('Question index is not a valid number or is negative:', questionIndex);
+          return EMPTY; // Ensure non-negative, valid number index
         }
         return this.handleRouteParams(params);
       }),
       switchMap(({ quizData, questionIndex }) => {
         if (!quizData || !quizData.questions) {
           console.error('Quiz data or questions array is undefined');
-          return EMPTY; // Stops the stream if quiz data is invalid
+          return EMPTY; // Ensure valid quiz data
         }
         this.quizService.setActiveQuiz(quizData);
         if (questionIndex >= quizData.questions.length) {
           console.error('Invalid or out-of-bounds question index:', questionIndex);
-          return EMPTY; // Stops the stream if the index is out of bounds
+          return EMPTY; // Handle out-of-bounds index
         }
-        return this.quizService.getQuestionByIndex(questionIndex);
+        return of(this.quizService.getQuestionByIndex(questionIndex)); // Ensure returning Observable
       })
     ).subscribe({
       next: (question: QuizQuestion) => {
         this.currentQuiz = this.quizService.getActiveQuiz();
         this.currentQuestion = question;
       },
-      error: (error) => console.error('Failed to process route parameters or load question', error)
+      error: (error) => console.error('Failed to process route parameters or load question', error),
+      complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
-  }
+  }  
   
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
