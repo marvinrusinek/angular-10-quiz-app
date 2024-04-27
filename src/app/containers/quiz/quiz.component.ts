@@ -702,18 +702,32 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Question index is not a valid number or is negative:', questionIndexStr);
           return EMPTY; // Stops the stream if the index is not valid
         }
-        return this.handleRouteParams(params);
+        console.log('Received valid index, fetching route parameters...');
+        return this.handleRouteParams(params).pipe(
+          tap(data => console.log('Route parameters handled, data:', data)),
+          catchError(error => {
+            console.error('Error in handling route parameters:', error);
+            return EMPTY;
+          })
+        );
       }),
-      switchMap(({ quizData, questionIndex }) => {
+      switchMap(data => {
+        const { quizData, questionIndex } = data;
         if (!quizData || !quizData.questions || questionIndex >= quizData.questions.length) {
-          console.error('Quiz data or questions array is undefined or index out of bounds');
+          console.error('Quiz data is invalid or the question index is out of bounds:', data);
           return EMPTY;
         }
         this.quizService.setActiveQuiz(quizData);
-        return this.quizService.getQuestionByIndex(questionIndex);
+        console.log('Fetching question by index...');
+        return this.quizService.getQuestionByIndex(questionIndex).pipe(
+          catchError(error => {
+            console.error('Error fetching question by index:', error);
+            return EMPTY;
+          })
+        );
       }),
       catchError(error => {
-        console.error('Failed to process route parameters or load question:', error);
+        console.error('Observable chain failed:', error);
         return EMPTY;
       })
     ).subscribe({
@@ -729,7 +743,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: error => console.error('Error during subscription:', error),
       complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
-  }
+  }  
   
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
