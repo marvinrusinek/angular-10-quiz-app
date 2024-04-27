@@ -313,28 +313,28 @@ export class QuizDataService implements OnDestroy {
     return null;
   }
 
-  private fetchAndValidateQuizData(quizId: string): Observable<
-QuizData[]> {
-  return this.fetchQuizDataFromAPI().pipe(
-    tap(quizData => console.log('Fetched quiz data:', quizData)),
-    switchMap(quizData => {
-      if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
-        console.error('Quiz data is empty, null, or improperly formatted');
-        return throwError(() => new Error('Invalid or empty quiz data'));
-      }
+  private fetchAndValidateQuizData(quizId: string): Observable
+  <Quiz> {
+    return this.fetchQuizDataFromAPI().pipe(
+      tap(quizData => console.log('Fetched quiz data:', quizData)),
+      switchMap(quizData => {
+        if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
+          console.error('Quiz data is empty, null, or improperly formatted');
+          return throwError(() => new Error('Invalid or empty quiz data'));
+        }
   
-      const quiz = quizData.find(quiz => quiz.quizId.trim().toLowerCase() === quizId.trim().toLowerCase());
-      if (!quiz) {
-        console.error(`No quiz found for the quiz ID: '${quizId}'.`);
-        return throwError(() => new Error(`Quiz not found for ID: ${quizId}`));
-      }
-      return of(quiz);
-    }),
-    catchError(error => {
-      console.error('Error fetching or validating quiz data:', error);
-      return throwError(() => error);
-    })
-  );
+        const quiz = quizData.find(quiz => quiz.quizId.trim().toLowerCase() === quizId.trim().toLowerCase());
+        if (!quiz) {
+          console.error(`No quiz found for the quiz ID: '${quizId}'.`);
+          return throwError(() => new Error(`Quiz not found for ID: ${quizId}`));
+        }
+        return of(quiz);
+      }),
+      catchError(error => {
+        console.error('Error fetching or validating quiz data:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   private fetchQuestionAndOptions(quiz: Quiz, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
