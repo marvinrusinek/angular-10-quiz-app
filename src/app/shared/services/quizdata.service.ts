@@ -289,7 +289,7 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  /* getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
+  getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
     if (isNaN(questionIndex) || questionIndex < 0) {
       console.error('Invalid question index:', questionIndex);
       return throwError(() => new Error('Invalid question index'));
@@ -358,7 +358,7 @@ export class QuizDataService implements OnDestroy {
     }
   
     return of([currentQuestion, currentQuestion.options] as [QuizQuestion, Option[]]);
-  } */
+  }
   
   /* getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
     // Check if the data has already been loaded and the index matches the current question index
