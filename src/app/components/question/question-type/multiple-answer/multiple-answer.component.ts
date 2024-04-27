@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
@@ -52,7 +52,8 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     activatedRoute: ActivatedRoute,
     fb: FormBuilder,
     cdRef: ChangeDetectorRef,
-    router: Router
+    router: Router,
+    ngZone: NgZone
   ) {
     super(
       quizService,
@@ -67,7 +68,8 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
       activatedRoute,
       fb,
       cdRef,
-      router
+      router,
+      ngZone
     );
     this.quizService = quizService;
     this.quizDataService = quizDataService;
