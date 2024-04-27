@@ -207,9 +207,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         const indexParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
         this.questionIndex = parseInt(indexParam, 10) - 1;
     
-        // Log the computed questionIndex for debugging purposes
-        console.log(`Computed questionIndex: ${this.questionIndex}`);
-    
         // Validate the parsed index
         if (!isNaN(this.questionIndex) && this.questionIndex >= 0 && this.questionIndex < this.quiz.questions.length) {
           this.currentQuestion = this.quiz.questions[this.questionIndex];
