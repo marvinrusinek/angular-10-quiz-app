@@ -255,7 +255,7 @@ export class QuizService implements OnDestroy {
     this.questions$.next(quiz.questions);
   }
 
-  getActiveQuiz(): QuizData | null {
+  getActiveQuiz(): Quiz | null {
     return this.activeQuiz;
   }
 
