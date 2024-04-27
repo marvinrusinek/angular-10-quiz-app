@@ -291,8 +291,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
       if (this.quizId) {
         await this.quizDataService.asyncOperationToSetQuestion(
-          this.quizId,
-          this.currentQuestionIndex
+          this.quizId, this.currentQuestionIndex
         );
       } else {
         console.error('Quiz ID is empty after initialization.');
@@ -318,23 +317,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
   }
-
-  /* private loadQuiz(quizId: string, questionIndex: number): void {
-    this.quizDataService.getQuizById(quizId).subscribe({
-      next: (quiz) => {
-        if (quiz && quiz.questions && quiz.questions.length > questionIndex && questionIndex >= 0) {
-          this.quiz = quiz;
-          this.currentQuestion = quiz.questions[questionIndex];
-          this.cdRef.detectChanges();
-        } else {
-          console.error('No valid question or options found for index:', questionIndex);
-        }
-      },
-      error: (error) => {
-        console.error('Error loading the quiz:', error);
-      }
-    });
-  } */
   
   private loadQuiz(quizId: string, questionIndex: number): void {
     this.quizDataService.getQuizById(quizId).subscribe(quiz => {
