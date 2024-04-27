@@ -649,9 +649,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         const questionIndex = +params.get('questionIndex');
         if (isNaN(questionIndex) || questionIndex < 0) {
           console.error('Question index is not a valid number or is negative:', questionIndex);
-          return EMPTY; // Ensure non-negative, valid number index
+          return EMPTY; // Stops the stream if the index is not a valid number
         }
-        return this.handleRouteParams(params);
+        return this.handleRouteParams(params); // Ensure this returns an Observable
       }),
       switchMap(({ quizData, questionIndex }) => {
         if (!quizData || !quizData.questions) {
@@ -661,9 +661,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.setActiveQuiz(quizData);
         if (questionIndex >= quizData.questions.length) {
           console.error('Invalid or out-of-bounds question index:', questionIndex);
-          return EMPTY; // Handle out-of-bounds index
+          return EMPTY; // Handle out-of-bounds index properly
         }
-        return of(this.quizService.getQuestionByIndex(questionIndex)); // Ensure returning Observable
+        return this.quizService.getQuestionByIndex(questionIndex);
       })
     ).subscribe({
       next: (question: QuizQuestion) => {
@@ -673,7 +673,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: (error) => console.error('Failed to process route parameters or load question', error),
       complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
-  }  
+  }    
   
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
