@@ -303,7 +303,6 @@ export class QuizDataService implements OnDestroy {
           return throwError(() => new Error('Invalid or empty quiz data'));
         }
     
-        // const quiz = quizData.find(quiz => quiz.quizId.trim().toLowerCase() === quizId.trim().toLowerCase());
         const quiz = quizData.find(quiz => quiz.quizId === quizId);
         if (!quiz) {
           console.error(`No quiz found for the quiz ID: '${quizId}'.`);
