@@ -1096,10 +1096,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         return null;
       }
   
-      // Handle the question
       this.handleQuestion(question);
-  
-      // Handle the options
       this.handleOptions(options);
     } catch (error) {
       console.error('Error fetching question and options:', error);
