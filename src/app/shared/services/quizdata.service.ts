@@ -296,18 +296,14 @@ export class QuizDataService implements OnDestroy {
     }
 
     // Fetch new data from the API
-    this.fetchNewDataFromAPI(quizId);
-  }
-  
-  fetchNewDataFromAPI(quizId: string): Observable<[QuizQuestion, Option[]]> {
     return this.fetchQuizDataFromAPI().pipe(
-      switchMap((quizData: any) => {
+      switchMap(quizData => {
         if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
           console.error('Quiz data is empty, null, or improperly formatted');
           return throwError(() => new Error('Invalid or empty quiz data'));
         }
 
-        const quiz = quizData.find((quiz: Quiz) => quiz.quizId === quizId);
+        const quiz = quizData.find(quiz => quiz.quizId === quizId);
         if (!quiz) {
           console.error(`No quiz found for the quiz ID: '${quizId}'.`);
           return throwError(() => new Error(`Quiz not found for ID: ${quizId}`));
