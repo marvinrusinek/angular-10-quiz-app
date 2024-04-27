@@ -775,7 +775,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.setActiveQuiz(quizData);
         return this.quizService.getQuestionByIndex(adjustedIndex);
       }),         
-      catchError(error => {
+      catchError((error: Error) => {
         console.error('Observable chain failed:', error);
         return EMPTY;
       })
