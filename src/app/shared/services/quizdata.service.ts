@@ -294,6 +294,11 @@ export class QuizDataService implements OnDestroy {
     if (loadedQuestionAndOptions) {
       return loadedQuestionAndOptions;
     }
+
+    if (typeof questionIndex !== 'number' || isNaN(questionIndex) || questionIndex < 0) {
+      console.error('Invalid question index:', questionIndex);
+      return throwError(() => new Error('Invalid question index'));
+    }  
   
     return this.fetchAndValidateQuizData(quizId).pipe(
       switchMap(quiz => this.fetchQuestionAndOptions(quiz, questionIndex)),
