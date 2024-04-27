@@ -1309,7 +1309,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
         return { quizId, questionIndex, quizData };
       }),
-      catchError(error => {
+      catchError((error: Error) => {
         console.error('Error processing quiz data:', error);
         return throwError(() => new Error('Failed to process quiz data'));
       })
