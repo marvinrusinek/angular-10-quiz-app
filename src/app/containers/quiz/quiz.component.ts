@@ -690,7 +690,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         const questionIndex = parseInt(questionIndexStr, 10);
         if (isNaN(questionIndex) || questionIndex < 0) {
           console.error('Question index is not a valid number or is negative:', questionIndexStr);
-          return EMPTY; // Stops the stream if the index is not valid
+          return EMPTY;
         }
         console.log('Received valid index, fetching route parameters...');
         return this.handleRouteParams(params).pipe(
@@ -1787,15 +1787,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Reset the current question index to the first question
     this.quizService.setCurrentQuestionIndex(0);
 
-    this.router.navigate(['/question', this.quizId, 1])
-      .then(success => {
-        if (success) {
-          console.log('Navigation to first question succeeded.');
-        } else {
-          console.log('Navigation to first question failed.');
-        }
-      })
-      .catch(err => console.error('Navigation error:', err));
+    this.router.navigate(['/question', this.quizId, 1]);
 
     // Reset any other relevant state, such as explanation visibility
     this.explanationTextService.setShouldDisplayExplanation(false);
