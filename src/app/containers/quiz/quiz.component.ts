@@ -5,6 +5,10 @@ import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router }
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, filter, first, map, retry, switchMap, take, takeUntil } from 'rxjs/operators';
 
+interface RouteData {
+  quizData: Quiz;
+}
+
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuizStatus } from '../../shared/models/quiz-status.enum';
@@ -894,7 +898,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Subscribe to the ActivatedRoute data observable
     this.activatedRoute.data.pipe(
       takeUntil(this.unsubscribe$)  // Prevent memory leaks
-    ).subscribe(data => {
+    ).subscribe((data: RouteData) => {
       const quizData: Quiz = data.quizData;
       if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
         console.error("Quiz data is undefined, or there are no questions");
