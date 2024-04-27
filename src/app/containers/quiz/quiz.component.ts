@@ -1037,33 +1037,44 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  async getQuestion(): Promise<void> {
+  async getQuestion(): Promise<void | null> {
     try {
       const quizId = this.activatedRoute.snapshot.params.quizId;
       const currentQuestionIndex = this.currentQuestionIndex;
-
+  
       if (!quizId || quizId.trim() === '') {
         console.error("Quiz ID is required but not provided.");
-        return;
+        return null;
       }
-
+  
       const [question] = await firstValueFrom(
         this.quizDataService.getQuestionAndOptions(quizId, currentQuestionIndex).pipe(take(1))
       ) as [QuizQuestion, Option[]];
-
+  
+      if (!question) {
+        console.error('No valid question found');
+        return null;
+      }
+  
       this.question$ = of(question);
-
+  
       this.options$ = this.quizDataService.getOptions(
         quizId,
         currentQuestionIndex
+      ).pipe(
+        catchError((error: Error) => {
+          console.error('Error fetching options:', error);
+          return EMPTY;
+        })
       );
-
+  
       this.handleQuestion(question);
-
+  
       const options = await firstValueFrom(this.options$.pipe(take(1))) as Option[];
       this.handleOptions(options);
     } catch (error) {
       console.error('Error fetching question and options:', error);
+      return null;
     }
   }  
 
