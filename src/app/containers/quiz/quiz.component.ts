@@ -1051,6 +1051,11 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizDataService.getQuestionAndOptions(quizId, currentQuestionIndex).pipe(take(1))
       ) as [QuizQuestion, Option[]];
 
+      if (!question) {
+        console.error('No valid question found');
+        return null;
+      }
+
       this.question$ = of(question);
 
       this.options$ = this.quizDataService.getOptions(
