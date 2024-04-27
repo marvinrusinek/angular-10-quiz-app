@@ -703,13 +703,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       }),
       switchMap(data => {
         const { quizData, questionIndex } = data;
-        console.log('Received quiz data:', quizData);
-        console.log('Question index:', questionIndex);
+
         if (!quizData || typeof quizData !== 'object' || !quizData.questions || !Array.isArray(quizData.questions)) {
           console.error('Quiz data is missing, not an object, or the questions array is invalid:', quizData);
           return EMPTY;
         }
-        console.log('Total questions:', quizData.questions.length);
         
         // Adjust the last question index to be the maximum index of the questions array
         const lastIndex = quizData.questions.length - 1;
@@ -734,7 +732,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         if (question) {
           this.currentQuiz = this.quizService.getActiveQuiz();
           this.currentQuestion = question;
-          console.log('Question successfully loaded:', question);
         } else {
           console.error('No question data available after fetch.');
         }
