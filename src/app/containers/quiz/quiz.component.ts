@@ -643,31 +643,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
   }
 
-  /* private initializeQuizBasedOnRouteParams(): void {
-    this.activatedRoute.paramMap.pipe(
-      switchMap((params: ParamMap) => this.handleRouteParams(params))
-    ).subscribe({
-      next: ({ quizId, questionIndex, quizData }) => {
-        // Safety check for quizData and quizData.questions
-        if (!quizData || !quizData.questions) {
-          console.error('Quiz data or questions array is undefined');
-          return;
-        }
-
-        this.quizService.setActiveQuiz(quizData);
-        
-        this.quizService.getQuestionByIndex(questionIndex).subscribe({
-          next: (question) => {
-            this.currentQuiz = quizData;
-            this.currentQuestion = question;
-          },
-          error: (error) => console.error('Failed to load the question:', error)
-        });
-      },
-      error: error => console.error('Failed to load quiz data', error)
-    });
-  } */
-
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
@@ -692,7 +667,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         return this.quizService.getQuestionByIndex(questionIndex);
       })
     ).subscribe({
-      next: (question) => {
+      next: (question: QuizQuestion) => {
         this.currentQuiz = this.quizService.getActiveQuiz();
         this.currentQuestion = question;
       },
