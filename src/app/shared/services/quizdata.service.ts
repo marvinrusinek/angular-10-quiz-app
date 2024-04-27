@@ -313,8 +313,7 @@ export class QuizDataService implements OnDestroy {
     return null;
   }
 
-  private fetchAndValidateQuizData(quizId: string): Observable
-  <Quiz> {
+  private fetchAndValidateQuizData(quizId: string): Observable<Quiz> {
     return this.fetchQuizDataFromAPI().pipe(
       tap(quizData => console.log('Fetched quiz data:', quizData)),
       switchMap(quizData => {
