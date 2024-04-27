@@ -1025,7 +1025,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           skipWhile(question => question === null || !this.quizService.isQuizQuestion(question)), // Skip null and malformed data
           take(1)
         )
-      );
+      ) as QuizQuestion | null;
       return currentQuestion;
     } catch (error) {
       console.error('Error fetching current question:', error);
