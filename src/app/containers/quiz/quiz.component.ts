@@ -646,34 +646,48 @@ export class QuizComponent implements OnInit, OnDestroy {
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
-        const questionIndex = +params.get('questionIndex');
+        const questionIndex = +params.get('questionIndex'); // Converts directly to number
         if (isNaN(questionIndex) || questionIndex < 0) {
           console.error('Question index is not a valid number or is negative:', questionIndex);
-          return EMPTY; // Stops the stream if the index is not a valid number
+          return EMPTY; // Ensures no further processing if invalid
         }
-        return this.handleRouteParams(params); // Ensure this returns an Observable
+        return this.handleRouteParams(params).pipe(
+          catchError(error => {
+            console.error('Failed to handle route parameters:', error);
+            return EMPTY; // Ensures an Observable is returned in case of error
+          })
+        );
       }),
       switchMap(({ quizData, questionIndex }) => {
         if (!quizData || !quizData.questions) {
           console.error('Quiz data or questions array is undefined');
-          return EMPTY; // Ensure valid quiz data
+          return EMPTY;
         }
         this.quizService.setActiveQuiz(quizData);
         if (questionIndex >= quizData.questions.length) {
           console.error('Invalid or out-of-bounds question index:', questionIndex);
-          return EMPTY; // Handle out-of-bounds index properly
+          return EMPTY;
         }
-        return this.quizService.getQuestionByIndex(questionIndex);
+        return this.quizService.getQuestionByIndex(questionIndex).pipe(
+          catchError(error => {
+            console.error('Error fetching question by index:', error);
+            return of(null); // Ensures an Observable is returned in case of error
+          })
+        );
       })
     ).subscribe({
-      next: (question: QuizQuestion) => {
-        this.currentQuiz = this.quizService.getActiveQuiz();
-        this.currentQuestion = question;
+      next: (question: QuizQuestion | null) => {
+        if (question) {
+          this.currentQuiz = this.quizService.getActiveQuiz();
+          this.currentQuestion = question;
+        } else {
+          console.error('No question data available.');
+        }
       },
       error: (error) => console.error('Failed to process route parameters or load question', error),
       complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
-  }    
+  }
   
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
