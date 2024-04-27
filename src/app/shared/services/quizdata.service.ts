@@ -290,15 +290,15 @@ export class QuizDataService implements OnDestroy {
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
+    if (isNaN(questionIndex) || questionIndex < 0) {
+      console.error('Invalid question index:', questionIndex);
+      return throwError(() => new Error('Invalid question index'));
+    }
+
     const loadedQuestionAndOptions = this.getLoadedQuestionAndOptions(questionIndex);
     if (loadedQuestionAndOptions) {
       return loadedQuestionAndOptions;
     }
-
-    if (typeof questionIndex !== 'number' || isNaN(questionIndex) || questionIndex < 0) {
-      console.error('Invalid question index:', questionIndex);
-      return throwError(() => new Error('Invalid question index'));
-    }  
   
     return this.fetchAndValidateQuizData(quizId).pipe(
       switchMap((quiz: Quiz) => this.fetchQuestionAndOptions(quiz, questionIndex)),
