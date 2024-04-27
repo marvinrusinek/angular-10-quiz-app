@@ -236,8 +236,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const indexParam = params.get('questionIndex');
-      console.log('Received questionIndex from route:', indexParam);
-  
+      
       if (indexParam !== null) {
         this.questionIndex = parseInt(indexParam, 10);
           
