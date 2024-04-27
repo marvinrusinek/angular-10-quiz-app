@@ -692,7 +692,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Question index is not a valid number or is negative:', questionIndexStr);
           return EMPTY;
         }
-        console.log('Received valid index, fetching route parameters...');
         return this.handleRouteParams(params).pipe(
           catchError((error: Error) => {
             console.error('Error in handling route parameters:', error);
