@@ -306,27 +306,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     return !isMultipleAnswer && isExplanationDisplayed;
   }
 
-  /* private calculateAndDisplayNumberOfCorrectAnswers(): void {
-    // Subscribe to the currentIndex Observable to get its value
-    this.quizStateService.getCurrentQuestionIndex$().subscribe(currentIndex => {
-      const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
-
-      if (!questionState.explanationDisplayed || currentIndex !== 0) {
-        this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
-          this.quizStateService.currentQuestion.value.options
-        );
-
-        const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-          this.numberOfCorrectAnswers
-        );
-
-        this.correctAnswersTextSource.next(correctAnswersText);
-      } else {
-        this.correctAnswersTextSource.next('');
-      }
-    });
-  } */
-
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
     // Subscribe to the currentIndex Observable to get its value
     this.quizStateService.getCurrentQuestionIndex$().subscribe({
