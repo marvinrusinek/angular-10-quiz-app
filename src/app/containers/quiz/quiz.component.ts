@@ -1289,25 +1289,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
-    const quizId = params.get('quizId');
-    const questionIndex = parseInt(params.get('questionIndex'), 10);
-
-    return this.quizService.getQuizData().pipe(
-      map((quizzes: Quiz[]) => {
-        const quizData = quizzes.find(quiz => quiz.quizId === quizId);
-        if (!quizData || !quizData.questions) {
-          throw new Error('Quiz data is missing or incorrectly formatted');
-        }
-        return { quizId, questionIndex, quizData };
-      }),
-      catchError(error => {
-        console.error(`Error processing quiz data for quizId ${quizId}:`, error);
-        return throwError(() => new Error('Failed to load quiz data'));
-      })
-    );
-  } */
-
   handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
     const quizId = params.get('quizId');
     if (!quizId) {
