@@ -377,7 +377,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.questions$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (questions) => {
+        next: (questions: QuizQuestion[]) => {
           console.log("Received questions:", questions);
           if (questions && questions.length > 0) {
             this.questions = questions;
