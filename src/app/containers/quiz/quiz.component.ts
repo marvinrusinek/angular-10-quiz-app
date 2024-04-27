@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter,
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, filter, first, map, retry, switchMap, take, takeUntil } from 'rxjs/operators';
+import { catchError, EMPTY, filter, first, map, retry, switchMap, take, takeUntil } from 'rxjs/operators';
 
 interface RouteData {
   quizData: Quiz;
@@ -236,7 +236,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const indexParam = params.get('questionIndex');
-      
+
       if (indexParam !== null) {
         this.questionIndex = parseInt(indexParam, 10);
           
@@ -643,7 +643,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
   }
 
-  private initializeQuizBasedOnRouteParams(): void {
+  /* private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => this.handleRouteParams(params))
     ).subscribe({
@@ -665,6 +665,38 @@ export class QuizComponent implements OnInit, OnDestroy {
         });
       },
       error: error => console.error('Failed to load quiz data', error)
+    });
+  } */
+
+  private initializeQuizBasedOnRouteParams(): void {
+    this.activatedRoute.paramMap.pipe(
+      switchMap((params: ParamMap) => {
+        const quizId = params.get('quizId');
+        const questionIndex = parseInt(params.get('questionIndex') || '0', 10); // Ensure questionIndex is a number
+        if (isNaN(questionIndex)) {
+          console.error('Question index is not a valid number');
+          return EMPTY; // Stops the stream if the index is not a valid number
+        }
+        return this.handleRouteParams(params);
+      }),
+      switchMap(({ quizId, questionIndex, quizData }) => {
+        if (!quizData || !quizData.questions) {
+          console.error('Quiz data or questions array is undefined');
+          return EMPTY; // Stops the stream if quiz data is invalid
+        }
+        this.quizService.setActiveQuiz(quizData);
+        if (questionIndex < 0 || questionIndex >= quizData.questions.length) {
+          console.error('Invalid or out-of-bounds question index:', questionIndex);
+          return EMPTY; // Stops the stream if the index is out of bounds
+        }
+        return this.quizService.getQuestionByIndex(questionIndex);
+      })
+    ).subscribe({
+      next: (question) => {
+        this.currentQuiz = this.quizService.getActiveQuiz();
+        this.currentQuestion = question;
+      },
+      error: (error) => console.error('Failed to process route parameters or load question', error)
     });
   }  
 
