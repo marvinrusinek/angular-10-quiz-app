@@ -647,9 +647,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
         const questionIndex = +params.get('questionIndex') || 0; // Ensure questionIndex is a number
-        if (isNaN(questionIndex)) {
-          console.error('Question index is not a valid number');
-          return EMPTY; // Stops the stream if the index is not a valid number
+        if (isNaN(questionIndex) || questionIndex < 0) {
+          console.error('Question index is not a valid number or is negative');
+          return EMPTY; // Stops the stream if the index is not a valid number or negative
         }
         return this.handleRouteParams(params);
       }),
@@ -659,7 +659,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           return EMPTY; // Stops the stream if quiz data is invalid
         }
         this.quizService.setActiveQuiz(quizData);
-        if (questionIndex < 0 || questionIndex >= quizData.questions.length) {
+        if (questionIndex >= quizData.questions.length) {
           console.error('Invalid or out-of-bounds question index:', questionIndex);
           return EMPTY; // Stops the stream if the index is out of bounds
         }
@@ -672,8 +672,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       },
       error: (error) => console.error('Failed to process route parameters or load question', error)
     });
-  }  
-
+  }
+  
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
       console.error(`Quiz data is invalid or not loaded for Quiz ID ${this.quizId}`);
