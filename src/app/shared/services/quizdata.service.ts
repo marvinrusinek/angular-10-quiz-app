@@ -294,52 +294,48 @@ export class QuizDataService implements OnDestroy {
     if (this.hasQuestionAndOptionsLoaded && this.currentQuestionIndex === questionIndex) {
       return this.questionAndOptionsSubject.asObservable().pipe(distinctUntilChanged());
     }
-  
+
     // Fetch new data from the API
     return this.fetchQuizDataFromAPI().pipe(
-      switchMap(quizData => this.fetchQuizDataSwitchMap(quizData, quizId, questionIndex)),
+      switchMap(quizData => {
+        if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
+          console.error('Quiz data is empty, null, or improperly formatted');
+          return throwError(() => new Error('Invalid or empty quiz data'));
+        }
+
+        const quiz = quizData.find(quiz => quiz.quizId === quizId);
+        if (!quiz) {
+          console.error(`No quiz found for the quiz ID: '${quizId}'.`);
+          return throwError(() => new Error(`Quiz not found for ID: ${quizId}`));
+        }
+
+        if (this.currentQuestionIndex >= quiz.questions.length || this.currentQuestionIndex < 0) {
+          console.error(`Index ${this.currentQuestionIndex} out of bounds for quiz ID: ${quizId}`);
+          return throwError(() => new Error(`Question index out of bounds: ${this.currentQuestionIndex}`));
+        }
+
+        const currentQuestion = quiz.questions[this.currentQuestionIndex];
+        if (!currentQuestion) {
+          console.error(`No valid question found at index ${this.currentQuestionIndex} for quiz ID: ${quizId}`);
+          return throwError(() => new Error('No valid question found'));
+        }
+
+        if (!currentQuestion.options || currentQuestion.options.length === 0) {
+          console.error(`No options available for the question at index ${this.currentQuestionIndex} for quiz ID: ${quizId}`);
+          return throwError(() => new Error('No options available for the question'));
+        }
+
+        // Ensure the returned observable is of the correct tuple type
+        return of([currentQuestion, currentQuestion.options] as [QuizQuestion, Option[]]);
+      }),
       catchError((error: Error) => {
         console.error('Unhandled error:', error);
         return throwError(() => error);
       }),
       distinctUntilChanged()
-    );    
-  }  
-
-  fetchQuizDataSwitchMap(quizData: any, quizId: string, questionIndex: number): void {
-    switchMap(quizData => {
-      if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
-        console.error('Quiz data is empty, null, or improperly formatted');
-        return throwError(() => new Error('Invalid or empty quiz data'));
-      }
-
-      const quiz = quizData.find(quiz => quiz.quizId === quizId);
-      if (!quiz) {
-        console.error(`No quiz found for the quiz ID: '${quizId}'.`);
-        return throwError(() => new Error(`Quiz not found for ID: ${quizId}`));
-      }
-
-      if (this.currentQuestionIndex >= quiz.questions.length || this.currentQuestionIndex < 0) {
-        console.error(`Index ${this.currentQuestionIndex} out of bounds for quiz ID: ${quizId}`);
-        return throwError(() => new Error(`Question index out of bounds: ${this.currentQuestionIndex}`));
-      }
-
-      const currentQuestion = quiz.questions[this.currentQuestionIndex];
-      if (!currentQuestion) {
-        console.error(`No valid question found at index ${this.currentQuestionIndex} for quiz ID: ${quizId}`);
-        return throwError(() => new Error('No valid question found'));
-      }
-
-      if (!currentQuestion.options || currentQuestion.options.length === 0) {
-        console.error(`No options available for the question at index ${this.currentQuestionIndex} for quiz ID: ${quizId}`);
-        return throwError(() => new Error('No options available for the question'));
-      }
-
-      // Ensure the returned observable is of the correct tuple type
-      return of([currentQuestion, currentQuestion.options] as [QuizQuestion, Option[]]);
-    })
+    );
   }
-
+  
   fetchQuizDataFromAPI(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       catchError((error: HttpErrorResponse) => {
