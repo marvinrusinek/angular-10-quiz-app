@@ -7,6 +7,7 @@ import { isEqual } from 'lodash';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizData } from '../../shared/models/QuizData.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({ providedIn: 'root' })
@@ -290,6 +291,53 @@ export class QuizDataService implements OnDestroy {
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
+    const loadedQuestionAndOptions = this.getLoadedQuestionAndOptions(questionIndex);
+    if (loadedQuestionAndOptions) {
+      return loadedQuestionAndOptions;
+    }
+  
+    return this.fetchAndValidateQuizData(quizId).pipe(
+      switchMap(quiz => this.fetchQuestionAndOptions(quiz, questionIndex)),
+      catchError(error => {
+        console.error('Unhandled error:', error);
+        return throwError(() => error);
+      }),
+      distinctUntilChanged()
+    );
+  }
+
+  private getLoadedQuestionAndOptions(questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
+    if (this.hasQuestionAndOptionsLoaded && this.currentQuestionIndex === questionIndex) {
+      return this.questionAndOptionsSubject.asObservable().pipe(distinctUntilChanged());
+    }
+    return null;
+  }
+
+  private fetchAndValidateQuizData(quizId: string): Observable<
+QuizData[]> {
+  return this.fetchQuizDataFromAPI().pipe(
+    tap(quizData => console.log('Fetched quiz data:', quizData)),
+    switchMap(quizData => {
+      if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
+        console.error('Quiz data is empty, null, or improperly formatted');
+        return throwError(() => new Error('Invalid or empty quiz data'));
+      }
+
+      const quiz = quizData.find(quiz => quiz.quizId.trim().toLowerCase() === quizId.trim().toLowerCase());
+      if (!quiz) {
+        console.error(`No quiz found for the quiz ID: '${quizId}'.`);
+        return throwError(() => new Error(`Quiz not found for ID: ${quizId}`));
+      }
+      return of(quiz);
+    }),
+    catchError(error => {
+      console.error('Error fetching or validating quiz data:', error);
+      return throwError(() => error);
+    })
+  );
+}
+  
+  /* getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
     // Check if the data has already been loaded and the index matches the current question index
     if (this.hasQuestionAndOptionsLoaded && this.currentQuestionIndex === questionIndex) {
       return this.questionAndOptionsSubject.asObservable().pipe(distinctUntilChanged());
@@ -335,7 +383,7 @@ export class QuizDataService implements OnDestroy {
       }),
       distinctUntilChanged()
     );    
-  }
+  } */
   
   fetchQuizDataFromAPI(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
