@@ -713,19 +713,17 @@ export class QuizComponent implements OnInit, OnDestroy {
       }),
       switchMap(data => {
         const { quizData, questionIndex } = data;
-        if (!quizData || !quizData.questions || !Array.isArray(quizData.questions) || questionIndex >= quizData.questions.length) {
-          console.error('Quiz data is invalid or the question index is out of bounds:', data);
+        if (!quizData || typeof quizData !== 'object' || !quizData.questions || !Array.isArray(quizData.questions)) {
+          console.error('Quiz data is missing, not an object, or the questions array is invalid:', quizData);
+          return EMPTY;
+        }
+        if (questionIndex >= quizData.questions.length) {
+          console.error(`Question index ${questionIndex} is out of bounds for questions length ${quizData.questions.length}`);
           return EMPTY;
         }
         this.quizService.setActiveQuiz(quizData);
-        console.log('Fetching question by index...');
-        return this.quizService.getQuestionByIndex(questionIndex).pipe(
-          catchError(error => {
-            console.error('Error fetching question by index:', error);
-            return EMPTY;
-          })
-        );
-      }),
+        return this.quizService.getQuestionByIndex(questionIndex);
+      }),      
       catchError(error => {
         console.error('Observable chain failed:', error);
         return EMPTY;
