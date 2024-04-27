@@ -289,7 +289,7 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  /* getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
+  getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
     const loadedQuestionAndOptions = this.getLoadedQuestionAndOptions(questionIndex);
     if (loadedQuestionAndOptions) {
       return loadedQuestionAndOptions;
@@ -353,9 +353,9 @@ export class QuizDataService implements OnDestroy {
     }
   
     return of([currentQuestion, currentQuestion.options] as [QuizQuestion, Option[]]);
-  } */
+  }
   
-  getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
+  /* getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
     // Check if the data has already been loaded and the index matches the current question index
     if (this.hasQuestionAndOptionsLoaded && this.currentQuestionIndex === questionIndex) {
       return this.questionAndOptionsSubject.asObservable().pipe(distinctUntilChanged());
@@ -401,7 +401,7 @@ export class QuizDataService implements OnDestroy {
       }),
       distinctUntilChanged()
     );    
-  }
+  } */
   
   fetchQuizDataFromAPI(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
