@@ -1037,7 +1037,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* async getQuestion(): Promise<void | null> {
+  async getQuestion(): Promise<void | null> {
     try {
       const quizId = this.activatedRoute.snapshot.params.quizId;
       const currentQuestionIndex = this.currentQuestionIndex;
@@ -1076,57 +1076,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Error fetching question and options:', error);
       return null;
     }
-  } */
+  }  
 
-  async getQuestion(): Promise<void | null> {
-    try {
-      const quizId = this.activatedRoute.snapshot.params.quizId;
-      const currentQuestionIndex = this.currentQuestionIndex;
-  
-      if (!quizId || quizId.trim() === '') {
-        console.error("Quiz ID is required but not provided.");
-        return null;
-      }
-  
-      // Check if currentQuestionIndex is defined and valid
-      if (currentQuestionIndex === undefined || isNaN(currentQuestionIndex) || currentQuestionIndex < 0) {
-        console.error('Invalid currentQuestionIndex:', currentQuestionIndex);
-        // Handle the error condition, such as displaying a message to the user
-        return null;
-      } else {
-        // Call the method with the valid index
-        const [question] = await firstValueFrom(
-          this.quizDataService.getQuestionAndOptions(quizId, currentQuestionIndex).pipe(take(1))
-        ) as [QuizQuestion, Option[]];
-  
-        if (!question) {
-          console.error('No valid question found');
-          return null;
-        }
-  
-        this.question$ = of(question);
-  
-        this.options$ = this.quizDataService.getOptions(
-          quizId,
-          currentQuestionIndex
-        ).pipe(
-          catchError((error: Error) => {
-            console.error('Error fetching options:', error);
-            return EMPTY;
-          })
-        );
-  
-        this.handleQuestion(question);
-  
-        const options = await firstValueFrom(this.options$.pipe(take(1))) as Option[];
-        this.handleOptions(options);
-      }
-    } catch (error) {
-      console.error('Error fetching question and options:', error);
-      return null;
-    }
-  }
-  
   initializeFirstQuestion(): void {
     this.resetQuestionDisplayState();
 
