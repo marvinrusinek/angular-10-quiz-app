@@ -187,7 +187,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    // this.testSubscribeToQuestions();
+    this.testSubscribeToQuestions();
 
     this.questions = this.quizService.getShuffledQuestions();
     // this.updateQuestionDisplayForShuffledQuestions();
@@ -700,21 +700,33 @@ export class QuizComponent implements OnInit, OnDestroy {
         const questionIndex = parseInt(questionIndexStr, 10);
         if (isNaN(questionIndex) || questionIndex < 0) {
           console.error('Question index is not a valid number or is negative:', questionIndexStr);
-          return EMPTY;
+          return EMPTY; // Stops the stream if the index is not valid
         }
         console.log('Received valid index, fetching route parameters...');
-        return this.handleRouteParams(params);
+        return this.handleRouteParams(params).pipe(
+          tap(data => console.log('Route parameters handled, data:', data)),
+          catchError(error => {
+            console.error('Error in handling route parameters:', error);
+            return EMPTY;
+          })
+        );
       }),
-      tap(data => {
-        if (!data.quizData || !data.quizData.questions || !Array.isArray(data.quizData.questions) || data.questionIndex >= data.quizData.questions.length) {
-          console.error('Quiz data is invalid or the question index is out of bounds:', data);
-          throw new Error('Invalid quiz data or index out of bounds'); // Throw to catch in catchError
+      switchMap(data => {
+        const { quizData, questionIndex } = data;
+        if (!quizData || typeof quizData !== 'object' || !quizData.questions || !Array.isArray(quizData.questions)) {
+          console.error('Quiz data is missing, not an object, or the questions array is invalid:', quizData);
+          return EMPTY;
         }
-      }),
-      switchMap(data => this.quizService.getQuestionByIndex(data.questionIndex)),
+        if (questionIndex >= quizData.questions.length) {
+          console.error(`Question index ${questionIndex} is out of bounds for questions length ${quizData.questions.length}`);
+          return EMPTY;
+        }
+        this.quizService.setActiveQuiz(quizData);
+        return this.quizService.getQuestionByIndex(questionIndex);
+      }),      
       catchError(error => {
-        console.error('Failed in observable chain:', error);
-        return EMPTY; // Handle all errors by returning EMPTY, ensuring the chain remains intact
+        console.error('Observable chain failed:', error);
+        return EMPTY;
       })
     ).subscribe({
       next: (question: QuizQuestion | null) => {
@@ -729,7 +741,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: error => console.error('Error during subscription:', error),
       complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
-  }
+  }  
   
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
