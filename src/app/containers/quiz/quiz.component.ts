@@ -1094,9 +1094,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Failed to load questions:', error);
         this.isQuizDataLoaded = true;
-      },
-      complete: () => {
-        console.log('Question loading completed.');
       }
     });
   }
