@@ -434,16 +434,14 @@ export class QuizService implements OnDestroy {
     }
     
     return this.questions$.pipe(
-      map(questions => {
-        console.log(`Current questions array:`, questions); // Log the whole array
-        console.log(`Requested index:`, index); // Log the index being accessed
+      map((questions: QuizQuestion[]) => {
         if (!questions || index < 0 || index >= questions.length) {
           console.log(`Index ${index} is out of bounds, or questions are undefined`);
           return null;
         }
         return questions[index];
       }),
-      catchError(error => {
+      catchError((error: Error) => {
         console.error('Error fetching question:', error);
         return of(null);
       })
