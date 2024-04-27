@@ -683,56 +683,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
   }
 
-  /* private initializeQuizBasedOnRouteParams(): void {
-    this.activatedRoute.paramMap.pipe(
-      switchMap((params: ParamMap) => {
-        const questionIndexStr = params.get('questionIndex');
-        const questionIndex = parseInt(questionIndexStr, 10);
-        if (isNaN(questionIndex) || questionIndex < 0) {
-          console.error('Question index is not a valid number or is negative:', questionIndexStr);
-          return EMPTY; // Stops the stream if the index is not valid
-        }
-        console.log(`Handling route parameters for question index: ${questionIndex}`);
-        return this.handleRouteParams(params).pipe(
-          catchError(error => {
-            console.error('Failed to handle route parameters:', error);
-            return EMPTY; // Ensures an Observable is returned in case of error
-          })
-        );
-      }),
-      switchMap(({ quizData, questionIndex }) => {
-        if (!quizData || !quizData.questions) {
-          console.error('Quiz data or questions array is undefined');
-          return EMPTY;
-        }
-        console.log(`Setting active quiz and processing question at index: ${questionIndex}`);
-        this.quizService.setActiveQuiz(quizData);
-        if (questionIndex >= quizData.questions.length) {
-          console.error('Invalid or out-of-bounds question index:', questionIndex);
-          return EMPTY;
-        }
-        return this.quizService.getQuestionByIndex(questionIndex).pipe(
-          catchError(error => {
-            console.error('Error fetching question by index:', error);
-            return of(null); // Ensures an Observable is returned in case of error
-          })
-        );
-      })
-    ).subscribe({
-      next: (question: QuizQuestion | null) => {
-        if (question) {
-          this.currentQuiz = this.quizService.getActiveQuiz();
-          this.currentQuestion = question;
-          console.log('Question successfully loaded:', question);
-        } else {
-          console.error('No question data available after fetch.');
-        }
-      },
-      error: (error) => console.error('Failed to process route parameters or load question', error),
-      complete: () => console.log('Route parameters processed and question loaded successfully.')
-    });
-  } */
-
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
