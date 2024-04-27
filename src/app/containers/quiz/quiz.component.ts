@@ -187,7 +187,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.testSubscribeToQuestions();
+    // this.testSubscribeToQuestions();
 
     this.questions = this.quizService.getShuffledQuestions();
     // this.updateQuestionDisplayForShuffledQuestions();
@@ -753,17 +753,28 @@ export class QuizComponent implements OnInit, OnDestroy {
       }),
       switchMap(data => {
         const { quizData, questionIndex } = data;
+        console.log('Received quiz data:', quizData);
+        console.log('Question index:', questionIndex);
         if (!quizData || typeof quizData !== 'object' || !quizData.questions || !Array.isArray(quizData.questions)) {
           console.error('Quiz data is missing, not an object, or the questions array is invalid:', quizData);
           return EMPTY;
         }
-        if (questionIndex >= quizData.questions.length) {
-          console.error(`Question index ${questionIndex} is out of bounds for questions length ${quizData.questions.length}`);
+        console.log('Total questions:', quizData.questions.length);
+        
+        // Adjust the last question index to be the maximum index of the questions array
+        const lastIndex = quizData.questions.length - 1;
+        const adjustedIndex = Math.min(questionIndex, lastIndex);
+        
+        // Handle the case where the adjusted index is negative
+        if (adjustedIndex < 0) {
+          console.error('Adjusted question index is negative:', adjustedIndex);
           return EMPTY;
         }
+        
+        // Set the active quiz and retrieve the question by index
         this.quizService.setActiveQuiz(quizData);
-        return this.quizService.getQuestionByIndex(questionIndex);
-      }),      
+        return this.quizService.getQuestionByIndex(adjustedIndex);
+      }),         
       catchError(error => {
         console.error('Observable chain failed:', error);
         return EMPTY;
@@ -781,7 +792,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: error => console.error('Error during subscription:', error),
       complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
-  }  
+  }
+    
   
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
