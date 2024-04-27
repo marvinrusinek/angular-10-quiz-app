@@ -315,26 +315,46 @@ export class QuizDataService implements OnDestroy {
 
   private fetchAndValidateQuizData(quizId: string): Observable<
 QuizData[]> {
-    return this.fetchQuizDataFromAPI().pipe(
-      tap(quizData => console.log('Fetched quiz data:', quizData)),
-      switchMap(quizData => {
-        if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
-          console.error('Quiz data is empty, null, or improperly formatted');
-          return throwError(() => new Error('Invalid or empty quiz data'));
-        }
+  return this.fetchQuizDataFromAPI().pipe(
+    tap(quizData => console.log('Fetched quiz data:', quizData)),
+    switchMap(quizData => {
+      if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
+        console.error('Quiz data is empty, null, or improperly formatted');
+        return throwError(() => new Error('Invalid or empty quiz data'));
+      }
+  
+      const quiz = quizData.find(quiz => quiz.quizId.trim().toLowerCase() === quizId.trim().toLowerCase());
+      if (!quiz) {
+        console.error(`No quiz found for the quiz ID: '${quizId}'.`);
+        return throwError(() => new Error(`Quiz not found for ID: ${quizId}`));
+      }
+      return of(quiz);
+    }),
+    catchError(error => {
+      console.error('Error fetching or validating quiz data:', error);
+      return throwError(() => error);
+    })
+  );
+  }
 
-        const quiz = quizData.find(quiz => quiz.quizId.trim().toLowerCase() === quizId.trim().toLowerCase());
-        if (!quiz) {
-          console.error(`No quiz found for the quiz ID: '${quizId}'.`);
-          return throwError(() => new Error(`Quiz not found for ID: ${quizId}`));
-        }
-        return of(quiz);
-      }),
-      catchError(error => {
-        console.error('Error fetching or validating quiz data:', error);
-        return throwError(() => error);
-      })
-    );
+  private fetchQuestionAndOptions(quiz: Quiz, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
+    if (questionIndex >= quiz.questions.length || questionIndex < 0) {
+      console.error(`Index ${questionIndex} out of bounds for quiz ID: ${quiz.quizId}`);
+      return throwError(() => new Error(`Question index out of bounds: ${questionIndex}`));
+    }
+  
+    const currentQuestion = quiz.questions[questionIndex];
+    if (!currentQuestion) {
+      console.error(`No valid question found at index ${questionIndex} for quiz ID: ${quiz.quizId}`);
+      return throwError(() => new Error('No valid question found'));
+    }
+  
+    if (!currentQuestion.options || currentQuestion.options.length === 0) {
+      console.error(`No options available for the question at index ${questionIndex} for quiz ID: ${quiz.quizId}`);
+      return throwError(() => new Error('No options available for the question'));
+    }
+  
+    return of([currentQuestion, currentQuestion.options] as [QuizQuestion, Option[]]);
   }
   
   /* getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
