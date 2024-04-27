@@ -1134,7 +1134,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         return of(null);
       })
     ).subscribe({
-      next: (question) => {
+      next: (question: QuizQuestion | null) => {
         if (question) {
           this.currentQuestion = question;
           this.options = question.options;
