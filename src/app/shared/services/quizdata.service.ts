@@ -368,7 +368,6 @@ export class QuizDataService implements OnDestroy {
   
     // Fetch new data from the API
     return this.fetchQuizDataFromAPI().pipe(
-      tap(quizData => console.log('Fetched quiz data:', quizData)),
       switchMap(quizData => {
         if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
           console.error('Quiz data is empty, null, or improperly formatted');
@@ -400,7 +399,7 @@ export class QuizDataService implements OnDestroy {
         // Ensure the returned observable is of the correct tuple type
         return of([currentQuestion, currentQuestion.options] as [QuizQuestion, Option[]]);
       }),
-      catchError(error => {
+      catchError((error: Error) => {
         console.error('Unhandled error:', error);
         return throwError(() => error);
       }),
