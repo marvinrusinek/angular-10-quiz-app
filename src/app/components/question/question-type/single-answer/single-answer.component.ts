@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
+  NgZone,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -60,7 +61,8 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     activatedRoute: ActivatedRoute,
     fb: FormBuilder,
     cdRef: ChangeDetectorRef,
-    router: Router
+    router: Router,
+    ngZone: NgZone
   ) {
     super(
       quizService,
@@ -75,7 +77,8 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
       activatedRoute,
       fb,
       cdRef,
-      router
+      router,
+      ngZone
     );
     this.quizService = quizService;
     this.quizDataService = quizDataService;
