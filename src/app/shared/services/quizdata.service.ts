@@ -299,46 +299,42 @@ export class QuizDataService implements OnDestroy {
     return this.fetchQuizDataFromAPI().pipe(
       tap(quizData => console.log('Fetched quiz data:', quizData)),
       switchMap(quizData => {
-        // Error if quizData is invalid
         if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
           console.error('Quiz data is empty, null, or improperly formatted');
           return throwError(() => new Error('Invalid or empty quiz data'));
         }
-  
-        // Finding the quiz
+    
         const quiz = quizData.find(quiz => quiz.quizId.trim().toLowerCase() === quizId.trim().toLowerCase());
         if (!quiz) {
           console.error(`No quiz found for the quiz ID: '${quizId}'.`);
           return throwError(() => new Error(`Quiz not found for ID: ${quizId}`));
         }
-
-        // Error if index is out of bounds
+    
         if (this.currentQuestionIndex >= quiz.questions.length || this.currentQuestionIndex < 0) {
           console.error(`Index ${this.currentQuestionIndex} out of bounds for quiz ID: ${quizId}`);
           return throwError(() => new Error(`Question index out of bounds: ${this.currentQuestionIndex}`));
         }
-  
+    
         const currentQuestion = quiz.questions[this.currentQuestionIndex];
         if (!currentQuestion) {
           console.error(`No valid question found at index ${this.currentQuestionIndex} for quiz ID: ${quizId}`);
           return throwError(() => new Error('No valid question found'));
         }
-  
-        // Error if no options are available
+    
         if (!currentQuestion.options || currentQuestion.options.length === 0) {
           console.error(`No options available for the question at index ${this.currentQuestionIndex} for quiz ID: ${quizId}`);
           return throwError(() => new Error('No options available for the question'));
         }
-  
-        // Successful return of question and options
-        return of([currentQuestion, currentQuestion.options]);
+    
+        // Ensure the returned observable is of the correct tuple type
+        return of([currentQuestion, currentQuestion.options] as [QuizQuestion, Option[]]);
       }),
       catchError(error => {
         console.error('Unhandled error:', error);
         return throwError(() => error);
       }),
       distinctUntilChanged()
-    );
+    );    
   }
   
   fetchQuizDataFromAPI(): Observable<Quiz[]> {
