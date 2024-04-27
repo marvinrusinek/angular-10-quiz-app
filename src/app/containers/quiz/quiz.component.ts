@@ -651,7 +651,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           return;
         }
 
-        console.log(`Question index: ${questionIndex}, Number of questions: ${quizData.questions.length}`);
         this.quizService.setActiveQuiz(quizData);
         
         this.quizService.getQuestionByIndex(questionIndex).subscribe({
