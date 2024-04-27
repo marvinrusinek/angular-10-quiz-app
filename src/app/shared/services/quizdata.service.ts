@@ -296,6 +296,10 @@ export class QuizDataService implements OnDestroy {
     }
 
     // Fetch new data from the API
+    this.fetchNewDataFromAPI(quizId);
+  }
+  
+  fetchNewDataFromAPI(quizId: string): Observable<[QuizQuestion, Option[]]> {
     return this.fetchQuizDataFromAPI().pipe(
       switchMap((quizData: any) => {
         if (!quizData || !Array.isArray(quizData) || quizData.length === 0) {
@@ -335,7 +339,8 @@ export class QuizDataService implements OnDestroy {
       distinctUntilChanged()
     );
   }
-  
+
+
   fetchQuizDataFromAPI(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       catchError((error: HttpErrorResponse) => {
