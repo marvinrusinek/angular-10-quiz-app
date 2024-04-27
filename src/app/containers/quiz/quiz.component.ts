@@ -643,7 +643,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
   }
 
-  private initializeQuizBasedOnRouteParams(): void {
+  /* private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
         const questionIndexStr = params.get('questionIndex');
@@ -689,6 +689,44 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => console.error('Failed to process route parameters or load question', error),
+      complete: () => console.log('Route parameters processed and question loaded successfully.')
+    });
+  } */
+
+  private initializeQuizBasedOnRouteParams(): void {
+    this.activatedRoute.paramMap.pipe(
+      switchMap((params: ParamMap) => {
+        const questionIndexStr = params.get('questionIndex');
+        const questionIndex = parseInt(questionIndexStr, 10);
+        if (isNaN(questionIndex) || questionIndex < 0) {
+          console.error('Question index is not a valid number or is negative:', questionIndexStr);
+          return EMPTY; // Stops the stream if the index is not valid
+        }
+        return this.handleRouteParams(params);
+      }),
+      switchMap(({ quizData, questionIndex }) => {
+        if (!quizData || !quizData.questions || questionIndex >= quizData.questions.length) {
+          console.error('Quiz data or questions array is undefined or index out of bounds');
+          return EMPTY;
+        }
+        this.quizService.setActiveQuiz(quizData);
+        return this.quizService.getQuestionByIndex(questionIndex);
+      }),
+      catchError(error => {
+        console.error('Failed to process route parameters or load question:', error);
+        return EMPTY;
+      })
+    ).subscribe({
+      next: (question: QuizQuestion | null) => {
+        if (question) {
+          this.currentQuiz = this.quizService.getActiveQuiz();
+          this.currentQuestion = question;
+          console.log('Question successfully loaded:', question);
+        } else {
+          console.error('No question data available after fetch.');
+        }
+      },
+      error: error => console.error('Error during subscription:', error),
       complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
   }
