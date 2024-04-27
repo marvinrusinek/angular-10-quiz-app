@@ -301,8 +301,8 @@ export class QuizDataService implements OnDestroy {
     }  
   
     return this.fetchAndValidateQuizData(quizId).pipe(
-      switchMap(quiz => this.fetchQuestionAndOptions(quiz, questionIndex)),
-      catchError(error => {
+      switchMap((quiz: Quiz) => this.fetchQuestionAndOptions(quiz, questionIndex)),
+      catchError((error: Error) => {
         console.error('Unhandled error:', error);
         return throwError(() => error);
       }),
