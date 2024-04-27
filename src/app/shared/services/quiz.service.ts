@@ -1391,13 +1391,13 @@ export class QuizService implements OnDestroy {
           console.error('Failed to fetch or process questions:', error);
           return throwError(() => new Error('Error processing quizzes'));
         })
-      ).subscribe(
-        (questions: QuizQuestion[]) => {
-          this.questions$.next(questions);  // Emitting the shuffled questions
+      ).subscribe({
+        next: (questions: QuizQuestion[]) => {
+          this.questions$.next(questions); // Emitting the shuffled questions
           console.log("Emitting shuffled questions from service:", questions.map(q => q.questionText));
         },
-        error => console.error('Error in subscription:', error)
-      );
+        error: (error) => console.error('Error in subscription:', error)
+      });
   }
 
   getShuffledQuestions(): QuizQuestion[] {
