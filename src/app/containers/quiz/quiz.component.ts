@@ -1237,7 +1237,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
+  /* handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
     const quizId = params.get('quizId');
     const questionIndex = parseInt(params.get('questionIndex'), 10);
 
@@ -1252,6 +1252,33 @@ export class QuizComponent implements OnInit, OnDestroy {
       catchError(error => {
         console.error(`Error processing quiz data for quizId ${quizId}:`, error);
         return throwError(() => new Error('Failed to load quiz data'));
+      })
+    );
+  } */
+
+  handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
+    const quizId = params.get('quizId');
+    if (!quizId) {
+      console.error('Quiz ID is missing');
+      return throwError(() => new Error('Quiz ID is required'));
+    }
+    const questionIndex = parseInt(params.get('questionIndex'), 10);
+    if (isNaN(questionIndex)) {
+      console.error('Question index is not a valid number:', params.get('questionIndex'));
+      return throwError(() => new Error('Invalid question index'));
+    }
+
+    return this.quizService.getQuizData().pipe(
+      map((quizzes: Quiz[]) => {
+        const quizData = quizzes.find(quiz => quiz.quizId === quizId);
+        if (!quizData) {
+          throw new Error('Quiz not found');
+        }
+        return { quizId, questionIndex, quizData };
+      }),
+      catchError(error => {
+        console.error('Error processing quiz data:', error);
+        return throwError(() => new Error('Failed to process quiz data'));
       })
     );
   }
