@@ -686,10 +686,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
-        const questionIndexStr = params.get('questionIndex');
-        const questionIndex = parseInt(questionIndexStr, 10);
+        const questionIndex = +params.get('questionIndex');
         if (isNaN(questionIndex) || questionIndex < 0) {
-          console.error('Question index is not a valid number or is negative:', questionIndexStr);
+          console.error('Question index is not a valid number or is negative:', questionIndex);
           return EMPTY;
         }
         return this.handleRouteParams(params).pipe(
