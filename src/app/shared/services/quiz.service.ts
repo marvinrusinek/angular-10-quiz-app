@@ -427,6 +427,12 @@ export class QuizService implements OnDestroy {
   }
 
   getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
+    // Ensure questions$ is always a valid Observable
+    if (!this.questions$) {
+      console.error('Questions observable is undefined');
+      return of(null);
+    }
+    
     return this.questions$.pipe(
       map(questions => {
         console.log(`Current questions array:`, questions); // Log the whole array
