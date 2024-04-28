@@ -336,12 +336,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   loadQuestion(index: number): void {
-    this.quizService.getQuestionByIndex(index).pipe(
+    this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe(
-      (data: QuizQuestion) => {
-        if (data.questions && data.questions.length > 0 && data.questions[0].questions && index < data.questions[0].questions.length) {
-          const question = data.questions[0].questions[index];
+      (data: QuizData) => {
+        if (data.questions && index < data.questions.length) {
+          const question = data.questions[index];
           this.questionToDisplay = question.questionText;
         } else {
           console.error('Question data is not in the expected format or the index is out of bounds');
@@ -351,7 +351,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Error loading the question: ', error);
       }
     );
-  }
+  }  
 
   updateQuestionAndOptions(): void {
     if (this.questionIndex == null || isNaN(this.questionIndex)) {
