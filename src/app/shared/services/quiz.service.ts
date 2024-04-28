@@ -276,27 +276,14 @@ export class QuizService implements OnDestroy {
     this.indexOfQuizId = index;
   }
 
-  getQuestion(index: number) {
-    if (index >= 0 && index < this.questions.length) {
-      return this.questions[index];
-    } else {
-      console.error('Invalid question index');
-      return null;
-    }
+  getQuestions(index: number) {
+    return index >= 0 && index < this.questions.length ? this.questions[index] : null;
   }
-  
 
   getOptions(index: number) {
-    console.log('Index:', index, 'Total Questions:', this.questions.length);
-    if (index >= 0 && index < this.questions.length) {
-      return this.questions[index].options;
-    } else {
-      console.error('Invalid question index');
-      return [];
-    }
+    return index >= 0 && index < this.questions.length ? this.questions[index].options : [];
   }
   
-
   private loadData(): void {
     this.initializeQuizData();
     this.loadRouteParams();
