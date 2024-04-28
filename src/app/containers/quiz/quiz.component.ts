@@ -437,6 +437,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1;
   }
 
+  getQuestionAndOptions(quizId: string, questionIndex: number): void {
+    // Fetch the question and options using the QuizDataService
+    this.questionAndOptionsSubscription = this.quizDataService.getQuestionAndOptions(quizId, questionIndex).subscribe({
+      next: ([question, options]) => {
+        // Update component state or variables to reflect the new question and options
+        this.question = question;
+        this.options = options;
+      },
+      error: error => {
+        console.error('Error fetching question and options:', error);
+      }
+    });
+  }
+
   checkAndDisplayCorrectAnswers(): void {
     const multipleAnswerQuestionIndex = this.findCurrentMultipleAnswerQuestionIndex();
     if (this.quizService.isAnswered(multipleAnswerQuestionIndex)) {
