@@ -200,7 +200,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       })
     ); */
 
-    this.activatedRoute.data.subscribe(data => {
+    /* this.activatedRoute.data.subscribe(data => {
       this.quiz = data.quizData;
       if (this.quiz && this.quiz.questions) {
         // Attempt to parse the 'questionIndex' parameter and subtract 1 to adjust for zero-based indexing
@@ -216,12 +216,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       } else {
         console.error('Quiz data is missing or invalid.');
       }
-    });    
+    }); */
+
+    this.activatedRoute.paramMap.subscribe(params => {
+      const questionIndex = +params.get('questionIndex'); // Get the id parameter and convert to number
+      this.loadQuestion(questionIndex);
+    });
 
     this.subscribeToAnswers();
     this.subscriptionToOptions();
     // this.quizService.initializeSounds();
     this.logFinalData();
+  }
+
+  loadQuestion(index: number): void {
+    this.question = this.quizService.getQuestion(index);
+    this.options = this.quizService.getOptions(index);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
