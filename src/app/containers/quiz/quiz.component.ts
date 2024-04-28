@@ -354,6 +354,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.questionToDisplay = 'Test Question?';
           // question.questionText.toString();
           this.optionsToDisplay = question.options;
+          this.explanationToDisplay = question.explanation;
           console.log('Displaying question:', this.questionToDisplay);
           console.log('With options:', this.options);
         } else {
