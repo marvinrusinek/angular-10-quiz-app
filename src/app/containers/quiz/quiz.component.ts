@@ -252,10 +252,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     }); */
 
     this.activatedRoute.paramMap.subscribe(params => {
-      const questionIndex = +params.get('questionIndex'); // Ensure 'questionIndex' is the correct param name
-      if (questionIndex >= 0) {
-        this.loadQuestion(questionIndex);
-      }
+      const questionIndex = +params.get('questionIndex');
+      console.log('Question Index:', questionIndex); // Log the index to ensure it's being parsed correctly
+      this.loadQuestion(questionIndex);
     });
 
 
@@ -320,13 +319,15 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadQuestion(index: number) {
-    const questionData = this.quizService.getQuestion(index);
+    const questionData = this.quizService.getQuestions(index);
     if (questionData) {
       this.questionToDisplay = questionData.questionText;
       this.optionsToDisplay = this.quizService.getOptions(index);
+      console.log('Question:', this.questionToDisplay); // Log the question
+      console.log('Options:', this.optionsToDisplay); // Log the options
     } else {
       console.log('No question data found for index:', index);
-      this.questionToDisplay = '';
+      this.questionToDisplay = 'No question found';
       this.optionsToDisplay = [];
     }
   }
