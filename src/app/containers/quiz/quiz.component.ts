@@ -230,8 +230,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         return this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex);
       })
     ).subscribe(data => {
-      // Assign the fetched question and options to question$
-      this.question$ = data;
+      this.questionToDisplay = this.quizService.getQuestion(this.currentQuestionIndex).questionText;
+      this.optionsToDisplay = this.quizService.getOptions(this.currentQuestionIndex);
     });
 
 
