@@ -345,12 +345,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe(
-      (questions: any[]) => {
+      (questions: QuizQuestion[]) => {
         console.log('Received data:', questions);
         if (questions && index >= 0 && index < questions.length) {
           const question = questions[index];
           this.questionToDisplay = question.questionText;
           this.options = question.options;
+          console.log('Displaying question:', this.questionToDisplay);
+          console.log('With options:', this.options);
         } else {
           console.error('Question data is not in the expected format or the index is out of bounds');
         }
@@ -359,7 +361,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Error loading the question: ', error);
       }
     );
-  }
+  }  
 
   updateQuestionAndOptions(): void {
     if (this.questionIndex == null || isNaN(this.questionIndex)) {
