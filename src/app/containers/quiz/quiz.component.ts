@@ -1072,7 +1072,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
   
-
   initializeFirstQuestion(): void {
     this.resetQuestionDisplayState();
 
@@ -1204,8 +1203,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Subscription for getting the current question observable
     this.quizService.getCurrentQuestionObservable().pipe(
       retry(2),
-      filter(question => question !== null),
-      catchError(error => {
+      filter((question: QuizQuestion) => question !== null),
+      catchError((error: Error) => {
         console.error('Error when subscribing to current question:', error);
         return of(null);
       })
