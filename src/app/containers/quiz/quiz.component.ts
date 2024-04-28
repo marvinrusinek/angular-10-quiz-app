@@ -279,6 +279,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   loadQuestion(index: number): void {
     console.log("EXPL", this.explanationTextService.getFormattedExplanationTextForQuestion(index - 1));
+
+    // Ensure that index is always within the valid range before making this call
+    if (index - 1 < 0 || index - 1 >= this.totalQuestions) {
+      console.error('Index out of range:', index - 1);
+      return;
+    }
+
     this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index - 1);
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$)
