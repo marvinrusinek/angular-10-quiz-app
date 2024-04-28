@@ -339,14 +339,31 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.getQuestionByIndex(index).pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe(
-      question => {
-        this.questionToDisplay = question;
+      data => {
+        console.log('Quiz data loaded:', data); // Log the entire data object
+  
+        // Check if the data and the necessary nested structures exist
+        if (data && data.questions && data.questions.length > 0 && data.questions[0].questions && index < data.questions[0].questions.length) {
+          const question = data.questions[0].questions[index];
+          if (question) {
+            console.log('Specific question object:', question); // Log the specific question object
+            this.questionToDisplay = question.questionText;
+            console.log('Question text set to:', this.questionToDisplay); // Verify it's set correctly
+          } else {
+            console.error('Question object is null or undefined');
+          }
+        } else {
+          console.error('Question data is not in the expected format or the index is out of bounds');
+        }
       },
       error => {
         console.error('Error loading the question: ', error);
       }
     );
   }
+  
+  
+  
   
 
   updateQuestionAndOptions(): void {
