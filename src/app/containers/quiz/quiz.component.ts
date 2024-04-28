@@ -342,13 +342,15 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   loadQuestion(index: number): void {
+    console.log('Requested index:', index, 'Adjusted index (zero-based):', index - 1);
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe(
-      (questions: QuizQuestion[]) => {
-        console.log('Received data:', questions);
-        if (questions && index >= 0 && index < questions.length) {
-          const question = questions[index];
+      (questions: QuizQuestion[]) => {  // Assuming QuizQuestion is your defined type
+        console.log('Total questions:', questions.length);
+  
+        if (questions && index - 1 >= 0 && index - 1 < questions.length) {
+          const question = questions[index - 1];
           this.questionToDisplay = question.questionText;
           this.options = question.options;
           console.log('Displaying question:', this.questionToDisplay);
@@ -361,7 +363,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Error loading the question: ', error);
       }
     );
-  }  
+  }
+  
 
   updateQuestionAndOptions(): void {
     if (this.questionIndex == null || isNaN(this.questionIndex)) {
