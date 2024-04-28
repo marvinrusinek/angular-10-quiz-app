@@ -236,7 +236,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.optionsToDisplay = this.quizService.getOptions(this.currentQuestionIndex);
     }); */
 
-    this.activatedRoute.paramMap.pipe(
+    /* this.activatedRoute.paramMap.pipe(
       switchMap(params => {
         const questionIndex = +params.get('questionIndex');
         return this.quizDataService.getQuestionAndOptions(this.quizId, questionIndex);
@@ -249,7 +249,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.optionsToDisplay = data.options;
       },
       error: error => console.error('Error fetching data:', error)
-    });
+    }); */
+
+    this.questionToDisplay = this.quizService.getQuestions(this.currentQuestionIndex).questionText;
+    this.optionsToDisplay = this.quizService.getOptions(this.currentQuestionIndex);
 
 
 
