@@ -251,8 +251,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: error => console.error('Error fetching data:', error)
     }); */
 
-    this.questionToDisplay = this.quizService.getQuestions(this.currentQuestionIndex).questionText;
-    this.optionsToDisplay = this.quizService.getOptions(this.currentQuestionIndex);
+    this.activatedRoute.paramMap.subscribe(params => {
+      const questionIndex = +params.get('questionIndex'); // Ensure 'questionIndex' is the correct param name
+      if (questionIndex >= 0) {
+        this.loadQuestion(questionIndex);
+      }
+    });
 
 
 
@@ -313,6 +317,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.src = "http://www.marvinrusinek.com/sound-correct.mp3";
     audio.load();
     audio.play();
+  }
+
+  loadQuestion(index: number) {
+    const questionData = this.quizService.getQuestion(index);
+    if (questionData) {
+      this.questionToDisplay = questionData.questionText;
+      this.optionsToDisplay = this.quizService.getOptions(index);
+    } else {
+      console.log('No question data found for index:', index);
+      this.questionToDisplay = '';
+      this.optionsToDisplay = [];
+    }
   }
 
   updateQuestionAndOptions(): void {
