@@ -252,9 +252,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     }); */
 
     this.activatedRoute.paramMap.subscribe(params => {
-      const questionIndex = +params.get('questionIndex');
-      console.log('Question Index:', questionIndex); // Log the index to ensure it's being parsed correctly
-      this.loadQuestion(questionIndex);
+      const questionIndex = +params.get('questionIndex'); // Make sure 'questionIndex' is the correct param name
+      if (!isNaN(questionIndex) && questionIndex >= 0) {
+        this.loadQuestion(questionIndex);
+      } else {
+        console.error('Invalid or missing question index from URL:', questionIndex);
+      }
     });
 
 
@@ -319,18 +322,17 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadQuestion(index: number) {
+    console.log("Loading question for index:", index);
     const questionData = this.quizService.getQuestions(index);
     if (questionData) {
       this.questionToDisplay = questionData.questionText;
       this.optionsToDisplay = this.quizService.getOptions(index);
-      console.log('Question:', this.questionToDisplay); // Log the question
-      console.log('Options:', this.optionsToDisplay); // Log the options
     } else {
-      console.log('No question data found for index:', index);
       this.questionToDisplay = 'No question found';
       this.optionsToDisplay = [];
     }
   }
+  
 
   updateQuestionAndOptions(): void {
     if (this.questionIndex == null || isNaN(this.questionIndex)) {

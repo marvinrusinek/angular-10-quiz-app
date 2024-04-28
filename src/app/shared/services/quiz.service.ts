@@ -277,11 +277,17 @@ export class QuizService implements OnDestroy {
   }
 
   getQuestions(index: number) {
-    return index >= 0 && index < this.questions.length ? this.questions[index] : null;
+    console.log("Accessing questions at index:", index);
+    if (this.questions && index >= 0 && index < this.questions.length) {
+      return this.questions[index];
+    } else {
+      console.error('Invalid index or questions not initialized:', index);
+      return null;
+    }
   }
 
   getOptions(index: number) {
-    return index >= 0 && index < this.questions.length ? this.questions[index].options : [];
+    return this.getQuestions(index) ? this.questions[index].options : [];
   }
   
   private loadData(): void {
