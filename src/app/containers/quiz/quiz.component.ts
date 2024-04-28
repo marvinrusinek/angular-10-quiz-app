@@ -351,8 +351,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   
         if (questions && index - 1 >= 0 && index - 1 < questions.length) {
           const question = questions[index - 1];
-          this.questionToDisplay = question.questionText;
-          this.options = question.options;
+          this.questionToDisplay = 'Test Question?';
+          // question.questionText.toString();
+          this.optionsToDisplay = question.options;
           console.log('Displaying question:', this.questionToDisplay);
           console.log('With options:', this.options);
         } else {
