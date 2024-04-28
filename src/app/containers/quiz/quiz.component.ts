@@ -134,15 +134,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   shouldDisplayCorrectAnswersFlag = false;
 
   questionToDisplay = '';
-  // questionToDisplay: QuizQuestion;
   optionsToDisplay: Option[] = [];
   explanationToDisplay = '';
   isExplanationVisible = false;
 
   questionsArray: QuizQuestion[] = [];
   isQuizDataLoaded = false;
-
-  subscription: Subscription;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
