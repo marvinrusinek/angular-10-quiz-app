@@ -278,6 +278,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadQuestion(index: number): void {
+    this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index - 1);
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe(
@@ -289,7 +290,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.questionToDisplay = 'Test Question?';
           // question.questionText.toString();
           this.optionsToDisplay = question.options;
-          this.explanationToDisplay = question.explanation;
           console.log('Displaying question:', this.questionToDisplay);
           console.log('With options:', this.options);
         } else {
