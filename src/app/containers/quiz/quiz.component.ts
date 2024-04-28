@@ -61,7 +61,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizQuestions: QuizQuestion[];
   question!: QuizQuestion;
   questions: QuizQuestion[];
-  question$!: Observable<QuizQuestion>;
+  // question$!: Observable<QuizQuestion>;
+  question$: Observable<[QuizQuestion, Option[]]>;
   questions$: Observable<QuizQuestion[]>;
   currentQuestion: QuizQuestion;
   currentQuestion$!: Observable<QuizQuestion | null>;
@@ -213,13 +214,27 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.subscribeToCurrentQuestion();
 
     // Subscribe to route params to detect changes in the question index
-    this.routeParamsSubscription = this.activatedRoute.params.subscribe(params => {
+    /* this.routeParamsSubscription = this.activatedRoute.params.subscribe(params => {
       const quizId = params.quizId;
       const questionIndex = +params.questionIndex; // Convert to number
 
       // Call getQuestionAndOptions with the updated quiz ID and question index
       this.getQuestionAndOptions(quizId, questionIndex);
+    }); */
+
+    this.activatedRoute.paramMap.pipe(
+      switchMap(params => {
+        this.quizId = params.get('quizId');
+        this.questionIndex = +params.get('questionIndex'); // Convert to number
+        // Fetch question and options based on quizId and questionIndex
+        return this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex);
+      })
+    ).subscribe(data => {
+      // Assign the fetched question and options to question$
+      this.question$ = data;
     });
+
+
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
