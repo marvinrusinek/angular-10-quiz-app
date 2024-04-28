@@ -212,59 +212,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    // Subscribe to route params to detect changes in the question index
-    /* this.routeParamsSubscription = this.activatedRoute.params.subscribe(params => {
-      const quizId = params.quizId;
-      const questionIndex = +params.questionIndex; // Convert to number
-
-      // Call getQuestionAndOptions with the updated quiz ID and question index
-      this.getQuestionAndOptions(quizId, questionIndex);
-    }); */
-
-    /* this.activatedRoute.paramMap.pipe(
-      switchMap(params => {
-        this.quizId = params.get('quizId');
-        this.questionIndex = +params.get('questionIndex'); // Convert to number
-        // Fetch question and options based on quizId and questionIndex
-        return this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex);
-      })
-    ).subscribe(data => {
-      this.questionToDisplay = this.quizService.getQuestion(this.currentQuestionIndex).questionText;
-      this.optionsToDisplay = this.quizService.getOptions(this.currentQuestionIndex);
-    }); */
-
-    /* this.activatedRoute.paramMap.pipe(
-      switchMap(params => {
-        const questionIndex = +params.get('questionIndex');
-        return this.quizDataService.getQuestionAndOptions(this.quizId, questionIndex);
-      }),
-      tap(data => console.log('Data fetched:', data)), // Debugging output
-      first() // Ensure subscription completes after the first received value
-    ).subscribe({
-      next: (data: QuizQuestion) => {
-        this.questionToDisplay = data.questionText;
-        this.optionsToDisplay = data.options;
-      },
-      error: error => console.error('Error fetching data:', error)
-    }); */
-
-    /* this.activatedRoute.paramMap.subscribe(params => {
-      const questionIndex = +params.get('questionIndex');
-      if (!isNaN(questionIndex) && questionIndex >= 0) {
-        this.loadQuestion(questionIndex);
-      } else {
-        console.error('Invalid or missing question index from URL:', questionIndex);
-      }
-    }); */
-
     this.activatedRoute.params.pipe(
       map(params => +params['questionIndex'])
     ).subscribe(index => {
       this.loadQuestion(index);
     });
-    
-
-
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
@@ -325,25 +277,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  /* loadQuestion(index: number) {
-    console.log("Loading question for index:", index);
-    const questionData = this.quizService.getQuestions(index);
-    if (questionData) {
-      this.questionToDisplay = this.quizService.getQuestionByIndex(index).questionText;
-      this.optionsToDisplay = this.quizService.getQuestionByIndex(index).options;
-    } else {
-      this.questionToDisplay = 'No question found';
-      this.optionsToDisplay = [];
-      console.log('No question data found for index:', index);
-    }
-  } */
-
   loadQuestion(index: number): void {
-    console.log('Requested index:', index, 'Adjusted index (zero-based):', index - 1);
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe(
-      (questions: QuizQuestion[]) => {  // Assuming QuizQuestion is your defined type
+      (questions: QuizQuestion[]) => {
         console.log('Total questions:', questions.length);
   
         if (questions && index - 1 >= 0 && index - 1 < questions.length) {
