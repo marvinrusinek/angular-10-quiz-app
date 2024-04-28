@@ -276,6 +276,14 @@ export class QuizService implements OnDestroy {
     this.indexOfQuizId = index;
   }
 
+  getQuestion(index: number) {
+    return this.questions[index];
+  }
+
+  getOptions(index: number) {
+    return this.questions[index].options;
+  }
+
   private loadData(): void {
     this.initializeQuizData();
     this.loadRouteParams();
