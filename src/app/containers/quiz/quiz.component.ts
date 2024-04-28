@@ -72,6 +72,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject(null);
   routerSubscription: Subscription;
   subscription: Subscription;
+  private routeParamsSubscription: Subscription;
+  private questionAndOptionsSubscription: Subscription;
   private currentQuestionSubscriptions = new Subscription();
   resources: Resource[];
   answers = [];
@@ -210,57 +212,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    // trying to get the routing working via URL
-    /* this.activatedRoute.paramMap.pipe(
-      switchMap(params => {
-        this.quizId = params.get('quizId');
-        this.questionIndex = parseInt(params.get('questionIndex'), 10) - 1;
-        return this.quizDataService.getQuizById(this.quizId);
-      })
-    ).subscribe(quiz => {
-      this.quiz = quiz;
-      if (quiz && quiz.questions && this.questionIndex >= 0 && this.questionIndex < quiz.questions.length) {
-        this.currentQuestion = quiz.questions[this.questionIndex];
-      } else {
-        console.error('Question index out of range or quiz data is invalid.');
-      }
-    }, error => console.error('Error loading the quiz:', error)); */
+    // Subscribe to route params to detect changes in the question index
+    this.routeParamsSubscription = this.activatedRoute.params.subscribe(params => {
+      const quizId = params.quizId;
+      const questionIndex = +params.questionIndex; // Convert to number
 
-    /* this.routeSub = this.activatedRoute.params.subscribe(params => {
-      this.questionIndex = +params['questionIndex']; // Ensure conversion to number
-      this.updateQuestionAndOptions();
-    }); */
-
-    this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
-      const indexParam = params.get('questionIndex');
-
-      if (indexParam !== null) {
-        this.questionIndex = parseInt(indexParam, 10);
-          
-        if (!isNaN(this.questionIndex)) {
-          this.updateQuestionAndOptions();
-        } else {
-          console.error('Invalid questionIndex:', indexParam);
-        }
-      } else {
-        console.error('Missing questionIndex parameter');
-      }
+      // Call getQuestionAndOptions with the updated quiz ID and question index
+      this.getQuestionAndOptions(quizId, questionIndex);
     });
-    
-    /* this.activatedRoute.paramMap.pipe(
-      switchMap(params => {
-        const quizId = params.get('quizId');
-        const questionIndex = +params.get('questionIndex');
-        return this.getQuestion(quizId, questionIndex); // Now this returns an Observable
-      })
-    ).subscribe(
-      question => {
-        this.currentQuestion = question as QuizQuestion;
-      },
-      error => {
-        console.error('Failed to load the question.', error);
-      }
-    ); */
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
@@ -440,9 +399,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
     this.selectedQuiz$.next(null);
     this.routerSubscription.unsubscribe();
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    this.subscription?.unsubscribe();
+    this.routeParamsSubscription.unsubscribe();
+    this.questionAndOptionsSubscription?.unsubscribe();
     this.currentQuestionSubscriptions.unsubscribe();
     this.timerService.stopTimer(null);
   }
