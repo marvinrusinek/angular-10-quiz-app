@@ -222,7 +222,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.getQuestionAndOptions(quizId, questionIndex);
     }); */
 
-    this.activatedRoute.paramMap.pipe(
+    /* this.activatedRoute.paramMap.pipe(
       switchMap(params => {
         this.quizId = params.get('quizId');
         this.questionIndex = +params.get('questionIndex'); // Convert to number
@@ -232,6 +232,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe(data => {
       this.questionToDisplay = this.quizService.getQuestion(this.currentQuestionIndex).questionText;
       this.optionsToDisplay = this.quizService.getOptions(this.currentQuestionIndex);
+    }); */
+
+    this.activatedRoute.paramMap.pipe(
+      switchMap(params => {
+        const quizId = params.get('quizId');
+        const questionIndex = +params.get('questionIndex'); // Convert to number
+        return this.quizDataService.getQuestionAndOptions(quizId, questionIndex);
+      })
+    ).subscribe((data: QuizQuestion) => {
+      this.questionToDisplay = data.questionText;
+      this.optionsToDisplay = data.options;
     });
 
 
