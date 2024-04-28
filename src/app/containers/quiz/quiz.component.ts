@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter,
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, EMPTY, filter, first, map, retry, switchMap, take, takeUntil } from 'rxjs/operators';
+import { catchError, EMPTY, filter, first, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
@@ -142,6 +142,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   questionsArray: QuizQuestion[] = [];
   isQuizDataLoaded = false;
 
+  subscription: Subscription;
+
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
@@ -236,13 +238,17 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.paramMap.pipe(
       switchMap(params => {
-        const quizId = params.get('quizId');
-        const questionIndex = +params.get('questionIndex'); // Convert to number
-        return this.quizDataService.getQuestionAndOptions(quizId, questionIndex);
-      })
-    ).subscribe((data: QuizQuestion) => {
-      this.questionToDisplay = data.questionText;
-      this.optionsToDisplay = data.options;
+        const questionIndex = +params.get('questionIndex');
+        return this.quizDataService.getQuestionAndOptions(this.quizId, questionIndex);
+      }),
+      tap(data => console.log('Data fetched:', data)), // Debugging output
+      first() // Ensure subscription completes after the first received value
+    ).subscribe({
+      next: (data: QuizQuestion) => {
+        this.questionToDisplay = data.questionText;
+        this.optionsToDisplay = data.options;
+      },
+      error: error => console.error('Error fetching data:', error)
     });
 
 
