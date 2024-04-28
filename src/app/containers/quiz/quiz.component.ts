@@ -336,22 +336,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   loadQuestion(index: number): void {
-    console.log('Attempting to load question at index:', index); // Log the index attempt
-  
     this.quizService.getQuestionByIndex(index).pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe(
-      data => {
-        console.log('Quiz data loaded:', data); // Log the loaded data to verify it
-  
-        if (data && data.questions && data.questions.length > 0 && data.questions[0].questions && index < data.questions[0].questions.length) {
+      (data: QuizQuestion) => {
+        if (data.questions && data.questions.length > 0 && data.questions[0].questions && index < data.questions[0].questions.length) {
           const question = data.questions[0].questions[index];
-          if (question) {
-            this.questionToDisplay = question.questionText;
-            console.log('Question text set to:', this.questionToDisplay);
-          } else {
-            console.error('Question object is null or undefined');
-          }
+          this.questionToDisplay = question.questionText;
         } else {
           console.error('Question data is not in the expected format or the index is out of bounds');
         }
@@ -360,7 +351,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Error loading the question: ', error);
       }
     );
-  }  
+  }
 
   updateQuestionAndOptions(): void {
     if (this.questionIndex == null || isNaN(this.questionIndex)) {
