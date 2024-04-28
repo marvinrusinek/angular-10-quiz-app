@@ -278,28 +278,33 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadQuestion(index: number): void {
-    console.log("EXPL", this.explanationTextService.getFormattedExplanationTextForQuestion(index - 1));
-
-    // Ensure that index is always within the valid range before making this call
-    if (index - 1 < 0 || index - 1 >= this.totalQuestions) {
-      console.error('Index out of range:', index - 1);
-      return;
-    }
-
-    this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index - 1);
+    // Log the adjusted index to verify it's being calculated correctly
+    console.log("Adjusted Index for loading:", index - 1);
+  
+    // Fetch all questions first to set the totalQuestions and ensure index is within bounds
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe(
       (questions: QuizQuestion[]) => {
-        console.log('Total questions:', questions.length);
+        this.totalQuestions = questions.length; // Set the total number of questions
+        console.log('Total questions:', this.totalQuestions);
+  
+        // Ensure that the adjusted index is within the valid range
+        if (index - 1 < 0 || index - 1 >= this.totalQuestions) {
+          console.error('Index out of range:', index - 1);
+          return;
+        }
+  
+        // Fetch and display the explanation for the current index
+        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index - 1);
+        console.log("EXPL", this.explanationToDisplay);
   
         if (questions && index - 1 >= 0 && index - 1 < questions.length) {
           const question = questions[index - 1];
-          this.questionToDisplay = 'Test Question?';
-          // question.questionText.toString();
+          this.questionToDisplay = question.questionText;
           this.optionsToDisplay = question.options;
           console.log('Displaying question:', this.questionToDisplay);
-          console.log('With options:', this.options);
+          console.log('With options:', this.optionsToDisplay);
         } else {
           console.error('Question data is not in the expected format or the index is out of bounds');
         }
@@ -309,7 +314,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     );
   }
-  
 
   updateQuestionAndOptions(): void {
     if (this.questionIndex == null || isNaN(this.questionIndex)) {
