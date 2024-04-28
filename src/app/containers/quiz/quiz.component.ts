@@ -251,13 +251,19 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: error => console.error('Error fetching data:', error)
     }); */
 
-    this.activatedRoute.paramMap.subscribe(params => {
+    /* this.activatedRoute.paramMap.subscribe(params => {
       const questionIndex = +params.get('questionIndex');
       if (!isNaN(questionIndex) && questionIndex >= 0) {
         this.loadQuestion(questionIndex);
       } else {
         console.error('Invalid or missing question index from URL:', questionIndex);
       }
+    }); */
+
+    this.activatedRoute.params.pipe(
+      map(params => +params['questionIndex'])
+    ).subscribe(index => {
+      this.loadQuestion(index);
     });
     
 
@@ -339,10 +345,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe(
-      (data: QuizData) => {
-        if (data.questions && index < data.questions.length) {
-          const question = data.questions[index];
+      (questions: any[]) => {
+        console.log('Received data:', questions);
+        if (questions && index >= 0 && index < questions.length) {
+          const question = questions[index];
           this.questionToDisplay = question.questionText;
+          this.options = question.options;
         } else {
           console.error('Question data is not in the expected format or the index is out of bounds');
         }
@@ -351,7 +359,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Error loading the question: ', error);
       }
     );
-  }  
+  }
 
   updateQuestionAndOptions(): void {
     if (this.questionIndex == null || isNaN(this.questionIndex)) {
