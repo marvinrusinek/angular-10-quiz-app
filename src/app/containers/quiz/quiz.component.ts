@@ -322,17 +322,30 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  loadQuestion(index: number) {
+  /* loadQuestion(index: number) {
     console.log("Loading question for index:", index);
     const questionData = this.quizService.getQuestions(index);
     if (questionData) {
-      this.questionToDisplay = questionData.questionText;
-      this.optionsToDisplay = this.quizService.getOptions(index);
+      this.questionToDisplay = this.quizService.getQuestionByIndex(index).questionText;
+      this.optionsToDisplay = this.quizService.getQuestionByIndex(index).options;
     } else {
       this.questionToDisplay = 'No question found';
       this.optionsToDisplay = [];
       console.log('No question data found for index:', index);
     }
+  } */
+
+  loadQuestion(index: number): void {
+    this.quizService.getQuestionByIndex(index).pipe(
+      takeUntil(this.unsubscribe$)
+    ).subscribe(
+      question => {
+        this.questionToDisplay = question;
+      },
+      error => {
+        console.error('Error loading the question: ', error);
+      }
+    );
   }
   
 
