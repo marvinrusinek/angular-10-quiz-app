@@ -330,7 +330,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.optionsToDisplay = this.quizService.getOptions(index);
     } else {
       this.questionToDisplay = 'No question found';
-      this.optionsToDisplay = []; // Ensure this line is present to clear previous options
+      this.optionsToDisplay = [];
       console.log('No question data found for index:', index);
     }
   }

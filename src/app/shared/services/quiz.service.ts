@@ -277,7 +277,7 @@ export class QuizService implements OnDestroy {
   }
 
   getQuestions(index: number) {
-    console.log("Total questions:", this.questions.length, "Accessing index:", index);
+    console.log("Accessing questions at index:", index);
     if (this.questions && index >= 0 && index < this.questions.length) {
       return this.questions[index];
     } else {
@@ -287,12 +287,7 @@ export class QuizService implements OnDestroy {
   }
 
   getOptions(index: number) {
-    if (this.questions && index >= 0 && index < this.questions.length) {
-      return this.questions[index].options;
-    } else {
-      console.error('Invalid index for options:', index);
-      return [];
-    }
+    return this.getQuestions(index) ? this.questions[index].options : [];
   }
   
   private loadData(): void {
