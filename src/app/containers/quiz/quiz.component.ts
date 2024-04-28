@@ -278,6 +278,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadQuestion(index: number): void {
+    console.log("EXPL", this.explanationTextService.getFormattedExplanationTextForQuestion(index - 1));
     this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index - 1);
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$)
