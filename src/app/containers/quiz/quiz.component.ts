@@ -212,14 +212,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    this.activatedRoute.params.subscribe(params => {
+    /* this.activatedRoute.params.subscribe(params => {
       const newIndex = +params['questionIndex'];
       if (newIndex !== this.currentQuestionIndex) {
         this.currentQuestionIndex = newIndex;
         this.loadQuestionByRouteIndex(newIndex);
-        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(newIndex);
       }
+    }); */
+
+    this.activatedRoute.paramMap.subscribe(params => {
+      const index = parseInt(params.get('questionIndex'), 10); // Adjusting from 1-based to 0-based index
+      console.log("Index used for fetching explanation:", index);
+      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
+      this.loadQuestionByRouteIndex(index);
     });
+    
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
