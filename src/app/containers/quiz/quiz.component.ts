@@ -291,7 +291,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  loadQuestionByRouteIndex(index: number): void {
+  /* loadQuestionByRouteIndex(index: number): void {
     console.log("Adjusted Index for loading:", index - 1);
   
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
@@ -321,6 +321,19 @@ export class QuizComponent implements OnInit, OnDestroy {
         return of([]); // Handle the error and return an empty observable to keep the stream alive
       })
     ).subscribe();
+  } */
+
+  loadQuestionByRouteIndex(index: number): void {
+    this.quizDataService.getQuestionByIndex(index).subscribe(
+      question => {
+        this.questionToDisplay = question.text; // Assuming the question object has a 'text' field
+        this.isQuestionIndexChanged = true;
+      },
+      error => {
+        console.error('Failed to load question', error);
+        this.isQuestionIndexChanged = false;
+      }
+    );
   }
 
   shouldShowExplanation(index: number): boolean {
