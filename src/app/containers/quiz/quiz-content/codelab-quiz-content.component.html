@@ -21,7 +21,7 @@
       <span *ngIf="questionToDisplay">
         {{ questionToDisplay }}
       </span>
-      <span *ngIf="!questionToDisplay && combinedText">
+      <span *ngIf="!questionToDisplay && combinedText$ | async as combinedText">
         {{ combinedText }}
       </span>
       <ng-template #loading>
