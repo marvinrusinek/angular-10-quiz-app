@@ -307,9 +307,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         const question = questions[index];
         this.questionToDisplay = question.questionText;
         this.optionsToDisplay = question.options;
+        console.log('Loaded question text:', this.questionToDisplay);
         this.cdRef.detectChanges();
       }),
-      catchError((error) => {
+      catchError((error: Error) => {
         console.error('Error loading the question:', error);
         return of([]);
       })
