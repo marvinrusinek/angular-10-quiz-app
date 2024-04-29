@@ -308,11 +308,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl;
 
     if (this.isQuestionIndexChanged) {
-        this.previousIndex = adjustedIndex; // Update previous index for future checks
-        this.loadQuestionByRouteIndex(adjustedIndex);
-        this.isNavigatedByUrl = false; // Reset the navigated by URL flag after loading
+      this.previousIndex = adjustedIndex; // Update previous index for future checks
+      this.loadQuestionByRouteIndex(adjustedIndex);
+      this.isNavigatedByUrl = false; // Reset the navigated by URL flag after loading
     } else {
-        console.log("No index change detected, still on index:", adjustedIndex);
+      console.log("No index change detected, still on index:", adjustedIndex);
     }
 
     // Trigger change detection to ensure UI updates
