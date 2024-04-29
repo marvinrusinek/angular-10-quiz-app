@@ -216,7 +216,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const newIndex = +params['questionIndex'];
       if (newIndex !== this.currentQuestionIndex) {
         this.currentQuestionIndex = newIndex;
-        this.loadQuestion(newIndex);
+        this.loadQuestionByRouteIndex(newIndex);
       }
     });
 
@@ -279,7 +279,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  loadQuestion(index: number): void {
+  loadQuestionByRouteIndex(index: number): void {
     console.log("Adjusted Index for loading:", index - 1);
 
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
