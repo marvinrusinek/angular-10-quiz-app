@@ -1,7 +1,7 @@
 <ng-container *ngIf="combinedQuestionData$ | async">
   <section id="question">
     <h3 *ngIf="isQuestionIndexChanged">{{ questionToDisplay }}</h3>
-    <h3 question-content>
+    <h3 *ngIf="!isQuestionIndexChanged" question-content>
       <span *ngIf="combinedText$ | async as combinedText">
         {{ combinedText }}
       </span>
