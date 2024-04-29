@@ -6,9 +6,7 @@
       </span>
 
       <ng-template #otherContent>
-        <span *ngIf="questionToDisplay">
-          {{ questionToDisplay }}
-        </span>
+        <span *ngIf="questionToDisplay">{{ questionToDisplay }}</span>
       </ng-template>
 
       <span class="number-correct" *ngIf="shouldDisplayCorrectAnswers">
