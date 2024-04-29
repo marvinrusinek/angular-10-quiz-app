@@ -523,7 +523,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   }
 
-  /* private determineTextToDisplay(
+  private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
   ): Observable<string> {
@@ -548,9 +548,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return textToDisplay;
       })
     );
-  } */
+  }
 
-  private determineTextToDisplay(
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
   ): Observable<string> {
@@ -580,7 +580,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return textToDisplay;
       })
     );
-  }
+  } */
 
   
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
