@@ -118,6 +118,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.setDisplayStateForCorrectAnswers(currentQuestionValue);
       this.updateCorrectAnswersDisplayState();
     }
+
+    if (changes.questionToDisplay) {
+      console.log('New question text:', changes.questionToDisplay.currentValue);
+    }
+    if (changes.explanationToDisplay) {
+      console.log('New explanation text:', changes.explanationToDisplay.currentValue);
+    }
   }
 
   ngOnDestroy(): void {
@@ -534,7 +541,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       })
     );
   } */
-  
+
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]

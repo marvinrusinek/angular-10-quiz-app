@@ -217,6 +217,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (newIndex !== this.currentQuestionIndex) {
         this.currentQuestionIndex = newIndex;
         this.loadQuestionByRouteIndex(newIndex);
+        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(newIndex);
       }
     });
 
