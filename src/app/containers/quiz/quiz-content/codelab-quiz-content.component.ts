@@ -101,6 +101,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.quizService.getIsNavigatingToPrevious().subscribe(
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
+
+    this.activatedRoute.params.subscribe(params => {
+      const currentIndex = +params['questionIndex'];
+      this.isQuestionIndexChanged = this.previousIndex !== null && this.previousIndex !== currentIndex;
+      this.previousIndex = currentIndex; // Update for next change detection
+    });
   }
 
   ngOnInit(): void {
