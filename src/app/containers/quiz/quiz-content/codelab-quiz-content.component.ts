@@ -101,17 +101,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.quizService.getIsNavigatingToPrevious().subscribe(
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
-
-    this.activatedRoute.params.subscribe(params => {
-      const currentIndex = +params['questionIndex'];
-      // Determine if the index has actually changed
-      if (this.previousIndex !== null && this.previousIndex !== currentIndex) {
-        this.isQuestionIndexChanged = true;  // Set flag to true if index changes
-      } else {
-        this.isQuestionIndexChanged = false; // Set flag to false if index remains the same or is the first load
-      }
-      this.previousIndex = currentIndex; // Update previousIndex for next change detection
-    });
   }
 
   ngOnInit(): void {
@@ -123,6 +112,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.handleQuestionDisplayLogic();
     this.handleQuestionUpdate(this.question);
     this.setupCombinedTextObservable();
+
+    this.activatedRoute.params.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(params => {
+        const currentIndex = +params['questionIndex'];
+        if (this.previousIndex !== null && this.previousIndex !== currentIndex) {
+          this.isQuestionIndexChanged = true;  // Set flag to true if index changes
+        } else {
+          this.isQuestionIndexChanged = false; // Set flag to false if index remains the same or is the first load
+        }
+        this.previousIndex = currentIndex; // Update previousIndex for next change detection
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
