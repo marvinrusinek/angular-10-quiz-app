@@ -142,6 +142,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   questionsArray: QuizQuestion[] = [];
   isQuizDataLoaded = false;
 
+  previousIndex: number;
+
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
@@ -214,21 +216,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.subscribeToCurrentQuestion();
 
     this.activatedRoute.params.subscribe(params => {
+      const currentIndex = +params['questionIndex'];
+      if (this.previousIndex !== currentIndex) {
+        this.loadQuestionByRouteIndex(currentIndex);
+        this.previousIndex = currentIndex;
+      }
+    });
+
+    /* this.activatedRoute.params.subscribe(params => {
       const newIndex = +params['questionIndex'];
       const adjustedIndex = newIndex - 1;
       if (adjustedIndex !== this.currentQuestionIndex) {
         this.currentQuestionIndex = adjustedIndex;
         this.loadQuestionByRouteIndex(newIndex);
       }
-    });
-
-    /* this.activatedRoute.paramMap.subscribe(params => {
-      const index = parseInt(params.get('questionIndex'), 10); // Adjusting from 1-based to 0-based index
-      console.log("Index used for fetching explanation:", index);
-      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
-      this.loadQuestionByRouteIndex(index);
-    }); */
-    
+    }); */    
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {

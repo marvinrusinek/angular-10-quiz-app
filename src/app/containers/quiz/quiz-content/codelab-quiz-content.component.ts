@@ -102,7 +102,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
 
-    /* this.activatedRoute.params.subscribe(params => {
+    this.activatedRoute.params.subscribe(params => {
       const currentIndex = +params['questionIndex'];
       // Determine if the index has actually changed
       if (this.previousIndex !== null && this.previousIndex !== currentIndex) {
@@ -111,7 +111,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.isQuestionIndexChanged = false; // Set flag to false if index remains the same or is the first load
       }
       this.previousIndex = currentIndex; // Update previousIndex for next change detection
-    }); */
+    });
   }
 
   ngOnInit(): void {
