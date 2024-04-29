@@ -284,23 +284,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  /* updateContentBasedOnIndex(index: number): void {
-    const adjustedIndex = index - 1;
-  
-    // Check if the question index has actually changed
-    this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex;
-
-    if (this.isQuestionIndexChanged) {
-      this.previousIndex = adjustedIndex; // Update previous index for future checks
-      this.loadQuestionByRouteIndex(adjustedIndex);
-    } else {
-      console.log("No index change detected, still on index:", adjustedIndex);
-    }
-
-    // Trigger change detection to ensure UI updates
-    this.cdRef.detectChanges();
-  } */
-
   updateContentBasedOnIndex(index: number): void {
     const adjustedIndex = index - 1;
 
