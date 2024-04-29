@@ -307,15 +307,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       takeUntil(this.unsubscribe$),
       tap((questions: QuizQuestion[]) => {
         if (index >= 0 && index < questions.length) {
-            const question = questions[index];
-            this.questionToDisplay = question.questionText;
-            this.optionsToDisplay = question.options;
-            this.explanationToDisplay = question.explanation;
-            console.log('Loaded question text:', this.questionToDisplay);
-            console.log('Loaded explanation:', this.explanationToDisplay);
-            this.cdRef.detectChanges();
+          const question = questions[index];
+          this.questionToDisplay = question.questionText;
+          this.optionsToDisplay = question.options;
+          this.explanationToDisplay = question.explanation;
+          console.log('Loaded question text:', this.questionToDisplay);
+          console.log('Loaded explanation:', this.explanationToDisplay);
+          this.cdRef.detectChanges();
         } else {
-            console.error('Index out of range:', index);
+          console.error('Index out of range:', index);
         }
       }),
       catchError((error: Error) => {
