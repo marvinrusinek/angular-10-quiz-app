@@ -285,7 +285,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
       tap((questions: QuizQuestion[]) => {
-        this.totalQuestions = questions.length; // Set the total number of questions
+        this.totalQuestions = questions.length;
 
         if (index - 1 < 0 || index - 1 >= this.totalQuestions) {
           console.error('Index out of range:', index - 1);
@@ -296,6 +296,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log("EXPL", this.explanationToDisplay);
 
         const question = questions[index - 1];
+
         this.questionToDisplay = question.questionText;
         this.optionsToDisplay = question.options;
         console.log('Displaying question:', this.questionToDisplay);

@@ -508,7 +508,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   }
 
-  private determineTextToDisplay(
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
   ): Observable<string> {
@@ -533,7 +533,36 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return textToDisplay;
       })
     );
+  } */
+  
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
+    [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
+  ): Observable<string> {
+    const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
+  
+    // Use currentIndex to determine the display of explanation or question text
+    const displayExplanation = currentIndex === 0 || (shouldDisplayExplanation && questionState?.explanationDisplayed);
+  
+    return this.isCurrentQuestionMultipleAnswer().pipe(
+      map(isMultipleAnswer => {
+        let textToDisplay = '';
+  
+        if (displayExplanation && formattedExplanation) {
+          textToDisplay = formattedExplanation;
+          this.shouldDisplayCorrectAnswers = false;
+        } else if (nextQuestion) {
+          textToDisplay = nextQuestion.questionText; // Ensuring question text updates
+          this.shouldDisplayCorrectAnswers = !displayExplanation && isMultipleAnswer;
+        } else {
+          textToDisplay = "No question available."; // Fallback text
+        }
+  
+        return textToDisplay;
+      })
+    );
   }
+  
   
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
