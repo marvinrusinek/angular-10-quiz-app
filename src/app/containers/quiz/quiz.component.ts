@@ -465,7 +465,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuiz$.next(null);
     this.routerSubscription.unsubscribe();
     this.subscription?.unsubscribe();
-    this.routeParamsSubscription.unsubscribe();
+    this.routeParamsSubscription?.unsubscribe();
     this.questionAndOptionsSubscription?.unsubscribe();
     this.currentQuestionSubscriptions.unsubscribe();
     this.timerService.stopTimer(null);
