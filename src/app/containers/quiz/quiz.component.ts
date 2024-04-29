@@ -286,7 +286,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       takeUntil(this.unsubscribe$),
       tap((questions: QuizQuestion[]) => {
         this.totalQuestions = questions.length; // Set the total number of questions
-        console.log('Total questions:', this.totalQuestions);
 
         if (index - 1 < 0 || index - 1 >= this.totalQuestions) {
           console.error('Index out of range:', index - 1);
