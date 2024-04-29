@@ -314,41 +314,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         return of([]);
       })
     ).subscribe();
-  }  
-
-  /* loadQuestionByRouteIndex(index: number): void {
-    console.log("Adjusted Index for loading:", index - 1);
-
-    // First, check if the index has changed
-    this.isQuestionIndexChanged = (this.previousIndex !== null && this.previousIndex !== index);
-    this.previousIndex = index; // Update previousIndex for next call
-
-    this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
-      takeUntil(this.unsubscribe$),
-      tap((questions: QuizQuestion[]) => {
-        if (index - 1 < 0 || index - 1 >= questions.length) {
-          console.error('Index out of range:', index - 1);
-          return;
-        }
-
-        const question = questions[index - 1];
-        this.questionToDisplay = question.questionText;
-        this.optionsToDisplay = question.options;
-        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index - 1);
-
-        console.log('Displaying question:', this.questionToDisplay);
-        console.log('With options:', this.optionsToDisplay);
-        console.log("EXPL", this.explanationToDisplay);
-
-        // Detect changes to update the view immediately
-        this.cdRef.detectChanges();
-      }),
-      catchError((error) => {
-        console.error('Error loading the question:', error);
-        return of([]);
-      })
-    ).subscribe();
-  } */
+  }
 
   shouldShowExplanation(index: number): boolean {
     return !!this.explanationToDisplay;
