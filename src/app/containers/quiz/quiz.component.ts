@@ -314,6 +314,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         const question = questions[index];
         this.questionToDisplay = question.questionText;
         this.optionsToDisplay = question.options;
+        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
         console.log('Loaded question text:', this.questionToDisplay);
         this.cdRef.detectChanges();
       }),
