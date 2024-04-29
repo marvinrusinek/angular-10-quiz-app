@@ -285,13 +285,15 @@ export class QuizComponent implements OnInit, OnDestroy {
   updateContentBasedOnIndex(index: number): void {
     const adjustedIndex = index - 1;
   
+    // Check if the question index has actually changed
     this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex;
+
     if (this.isQuestionIndexChanged) {
-      this.previousIndex = adjustedIndex; // Update previous index
+      this.previousIndex = adjustedIndex; // Update previous index for future checks
       this.loadQuestionByRouteIndex(adjustedIndex);
     }
 
-    // Trigger change detection here if there are issues with updates not reflecting
+    // Trigger change detection to ensure UI updates
     this.cdRef.detectChanges();
   }
 
