@@ -111,6 +111,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextSource.asObservable();
   explanationVisibility: boolean[] = [];
   explanationVisible = false;
+  showExplanationInsteadOfQuestion = false;
 
   private combinedQuestionDataSubject = new BehaviorSubject<{
     question: QuizQuestion;
@@ -303,17 +304,26 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.questionToDisplay = question.questionText;
         this.optionsToDisplay = question.options;
         this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index - 1);
+
+        // Determine when to show explanation
+        this.showExplanationInsteadOfQuestion = this.shouldShowExplanation(index);
   
         console.log('Displaying question:', this.questionToDisplay);
         console.log('With options:', this.optionsToDisplay);
         console.log("EXPL", this.explanationToDisplay);
+
+        this.cdRef.detectChanges();
       }),
       catchError((error) => {
         console.error('Error loading the question:', error);
         return of([]); // Handle the error and return an empty observable to keep the stream alive
       })
     ).subscribe();
-  }  
+  }
+
+  shouldShowExplanation(index: number): boolean {
+    return !!this.explanationToDisplay;
+  }
 
   updateQuestionAndOptions(): void {
     if (this.questionIndex == null || isNaN(this.questionIndex)) {
