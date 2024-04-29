@@ -5,9 +5,11 @@
         {{ combinedText }}
       </span>
 
-      <span *ngIf="questionToDisplay" #otherContent>
-        {{ questionToDisplay }}
-      </span>
+      <ng-template #otherContent>
+        <span *ngIf="questionToDisplay">
+          {{ questionToDisplay }}
+        </span>
+      </ng-template>
 
       <span class="number-correct" *ngIf="shouldDisplayCorrectAnswers">
         {{ correctAnswersText$ | async }}
