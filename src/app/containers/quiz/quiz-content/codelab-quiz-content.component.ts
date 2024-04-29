@@ -80,6 +80,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   combinedText$: Observable<string>;
   textToDisplay: string = '';
 
+  previousIndex: number | null = null; // To track if the index has changed
+  isQuestionIndexChanged = false; // Flag to control the display based on index change
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -119,11 +122,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.updateCorrectAnswersDisplayState();
     }
 
-    if (changes.questionToDisplay) {
-      console.log('New question text:', changes.questionToDisplay.currentValue);
-    }
-    if (changes.explanationToDisplay) {
-      console.log('New explanation text:', changes.explanationToDisplay.currentValue);
+    if (changes.currentQuestionIndexValue) {
+      // Determine if the index has actually changed
+      if (this.previousIndex !== changes.currentQuestionIndexValue.currentValue) {
+        this.isQuestionIndexChanged = true; // Set flag to true if index changes
+      } else {
+        this.isQuestionIndexChanged = false; // Set flag to false if index remains the same
+      }
+      this.previousIndex = changes.currentQuestionIndexValue.currentValue; // Update previousIndex for next change detection
     }
   }
 
