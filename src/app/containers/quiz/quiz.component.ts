@@ -290,33 +290,30 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   loadQuestionByRouteIndex(index: number): void {
     console.log("Adjusted Index for loading:", index - 1);
-
+  
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
       tap((questions: QuizQuestion[]) => {
-        this.totalQuestions = questions.length;
-
-        if (index - 1 < 0 || index - 1 >= this.totalQuestions) {
+        if (index - 1 < 0 || index - 1 >= questions.length) {
           console.error('Index out of range:', index - 1);
-          throw new Error('Index out of range');
+          return;
         }
-
-        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index - 1);
-        console.log("EXPL", this.explanationToDisplay);
-
+  
         const question = questions[index - 1];
-
         this.questionToDisplay = question.questionText;
         this.optionsToDisplay = question.options;
+        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index - 1);
+  
         console.log('Displaying question:', this.questionToDisplay);
         console.log('With options:', this.optionsToDisplay);
+        console.log("EXPL", this.explanationToDisplay);
       }),
       catchError((error) => {
         console.error('Error loading the question:', error);
         return of([]); // Handle the error and return an empty observable to keep the stream alive
       })
     ).subscribe();
-  }
+  }  
 
   updateQuestionAndOptions(): void {
     if (this.questionIndex == null || isNaN(this.questionIndex)) {
