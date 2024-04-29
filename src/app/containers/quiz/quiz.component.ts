@@ -221,6 +221,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe(params => {
       const currentIndex = +params['questionIndex'];
+      this.isNavigatedByUrl = true;  // Set the flag when URL changes
       this.updateContentBasedOnIndex(currentIndex);
     });
 
