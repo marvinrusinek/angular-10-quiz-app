@@ -23,7 +23,7 @@
         Loading question...
       </ng-template>
       <span class="number-correct" *ngIf="shouldDisplayCorrectAnswers">
-        Correct answers: {{ combinedData.correctAnswers }}
+        {{ correctAnswersText$ | async }}
       </span>
     </h3>
   </section>
