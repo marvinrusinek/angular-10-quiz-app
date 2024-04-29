@@ -142,7 +142,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   questionsArray: QuizQuestion[] = [];
   isQuizDataLoaded = false;
 
-  previousIndex: number;
+  previousIndex: number | null = null;
+  isQuestionIndexChanged = false;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
