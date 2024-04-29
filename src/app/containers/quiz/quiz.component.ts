@@ -223,23 +223,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.updateContentBasedOnIndex(currentIndex);
     });
 
-    /* this.activatedRoute.params.subscribe(params => {
-      const currentIndex = +params['questionIndex'];
-      if (this.previousIndex !== currentIndex) {
-        this.loadQuestionByRouteIndex(currentIndex);
-        this.previousIndex = currentIndex;
-      }
-    }); */
-
-    /* this.activatedRoute.params.subscribe(params => {
-      const newIndex = +params['questionIndex'];
-      const adjustedIndex = newIndex - 1;
-      if (adjustedIndex !== this.currentQuestionIndex) {
-        this.currentQuestionIndex = adjustedIndex;
-        this.loadQuestionByRouteIndex(newIndex);
-      }
-    }); */    
-
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
         this.questions = shuffledQuestions;
@@ -300,16 +283,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   updateContentBasedOnIndex(index: number): void {
-    // Adjust the index for zero-based array logic if needed
     const adjustedIndex = index - 1;
   
-    if (this.previousIndex !== adjustedIndex) {
-      this.isQuestionIndexChanged = true;
+    this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex;
+    if (this.isQuestionIndexChanged) {
       this.previousIndex = adjustedIndex; // Update previous index
       this.loadQuestionByRouteIndex(adjustedIndex);
-    } else {
-      this.isQuestionIndexChanged = false;
     }
+
+    // Trigger change detection here if there are issues with updates not reflecting
+    this.cdRef.detectChanges();
   }
 
   loadQuestionByRouteIndex(index: number): void {
