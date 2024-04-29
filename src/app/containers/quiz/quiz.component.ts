@@ -291,6 +291,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.isQuestionIndexChanged) {
       this.previousIndex = adjustedIndex; // Update previous index for future checks
       this.loadQuestionByRouteIndex(adjustedIndex);
+    } else {
+      console.log("No index change detected, still on index:", adjustedIndex);
     }
 
     // Trigger change detection to ensure UI updates
