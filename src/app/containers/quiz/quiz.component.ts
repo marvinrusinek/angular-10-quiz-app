@@ -291,9 +291,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  /* loadQuestionByRouteIndex(index: number): void {
+  loadQuestionByRouteIndex(index: number): void {
     console.log("Adjusted Index for loading:", index - 1);
-  
+
+    // First, check if the index has changed
+    this.isQuestionIndexChanged = (this.previousIndex !== null && this.previousIndex !== index);
+    this.previousIndex = index; // Update previousIndex for next call
+
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
       tap((questions: QuizQuestion[]) => {
@@ -301,39 +305,24 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Index out of range:', index - 1);
           return;
         }
-  
+
         const question = questions[index - 1];
         this.questionToDisplay = question.questionText;
         this.optionsToDisplay = question.options;
         this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index - 1);
 
-        // Determine when to show explanation
-        this.showExplanationInsteadOfQuestion = this.shouldShowExplanation(index);
-  
         console.log('Displaying question:', this.questionToDisplay);
         console.log('With options:', this.optionsToDisplay);
         console.log("EXPL", this.explanationToDisplay);
 
+        // Detect changes to update the view immediately
         this.cdRef.detectChanges();
       }),
       catchError((error) => {
         console.error('Error loading the question:', error);
-        return of([]); // Handle the error and return an empty observable to keep the stream alive
+        return of([]);
       })
     ).subscribe();
-  } */
-
-  loadQuestionByRouteIndex(index: number): void {
-    this.quizDataService.getQuestionByIndex(index).subscribe(
-      question => {
-        this.questionToDisplay = question.text; // Assuming the question object has a 'text' field
-        this.isQuestionIndexChanged = true;
-      },
-      error => {
-        console.error('Failed to load question', error);
-        this.isQuestionIndexChanged = false;
-      }
-    );
   }
 
   shouldShowExplanation(index: number): boolean {
