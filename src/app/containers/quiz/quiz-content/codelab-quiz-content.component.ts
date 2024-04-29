@@ -554,11 +554,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
 ): Observable<string> {
-    // Retrieve the current question state, possibly including whether the explanation was displayed.
+    // Retrieve the current question state.
     const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
 
-    // Use `isQuestionIndexChanged` to determine if the display should update based on a change.
-    const displayExplanation = (currentIndex === 0 || shouldDisplayExplanation) && this.isQuestionIndexChanged && questionState?.explanationDisplayed;
+    // This condition checks if it's the first question or if an explanation should be displayed.
+    // It also checks if `isQuestionIndexChanged` correctly handles the initial load.
+    const displayExplanation = (currentIndex === 0 || shouldDisplayExplanation) && (questionState?.explanationDisplayed);
 
     return this.isCurrentQuestionMultipleAnswer().pipe(
       map(isMultipleAnswer => {
@@ -567,21 +568,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         if (displayExplanation && formattedExplanation) {
             textToDisplay = formattedExplanation;
             this.shouldDisplayCorrectAnswers = false;
-        } else if (nextQuestion && this.isQuestionIndexChanged) {
-            // Display question text only if the question index has changed
+        } else if (nextQuestion && (this.isQuestionIndexChanged || currentIndex === 0)) {
+            // Ensure the first question displays correctly by checking currentIndex === 0
             textToDisplay = nextQuestion.questionText;
             this.shouldDisplayCorrectAnswers = !displayExplanation && isMultipleAnswer;
         } else {
-            // Default or fallback text if no changes have occurred
-            textToDisplay = previousQuestion ? previousQuestion.questionText : "No question available.";
+            textToDisplay = "No question available."; // Fallback text
         }
 
         return textToDisplay;
       })
     );
   }
-
-  
   
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
