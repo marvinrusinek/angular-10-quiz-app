@@ -216,13 +216,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    this.activatedRoute.params.subscribe(params => {
+    this.activatedRoute.params.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(params => {
+      const currentIndex = +params['questionIndex'];
+      this.updateContentBasedOnIndex(currentIndex);
+    });
+
+    /* this.activatedRoute.params.subscribe(params => {
       const currentIndex = +params['questionIndex'];
       if (this.previousIndex !== currentIndex) {
         this.loadQuestionByRouteIndex(currentIndex);
         this.previousIndex = currentIndex;
       }
-    });
+    }); */
 
     /* this.activatedRoute.params.subscribe(params => {
       const newIndex = +params['questionIndex'];
@@ -292,7 +299,41 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
+  updateContentBasedOnIndex(index: number): void {
+    // Adjust the index for zero-based array logic if needed
+    const adjustedIndex = index - 1;
+  
+    if (this.previousIndex !== adjustedIndex) {
+      this.isQuestionIndexChanged = true;
+      this.previousIndex = adjustedIndex; // Update previous index
+      this.loadQuestionByRouteIndex(adjustedIndex);
+    } else {
+      this.isQuestionIndexChanged = false;
+    }
+  }
+
   loadQuestionByRouteIndex(index: number): void {
+    this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
+      takeUntil(this.unsubscribe$),
+      tap((questions: QuizQuestion[]) => {
+        if (index < 0 || index >= questions.length) {
+          console.error('Index out of range:', index);
+          return;
+        }
+  
+        const question = questions[index];
+        this.questionToDisplay = question.questionText;
+        this.optionsToDisplay = question.options;
+        this.cdRef.detectChanges();
+      }),
+      catchError((error) => {
+        console.error('Error loading the question:', error);
+        return of([]);
+      })
+    ).subscribe();
+  }  
+
+  /* loadQuestionByRouteIndex(index: number): void {
     console.log("Adjusted Index for loading:", index - 1);
 
     // First, check if the index has changed
@@ -324,7 +365,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         return of([]);
       })
     ).subscribe();
-  }
+  } */
 
   shouldShowExplanation(index: number): boolean {
     return !!this.explanationToDisplay;
