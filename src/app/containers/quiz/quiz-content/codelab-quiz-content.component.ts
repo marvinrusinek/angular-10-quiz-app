@@ -104,8 +104,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     this.activatedRoute.params.subscribe(params => {
       const currentIndex = +params['questionIndex'];
-      this.isQuestionIndexChanged = this.previousIndex !== null && this.previousIndex !== currentIndex;
-      this.previousIndex = currentIndex; // Update for next change detection
+      // Determine if the index has actually changed
+      if (this.previousIndex !== null && this.previousIndex !== currentIndex) {
+        this.isQuestionIndexChanged = true;  // Set flag to true if index changes
+      } else {
+        this.isQuestionIndexChanged = false; // Set flag to false if index remains the same or is the first load
+      }
+      this.previousIndex = currentIndex; // Update previousIndex for next change detection
     });
   }
 
@@ -126,16 +131,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       const currentQuestionValue = changes.currentQuestion.currentValue.value;
       this.setDisplayStateForCorrectAnswers(currentQuestionValue);
       this.updateCorrectAnswersDisplayState();
-    }
-
-    if (changes.currentQuestionIndexValue) {
-      // Determine if the index has actually changed
-      if (this.previousIndex !== changes.currentQuestionIndexValue.currentValue) {
-        this.isQuestionIndexChanged = true; // Set flag to true if index changes
-      } else {
-        this.isQuestionIndexChanged = false; // Set flag to false if index remains the same
-      }
-      this.previousIndex = changes.currentQuestionIndexValue.currentValue; // Update previousIndex for next change detection
     }
   }
 
