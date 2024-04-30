@@ -146,6 +146,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   isQuestionIndexChanged = false;
   private isNavigatedByUrl = false;
 
+  shouldDisplayCorrectAnswers = false;
+
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
@@ -310,9 +312,10 @@ export class QuizComponent implements OnInit, OnDestroy {
           const question = questions[index];
           this.questionToDisplay = question.questionText;
           this.optionsToDisplay = question.options;
-          this.explanationToDisplay = question.explanation;
+          this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
           console.log('Loaded question text:', this.questionToDisplay);
           console.log('Loaded explanation:', this.explanationToDisplay);
+          this.shouldDisplayCorrectAnswers = this.quizStateService.isMultipleAnswerQuestion(question);
           this.cdRef.detectChanges();
         } else {
           console.error('Index out of range:', index);
