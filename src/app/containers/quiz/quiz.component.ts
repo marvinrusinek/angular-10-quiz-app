@@ -317,7 +317,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.optionsToDisplay = question.options;
           // Ensure index is correct
           console.log('Retrieving explanation for index:', index);
-          this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
+          this.explanationToDisplay = this.explanationTextService.explanationTexts[index];
           console.log("EXPL", this.explanationToDisplay);
 
           // Determine if it's a multiple-answer question by checking the number of correct options

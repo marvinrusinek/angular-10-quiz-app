@@ -69,6 +69,7 @@ export class ExplanationTextService {
   }
 
   getFormattedExplanationTextForQuestion(index: number): string {
+    console.log('Formatted explanations:', this.formattedExplanations);
     // Check if the index is a valid key in the formattedExplanations object.
     if (index in this.formattedExplanations) {
       // Retrieve the formatted explanation using the index.
