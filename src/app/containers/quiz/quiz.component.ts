@@ -313,6 +313,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.questionToDisplay = question.questionText;
           this.optionsToDisplay = question.options;
           this.explanationToDisplay = question.explanation;
+          console.log("EXPL", this.explanationToDisplay);
         } else {
           console.error('Index out of range:', index);
           return;
