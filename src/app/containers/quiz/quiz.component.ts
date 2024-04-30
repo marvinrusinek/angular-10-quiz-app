@@ -312,7 +312,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
       tap((questions: QuizQuestion[]) => {
-        this.formattedExplanations = questions.reduce((acc, question, idx) => {
+        this.explanationTextService.formattedExplanations = questions.reduce((acc, question, idx) => {
           acc[idx] = { explanation: this.explanationTextService.formatExplanationText(question, index) };
           return acc;
         }, {});
