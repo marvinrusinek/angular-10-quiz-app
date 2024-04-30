@@ -306,41 +306,34 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadQuestionByRouteIndex(index: number): void {
-    // Reset explanation text to prevent old text from displaying
-    this.explanationTextService.formattedExplanations = {};
-
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
-      takeUntil(this.unsubscribe$),
-      tap((questions: QuizQuestion[]) => {
-        this.explanationTextService.formattedExplanations = questions.reduce((acc, question, idx) => {
-          acc[idx] = { explanation: this.explanationTextService.formatExplanationText(question, index) };
-          return acc;
-        }, {});
+        takeUntil(this.unsubscribe$),
+        tap((questions: QuizQuestion[]) => {
+            if (index >= 0 && index < questions.length) {
+                const question = questions[index];
+                this.questionToDisplay = question.questionText;
+                this.optionsToDisplay = question.options;
+                const numCorrectAnswers = question.options.filter(opt => opt.correct).length;
+                this.shouldDisplayCorrectAnswers = numCorrectAnswers > 1;
 
-        const question = questions[index];
-        if (question) {
-          this.questionToDisplay = question.questionText;
-          this.optionsToDisplay = question.options;
+                // Format and store the explanation specifically for this question
+                const formattedExplanation = this.explanationTextService.formatExplanationText(question, index);
+                this.explanationTextService.formattedExplanations[index] = { explanation: formattedExplanation };
+                this.cdRef.detectChanges();
 
-          // Determine if it's a multiple-answer question by checking the number of correct options
-          const numCorrectAnswers = question.options.filter(opt => opt.correct).length;
-          this.shouldDisplayCorrectAnswers = numCorrectAnswers > 1;
-
-          this.cdRef.detectChanges();
-        } else {
-          throw new Error('Question not found');
-        }
-      }),
-      map(() => index),
-      catchError(error => {
-        console.error('Error loading the question or determining question type:', error);
-        return of(false); // Continue the stream with a default value
-      })
-    ).subscribe(index => {
-        const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
-        this.explanationTextService.setCurrentQuestionExplanation(explanationText);
-        this.explanationToDisplay = explanationText;
-    });
+                // Set the current question explanation after updating formattedExplanations
+                const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
+                this.explanationTextService.setCurrentQuestionExplanation(explanationText);
+                this.explanationToDisplay = explanationText;
+            } else {
+                throw new Error('Question not found');
+            }
+        }),
+        catchError(error => {
+            console.error('Error loading the question or determining question type:', error);
+            return of([]);
+        })
+    ).subscribe();
   }
 
   shouldShowExplanation(index: number): boolean {
