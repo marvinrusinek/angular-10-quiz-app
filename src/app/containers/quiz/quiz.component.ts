@@ -13,6 +13,7 @@ import { QuizData } from '../../shared/models/QuizData.model';
 import { RouteData } from '../../shared/models/RouteData.model';
 import { QuestionState } from '../../shared/models/QuestionState.model';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
+import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -315,9 +316,19 @@ export class QuizComponent implements OnInit, OnDestroy {
         if (question) {
           this.questionToDisplay = question.questionText;
           this.optionsToDisplay = question.options;
-          // Ensure index is correct
-          console.log('Retrieving explanation for index:', index);
-          this.explanationToDisplay = this.explanationTextService.getExplanationTextForQuestionIndex(index);
+
+          const formattedExplanationText: FormattedExplanation = {
+            questionIndex: index,
+            explanation:
+              this.explanationTextService.getFormattedExplanationTextForQuestion(
+                index
+              ),
+          };
+          this.explanationTextService.formattedExplanations[index] =
+            formattedExplanationText;
+
+
+          this.explanationToDisplay = this.explanationTextService.formattedExplanations$[index].toString();
           console.log("EXPL", this.explanationToDisplay);
 
           // Determine if it's a multiple-answer question by checking the number of correct options
