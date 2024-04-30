@@ -305,7 +305,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges();
   }
 
-  loadQuestionByRouteIndex(index: number): void {
+  private async loadQuestionByRouteIndex(index: number): Promise<void> {
     // Reset explanation text to prevent old text from displaying
     this.explanationTextService.formattedExplanations = {};
 
@@ -317,16 +317,12 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.questionToDisplay = question.questionText;
           this.optionsToDisplay = question.options;
 
-          const formattedExplanationText: FormattedExplanation = {
-            questionIndex: index,
-            explanation:
-              this.explanationTextService.getFormattedExplanationTextForQuestion(
-                index
-              ),
-          };
-          this.explanationTextService.formattedExplanations[index] =
-            formattedExplanationText;
-          this.explanationToDisplay = formattedExplanationText.explanation;
+          const explanationText =
+            await this.explanationTextService.getFormattedExplanationTextForQuestion(
+              this.currentQuestionIndex
+            );
+          this.explanationTextService.setCurrentQuestionExplanation(explanationText);
+
           console.log("EXPL", this.explanationToDisplay);
 
           // Determine if it's a multiple-answer question by checking the number of correct options
