@@ -313,6 +313,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.questionToDisplay = question.questionText;
           this.optionsToDisplay = question.options;
           this.explanationToDisplay = question.explanation;
+          console.log("EXPL", this.explanationToDisplay);
 
           // Determine if it's a multiple-answer question by checking the number of correct options
           const numCorrectAnswers = question.options.filter(opt => opt.correct).length;
