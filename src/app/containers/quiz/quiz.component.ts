@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter,
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, filter, first, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, filter, first, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
@@ -220,25 +220,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    this.activatedRoute.params.pipe(
-      takeUntil(this.destroy$),  // Ensures unsubscription on component destroy
-      switchMap(params => {
-        const currentIndex = +params['questionIndex'];
-        this.isNavigatedByUrl = true;  // Set the flag when URL changes
-  
-        // Call a method to fetch the explanation text for the current index
-        // Assuming getExplanationTextForQuestionIndex returns an Observable<string>
-        return this.explanationTextService.getExplanationTextForQuestionIndex(currentIndex);
-      })
-    ).subscribe(explanationText => {
-      // Update the explanation text to display
-      this.explanationToDisplay = explanationText;
-      this.updateContentBasedOnIndex(+params['questionIndex']);  // Ensure content is updated based on index
-    }, error => {
-      console.error('Failed to load explanation:', error);
-      this.explanationToDisplay = 'Failed to load explanation';  // Default error message
-    });
-
     /* this.activatedRoute.params.pipe(
       takeUntil(this.destroy$)
     ).subscribe(params => {
@@ -246,6 +227,22 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigatedByUrl = true;  // Set the flag when URL changes
       this.updateContentBasedOnIndex(currentIndex);
     }); */
+
+    this.activatedRoute.params.pipe(
+      takeUntil(this.destroy$),
+      map(params => parseInt(params['questionIndex'], 10)),
+      distinctUntilChanged(),
+      switchMap(index => {
+        this.isNavigatedByUrl = true;
+        return this.loadQuestionDetails(index);
+      })
+    ).subscribe({
+      next: (explanationText) => {
+        this.explanationToDisplay = explanationText;
+        this.cdRef.detectChanges();  // Ensure UI updates with new data
+      },
+      error: (error) => console.error('Error processing question data:', error)
+    });
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
@@ -325,7 +322,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadQuestionByRouteIndex(index: number): void {
-    this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
+    /* this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
       switchMap((questions: QuizQuestion[]) => {
         if (index >= 0 && index < questions.length) {
@@ -355,7 +352,49 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Error loading the question or determining question type:', error);
         return of([]);
       })
-    ).subscribe();
+    ).subscribe(); */
+
+    this.activatedRoute.params.pipe(
+      takeUntil(this.destroy$),
+      switchMap(params => {
+        const index = parseInt(params['questionIndex'], 10); // Ensure index is a number
+        this.isNavigatedByUrl = true; // Flag set when URL changes
+
+        // Fetch question details
+        return this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
+          map(questions => {
+            if (index < 0 || index >= questions.length) {
+              throw new Error('Question index out of bounds');
+            }
+
+            const question = questions[index];
+            this.questionToDisplay = question.questionText;
+            this.optionsToDisplay = question.options;
+
+            // Calculate whether multiple answers are correct
+            const numCorrectAnswers = question.options.filter(opt => opt.correct).length;
+            this.shouldDisplayCorrectAnswers = numCorrectAnswers > 1;
+
+            return index; // Continue with the same index for explanations
+          }),
+          catchError(error => {
+            console.error('Error loading question:', error);
+            return of(index); // Continue with the same index despite the error
+          })
+        );
+      }),
+      switchMap(index => {
+        // Fetch the explanation text for the current index
+        return this.explanationTextService.getExplanationTextForQuestionIndex(index);
+      }),
+      catchError(error => {
+        console.error('Failed to load explanation:', error);
+        return of('Failed to load explanation');
+      })
+    ).subscribe(explanationText => {
+      this.explanationToDisplay = explanationText;
+      this.cdRef.detectChanges(); // Ensure UI updates with new data
+    });
   }
 
   shouldShowExplanation(index: number): boolean {
