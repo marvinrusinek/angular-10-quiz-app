@@ -1,16 +1,17 @@
-<ng-container *ngIf="(combinedQuestionData$ | async)!">
+<ng-container *ngIf="combinedQuestionData$ | async as combinedData">
   <section id="question">
     <h3 question-content>
-      <span *ngIf="(combinedText$ | async)! as combinedText; else otherContent">
+      <span *ngIf="combinedText$ | async as combinedText; else questionDisplay">
         {{ combinedText }}
       </span>
 
-      <ng-template #otherContent>
+      <ng-template #questionDisplay>
         <span *ngIf="questionToDisplay">{{ questionToDisplay }}</span>
+        <span *ngIf="!questionToDisplay">Loading question...</span>
       </ng-template>
 
       <span class="number-correct" *ngIf="shouldDisplayCorrectAnswers">
-        {{ (correctAnswersText$ | async)! }}
+        {{ correctAnswersText$ | async }}
       </span>
     </h3>
   </section>
