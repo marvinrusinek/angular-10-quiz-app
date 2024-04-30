@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter,
   HostListener, Input, NgZone, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, EMPTY, filter, first, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, Observable, of, Subject, Subscription, throwError } from 'rxjs';
+import { catchError, filter, first, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
@@ -313,14 +313,15 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.questionToDisplay = question.questionText;
           this.optionsToDisplay = question.options;
           this.explanationToDisplay = question.explanation;
+
+          // Determine if it's a multiple-answer question by checking the number of correct options
+          const numCorrectAnswers = question.options.filter(opt => opt.correct).length;
+          this.shouldDisplayCorrectAnswers = numCorrectAnswers > 1;
+
+          this.cdRef.detectChanges();
         } else {
           throw new Error('Question not found');
         }
-      }),
-      switchMap(question => this.quizStateService.isMultipleAnswerQuestion(question)),
-      tap(isMultipleAnswer => {
-        this.shouldDisplayCorrectAnswers = isMultipleAnswer;
-        this.cdRef.detectChanges(); // Ensure the view is updated
       }),
       catchError(error => {
         console.error('Error loading the question or determining question type:', error);
