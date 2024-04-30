@@ -305,6 +305,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadQuestionByRouteIndex(index: number): void {
+    // Reset explanation text to prevent old text from displaying
+    this.explanationToDisplay = "Loading explanation...";
+    
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
       tap((questions: QuizQuestion[]) => {
@@ -312,6 +315,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         if (question) {
           this.questionToDisplay = question.questionText;
           this.optionsToDisplay = question.options;
+          // Ensure index is correct
+          console.log('Retrieving explanation for index:', index);
           this.explanationToDisplay = question.explanation;
           console.log("EXPL", this.explanationToDisplay);
 
