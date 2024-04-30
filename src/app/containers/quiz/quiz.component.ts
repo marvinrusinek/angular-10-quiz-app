@@ -220,15 +220,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    /* this.activatedRoute.params.pipe(
+    this.activatedRoute.params.pipe(
       takeUntil(this.destroy$)
     ).subscribe(params => {
       const currentIndex = +params['questionIndex'];
-      this.isNavigatedByUrl = true;  // Set the flag when URL changes
+      this.isNavigatedByUrl = true;
       this.updateContentBasedOnIndex(currentIndex);
-    }); */
+    });
 
-    this.activatedRoute.params.pipe(
+    /* this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
       map(params => parseInt(params['questionIndex'], 10)),
       distinctUntilChanged(),
@@ -242,7 +242,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.cdRef.detectChanges();
       },
       error: (error) => console.error('Error processing question data:', error)
-    });
+    }); */
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
