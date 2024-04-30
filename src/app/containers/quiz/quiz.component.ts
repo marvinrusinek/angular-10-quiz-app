@@ -312,20 +312,23 @@ export class QuizComponent implements OnInit, OnDestroy {
           const question = questions[index];
           this.questionToDisplay = question.questionText;
           this.optionsToDisplay = question.options;
-          this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
-          console.log('Loaded question text:', this.questionToDisplay);
-          console.log('Loaded explanation:', this.explanationToDisplay);
-          this.shouldDisplayCorrectAnswers = this.quizStateService.isMultipleAnswerQuestion(question);
-          this.cdRef.detectChanges();
+          this.explanationToDisplay = question.explanation;
         } else {
           console.error('Index out of range:', index);
+          return;
         }
+      }),
+      switchMap(question => this.quizStateService.isMultipleAnswerQuestion(question)),
+      tap(isMultiple => {
+        this.shouldDisplayCorrectAnswers = isMultiple;
       }),
       catchError((error: Error) => {
         console.error('Error loading the question:', error);
         return of([]);
       })
-    ).subscribe();
+    ).subscribe(() => {
+      this.cdRef.detectChanges();
+    });    
   }
 
   shouldShowExplanation(index: number): boolean {
