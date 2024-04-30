@@ -1,11 +1,11 @@
 <ng-container>
   <mat-card
-    [@changeRoute]="animationState$ | async"
+    [@changeRoute]="(animationState$ | async)!"
     (@changeRoute.done)="animationDoneHandler()"
   >
     <codelab-quiz-header></codelab-quiz-header>
   
-    <mat-card-content *ngIf="combinedQuestionData$ | async as data">
+    <mat-card-content *ngIf="(combinedQuestionData$ | async)! as data">
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
 
