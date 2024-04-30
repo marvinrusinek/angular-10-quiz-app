@@ -307,32 +307,35 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   loadQuestionByRouteIndex(index: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
-        takeUntil(this.unsubscribe$),
-        tap((questions: QuizQuestion[]) => {
-            if (index >= 0 && index < questions.length) {
-                const question = questions[index];
-                this.questionToDisplay = question.questionText;
-                this.optionsToDisplay = question.options;
-                const numCorrectAnswers = question.options.filter(opt => opt.correct).length;
-                this.shouldDisplayCorrectAnswers = numCorrectAnswers > 1;
+      takeUntil(this.unsubscribe$),
+      switchMap((questions: QuizQuestion[]) => {
+        if (index >= 0 && index < questions.length) {
+          const question = questions[index];
+          this.questionToDisplay = question.questionText;
+          this.optionsToDisplay = question.options;
+          const numCorrectAnswers = question.options.filter(opt => opt.correct).length;
+          this.shouldDisplayCorrectAnswers = numCorrectAnswers > 1;
 
-                // Format and store the explanation specifically for this question
-                const formattedExplanation = this.explanationTextService.formatExplanationText(question, index);
-                this.explanationTextService.formattedExplanations[index] = { explanation: formattedExplanation };
-                this.cdRef.detectChanges();
-
-                // Set the current question explanation after updating formattedExplanations
-                const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
-                this.explanationTextService.setCurrentQuestionExplanation(explanationText);
-                this.explanationToDisplay = explanationText;
-            } else {
-                throw new Error('Question not found');
-            }
-        }),
-        catchError(error => {
-            console.error('Error loading the question or determining question type:', error);
-            return of([]);
-        })
+          // Format the explanation for the current question
+          return this.explanationTextService.formatExplanationText(question, index).pipe(
+            tap(formattedExplanation => {
+              this.explanationTextService.formattedExplanations[index] = {
+                questionIndex: index,
+                explanation: formattedExplanation.explanation
+              };
+              this.explanationToDisplay = formattedExplanation.explanation;
+              this.explanationTextService.setCurrentQuestionExplanation(formattedExplanation.explanation);
+              this.cdRef.detectChanges();
+            })
+          );
+        } else {
+          throw new Error('Question not found');
+        }
+      }),
+      catchError(error => {
+        console.error('Error loading the question or determining question type:', error);
+        return of([]);
+      })
     ).subscribe();
   }
 
