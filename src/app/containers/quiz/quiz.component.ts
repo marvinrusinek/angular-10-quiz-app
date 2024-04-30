@@ -308,28 +308,25 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
       tap((questions: QuizQuestion[]) => {
-        if (index >= 0 && index < questions.length) {
-          const question = questions[index];
+        const question = questions[index];
+        if (question) {
           this.questionToDisplay = question.questionText;
           this.optionsToDisplay = question.options;
           this.explanationToDisplay = question.explanation;
-          console.log("EXPL", this.explanationToDisplay);
         } else {
-          console.error('Index out of range:', index);
-          return;
+          throw new Error('Question not found');
         }
       }),
       switchMap(question => this.quizStateService.isMultipleAnswerQuestion(question)),
-      tap(isMultiple => {
-        this.shouldDisplayCorrectAnswers = isMultiple;
+      tap(isMultipleAnswer => {
+        this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+        this.cdRef.detectChanges(); // Ensure the view is updated
       }),
-      catchError((error: Error) => {
-        console.error('Error loading the question:', error);
-        return of([]);
+      catchError(error => {
+        console.error('Error loading the question or determining question type:', error);
+        return of(false); // Continue the stream with a default value
       })
-    ).subscribe(() => {
-      this.cdRef.detectChanges();
-    });    
+    ).subscribe();  
   }
 
   shouldShowExplanation(index: number): boolean {
