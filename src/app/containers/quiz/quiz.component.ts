@@ -305,23 +305,22 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges();
   }
 
-  private async loadQuestionByRouteIndex(index: number): Promise<void> {
+  loadQuestionByRouteIndex(index: number): void {
     // Reset explanation text to prevent old text from displaying
     this.explanationTextService.formattedExplanations = {};
 
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
       tap((questions: QuizQuestion[]) => {
+        this.formattedExplanations = questions.reduce((acc, question, idx) => {
+          acc[idx] = { explanation: this.explanationTextService.formatExplanationText(question, index) };
+          return acc;
+        }, {});
+
         const question = questions[index];
         if (question) {
           this.questionToDisplay = question.questionText;
           this.optionsToDisplay = question.options;
-
-          const explanationText =
-            await this.explanationTextService.getFormattedExplanationTextForQuestion(index);
-          this.explanationTextService.setCurrentQuestionExplanation(explanationText);
-
-          console.log("EXPL", this.explanationToDisplay);
 
           // Determine if it's a multiple-answer question by checking the number of correct options
           const numCorrectAnswers = question.options.filter(opt => opt.correct).length;
@@ -332,11 +331,16 @@ export class QuizComponent implements OnInit, OnDestroy {
           throw new Error('Question not found');
         }
       }),
+      map(() => index),
       catchError(error => {
         console.error('Error loading the question or determining question type:', error);
         return of(false); // Continue the stream with a default value
       })
-    ).subscribe();  
+    ).subscribe(index => {
+        const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
+        this.explanationTextService.setCurrentQuestionExplanation(explanationText);
+        this.explanationToDisplay = explanationText;
+    });
   }
 
   shouldShowExplanation(index: number): boolean {
