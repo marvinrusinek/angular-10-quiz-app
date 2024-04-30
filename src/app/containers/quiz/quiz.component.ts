@@ -233,15 +233,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       map(params => parseInt(params['questionIndex'], 10)),
       distinctUntilChanged(),
       switchMap(index => {
-          this.isNavigatedByUrl = true;  // Set the flag when URL changes
-          return this.updateContentBasedOnIndex(index);  // Load question details based on the index
+        this.isNavigatedByUrl = true;
+        return this.updateContentBasedOnIndex(index);
       })
     ).subscribe({
-        next: (explanationText: string) => {
-          this.explanationToDisplay = explanationText;
-          this.cdRef.detectChanges();  // Ensure UI updates with new data
-        },
-        error: (error) => console.error('Error processing question data:', error)
+      next: (explanationText: string) => {
+        this.explanationToDisplay = explanationText;
+        this.cdRef.detectChanges();
+      },
+      error: (error) => console.error('Error processing question data:', error)
     });
 
     /* this.quizService.questionDataSubject.subscribe(
