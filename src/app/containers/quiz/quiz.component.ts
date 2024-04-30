@@ -221,12 +221,31 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.subscribeToCurrentQuestion();
 
     this.activatedRoute.params.pipe(
+      takeUntil(this.destroy$),  // Ensures unsubscription on component destroy
+      switchMap(params => {
+        const currentIndex = +params['questionIndex'];
+        this.isNavigatedByUrl = true;  // Set the flag when URL changes
+  
+        // Call a method to fetch the explanation text for the current index
+        // Assuming getExplanationTextForQuestionIndex returns an Observable<string>
+        return this.explanationTextService.getExplanationTextForQuestionIndex(currentIndex);
+      })
+    ).subscribe(explanationText => {
+      // Update the explanation text to display
+      this.explanationToDisplay = explanationText;
+      this.updateContentBasedOnIndex(+params['questionIndex']);  // Ensure content is updated based on index
+    }, error => {
+      console.error('Failed to load explanation:', error);
+      this.explanationToDisplay = 'Failed to load explanation';  // Default error message
+    });
+
+    /* this.activatedRoute.params.pipe(
       takeUntil(this.destroy$)
     ).subscribe(params => {
       const currentIndex = +params['questionIndex'];
       this.isNavigatedByUrl = true;  // Set the flag when URL changes
       this.updateContentBasedOnIndex(currentIndex);
-    });
+    }); */
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
