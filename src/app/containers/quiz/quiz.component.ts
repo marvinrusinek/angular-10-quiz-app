@@ -318,9 +318,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.optionsToDisplay = question.options;
 
           const explanationText =
-            await this.explanationTextService.getFormattedExplanationTextForQuestion(
-              this.currentQuestionIndex
-            );
+            await this.explanationTextService.getFormattedExplanationTextForQuestion(index);
           this.explanationTextService.setCurrentQuestionExplanation(explanationText);
 
           console.log("EXPL", this.explanationToDisplay);
