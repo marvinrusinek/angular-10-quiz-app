@@ -220,12 +220,28 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    this.activatedRoute.params.pipe(
+    /* this.activatedRoute.params.pipe(
       takeUntil(this.destroy$)
     ).subscribe(params => {
       const currentIndex = +params['questionIndex'];
       this.isNavigatedByUrl = true;  // Set the flag when URL changes
       this.updateContentBasedOnIndex(currentIndex);
+    }); */
+
+    this.activatedRoute.params.pipe(
+      takeUntil(this.destroy$),
+      map(params => parseInt(params['questionIndex'], 10)),
+      distinctUntilChanged(),
+      switchMap(index => {
+          this.isNavigatedByUrl = true;  // Set the flag when URL changes
+          return this.updateContentBasedOnIndex(index);  // Load question details based on the index
+      })
+    ).subscribe({
+        next: (explanationText: string) => {
+          this.explanationToDisplay = explanationText;
+          this.cdRef.detectChanges();  // Ensure UI updates with new data
+        },
+        error: (error) => console.error('Error processing question data:', error)
     });
 
     /* this.quizService.questionDataSubject.subscribe(
