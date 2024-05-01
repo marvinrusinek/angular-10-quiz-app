@@ -231,14 +231,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
       tap(() => {
-          this.explanationToDisplay = '';
-          console.log('Explanation text reset due to navigation.');
+        this.explanationToDisplay = '';
+        console.log('Explanation text reset due to navigation.');
       }),
       map(params => +params['questionIndex']),
       distinctUntilChanged(),
       tap(currentIndex => {
-          this.isNavigatedByUrl = true;
-          this.updateContentBasedOnIndex(currentIndex);
+        this.isNavigatedByUrl = true;
+        this.updateContentBasedOnIndex(currentIndex);
       })
     ).subscribe();
 
