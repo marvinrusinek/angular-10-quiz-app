@@ -56,17 +56,7 @@ export class ExplanationTextService {
     }
   
     this.explanationTexts[index] = explanation;
-  }  
-
-  /* getExplanationTextForQuestionIndex(index: number): string {
-    const explanationObject = this.formattedExplanations[index];
-    if (explanationObject === undefined) {
-      console.error(`No explanation found at index ${index}.`);
-      return `Default explanation for question ${index}`;
-    }
-
-    return explanationObject.explanation;
-  } */
+  }
 
   getExplanationTextForQuestionIndex(index: number): Observable<string> {
     const explanationObject = this.formattedExplanations[index];
