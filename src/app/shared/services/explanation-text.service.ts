@@ -95,9 +95,9 @@ export class ExplanationTextService {
     Observable<{ questionIndex: number, explanation: string }> {
     // Early return for invalid or non-current question
     if (!this.isQuestionValid(question) || !this.isCurrentQuestion(question)) {
-        console.log('Skipping question:', questionIndex, 
-            'Reason:', !this.isQuestionValid(question) ? 'Invalid' : 'Not Current');
-        return of({ questionIndex, explanation: '' });
+      console.log('Skipping question:', questionIndex, 
+        'Reason:', !this.isQuestionValid(question) ? 'Invalid' : 'Not Current');
+      return of({ questionIndex, explanation: '' });
     }
 
     const correctOptionIndices = this.getCorrectOptionIndices(question);
