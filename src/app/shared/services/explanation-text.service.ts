@@ -112,6 +112,10 @@ export class ExplanationTextService {
     return of({ questionIndex, explanation: formattedExplanation });
   }
 
+  addOrUpdateExplanation(index: number, explanation: string): void {
+    this.formattedExplanations[index] = { questionIndex: index, explanation: explanation };
+  }
+
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
     return question.options
       .map((option, index) => option.correct ? index + 1 : null)
