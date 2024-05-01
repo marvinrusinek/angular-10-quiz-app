@@ -303,7 +303,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  updateContentBasedOnIndex(index: number): void {
+  /* updateContentBasedOnIndex(index: number): void {
     const adjustedIndex = index - 1;
 
     // Check if the question index has actually changed or if navigated by URL
@@ -319,7 +319,53 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Trigger change detection to ensure UI updates
     this.cdRef.detectChanges();
+  } */
+
+  updateContentBasedOnIndex(index: number): void {
+    const adjustedIndex = index - 1;  // Make sure this adjustment is necessary
+
+    // Check if the question index has actually changed or if navigated by URL
+    this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl;
+
+    if (this.isQuestionIndexChanged) {
+        this.previousIndex = adjustedIndex;
+        this.loadQuestionByRouteIndex(adjustedIndex);
+        this.isNavigatedByUrl = false; // Reset the navigated by URL flag after loading
+    } else {
+        console.log("No index change detected, still on index:", adjustedIndex);
+    }
+
+    this.cdRef.detectChanges();
   }
+
+  loadQuestionByRouteIndex(index: number): void {
+    this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
+        takeUntil(this.unsubscribe$),
+        switchMap(questions => {
+            if (index < 0 || index >= questions.length) {
+                throw new Error('Question index out of bounds');
+            }
+            const question = questions[index];
+            this.questionToDisplay = question.questionText;
+            this.optionsToDisplay = question.options;
+            this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
+
+            return this.explanationTextService.formatExplanationText(question, index);
+        }),
+        tap(formattedExplanation => {
+            this.explanationTextService.formattedExplanations[index] = formattedExplanation;
+            this.explanationToDisplay = formattedExplanation.explanation;
+            this.explanationTextService.setCurrentQuestionExplanation(formattedExplanation.explanation);
+            this.cdRef.detectChanges();
+        }),
+        catchError(error => {
+            console.error('Error loading the question:', error);
+            return of('Error loading data');  // Provide a fallback message
+        })
+    ).subscribe();
+  }
+
+
 
   /* loadQuestionByRouteIndex(index: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
@@ -355,7 +401,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe();
   } */
 
-  loadQuestionByRouteIndex(index: number): void {
+  /* loadQuestionByRouteIndex(index: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
         takeUntil(this.unsubscribe$),
         switchMap((questions: QuizQuestion[]) => {
@@ -374,6 +420,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             // Assuming formattedExplanation is already the expected format
             this.explanationTextService.formattedExplanations[index] = formattedExplanation;
             this.explanationToDisplay = formattedExplanation.explanation;
+            console.log("ETD", this.explanationToDisplay);
             this.explanationTextService.setCurrentQuestionExplanation(formattedExplanation.explanation);
             this.cdRef.detectChanges();
         }),
@@ -382,7 +429,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             return of('Error loading data');  // Provide a more appropriate fallback
         })
     ).subscribe();
-  }
+  } */
 
   shouldShowExplanation(index: number): boolean {
     return !!this.explanationToDisplay;
