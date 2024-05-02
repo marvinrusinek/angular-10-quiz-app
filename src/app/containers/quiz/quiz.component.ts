@@ -358,7 +358,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }),
       catchError(error => {
         console.error('Error loading the question:', error);
-        return of('Error loading data');  // Provide a fallback message
+        return of('Error loading data');
       })
     ).subscribe();
   }
