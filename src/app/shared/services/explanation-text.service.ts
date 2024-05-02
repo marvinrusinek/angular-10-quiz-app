@@ -24,8 +24,7 @@ export class ExplanationTextService {
     this.isExplanationTextDisplayedSource.asObservable();
 
   shouldDisplayExplanationSource = new BehaviorSubject<boolean>(false);
-  shouldDisplayExplanation$ =
-    this.shouldDisplayExplanationSource.asObservable();
+  shouldDisplayExplanation$ = this.shouldDisplayExplanationSource.asObservable();
 
   private isExplanationDisplayedSource = new BehaviorSubject<boolean>(false);
   isExplanationDisplayed$ = this.isExplanationDisplayedSource.asObservable();
