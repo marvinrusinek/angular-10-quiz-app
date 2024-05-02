@@ -194,8 +194,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    // this.testSubscribeToQuestions();
-
     this.questions = this.quizService.getShuffledQuestions();
     // this.updateQuestionDisplayForShuffledQuestions();
     this.cdRef.detectChanges();
