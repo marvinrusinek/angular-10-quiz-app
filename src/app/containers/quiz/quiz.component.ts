@@ -242,22 +242,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       })
     ).subscribe();
 
-    /* this.activatedRoute.params.pipe(
-      takeUntil(this.destroy$),
-      map(params => parseInt(params['questionIndex'], 10)),
-      distinctUntilChanged(),
-      switchMap(index => {
-        this.isNavigatedByUrl = true;
-        return this.updateContentBasedOnIndex(index);
-      })
-    ).subscribe({
-      next: (explanationText: string) => {
-        this.explanationToDisplay = explanationText;
-        this.cdRef.detectChanges();
-      },
-      error: (error) => console.error('Error processing question data:', error)
-    }); */
-
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
         this.questions = shuffledQuestions;
