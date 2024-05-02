@@ -30,10 +30,7 @@ export class ExplanationTextService {
   private isExplanationDisplayedSource = new BehaviorSubject<boolean>(false);
   isExplanationDisplayed$ = this.isExplanationDisplayedSource.asObservable();
 
-  constructor() {
-    this.explanationText$.next('');
-    this.shouldDisplayExplanationSource.next(false);
-  }
+  constructor() {}
 
   getExplanationText$(): Observable<string | null> {
     return this.explanationText$.asObservable();
