@@ -299,36 +299,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  /* updateContentBasedOnIndex(index: number): void {
+  updateContentBasedOnIndex(index: number): void {
     const adjustedIndex = index - 1;
 
     // Check if the question index has actually changed or if navigated by URL
     this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl;
 
     if (this.isQuestionIndexChanged) {
-      this.previousIndex = adjustedIndex; // Update previous index for future checks
+      this.previousIndex = adjustedIndex;
       this.loadQuestionByRouteIndex(adjustedIndex);
       this.isNavigatedByUrl = false; // Reset the navigated by URL flag after loading
     } else {
       console.log("No index change detected, still on index:", adjustedIndex);
-    }
-
-    // Trigger change detection to ensure UI updates
-    this.cdRef.detectChanges();
-  } */
-
-  updateContentBasedOnIndex(index: number): void {
-    const adjustedIndex = index - 1;  // Make sure this adjustment is necessary
-
-    // Check if the question index has actually changed or if navigated by URL
-    this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl;
-
-    if (this.isQuestionIndexChanged) {
-        this.previousIndex = adjustedIndex;
-        this.loadQuestionByRouteIndex(adjustedIndex);
-        this.isNavigatedByUrl = false; // Reset the navigated by URL flag after loading
-    } else {
-        console.log("No index change detected, still on index:", adjustedIndex);
     }
 
     this.cdRef.detectChanges();
