@@ -40,11 +40,6 @@ export class ExplanationTextService {
     this.explanationText$.next(explanation);
     this.isExplanationDisplayedSource.next(true); // Set to true when explanation is displayed
   }
-  
-  resetExplanationText(): void {
-    this.explanationText$.next('');
-    this.isExplanationDisplayedSource.next(false); // Set to false when explanation is hidden
-  }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     if (index < 0) {
@@ -209,6 +204,11 @@ export class ExplanationTextService {
 
   setShouldDisplayExplanation(shouldDisplay: boolean): void {
     this.shouldDisplayExplanationSource.next(shouldDisplay);
+  }
+
+  resetExplanationText(): void {
+    this.explanationText$.next('');
+    this.isExplanationDisplayedSource.next(false); // Set to false when explanation is hidden
   }
 
   resetStateBetweenQuestions(): void {
