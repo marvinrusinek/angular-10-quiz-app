@@ -218,20 +218,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     }); */
 
-    /* this.activatedRoute.paramMap.subscribe(params => {
-      const questionIndex = +params.get('questionIndex'); // Get the id parameter and convert to number
-      this.loadQuestion(questionIndex);
-    }); */
-
     this.subscribeToAnswers();
     this.subscriptionToOptions();
     // this.quizService.initializeSounds();
     this.logFinalData();
-  }
-
-  loadQuestion(index: number): void {
-    this.question = this.quizService.getQuestion(index);
-    this.options = this.quizService.getOptions(index);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
