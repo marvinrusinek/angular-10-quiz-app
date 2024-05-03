@@ -316,7 +316,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges();
   }
 
-  loadQuestionByRouteIndex(index: number): void {
+  /* loadQuestionByRouteIndex(index: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
       switchMap(questions => {
@@ -339,6 +339,32 @@ export class QuizComponent implements OnInit, OnDestroy {
       catchError(error => {
         console.error('Error loading the question:', error);
         return of('Error loading data');
+      })
+    ).subscribe();
+  } */
+
+  loadQuestionByRouteIndex(index: number): void {
+    this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
+      takeUntil(this.unsubscribe$),
+      switchMap(questions => {
+        if (index < 0 || index >= questions.length) {
+          throw new Error('Question index out of bounds');
+        }
+        const question = questions[index];
+        this.questionToDisplay = question.questionText;
+        this.optionsToDisplay = question.options;
+        this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
+
+        return this.explanationTextService.formatExplanationText(question, index);
+      }),
+      tap(formattedExplanation => {
+        this.explanationTextService.updateFormattedExplanation(index, formattedExplanation.explanation);
+        this.explanationToDisplay = formattedExplanation.explanation;
+        this.explanationTextService.setCurrentQuestionExplanation(formattedExplanation.explanation);
+      }),
+      catchError(error => {
+        console.error('Error loading the question:', error);
+        return EMPTY;
       })
     ).subscribe();
   }
