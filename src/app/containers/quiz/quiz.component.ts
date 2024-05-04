@@ -311,7 +311,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         return this.explanationTextService.formatExplanationText(question, index);
       }),
       tap(formattedExplanation => {
+        console.log(`Formatted explanation received: ${formattedExplanation.explanation}`);
         this.explanationTextService.updateFormattedExplanation(index, formattedExplanation.explanation);
+        console.log(`Explanation set in component: ${this.explanationToDisplay}`);
         this.explanationToDisplay = formattedExplanation.explanation;
       }),
       catchError(error => {
