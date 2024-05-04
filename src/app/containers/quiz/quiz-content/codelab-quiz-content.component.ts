@@ -47,14 +47,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   currentQuestionType: QuestionType;
 
   displayCorrectAnswers = false;
+  explanationDisplayed = false;
+  isExplanationDisplayed = false;
   isExplanationTextDisplayed = false;
   isExplanationTextDisplayed$: Observable<boolean>;
-  isExplanationDisplayed = false;
   nextExplanationText = '';
   formattedExplanation = '';
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  displayCorrectAnswersText = false;
-  explanationDisplayed = false;
 
   numberOfCorrectAnswers = 0;
   numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
@@ -72,7 +71,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   explanationText$ = this.explanationTextSource.asObservable();
   explanationText: string | null = null;
   explanationTexts: string[] = [];
-  showExplanationText = false;
 
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
@@ -80,8 +78,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   combinedText$: Observable<string>;
   textToDisplay: string = '';
 
-  previousIndex: number | null = null; // To track if the index has changed
-  isQuestionIndexChanged = false; // Flag to control the display based on index change
+  previousIndex: number | null = null; // to track if the index has changed
+  isQuestionIndexChanged = false; // flag to control the display based on index change
 
   private destroy$ = new Subject<void>();
 
