@@ -113,6 +113,7 @@ export class ExplanationTextService {
 
   updateFormattedExplanation(index: number, explanation: string): void {
     this.formattedExplanations[index] = { explanation, questionIndex: index };
+    this.changeDetectorRef.markForCheck();
   }
 
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
