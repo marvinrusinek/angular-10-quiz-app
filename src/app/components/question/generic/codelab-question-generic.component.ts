@@ -9,16 +9,15 @@ import { FormGroup } from '@angular/forms';
 export class CodelabQuestionGenericComponent implements OnChanges {
   @Input() form: FormGroup;
   @Input() questionType: 'multiple' | 'single';
-  @Input() data: any; // Add more specific types as per your requirement
+  @Input() data: any;
   @Input() options: any[];
   // ... other inputs like questions, options, etc.
 
   @Output() answer = new EventEmitter<any>();
 
   ngOnChanges(changes: SimpleChanges) {
-    // Implement any logic needed when input properties change
     console.log(changes);
   }
 
-  // Add any additional methods needed for this component
+  // add any additional methods needed for this component
 }
