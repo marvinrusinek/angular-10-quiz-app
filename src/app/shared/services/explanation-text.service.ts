@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
@@ -29,7 +29,7 @@ export class ExplanationTextService {
   private isExplanationDisplayedSource = new BehaviorSubject<boolean>(false);
   isExplanationDisplayed$ = this.isExplanationDisplayedSource.asObservable();
 
-  constructor(private cdRef: ChangeDetectorRef) {}
+  constructor() {}
 
   getExplanationText$(): Observable<string | null> {
     return this.explanationText$.asObservable();
@@ -113,7 +113,6 @@ export class ExplanationTextService {
 
   updateFormattedExplanation(index: number, explanation: string): void {
     this.formattedExplanations[index] = { explanation, questionIndex: index };
-    this.cdRef.markForCheck();
   }
 
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
