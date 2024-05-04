@@ -115,7 +115,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuiz$ = this.currentQuizSubject.asObservable();
 
   currentQuestionIndex = 0;
-  lastQuestionIndex: number;
   totalQuestions = 0;
   questionIndex: number;
   progressPercentage = 0;
@@ -130,7 +129,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   explanationToDisplay = '';
   isExplanationVisible = false;
 
-  questionsArray: QuizQuestion[] = [];
   isQuizDataLoaded = false;
 
   previousIndex: number | null = null;
@@ -143,7 +141,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
 
-  audioAvailable: boolean = true;
+  audioAvailable = true;
 
   constructor(
     private quizService: QuizService,
