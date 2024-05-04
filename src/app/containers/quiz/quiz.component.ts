@@ -80,14 +80,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   indexOfQuizId: number;
   status: QuizStatus;
   isNavigating = false;
-  totalQuestions$: Observable<number>;
 
-  selectedOption: Option;
   selectedOptions: Option[] = [];
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
-  selectedAnswers: number[] = [];
   selectedAnswerField: number;
-  selectedAnswerIndex: number;
   selectionMessage$: Observable<string>;
   correctAnswers: any[] = [];
   isOptionSelected = false;
@@ -96,7 +92,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   previousQuestionText = '';
   nextExplanationText = '';
   correctAnswersText: string;
-  shouldDisplayOptions = true;
   cardFooterClass = '';
 
   showExplanation = false;
