@@ -72,7 +72,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject(null);
   routerSubscription: Subscription;
   private questionAndOptionsSubscription: Subscription;
-  private currentQuestionSubscriptions = new Subscription();
   resources: Resource[];
   answers = [];
   answered = false;
@@ -428,7 +427,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuiz$.next(null);
     this.routerSubscription.unsubscribe();
     this.questionAndOptionsSubscription?.unsubscribe();
-    this.currentQuestionSubscriptions.unsubscribe();
     this.timerService.stopTimer(null);
   }
 
@@ -1196,59 +1194,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       )
     );
   }
-
-  // Function to subscribe to changes in the current question and update the currentQuestionType
-  /* private subscribeToCurrentQuestion(): void {
-    // Subscription for getting the current question observable
-    this.quizService.getCurrentQuestionObservable().pipe(
-      retry(2),
-      filter((question: QuizQuestion) => question !== null),
-      catchError((error: Error) => {
-        console.error('Error when subscribing to current question:', error);
-        return of(null);
-      })
-    ).pipe(
-      filter((question: QuizQuestion | null) => question !== null) // Filter out null values
-    ).subscribe({
-      next: (question: QuizQuestion | null) => {
-        if (question) {
-          this.currentQuestion = question;
-          this.options = question.options;
-          this.currentQuestionType = question.type;
-        } else {
-          console.error('Received null for current question after retries. No valid data available.');
-          this.currentQuestion = null;
-          this.options = [];
-        }
-      },
-      error: (error) => {
-        console.error('Unhandled error when subscribing to current question:', error);
-        this.currentQuestion = null;
-        this.options = [];
-      }
-    });
-    
-    // Subscription for state management of the current question
-    this.currentQuestionSubscriptions.add(
-      this.quizStateService.currentQuestion$.subscribe({
-        next: (question) => {
-          if (question) {
-            this.currentQuestion = question;
-            this.options = question.options;
-            this.currentQuestionType = question.type;
-          } else {
-            this.currentQuestion = null;
-            this.options = [];
-          }
-        },
-        error: (error) => {
-          console.error('Error in current question stream:', error);
-          this.currentQuestion = null;
-          this.options = [];
-        }
-      })
-    );
-  } */
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
