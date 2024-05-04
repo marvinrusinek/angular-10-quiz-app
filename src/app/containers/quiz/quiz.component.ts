@@ -206,14 +206,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    /* this.activatedRoute.params.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(params => {
-      const currentIndex = +params['questionIndex'];
-      this.isNavigatedByUrl = true;
-      this.updateContentBasedOnIndex(currentIndex);
-    }); */
-
     this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
       tap(() => {
