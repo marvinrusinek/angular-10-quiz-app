@@ -220,6 +220,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       })
     ).subscribe();
 
+    this.explanationTextService.explanation$.subscribe(
+      explanation => {
+        this.explanationToDisplay = explanation;
+        console.log(`New explanation received in component: ${explanation}`);
+      }
+    );
+
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
         this.questions = shuffledQuestions;
