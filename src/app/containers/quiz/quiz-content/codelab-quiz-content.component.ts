@@ -99,13 +99,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.quizService.getIsNavigatingToPrevious().subscribe(
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
-
-    this.explanationTextService.explanation$.subscribe(
-      explanation => {
-        this.explanationToDisplay = explanation;
-        console.log(`New explanation received in component: ${explanation}`);
-      }
-    );
   }
 
   ngOnInit(): void {
