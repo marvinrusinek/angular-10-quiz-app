@@ -304,6 +304,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadQuestionByRouteIndex(index: number): void {
+    this.explanationToDisplay = '';
+    
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
       switchMap(questions => {
