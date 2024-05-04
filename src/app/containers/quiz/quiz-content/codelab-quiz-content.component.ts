@@ -174,7 +174,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
   }
 
-  restoreQuestionState(): void {
+  async restoreQuestionState(): Promise<void> {
     const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndexValue);
     // console.log("QS", questionState, "for questionId", this.currentQuestionIndexValue);
 
@@ -182,7 +182,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       const isQuestionAnswered = questionState.isAnswered;
       if (isQuestionAnswered) {
         this.quizService.displayExplanation = true;
-        this.explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndexValue);
+        this.explanationText = await firstValueFrom(this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndexValue));
       }
 
       this.numberOfCorrectAnswers = questionState.numberOfCorrectAnswers;
