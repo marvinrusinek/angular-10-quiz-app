@@ -134,12 +134,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   ngOnDestroy(): void {
-    this.shouldDisplayCorrectAnswers = false;
     this.destroy$.next();
     this.destroy$.complete();
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
-    this.explanationTextService.resetStateBetweenQuestions();
   }
 
   initializeSubscriptions(): void {
