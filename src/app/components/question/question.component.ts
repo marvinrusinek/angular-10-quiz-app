@@ -110,7 +110,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   correctAnswersLoaded = false;
   sharedVisibilitySubscription: Subscription;
   isExplanationTextDisplayed = false;
-  isExplanationVisible = false;
   isNavigatingToPrevious = false;
   isLoading = true;
   isLoadingQuestions = false;
