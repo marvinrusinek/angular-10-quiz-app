@@ -313,7 +313,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       tap(formattedExplanation => {
         this.explanationTextService.updateFormattedExplanation(index, formattedExplanation.explanation);
         this.explanationToDisplay = formattedExplanation.explanation;
-        this.explanationTextService.setCurrentQuestionExplanation(formattedExplanation.explanation);
       }),
       catchError(error => {
         console.error('Error loading the question:', error);
