@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, Observable, of, Subject, Subscription, throwError } from 'rxjs';
+import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, first, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
@@ -1202,7 +1202,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
-  private subscribeToCurrentQuestion(): void {
+  /* private subscribeToCurrentQuestion(): void {
     // Subscription for getting the current question observable
     this.quizService.getCurrentQuestionObservable().pipe(
       retry(2),
@@ -1211,11 +1211,14 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Error when subscribing to current question:', error);
         return of(null);
       })
+    ).pipe(
+      filter((question: QuizQuestion | null) => question !== null) // Filter out null values
     ).subscribe({
       next: (question: QuizQuestion | null) => {
         if (question) {
           this.currentQuestion = question;
           this.options = question.options;
+          this.currentQuestionType = question.type;
         } else {
           console.error('Received null for current question after retries. No valid data available.');
           this.currentQuestion = null;
@@ -1236,6 +1239,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           if (question) {
             this.currentQuestion = question;
             this.options = question.options;
+            this.currentQuestionType = question.type;
           } else {
             this.currentQuestion = null;
             this.options = [];
@@ -1248,7 +1252,38 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       })
     );
+  } */
+
+  // Function to subscribe to changes in the current question and update the currentQuestionType
+  private subscribeToCurrentQuestion(): void {
+    const combinedQuestionObservable = merge(
+      this.quizService.getCurrentQuestionObservable().pipe(
+        retry(2),
+        catchError((error: Error) => {
+          console.error('Error when subscribing to current question from quizService:', error);
+          return of(null);
+        })
+      ),
+      this.quizStateService.currentQuestion$
+    );
+
+    combinedQuestionObservable.pipe(
+      filter((question: QuizQuestion | null) => question !== null) // filter out null values to ensure only valid questions are processed
+    ).subscribe({
+      next: (question: QuizQuestion) => {
+        this.currentQuestion = question;
+        this.options = question.options;
+        this.currentQuestionType = question.type;
+      },
+      error: (error) => {
+        console.error('Error when processing the question streams:', error);
+        this.currentQuestion = null;
+        this.options = [];
+        this.currentQuestionType = null; // Reset on error
+      }
+    });
   }
+
 
   handleOptions(options: Option[]): void {
     if (!options || options.length === 0) {
