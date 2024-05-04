@@ -199,9 +199,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
 
     // Subscribe to router events and initialize
-    this.notifyOnNavigationEnd();
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
+    this.notifyOnNavigationEnd();
 
     // Fetch additional quiz data
     this.fetchQuizData();
