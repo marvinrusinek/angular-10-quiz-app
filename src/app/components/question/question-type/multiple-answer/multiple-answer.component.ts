@@ -111,24 +111,9 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     );
   }
 
-  resetState() {
-    this.selectedOption = null;
-    this.showFeedback = false;
-  }
-
   ngOnDestroy(): void {
     this.destroyed$.next();
     this.destroyed$.complete();
-  }
-
-  onOptionClick(option: Option, index: number, event?: MouseEvent): void {
-    if (event) {
-      event.stopPropagation();
-    }
-  
-    super.onOptionClicked(option, index);
-    this.selectedOption = option;
-    this.showFeedback = true;
   }
 
   initializeOptionChecked(): void {
@@ -141,6 +126,21 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
           );
       });
     }
+  }
+
+  resetState() {
+    this.selectedOption = null;
+    this.showFeedback = false;
+  }
+
+  onOptionClick(option: Option, index: number, event?: MouseEvent): void {
+    if (event) {
+      event.stopPropagation();
+    }
+  
+    super.onOptionClicked(option, index);
+    this.selectedOption = option;
+    this.showFeedback = true;
   }
 
   getOptionClass(option: Option): string {
