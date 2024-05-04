@@ -16,6 +16,9 @@ export class ExplanationTextService {
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
   processedQuestions: Set<string> = new Set<string>();
 
+  private explanationSource = new BehaviorSubject<string>('');
+  explanation$ = this.explanationSource.asObservable();
+
   nextExplanationTextSource = new BehaviorSubject<string>(null);
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
@@ -113,6 +116,7 @@ export class ExplanationTextService {
 
   updateFormattedExplanation(index: number, explanation: string): void {
     this.formattedExplanations[index] = { explanation, questionIndex: index };
+    this.explanationSource.next(explanation);
   }
 
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
