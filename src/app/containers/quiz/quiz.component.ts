@@ -42,7 +42,6 @@ type AnimationState = 'animationStarted' | 'none';
   providers: [QuizService, QuizDataService, QuizStateService, HighlightDirective]
 })
 export class QuizComponent implements OnInit, OnDestroy {
-  @Output() optionSelected = new EventEmitter<Option>();
   @Input() data: {
     questionText: string;
     correctAnswersText?: string;
