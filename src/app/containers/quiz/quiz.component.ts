@@ -305,10 +305,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   loadQuestionByRouteIndex(index: number): void {
     this.explanationToDisplay = '';
-    
+
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
-      switchMap(questions => {
+      map(questions => {
         if (index < 0 || index >= questions.length) {
           throw new Error('Question index out of bounds');
         }
@@ -317,8 +317,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.optionsToDisplay = question.options;
         this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
 
-        return this.explanationTextService.formatExplanationText(question, index);
+        // return this.explanationTextService.formatExplanationText(question, index);
+        return question;
       }),
+      switchMap(question => this.explanationTextService.formatExplanationText(question, index)),
       tap(formattedExplanation => {
         console.log(`Formatted explanation received: ${formattedExplanation.explanation}`);
         this.explanationTextService.updateFormattedExplanation(index, formattedExplanation.explanation);
