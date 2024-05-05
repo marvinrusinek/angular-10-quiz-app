@@ -310,6 +310,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
+  preloadExplanations(questions: QuizQuestion[]): void {
+    const preloadTasks = questions.map((question, index) =>
+      this.explanationTextService.formatExplanationText(question, index).pipe(
+        tap(formattedExplanation => {
+          this.explanationTextService.storeExplanation(index, formattedExplanation.explanation);
+        })
+      )
+    );
+
+    forkJoin(preloadTasks).subscribe({
+        next: () => console.log('All explanations preloaded successfully'),
+        error: () => console.error('Error preloading explanations')
+    });
+  }
+
   shouldShowExplanation(index: number): boolean {
     return !!this.explanationToDisplay;
   }
