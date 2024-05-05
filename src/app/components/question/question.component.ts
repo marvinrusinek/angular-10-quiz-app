@@ -1448,12 +1448,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private async moveToNextQuestion(): Promise<void> {
-    this.currentQuestionIndex++;
-    const currentQuiz: Quiz = await firstValueFrom(this.selectedQuiz);
-    this.currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
-  }
-
   /* playSound(selectedOption: Option): void {
     if (!selectedOption) {
       console.log('Selected option is undefined or null.');
