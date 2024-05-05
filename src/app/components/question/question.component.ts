@@ -64,7 +64,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() quizId: string | null | undefined = '';
   @Input() multipleAnswer: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
-  @Input() shouldDisplayNumberOfCorrectAnswers = false;
   @Input() explanationText: string | null;
   @Input() isOptionSelected = false;
   @Input() selectionMessage: string;
