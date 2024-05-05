@@ -292,7 +292,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  updateContentBasedOnIndex(index: number): void {
+  /* updateContentBasedOnIndex(index: number): void {
     if (!this.quiz || !this.quiz.questions || index < 0 || index >= this.quiz.questions.length) {
       console.error('Invalid index or quiz data is not ready.');
       return;
@@ -314,7 +314,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.cdRef && !this.cdRef['destroyed']) {
       this.cdRef.detectChanges();
     }
+  } */
+
+  updateContentBasedOnIndex(index: number): void {
+    if (!this.quiz || !this.quiz.questions || index < 0 || index >= this.quiz.questions.length) {
+      console.error('Invalid index or quiz data is not ready.');
+      return;
+    }
+  
+    const adjustedIndex = index;
+    this.previousIndex = adjustedIndex;
+    this.loadQuestionByRouteIndex(adjustedIndex);
+    this.isNavigatedByUrl = false;
   }
+  
 
   loadQuestionByRouteIndex(index: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
