@@ -279,7 +279,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Check if the question index has actually changed or if navigated by URL
+    // Check if the question index has changed or if navigated by URL
     const adjustedIndex = index - 1;
     this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl;
 
@@ -289,11 +289,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigatedByUrl = false;
     } else {
       console.log("No index change detected, still on index:", adjustedIndex);
-    }
-
-    // Call detectChanges to optimize performance
-    if (this.cdRef && !this.cdRef['destroyed']) {
-      this.cdRef.detectChanges();
     }
   }
   
