@@ -82,8 +82,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswerField: number;
   selectionMessage$: Observable<string>;
   correctAnswers: any[] = [];
-  nextQuestionText = '';
-  previousQuestionText = '';
   nextExplanationText = '';
   correctAnswersText: string;
   cardFooterClass = '';
