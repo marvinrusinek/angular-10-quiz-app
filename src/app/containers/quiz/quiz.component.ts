@@ -274,56 +274,29 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  /* updateContentBasedOnIndex(index: number): void {
-    const adjustedIndex = index - 1;
-
-    // Check if the question index has actually changed or if navigated by URL
-    this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl;
-
-    if (this.isQuestionIndexChanged) {
-      this.previousIndex = adjustedIndex;
-      this.loadQuestionByRouteIndex(adjustedIndex);
-      this.isNavigatedByUrl = false; // Reset the navigated by URL flag after loading
-    } else {
-      console.log("No index change detected, still on index:", adjustedIndex);
-    }
-
-    this.cdRef.detectChanges();
-  } */
-
   updateContentBasedOnIndex(index: number): void {
     if (!this.quiz || !this.quiz.questions || index < 0 || index >= this.quiz.questions.length) {
       console.error('Invalid index or quiz data is not ready.');
       return;
     }
 
-    this.loadQuestionByRouteIndex(index);
-  }
-
-  /* updateContentBasedOnIndex(index: number): void {
+    // Check if the question index has actually changed or if navigated by URL
     const adjustedIndex = index - 1;
-
-    if (!this.quiz || !this.quiz.questions) {
-      console.error('Quiz data is not fully loaded or has no questions.');
-      return;
-    }
-
     this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl;
 
     if (this.isQuestionIndexChanged) {
-      if (adjustedIndex >= 0 && adjustedIndex < this.quiz.questions.length) {
-        this.previousIndex = adjustedIndex;
-        this.loadQuestionByRouteIndex(adjustedIndex);
-        this.isNavigatedByUrl = false;
-      } else {
-        console.error('Question index out of bounds:', adjustedIndex);
-      }
+      this.previousIndex = adjustedIndex;
+      this.loadQuestionByRouteIndex(adjustedIndex);
+      this.isNavigatedByUrl = false;
     } else {
       console.log("No index change detected, still on index:", adjustedIndex);
     }
 
-    this.cdRef.detectChanges();
-  } */
+    // Call detectChanges to optimize performance
+    if (this.cdRef && !this.cdRef['destroyed']) {
+      this.cdRef.detectChanges();
+    }
+  }
 
   /* loadQuestionByRouteIndex(index: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
