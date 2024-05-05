@@ -193,7 +193,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    this.activatedRoute.params.pipe(
+    /* this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
       tap(() => {
         this.explanationToDisplay = '';
@@ -208,10 +208,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.explanationToDisplay = explanation;
         console.log(`Explanation for index ${currentIndex}: ${explanation}`);
       })
-    ).subscribe();
-    
+    ).subscribe(); */    
 
-    /* this.activatedRoute.data.subscribe(data => {
+    this.activatedRoute.data.subscribe(data => {
       if (data.quizData) {
         this.quiz = data.quizData;
       } else {
@@ -223,7 +222,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$),
       tap(() => {
         this.explanationToDisplay = '';
-        console.log('Explanation text reset due to navigation.');
       }),
       map(params => +params['questionIndex']),
       distinctUntilChanged(),
@@ -231,7 +229,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.isNavigatedByUrl = true;
         this.updateContentBasedOnIndex(currentIndex);
       })
-    ).subscribe(); */
+    ).subscribe();
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
