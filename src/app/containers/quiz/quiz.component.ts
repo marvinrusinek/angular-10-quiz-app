@@ -193,13 +193,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    this.route.data.subscribe(data => {
-      if (data.quiz) {
+    this.activatedRoute.data.subscribe(data => {
+      if (data && data.quiz) {
         this.quiz = data.quiz;
-        console.log('Quiz loaded:', this.quiz);
-        // Proceed to use the quiz data, e.g., display the first question
+        const initialIndex = this.activatedRoute.snapshot.params['questionIndex'];
+        if (initialIndex !== undefined) {
+          this.updateContentBasedOnIndex(+initialIndex);
+        } else {
+          this.loadQuestionByRouteIndex(0);
+        }
       } else {
-        console.error('Failed to load quiz data.');
+        console.error('Quiz data is unavailable.');
       }
     });
 
@@ -294,6 +298,15 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   updateContentBasedOnIndex(index: number): void {
+    if (!this.quiz || !this.quiz.questions || index < 0 || index >= this.quiz.questions.length) {
+      console.error('Invalid index or quiz data is not ready.');
+      return;
+    }
+
+    this.loadQuestionByRouteIndex(index);
+  }
+
+  /* updateContentBasedOnIndex(index: number): void {
     const adjustedIndex = index - 1;
 
     if (!this.quiz || !this.quiz.questions) {
@@ -316,9 +329,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     this.cdRef.detectChanges();
-  }
+  } */
 
-  loadQuestionByRouteIndex(index: number): void {
+  /* loadQuestionByRouteIndex(index: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
       map(questions => {
@@ -342,6 +355,14 @@ export class QuizComponent implements OnInit, OnDestroy {
         return EMPTY;
       })
     ).subscribe();
+  } */
+
+  loadQuestionByRouteIndex(index: number): void {
+    const question = this.quiz.questions[index];
+    this.questionToDisplay = question.questionText;
+    this.optionsToDisplay = question.options;
+    this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
+    this.explanationToDisplay = question.explanation;
   }
 
   preloadExplanations(questions: QuizQuestion[]): void {
