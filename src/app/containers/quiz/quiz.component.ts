@@ -201,16 +201,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
 
-    /* this.route.data.subscribe(data => {
-      if (data.quiz) {
-        this.quiz = data.quiz;
-        console.log('Quiz loaded:', this.quiz);
-        // Proceed to use the quiz data, e.g., display the first question
-      } else {
-        console.error('Failed to load quiz data.');
-      }
-    }); */
-
     this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
       tap(() => {
