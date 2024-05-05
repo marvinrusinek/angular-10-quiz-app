@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, In
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, first, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, filter, first, forkJoin, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
@@ -311,7 +311,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   preloadExplanations(questions: QuizQuestion[]): void {
-    const preloadTasks = questions.map((question, index) =>
+    const preloadExpls = questions.map((question, index) =>
       this.explanationTextService.formatExplanationText(question, index).pipe(
         tap(formattedExplanation => {
           this.explanationTextService.storeExplanation(index, formattedExplanation.explanation);
@@ -319,7 +319,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       )
     );
 
-    forkJoin(preloadTasks).subscribe({
+    forkJoin(preloadExpls).subscribe({
         next: () => console.log('All explanations preloaded successfully'),
         error: () => console.error('Error preloading explanations')
     });
