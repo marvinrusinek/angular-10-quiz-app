@@ -52,8 +52,6 @@ export class QuizResolverService implements Resolve<Quiz | null> {
 
   resolve(route: ActivatedRouteSnapshot): Observable<Quiz | null> {
     const quizId = route.params['quizId'];
-    console.log('Attempting to resolve quiz with ID:', quizId);
-
     if (!quizId) {
       console.error('Quiz ID is missing in the route parameters.');
       return of(null);
