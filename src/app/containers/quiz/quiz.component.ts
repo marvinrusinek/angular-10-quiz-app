@@ -286,7 +286,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   updateContentBasedOnIndex(index: number): void {
     const adjustedIndex = index - 1;
 
-    // Check if the question index has actually changed or if navigated by URL
+    if (!this.quiz || !this.quiz.questions) {
+      console.error('Quiz data is not fully loaded or has no questions.');
+      return;
+    }
+
     this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl;
 
     if (this.isQuestionIndexChanged) {
@@ -301,7 +305,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log("No index change detected, still on index:", adjustedIndex);
     }
 
-    this.cdRef.detectChanges(); // Trigger change detection to ensure UI updates
+    this.cdRef.detectChanges();
   }
 
   loadQuestionByRouteIndex(index: number): void {
