@@ -193,23 +193,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    /* this.activatedRoute.params.pipe(
-      takeUntil(this.destroy$),
-      tap(() => {
-        this.explanationToDisplay = '';
-        console.log('Explanation text reset due to navigation.');
-      }),
-      map(params => +params['questionIndex']),
-      distinctUntilChanged(),
-      tap(currentIndex => {
-        this.isNavigatedByUrl = true;
-        this.updateContentBasedOnIndex(currentIndex);
-        const explanation = this.explanationTextService.getFormattedExplanation(currentIndex);
-        this.explanationToDisplay = explanation;
-        console.log(`Explanation for index ${currentIndex}: ${explanation}`);
-      })
-    ).subscribe(); */    
-
     this.activatedRoute.data.subscribe(data => {
       if (data.quizData) {
         this.quiz = data.quizData;
