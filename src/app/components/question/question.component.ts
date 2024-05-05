@@ -1106,7 +1106,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
     const isOptionSelected = this.checkOptionSelected(option);
-    const index = this.selectedOptions.findIndex((o) => o === option);
+    const index = this.selectedOptions.findIndex((opt) => opt === option);
 
     if (!isOptionSelected && index === -1) {
       this.addSelectedOption(option, currentQuestion);
@@ -1219,7 +1219,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.selectionChanged.emit({
       question: currentQuestion,
-      selectedOptions: this.selectedOptions,
+      selectedOptions: this.selectedOptions
     });
   }
 
@@ -1407,7 +1407,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.answers.push({
       question: this.currentQuestion,
       questionIndex: this.currentQuestionIndex,
-      selectedOption: selectedOption,
+      selectedOption: selectedOption
     });
 
     let isCorrect = false;
@@ -1434,7 +1434,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       isCorrect: isCorrect,
       explanationText: explanationText,
       selectedOptions: selectedOptions,
-      numberOfCorrectAnswers: numberOfCorrectAnswers,
+      numberOfCorrectAnswers: numberOfCorrectAnswers
     });
 
     // this.quizService.playSound(isCorrect);
