@@ -832,7 +832,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       questionState = {
         isAnswered: false,
         explanationDisplayed: false,
-        selectedOptions: [],
+        selectedOptions: []
       };
     }
 
@@ -1009,7 +1009,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.currentQuestionIndex,
       {
         selectedOptions: [option],
-        isCorrect: option.correct ?? false,
+        isCorrect: option.correct ?? false
       },
       totalCorrectAnswers
     );
