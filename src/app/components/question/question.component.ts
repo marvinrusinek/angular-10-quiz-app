@@ -34,17 +34,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     question: QuizQuestion;
     selectedOptions: Option[];
   }> = new EventEmitter();
-  @Output() shouldDisplayNumberOfCorrectAnswersChanged: EventEmitter<{
-    shouldDisplay: boolean;
-    numberOfCorrectAnswers: number;
-  }> = new EventEmitter();
   @Output() toggleVisibility: EventEmitter<void> = new EventEmitter<void>();
   @Output() optionClicked: EventEmitter<void> = new EventEmitter<void>();
   @Output() optionSelected: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() questionAnswered = new EventEmitter<boolean>();
   @Output() isAnswerSelectedChange: EventEmitter<boolean> =
-    new EventEmitter<boolean>();
-  @Output() isAnsweredChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
   @Output() explanationToDisplayChange: EventEmitter<string> =
     new EventEmitter<string>();
@@ -1223,7 +1217,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isOptionSelected = true;
     this.isAnswered = this.selectedOptions.length > 0;
     this.optionClicked.emit();
-    this.isAnsweredChange.emit(this.isAnswered);
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
 
