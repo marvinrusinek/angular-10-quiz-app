@@ -51,10 +51,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   @Input() form: FormGroup;
   formControl: FormControl;
   quiz: Quiz;
-  quiz$: Observable<Quiz>;
   quizData: QuizData[];
   quizId = '';
-  quizName$: Observable<string>;
   quizResources: QuizResource[];
   quizQuestions: QuizQuestion[];
   question!: QuizQuestion;
