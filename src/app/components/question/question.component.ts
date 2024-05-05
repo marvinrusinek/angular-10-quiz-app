@@ -150,7 +150,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.sharedVisibilityService = sharedVisibilityService;
 
     this.questionForm = this.fb.group({
-      selectedOption: [''],
+      selectedOption: ['']
     });
 
     /* this.sharedVisibilitySubscription =
