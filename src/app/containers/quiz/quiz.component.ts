@@ -193,15 +193,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    this.activatedRoute.data.subscribe(data => {
-      console.log('Route data received:', data);
-      if (data.quiz) {
-        this.quiz = data.quiz;
-        console.log('Quiz loaded:', this.quiz);
-        this.loadQuestionByRouteIndex(this.currentQuestionIndex);
-      }
-    });
-
     this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
       tap(() => {
@@ -292,7 +283,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges();
   }
 
-  /* loadQuestionByRouteIndex(index: number): void {
+  loadQuestionByRouteIndex(index: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
       map(questions => {
@@ -316,24 +307,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         return EMPTY;
       })
     ).subscribe();
-  } */
-
-  loadQuestionByRouteIndex(index: number): void {
-    if (!this.quiz || !this.quiz.questions) {
-      console.error('Quiz data is not loaded or has no questions');
-      return;
-    }
-
-    if (index < 0 || index >= this.quiz.questions.length) {
-      console.error('Question index out of bounds');
-      return;
-    }
-    const question = this.quiz.questions[index];
-    this.questionToDisplay = question.questionText;
-    this.optionsToDisplay = question.options;
-    this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
-    this.explanationToDisplay = question.explanation;  // Assuming explanations are preloaded
-    console.log(`Loaded question and explanation for index ${index}: ${this.explanationToDisplay}`);
   }
 
   preloadExplanations(questions: QuizQuestion[]): void {
