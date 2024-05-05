@@ -291,7 +291,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log("No index change detected, still on index:", adjustedIndex);
     }
   }
-  
 
   loadQuestionByRouteIndex(index: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
@@ -319,14 +318,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
-  /* loadQuestionByRouteIndex(index: number): void {
-    const question = this.quiz.questions[index];
-    this.questionToDisplay = question.questionText;
-    this.optionsToDisplay = question.options;
-    this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
-    this.explanationToDisplay = question.explanation;
-  } */
-
   preloadExplanations(questions: QuizQuestion[]): void {
     const preloadExpls = questions.map((question, index) =>
       this.explanationTextService.formatExplanationText(question, index).pipe(
@@ -337,8 +328,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
 
     forkJoin(preloadExpls).subscribe({
-        next: () => console.log('All explanations preloaded successfully'),
-        error: () => console.error('Error preloading explanations')
+      next: () => console.log('All explanations preloaded successfully'),
+      error: () => console.error('Error preloading explanations')
     });
   }
 
