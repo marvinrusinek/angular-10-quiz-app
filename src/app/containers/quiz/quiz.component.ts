@@ -12,7 +12,6 @@ import { QuizData } from '../../shared/models/QuizData.model';
 import { RouteData } from '../../shared/models/RouteData.model';
 import { QuestionState } from '../../shared/models/QuestionState.model';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
-import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -112,7 +111,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.combinedQuestionDataSubject.asObservable();
 
   private currentQuizSubject = new BehaviorSubject<Quiz | null>(null);
-  currentQuiz$ = this.currentQuizSubject.asObservable();
 
   currentQuestionIndex = 0;
   totalQuestions = 0;
