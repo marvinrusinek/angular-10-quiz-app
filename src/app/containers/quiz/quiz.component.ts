@@ -207,7 +207,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.activatedRoute.params.pipe(
+    /* this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
       tap(() => {
         this.explanationToDisplay = '';
@@ -219,7 +219,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.isNavigatedByUrl = true;
         this.updateContentBasedOnIndex(currentIndex);
       })
-    ).subscribe();
+    ).subscribe(); */
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
