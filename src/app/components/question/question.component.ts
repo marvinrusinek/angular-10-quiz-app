@@ -392,7 +392,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               explanation:
                 this.explanationTextService.getFormattedExplanationTextForQuestion(
                   index
-                ),
+                )
             };
             this.explanationTextService.formattedExplanations[index] =
               formattedExplanationText;
@@ -1015,7 +1015,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     );
 
     // Decide whether to show the explanation based on the current question index
-    await this.conditionallyShowExplanation(this.currentQuestionIndex);
+    await firstValueFrom(of(this.conditionallyShowExplanation(this.currentQuestionIndex)));
   }
 
   private processOptionSelection(
