@@ -194,8 +194,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.subscribeToCurrentQuestion();
 
     this.activatedRoute.data.subscribe(data => {
-      this.quiz = data['quiz'];
-      this.loadQuestionByRouteIndex(0); // Start with the first question or based on URL
+      console.log('Route data received:', data);
+      if (data.quiz) {
+        this.quiz = data.quiz;
+        console.log('Quiz loaded:', this.quiz);
+        this.loadQuestionByRouteIndex(this.currentQuestionIndex);
+      }
     });
 
     this.activatedRoute.params.pipe(
@@ -315,6 +319,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   loadQuestionByRouteIndex(index: number): void {
+    if (!this.quiz || !this.quiz.questions) {
+      console.error('Quiz data is not loaded or has no questions');
+      return;
+    }
+
     if (index < 0 || index >= this.quiz.questions.length) {
       console.error('Question index out of bounds');
       return;
