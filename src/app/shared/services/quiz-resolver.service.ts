@@ -19,7 +19,6 @@ export class QuizResolverService implements Resolve<Quiz | null> {
 
     return this.quizDataService.getQuizzes().pipe(
       map(quizzes => {
-        console.log('Quizzes fetched:', quizzes);
         const quiz = quizzes.find(q => q.quizId === quizId);
         if (!quiz) {
           console.error(`No quiz found with ID: ${quizId}`);
@@ -29,7 +28,6 @@ export class QuizResolverService implements Resolve<Quiz | null> {
           console.error('Quiz has no questions:', quiz);
           return null;
         }
-        console.log('Returning quiz with questions:', quiz);
         return quiz;
       }),
       catchError(error => {
@@ -39,4 +37,3 @@ export class QuizResolverService implements Resolve<Quiz | null> {
     );
   }
 }
-
