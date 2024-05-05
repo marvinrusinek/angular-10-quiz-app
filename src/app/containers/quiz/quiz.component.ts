@@ -79,14 +79,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   indexOfQuizId: number;
   status: QuizStatus;
   isNavigating = false;
+  isDisabled: boolean; // may use later
 
   selectedOptions: Option[] = [];
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
   selectedAnswerField: number;
   selectionMessage$: Observable<string>;
   correctAnswers: any[] = [];
-  isOptionSelected = false;
-  isDisabled: boolean; // may use later
   nextQuestionText = '';
   previousQuestionText = '';
   nextExplanationText = '';
@@ -96,10 +95,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   showExplanation = false;
   displayExplanation = false;
   explanationText: string | null;
-  private explanationTextSource = new BehaviorSubject<string>(null);
   explanationVisibility: boolean[] = [];
   explanationVisible = false;
-  showExplanationInsteadOfQuestion = false;
 
   private combinedQuestionDataSubject = new BehaviorSubject<{
     question: QuizQuestion;
@@ -1133,7 +1130,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Combine nextQuestion$ and nextOptions$ using combineLatest
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$,
-      this.quizService.nextOptions$,
+      this.quizService.nextOptions$
     ]).pipe(
       switchMap(([nextQuestion, nextOptions]) =>
         nextQuestion
@@ -1351,10 +1348,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   animationDoneHandler(): void {
     this.animationState$.next('none');
-  }
-
-  isQuestionAnswered(): boolean {
-    return this.isOptionSelected;
   }
 
   isNextDisabled(): boolean {
