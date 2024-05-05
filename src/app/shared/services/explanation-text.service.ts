@@ -110,13 +110,18 @@ export class ExplanationTextService {
     return of({ questionIndex, explanation: formattedExplanation });
   }
 
+  updateFormattedExplanation(index: number, explanation: string): void {
+    this.formattedExplanations[index] = { explanation, questionIndex: index };
+    this.explanationSource.next(explanation);
+  }
+
   addOrUpdateExplanation(index: number, explanation: string): void {
     this.formattedExplanations[index] = { questionIndex: index, explanation: explanation };
   }
 
-  updateFormattedExplanation(index: number, explanation: string): void {
-    this.formattedExplanations[index] = { explanation, questionIndex: index };
-    this.explanationSource.next(explanation);
+  storeExplanation(index: number, explanation: string): void {
+    this.explanationTexts[index] = explanation;
+    console.log(`Explanation stored for index ${index}: ${explanation}`);
   }
 
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
