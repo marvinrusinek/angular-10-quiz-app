@@ -107,9 +107,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private currentQuizSubject = new BehaviorSubject<Quiz | null>(null);
 
+  questionIndex: number;
   currentQuestionIndex = 0;
   totalQuestions = 0;
-  questionIndex: number;
   progressPercentage = 0;
   correctCount: number;
   numberOfCorrectAnswers: number;
