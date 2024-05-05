@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter,
-  HostListener, Input, NgZone, OnDestroy, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnDestroy, OnInit, Output } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Event as RouterEvent, NavigationEnd, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, Observable, of, Subject, Subscription, throwError } from 'rxjs';
+import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, first, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
@@ -43,7 +42,6 @@ type AnimationState = 'animationStarted' | 'none';
   providers: [QuizService, QuizDataService, QuizStateService, HighlightDirective]
 })
 export class QuizComponent implements OnInit, OnDestroy {
-  @Output() optionSelected = new EventEmitter<Option>();
   @Input() data: {
     questionText: string;
     correctAnswersText?: string;
@@ -73,10 +71,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuiz: Quiz;
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject(null);
   routerSubscription: Subscription;
-  subscription: Subscription;
-  private routeParamsSubscription: Subscription;
   private questionAndOptionsSubscription: Subscription;
-  private currentQuestionSubscriptions = new Subscription();
   resources: Resource[];
   answers = [];
   answered = false;
@@ -85,14 +80,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   indexOfQuizId: number;
   status: QuizStatus;
   isNavigating = false;
-  totalQuestions$: Observable<number>;
 
-  selectedOption: Option;
   selectedOptions: Option[] = [];
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
-  selectedAnswers: number[] = [];
   selectedAnswerField: number;
-  selectedAnswerIndex: number;
   selectionMessage$: Observable<string>;
   correctAnswers: any[] = [];
   isOptionSelected = false;
@@ -101,7 +92,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   previousQuestionText = '';
   nextExplanationText = '';
   correctAnswersText: string;
-  shouldDisplayOptions = true;
   cardFooterClass = '';
 
   showExplanation = false;
@@ -125,7 +115,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuiz$ = this.currentQuizSubject.asObservable();
 
   currentQuestionIndex = 0;
-  lastQuestionIndex: number;
   totalQuestions = 0;
   questionIndex: number;
   progressPercentage = 0;
@@ -140,7 +129,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   explanationToDisplay = '';
   isExplanationVisible = false;
 
-  questionsArray: QuizQuestion[] = [];
   isQuizDataLoaded = false;
 
   previousIndex: number | null = null;
@@ -153,7 +141,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
 
-  audioAvailable: boolean = true;
+  audioAvailable = true;
 
   constructor(
     private quizService: QuizService,
@@ -200,9 +188,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
 
     // Subscribe to router events and initialize
-    this.notifyOnNavigationEnd();
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
+    this.notifyOnNavigationEnd();
 
     // Fetch additional quiz data
     this.fetchQuizData();
@@ -217,14 +205,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.createQuestionData();
     this.getQuestion();
     this.subscribeToCurrentQuestion();
-
-    /* this.activatedRoute.params.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(params => {
-      const currentIndex = +params['questionIndex'];
-      this.isNavigatedByUrl = true;
-      this.updateContentBasedOnIndex(currentIndex);
-    }); */
 
     this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
@@ -316,33 +296,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges();
   }
 
-  /* loadQuestionByRouteIndex(index: number): void {
-    this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
-      takeUntil(this.unsubscribe$),
-      switchMap(questions => {
-        if (index < 0 || index >= questions.length) {
-          throw new Error('Question index out of bounds');
-        }
-        const question = questions[index];
-        this.questionToDisplay = question.questionText;
-        this.optionsToDisplay = question.options;
-        this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
-
-        return this.explanationTextService.formatExplanationText(question, index);
-      }),
-      tap(formattedExplanation => {
-        this.explanationTextService.formattedExplanations[index] = formattedExplanation;
-        this.explanationToDisplay = formattedExplanation.explanation;
-        this.explanationTextService.setCurrentQuestionExplanation(formattedExplanation.explanation);
-        this.cdRef.detectChanges();
-      }),
-      catchError(error => {
-        console.error('Error loading the question:', error);
-        return of('Error loading data');
-      })
-    ).subscribe();
-  } */
-
   loadQuestionByRouteIndex(index: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
@@ -358,9 +311,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         return this.explanationTextService.formatExplanationText(question, index);
       }),
       tap(formattedExplanation => {
+        console.log(`Formatted explanation received: ${formattedExplanation.explanation}`);
         this.explanationTextService.updateFormattedExplanation(index, formattedExplanation.explanation);
+        console.log(`Explanation set in component: ${this.explanationToDisplay}`);
         this.explanationToDisplay = formattedExplanation.explanation;
-        this.explanationTextService.setCurrentQuestionExplanation(formattedExplanation.explanation);
       }),
       catchError(error => {
         console.error('Error loading the question:', error);
@@ -431,10 +385,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
     this.selectedQuiz$.next(null);
     this.routerSubscription.unsubscribe();
-    this.subscription?.unsubscribe();
-    this.routeParamsSubscription?.unsubscribe();
     this.questionAndOptionsSubscription?.unsubscribe();
-    this.currentQuestionSubscriptions.unsubscribe();
     this.timerService.stopTimer(null);
   }
 
@@ -1205,52 +1156,34 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
-    // Subscription for getting the current question observable
-    this.quizService.getCurrentQuestionObservable().pipe(
-      retry(2),
-      filter((question: QuizQuestion) => question !== null),
-      catchError((error: Error) => {
-        console.error('Error when subscribing to current question:', error);
-        return of(null);
-      })
+    const combinedQuestionObservable = merge(
+      this.quizService.getCurrentQuestionObservable().pipe(
+        retry(2),
+        catchError((error: Error) => {
+          console.error('Error when subscribing to current question from quizService:', error);
+          return of(null);
+        })
+      ),
+      this.quizStateService.currentQuestion$
+    );
+
+    combinedQuestionObservable.pipe(
+      filter((question: QuizQuestion | null) => question !== null) // filter out null values to ensure only valid questions are processed
     ).subscribe({
-      next: (question: QuizQuestion | null) => {
-        if (question) {
-          this.currentQuestion = question;
-          this.options = question.options;
-        } else {
-          console.error('Received null for current question after retries. No valid data available.');
-          this.currentQuestion = null;
-          this.options = [];
-        }
+      next: (question: QuizQuestion) => {
+        this.currentQuestion = question;
+        this.options = question.options;
+        this.currentQuestionType = question.type;
       },
       error: (error) => {
-        console.error('Unhandled error when subscribing to current question:', error);
+        console.error('Error when processing the question streams:', error);
         this.currentQuestion = null;
         this.options = [];
+        this.currentQuestionType = null; // Reset on error
       }
     });
-    
-    // Subscription for state management of the current question
-    this.currentQuestionSubscriptions.add(
-      this.quizStateService.currentQuestion$.subscribe({
-        next: (question) => {
-          if (question) {
-            this.currentQuestion = question;
-            this.options = question.options;
-          } else {
-            this.currentQuestion = null;
-            this.options = [];
-          }
-        },
-        error: (error) => {
-          console.error('Error in current question stream:', error);
-          this.currentQuestion = null;
-          this.options = [];
-        }
-      })
-    );
   }
+
 
   handleOptions(options: Option[]): void {
     if (!options || options.length === 0) {
