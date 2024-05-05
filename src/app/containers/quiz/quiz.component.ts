@@ -298,7 +298,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }),
       tap(index => {
         // Retrieve the preloaded explanation using the index
-        const explanation = this.explanationTextService.getExplanationByIndex(index);
+        const explanation = this.explanationTextService.getFormattedExplanation(index);
         console.log(`Explanation retrieved for index ${index}: ${explanation}`);
         this.explanationToDisplay = explanation;  // Set the explanation in the component
       }),
