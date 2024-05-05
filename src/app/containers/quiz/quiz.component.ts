@@ -193,6 +193,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
+    this.activatedRoute.data.subscribe(data => {
+      if (data.quiz) {
+        this.quiz = data.quiz;
+        this.loadInitialQuestion(); // Load the first or a specific question based on URL params
+      } else {
+        console.error('No quiz data available');
+      }
+    });
+
     this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
       tap(() => {
@@ -264,6 +273,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.src = "http://www.marvinrusinek.com/sound-correct.mp3";
     audio.load();
     audio.play();
+  }
+
+  loadInitialQuestion() {
+    const startIndex = parseInt(this.route.snapshot.paramMap.get('questionIndex'), 10) || 0;
+    this.updateContentBasedOnIndex(startIndex);
   }
 
   /* updateContentBasedOnIndex(index: number): void {
