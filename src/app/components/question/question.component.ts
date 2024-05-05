@@ -746,7 +746,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               correct: index === this.correctOptionIndex,
               value: option.value,
               answer: option.value,
-              selected: false,
+              selected: false
             } as Option)
         );
 
