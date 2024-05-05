@@ -374,7 +374,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isLoading = true;
 
     try {
-      // Convert the Observable to a Promise using firstValueFrom
       const questions = await this.quizService.fetchQuizQuestions();
 
       if (questions && questions.length > 0) {
