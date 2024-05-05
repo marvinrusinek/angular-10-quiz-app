@@ -121,7 +121,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     url: '../../../../../../../assets/audio/sound-incorrect.mp3',
     title: 'Incorrect Answer'
   };
-  private subscriptions: Subscription = new Subscription();
+
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -214,7 +214,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.questionsObservableSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
     this.sharedVisibilitySubscription?.unsubscribe();
-    this.subscriptions.unsubscribe();
     document.removeEventListener(
       'visibilitychange',
       this.initializeQuestionOptions.bind(this)
