@@ -276,7 +276,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadInitialQuestion() {
-    const startIndex = parseInt(this.route.snapshot.paramMap.get('questionIndex'), 10) || 0;
+    const startIndex = parseInt(this.activatedRoute.snapshot.paramMap.get('questionIndex'), 10) || 0;
     this.updateContentBasedOnIndex(startIndex);
   }
 
