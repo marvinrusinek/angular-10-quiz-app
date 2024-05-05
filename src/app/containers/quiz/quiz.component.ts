@@ -194,9 +194,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.subscribeToCurrentQuestion();
 
     this.activatedRoute.data.subscribe(data => {
-      if (data && data.quiz) {
-        this.quiz = data.quiz;
-        console.log('Quiz data loaded:', this.quiz);
+      if (data.quizData) {
+        this.quiz = data.quizData;
+        this.initializeQuiz();
       } else {
         console.error('Quiz data is unavailable.');
       }
