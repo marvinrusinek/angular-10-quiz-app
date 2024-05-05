@@ -196,18 +196,23 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.data.subscribe(data => {
       if (data && data.quiz) {
         this.quiz = data.quiz;
-        const initialIndex = this.activatedRoute.snapshot.params['questionIndex'];
-        if (initialIndex !== undefined) {
-          this.updateContentBasedOnIndex(+initialIndex);
-        } else {
-          this.loadQuestionByRouteIndex(0);
-        }
+        console.log('Quiz data loaded:', this.quiz);
       } else {
         console.error('Quiz data is unavailable.');
       }
     });
 
-    /* this.activatedRoute.params.pipe(
+    /* this.route.data.subscribe(data => {
+      if (data.quiz) {
+        this.quiz = data.quiz;
+        console.log('Quiz loaded:', this.quiz);
+        // Proceed to use the quiz data, e.g., display the first question
+      } else {
+        console.error('Failed to load quiz data.');
+      }
+    }); */
+
+    this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
       tap(() => {
         this.explanationToDisplay = '';
@@ -219,7 +224,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.isNavigatedByUrl = true;
         this.updateContentBasedOnIndex(currentIndex);
       })
-    ).subscribe(); */
+    ).subscribe();
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
