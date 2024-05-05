@@ -65,7 +65,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentOptions: Option[] = [];
   options$: Observable<Option[]>;
   currentQuiz: Quiz;
-  selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject(null);
   routerSubscription: Subscription;
   private questionAndOptionsSubscription: Subscription;
   resources: Resource[];
@@ -373,7 +372,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-    this.selectedQuiz$.next(null);
     this.routerSubscription.unsubscribe();
     this.questionAndOptionsSubscription?.unsubscribe();
     this.timerService.stopTimer(null);
