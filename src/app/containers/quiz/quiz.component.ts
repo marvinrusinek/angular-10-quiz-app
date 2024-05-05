@@ -298,7 +298,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* loadQuestionByRouteIndex(index: number): void {
+  loadQuestionByRouteIndex(index: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
       map(questions => {
@@ -322,15 +322,15 @@ export class QuizComponent implements OnInit, OnDestroy {
         return EMPTY;
       })
     ).subscribe();
-  } */
+  }
 
-  loadQuestionByRouteIndex(index: number): void {
+  /* loadQuestionByRouteIndex(index: number): void {
     const question = this.quiz.questions[index];
     this.questionToDisplay = question.questionText;
     this.optionsToDisplay = question.options;
     this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
     this.explanationToDisplay = question.explanation;
-  }
+  } */
 
   preloadExplanations(questions: QuizQuestion[]): void {
     const preloadExpls = questions.map((question, index) =>
