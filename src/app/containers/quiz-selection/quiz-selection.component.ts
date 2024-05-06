@@ -82,9 +82,9 @@ export class QuizSelectionComponent implements OnInit {
     }
   }  
 
-  selectQuiz(quiz: Quiz): void {
+  /* selectQuiz(quiz: Quiz): void {
     this.selectedQuiz = quiz;
-  }
+  } */
   
   getQuizTileStyles(quiz: Quiz): QuizTileStyles {
     return {
@@ -93,9 +93,9 @@ export class QuizSelectionComponent implements OnInit {
     };
   }
 
-  getLinkName(quiz: Quiz): string {
+  /* getLinkName(quiz: Quiz): string {
     return quiz.status.toLowerCase();
-  }
+  } */
 
   getLinkClass(quiz: Quiz): string[] {
     const classes = ['status-link'];
