@@ -1051,9 +1051,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
           // Initialize or update the state for all questions
           questions.forEach((_, index) => this.initializeOrUpdateQuestionState(index));
-
-          // Call handleFirstQuestionState after the questions are initialized
-          // await this.handleFirstQuestionState();
         } else {
           this.handleNoQuestionsAvailable();
         }
@@ -1535,22 +1532,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* async handleFirstQuestionState(): Promise<void> {
-    // Check if the first question has been answered and needs to display its explanation
-    const firstQuestionState = await firstValueFrom(of(this.quizStateService.getQuestionState(this.quizId, 0)));
-    if (firstQuestionState && firstQuestionState.isAnswered) {
-      // Fetch and display the explanation for the first question
-      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(0);
-      this.quizService.shouldDisplayExplanation = true;
-    } else {
-      // Reset any explanation text if the first question hasn't been answered
-      this.explanationToDisplay = '';
-      this.quizService.shouldDisplayExplanation = false;
-    }
-
-    this.resetUI();
-  } */
-
   advanceToResults(): void {
     this.quizService.resetAll();
     this.timerService.stopTimer((elapsedTime: number) => {
@@ -1745,7 +1726,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.timerService.resetTimer();
 
     this.initializeFirstQuestion();
-    // this.handleFirstQuestionState();
 
     this.setDisplayStateForExplanationsAfterRestart().then(() => {
       // Navigate to the first question and reset UI only after all previous steps are complete
