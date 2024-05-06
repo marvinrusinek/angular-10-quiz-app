@@ -35,10 +35,8 @@ export class ScoreComponent implements OnInit, OnDestroy {
   @Input() totalQuestions = 0;
   questions$: Observable<QuizQuestion[]>;
   totalQuestions$: Observable<number>;
-  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(
-    0
-  );
-  score = '';
+  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+
   numericalScore = '0/0';
   percentageScore = '';
   isPercentage = false;
