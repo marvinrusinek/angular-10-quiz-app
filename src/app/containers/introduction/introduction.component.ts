@@ -32,7 +32,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   selectedQuiz: Quiz | null;
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
   private isChecked = new Subject<boolean>();
-  private subscriptions: Subscription = new Subscription();
+  private quizSelectionSubscription: Subscription;
   shuffledQuestions: QuizQuestion[];
 
   imagePath = '../../../assets/images/milestones/';
@@ -60,7 +60,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.subscriptions.unsubscribe();
+    this.quizSelectionSubscription?.unsubscribe();
   }
 
   private initializeData(): void {
@@ -93,7 +93,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   private handleQuizSelectionAndFetchQuestions(): void {
-    const subscription = this.isChecked.pipe(
+    this.quizSelectionSubscription = this.isChecked.pipe(
       withLatestFrom(this.quizDataService.selectedQuiz$),
       tap(([checked, selectedQuiz]) => {
         if (checked && selectedQuiz) {
@@ -103,9 +103,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         }
       })
     ).subscribe();
-  
-    // Adding the subscription to the consolidated subscription object
-    this.subscriptions.add(subscription);
   }
 
   private fetchAndHandleQuestions(quizId: string): void {
