@@ -47,7 +47,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>(
     this.numericalScore
   );
-  subscription: Subscription;
+  scoreSubscription: Subscription;
 
   private unsubscribeTrigger$: Subject<void> = new Subject<void>();
 
@@ -63,7 +63,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
       this.displayNumericalScore();
     });
 
-    this.subscription = combineLatest([
+    this.scoreSubscription = combineLatest([
       this.correctAnswersCount$.pipe(
         takeUntil(this.unsubscribeTrigger$),
         distinctUntilChanged()
@@ -92,15 +92,19 @@ export class ScoreComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
     this.unsubscribeTrigger$.next();
     this.unsubscribeTrigger$.complete();
     this.currentScore$.complete();
+    this.scoreSubscription?.unsubscribe();
   }
 
-  displayNumericalScore(): void {
-    this.numericalScore = `${this.correctAnswersCount}/${this.totalQuestions}`;
-    this.currentScore$.next(this.numericalScore);
+  toggleScoreDisplay(scoreType: 'numerical' | 'percentage'): void {
+    this.isPercentage = scoreType === 'percentage';
+    if (this.isPercentage) {
+      this.displayPercentageScore();
+    } else {
+      this.displayNumericalScore();
+    }
   }
 
   displayPercentageScore(): void {
@@ -111,12 +115,8 @@ export class ScoreComponent implements OnInit, OnDestroy {
     this.currentScore$.next(this.percentageScore);
   }
 
-  toggleScoreDisplay(scoreType: 'numerical' | 'percentage'): void {
-    this.isPercentage = scoreType === 'percentage';
-    if (this.isPercentage) {
-      this.displayPercentageScore();
-    } else {
-      this.displayNumericalScore();
-    }
+  displayNumericalScore(): void {
+    this.numericalScore = `${this.correctAnswersCount}/${this.totalQuestions}`;
+    this.currentScore$.next(this.numericalScore);
   }
 }
