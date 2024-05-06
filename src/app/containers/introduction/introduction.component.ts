@@ -154,15 +154,15 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.quizDataService
       .getQuizById(quizId)
       .pipe(
-        catchError((error) => {
+        catchError((error: Error) => {
           console.error(`Error fetching quiz: ${error}`);
-          return throwError(error);
+          return throwError(() => error);
         })
       )
       .subscribe((quiz: Quiz) => {
         if (quiz) {
           this.quizDataService.selectedQuizSubject.next(quiz);
-          this.router.navigate(['/question', quiz.quizId, 1]); // Navigate to the first question
+          this.router.navigate(['/question', quiz.quizId, 1]);
         } else {
           console.error(`Quiz with ID ${quizId} not found`);
         }
