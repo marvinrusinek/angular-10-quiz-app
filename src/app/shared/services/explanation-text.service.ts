@@ -48,8 +48,11 @@ export class ExplanationTextService {
       console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
     }
-  
-    this.explanationTexts[index] = explanation;
+
+    if (this.explanationTexts[index] !== explanation) {
+      this.explanationTexts[index] = explanation;
+      this.explanationText$.next(explanation);
+    }
   }
 
   getExplanationTextForQuestionIndex(index: number): Observable<string> {
