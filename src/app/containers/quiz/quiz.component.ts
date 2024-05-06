@@ -470,7 +470,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe((question: QuizQuestion) => {
       this.currentQuestion = question;
       this.options = question?.options || [];
-      this.loadExplanationTextForCurrentQuestion();
+      // this.loadExplanationTextForCurrentQuestion();
     });
   }
 
@@ -812,7 +812,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (nextQuestion) {
         this.currentQuestion = nextQuestion;
         this.currentQuestion$ = of(nextQuestion);
-        this.explanationTextService.setNextExplanationText(nextQuestion.explanation);
+        // this.explanationTextService.setNextExplanationText(nextQuestion.explanation);
       } else {
         this.currentQuestion = null;
         this.currentQuestion$ = of(null);
@@ -1350,7 +1350,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadExplanationTextForCurrentQuestion(): void {
+  /* loadExplanationTextForCurrentQuestion(): void {
     this.explanationText = '';
     if (this.quizData && this.quizData.length > this.currentQuestionIndex) {
       const currentQuestion = this.quizData[this.currentQuestionIndex];
@@ -1360,7 +1360,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
       this.explanationTextService.setNextExplanationText('');
     }
-  }
+  } */
 
   animationDoneHandler(): void {
     this.animationState$.next('none');
