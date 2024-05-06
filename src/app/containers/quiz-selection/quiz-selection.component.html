@@ -34,7 +34,7 @@
   <div class="quiz-grid">
     <div class="quiz-tile" #quizTile *ngFor="let quiz of quizzes$ | async; let i = index"
       [@slideLeftToRight]="animationState$ | async" (@slideLeftToRight.done)="animationDoneHandler()"
-      (click)="onSelect(quiz.quizId, i)" routerLinkActive="active" [ngStyle]="getQuizTileStyles(quiz)" loading="lazy">
+      (click)="onSelect(quiz.quizId, i)" routerLinkActive="active" [ngStyle]="getQuizTileStyles(quiz)" loading="lazy"w>
       <summary class="quiz-info">
         <h5 class="quiz-title" i18n>{{ quiz?.milestone || "Milestone not found" }}</h5>
         <h6 class="quiz-summary" i18n>{{ quiz?.summary || "Summary not found" }}</h6>
