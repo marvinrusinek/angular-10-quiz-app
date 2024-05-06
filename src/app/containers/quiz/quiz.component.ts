@@ -1489,7 +1489,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
       // Simplify explanation visibility logic by directly checking if the previous question was answered
-      this.isExplanationVisible = this.checkIfQuestionAnswered(previousQuestionIndex);
+      this.isExplanationVisible = this.quizService.checkIfQuestionAnswered(previousQuestionIndex);
 
       this.currentQuestionIndex = previousQuestionIndex;
 
@@ -1512,11 +1512,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.updateQuestionDisplay(questionIndex);
     this.updateExplanationText(questionIndex);
     this.updateNavigationAndExplanationState();
-  }
-
-  checkIfQuestionAnswered(questionIndex: number): boolean {
-    // Check if the answer at the given index is not null or undefined
-    return this.quizService.selectedOptions[questionIndex] !== null && this.quizService.selectedOptions[questionIndex] !== undefined;
   }
 
   initializeQuestionForDisplay(questionIndex: number): void {
