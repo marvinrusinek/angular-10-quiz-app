@@ -89,37 +89,13 @@ export class QuizSelectionComponent implements OnInit {
     };
   }
 
-  /* getLinkClass(quiz: Quiz): string[] {
-    const classes = ['status-link'];
-    switch (quiz.status) {
-      case QuizStatus.STARTED:
-        if (
-          !this.selectionParams.quizCompleted ||
-          quiz.quizId === this.selectionParams.startedQuizId
-        ) {
-          classes.push('link');
-        }
-        break;
-      case QuizStatus.CONTINUE:
-        if (quiz.quizId === this.selectionParams.continueQuizId) {
-          classes.push('link');
-        }
-        break;
-      case QuizStatus.COMPLETED:
-        if (quiz.quizId === this.selectionParams.completedQuizId) {
-          classes.push('link');
-        }
-        break;
-    }
-    return classes;
-  } */
-
   getLinkClass(quiz: Quiz): string[] {
     const classes = ['status-link'];
     switch (quiz.status) {
       case QuizStatus.STARTED:
         if (
-          (!this.selectionParams.quizCompleted || quiz.quizId === this.selectionParams.startedQuizId) || 
+          (!this.selectionParams.quizCompleted || 
+            quiz.quizId === this.selectionParams.startedQuizId) || 
           (quiz.quizId === this.selectionParams.continueQuizId) || 
           (quiz.quizId === this.selectionParams.completedQuizId)) {
           classes.push('link');
