@@ -144,10 +144,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     // Update any local or additional states if necessary
     this.isChecked.next(event.checked);
   }
-
-  /* onCheckboxChange(checked: boolean): void {
-    this.quizService.setCheckedShuffle(checked);
-  } */
   
   onStartQuiz(quizId: string): void {
     if (!quizId) {
