@@ -41,8 +41,8 @@ export class QuizSelectionComponent implements OnInit {
   selectedQuiz: Quiz;
   currentQuestionIndex: number;
   animationState$ = new BehaviorSubject<AnimationState>('none');
-  unsubscribe$ = new Subject<void>();
   selectionParams: QuizSelectionParams;
+  unsubscribe$ = new Subject<void>();
 
   constructor(
     private quizService: QuizService,
