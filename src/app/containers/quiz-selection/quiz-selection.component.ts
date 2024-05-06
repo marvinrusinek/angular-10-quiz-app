@@ -11,16 +11,21 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 
 type AnimationState = 'animationStarted' | 'none';
 
+interface QuizTileStyles {
+  background: string;
+  'background-size': string;
+}
+
 enum QuizRoutes {
   INTRO = '/intro/',
   QUESTION = '/question/',
-  RESULTS = '/results/',
+  RESULTS = '/results/'
 }
 
 enum QuizStatus {
   STARTED = 'started',
   CONTINUE = 'continue',
-  COMPLETED = 'completed',
+  COMPLETED = 'completed'
 }
 
 @Component({
@@ -28,7 +33,7 @@ enum QuizStatus {
   templateUrl: './quiz-selection.component.html',
   styleUrls: ['./quiz-selection.component.scss'],
   animations: [SlideLeftToRightAnimation.slideLeftToRight],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizSelectionComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
@@ -81,7 +86,7 @@ export class QuizSelectionComponent implements OnInit {
     this.selectedQuiz = quiz;
   }
   
-  getQuizTileStyles(quiz: Quiz) {
+  getQuizTileStyles(quiz: Quiz): QuizTileStyles {
     return {
       background: 'url(' + quiz.image + ') no-repeat center 10px',
       'background-size': '300px 210px',
