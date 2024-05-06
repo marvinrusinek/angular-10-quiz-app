@@ -50,7 +50,7 @@ export class ExplanationTextService {
     }
 
     if (this.explanationTexts[index] !== explanation) {
-      this.explanationTexts[index] = explanation;
+      this.explanationTexts[index] = explanation; // set the explanation for the specific index
       this.explanationText$.next(explanation);
     }
   }
