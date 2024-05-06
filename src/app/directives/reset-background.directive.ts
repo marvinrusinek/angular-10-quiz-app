@@ -31,4 +31,3 @@ export class ResetBackgroundDirective {
     this.resetBackgroundSubscription?.unsubscribe();
   }
 }
- 
