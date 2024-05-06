@@ -16,12 +16,6 @@ export class HighlightDirective {
   @Input() isCorrect: boolean;
   private isAnswered = false;
 
-  @Input() set appHighlightInputType(value: string) {
-    this._appHighlightInputType = value;
-  }
-
-  private _appHighlightInputType: string;
-
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
   @HostListener('click') onClick() {
@@ -30,19 +24,19 @@ export class HighlightDirective {
     this.resetBackground.emit(true);
   }
 
-  private applyHighlight(): void {
-    const isCheckbox = this._appHighlightInputType === 'checkbox';
-    const isRadioButton = this._appHighlightInputType === 'radio';
-
+  private applyHighlight() {
     if (this.isAnswered) {
+      // Set the color based on whether the answer is correct
       const color = this.isCorrect ? '#43f756' : '#ff0000';
+  
+      // Apply background color to the element
       this.renderer.setStyle(
         this.el.nativeElement,
         'background-color',
         color
       );
     } else {
-      // Reset background color to white
+      // Reset the background color to white when not answered
       this.renderer.setStyle(
         this.el.nativeElement,
         'background-color',
