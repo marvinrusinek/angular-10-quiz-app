@@ -80,11 +80,7 @@ export class QuizSelectionComponent implements OnInit {
     } catch (error) {
       console.error(error.message);
     }
-  }  
-
-  /* selectQuiz(quiz: Quiz): void {
-    this.selectedQuiz = quiz;
-  } */
+  }
   
   getQuizTileStyles(quiz: Quiz): QuizTileStyles {
     return {
@@ -92,10 +88,6 @@ export class QuizSelectionComponent implements OnInit {
       'background-size': '300px 210px',
     };
   }
-
-  /* getLinkName(quiz: Quiz): string {
-    return quiz.status.toLowerCase();
-  } */
 
   getLinkClass(quiz: Quiz): string[] {
     const classes = ['status-link'];
