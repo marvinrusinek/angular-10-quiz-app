@@ -15,7 +15,7 @@ import { TimerService } from '../../shared/services/timer.service';
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() selectedAnswer: number;
   answer: number;
-  totalQuestions: number = 0;
+  totalQuestions = 0;
   totalQuestions$ = new ReplaySubject<number>(1);
   questionNumber: number;
   badgeText: string;
@@ -45,7 +45,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe((totalQuestions: number) => {
       if (totalQuestions !== null) {
         this.totalQuestions = totalQuestions;
-        this.quizService.updateBadgeText(this.questionNumber, totalQuestions); // Update badgeText here
+        this.quizService.updateBadgeText(this.questionNumber, totalQuestions);
       }
       return of(totalQuestions);
     });
