@@ -8,26 +8,27 @@ import { ResetBackgroundService } from '../shared/services/reset-background.serv
 })
 export class ResetBackgroundDirective {
   @Input() appResetBackground: boolean;
-  private subscription: Subscription;
+  private resetBackgroundSubscription: Subscription;
 
   constructor(
     private el: ElementRef,
     private renderer: Renderer2,
     private resetBackgroundService: ResetBackgroundService
   ) {
-    this.subscription = this.resetBackgroundService.shouldResetBackground$.subscribe((value) => {
-      if (value) {
-        this.resetBackground();
-      }
-    });
+    this.resetBackgroundSubscription = 
+      this.resetBackgroundService.shouldResetBackground$.subscribe((value) => {
+        if (value) {
+          this.resetBackground();
+        }
+      });
   }
 
   private resetBackground(): void {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
   }
 
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
+  ngOnDestroy(): void {
+    this.resetBackgroundSubscription?.unsubscribe();
   }
 }
  
