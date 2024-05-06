@@ -101,7 +101,7 @@ export class ExplanationTextService {
     const formattedExplanation = this.formatExplanation(question, correctOptionIndices);
     
     // Store the formatted explanation
-    this.addOrUpdateExplanation(questionIndex, formattedExplanation);
+    this.updateExplanation(questionIndex, formattedExplanation);
 
     this.syncFormattedExplanationState(questionIndex, formattedExplanation);
     this.setFormattedExplanation(formattedExplanation);
@@ -113,18 +113,23 @@ export class ExplanationTextService {
     return of({ questionIndex, explanation: formattedExplanation });
   }
 
-  updateFormattedExplanation(index: number, explanation: string): void {
-    this.formattedExplanations[index] = { explanation, questionIndex: index };
-    this.explanationSource.next(explanation);
-  }
+  // Function that updates and notifies explanation changes
+  updateExplanation(index: number, explanation: string): void {
+    if (index < 0) {
+      console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
+      return;
+    }
 
-  addOrUpdateExplanation(index: number, explanation: string): void {
-    this.formattedExplanations[index] = { questionIndex: index, explanation: explanation };
-  }
-
-  storeExplanation(index: number, explanation: string): void {
+    // Store the explanation text for basic retrieval
     this.explanationTexts[index] = explanation;
-    console.log(`Explanation stored for index ${index}: ${explanation}`);
+
+    // Store a formatted explanation
+    this.formattedExplanations[index] = { explanation, questionIndex: index };
+
+    // Notify any subscribers that a new explanation is available
+    this.explanationSource.next(explanation);
+
+    console.log(`Explanation updated for index ${index}: ${explanation}`);
   }
 
   private getCorrectOptionIndices(question: QuizQuestion): number[] {

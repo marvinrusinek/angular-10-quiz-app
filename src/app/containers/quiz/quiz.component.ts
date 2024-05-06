@@ -322,7 +322,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const preloadExpls = questions.map((question, index) =>
       this.explanationTextService.formatExplanationText(question, index).pipe(
         tap(formattedExplanation => {
-          this.explanationTextService.storeExplanation(index, formattedExplanation.explanation);
+          this.explanationTextService.updateExplanation(index, formattedExplanation.explanation);
         })
       )
     );
