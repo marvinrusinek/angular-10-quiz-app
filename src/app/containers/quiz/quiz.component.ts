@@ -108,7 +108,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   correctCount: number;
   numberOfCorrectAnswers: number;
   score: number;
-  elapsedTimeDisplay: number;
+  elapsedTimeDisplay = 0;
   shouldDisplayCorrectAnswersFlag = false;
 
   questionToDisplay = '';
@@ -146,8 +146,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     private ngZone: NgZone,
     private cdRef: ChangeDetectorRef
   ) {
-    this.elapsedTimeDisplay = 0;
-
     this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
       if (isHidden) {
         // Page is now hidden, pause or delay updates in this component
