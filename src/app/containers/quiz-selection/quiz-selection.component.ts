@@ -85,11 +85,11 @@ export class QuizSelectionComponent implements OnInit {
   getQuizTileStyles(quiz: Quiz): QuizTileStyles {
     return {
       background: 'url(' + quiz.image + ') no-repeat center 10px',
-      'background-size': '300px 210px',
+      'background-size': '300px 210px'
     };
   }
 
-  getLinkClass(quiz: Quiz): string[] {
+  /* getLinkClass(quiz: Quiz): string[] {
     const classes = ['status-link'];
     switch (quiz.status) {
       case QuizStatus.STARTED:
@@ -107,6 +107,21 @@ export class QuizSelectionComponent implements OnInit {
         break;
       case QuizStatus.COMPLETED:
         if (quiz.quizId === this.selectionParams.completedQuizId) {
+          classes.push('link');
+        }
+        break;
+    }
+    return classes;
+  } */
+
+  getLinkClass(quiz: Quiz): string[] {
+    const classes = ['status-link'];
+    switch (quiz.status) {
+      case QuizStatus.STARTED:
+        if (
+          (!this.selectionParams.quizCompleted || quiz.quizId === this.selectionParams.startedQuizId) || 
+          (quiz.quizId === this.selectionParams.continueQuizId) || 
+          (quiz.quizId === this.selectionParams.completedQuizId)) {
           classes.push('link');
         }
         break;
