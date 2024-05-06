@@ -45,7 +45,7 @@ export class HighlightDirective {
     }
   }
 
-  // reset the state in-between questions
+  // Reset the state in-between questions
   public reset(): void {
     this.isAnswered = false;
     this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
