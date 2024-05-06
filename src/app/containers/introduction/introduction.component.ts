@@ -109,17 +109,17 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuestionsForQuiz(quizId).pipe(
       switchMap((questions: QuizQuestion[]) => {
         this.quizService.shuffleQuestions(questions);
-        return of([...questions]); // Ensures a new array reference, aiding change detection
+        return of([...questions]); // ensures a new array reference
       }),
-      catchError(error => {
+      catchError((error: Error) => {
         console.error('Failed to load questions for quiz:', error);
-        return of([]); // Return an empty array on error
+        return of([]); // return an empty array on error
       }),
       takeUntil(this.destroy$)
     ).subscribe((questions: QuizQuestion[]) => {
       this.shuffledQuestions = questions;
       this.handleQuestionOptions(questions);
-      this.cdRef.detectChanges(); // Manually trigger change detection after updating questions
+      this.cdRef.detectChanges(); // manually trigger change detection after updating questions
     });
   }
 
