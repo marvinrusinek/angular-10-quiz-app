@@ -30,7 +30,7 @@ export class HighlightDirective {
     this.resetBackground.emit(true);
   }
 
-  private applyHighlight() {
+  private applyHighlight(): void {
     const isCheckbox = this._appHighlightInputType === 'checkbox';
     const isRadioButton = this._appHighlightInputType === 'radio';
 
@@ -62,7 +62,7 @@ export class HighlightDirective {
   }
 
   // reset the state in-between questions
-  public reset() {
+  public reset(): void {
     this.isAnswered = false;
     this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
   }
