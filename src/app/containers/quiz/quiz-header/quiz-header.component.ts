@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
 
@@ -16,7 +17,7 @@ export class CodelabQuizHeaderComponent {
 
   constructor(private quizService: QuizService, private quizDataService: QuizDataService) {
     this.currentQuiz$ = this.quizDataService.quizzes$.pipe(
-      map(quizzes => quizzes.find(quiz => quiz.quizId === this.quizService.quizId))
+      map(quizzes => quizzes.find((quiz: Quiz) => quiz.quizId === this.quizService.quizId))
     );
   }
 }
