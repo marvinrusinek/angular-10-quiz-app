@@ -33,6 +33,17 @@ export class ScoreComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.setupScoreSubscription();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribeTrigger$.next();
+    this.unsubscribeTrigger$.complete();
+    this.currentScore$.complete();
+    this.scoreSubscription?.unsubscribe();
+  }
+
+  private setupScoreSubscription(): void {
     this.scoreSubscription = combineLatest([
       this.correctAnswersCount$.pipe(
         takeUntil(this.unsubscribeTrigger$),
@@ -41,28 +52,27 @@ export class ScoreComponent implements OnInit, OnDestroy {
       this.totalQuestions$,
       this.quizService.getAllQuestions()
     ]).pipe(
-      map(([correctAnswersCount, totalQuestions, questions]) => {
-        this.totalQuestions = totalQuestions;
-        return { correctAnswersCount, totalQuestions, questions };
-      }),
-      catchError((error: Error) => {
-        console.error('Error in combineLatest in ScoreComponent:', error);
-        return of({ correctAnswersCount: 0, totalQuestions: 0, questions: [] });
-      })
+      map(this.processScoreData),
+      catchError(this.handleError)
     ).subscribe({
-      next: ({ correctAnswersCount, totalQuestions, questions }) => {
-        this.correctAnswersCount = correctAnswersCount;
-        this.updateScoreDisplay();
-      },
-      error: (error) => console.error('Error in ScoreComponent subscription:', error)
+      next: this.handleScoreUpdate,
+      error: error => console.error('Error in ScoreComponent subscription:', error)
     });
   }
 
-  ngOnDestroy(): void {
-    this.unsubscribeTrigger$.next();
-    this.unsubscribeTrigger$.complete();
-    this.currentScore$.complete();
-    this.scoreSubscription?.unsubscribe();
+  private processScoreData = ([correctAnswersCount, totalQuestions, questions]) => {
+    this.totalQuestions = totalQuestions;
+    return { correctAnswersCount, totalQuestions, questions };
+  }
+
+  private handleScoreUpdate = ({ correctAnswersCount, totalQuestions, questions }) => {
+    this.correctAnswersCount = correctAnswersCount;
+    this.updateScoreDisplay();
+  }
+
+  private handleError = (error: Error) => {
+    console.error('Error in combineLatest in ScoreComponent:', error);
+    return of({ correctAnswersCount: 0, totalQuestions: 0, questions: [] });
   }
 
   toggleScoreDisplay(scoreType?: 'numerical' | 'percentage'): void {
