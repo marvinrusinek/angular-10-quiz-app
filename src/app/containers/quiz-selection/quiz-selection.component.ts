@@ -11,16 +11,21 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 
 type AnimationState = 'animationStarted' | 'none';
 
+interface QuizTileStyles {
+  background: string;
+  'background-size': string;
+}
+
 enum QuizRoutes {
   INTRO = '/intro/',
   QUESTION = '/question/',
-  RESULTS = '/results/',
+  RESULTS = '/results/'
 }
 
 enum QuizStatus {
   STARTED = 'started',
   CONTINUE = 'continue',
-  COMPLETED = 'completed',
+  COMPLETED = 'completed'
 }
 
 @Component({
@@ -28,7 +33,7 @@ enum QuizStatus {
   templateUrl: './quiz-selection.component.html',
   styleUrls: ['./quiz-selection.component.scss'],
   animations: [SlideLeftToRightAnimation.slideLeftToRight],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizSelectionComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
@@ -36,8 +41,8 @@ export class QuizSelectionComponent implements OnInit {
   selectedQuiz: Quiz;
   currentQuestionIndex: number;
   animationState$ = new BehaviorSubject<AnimationState>('none');
-  unsubscribe$ = new Subject<void>();
   selectionParams: QuizSelectionParams;
+  unsubscribe$ = new Subject<void>();
 
   constructor(
     private quizService: QuizService,
@@ -75,21 +80,13 @@ export class QuizSelectionComponent implements OnInit {
     } catch (error) {
       console.error(error.message);
     }
-  }  
-
-  selectQuiz(quiz: Quiz): void {
-    this.selectedQuiz = quiz;
   }
   
-  getQuizTileStyles(quiz: Quiz) {
+  getQuizTileStyles(quiz: Quiz): QuizTileStyles {
     return {
       background: 'url(' + quiz.image + ') no-repeat center 10px',
-      'background-size': '300px 210px',
+      'background-size': '300px 210px'
     };
-  }
-
-  getLinkName(quiz: Quiz): string {
-    return quiz.status.toLowerCase();
   }
 
   getLinkClass(quiz: Quiz): string[] {
@@ -97,19 +94,10 @@ export class QuizSelectionComponent implements OnInit {
     switch (quiz.status) {
       case QuizStatus.STARTED:
         if (
-          !this.selectionParams.quizCompleted ||
-          quiz.quizId === this.selectionParams.startedQuizId
-        ) {
-          classes.push('link');
-        }
-        break;
-      case QuizStatus.CONTINUE:
-        if (quiz.quizId === this.selectionParams.continueQuizId) {
-          classes.push('link');
-        }
-        break;
-      case QuizStatus.COMPLETED:
-        if (quiz.quizId === this.selectionParams.completedQuizId) {
+          (!this.selectionParams.quizCompleted || 
+            quiz.quizId === this.selectionParams.startedQuizId) || 
+          (quiz.quizId === this.selectionParams.continueQuizId) || 
+          (quiz.quizId === this.selectionParams.completedQuizId)) {
           classes.push('link');
         }
         break;
