@@ -128,11 +128,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     }
   }
 
-  resetState() {
-    this.selectedOption = null;
-    this.showFeedback = false;
-  }
-
   onOptionClick(option: Option, index: number, event?: MouseEvent): void {
     if (event) {
       event.stopPropagation();
