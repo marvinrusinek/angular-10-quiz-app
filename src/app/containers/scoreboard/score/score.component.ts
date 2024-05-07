@@ -9,7 +9,7 @@ import { QuizService } from '../../../shared/services/quiz.service';
   selector: 'codelab-scoreboard-score',
   templateUrl: './score.component.html',
   styleUrls: ['./score.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScoreComponent implements OnInit, OnDestroy {
   @Input() correctAnswersCount = 0;
@@ -20,12 +20,10 @@ export class ScoreComponent implements OnInit, OnDestroy {
 
   numericalScore = '0/0';
   percentageScore = '';
-  isPercentage = false;
+  isPercentage = true;
   percentage = 0;
 
-  currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>(
-    this.numericalScore
-  );
+  currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>(this.numericalScore);
   scoreSubscription: Subscription;
 
   private unsubscribeTrigger$: Subject<void> = new Subject<void>();
@@ -35,13 +33,6 @@ export class ScoreComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.isPercentage = true;
-
-    this.totalQuestions$.subscribe((total) => {
-      this.totalQuestions = total;
-      this.toggleScoreDisplay();
-    });
-
     this.scoreSubscription = combineLatest([
       this.correctAnswersCount$.pipe(
         takeUntil(this.unsubscribeTrigger$),
@@ -51,6 +42,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
       this.quizService.getAllQuestions()
     ]).pipe(
       map(([correctAnswersCount, totalQuestions, questions]) => {
+        this.totalQuestions = totalQuestions;
         return { correctAnswersCount, totalQuestions, questions };
       }),
       catchError((error: Error) => {
@@ -60,8 +52,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: ({ correctAnswersCount, totalQuestions, questions }) => {
         this.correctAnswersCount = correctAnswersCount;
-        this.totalQuestions = totalQuestions;
-        this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
+        this.updateScoreDisplay();
       },
       error: (error) => console.error('Error in ScoreComponent subscription:', error)
     });
@@ -75,7 +66,13 @@ export class ScoreComponent implements OnInit, OnDestroy {
   }
 
   toggleScoreDisplay(scoreType?: 'numerical' | 'percentage'): void {
-    this.isPercentage = scoreType === 'percentage';
+    if (scoreType) {
+      this.isPercentage = scoreType === 'percentage';
+    }
+    this.updateScoreDisplay();
+  }
+
+  updateScoreDisplay(): void {
     if (this.isPercentage) {
       this.displayPercentageScore();
     } else {
