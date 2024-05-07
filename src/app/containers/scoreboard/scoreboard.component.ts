@@ -28,31 +28,8 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.activatedRoute.params.pipe(
-      takeUntil(this.unsubscribe$),
-      switchMap((params: Params) => {
-        if (params.questionIndex !== undefined) {
-          this.questionNumber = +params.questionIndex;
-          this.timerService.resetTimer();
-          return this.quizService.totalQuestions$;
-        }
-        return of(null);
-      }),
-      catchError((error: Error) => {
-        console.error('Error in switchMap: ', error);
-        return throwError(() => error);
-      })
-    ).subscribe((totalQuestions: number) => {
-      if (totalQuestions !== null) {
-        this.totalQuestions = totalQuestions;
-        this.quizService.updateBadgeText(this.questionNumber, totalQuestions);
-      }
-      return of(totalQuestions);
-    });
-
-    this.quizService.badgeText.subscribe(updatedText => {
-      this.badgeText = updatedText;
-    });
+    this.handleRouteParameters();
+    this.setupBadgeTextSubscription();
   }
   
   ngOnChanges(changes: SimpleChanges): void {
@@ -72,5 +49,38 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+  }
+
+  private handleRouteParameters(): void {
+    this.activatedRoute.params.pipe(
+      takeUntil(this.unsubscribe$),
+      switchMap((params: Params) => this.processRouteParams(params)),
+      catchError((error: Error) => this.handleError(error))
+    ).subscribe((totalQuestions: number) => {
+      if (totalQuestions !== null) {
+        this.totalQuestions = totalQuestions;
+        this.quizService.updateBadgeText(this.questionNumber, totalQuestions);
+      }
+    });
+  }
+
+  private processRouteParams(params: Params): Observable<number> {
+    if (params.questionIndex !== undefined) {
+      this.questionNumber = +params.questionIndex;
+      this.timerService.resetTimer();
+      return this.quizService.totalQuestions$;
+    }
+    return of(null);
+  }
+
+  private handleError(error: Error): Observable<never> {
+    console.error('Error in switchMap: ', error);
+    return throwError(() => error);
+  }
+
+  private setupBadgeTextSubscription(): void {
+    this.quizService.badgeText.subscribe(updatedText => {
+      this.badgeText = updatedText;
+    });
   }
 }
