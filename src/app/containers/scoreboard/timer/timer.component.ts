@@ -28,6 +28,7 @@ export class TimerComponent implements OnInit, OnChanges {
   reset$: Observable<number>;
   stop$: Observable<number>;
   concat$: Observable<number>;
+  currentTimerType: TimerType;
 
   constructor(
     private timerService: TimerService,
@@ -36,21 +37,16 @@ export class TimerComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
-    this.selectedAnswer = this.answer;
     this.start$ = this.timerService.start$;
     this.reset$ = this.timerService.reset$;
     this.stop$ = this.timerService.stop$;
     this.concat$ = concat(
-      this.start$.pipe(
-        first(),
-        map((value: string | number) => +value)
-      ),
-      this.reset$.pipe(
-        first(),
-        map((value: string | number) => +value)
-      )
+      this.start$.pipe(first(), map(value => +value)),
+      this.reset$.pipe(first(), map(value => +value))
     ) as Observable<number>;
-    this.timeLeft$ = this.countdownService.startCountdown(30);
+  
+    // Default timer setup
+    this.setTimerType(this.timerType.Countdown);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -63,15 +59,18 @@ export class TimerComponent implements OnInit, OnChanges {
   }
 
   setTimerType(type: TimerType): void {
-    switch (type) {
-      case TimerType.Countdown:
-        this.timeLeft$ = this.countdownService.startCountdown();
-        break;
-      case TimerType.Stopwatch:
-        this.timeLeft$ = this.stopwatchService.startStopwatch();
-        break;
-      default:
-        console.error(`Invalid timer type: ${type}`);
+    if (this.currentTimerType !== type) {
+      this.currentTimerType = type;
+      switch (type) {
+        case TimerType.Countdown:
+          this.timeLeft$ = this.countdownService.startCountdown(this.timePerQuestion);
+          break;
+        case TimerType.Stopwatch:
+          this.timeLeft$ = this.stopwatchService.startStopwatch();
+          break;
+        default:
+          console.error(`Invalid timer type: ${type}`);
+      }
     }
   }
 }
