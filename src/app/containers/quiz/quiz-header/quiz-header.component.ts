@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
 
@@ -13,7 +12,6 @@ import { QuizDataService } from '../../../shared/services/quizdata.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizHeaderComponent { 
-  currentQuiz: Quiz;
   currentQuiz$: Observable<Quiz>;
 
   constructor(private quizService: QuizService, private quizDataService: QuizDataService) {
