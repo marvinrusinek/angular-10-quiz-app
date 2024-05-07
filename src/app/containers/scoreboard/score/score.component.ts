@@ -39,7 +39,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
 
     this.totalQuestions$.subscribe((total) => {
       this.totalQuestions = total;
-      this.displayNumericalScore();
+      this.toggleScoreDisplay();
     });
 
     this.scoreSubscription = combineLatest([
@@ -63,7 +63,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
         this.totalQuestions = totalQuestions;
         this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
       },
-      error: (error) => console.error('Error in ScoreComponent subscription:', error),
+      error: (error) => console.error('Error in ScoreComponent subscription:', error)
     });
   }
 
@@ -74,7 +74,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
     this.scoreSubscription?.unsubscribe();
   }
 
-  toggleScoreDisplay(scoreType: 'numerical' | 'percentage'): void {
+  toggleScoreDisplay(scoreType?: 'numerical' | 'percentage'): void {
     this.isPercentage = scoreType === 'percentage';
     if (this.isPercentage) {
       this.displayPercentageScore();
