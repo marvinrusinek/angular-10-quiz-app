@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, EMPTY, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, Subject, Subscription } from 'rxjs';
 import { catchError, takeUntil } from 'rxjs/operators';
 
 import { SlideLeftToRightAnimation } from '../../animations/animations';
@@ -42,6 +42,7 @@ export class QuizSelectionComponent implements OnInit {
   currentQuestionIndex: number;
   animationState$ = new BehaviorSubject<AnimationState>('none');
   selectionParams: QuizSelectionParams;
+  selectedQuizSubscription: Subscription;
   unsubscribe$ = new Subject<void>();
 
   constructor(
@@ -57,8 +58,14 @@ export class QuizSelectionComponent implements OnInit {
     this.subscribeToSelectedQuiz();
   }
 
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    this.selectedQuizSubscription?.unsubscribe();
+  }
+
   private subscribeToSelectedQuiz(): void {
-    this.subscription = this.quizService.selectedQuiz$
+    this.selectedQuizSubscription = this.quizService.selectedQuiz$
       .pipe(
         catchError(error => {
           console.error('Error fetching selected quiz', error);
