@@ -82,7 +82,7 @@ export class QuizSelectionComponent implements OnInit {
     }
   }
   
-  getQuizTileStyles(quiz: Quiz): QuizTileStyles {
+  getQuizTileStyles(quiz: Quiz) {
     return {
       background: 'url(' + quiz.image + ') no-repeat center 10px',
       'background-size': '300px 210px'
