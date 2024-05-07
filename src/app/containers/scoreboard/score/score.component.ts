@@ -66,27 +66,24 @@ export class ScoreComponent implements OnInit, OnDestroy {
         takeUntil(this.unsubscribeTrigger$),
         distinctUntilChanged()
       ),
-      this.quizService.getAllQuestions().pipe(
-        switchMap((questions: QuizQuestion[]) =>
-          this.quizService.getTotalQuestions().pipe(
-            map((totalQuestions: number) => [questions, totalQuestions] as [QuizQuestion[], number])
-          )
-        ),
-        catchError((error: Error) => {
-          console.error('Error in getQuestions():', error);
-          return of([[], undefined] as [QuizQuestion[], number]);
-        })
-      ),
-    ]).subscribe({
-      next: ([correctAnswersCount, [questions, totalQuestions]]: [number, [QuizQuestion[], number]]) => {
+      this.totalQuestions$,
+      this.quizService.getAllQuestions()
+    ]).pipe(
+      map(([correctAnswersCount, totalQuestions, questions]) => {
+        return { correctAnswersCount, totalQuestions, questions };
+      }),
+      catchError((error: Error) => {
+        console.error('Error in combineLatest in ScoreComponent:', error);
+        return of({ correctAnswersCount: 0, totalQuestions: 0, questions: [] });
+      })
+    ).subscribe({
+      next: ({ correctAnswersCount, totalQuestions, questions }) => {
         this.correctAnswersCount = correctAnswersCount;
         this.totalQuestions = totalQuestions;
         this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
       },
-      error: (error) => {
-        console.error('Error in ScoreComponent subscription:', error);
-      },
-    });    
+      error: (error) => console.error('Error in ScoreComponent subscription:', error),
+    });
   }
 
   ngOnDestroy(): void {
