@@ -97,7 +97,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       withLatestFrom(this.quizDataService.selectedQuiz$),
       tap(([checked, selectedQuiz]) => {
         if (checked && selectedQuiz) {
-          this.fetchAndHandleQuestions(selectedQuiz.quizId);
+          this.fetchAndHandleQuestions(selectedQuiz?.quizId);
         } else {
           console.log('Waiting for checkbox to be checked and quiz to be selected');
         }
