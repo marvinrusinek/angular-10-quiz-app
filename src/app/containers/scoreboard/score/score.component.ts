@@ -20,7 +20,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
 
   numericalScore = '0/0';
   percentageScore = '';
-  isPercentage = true;
+  isPercentage = false;
   percentage = 0;
 
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>(this.numericalScore);
@@ -81,9 +81,10 @@ export class ScoreComponent implements OnInit, OnDestroy {
   }
 
   displayPercentageScore(): void {
+    const totalPossibleScore = 100;
     this.percentageScore = `${(
       (this.correctAnswersCount / this.totalQuestions) *
-      100
+      totalPossibleScore
     ).toFixed(2)}%`;
     this.currentScore$.next(this.percentageScore);
   }
