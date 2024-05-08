@@ -67,7 +67,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((selectedQuiz: Quiz) => {
         this.introImg = selectedQuiz ? this.imagePath + selectedQuiz.image : '';
-        this.cdRef.markForCheck(); // Mark for check since we are using OnPush
+        this.cdRef.markForCheck();
       });
   }
   
@@ -82,7 +82,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       )
       .subscribe((quiz: Quiz) => {
         this.quizDataService.setSelectedQuiz(quiz);
-        this.cdRef.markForCheck(); // Mark for check since we are using OnPush
+        this.cdRef.markForCheck();
       });
   }
 
@@ -108,13 +108,13 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       }),
       catchError((error: Error) => {
         console.error('Failed to load questions for quiz:', error);
-        return of([]); // return an empty array on error
+        return of([]);
       }),
       takeUntil(this.destroy$)
     ).subscribe((questions: QuizQuestion[]) => {
       this.shuffledQuestions = questions;
       this.handleQuestionOptions(questions);
-      this.cdRef.detectChanges(); // Manually trigger change detection after updating questions
+      this.cdRef.detectChanges();
     });
   }
 
