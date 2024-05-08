@@ -29,18 +29,26 @@ export class StopwatchService {
   startStopwatch(): Observable<number> {
     return this.concat$
       .pipe(
+        // Start a new timer sequence whenever `concat$` emits.
         switchMapTo(
           timer(0, 1000).pipe(
+            // Increment the accumulator to count seconds.
             scan((acc: number) => acc + 1, 0),
+            // Limit the emissions according to `timePerQuestion`.
             take(this.timePerQuestion)
           )
         ),
+        // Stop the timer when `stop$` emits.
         takeUntil(this.stop$.pipe(skip(1))),
-        repeatWhen((completeSubj: Observable<void>) =>
-          completeSubj.pipe(switchMapTo(this.start$.pipe(skip(1), first())))
-        )
-      )
-      .pipe(tap((value: number) => this.setElapsed(value)));
+        // Repeat when `start$` emits.
+        repeatWhen(completeSubj => 
+          completeSubj.pipe(
+            switchMapTo(this.start$.pipe(first()))
+          )
+        ),
+        // Perform side effects with the current time value.
+        tap((value: number) => this.setElapsed(value))
+      );
   }
 
   setElapsed(time: number): void {
