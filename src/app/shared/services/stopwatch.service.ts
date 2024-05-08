@@ -5,7 +5,6 @@ import { first, repeatWhen, scan, shareReplay, skip,
 
 @Injectable({ providedIn: 'root' })
 export class StopwatchService {
-  answer: number;
   timePerQuestion = 30;
   time$: Observable<number>;
   start$: Observable<number>;
