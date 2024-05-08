@@ -1190,7 +1190,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOption = option;
 
     // After answering, check if it's the last question
-    this.quizService.handleLastQuestionAnsweredMessage();
+    this.handleLastQuestionAnsweredMessage();
 
     // Update the selected option in the quiz service and mark the question as answered
     this.quizService.updateSelectedOptions(
