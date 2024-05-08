@@ -1,11 +1,9 @@
 import { Injectable, Input } from '@angular/core';
 import { BehaviorSubject, Observable, of, timer } from 'rxjs';
-import { first, repeatWhen, scan, shareReplay, skip,
-  switchMapTo, takeUntil, tap } from 'rxjs/operators';
+import { first, repeatWhen, scan, shareReplay, skip, switchMapTo, takeUntil, tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class CountdownService {
-  answer: number;
   timePerQuestion = 30;
   time$: Observable<number>;
   start$: Observable<number>;
