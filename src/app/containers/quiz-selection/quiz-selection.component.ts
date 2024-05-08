@@ -4,28 +4,17 @@ import { BehaviorSubject, EMPTY, Observable, Subject, Subscription } from 'rxjs'
 import { catchError, takeUntil } from 'rxjs/operators';
 
 import { SlideLeftToRightAnimation } from '../../animations/animations';
+import { AnimationState } from '../../shared/models/AnimationState.type';
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
+import { QuizStatus } from '../../shared/models/quiz-status.enum';
 import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 
-type AnimationState = 'animationStarted' | 'none';
-
 interface QuizTileStyles {
   background: string;
   'background-size': string;
-}
-
-enum QuizRoutes {
-  INTRO = '/intro/',
-  QUESTION = '/question/',
-  RESULTS = '/results/'
-}
-
-enum QuizStatus {
-  STARTED = 'started',
-  CONTINUE = 'continue',
-  COMPLETED = 'completed'
 }
 
 @Component({
