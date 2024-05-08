@@ -38,7 +38,7 @@ export class CountdownService {
         // Stop the countdown when `stop$` emits.
         takeUntil(this.stop$.pipe(skip(1))),
         // Restart the countdown when `start$` emits after the first complete signal.
-        repeatWhen(completeSubj => 
+        repeatWhen((completeSubj: Observable<void>) => 
           completeSubj.pipe(
             switchMapTo(this.start$.pipe(first()))
           )
