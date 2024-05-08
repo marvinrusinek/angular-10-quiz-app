@@ -27,7 +27,7 @@ export class CountdownService {
     this.concat$ = of(null);
   }
 
-  startCountdown(duration: number = 30): Observable<number> {
+  startCountdown(): Observable<number> {
     return this.concat$
       .pipe(
         switchMapTo(
