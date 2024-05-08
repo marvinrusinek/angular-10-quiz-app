@@ -36,18 +36,38 @@ export class ResultsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.activatedRoute.paramMap
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((params) => (this.quizId = params.get('quizId')));
-    this.sendCompletedQuizIdToQuizService(this.quizId);
-    this.indexOfQuizId = this.quizData.findIndex(
-      (elem) => elem.quizId === this.quizId
-    );
+    this.fetchQuizIdFromParams();
+    this.setCompletedQuiz();
+    this.findQuizIndex();
   }
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+  }
+
+  private fetchQuizIdFromParams(): void {
+    this.activatedRoute.paramMap.pipe(
+      takeUntil(this.unsubscribe$)
+    ).subscribe(params => {
+      this.quizId = params.get('quizId');
+      this.setCompletedQuiz();
+      this.findQuizIndex();
+    });
+  }
+
+  private setCompletedQuiz(): void {
+    if (this.quizId) {
+      this.quizService.setCompletedQuizId(this.quizId);
+    }
+  }
+
+  private findQuizIndex(): void {
+    if (this.quizId) {
+      this.indexOfQuizId = this.quizData.findIndex(
+        elem => elem.quizId === this.quizId
+      );
+    }
   }
 
   selectQuiz(): void {
@@ -56,9 +76,5 @@ export class ResultsComponent implements OnInit, OnDestroy {
     this.quizId = '';
     this.indexOfQuizId = 0;
     this.router.navigate(['/select/']);
-  }
-
-  private sendCompletedQuizIdToQuizService(quizId: string): void {
-    this.quizService.setCompletedQuizId(quizId);
   }
 }
