@@ -2,10 +2,8 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  EventEmitter,
   OnDestroy,
-  OnInit,
-  Output
+  OnInit
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { MatCheckboxChange } from '@angular/material/checkbox';
@@ -24,7 +22,6 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IntroductionComponent implements OnInit, OnDestroy {
-  @Output() quizSelected = new EventEmitter<string>();
   quiz: Quiz;
   quizData: Quiz[];
   quizzes: any[];
