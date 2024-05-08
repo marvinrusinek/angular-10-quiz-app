@@ -30,11 +30,11 @@ export class CountdownService {
       .pipe(
         switchMapTo(
           timer(0, 1000).pipe(
-            scan((acc) => acc > 0 ? acc - 1 : acc, this.timePerQuestion)
+            scan((acc: number) => acc > 0 ? acc - 1 : acc, this.timePerQuestion)
           )
         ),
         takeUntil(this.stop$.pipe(skip(1))),
-        repeatWhen((completeSubj) =>
+        repeatWhen((completeSubj: Observable<void>) =>
           completeSubj.pipe(switchMapTo(this.start$.pipe(skip(1), first())))
         )
       )
