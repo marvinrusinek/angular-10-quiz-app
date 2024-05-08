@@ -76,10 +76,18 @@ export class ScoreComponent implements OnInit, OnDestroy {
   }
 
   toggleScoreDisplay(scoreType?: 'numerical' | 'percentage'): void {
+    // Store the current state of isPercentage before changing it
+    const previousIsPercentage = this.isPercentage;
+    
+    // Update isPercentage based on the user's choice
     if (scoreType) {
-      this.isPercentage = scoreType === 'percentage';
+      this.isPercentage = (scoreType === 'percentage');
     }
-    this.updateScoreDisplay();
+
+    // Only call updateScoreDisplay if the display type has actually changed
+    if (this.isPercentage !== previousIsPercentage) {
+      this.updateScoreDisplay();
+    }
   }
 
   updateScoreDisplay(): void {
