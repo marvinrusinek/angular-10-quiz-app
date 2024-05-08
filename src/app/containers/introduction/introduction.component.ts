@@ -62,7 +62,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   private initializeData(): void {
     this.quizId = this.selectedQuiz?.quizId;
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-    this.questionText = this.getQuestionText(this.selectedQuiz?.questions.length);
+    this.questionText = this.formatQuestionLabel(this.selectedQuiz?.questions.length);
   }
   
   private subscribeToSelectedQuiz(): void {
@@ -167,7 +167,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     return milestone;
   }
   
-  getQuestionText(count: number): string {
+  formatQuestionLabel(count: number): string {
     return `${count === 1 ? 'question' : 'questions'}`;
   }
 }
