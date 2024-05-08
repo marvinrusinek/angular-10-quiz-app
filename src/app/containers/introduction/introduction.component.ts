@@ -34,7 +34,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   imagePath = '../../../assets/images/milestones/';
   introImg = '';
 
-  questionText = '';
+  questionLabel = '';
 
   private destroy$ = new Subject<void>();
 
@@ -62,7 +62,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   private initializeData(): void {
     this.quizId = this.selectedQuiz?.quizId;
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-    this.questionText = this.formatQuestionLabel(this.selectedQuiz?.questions.length);
+    this.questionLabel = this.getPluralizedQuestionLabel(this.selectedQuiz?.questions.length);
   }
   
   private subscribeToSelectedQuiz(): void {
@@ -167,7 +167,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     return milestone;
   }
   
-  formatQuestionLabel(count: number): string {
+  public getPluralizedQuestionLabel(count: number): string {
     return `${count === 1 ? 'question' : 'questions'}`;
   }
 }
