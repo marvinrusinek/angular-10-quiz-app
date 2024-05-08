@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { concat, Observable } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
@@ -17,8 +17,7 @@ enum TimerType {
   styleUrls: ['./timer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TimerComponent implements OnInit, OnChanges {
-  @Input() selectedAnswer: number;
+export class TimerComponent implements OnInit {
   timerType = TimerType;
   timeLeft$: Observable<number>;
   answer: number;
@@ -47,15 +46,6 @@ export class TimerComponent implements OnInit, OnChanges {
   
     // Default timer setup
     this.setTimerType(this.timerType.Countdown);
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (
-      changes.selectedAnswer &&
-      changes.selectedAnswer.currentValue !== changes.selectedAnswer.firstChange
-    ) {
-      this.answer = changes.selectedAnswer.currentValue;
-    }
   }
 
   setTimerType(type: TimerType): void {
