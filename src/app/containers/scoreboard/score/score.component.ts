@@ -84,7 +84,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
       this.isPercentage = (scoreType === 'percentage');
     }
 
-    // Only call updateScoreDisplay if the display type has actually changed
+    // Call updateScoreDisplay only if the display type has actually changed
     if (this.isPercentage !== previousIsPercentage) {
       this.updateScoreDisplay();
     }
