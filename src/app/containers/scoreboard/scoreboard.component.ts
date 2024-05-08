@@ -13,7 +13,6 @@ import { TimerService } from '../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() selectedAnswer: number;
   answer: number;
   totalQuestions = 0;
   totalQuestions$ = new ReplaySubject<number>(1);
@@ -33,13 +32,6 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   ngOnChanges(changes: SimpleChanges): void {
-    if (
-      changes.selectedAnswer &&
-      changes.selectedAnswer.currentValue !== changes.selectedAnswer.firstChange
-    ) {
-      this.answer = changes.selectedAnswer.currentValue;
-    }
-
     // Update totalQuestions$ ReplaySubject with the current totalQuestions value
     if (changes.totalQuestions) {
       this.totalQuestions$.next(changes.totalQuestions.currentValue);
