@@ -32,12 +32,7 @@ export class CountdownService {
       .pipe(
         switchMapTo(
           timer(0, 1000).pipe(
-            scan((acc) => {
-              if (acc > 0) {
-                return acc - 1;
-              }
-              return acc;
-            }, this.timePerQuestion)
+            scan((acc) => acc > 0 ? acc - 1 : acc, this.timePerQuestion)
           )
         ),
         takeUntil(this.stop$.pipe(skip(1))),
