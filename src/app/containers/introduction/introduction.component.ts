@@ -24,7 +24,6 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 export class IntroductionComponent implements OnInit, OnDestroy {
   quiz: Quiz;
   quizData: Quiz[];
-  quizzes: any[];
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
