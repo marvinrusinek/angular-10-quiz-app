@@ -1,18 +1,18 @@
 <mat-card>
   <mat-card-header>
-    <img mat-card-avatar class="header-image" loading="lazy" (click)="selectQuiz()"
-         matTooltip="back to Codelab Quiz Selection" matTooltipPosition="left" />
+    <img mat-card-avatar class="header-image" loading="lazy" alt="Back to Quiz Selection" 
+      (click)="selectQuiz()" matTooltip="Back to Codelab Quiz Selection" matTooltipPosition="left" />
     <mat-card-title i18n>Results</mat-card-title>
   </mat-card-header>
 
   <mat-card-content>
     <section class="results">
-      <h3 i18n>Congratulations! You&apos;ve completed the quiz!</h3>
+      <h3 i18n>Congratulations! You've completed the quiz!</h3>
       <codelab-results-statistics></codelab-results-statistics>
 
       <section class="quiz-summary">
         <details>
-          <summary i18n>Click to view a more detailed summary of your quiz&hellip;</summary>
+          <summary role="button" i18n>Click to view a more detailed summary of your quiz&hellip;</summary>
           <codelab-results-summary></codelab-results-summary>
           <codelab-results-accordion></codelab-results-accordion>
         </details>
