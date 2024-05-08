@@ -6,7 +6,6 @@ import {
   OnInit
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { MatCheckboxChange } from '@angular/material/checkbox';
 import { BehaviorSubject, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
@@ -27,8 +26,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
-  private isChecked = new Subject<boolean>();
-  private quizSelectionSubscription: Subscription;
+  private isCheckedSubject = new Subject<boolean>();
   shuffledQuestions: QuizQuestion[];
 
   imagePath = '../../../assets/images/milestones/';
@@ -56,7 +54,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.quizSelectionSubscription?.unsubscribe();
   }
 
   private initializeData(): void {
@@ -70,6 +67,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((selectedQuiz: Quiz) => {
         this.introImg = selectedQuiz ? this.imagePath + selectedQuiz.image : '';
+        this.cdRef.markForCheck(); // Mark for check since we are using OnPush
       });
   }
   
@@ -78,18 +76,18 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((params: ParamMap) => {
           const quizId = params.get('quizId');
-          return quizId
-            ? this.quizDataService.getQuizById(quizId)
-            : throwError(() => new Error('Quiz ID is null or undefined'));
-        })
+          return quizId ? this.quizDataService.getQuizById(quizId) : throwError(() => new Error('Quiz ID is null or undefined'));
+        }),
+        takeUntil(this.destroy$)
       )
       .subscribe((quiz: Quiz) => {
         this.quizDataService.setSelectedQuiz(quiz);
+        this.cdRef.markForCheck(); // Mark for check since we are using OnPush
       });
   }
 
   private handleQuizSelectionAndFetchQuestions(): void {
-    this.quizSelectionSubscription = this.isChecked.pipe(
+    this.isCheckedSubject.pipe(
       withLatestFrom(this.quizDataService.selectedQuiz$),
       tap(([checked, selectedQuiz]) => {
         if (checked && selectedQuiz) {
@@ -97,7 +95,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         } else {
           console.log('Waiting for checkbox to be checked and quiz to be selected');
         }
-      })
+      }),
+      takeUntil(this.destroy$)
     ).subscribe();
   }
 
@@ -115,7 +114,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     ).subscribe((questions: QuizQuestion[]) => {
       this.shuffledQuestions = questions;
       this.handleQuestionOptions(questions);
-      this.cdRef.detectChanges(); // manually trigger change detection after updating questions
+      this.cdRef.detectChanges(); // Manually trigger change detection after updating questions
     });
   }
 
@@ -128,14 +127,10 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges(); // Ensure updates to options are detected too
   }
   
-  onCheckboxChange(event: MatCheckboxChange): void {
+  onCheckboxChange(event: { checked: boolean }): void {
     console.log('Checkbox change event:', event);
-  
-    // Update the shuffle state in the service
     this.quizService.setCheckedShuffle(event.checked);
-  
-    // Update any local or additional states if necessary
-    this.isChecked.next(event.checked);
+    this.isCheckedSubject.next(event.checked);
   }
   
   onStartQuiz(quizId: string): void {
@@ -150,7 +145,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         catchError((error: Error) => {
           console.error(`Error fetching quiz: ${error}`);
           return throwError(() => error);
-        })
+        }),
+        takeUntil(this.destroy$)
       )
       .subscribe((quiz: Quiz) => {
         if (quiz) {
