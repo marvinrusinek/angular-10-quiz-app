@@ -41,7 +41,7 @@ export class StopwatchService {
         // Stop the timer when `stop$` emits.
         takeUntil(this.stop$.pipe(skip(1))),
         // Repeat when `start$` emits.
-        repeatWhen(completeSubj => 
+        repeatWhen((completeSubj: Observable<void>) => 
           completeSubj.pipe(
             switchMapTo(this.start$.pipe(first()))
           )
