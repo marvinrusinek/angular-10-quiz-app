@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, NgZone, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
@@ -26,7 +26,7 @@ import { TimerService } from '../../../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom
 })
-export class MultipleAnswerComponent extends QuizQuestionComponent implements AfterViewInit, OnInit, OnChanges, OnDestroy {
+export class MultipleAnswerComponent extends QuizQuestionComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[];
@@ -100,15 +100,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
 
   ngAfterViewInit(): void {
     this.initializeOptionChecked();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    this.quizService.handleQuestionChange(
-      changes.question ? this.question : null,
-      changes.selectedOptions && !changes.selectedOptions.firstChange ? 
-        changes.selectedOptions.currentValue : null,
-      this.options
-    );
   }
 
   ngOnDestroy(): void {
