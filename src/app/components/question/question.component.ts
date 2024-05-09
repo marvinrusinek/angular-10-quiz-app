@@ -237,7 +237,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private async initializeQuiz(): Promise<void> {
     this.initialized = true;
     this.initializeSelectedQuiz();
-    this.initializeSelectedOption();
     this.initializeQuestionOptions();
     await this.initializeQuizQuestionsAndAnswers();
   }
@@ -320,12 +319,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.setQuestionOptions();
       });
     }
-  }
-
-  private initializeSelectedOption(): void {
-    of(this.selectedOption)
-      .pipe(tap((option: Option) => this.selectedOption$.next(option)))
-      .subscribe();
   }
 
   private initializeQuestionOptions(): void {
