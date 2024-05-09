@@ -25,7 +25,7 @@ import { TimerService } from '../../shared/services/timer.service';
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() answer = new EventEmitter<number>();
@@ -157,8 +157,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.handlePageVisibilityChange(isHidden);
       }); */
 
-    this.quizService
-      .getIsNavigatingToPrevious()
+    this.quizService.getIsNavigatingToPrevious()
       .subscribe(
         (isNavigating) => (this.isNavigatingToPrevious = isNavigating)
       );
@@ -229,6 +228,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   public get shouldDisplayOptions(): boolean {
     return this.data?.options && this.data.options.length > 0;
+  }
+
+  public shouldHideOptions(): boolean {
+    return !this.data?.options || this.data.options.length === 0;
   }
 
   // not being used...
@@ -311,8 +314,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   public getDisplayOptions(): Option[] {
     return this.optionsToDisplay && this.optionsToDisplay.length > 0
-      ? this.optionsToDisplay
-      : this.data?.options;
+      ? this.optionsToDisplay : this.data?.options;
   }
 
   private logInitialData(): void {
@@ -541,15 +543,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     await this.fetchCorrectAnswersText(data, data.currentOptions);
     console.log('After fetchCorrectAnswersText...');
     console.log('MY CORR MSG:', this.correctMessage);
-  }
-
-  shouldHideOptions(): boolean {
-    return !this.data?.options || this.data.options.length === 0;
-  }
-
-  shouldDisplayPreviousQuestionOptions(): boolean {
-    // Check if the current question is not the first question
-    return this.currentQuestionIndex !== 0;
   }
 
   getOptionsForQuestion(): Option[] {
