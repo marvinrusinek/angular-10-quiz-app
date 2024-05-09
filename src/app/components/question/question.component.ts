@@ -283,6 +283,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('this.questionData:', this.questionData);
   }
 
+  private initializeSelectedQuiz(): void {
+    if (this.quizDataService.selectedQuiz$) {
+      this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
+        this.selectedQuiz.next(quiz);
+        this.setQuestionOptions();
+      });
+    }
+  }
+
   private initializeQuizQuestion(): void {
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
@@ -298,15 +307,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           })
         )
         .subscribe();
-    }
-  }
-
-  private initializeSelectedQuiz(): void {
-    if (this.quizDataService.selectedQuiz$) {
-      this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
-        this.selectedQuiz.next(quiz);
-        this.setQuestionOptions();
-      });
     }
   }
 
