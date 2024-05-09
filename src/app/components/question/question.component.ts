@@ -239,25 +239,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.initializeSelectedQuiz();
     this.initializeSelectedOption();
     this.initializeQuestionOptions();
-    
-    try {
-      await this.loadQuizQuestions();
-      this.subscribeToCorrectAnswersAndData();
-
-      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-      if (this.quizId) {
-        await this.quizDataService.asyncOperationToSetQuestion(
-          this.quizId, this.currentQuestionIndex
-        );
-      } else {
-        console.error('Quiz ID is empty after initialization.');
-      }
-      
-      // this.initializeCorrectAnswerOptions();
-      // this.subscribeToCorrectAnswers();
-    } catch (error) {
-      console.error('Error getting current question:', error);
-    }
+    await this.initializeQuizQuestionsAndAnswers();
   }
   
   private loadQuiz(quizId: string, questionIndex: number): void {
@@ -349,6 +331,27 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private initializeQuestionOptions(): void {
     this.options = this.getOptionsForQuestion();
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
+  }
+
+  private async initializeQuizQuestionsAndAnswers(): Promise<void> {
+    try {
+      await this.loadQuizQuestions();
+      this.subscribeToCorrectAnswersAndData();
+  
+      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+      if (this.quizId) {
+        await this.quizDataService.asyncOperationToSetQuestion(
+          this.quizId, this.currentQuestionIndex
+        );
+      } else {
+        console.error('Quiz ID is empty after initialization.');
+      }
+      
+      // this.initializeCorrectAnswerOptions();
+      // this.subscribeToCorrectAnswers();
+    } catch (error) {
+      console.error('Error getting current question:', error);
+    }
   }
 
   private async loadQuizQuestions(): Promise<void> {
