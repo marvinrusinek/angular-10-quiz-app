@@ -765,8 +765,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.explanationTextService.setShouldDisplayExplanation(true);
 
     const explanationText =
-      await this.explanationTextService.getFormattedExplanationTextForQuestion(
-        this.currentQuestionIndex
+      await firstValueFrom(
+        of(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex))
       );
     this.explanationTextService.setCurrentQuestionExplanation(explanationText);
 
