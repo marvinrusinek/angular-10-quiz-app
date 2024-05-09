@@ -536,11 +536,6 @@ export class QuizService implements OnDestroy {
     return -1;
   }
 
-  checkIfQuestionAnswered(questionIndex: number): boolean {
-    // Check if the answer at the given index is not null or undefined
-    return this.selectedOptions[questionIndex] !== null && this.selectedOptions[questionIndex] !== undefined;
-  }
-
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
 
