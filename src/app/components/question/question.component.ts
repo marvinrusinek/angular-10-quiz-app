@@ -166,7 +166,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.logInitialData();
     this.initializeQuizQuestion();
-    this.subscribeToRouterEvents();
 
     if (!this.initialized) {
       await this.initializeQuiz();
@@ -256,6 +255,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
+  // might need later
   private subscribeToAnswers(): void {
     this.quizService.answers$.subscribe((answers) => {
       this.answers = answers;
@@ -278,6 +278,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       ? this.optionsToDisplay : this.data?.options;
   }
 
+  // logging undefined...
   private logInitialData(): void {
     console.log('this.questionData:', this.questionData);
   }
@@ -298,18 +299,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         )
         .subscribe();
     }
-  }
-
-  private subscribeToRouterEvents(): void {
-    this.router.events
-      .pipe(
-        filter((event) => event instanceof NavigationEnd),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
-        this.destroy$.next();
-        this.destroy$.complete();
-      });
   }
 
   private initializeSelectedQuiz(): void {
