@@ -180,7 +180,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
 
-    this.subscribeToAnswers();
+    // this.subscribeToAnswers(); // might need for correct answers text
     this.subscriptionToOptions();
     // this.quizService.initializeSounds();
     this.logFinalData();
@@ -269,7 +269,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       // Page is now visible, resume updates in this component
       this.isPaused = false; // Unpause updates
-      this.setExplanationText(this.currentQuestionIndex);
+      this.prepareAndSetExplanationText(this.currentQuestionIndex);
     }
   }
 
@@ -1137,7 +1137,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           return;
         }
 
-        this.setExplanationText(questionIndex);
+        this.prepareAndSetExplanationText(questionIndex);
         this.isLoadingQuestions = false;
       },
       error: (error: Error) => {
@@ -1227,9 +1227,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  async setExplanationText(questionIndex: number): Promise<void> {
-    this.initializeExplanationTextDisplay();
-
+  async prepareAndSetExplanationText(questionIndex: number): Promise<void> {
     if (document.hidden) {
       return;
     }
@@ -1242,11 +1240,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.error('Error: questionData or explanation is undefined');
     }
-  }
-
-  private initializeExplanationTextDisplay(): void {
-    this.isExplanationTextDisplayed = true;
-    this.explanationTextService.setIsExplanationTextDisplayed(true);
   }
 
   private isValidQuestionData(questionData: QuizQuestion): boolean {
