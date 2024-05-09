@@ -308,7 +308,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         const question = questions[index];
         this.questionToDisplay = question.questionText;
         this.optionsToDisplay = question.options;
-        this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
+        this.shouldDisplayCorrectAnswers = question.options.some((opt: Option) => opt.correct);
         return index;
       }),
       tap(index => {
