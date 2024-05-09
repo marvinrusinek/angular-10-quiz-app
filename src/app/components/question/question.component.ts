@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
   EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit,
-  Output, SimpleChanges } from '@angular/core';
+  Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
@@ -186,10 +186,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (
-      (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
-      (changes.selectedOptions && !changes.selectedOptions.firstChange)
-    ) {
+    // Factor out the checks for firstChange to simplify the if conditions
+    const isFirstChange = (change: SimpleChange) => change && !change.firstChange;
+  
+    // Handling changes to correctAnswers or selectedOptions
+    if (isFirstChange(changes.correctAnswers) || isFirstChange(changes.selectedOptions)) {
       this.getCorrectAnswers();
       this.correctMessage = this.quizService.setCorrectMessage(
         this.quizService.correctAnswerOptions,
@@ -197,19 +198,29 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
       this.cdRef.detectChanges();
     }
-
+  
+    // Handling changes to quizId or questionIndex
     if (changes.quizId || changes.questionIndex) {
       if (this.quizId && this.questionIndex != null) {
         this.loadQuiz(this.quizId, this.questionIndex);
       }
     }
-
-    this.quizService.handleQuestionChange(
-      changes.question ? this.question : null,
-      changes.selectedOptions && !changes.selectedOptions.firstChange ? 
-        changes.selectedOptions.currentValue : null,
-      this.options
-    );
+  
+    // Handling changes to the question
+    if (isFirstChange(changes.question)) {
+      this.quizService.handleQuestionChange(
+        this.question,
+        isFirstChange(changes.selectedOptions) ? changes.selectedOptions.currentValue : null,
+        this.options
+      );
+    } else if (isFirstChange(changes.selectedOptions)) {
+      // If only selectedOptions changes, not triggered by question change
+      this.quizService.handleQuestionChange(
+        null,
+        changes.selectedOptions.currentValue,
+        this.options
+      );
+    }
   }
 
   ngOnDestroy(): void {
