@@ -236,7 +236,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private async initializeQuiz(): Promise<void> {
     this.initialized = true;
     this.initializeSelectedQuiz();
-    this.initializeQuestionOptions();
+    // this.initializeQuestionOptions();
     await this.initializeQuizQuestionsAndAnswers();
   }
   
