@@ -234,11 +234,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return !this.data?.options || this.data.options.length === 0;
   }
 
-  // not being used...
-  public get shouldRenderContainer(): boolean {
-    return !this.isLoading && this.shouldHideOptions();
-  }
-
   private async initializeQuiz(): Promise<void> {
     this.initialized = true;
     this.subscribeToActivatedRouteParams();
@@ -268,14 +263,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private subscribeToActivatedRouteParams(): void {
     this.activatedRoute.paramMap.pipe(first()).subscribe((params: ParamMap) => {
-      const newQuizId = params.get('quizId');
+      const quizId = params.get('quizId');
       const indexParam = params.get('questionIndex');
-      const newQuestionIndex = parseInt(indexParam, 10);
+      const questionIndex = parseInt(indexParam, 10);
   
-      if (newQuizId && !isNaN(newQuestionIndex)) {
-        this.loadQuiz(newQuizId, newQuestionIndex);
+      if (quizId && !isNaN(questionIndex)) {
+        this.loadQuiz(quizId, questionIndex);
       } else {
-        console.error('Invalid parameters:', `quizId=${newQuizId}`, `questionIndex=${indexParam}`);
+        console.error('Invalid parameters:', `quizId=${quizId}`, `questionIndex=${indexParam}`);
       }
     });
   }
