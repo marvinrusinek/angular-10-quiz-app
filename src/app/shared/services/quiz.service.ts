@@ -1717,8 +1717,6 @@ export class QuizService implements OnDestroy {
     });
   } */
 
-  
-
   // Call this method to play the incorrect sound
   playIncorrectSound(): void {
     if (this.incorrectSound) {
