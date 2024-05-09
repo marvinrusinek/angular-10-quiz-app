@@ -775,7 +775,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizId,
       this.currentQuestionIndex,
       { isAnswered: true },
-      this.totalCorrectAnswers
+      totalCorrectAnswers
     );
   }
 
