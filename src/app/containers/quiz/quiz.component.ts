@@ -271,41 +271,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  /* updateContentBasedOnIndex(index: number): void {
-    if (!this.quiz || !this.quiz.questions || index < 0 || index >= this.quiz.questions.length) {
-      console.error('Invalid index or quiz data is not ready.');
-      return;
-    }
-
-    // Check if the question index has changed or if navigated by URL
-    const adjustedIndex = index - 1;
-    this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl;
-
-    if (this.isQuestionIndexChanged) {
-      this.previousIndex = adjustedIndex;
-      this.loadQuestionByRouteIndex(adjustedIndex);
-      this.isNavigatedByUrl = false;
-    } else {
-      console.log("No index change detected, still on index:", adjustedIndex);
-    }
-  } */
-
   updateContentBasedOnIndex(index: number): void {
-    console.log('Attempting to update content for index:', index);
-  
-    // Check if the quiz and its questions are properly loaded
     if (!this.quiz || !this.quiz.questions) {
       console.error('Quiz data is not ready.');
       return;
     }
   
-    console.log('Quiz questions length:', this.quiz.questions.length);
-  
     // Adjust index to be 0-based if passed as 1-based
     const adjustedIndex = index - 1;
-  
-    // Debugging the adjusted index
-    console.log('Adjusted Index:', adjustedIndex);
   
     // Check if the adjusted index is within the valid range
     if (adjustedIndex < 0 || adjustedIndex >= this.quiz.questions.length) {
