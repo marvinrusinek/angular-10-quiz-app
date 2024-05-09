@@ -942,6 +942,10 @@ export class QuizService implements OnDestroy {
     );
   }
 
+  updateTotalQuestions(totalQuestions: number): void {
+    this.totalQuestionsSubject.next(totalQuestions);
+  }
+
   setTotalQuestions(totalQuestions: number): void {
     if (this.questions) {
       this.totalQuestionsSubject.next(totalQuestions);
@@ -959,8 +963,8 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  updateTotalQuestions(totalQuestions: number): void {
-    this.totalQuestionsSubject.next(totalQuestions);
+  getTotalCorrectAnswers(currentQuestion: QuizQuestion): number {
+    return currentQuestion.options.filter((option) => option.correct).length;
   }
 
   shouldExplanationBeDisplayed(): boolean {

@@ -781,7 +781,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
     this.explanationTextService.setCurrentQuestionExplanation(explanationText);
 
-    const totalCorrectAnswers = this.getTotalCorrectAnswers(currentQuestion);
+    const totalCorrectAnswers = this.quizService.getTotalCorrectAnswers(currentQuestion);
     this.quizStateService.updateQuestionState(
       this.quizId,
       this.currentQuestionIndex,
@@ -941,10 +941,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }, 1000);  // Ensure audio has time to play before clearing
   }
 
-  private getTotalCorrectAnswers(currentQuestion: QuizQuestion): number {
-    return currentQuestion.options.filter((option) => option.correct).length;
-  }
-
   async getCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
       const currentQuestion = await firstValueFrom(
@@ -970,7 +966,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.checkAndHandleCorrectAnswer();
     this.logDebugInformation();
 
-    const totalCorrectAnswers = this.getTotalCorrectAnswers(currentQuestion);
+    const totalCorrectAnswers = this.quizService.getTotalCorrectAnswers(currentQuestion);
     // Update the state to reflect the selected option
     this.quizStateService.updateQuestionState(
       this.quizId,
