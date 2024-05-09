@@ -4,10 +4,8 @@ import {
   Component,
   Input,
   NgZone,
-  OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChanges,
   ViewEncapsulation
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -37,7 +35,7 @@ import { TimerService } from '../../../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export class SingleAnswerComponent extends QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
+export class SingleAnswerComponent extends QuizQuestionComponent implements OnInit, OnDestroy {
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[];
@@ -97,15 +95,6 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
         console.log('SingleAnswerComponent destroyed');
       }
     });
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    this.quizService.handleQuestionChange(
-      changes.question ? this.question : null,
-      changes.selectedOptions && !changes.selectedOptions.firstChange ? 
-        changes.selectedOptions.currentValue : null,
-      this.options
-    );
   }
 
   ngOnDestroy(): void {
