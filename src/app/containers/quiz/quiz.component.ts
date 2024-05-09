@@ -301,23 +301,17 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     console.log('Quiz questions length:', this.quiz.questions.length);
   
-    // Check if the index is within the valid range
-    if (index < 0 || index >= this.quiz.questions.length) {
-      console.error('Invalid index:', index);
-      return;
-    }
-  
     // Adjust index to be 0-based if passed as 1-based
     const adjustedIndex = index - 1;
   
-    // Check adjusted index boundaries
+    // Debugging the adjusted index
+    console.log('Adjusted Index:', adjustedIndex);
+  
+    // Check if the adjusted index is within the valid range
     if (adjustedIndex < 0 || adjustedIndex >= this.quiz.questions.length) {
       console.error('Invalid adjusted index:', adjustedIndex);
       return;
     }
-  
-    // Debugging the indices
-    console.log('Adjusted Index:', adjustedIndex);
   
     // Check if the question index has changed or if navigated by URL
     this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl;
