@@ -271,7 +271,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  updateContentBasedOnIndex(index: number): void {
+  /* updateContentBasedOnIndex(index: number): void {
     if (!this.quiz || !this.quiz.questions || index < 0 || index >= this.quiz.questions.length) {
       console.error('Invalid index or quiz data is not ready.');
       return;
@@ -281,6 +281,47 @@ export class QuizComponent implements OnInit, OnDestroy {
     const adjustedIndex = index - 1;
     this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl;
 
+    if (this.isQuestionIndexChanged) {
+      this.previousIndex = adjustedIndex;
+      this.loadQuestionByRouteIndex(adjustedIndex);
+      this.isNavigatedByUrl = false;
+    } else {
+      console.log("No index change detected, still on index:", adjustedIndex);
+    }
+  } */
+
+  updateContentBasedOnIndex(index: number): void {
+    console.log('Attempting to update content for index:', index);
+  
+    // Check if the quiz and its questions are properly loaded
+    if (!this.quiz || !this.quiz.questions) {
+      console.error('Quiz data is not ready.');
+      return;
+    }
+  
+    console.log('Quiz questions length:', this.quiz.questions.length);
+  
+    // Check if the index is within the valid range
+    if (index < 0 || index >= this.quiz.questions.length) {
+      console.error('Invalid index:', index);
+      return;
+    }
+  
+    // Adjust index to be 0-based if passed as 1-based
+    const adjustedIndex = index - 1;
+  
+    // Check adjusted index boundaries
+    if (adjustedIndex < 0 || adjustedIndex >= this.quiz.questions.length) {
+      console.error('Invalid adjusted index:', adjustedIndex);
+      return;
+    }
+  
+    // Debugging the indices
+    console.log('Adjusted Index:', adjustedIndex);
+  
+    // Check if the question index has changed or if navigated by URL
+    this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl;
+  
     if (this.isQuestionIndexChanged) {
       this.previousIndex = adjustedIndex;
       this.loadQuestionByRouteIndex(adjustedIndex);
