@@ -236,7 +236,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async initializeQuiz(): Promise<void> {
     this.initialized = true;
-    this.subscribeToActivatedRouteParams();
+    // this.subscribeToActivatedRouteParams();
     this.initializeSelectedQuiz();
     this.initializeSelectedOption();
     this.initializeQuestionOptions();
