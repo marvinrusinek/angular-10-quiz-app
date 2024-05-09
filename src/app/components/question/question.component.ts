@@ -236,7 +236,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private async initializeQuiz(): Promise<void> {
     this.initialized = true;
     this.initializeSelectedQuiz();
-    // this.initializeQuestionOptions();
     await this.initializeQuizQuestionsAndAnswers();
   }
   
@@ -308,11 +307,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         )
         .subscribe();
     }
-  }
-
-  private initializeQuestionOptions(): void {
-    this.options = this.getOptionsForQuestion();
-    this.selectedOption = this.question ? this.getSelectedOption() : undefined;
   }
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {
@@ -537,17 +531,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   isOption(option: Option | string): option is Option {
     return (option as Option).optionId !== undefined;
-  }
-
-  private getSelectedOption(): Option | null {
-    const option = this.selectedOptions.find(
-      (option: Option): option is Option => {
-        return (
-          option.hasOwnProperty('correct') && option.hasOwnProperty('text')
-        );
-      }
-    ) as Option | undefined;
-    return option ?? null;
   }
 
   subscriptionToQuestion(): void {
