@@ -236,7 +236,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async initializeQuiz(): Promise<void> {
     this.initialized = true;
-    // this.subscribeToActivatedRouteParams();
     this.initializeSelectedQuiz();
     this.initializeSelectedOption();
     this.initializeQuestionOptions();
@@ -259,20 +258,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('Error getting current question:', error);
     }
-  }
-
-  private subscribeToActivatedRouteParams(): void {
-    this.activatedRoute.paramMap.pipe(first()).subscribe((params: ParamMap) => {
-      const quizId = params.get('quizId');
-      const indexParam = params.get('questionIndex');
-      const questionIndex = parseInt(indexParam, 10);
-  
-      if (quizId && !isNaN(questionIndex)) {
-        this.loadQuiz(quizId, questionIndex);
-      } else {
-        console.error('Invalid parameters:', `quizId=${quizId}`, `questionIndex=${indexParam}`);
-      }
-    });
   }
   
   private loadQuiz(quizId: string, questionIndex: number): void {
