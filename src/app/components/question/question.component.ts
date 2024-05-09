@@ -211,10 +211,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.questionsObservableSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
     this.sharedVisibilitySubscription?.unsubscribe();
-    document.removeEventListener(
-      'visibilitychange',
-      this.initializeQuestionOptions.bind(this)
-    );
   }
 
   trackByOption(option: Option): number {
