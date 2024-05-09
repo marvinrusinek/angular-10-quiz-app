@@ -1141,7 +1141,11 @@ export class QuizService implements OnDestroy {
   } */
 
   getCorrectAnswers(question: QuizQuestion): number[] {
-    // return this.correctAnswersSubject.getValue();
+    if (!question) {
+      console.error('Called with an undefined question object');
+      return [];
+    }
+
     const correctAnswersMap = this.correctAnswersSubject.getValue();
     const correctAnswersForQuestion =
       correctAnswersMap.get(question.questionText) || [];
