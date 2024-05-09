@@ -203,6 +203,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.loadQuiz(this.quizId, this.questionIndex);
       }
     }
+
+    this.quizService.handleQuestionChange(
+      changes.question ? this.question : null,
+      changes.selectedOptions && !changes.selectedOptions.firstChange ? 
+        changes.selectedOptions.currentValue : null,
+      this.options
+    );
   }
 
   ngOnDestroy(): void {
