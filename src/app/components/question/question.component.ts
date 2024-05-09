@@ -89,6 +89,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   questionForm: FormGroup = new FormGroup({});
   selectedQuiz = new ReplaySubject<Quiz>(1);
   currentOptions: Option[] | undefined;
+  totalCorrectAnswers: number;
   correctAnswers: number[] | undefined;
   correctMessage: string;
   alreadyAnswered = false;
@@ -161,6 +162,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe(
         (isNavigating) => (this.isNavigatingToPrevious = isNavigating)
       );
+
+    this.totalCorrectAnswers = this.quizService.getTotalCorrectAnswers(currentQuestion);
   }
 
   async ngOnInit(): Promise<void> {
@@ -781,12 +784,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
     this.explanationTextService.setCurrentQuestionExplanation(explanationText);
 
-    const totalCorrectAnswers = this.quizService.getTotalCorrectAnswers(currentQuestion);
     this.quizStateService.updateQuestionState(
       this.quizId,
       this.currentQuestionIndex,
       { isAnswered: true },
-      totalCorrectAnswers
+      this.totalCorrectAnswers
     );
   }
 
