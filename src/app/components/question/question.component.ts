@@ -263,15 +263,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   handleQuestionUpdate(newQuestion: QuizQuestion) {
-    console.log('QuizQuestionComponent - handleQuestionUpdate:', newQuestion);
+    console.log('handleQuestionUpdate - Received newQuestion:', newQuestion);
+  
+    if (typeof newQuestion !== 'object' || newQuestion === null) {
+      console.error('handleQuestionUpdate - newQuestion is not a valid QuizQuestion object:', newQuestion);
+      return;
+    }
+  
+    // Initialize selectedOptions if it does not exist
     if (!newQuestion.selectedOptions) {
       newQuestion.selectedOptions = [];
     }
-    this.options = newQuestion.options || this.options;
-    // Now safely call getCorrectAnswers because question is checked
+  
+    this.options = newQuestion.options || [];
     this.getCorrectAnswers();
   }
-
+  
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
