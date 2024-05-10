@@ -240,7 +240,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     console.log('QuizQuestionComponent - ngOnChanges called:', changes);
   
     if (changes.question) {
@@ -250,6 +250,30 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.handleQuestionUpdate(changes.question.currentValue);
       } else {
         console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined after change.');
+      }
+    }
+  
+    if (this.question && (changes.correctAnswers || changes.selectedOptions)) {
+      this.getCorrectAnswers();
+      this.correctMessage = this.quizService.setCorrectMessage(
+        this.quizService.correctAnswerOptions,
+        this.data.options
+      );
+    }
+  } */
+
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('QuizQuestionComponent - ngOnChanges:', changes);
+  
+    if (changes.question) {
+      const newQuestion = changes.question.currentValue;
+      console.log('QuizQuestionComponent - Question change detected:', newQuestion);
+  
+      // Make sure the newQuestion is a QuizQuestion object
+      if (typeof newQuestion === 'object' && newQuestion !== null && 'questionText' in newQuestion) {
+        this.handleQuestionUpdate(newQuestion);
+      } else {
+        console.warn('QuizQuestionComponent - ngOnChanges - newQuestion is not a valid QuizQuestion:', newQuestion);
       }
     }
   
