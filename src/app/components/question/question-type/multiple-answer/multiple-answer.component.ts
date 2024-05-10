@@ -83,34 +83,25 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.selectedOptions = [];
   }
 
-  // In MultipleAnswerComponent
   async ngOnInit(): Promise<void> {
     this.quizStateService.currentQuestion$.subscribe(question => {
       if (question) {
         this.currentQuestion = question;
         console.log('Parent Component - currentQuestion from service:', this.currentQuestion);
+  
+        if (!this.currentQuestion.selectedOptions) {
+          this.currentQuestion.selectedOptions = [];
+        }
+        if (this.currentQuestion.options) {
+          this.options = this.currentQuestion.options;
+        }
+  
+        // Fetch and log the correct answers for debugging
+        const correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+        console.log('MultipleAnswerComponent - Correct answers:', correctAnswers);
       }
     });
-
-    console.log('MultipleAnswerComponent - currentQuestion at start of ngOnInit:', this.currentQuestion);
-
-    if (!this.currentQuestion) {
-      console.warn('MultipleAnswerComponent - currentQuestion is undefined at start of ngOnInit');
-    } else {
-      // Your existing logic
-      if (!this.currentQuestion.selectedOptions) {
-        this.currentQuestion.selectedOptions = [];
-      }
-      if (this.currentQuestion.options) {
-        this.options = this.currentQuestion.options;
-      }
-
-      // Fetch and log the correct answers for debugging
-      const correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
-      console.log('MultipleAnswerComponent - Correct answers:', correctAnswers);
-    }
-  }
- 
+  }  
 
   ngAfterViewInit(): void {
     this.initializeOptionChecked();
