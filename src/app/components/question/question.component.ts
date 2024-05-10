@@ -569,6 +569,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public getCorrectAnswers(): number[] {
+    if (!this.question) {
+      console.error('QuizQuestionComponent getCorrectAnswers function was called with an undefined question object');
+      return [];
+    }
     this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
     return this.correctAnswers;
   }
