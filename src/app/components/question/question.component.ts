@@ -187,14 +187,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('QuizQuestionComponent - ngOnChanges called:', changes);
-
+  
     // Improved check for property changes that are not the first change
     const isSubsequentChange = (change: SimpleChange) => change && !change.firstChange;
     
     // Handling changes to correctAnswers or selectedOptions
     if (isSubsequentChange(changes.correctAnswers) || isSubsequentChange(changes.selectedOptions)) {
       // Ensure question is defined before calling getCorrectAnswers
-      if (this.question) {
+      if (this.question) { // Changed from this.currentQuestion to this.question
         this.getCorrectAnswers();
         this.correctMessage = this.quizService.setCorrectMessage(
           this.quizService.correctAnswerOptions,
@@ -233,7 +233,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.options
       );
     }
-  }
+  }  
 
   ngOnDestroy(): void {
     this.destroy$.next();
