@@ -84,19 +84,27 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   }
 
   async ngOnInit(): Promise<void> {
-    console.log(
-      'CodelabQuizMultipleAnswerComponent - Question:',
-      this.currentQuestion
-    );
-
-    if (this.currentQuestion && !this.currentQuestion.selectedOptions) {
+    console.log('CodelabQuizMultipleAnswerComponent - Question:', this.currentQuestion);
+  
+    // Ensure currentQuestion is defined
+    if (!this.currentQuestion) {
+      console.error('CodelabQuizMultipleAnswerComponent - currentQuestion is undefined at ngOnInit');
+      return;
+    }
+  
+    if (!this.currentQuestion.selectedOptions) {
       this.currentQuestion.selectedOptions = [];
     }
-    if (this.currentQuestion && this.currentQuestion.options) {
-      this.options = this.currentQuestion?.options;
-      this.quizService.getCorrectAnswers(this.currentQuestion);
+  
+    // Set options for display
+    if (this.currentQuestion.options) {
+      this.options = this.currentQuestion.options;
     }
-  }
+  
+    // Fetch and log the correct answers for debugging
+    const correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+    console.log('Correct answers for currentQuestion:', correctAnswers);
+  }  
 
   ngAfterViewInit(): void {
     this.initializeOptionChecked();
