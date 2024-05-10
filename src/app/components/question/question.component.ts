@@ -164,6 +164,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('QuizQuestionComponent - ngOnInit - Initial question:', this.question);
     if (!this.question) {
       console.warn('QuizQuestionComponent - ngOnInit - Initial question is undefined');
     }
@@ -189,7 +190,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.logFinalData();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     console.log('QuizQuestionComponent - ngOnChanges called:', changes);
   
     // Improved check for property changes that are not the first change
@@ -237,7 +238,39 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.options
       );
     }
-  }  
+  } */
+
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('QuizQuestionComponent - ngOnChanges called:', changes);
+  
+    if (changes.question) {
+      if (changes.question.currentValue) {
+        // Handle the updated question
+        console.log('QuizQuestionComponent - ngOnChanges - Question updated:', changes.question.currentValue);
+        this.handleQuestionUpdate(changes.question.currentValue);
+      } else {
+        console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined after change.');
+      }
+    }
+  
+    if (this.question && (changes.correctAnswers || changes.selectedOptions)) {
+      this.getCorrectAnswers();
+      this.correctMessage = this.quizService.setCorrectMessage(
+        this.quizService.correctAnswerOptions,
+        this.data.options
+      );
+    }
+  }
+  
+  handleQuestionUpdate(newQuestion: QuizQuestion) {
+    console.log('QuizQuestionComponent - handleQuestionUpdate:', newQuestion);
+    if (!newQuestion.selectedOptions) {
+      newQuestion.selectedOptions = [];
+    }
+    this.options = newQuestion.options || this.options;
+    // Now safely call getCorrectAnswers because question is checked
+    this.getCorrectAnswers();
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
