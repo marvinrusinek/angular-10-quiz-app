@@ -241,43 +241,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
     }
   }
-
-  /* ngOnChanges(changes: SimpleChanges): void {
-    console.log('QuizQuestionComponent - ngOnChanges called:', changes);
   
-    if (changes.question) {
-      if (changes.question.currentValue) {
-        // Handle the updated question
-        console.log('QuizQuestionComponent - ngOnChanges - Question updated:', changes.question.currentValue);
-        this.handleQuestionUpdate(changes.question.currentValue);
-      } else {
-        console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined after change.');
-      }
-    }
-  
-    if (this.question && (changes.correctAnswers || changes.selectedOptions)) {
-      this.getCorrectAnswers();
-      this.correctMessage = this.quizService.setCorrectMessage(
-        this.quizService.correctAnswerOptions,
-        this.data.options
-      );
-    }
-  } */
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.questionsObservableSubscription?.unsubscribe();
+    this.currentQuestionSubscription?.unsubscribe();
+    this.sharedVisibilitySubscription?.unsubscribe();
+  }
 
-  /* ngOnChanges(changes: SimpleChanges): void {
-    console.log('QuizQuestionComponent - ngOnChanges:', changes);
-
-    if (changes.question) {
-      const newQuestion = changes.question.currentValue;
-      console.log('QuizQuestionComponent - Question change detected:', newQuestion);
-
-      if (this.isValidQuizQuestion(newQuestion)) {
-        this.handleQuestionUpdate(newQuestion);
-      } else {
-        console.warn('QuizQuestionComponent - ngOnChanges - newQuestion is not a valid QuizQuestion:', newQuestion);
-      }
-    }
-  } */
+  trackByOption(option: Option): number {
+    return option.optionId;
+  }
 
   isValidQuizQuestion(question: any): boolean {
     const valid = typeof question === 'object' && question !== null &&
@@ -297,18 +272,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.getCorrectAnswers();
-  }
-  
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-    this.questionsObservableSubscription?.unsubscribe();
-    this.currentQuestionSubscription?.unsubscribe();
-    this.sharedVisibilitySubscription?.unsubscribe();
-  }
-
-  trackByOption(option: Option): number {
-    return option.optionId;
   }
 
   public get shouldDisplayTextContent(): boolean {
