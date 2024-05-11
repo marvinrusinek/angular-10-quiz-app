@@ -637,12 +637,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.score++;
   }
 
-  getCorrectAnswers(): number[] {
-    if (!this.question || typeof this.question !== 'object' || !('selectedOptionIds' in this.question)) {
-      console.error('QuizQuestionComponent - getCorrectAnswers was called with an invalid question object:', this.question);
-      return [];
-    }
-    return [];
+  public getCorrectAnswers(): number[] {
+    this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+    return this.correctAnswers;
   }
 
   private updateCorrectAnswers(): void {
