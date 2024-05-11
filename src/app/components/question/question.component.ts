@@ -638,9 +638,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public getCorrectAnswers(): number[] {
-    this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+    // Check if the current question index has changed to decide whether to fetch new answers
+    if (this.currentQuestionIndex !== this.previousQuestionIndex) {
+      try {
+        // Fetch correct answers from the service
+        this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+        // Update previousQuestionIndex after fetching
+        this.previousQuestionIndex = this.currentQuestionIndex;
+      } catch (error) {
+        console.error('QuizQuestionComponent - Error getting correct answers:', error);
+        this.correctAnswers = [];
+      }
+    }
+  
     return this.correctAnswers;
-  }
+  }  
 
   private updateCorrectAnswers(): void {
     console.log('Current Options:::>>>', this.data.options);
