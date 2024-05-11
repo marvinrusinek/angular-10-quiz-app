@@ -87,7 +87,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.quizStateService.currentQuestion$.subscribe(question => {
       if (question) {
         this.currentQuestion = question;
-        console.log('Parent Component - currentQuestion from service:', this.currentQuestion);
   
         if (!this.currentQuestion.selectedOptions) {
           this.currentQuestion.selectedOptions = [];
