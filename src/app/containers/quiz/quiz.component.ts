@@ -186,7 +186,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Fetch and display the current question
     this.initializeQuestionStreams();
-    this.loadQuizQuestions();
+    this.loadQuizQuestionsForCurrentQuiz();
     this.createQuestionData();
     this.getQuestion();
     this.subscribeToCurrentQuestion();
@@ -1125,7 +1125,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   // Function to load all questions for the current quiz
-  private loadQuizQuestions(): void {
+  private loadQuizQuestionsForCurrentQuiz(): void {
     this.isQuizDataLoaded = false;
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (questions) => {
