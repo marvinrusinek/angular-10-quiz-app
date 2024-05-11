@@ -100,6 +100,9 @@ export class ExplanationTextService {
 
     const correctOptionIndices = this.getCorrectOptionIndices(question);
     const formattedExplanation = this.formatExplanation(question, correctOptionIndices);
+
+    // Log formatted explanation
+    console.log('Formatted explanation for question index:', questionIndex, ':', formattedExplanation);
     
     // Store the formatted explanation
     this.updateExplanation(questionIndex, formattedExplanation);
