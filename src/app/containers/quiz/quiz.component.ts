@@ -374,7 +374,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     forkJoin(explanationsObservables).subscribe(
       explanations => {
         explanations.forEach((explanation, index) => {
-          this.formattedExplanations[index] = explanation.explanation;
+          this.explanationTextService.formattedExplanations[index] = explanation.explanation;
           console.log(`Preloaded explanation for index ${index}:`, explanation.explanation);
         });
       },
@@ -382,7 +382,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Error preloading explanations:', error);
       },
       () => {
-        console.log('All explanations preloaded:', this.formattedExplanations);
+        console.log('All explanations preloaded:', this.explanationTextService.formattedExplanations);
       }
     );
   }
