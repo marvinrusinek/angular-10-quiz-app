@@ -164,8 +164,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('QuizQuestionComponent - ngOnInit - Initial question:', this.question);
-    if (!this.isValidQuizQuestion(this.currentQuestion)) {
+    if (!this.quizService.isValidQuizQuestion(this.currentQuestion)) {
       console.warn('QuizQuestionComponent - ngOnInit - Question is not properly initialized:', this.currentQuestion);
     } else {
       console.log('QuizQuestionComponent - ngOnInit - Initial options:', this.currentQuestion.options);
