@@ -270,34 +270,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.src = "http://www.marvinrusinek.com/sound-correct.mp3";
     audio.load();
     audio.play();
-  }
-
-  updateContentBasedOnIndex(index: number): void {
-    console.log('Received index in updateContentBasedOnIndex:', index);
-  
-    if (!this.quiz || !this.quiz.questions) {
-      console.error('Quiz data is not ready.');
-      return;
-    }
-  
-    if (index < 0 || index >= this.quiz.questions.length) {
-      console.error('Invalid index:', index);
-      return;
-    }
-  
-    this.isQuestionIndexChanged = this.previousIndex !== index || this.isNavigatedByUrl;
-    console.log('Is question index changed:', this.isQuestionIndexChanged);
-  
-    if (this.isQuestionIndexChanged) {
-      this.previousIndex = index;
-      this.loadQuestionByRouteIndex(index);
-      this.isNavigatedByUrl = false;
-    } else {
-      console.log("No index change detected, still on index:", index);
-    }
   }  
 
-  /* updateContentBasedOnIndex(index: number): void {
+  updateContentBasedOnIndex(index: number): void {
     // Adjust index to be 0-based if passed as 1-based
     const adjustedIndex = index - 1;
 
@@ -316,7 +291,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
       console.log("No index change detected, still on index:", adjustedIndex);
     }
-  } */
+  }
   
   loadQuestionByRouteIndex(index: number): void {
     if (!this.quiz || index < 0 || index >= this.quiz.questions.length) {
