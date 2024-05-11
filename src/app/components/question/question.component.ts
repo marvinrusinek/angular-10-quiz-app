@@ -254,16 +254,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return option.optionId;
   }
 
-  isValidQuizQuestion(question: any): boolean {
-    const valid = typeof question === 'object' && question !== null &&
-                  'questionText' in question && 'options' in question &&
-                  Array.isArray(question.options);
-    if (!valid) {
-      console.warn('CodelabQuizQuestionComponent - Question failed validation:', question);
-    }
-    return valid;
-  }
-
   handleQuestionUpdate(newQuestion: QuizQuestion) {
     console.log('handleQuestionUpdate - Received newQuestion:', newQuestion);
 
