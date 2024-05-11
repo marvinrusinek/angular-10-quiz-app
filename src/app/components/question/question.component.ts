@@ -190,7 +190,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.logFinalData();
   }
 
-  /* ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
     console.log('QuizQuestionComponent - ngOnChanges called:', changes);
   
     // Improved check for property changes that are not the first change
@@ -238,7 +238,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.options
       );
     }
-  } */
+  }
 
   /* ngOnChanges(changes: SimpleChanges): void {
     console.log('QuizQuestionComponent - ngOnChanges called:', changes);
@@ -262,7 +262,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     console.log('QuizQuestionComponent - ngOnChanges:', changes);
 
     if (changes.question) {
@@ -275,7 +275,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.warn('QuizQuestionComponent - ngOnChanges - newQuestion is not a valid QuizQuestion:', newQuestion);
       }
     }
-  }
+  } */
 
   isValidQuizQuestion(question: any): question is QuizQuestion {
     return typeof question === 'object' && question !== null &&
