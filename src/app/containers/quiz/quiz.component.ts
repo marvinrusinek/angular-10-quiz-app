@@ -194,6 +194,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.data.subscribe(data => {
       if (data.quizData) {
         this.quiz = data.quizData;
+        this.preloadExplanations(this.quiz.questions);
       } else {
         console.error('Quiz data is unavailable.');
       }
