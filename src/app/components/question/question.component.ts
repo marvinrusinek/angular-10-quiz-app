@@ -278,7 +278,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   isValidQuizQuestion(question: any): question is QuizQuestion {
-    return typeof question === 'object' && question !== null && 
+    return typeof question === 'object' && question !== null &&
            'questionText' in question && 
            'options' in question &&
            Array.isArray(question.options);
@@ -639,14 +639,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.score++;
   }
 
-  public getCorrectAnswers(): number[] {
-    if (typeof this.question === 'string' || !this.question) {
-      console.error('QuizQuestionComponent - getCorrectAnswers function was called with an invalid question object:', this.question);
+  getCorrectAnswers(): number[] {
+    if (!this.question || typeof this.question !== 'object' || !('selectedOptionIds' in this.question)) {
+      console.error('QuizQuestionComponent - getCorrectAnswers was called with an invalid question object:', this.question);
       return [];
     }
-
-    this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
-    return this.correctAnswers;
+    return [];
   }
 
   private updateCorrectAnswers(): void {
