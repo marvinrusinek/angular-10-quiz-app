@@ -364,7 +364,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe();
   } */
 
-  preloadExplanations(questions: QuizQuestion[]): void {
+  /* preloadExplanations(questions: QuizQuestion[]): void {
     const preloadExpls = questions.map((question, index) =>
       this.explanationTextService.formatExplanationText(question, index).pipe(
         tap(formattedExplanation => {
@@ -377,7 +377,20 @@ export class QuizComponent implements OnInit, OnDestroy {
       next: () => console.log('All explanations preloaded successfully'),
       error: () => console.error('Error preloading explanations')
     });
+  } */
+
+  preloadExplanations(questions: QuizQuestion[]): void {
+    console.log('Starting to preload explanations for questions.');
+  
+    questions.forEach((question, index) => {
+      const formattedExplanation = this.explanationTextService.formatExplanationText(question, index);
+      this.formattedExplanations[index] = formattedExplanation;
+      console.log(`Preloaded explanation for index ${index}:`, formattedExplanation);
+    });
+  
+    console.log('All explanations preloaded:', JSON.stringify(this.formattedExplanations, null, 2));
   }
+  
 
   shouldShowExplanation(index: number): boolean {
     return !!this.explanationToDisplay;
