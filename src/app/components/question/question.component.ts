@@ -192,7 +192,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.logFinalData();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     console.log('QuizQuestionComponent - ngOnChanges called:', changes);
   
     // Improved check for property changes that are not the first change
@@ -240,6 +240,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.options
       );
     }
+  } */
+
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('CodelabQuizQuestionComponent - ngOnChanges:', changes);
+    if (changes.question) {
+      const newQuestion = changes.question.currentValue;
+      console.log('CodelabQuizQuestionComponent - Question change detected:', newQuestion);
+
+      if (this.isValidQuizQuestion(newQuestion)) {
+        console.log('CodelabQuizQuestionComponent - New question is valid:', newQuestion);
+      } else {
+        console.warn('CodelabQuizQuestionComponent - New question is not valid:', newQuestion);
+      }
+    }
   }
 
   /* ngOnChanges(changes: SimpleChanges): void {
@@ -279,11 +293,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  isValidQuizQuestion(question: any): question is QuizQuestion {
-    return typeof question === 'object' && question !== null &&
-           'questionText' in question && 
-           'options' in question &&
-           Array.isArray(question.options);
+  isValidQuizQuestion(question: any): boolean {
+    const valid = typeof question === 'object' && question !== null &&
+                  'questionText' in question && 'options' in question &&
+                  Array.isArray(question.options);
+    if (!valid) {
+      console.warn('CodelabQuizQuestionComponent - Question failed validation:', question);
+    }
+    return valid;
   }
 
   handleQuestionUpdate(newQuestion: QuizQuestion) {
