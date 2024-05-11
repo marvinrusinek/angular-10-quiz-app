@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
   EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit,
   Output, SimpleChange, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, filter, first, map, skipWhile, take, takeUntil, tap } from 'rxjs/operators';
@@ -226,6 +226,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           isSubsequentChange(changes.selectedOptions) ? changes.selectedOptions.currentValue : null,
           this.options
         );
+
+        // Rebuild the form whenever the question changes
+        this.buildForm();
       } else {
         console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined after change.');
       }
@@ -249,6 +252,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   trackByOption(option: Option): number {
     return option.optionId;
+  }
+
+  private buildForm() {
+    this.questionForm = this.fb.group({
+      answer: ['', Validators.required]
+    });
   }
 
   handleQuestionUpdate(newQuestion: QuizQuestion) {
