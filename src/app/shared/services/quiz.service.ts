@@ -844,7 +844,7 @@ export class QuizService implements OnDestroy {
                   'questionText' in question && 'options' in question &&
                   Array.isArray(question.options);
     if (!valid) {
-      console.warn('QuizService - Question failed validation:', question);
+      console.warn('Question failed validation:', question);
     }
     return valid;
   }
