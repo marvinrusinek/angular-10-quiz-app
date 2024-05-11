@@ -180,7 +180,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
         this.ngZone.run(() => {
-          this.loadQuizQuestions();
+          this.fetchAndProcessQuizQuestions();
         });
       }
     });
@@ -360,7 +360,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {
     try {
-      await this.loadQuizQuestions();
+      await this.fetchAndProcessQuizQuestions();
       this.subscribeToCorrectAnswersAndData();
   
       this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
@@ -379,7 +379,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private async loadQuizQuestions(): Promise<void> {
+  private async fetchAndProcessQuizQuestions(): Promise<void> {
     this.isLoading = true;
   
     try {
@@ -410,7 +410,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   
     this.cdRef.detectChanges();
-  }  
+  }
 
   /* private initializeCorrectAnswerOptions(): void {
     this.quizService.setCorrectAnswerOptions(this.correctAnswers);
