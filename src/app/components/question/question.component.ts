@@ -269,8 +269,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const newQuestion = changes.question.currentValue;
       console.log('QuizQuestionComponent - Question change detected:', newQuestion);
   
-      // Make sure the newQuestion is a QuizQuestion object
-      if (typeof newQuestion === 'object' && newQuestion !== null && 'questionText' in newQuestion) {
+      // Check if newQuestion is a QuizQuestion object
+      if (typeof newQuestion === 'object' && newQuestion !== null && 'questionText' in newQuestion && 'options' in newQuestion) {
         this.handleQuestionUpdate(newQuestion);
       } else {
         console.warn('QuizQuestionComponent - ngOnChanges - newQuestion is not a valid QuizQuestion:', newQuestion);
@@ -285,6 +285,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
     }
   }
+  
   
   handleQuestionUpdate(newQuestion: QuizQuestion) {
     console.log('handleQuestionUpdate - Received newQuestion:', newQuestion);
