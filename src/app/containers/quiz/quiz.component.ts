@@ -297,8 +297,33 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log("No index change detected, still on index:", adjustedIndex);
     }
   }
-
+  
   loadQuestionByRouteIndex(index: number): void {
+    this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
+      takeUntil(this.unsubscribe$),
+      map(questions => {
+        if (index < 0 || index >= questions.length) {
+          throw new Error('Question index out of bounds');
+        }
+        const question = questions[index];
+        this.questionToDisplay = question.questionText;
+        this.optionsToDisplay = question.options;
+        this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
+        return question;
+      }),
+      tap(question => {
+        // Directly use the index to retrieve the explanation, ensuring consistency
+        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
+        console.log(`Explanation retrieved for index ${index}: ${this.explanationToDisplay}`);
+      }),
+      catchError(error => {
+        console.error('Error loading the question:', error);
+        return EMPTY;
+      })
+    ).subscribe();
+  }  
+
+  /* loadQuestionByRouteIndex(index: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       takeUntil(this.unsubscribe$),
       map(questions => {
@@ -322,7 +347,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         return EMPTY;
       })
     ).subscribe();
-  }
+  } */
 
   preloadExplanations(questions: QuizQuestion[]): void {
     const preloadExpls = questions.map((question, index) =>
