@@ -419,30 +419,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async loadQuizQuestions(): Promise<void> {
     this.isLoading = true;
-
+  
     try {
       const questions = await this.quizService.fetchQuizQuestions();
-
+  
       if (questions && questions.length > 0) {
         this.questions = of(questions);
-
+  
         // Update component's state with the fetched questions
         // Display explanation texts for previously answered questions
         questions.forEach((question, index) => {
-          const state = this.quizStateService.getQuestionState(
-            this.quizId,
-            index
-          );
+          const state = this.quizStateService.getQuestionState(this.quizId, index);
           if (state?.isAnswered) {
             const formattedExplanationText: FormattedExplanation = {
               questionIndex: index,
-              explanation:
-                this.explanationTextService.getFormattedExplanationTextForQuestion(
-                  index
-                )
+              explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
             };
-            this.explanationTextService.formattedExplanations[index] =
-              formattedExplanationText;
+            this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
           }
         });
       } else {
@@ -453,9 +446,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } finally {
       this.isLoading = false;
     }
-
+  
     this.cdRef.detectChanges();
-  }
+  }  
 
   /* private initializeCorrectAnswerOptions(): void {
     this.quizService.setCorrectAnswerOptions(this.correctAnswers);
