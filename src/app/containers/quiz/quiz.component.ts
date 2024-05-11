@@ -289,6 +289,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     // Check if the question index has changed or if navigated by URL
     this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl;
+
+    console.log('Is question index changed:', this.isQuestionIndexChanged);
   
     if (this.isQuestionIndexChanged) {
       this.previousIndex = adjustedIndex;
