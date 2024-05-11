@@ -273,25 +273,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   updateContentBasedOnIndex(index: number): void {
-    if (!this.quiz || !this.quiz.questions) {
-      console.error('Quiz data is not ready.');
-      return;
-    }
-  
     // Adjust index to be 0-based if passed as 1-based
     const adjustedIndex = index - 1;
-  
-    // Check if the adjusted index is within the valid range
-    if (adjustedIndex < 0 || adjustedIndex >= this.quiz.questions.length) {
-      console.error('Invalid adjusted index:', adjustedIndex);
+
+    if (!this.quiz || adjustedIndex < 0 || adjustedIndex >= this.quiz.questions.length) {
+      console.error('Invalid index:', adjustedIndex);
       return;
     }
   
     // Check if the question index has changed or if navigated by URL
-    this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl;
-
-    console.log('Is question index changed:', this.isQuestionIndexChanged);
-  
+    this.isQuestionIndexChanged = this.previousIndex !== adjustedIndex || this.isNavigatedByUrl; 
     if (this.isQuestionIndexChanged) {
       this.previousIndex = adjustedIndex;
       this.explanationToDisplay = '';
@@ -309,11 +300,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   
     const question = this.quiz.questions[index];
-    if (!question) {
-      console.error('Error loading the question at index:', index);
-      return;
-    }
-  
     this.questionToDisplay = question.questionText;
     this.optionsToDisplay = question.options;
     this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
