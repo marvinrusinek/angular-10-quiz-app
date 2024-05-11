@@ -839,6 +839,16 @@ export class QuizService implements OnDestroy {
     );
   }
 
+  public isValidQuizQuestion(question: any): boolean {
+    const valid = typeof question === 'object' && question !== null &&
+                  'questionText' in question && 'options' in question &&
+                  Array.isArray(question.options);
+    if (!valid) {
+      console.warn('QuizService - Question failed validation:', question);
+    }
+    return valid;
+  }
+
   updateCorrectMessageText(message: string): void {
     this.correctMessage$.next(message);
   }
