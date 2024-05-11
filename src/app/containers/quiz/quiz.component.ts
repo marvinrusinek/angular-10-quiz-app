@@ -302,7 +302,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
     
   loadQuestionByRouteIndex(index: number): void {
-    if (!this.quiz || index < 0 || index >= this.quiz.questions.length) {
+    if (index < 0 || index >= this.quiz.questions.length) {
       console.error('Question index out of bounds:', index);
       return;
     }
