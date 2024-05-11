@@ -165,10 +165,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     console.log('QuizQuestionComponent - ngOnInit - Initial question:', this.question);
-    if (!this.isValidQuizQuestion(this.question)) {
-      console.warn('QuizQuestionComponent - ngOnInit - Question is not properly initialized:', this.question);
+    if (!this.isValidQuizQuestion(this.currentQuestion)) {
+      console.warn('QuizQuestionComponent - ngOnInit - Question is not properly initialized:', this.currentQuestion);
     } else {
-      console.log('QuizQuestionComponent - ngOnInit - Initial options:', this.question.options);
+      console.log('QuizQuestionComponent - ngOnInit - Initial options:', this.currentQuestion.options);
     }
 
     this.logInitialData();
@@ -201,7 +201,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Handling changes to correctAnswers or selectedOptions
     if (isSubsequentChange(changes.correctAnswers) || isSubsequentChange(changes.selectedOptions)) {
       // Ensure question is defined before calling getCorrectAnswers
-      if (this.question) { // Changed from this.currentQuestion to this.question
+      if (this.currentQuestion) {
         this.getCorrectAnswers();
         this.correctMessage = this.quizService.setCorrectMessage(
           this.quizService.correctAnswerOptions,
