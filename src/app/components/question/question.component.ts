@@ -192,8 +192,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('QuizQuestionComponent - ngOnChanges called:', changes);
-  
     // Improved check for property changes that are not the first change
     const isSubsequentChange = (change: SimpleChange) => change && !change.firstChange;
     
