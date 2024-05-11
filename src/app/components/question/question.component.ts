@@ -192,7 +192,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.logFinalData();
   }
 
-  /* ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
     console.log('QuizQuestionComponent - ngOnChanges called:', changes);
   
     // Improved check for property changes that are not the first change
@@ -239,20 +239,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         changes.selectedOptions.currentValue,
         this.options
       );
-    }
-  } */
-
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log('CodelabQuizQuestionComponent - ngOnChanges:', changes);
-    if (changes.question) {
-      const newQuestion = changes.question.currentValue;
-      console.log('CodelabQuizQuestionComponent - Question change detected:', newQuestion);
-
-      if (this.isValidQuizQuestion(newQuestion)) {
-        console.log('CodelabQuizQuestionComponent - New question is valid:', newQuestion);
-      } else {
-        console.warn('CodelabQuizQuestionComponent - New question is not valid:', newQuestion);
-      }
     }
   }
 
