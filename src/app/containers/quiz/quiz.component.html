@@ -24,7 +24,7 @@
         </codelab-quiz-content-component> 
         <ng-content select="[question-content]"></ng-content>
 
-        <ng-container *ngIf="optionsToDisplay">
+        <ng-container *ngIf="optionsToDisplay && optionsToDisplay.length > 0">
           <codelab-quiz-question
             *ngIf="isContentAvailable"
             [data]="data"
