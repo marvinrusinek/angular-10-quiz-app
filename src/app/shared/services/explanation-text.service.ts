@@ -76,6 +76,7 @@ export class ExplanationTextService {
       return formattedExplanation && formattedExplanation.explanation
         ? formattedExplanation.explanation : 'No explanation available';
     } else {
+      console.log(`Index ${index} is out of bounds.`);
       return 'Question index out of bounds or no explanation available';
     }
   }
