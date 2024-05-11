@@ -8,7 +8,10 @@
       <ng-template #questionDisplay>
         <span *ngIf="questionToDisplay">{{ questionToDisplay }}</span>
         <span *ngIf="!questionToDisplay">Loading question...</span>
-        <p>{{ explanationToDisplay }}</p>
+        <div *ngIf="explanationToDisplay">
+          <h4>Explanation:</h4>
+          <p>{{ explanationToDisplay }}</p>
+        </div>
       </ng-template>
 
       <span class="number-correct" *ngIf="shouldDisplayCorrectAnswers">
