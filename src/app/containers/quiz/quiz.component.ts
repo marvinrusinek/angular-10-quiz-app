@@ -196,9 +196,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.data.subscribe(data => {
       if (data.quizData) {
         this.quiz = data.quizData;
+        console.log("Quiz loaded, questions:", this.quiz.questions);
         this.preloadExplanations(this.quiz.questions).subscribe(loaded => {
           if (loaded) {
             console.log('Explanations preloaded successfully.');
+            this.setupNavigation();
           } else {
             console.error('Failed to preload explanations.');
           }
@@ -208,7 +210,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   
-    this.activatedRoute.params.pipe(
+    /* this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
       map(params => +params['questionIndex']),
       distinctUntilChanged(),
@@ -217,7 +219,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Update content based on the new index
         this.updateContentBasedOnIndex(currentIndex);
       })
-    ).subscribe();
+    ).subscribe(); */
 
     /* this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
@@ -291,6 +293,19 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
+  setupNavigation() {
+    this.activatedRoute.params.pipe(
+      takeUntil(this.destroy$),
+      map(params => +params['questionIndex']),
+      distinctUntilChanged(),
+      tap(currentIndex => {
+        console.log('Setup navigation to index:', currentIndex);
+        this.currentQuestionIndex = currentIndex;
+        this.updateContentBasedOnIndex(currentIndex);
+      })
+    ).subscribe();
+  }
+
   handleNavigation(): void {
     this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
@@ -335,28 +350,28 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
   
-    // Update navigation indices
-    this.previousQuestionIndex = index - 1 >= 0 ? index - 1 : -1;
-    this.nextQuestionIndex = index + 1 < this.quiz.questions.length ? index + 1 : -1;
+    if (this.currentQuestionIndex !== index) {
+      console.log('Updating content for question index:', index);
+      this.currentQuestionIndex = index;
   
-    // Update the display based on the new question index
-    const question = this.quiz.questions[index];
-    this.questionToDisplay = question.questionText;
-    this.optionsToDisplay = question.options;
-    this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
+      const question = this.quiz.questions[index];
+      this.questionToDisplay = question.questionText;
+      this.optionsToDisplay = question.options;
+      this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
   
-    console.log('Updating content for question index:', index);
-    console.log('Question Text:', this.questionToDisplay);
+      if (index in this.explanationTextService.formattedExplanations) {
+        this.explanationToDisplay = this.explanationTextService.formattedExplanations[index];
+      } else {
+        this.explanationToDisplay = "No explanation available for this question.";
+      }
   
-    if (index in this.explanationTextService.formattedExplanations) {
-      this.explanationToDisplay = this.explanationTextService.formattedExplanations[index];
-      console.log(`Explanation for index ${index}:`, this.explanationToDisplay);
+      this.previousQuestionIndex = index - 1 >= 0 ? index - 1 : -1;
+      this.nextQuestionIndex = index + 1 < this.quiz.questions.length ? index + 1 : -1;
+  
+      this.cdRef.detectChanges();
     } else {
-      console.warn('Missing formatted explanation for index:', index);
-      this.explanationToDisplay = "No explanation available for this question.";
+      console.log('No index change, not updating content for index:', index);
     }
-  
-    this.cdRef.detectChanges();  // Ensure UI updates reflect the new state
   }
 
   /* updateContentBasedOnIndex(index: number): void {
