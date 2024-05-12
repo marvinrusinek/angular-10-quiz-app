@@ -191,7 +191,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    this.activatedRoute.data.subscribe(data => {
+    /* this.activatedRoute.data.subscribe(data => {
       if (data.quizData) {
         this.quiz = data.quizData;
         // this.preloadExplanations(this.quiz.questions);
@@ -210,6 +210,29 @@ export class QuizComponent implements OnInit, OnDestroy {
       tap(currentIndex => {
         this.isNavigatedByUrl = true;
         this.updateContentBasedOnIndex(currentIndex);
+      })
+    ).subscribe(); */
+
+    this.activatedRoute.data.subscribe(data => {
+      if (data.quizData) {
+        this.quiz = data.quizData;
+        this.preloadExplanations(this.quiz.questions);
+      } else {
+        console.error('Quiz data is unavailable.');
+      }
+    });
+  
+    this.activatedRoute.params.pipe(
+      takeUntil(this.destroy$),
+      map(params => +params['questionIndex']),
+      distinctUntilChanged(),
+      switchMap(currentIndex => {
+        this.isNavigatedByUrl = true;
+        return this.ensureExplanationsLoaded().pipe(
+          tap(() => {
+            this.updateContentBasedOnIndex(currentIndex);
+          })
+        );
       })
     ).subscribe();
 
@@ -271,6 +294,28 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.load();
     audio.play();
   }  
+
+  ensureExplanationsLoaded(): Observable<any> {
+    if (Object.keys(this.explanationTextService.formattedExplanations).length > 0) {
+      // If explanations are already loaded, return an immediately completing observable
+      return of(true);
+    } else {
+      // Otherwise, wait for the explanations to be preloaded
+      return forkJoin(
+        this.quiz.questions.map((question, index) =>
+          this.explanationTextService.formatExplanationText(question, index)
+        )
+      ).pipe(
+        tap((explanations) => {
+          explanations.forEach(explanation => {
+            this.explanationTextService.formattedExplanations[explanation.questionIndex] = explanation.explanation;
+          });
+          console.log('Explanations ensured:', this.explanationTextService.formattedExplanations);
+        })
+      );
+    }
+  }
+  
 
   updateContentBasedOnIndex(index: number): void {
     // Adjust index to be 0-based if passed as 1-based
