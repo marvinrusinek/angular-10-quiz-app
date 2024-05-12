@@ -295,18 +295,19 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   loadQuestionByRouteIndex(index: number): void {
     console.log('loadQuestionByRouteIndex called with index:', index);
-  
+
     if (!this.quiz || index < 0 || index >= this.quiz.questions.length) {
       console.error('Question index out of bounds:', index);
-      return;
+        return;
     }
-  
+
     const question = this.quiz.questions[index];
     this.questionToDisplay = question.questionText;
     this.optionsToDisplay = question.options;
     this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
-  
-    // Use the updated explanation correctly
+
+    console.log('Current state of formattedExplanations:', this.explanationTextService.formattedExplanations);
+
     if (index in this.explanationTextService.formattedExplanations) {
       const explanationObj = this.explanationTextService.formattedExplanations[index];
       this.explanationToDisplay = explanationObj.explanation;
@@ -315,9 +316,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Missing formatted explanation for index:', index);
       this.explanationToDisplay = "No explanation available for this question.";
     }
-  
+
     this.cdRef.detectChanges();
   }
+
   
   
   /* loadQuestionByRouteIndex(index: number): void {
