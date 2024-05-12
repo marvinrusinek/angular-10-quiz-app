@@ -292,8 +292,35 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log("No index change detected, still on index:", adjustedIndex);
     }
   }
-  
+
   loadQuestionByRouteIndex(index: number): void {
+    console.log('loadQuestionByRouteIndex called with index:', index);
+  
+    if (!this.quiz || index < 0 || index >= this.quiz.questions.length) {
+      console.error('Question index out of bounds:', index);
+      return;
+    }
+  
+    const question = this.quiz.questions[index];
+    this.questionToDisplay = question.questionText;
+    this.optionsToDisplay = question.options;
+    this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
+  
+    // Use the updated explanation correctly
+    if (index in this.explanationTextService.formattedExplanations) {
+      const explanationObj = this.explanationTextService.formattedExplanations[index];
+      this.explanationToDisplay = explanationObj.explanation;
+      console.log(`Explanation for index ${index}:`, this.explanationToDisplay);
+    } else {
+      console.error('Missing formatted explanation for index:', index);
+      this.explanationToDisplay = "No explanation available for this question.";
+    }
+  
+    this.cdRef.detectChanges();
+  }
+  
+  
+  /* loadQuestionByRouteIndex(index: number): void {
     if (!this.quiz || index < 0 || index >= this.quiz.questions.length) {
       console.error('Question index out of bounds or quiz data not available:', index);
       return;
@@ -309,7 +336,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     console.log(`Loaded question by index ${index}:`, question);
     console.log(`Explanation for index ${index}:`, this.explanationToDisplay);
-  }
+  } */
 
   /* loadQuestionByRouteIndex(index: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
