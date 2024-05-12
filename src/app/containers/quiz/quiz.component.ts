@@ -209,7 +209,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.activatedRoute.params.pipe(
+    /* this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
       map(params => +params['questionIndex']),
       distinctUntilChanged(),
@@ -220,7 +220,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.updateContentBasedOnIndex(currentIndex);
         });
       })
-    ).subscribe();
+    ).subscribe(); */
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
@@ -279,7 +279,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.src = "http://www.marvinrusinek.com/sound-correct.mp3";
     audio.load();
     audio.play();
-  }  
+  }
+
+  handleNavigation(): void {
+    this.activatedRoute.params.pipe(
+      takeUntil(this.destroy$),
+      map(params => +params['questionIndex']),
+      distinctUntilChanged(),
+      tap(currentIndex => {
+        console.log('Navigated to question index:', currentIndex);
+        this.currentQuestionIndex = currentIndex;
+        // Directly update content now that explanations are ensured to be loaded
+        this.updateContentBasedOnIndex(currentIndex);
+      })
+    ).subscribe();
+  }
 
   ensureExplanationsLoaded(): Observable<any> {
     if (Object.keys(this.explanationTextService.formattedExplanations).length === this.quiz.questions.length) {
