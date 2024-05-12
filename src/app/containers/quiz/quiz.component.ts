@@ -191,28 +191,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    /* this.activatedRoute.data.subscribe(data => {
-      if (data.quizData) {
-        this.quiz = data.quizData;
-        // this.preloadExplanations(this.quiz.questions);
-      } else {
-        console.error('Quiz data is unavailable.');
-      }
-    });
-
-    this.activatedRoute.params.pipe(
-      takeUntil(this.destroy$),
-      tap(() => {
-        this.explanationToDisplay = '';
-      }),
-      map(params => +params['questionIndex']),
-      distinctUntilChanged(),
-      tap(currentIndex => {
-        this.isNavigatedByUrl = true;
-        this.updateContentBasedOnIndex(currentIndex);
-      })
-    ).subscribe(); */
-
     this.activatedRoute.data.subscribe(data => {
       if (data.quizData) {
         this.quiz = data.quizData;
@@ -296,11 +274,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }  
 
   ensureExplanationsLoaded(): Observable<any> {
-    if (Object.keys(this.explanationTextService.formattedExplanations).length > 0) {
-      // If explanations are already loaded, return an immediately completing observable
+    if (Object.keys(this.explanationTextService.formattedExplanations).length === this.quiz.questions.length) {
       return of(true);
     } else {
-      // Otherwise, wait for the explanations to be preloaded
       return forkJoin(
         this.quiz.questions.map((question, index) =>
           this.explanationTextService.formatExplanationText(question, index)
@@ -315,7 +291,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       );
     }
   }
-  
 
   updateContentBasedOnIndex(index: number): void {
     // Adjust index to be 0-based if passed as 1-based
