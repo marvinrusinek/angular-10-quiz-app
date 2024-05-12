@@ -273,7 +273,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }  
 
-  ensureExplanationsLoaded(): Observable<any> {
+  /* ensureExplanationsLoaded(): Observable<any> {
     if (Object.keys(this.explanationTextService.formattedExplanations).length > 0) {
       // If explanations are already loaded, return an immediately completing observable
       return of(true);
@@ -292,7 +292,31 @@ export class QuizComponent implements OnInit, OnDestroy {
         })
       );
     }
+  } */
+
+  ensureExplanationsLoaded(): Observable<any> {
+    // Check if explanations are already loaded based on the number of questions
+    if (Object.keys(this.explanationTextService.formattedExplanations).length === this.quiz.questions.length) {
+      console.log('Explanations are already loaded.');
+      return of(true);
+    } else {
+      // Load all explanations if not already loaded
+      return forkJoin(
+        this.quiz.questions.map((question, index) =>
+          this.explanationTextService.formatExplanationText(question, index)
+        )
+      ).pipe(
+        tap((explanations) => {
+          explanations.forEach(explanation => {
+            // Store explanations in a structured manner
+            this.explanationTextService.formattedExplanations[explanation.questionIndex] = explanation.explanation;
+          });
+          console.log('Explanations loaded and ensured:', this.explanationTextService.formattedExplanations);
+        })
+      );
+    }
   }
+  
 
   updateContentBasedOnIndex(index: number): void {
     // Adjust index to be 0-based if passed as 1-based
