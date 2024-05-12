@@ -326,15 +326,18 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
   
-    console.log('Updating content for question index:', index);
+    // Update navigation indices
+    this.previousQuestionIndex = index - 1 >= 0 ? index - 1 : -1;
+    this.nextQuestionIndex = index + 1 < this.quiz.questions.length ? index + 1 : -1;
+  
+    // Update the display based on the new question index
     const question = this.quiz.questions[index];
-    console.log('Question from data:', question);
-  
     this.questionToDisplay = question.questionText;
-    console.log('Updated question text to:', this.questionToDisplay);
-  
     this.optionsToDisplay = question.options;
     this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
+  
+    console.log('Updating content for question index:', index);
+    console.log('Question Text:', this.questionToDisplay);
   
     if (index in this.explanationTextService.formattedExplanations) {
       this.explanationToDisplay = this.explanationTextService.formattedExplanations[index];
@@ -344,8 +347,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.explanationToDisplay = "No explanation available for this question.";
     }
   
-    this.cdRef.detectChanges(); // Trigger change detection to update the view
-  }  
+    this.cdRef.detectChanges();  // Ensure UI updates reflect the new state
+  }
 
   /* updateContentBasedOnIndex(index: number): void {
     // Adjust index to be 0-based if passed as 1-based
