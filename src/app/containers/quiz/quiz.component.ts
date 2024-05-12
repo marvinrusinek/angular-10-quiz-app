@@ -195,18 +195,20 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.data.subscribe(data => {
       if (data.quizData) {
-        this.quiz = data.quizData;
-        console.log("Quiz loaded, questions:", this.quiz.questions);
-        this.preloadExplanations(this.quiz.questions).subscribe(loaded => {
-          if (loaded) {
-            console.log('Explanations preloaded successfully.');
-            this.setupNavigation();
-          } else {
-            console.error('Failed to preload explanations.');
-          }
-        });
+          this.quiz = data.quizData;
+          console.log("Quiz loaded, questions:", this.quiz.questions);
+
+          // Ensure explanations are preloaded before setting up navigation
+          this.ensureExplanationsLoaded().subscribe(loaded => {
+              if (loaded) {
+                  console.log('Explanations preloaded successfully.');
+                  this.setupNavigation();
+              } else {
+                  console.error('Failed to preload explanations.');
+              }
+          });
       } else {
-        console.error('Quiz data is unavailable.');
+          console.error('Quiz data is unavailable.');
       }
     });
   
@@ -293,15 +295,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  setupNavigation() {
+  setupNavigation(): void {
     this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
       map(params => +params['questionIndex']),
       distinctUntilChanged(),
       tap(currentIndex => {
-        console.log('Setup navigation to index:', currentIndex);
-        this.currentQuestionIndex = currentIndex;
-        this.updateContentBasedOnIndex(currentIndex);
+        console.log('Handling navigation to question index:', currentIndex);
+        if (this.currentQuestionIndex !== currentIndex) {
+          this.updateContentBasedOnIndex(currentIndex);
+        } else {
+          console.log('Navigation index identical to current, no action needed:', currentIndex);
+        }
       })
     ).subscribe();
   }
@@ -350,28 +355,35 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
   
-    if (this.currentQuestionIndex !== index) {
-      console.log('Updating content for question index:', index);
-      this.currentQuestionIndex = index;
+    // Update the navigation indices
+    this.previousQuestionIndex = index - 1 >= 0 ? index - 1 : -1;
+    this.nextQuestionIndex = index + 1 < this.quiz.questions.length ? index + 1 : -1;
   
-      const question = this.quiz.questions[index];
-      this.questionToDisplay = question.questionText;
-      this.optionsToDisplay = question.options;
-      this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
+    // Retrieve and log the current question based on index
+    const question = this.quiz.questions[index];
+    console.log('Updating to question at index:', index, question);
   
-      if (index in this.explanationTextService.formattedExplanations) {
-        this.explanationToDisplay = this.explanationTextService.formattedExplanations[index];
-      } else {
-        this.explanationToDisplay = "No explanation available for this question.";
-      }
+    // Update the main question display information
+    this.currentQuestionIndex = index;
+    this.questionToDisplay = question.questionText;
+    console.log('Question Text:', this.questionToDisplay);
   
-      this.previousQuestionIndex = index - 1 >= 0 ? index - 1 : -1;
-      this.nextQuestionIndex = index + 1 < this.quiz.questions.length ? index + 1 : -1;
+    // Update the options display
+    this.optionsToDisplay = question.options;
+    console.log('Options for current question:', this.optionsToDisplay);
   
-      this.cdRef.detectChanges();
+    this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
+  
+    // Handle explanation text
+    if (index in this.explanationTextService.formattedExplanations) {
+      this.explanationToDisplay = this.explanationTextService.formattedExplanations[index];
+      console.log(`Explanation for index ${index}:`, this.explanationToDisplay);
     } else {
-      console.log('No index change, not updating content for index:', index);
+      this.explanationToDisplay = "No explanation available for this question.";
+      console.warn('Missing formatted explanation for index:', index);
     }
+  
+    this.cdRef.detectChanges(); // Trigger Angular's change detection to update the view
   }
 
   /* updateContentBasedOnIndex(index: number): void {
@@ -496,17 +508,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   preloadExplanations(questions: QuizQuestion[]): Observable<boolean> {
-    console.log('Starting to preload explanations...');
-
-    if (questions.length === 0) {
-      console.log('No questions to preload explanations for.');
-      return of(true); // Immediately return true if no questions need processing
-    }
-
+    console.log('Starting to preload explanations for questions:', questions.map(q => q.questionText));
+  
     const explanationObservables = questions.map((question, index) =>
       this.explanationTextService.formatExplanationText(question, index)
     );
-
+  
     return forkJoin(explanationObservables).pipe(
       tap((explanations) => {
         explanations.forEach(explanation => {
@@ -514,10 +521,10 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.log(`Preloaded explanation for index ${explanation.questionIndex}:`, explanation.explanation);
         });
       }),
-      map(() => true), // Map to true indicating successful preloading
+      map(() => true),
       catchError(err => {
-        console.error('Error preloading explanations:', err);
-        return of(false); // Map to false indicating failure
+        console.error('Error ensuring explanations:', err);
+        return of(false);
       })
     );
   }
