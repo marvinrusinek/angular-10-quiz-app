@@ -365,28 +365,25 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   preloadExplanations(questions: QuizQuestion[]): void {
-    console.log('Starting to preload explanations...');
+    // Ensure formattedExplanations is initialized properly
+    this.explanationTextService.formattedExplanations = {};
   
-    const explanationsObservables = questions.map((question, index) =>
+    questions.forEach((question, index) => {
       this.explanationTextService.formatExplanationText(question, index)
-    );
-  
-    forkJoin(explanationsObservables).subscribe(
-      explanations => {
-        explanations.forEach((explanation, index) => {
-          this.explanationTextService.formattedExplanations[index] = explanation.explanation;
-          console.log(`Preloaded explanation for index ${index}:`, explanation.explanation);
+        .subscribe({
+          next: (formatted) => {
+            this.explanationTextService.formattedExplanations[index] = {
+              questionIndex: formatted.questionIndex,
+              explanation: formatted.explanation
+            };
+            console.log(`Preloaded explanation for index ${index}:`, formatted.explanation);
+          },
+          error: (error) => console.error('Error preloading explanation for index', index, ':', error)
         });
-      },
-      error => {
-        console.error('Error preloading explanations:', error);
-      },
-      () => {
-        console.log('All explanations preloaded:', this.explanationTextService.formattedExplanations);
-      }
-    );
-  }
+    });
   
+    console.log('Formatted explanations preloaded:', this.explanationTextService.formattedExplanations);
+  }
 
   /* preloadExplanations(questions: QuizQuestion[]): void {
     console.log('Starting to preload explanations...');
