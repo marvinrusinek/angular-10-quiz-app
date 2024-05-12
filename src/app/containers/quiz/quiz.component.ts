@@ -191,28 +191,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    /* this.activatedRoute.data.subscribe(data => {
-      if (data.quizData) {
-        this.quiz = data.quizData;
-        // this.preloadExplanations(this.quiz.questions);
-      } else {
-        console.error('Quiz data is unavailable.');
-      }
-    });
-
-    this.activatedRoute.params.pipe(
-      takeUntil(this.destroy$),
-      tap(() => {
-        this.explanationToDisplay = '';
-      }),
-      map(params => +params['questionIndex']),
-      distinctUntilChanged(),
-      tap(currentIndex => {
-        this.isNavigatedByUrl = true;
-        this.updateContentBasedOnIndex(currentIndex);
-      })
-    ).subscribe(); */
-
     this.activatedRoute.data.subscribe(data => {
       if (data.quizData) {
         this.quiz = data.quizData;
@@ -316,7 +294,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
   
-
   updateContentBasedOnIndex(index: number): void {
     // Adjust index to be 0-based if passed as 1-based
     const adjustedIndex = index - 1;
@@ -365,79 +342,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges();
   }
 
-  
-  
-  /* loadQuestionByRouteIndex(index: number): void {
-    if (!this.quiz || index < 0 || index >= this.quiz.questions.length) {
-      console.error('Question index out of bounds or quiz data not available:', index);
-      return;
-    }
-  
-    const question = this.quiz.questions[index];
-    this.questionToDisplay = question.questionText;
-    this.optionsToDisplay = question.options;
-    this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
-  
-    // Update the explanation using the correctly adjusted index
-    this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
-  
-    console.log(`Loaded question by index ${index}:`, question);
-    console.log(`Explanation for index ${index}:`, this.explanationToDisplay);
-  } */
-
-  /* loadQuestionByRouteIndex(index: number): void {
-    this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
-      takeUntil(this.unsubscribe$),
-      map(questions => {
-        if (index < 0 || index >= questions.length) {
-          throw new Error('Question index out of bounds');
-        }
-        const question = questions[index];
-        this.questionToDisplay = question.questionText;
-        this.optionsToDisplay = question.options;
-        this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
-        return question;
-      }),
-      tap(question => {
-        // Directly use the index to retrieve the explanation, ensuring consistency
-        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(index);
-        console.log(`Explanation retrieved for index ${index}: ${this.explanationToDisplay}`);
-      }),
-      catchError(error => {
-        console.error('Error loading the question:', error);
-        return EMPTY;
-      })
-    ).subscribe();
-
-    this.cdRef.detectChanges();
-  } */
-
-  /* loadQuestionByRouteIndex(index: number): void {
-    this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
-      takeUntil(this.unsubscribe$),
-      map(questions => {
-        if (index < 0 || index >= questions.length) {
-          throw new Error('Question index out of bounds');
-        }
-        const question = questions[index];
-        this.questionToDisplay = question.questionText;
-        this.optionsToDisplay = question.options;
-        this.shouldDisplayCorrectAnswers = question.options.some((opt: Option) => opt.correct);
-        return index;
-      }),
-      tap(index => {
-        // Retrieve the preloaded explanation using the index
-        const explanation = this.explanationTextService.getFormattedExplanation(index);
-        console.log(`Explanation retrieved for index ${index}: ${explanation}`);
-        this.explanationToDisplay = explanation;
-      }),
-      catchError(error => {
-        console.error('Error loading the question:', error);
-        return EMPTY;
-      })
-    ).subscribe();
-  } */
-
   preloadExplanations(questions: QuizQuestion[]): void {
     const explanationObservables = questions.map((question, index) =>
       this.explanationTextService.formatExplanationText(question, index)
@@ -458,60 +362,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: (err) => console.error('Error preloading explanations:', err)
     });
   }
-
-  /* preloadExplanations(questions: QuizQuestion[]): void {
-    // Ensure formattedExplanations is initialized properly
-    this.explanationTextService.formattedExplanations = {};
-  
-    questions.forEach((question, index) => {
-      this.explanationTextService.formatExplanationText(question, index)
-        .subscribe({
-          next: (formatted) => {
-            this.explanationTextService.formattedExplanations[index] = {
-              questionIndex: formatted.questionIndex,
-              explanation: formatted.explanation
-            };
-            console.log(`Preloaded explanation for index ${index}:`, formatted.explanation);
-          },
-          error: (error) => console.error('Error preloading explanation for index', index, ':', error)
-        });
-    });
-  
-    console.log('Formatted explanations preloaded:', this.explanationTextService.formattedExplanations);
-  } */
-
-  /* preloadExplanations(questions: QuizQuestion[]): void {
-    console.log('Starting to preload explanations...');
-  
-    // Initialize formattedExplanations as an empty object
-    this.explanationTextService.formattedExplanations = {};
-  
-    questions.forEach((question, index) => {
-      this.explanationTextService.formatExplanationText(question, index)
-        .subscribe((formattedExplanation) => {
-          // Populate the formattedExplanations object
-          this.explanationTextService.formattedExplanations[index] = formattedExplanation;
-          console.log(`Preloaded explanation for index ${index}:`, formattedExplanation);
-        });
-    });
-  
-    console.log('Preloaded explanations:', this.explanationTextService.formattedExplanations);
-  } */
-
-  /* preloadExplanations(questions: QuizQuestion[]): void {
-    const preloadExpls = questions.map((question, index) =>
-      this.explanationTextService.formatExplanationText(question, index).pipe(
-        tap(formattedExplanation => {
-          this.explanationTextService.updateExplanation(index, formattedExplanation.explanation);
-        })
-      )
-    );
-
-    forkJoin(preloadExpls).subscribe({
-      next: () => console.log('All explanations preloaded successfully'),
-      error: () => console.error('Error preloading explanations')
-    });
-  } */
 
   shouldShowExplanation(index: number): boolean {
     return !!this.explanationToDisplay;
