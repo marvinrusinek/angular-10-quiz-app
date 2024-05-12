@@ -214,7 +214,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       })
     ).subscribe(); */
 
-    this.activatedRoute.data.subscribe(data => {
+    /* this.activatedRoute.data.subscribe(data => {
       if (data.quizData) {
           this.quiz = data.quizData;
           this.preloadExplanations(this.quiz.questions);
@@ -235,7 +235,21 @@ export class QuizComponent implements OnInit, OnDestroy {
                 })
             );
         })
-    ).subscribe();
+    ).subscribe(); */
+
+    this.activatedRoute.data.subscribe(data => {
+      if (data.quizData) {
+          this.quiz = data.quizData;
+          console.log("Quiz data loaded:", this.quiz);
+
+          this.ensureExplanationsLoaded().subscribe(() => {
+              console.log("Explanations preloaded successfully.");
+              this.setupNavigation();
+          });
+      } else {
+          console.error("Quiz data is unavailable.");
+      }
+    });
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
@@ -317,7 +331,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   } */
 
-  ensureExplanationsLoaded(): Observable<any> {
+  setupNavigation(): void {
+    this.activatedRoute.params.pipe(
+        takeUntil(this.destroy$),
+        map(params => +params['questionIndex']),
+        distinctUntilChanged(),
+        tap(currentIndex => {
+            console.log("Handling navigation to question index:", currentIndex);
+            this.isNavigatedByUrl = true;
+            this.updateContentBasedOnIndex(currentIndex);
+        })
+    ).subscribe();
+  }
+
+  /* ensureExplanationsLoaded(): Observable<any> {
     if (Object.keys(this.explanationTextService.formattedExplanations).length > 0) {
         return of(true);
     } else {
@@ -334,9 +361,29 @@ export class QuizComponent implements OnInit, OnDestroy {
             })
         );
     }
+  } */
+
+  ensureExplanationsLoaded(): Observable<any> {
+    if (Object.keys(this.explanationTextService.formattedExplanations).length > 0) {
+        console.log("Explanations are already loaded.");
+        return of(true);
+    } else {
+        console.log("Starting to preload explanations...");
+        return forkJoin(
+            this.quiz.questions.map((question, index) =>
+                this.explanationTextService.formatExplanationText(question, index)
+            )
+        ).pipe(
+            tap((explanations) => {
+                explanations.forEach(explanation => {
+                    this.explanationTextService.formattedExplanations[explanation.questionIndex] = explanation.explanation;
+                });
+                console.log("Explanations ensured:", this.explanationTextService.formattedExplanations);
+            })
+        );
+    }
   }
 
-  
   /* updateContentBasedOnIndex(index: number): void {
     // Adjust index to be 0-based if passed as 1-based
     const adjustedIndex = index - 1;
@@ -358,7 +405,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   } */
 
-  updateContentBasedOnIndex(index: number): void {
+  /* updateContentBasedOnIndex(index: number): void {
     const adjustedIndex = index - 1;
 
     if (!this.quiz || adjustedIndex < 0 || adjustedIndex >= this.quiz.questions.length) {
@@ -373,7 +420,58 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
         console.log("No index change detected, still on index:", adjustedIndex);
     }
+  } */
+
+  /* updateContentBasedOnIndex(index: number): void {
+    console.log("Received raw index for updateContentBasedOnIndex:", index);
+
+    // Directly use the index assuming it's 0-based as per recent changes
+    const adjustedIndex = index;
+
+    console.log("Adjusted index to be 0-based:", adjustedIndex);
+
+    if (!this.quiz || adjustedIndex < 0 || adjustedIndex >= this.quiz.questions.length) {
+        console.error("Invalid index:", adjustedIndex);
+        return;
+    }
+
+    console.log("Updating content for index:", adjustedIndex);
+
+    if (this.previousIndex !== adjustedIndex || this.isNavigatedByUrl) {
+        this.previousIndex = adjustedIndex;
+        this.loadQuestionByRouteIndex(adjustedIndex);
+        this.isNavigatedByUrl = false;
+    } else {
+        console.log("No index change detected, still on index:", adjustedIndex);
+    }
+  } */
+
+  updateContentBasedOnIndex(index: number): void {
+    // Log the received index
+    console.log("Received index for updateContentBasedOnIndex:", index);
+
+    // Adjust index if your params are 1-based; remove this if they are 0-based
+    const adjustedIndex = index - 1; 
+
+    console.log("Adjusted index to be 0-based:", adjustedIndex);
+
+    if (!this.quiz || adjustedIndex < 0 || adjustedIndex >= this.quiz.questions.length) {
+        console.error("Invalid index:", adjustedIndex);
+        return;
+    }
+
+    console.log("Updating content for index:", adjustedIndex);
+
+    if (this.previousIndex !== adjustedIndex || this.isNavigatedByUrl) {
+        this.previousIndex = adjustedIndex;
+        this.loadQuestionByRouteIndex(adjustedIndex);
+        this.isNavigatedByUrl = false;
+    } else {
+        console.log("No index change detected, still on index:", adjustedIndex);
+    }
   }
+
+
 
   /* loadQuestionByRouteIndex(index: number): void {
     console.log('loadQuestionByRouteIndex called with index:', index);
@@ -402,7 +500,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges();
   } */
 
-  loadQuestionByRouteIndex(index: number): void {
+  /* loadQuestionByRouteIndex(index: number): void {
     console.log('loadQuestionByRouteIndex called with index:', index);
 
     if (!this.quiz || index < 0 || index >= this.quiz.questions.length) {
@@ -422,6 +520,34 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
         console.error('Missing formatted explanation for index:', index);
         this.explanationToDisplay = "No explanation available for this question.";
+    }
+
+    this.cdRef.detectChanges();
+  } */
+
+  loadQuestionByRouteIndex(index: number): void {
+    console.log("Loading question by route index:", index);
+
+    if (!this.quiz || index < 0 || index >= this.quiz.questions.length) {
+        console.error("Question index out of bounds:", index);
+        return;
+    }
+
+    const question = this.quiz.questions[index];
+    this.questionToDisplay = question.questionText;
+    this.optionsToDisplay = question.options;
+    this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
+
+    console.log("Loaded question text:", this.questionToDisplay);
+    console.log("Loaded options:", this.optionsToDisplay);
+
+    if (index in this.explanationTextService.formattedExplanations) {
+        const explanationObj = this.explanationTextService.formattedExplanations[index];
+        this.explanationToDisplay = explanationObj.explanation;
+        console.log(`Explanation for index ${index}:`, this.explanationToDisplay);
+    } else {
+        this.explanationToDisplay = "No explanation available for this question.";
+        console.error("Missing formatted explanation for index:", index);
     }
 
     this.cdRef.detectChanges();
