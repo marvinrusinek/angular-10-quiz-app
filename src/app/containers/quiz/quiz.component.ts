@@ -309,7 +309,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       })
     ).subscribe();
-  }
+  }  
 
   handleNavigation(): void {
     this.activatedRoute.params.pipe(
@@ -355,36 +355,31 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
   
-    // Update the navigation indices
-    this.previousQuestionIndex = index - 1 >= 0 ? index - 1 : -1;
-    this.nextQuestionIndex = index + 1 < this.quiz.questions.length ? index + 1 : -1;
-  
-    // Retrieve and log the current question based on index
+    // Log the current question data to check integrity
     const question = this.quiz.questions[index];
-    console.log('Updating to question at index:', index, question);
+    console.log('Current Question Data:', question);
   
-    // Update the main question display information
     this.currentQuestionIndex = index;
-    this.questionToDisplay = question.questionText;
-    console.log('Question Text:', this.questionToDisplay);
+    this.previousQuestionIndex = index - 1;
+    this.nextQuestionIndex = index + 1;
   
-    // Update the options display
+    this.questionToDisplay = question.questionText;
+    console.log('Question Text to Display:', this.questionToDisplay);
+  
+    // Log the options to ensure they are correct
     this.optionsToDisplay = question.options;
-    console.log('Options for current question:', this.optionsToDisplay);
+    console.log('Options to Display:', this.optionsToDisplay);
   
     this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
   
-    // Handle explanation text
     if (index in this.explanationTextService.formattedExplanations) {
       this.explanationToDisplay = this.explanationTextService.formattedExplanations[index];
-      console.log(`Explanation for index ${index}:`, this.explanationToDisplay);
     } else {
       this.explanationToDisplay = "No explanation available for this question.";
-      console.warn('Missing formatted explanation for index:', index);
     }
   
-    this.cdRef.detectChanges(); // Trigger Angular's change detection to update the view
-  }
+    this.cdRef.detectChanges();
+  }  
 
   /* updateContentBasedOnIndex(index: number): void {
     // Adjust index to be 0-based if passed as 1-based
