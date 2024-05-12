@@ -196,10 +196,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.data.subscribe(data => {
       if (data.quizData) {
         this.quiz = data.quizData;
-        // Ensure explanations are loaded before handling navigation
         this.preloadExplanations(this.quiz.questions).subscribe(loaded => {
           if (loaded) {
-            this.handleNavigation();
+            console.log('Explanations preloaded successfully.');
           } else {
             console.error('Failed to preload explanations.');
           }
@@ -208,6 +207,17 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Quiz data is unavailable.');
       }
     });
+  
+    this.activatedRoute.params.pipe(
+      takeUntil(this.destroy$),
+      map(params => +params['questionIndex']),
+      distinctUntilChanged(),
+      tap(currentIndex => {
+        console.log('Navigated to question index:', currentIndex);
+        // Update content based on the new index
+        this.updateContentBasedOnIndex(currentIndex);
+      })
+    ).subscribe();
 
     /* this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
@@ -286,28 +296,27 @@ export class QuizComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$),
       map(params => +params['questionIndex']),
       distinctUntilChanged(),
-      tap(currentIndex => {
-        console.log('Navigated to question index:', currentIndex);
-        this.currentQuestionIndex = currentIndex;
-        this.updateContentBasedOnIndex(currentIndex);
+      switchMap(currentIndex => {
+        this.currentQuestionIndex = currentIndex; // Update the index immediately
+        return this.ensureExplanationsLoaded(); // Ensure explanations are ready
+      }),
+      tap(() => {
+        // Now update the content based on the fully ready state
+        this.updateContentBasedOnIndex(this.currentQuestionIndex);
       })
     ).subscribe();
   }
 
-  ensureExplanationsLoaded(): Observable<any> {
+  ensureExplanationsLoaded(): Observable<boolean> {
     if (Object.keys(this.explanationTextService.formattedExplanations).length === this.quiz.questions.length) {
-      return of(true);
+      return of(true); // Immediate observable if already loaded
     } else {
-      return forkJoin(
-        this.quiz.questions.map((question, index) =>
-          this.explanationTextService.formatExplanationText(question, index)
-        )
-      ).pipe(
-        tap((explanations) => {
-          explanations.forEach(explanation => {
-            this.explanationTextService.formattedExplanations[explanation.questionIndex] = explanation.explanation;
-          });
-          console.log('Explanations ensured:', this.explanationTextService.formattedExplanations);
+      // Load and then return the status
+      return this.preloadExplanations(this.quiz.questions).pipe(
+        map(() => true),
+        catchError(err => {
+          console.error('Error ensuring explanations:', err);
+          return of(false);
         })
       );
     }
