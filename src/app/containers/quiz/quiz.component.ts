@@ -201,18 +201,17 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Quiz data is unavailable.');
       }
     });
-  
+
     this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
       map(params => +params['questionIndex']),
       distinctUntilChanged(),
-      switchMap(currentIndex => {
-        this.isNavigatedByUrl = true;
-        return this.ensureExplanationsLoaded().pipe(
-          tap(() => {
-            this.updateContentBasedOnIndex(currentIndex);
-          })
-        );
+      tap(currentIndex => {
+        console.log('Navigated to question index:', currentIndex);
+        this.currentQuestionIndex = currentIndex; // Ensure current index is updated
+        this.ensureExplanationsLoaded().subscribe(() => {
+          this.updateContentBasedOnIndex(currentIndex);
+        });
       })
     ).subscribe();
 
