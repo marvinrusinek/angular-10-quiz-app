@@ -191,28 +191,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.subscribeToCurrentQuestion();
 
-    /* this.activatedRoute.data.subscribe(data => {
-      if (data.quizData) {
-        this.quiz = data.quizData;
-        // this.preloadExplanations(this.quiz.questions);
-      } else {
-        console.error('Quiz data is unavailable.');
-      }
-    });
-
-    this.activatedRoute.params.pipe(
-      takeUntil(this.destroy$),
-      tap(() => {
-        this.explanationToDisplay = '';
-      }),
-      map(params => +params['questionIndex']),
-      distinctUntilChanged(),
-      tap(currentIndex => {
-        this.isNavigatedByUrl = true;
-        this.updateContentBasedOnIndex(currentIndex);
-      })
-    ).subscribe(); */
-
     this.activatedRoute.data.subscribe(data => {
       if (data.quizData) {
         this.quiz = data.quizData;
