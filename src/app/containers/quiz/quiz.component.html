@@ -66,7 +66,7 @@
           [class.last-question]="shouldApplyLastQuestionClass"
         >
           <div class="prev-question-nav" [hidden]="shouldHidePrevQuestionNav">
-            <button
+            <button *ngIf="previewQuestionIndex >= 0"
               type="button"
               mat-icon-button
               routerLinkActive="active"
