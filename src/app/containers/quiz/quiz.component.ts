@@ -322,32 +322,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* loadQuestionByRouteIndex(index: number): void {
-    if (!this.quiz || index < 0 || index >= this.quiz.questions.length) {
-      console.error("Question index out of bounds:", index);
-      return;
-    }
-
-    const question = this.quiz.questions[index];
-    this.questionToDisplay = question.questionText;
-    this.optionsToDisplay = question.options;
-    this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
-
-    console.log("Loaded question text:", this.questionToDisplay);
-    console.log("Loaded options:", this.optionsToDisplay);
-
-    if (index in this.explanationTextService.formattedExplanations) {
-      const explanationObj = this.explanationTextService.formattedExplanations[index];
-      this.explanationToDisplay = explanationObj.explanation;
-      console.log(`Explanation for index ${index}:`, this.explanationToDisplay);
-    } else {
-      this.explanationToDisplay = "No explanation available for this question.";
-      console.error("Missing formatted explanation for index:", index);
-    }
-
-    this.cdRef.detectChanges();
-  } */
-
   loadQuestionByRouteIndex(index: number): void {
     this.explanationToDisplay = "";
     this.explanationTextService.formattedExplanations = {};
