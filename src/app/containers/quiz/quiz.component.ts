@@ -318,17 +318,19 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Function to load a question based on the route index
   loadQuestionByRouteIndex(index: number): void {
-    console.log("Loading question by route index:", index);
-
     if (!this.quiz || index < 0 || index >= this.quiz.questions.length) {
       console.error("Question index out of bounds:", index);
       return;
     }
 
-    // Use the centralized update function
-    this.updateQuestionDisplay(index);
+    const question = this.quiz.questions[index];
+    this.questionToDisplay = question.questionText;
+    this.optionsToDisplay = question.options;
+    this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
+
+    console.log("Loaded question text:", this.questionToDisplay);
+    console.log("Loaded options:", this.optionsToDisplay);
 
     if (index in this.explanationTextService.formattedExplanations) {
       const explanationObj = this.explanationTextService.formattedExplanations[index];
