@@ -182,6 +182,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Initialize quiz-related properties
     this.initializeQuiz();
+    this.initializeQuizFromRoute();
     this.retrieveTotalQuestionsCount();
 
     // Fetch and display the current question
@@ -190,19 +191,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.createQuestionData();
     this.getQuestion();
     this.subscribeToCurrentQuestion();
-
-    this.activatedRoute.data.subscribe(data => {
-      if (data.quizData) {
-        this.quiz = data.quizData;
-
-        this.ensureExplanationsLoaded().subscribe(() => {
-          console.log("Explanations preloaded successfully.");
-          this.setupNavigation();
-        });
-      } else {
-        console.error("Quiz data is unavailable.");
-      }
-    });
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
@@ -731,7 +719,21 @@ export class QuizComponent implements OnInit, OnDestroy {
       complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
   }
-    
+
+  initializeQuizFromRoute(): void {
+    this.activatedRoute.data.subscribe(data => {
+      if (data.quizData) {
+        this.quiz = data.quizData;
+
+        this.ensureExplanationsLoaded().subscribe(() => {
+          console.log("Explanations preloaded successfully.");
+          this.setupNavigation();
+        });
+      } else {
+        console.error("Quiz data is unavailable.");
+      }
+    });
+  }
   
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
