@@ -314,7 +314,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     if (this.previousIndex !== adjustedIndex || this.isNavigatedByUrl) {
       this.previousIndex = adjustedIndex;
-      this.explanationToDisplay = "";
       this.loadQuestionByRouteIndex(adjustedIndex);
       this.isNavigatedByUrl = false;
     } else {
