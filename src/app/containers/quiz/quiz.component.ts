@@ -366,7 +366,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   fetchFormattedExplanationText(index: number): void {
-    this.resetExplanationText(); // Reset explanation text before fetching
+    this.explanationToDisplay = ""; // Reset explanation text before fetching
     if (index in this.explanationTextService.formattedExplanations) {
       const explanationObj = this.explanationTextService.formattedExplanations[index];
       console.log(`Raw explanation for index ${index}:`, explanationObj.explanation);
