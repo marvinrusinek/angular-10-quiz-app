@@ -169,13 +169,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.questions = this.quizService.getShuffledQuestions();
     // this.updateQuestionDisplayForShuffledQuestions();
-    this.cdRef.detectChanges();
     console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
 
     // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
-    this.notifyOnNavigationEnd();
 
     // Fetch additional quiz data
     this.fetchQuizData();
