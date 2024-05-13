@@ -10,7 +10,7 @@
         <span *ngIf="!questionToDisplay">Loading question...</span>
         <div *ngIf="explanationToDisplay">
           <h4>Explanation:</h4>
-          <p>{{ explanationToDisplay }}</p>
+          <p [innerHTML]="explanationToDisplay"></p>
         </div>
       </ng-template>
 
