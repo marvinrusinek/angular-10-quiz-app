@@ -1025,7 +1025,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
   
       // Fetch the question and options
-      const [question, options] = await this.fetchQuestionAndOptionsFromAPI(quizId, currentQuestionIndex);
+      const [question, options] = await this.quizDataService.fetchQuestionAndOptionsFromAPI(quizId, currentQuestionIndex);
       
       if (!question) {
         console.error('No valid question found');
@@ -1034,18 +1034,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       this.handleQuestion(question);
       this.handleOptions(options);
-    } catch (error) {
-      console.error('Error fetching question and options:', error);
-      return null;
-    }
-  }
-  
-  private async fetchQuestionAndOptionsFromAPI(quizId: string, currentQuestionIndex: number): Promise<[QuizQuestion, Option[]] | null> {
-    try {
-      const questionAndOptions = await firstValueFrom(
-        this.quizDataService.getQuestionAndOptions(quizId, currentQuestionIndex).pipe(take(1))
-      ) as [QuizQuestion, Option[]];
-      return questionAndOptions;
     } catch (error) {
       console.error('Error fetching question and options:', error);
       return null;
