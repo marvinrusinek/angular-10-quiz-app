@@ -623,4 +623,3 @@ export class QuizDataService implements OnDestroy {
     );
   }
 }
-
