@@ -195,7 +195,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizData: Quiz[];
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
-  selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+  // selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+  selectedQuiz$: Observable<Quiz | null>;
   private isCheckedSubject = new Subject<boolean>();
   shuffledQuestions: QuizQuestion[];
 
@@ -227,9 +228,12 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   private initializeData(): void {
-    this.quizId = this.selectedQuiz?.quizId;
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-    this.questionLabel = this.getPluralizedQuestionLabel(this.selectedQuiz?.questions.length);
+    this.selectedQuiz$.pipe(takeUntil(this.destroy$)).subscribe(quiz => {
+      this.quizId = quiz?.quizId ?? '';
+      this.questionLabel = this.getPluralizedQuestionLabel(quiz?.questions.length ?? 0);
+      this.cdRef.markForCheck();
+    });
   }
   
   private subscribeToSelectedQuiz(): void {
