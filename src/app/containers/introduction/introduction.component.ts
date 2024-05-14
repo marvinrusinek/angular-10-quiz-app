@@ -1,7 +1,13 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, filter, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit
+} from '@angular/core';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
+import { catchError, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -19,7 +25,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizData: Quiz[];
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
-  selectedQuiz$: Observable<Quiz | null>;
+  selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
   private isCheckedSubject = new Subject<boolean>();
   shuffledQuestions: QuizQuestion[];
 
@@ -51,12 +57,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   private initializeData(): void {
+    this.quizId = this.selectedQuiz?.quizId;
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-    this.selectedQuiz$.pipe(takeUntil(this.destroy$)).subscribe((quiz: Quiz | null) => {
-      this.quizId = quiz?.quizId ?? '';
-      this.questionLabel = this.getPluralizedQuestionLabel(quiz?.questions.length ?? 0);
-      this.cdRef.markForCheck();
-    });
+    this.questionLabel = this.getPluralizedQuestionLabel(this.selectedQuiz?.questions.length);
   }
   
   private subscribeToSelectedQuiz(): void {
@@ -67,35 +70,22 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         this.cdRef.markForCheck();
       });
   }
-
+  
   private handleRouteParameters(): void {
     this.activatedRoute.paramMap
       .pipe(
-        switchMap((params) => {
+        switchMap((params: ParamMap) => {
           const quizId = params.get('quizId');
-          console.log('Retrieved quizId:', quizId);
-          if (!quizId) {
-            return throwError(() => new Error('Quiz ID is null or undefined'));
-          }
-          return this.quizDataService.quizzes$.pipe(
-            filter(quizzes => quizzes.length > 0),  // Wait for quizzes to be loaded
-            switchMap(() => this.quizDataService.getQuiz(quizId))
-          );
+          return quizId ? this.quizDataService.getQuizById(quizId) : throwError(() => new Error('Quiz ID is null or undefined'));
         }),
         takeUntil(this.destroy$)
       )
-      .subscribe({
-        next: (quiz: Quiz) => {
-          console.log('Retrieved quiz:', quiz);
-          this.quizDataService.setCurrentQuiz(quiz);
-          this.cdRef.markForCheck();
-        },
-        error: (error) => {
-          console.error('An error occurred while setting the quiz:', error.message);
-        }
+      .subscribe((quiz: Quiz) => {
+        this.quizDataService.setSelectedQuiz(quiz);
+        this.cdRef.markForCheck();
       });
   }
-  
+
   private handleQuizSelectionAndFetchQuestions(): void {
     this.isCheckedSubject.pipe(
       withLatestFrom(this.quizDataService.selectedQuiz$),
@@ -149,7 +139,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       return;
     }
   
-    this.quizDataService.getQuizById(quizId)
+    this.quizDataService
+      .getQuizById(quizId)
       .pipe(
         catchError((error: Error) => {
           console.error(`Error fetching quiz: ${error}`);
@@ -159,7 +150,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       )
       .subscribe((quiz: Quiz) => {
         if (quiz) {
-          this.quizDataService.selectedQuizSubject.next(quiz); 
+          this.quizDataService.selectedQuizSubject.next(quiz);
           this.router.navigate(['/question', quiz.quizId, 1]);
         } else {
           console.error(`Quiz with ID ${quizId} not found`);
