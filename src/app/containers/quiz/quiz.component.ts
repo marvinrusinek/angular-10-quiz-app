@@ -262,7 +262,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
-  ensureExplanationsLoaded(): Observable<any> {
+  ensureExplanationsLoaded(): Observable<boolean> {
     // Log to indicate the function's operation
     console.log("Ensuring explanations are loaded...");
 
