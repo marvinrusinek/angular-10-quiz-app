@@ -764,21 +764,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
   }
 
-  isValidQuestionIndex(index: number, data: any): boolean {
-    // First check if data is a Quiz object with a questions array
-    if (typeof data === 'object' && data !== null && 'questions' in data && Array.isArray(data.questions)) {
-      return index >= 0 && index < data.questions.length;
-    }
-    // Next, check if data is directly an array of QuizQuestion
-    else if (Array.isArray(data)) {
-      return index >= 0 && index < data.length;
-    }
-    else {
-      console.error('Unexpected data structure:', data);
-      return false;
-    }
-  }
-
   private setExplanationTextForCurrentQuestion(question: QuizQuestion): void {
     if (this.quizService.isQuizQuestion(question)) {
       this.explanationTextService.setNextExplanationText(question.explanation);
