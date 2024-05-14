@@ -533,12 +533,12 @@ export class QuizDataService implements OnDestroy {
   }
 
   private loadQuizzesData(): void {
-    this.http.get<Quiz[]>(this.quizUrl)
-      .pipe(
-        tap(quizzes => this.quizzesSubject.next(quizzes)),
-        catchError(this.handleError)
-      )
-      .subscribe();
+    this.http.get<Quiz[]>(this.quizUrl).pipe(
+      tap((quizzes: Quiz[]) => {
+        this.quizzesSubject.next(quizzes);
+      }),
+      catchError(this.handleError)
+    ).subscribe();
   }
 
   getQuizzes(): Observable<Quiz[]> {
