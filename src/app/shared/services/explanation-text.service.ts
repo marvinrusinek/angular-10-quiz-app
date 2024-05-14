@@ -89,7 +89,7 @@ export class ExplanationTextService {
     });
   }
 
-  /* formatExplanationText(question: QuizQuestion, questionIndex: number): 
+  formatExplanationText(question: QuizQuestion, questionIndex: number): 
     Observable<{ questionIndex: number, explanation: string }> {
     // Early return for invalid or non-current question
     if (!this.isQuestionValid(question) || !this.isCurrentQuestion(question)) {
@@ -121,16 +121,6 @@ export class ExplanationTextService {
     this.processedQuestions.add(questionKey);
 
     return of({ questionIndex, explanation: formattedExplanation });
-  } */
-
-  formatExplanationText(question: QuizQuestion, questionIndex: number): Observable<FormattedExplanation> {
-    const formattedExplanation: FormattedExplanation = {
-      questionIndex: questionIndex,
-      explanation: `<strong>${question.explanation}</strong>`
-    };
-    console.log(`Formatted explanation for index ${questionIndex}:`, formattedExplanation.explanation);
-    this.formattedExplanations[questionIndex] = formattedExplanation;
-    return of(formattedExplanation);
   }
 
   // Function that updates and notifies explanation changes
