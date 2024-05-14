@@ -258,7 +258,8 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  private async fetchQuestionAndOptionsFromAPI(quizId: string, currentQuestionIndex: number): Promise<[QuizQuestion, Option[]] | null> {
+  async fetchQuestionAndOptionsFromAPI(quizId: string, currentQuestionIndex: number): 
+    Promise<[QuizQuestion, Option[]] | null> {
     try {
       const questionAndOptions = await firstValueFrom(
         this.getQuestionAndOptions(quizId, currentQuestionIndex).pipe(take(1))
