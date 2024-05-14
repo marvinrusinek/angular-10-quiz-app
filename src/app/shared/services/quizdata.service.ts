@@ -565,7 +565,13 @@ export class QuizDataService implements OnDestroy {
 
   getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
-      map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
+      map((quizzes): Quiz => {
+        const quiz = quizzes.find(quiz => quiz.quizId === quizId);
+        if (!quiz) {
+          throw new Error('Quiz not found');
+        }
+        return quiz;
+      }),
       catchError(this.handleError)
     );
   }
@@ -586,7 +592,7 @@ export class QuizDataService implements OnDestroy {
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
     return this.getQuiz(quizId).pipe(
-      map(quiz => {
+      map((quiz): [QuizQuestion, Option[]] | null => {
         const question = quiz.questions[questionIndex];
         return question ? [question, question.options] : null;
       }),
