@@ -495,9 +495,9 @@ export class QuizDataService implements OnDestroy {
 } */
  
 import { Injectable, OnDestroy } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
-import { catchError, delay, distinctUntilChanged, filter, map, retryWhen, shareReplay, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, map, retryWhen, shareReplay, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
