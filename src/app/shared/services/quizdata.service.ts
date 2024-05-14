@@ -638,6 +638,36 @@ export class QuizDataService implements OnDestroy {
     return throwError(() => new Error(error.message));
   }
 
+  fetchQuizQuestionByIdAndIndex(quizId: string, questionIndex: number): Observable<QuizQuestion | null> {
+    if (!quizId) {
+      console.error("Quiz ID is required but not provided.");
+      return;
+    }
+
+    return this.getQuestionAndOptions(quizId, questionIndex).pipe(
+      switchMap(result => {
+        if (!result) {
+          console.error(`Expected a tuple with QuizQuestion and Options from getQuestionAndOptions but received null for index ${questionIndex}`);
+          return of(null); // Handle gracefully by returning null
+        }
+  
+        const [question, options] = result;
+        if (!question || !options) {
+          console.error('Received incomplete data from getQuestionAndOptions:', result);
+          return of(null);
+        }
+  
+        question.options = options;
+        return of(question);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error getting quiz question:', error);
+        return throwError(() => new Error('An error occurred while fetching data: ' + error.message));
+      }),
+      distinctUntilChanged()
+    );
+  }
+
   async asyncOperationToSetQuestion(quizId: string, currentQuestionIndex: number): Promise<void> {
     try {
       const question = await firstValueFrom(this.getQuestionAndOptions(quizId, currentQuestionIndex));
