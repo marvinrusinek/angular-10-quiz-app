@@ -106,7 +106,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           console.error('An error occurred while setting the quiz:', error.message);
         }
       });
-  }  
+  }
 
   private handleQuizSelectionAndFetchQuestions(): void {
     this.isCheckedSubject.pipe(

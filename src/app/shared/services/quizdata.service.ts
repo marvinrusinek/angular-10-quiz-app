@@ -545,14 +545,14 @@ export class QuizDataService implements OnDestroy {
     return this.quizzes$.pipe(distinctUntilChanged());
   }
 
+  setCurrentQuiz(quiz: Quiz): void {
+    this.currentQuizSubject.next(quiz);
+  }
+
   isValidQuiz(quizId: string): Observable<boolean> {
     return this.quizzes$.pipe(
       map(quizzes => quizzes.some(quiz => quiz.quizId === quizId))
     );
-  }
-
-  setCurrentQuiz(quiz: Quiz): void {
-    this.currentQuizSubject.next(quiz);
   }
 
   setSelectedQuiz(quiz: Quiz | null): void {
