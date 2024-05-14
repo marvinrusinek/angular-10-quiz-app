@@ -19,8 +19,6 @@ export class QuizGuard implements CanActivate {
     const quizId = route.params['quizId'];
     const questionIndex = route.params['questionIndex'] ? +route.params['questionIndex'] : 0;
 
-    console.log(`Attempting to activate quiz ${quizId} at question index ${questionIndex}`);
-
     return this.quizDataService.isValidQuiz(quizId).pipe(
       switchMap(isValid => {
         if (!isValid) {
@@ -34,14 +32,14 @@ export class QuizGuard implements CanActivate {
             const totalQuestions = quiz.questions.length;
             if ((questionIndex > 0 && questionIndex <= totalQuestions) || questionIndex === 0) {
               console.log(`Quiz ID ${quizId} and question index ${questionIndex} are valid.`);
-              return true; // Valid quiz and question index
+              return true;
             } else if (questionIndex > totalQuestions) {
               console.log(`Question index ${questionIndex} exceeds total questions. Redirecting to results.`);
-              this.router.navigate(['/results', quizId]); // Navigate to results page
+              this.router.navigate(['/results', quizId]);
               return false;
             }
             console.log(`Question index ${questionIndex} is not valid. Redirecting to intro.`);
-            this.router.navigate(['/intro', quizId]); // Navigate to intro or a general fallback if needed
+            this.router.navigate(['/intro', quizId]);
             return false;
           }),
           catchError(error => {
@@ -59,4 +57,3 @@ export class QuizGuard implements CanActivate {
     );
   }
 }
-
