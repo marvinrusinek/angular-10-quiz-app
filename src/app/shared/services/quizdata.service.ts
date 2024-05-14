@@ -511,7 +511,7 @@ export class QuizDataService implements OnDestroy {
   private quizzesSubject = new BehaviorSubject<Quiz[]>([]);
   quizzes$ = this.quizzesSubject.asObservable();
   
-  private selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
+  selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
   selectedQuiz$ = this.selectedQuizSubject.asObservable();
   
   private currentQuizSubject = new BehaviorSubject<Quiz | null>(null);
