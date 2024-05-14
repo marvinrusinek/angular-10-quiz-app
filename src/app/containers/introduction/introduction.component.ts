@@ -336,8 +336,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       return;
     }
   
-    this.quizDataService
-      .getQuizById(quizId)
+    this.quizDataService.getQuizById(quizId)
       .pipe(
         catchError((error: Error) => {
           console.error(`Error fetching quiz: ${error}`);
