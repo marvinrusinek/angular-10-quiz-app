@@ -105,7 +105,13 @@ export class ExplanationTextService {
     console.log('Formatted explanation for question index:', questionIndex, ':', formattedExplanation);
     
     // Store the formatted explanation
-    this.updateExplanation(questionIndex, formattedExplanation);
+    // this.updateExplanation(questionIndex, formattedExplanation);
+
+    // Store the formatted explanation
+    this.formattedExplanations[questionIndex] = {
+      questionIndex: questionIndex,
+      explanation: formattedExplanation
+    };
 
     this.syncFormattedExplanationState(questionIndex, formattedExplanation);
     this.setFormattedExplanation(formattedExplanation);
