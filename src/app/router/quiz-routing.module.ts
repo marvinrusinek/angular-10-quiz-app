@@ -16,11 +16,13 @@ const routes: Routes = [
   },
   {
     path: 'select',
-    component: QuizSelectionComponent
+    component: QuizSelectionComponent,
+    pathMatch: 'full'
   },
   {
     path: 'intro/:quizId',
-    component: IntroductionComponent
+    component: IntroductionComponent,
+    pathMatch: 'full'
   },
   {
     path: 'question/:quizId/:questionIndex',
@@ -31,7 +33,8 @@ const routes: Routes = [
   },
   {
     path: 'results/:quizId',
-    component: ResultsComponent
+    component: ResultsComponent,
+    pathMatch: 'full'
   }
 ];
 
