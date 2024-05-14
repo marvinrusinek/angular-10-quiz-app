@@ -314,6 +314,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     if (this.previousIndex !== adjustedIndex || this.isNavigatedByUrl) {
       this.previousIndex = adjustedIndex;
+      this.resetExplanationText();
       this.loadQuestionByRouteIndex(adjustedIndex);
       this.isNavigatedByUrl = false;
     } else {
@@ -321,9 +322,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadQuestionByRouteIndex(index: number): void {
+  resetExplanationText(): void {
     this.explanationToDisplay = "";
-    this.explanationTextService.formattedExplanations = {};
+  }
+
+  loadQuestionByRouteIndex(index: number): void {
     if (!this.quiz || index < 0 || index >= this.quiz.questions.length) {
       console.error("Question index out of bounds:", index);
       return;
@@ -342,7 +345,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   fetchFormattedExplanationText(index: number): void {
     this.explanationToDisplay = ""; // Reset explanation text before fetching
-    this.explanationTextService.formattedExplanations = {};
+
     if (index in this.explanationTextService.formattedExplanations) {
       const explanationObj = this.explanationTextService.formattedExplanations[index];
       console.log(`Raw explanation for index ${index}:`, explanationObj.explanation);
