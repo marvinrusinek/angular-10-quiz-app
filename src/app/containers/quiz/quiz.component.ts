@@ -747,7 +747,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.isValidQuestionIndex(questionIndex, selectedQuiz.questions)) {
+    if (!this.quizService.isValidQuestionIndex(questionIndex, selectedQuiz.questions)) {
       console.error(`Invalid question index: ${questionIndex} for Quiz ID ${this.quizId}`);
       return;
     }
@@ -887,7 +887,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     // Ensure the currentQuestionIndex is valid for the currentQuiz's questions array
-    if (!this.isValidQuestionIndex(this.currentQuestionIndex, currentQuiz.questions)) {
+    if (!this.quizService.isValidQuestionIndex(this.currentQuestionIndex, currentQuiz.questions)) {
       console.error(`Invalid question index: Quiz ID ${this.quizId}, Question Index (0-based) ${this.currentQuestionIndex}`);
       return;
     }
