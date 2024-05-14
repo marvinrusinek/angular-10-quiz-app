@@ -170,7 +170,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       )
       .subscribe((quiz: Quiz) => {
         if (quiz) {
-          this.quizDataService.selectedQuizSubject.next(quiz);
+          this.quizDataService.selectedQuizSubject.next(quiz); 
           this.router.navigate(['/question', quiz.quizId, 1]);
         } else {
           console.error(`Quiz with ID ${quizId} not found`);
