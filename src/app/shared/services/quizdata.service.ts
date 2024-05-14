@@ -508,6 +508,8 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuizDataService implements OnDestroy {
+  questionType: string;
+
   quizzesSubject = new BehaviorSubject<Quiz[]>([]);
   quizzes$ = this.quizzesSubject.asObservable();
   
@@ -677,6 +679,12 @@ export class QuizDataService implements OnDestroy {
     } catch (error) {
       console.error('Error setting question:', error);
     }
+  }
+
+  setQuestionType(question: QuizQuestion): void {
+    const numCorrectAnswers = question.options.filter((option) => option.correct).length;
+    question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
+    this.questionType = question.type;
   }
 
   submitQuiz(quiz: Quiz): Observable<any> {
