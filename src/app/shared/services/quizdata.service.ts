@@ -87,9 +87,13 @@ export class QuizDataService implements OnDestroy {
   }
 
   isValidQuiz(quizId: string): Observable<boolean> {
-    return this.http.get<Quiz>(`/api/quizzes/${quizId}`).pipe(
-      map(quiz => !!quiz && quiz.questions.length > 0),
-      catchError(() => of(false))
+    return this.getQuizzes().pipe(
+      tap(quizzes => console.log('Available quizzes:', quizzes)),
+      map(quizzes => {
+        const isValid = quizzes.some(quiz => quiz.quizId === quizId);
+        console.log(`Checking validity for ${quizId}: ${isValid}`);
+        return isValid;
+      })
     );
   }
 
