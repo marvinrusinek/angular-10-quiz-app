@@ -508,7 +508,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuizDataService implements OnDestroy {
-  private quizzesSubject = new BehaviorSubject<Quiz[]>([]);
+  quizzesSubject = new BehaviorSubject<Quiz[]>([]);
   quizzes$ = this.quizzesSubject.asObservable();
   
   selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
@@ -535,6 +535,7 @@ export class QuizDataService implements OnDestroy {
   private loadQuizzesData(): void {
     this.http.get<Quiz[]>(this.quizUrl).pipe(
       tap((quizzes: Quiz[]) => {
+        console.log('Loaded quizzes:', quizzes); // Log loaded quizzes
         this.quizzesSubject.next(quizzes);
       }),
       catchError(this.handleError)
@@ -569,10 +570,11 @@ export class QuizDataService implements OnDestroy {
 
   getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
-      map((quizzes): Quiz => {
+      map((quizzes: Quiz[]) => {
+        console.log('Available quizzes:', quizzes); // Log available quizzes
         const quiz = quizzes.find(quiz => quiz.quizId === quizId);
         if (!quiz) {
-          throw new Error('Quiz not found');
+          throw new Error(`Quiz with ID ${quizId} not found`);
         }
         return quiz;
       }),
@@ -631,14 +633,8 @@ export class QuizDataService implements OnDestroy {
   } */
 
   private handleError(error: any): Observable<never> {
-    let errorMessage = 'An unknown error occurred';
-    if (error instanceof HttpErrorResponse) {
-      errorMessage = `An error occurred while fetching data: ${error.message}`;
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-    console.error('Error:', errorMessage);
-    return throwError(() => new Error(errorMessage));
+    console.error('Error:', error.message);
+    return throwError(() => new Error(error.message));
   }
 
   async asyncOperationToSetQuestion(quizId: string, currentQuestionIndex: number): Promise<void> {

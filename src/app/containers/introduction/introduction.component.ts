@@ -90,7 +90,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           const quizId = params.get('quizId');
           console.log('Retrieved quizId:', quizId); // Log the quizId
           if (!quizId) {
-            console.error('Quiz ID is null or undefined');
             return throwError(() => new Error('Quiz ID is null or undefined'));
           }
           return this.quizDataService.getQuiz(quizId);
@@ -99,6 +98,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (quiz: Quiz) => {
+          console.log('Retrieved quiz:', quiz); // Log the retrieved quiz
           this.quizDataService.setCurrentQuiz(quiz);
           this.cdRef.markForCheck();
         },
@@ -106,7 +106,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           console.error('An error occurred while setting the quiz:', error.message);
         }
       });
-  }  
+  }
 
   private handleQuizSelectionAndFetchQuestions(): void {
     this.isCheckedSubject.pipe(
