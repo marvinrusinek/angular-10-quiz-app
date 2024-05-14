@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, filter, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -67,38 +67,26 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         this.cdRef.markForCheck();
       });
   }
-  
-  /* private handleRouteParameters(): void {
-    this.activatedRoute.paramMap
-      .pipe(
-        switchMap((params: ParamMap) => {
-          const quizId = params.get('quizId');
-          return quizId ? this.quizDataService.getQuiz(quizId) : throwError(() => new Error('Quiz ID is null or undefined'));
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((quiz: Quiz) => {
-        this.quizDataService.setCurrentQuiz(quiz);
-        this.cdRef.markForCheck();
-      });
-  } */
-  
+
   private handleRouteParameters(): void {
     this.activatedRoute.paramMap
       .pipe(
         switchMap((params) => {
           const quizId = params.get('quizId');
-          console.log('Retrieved quizId:', quizId); // Log the quizId
+          console.log('Retrieved quizId:', quizId);
           if (!quizId) {
             return throwError(() => new Error('Quiz ID is null or undefined'));
           }
-          return this.quizDataService.getQuiz(quizId);
+          return this.quizDataService.quizzes$.pipe(
+            filter(quizzes => quizzes.length > 0),  // Wait for quizzes to be loaded
+            switchMap(() => this.quizDataService.getQuiz(quizId))
+          );
         }),
         takeUntil(this.destroy$)
       )
       .subscribe({
         next: (quiz: Quiz) => {
-          console.log('Retrieved quiz:', quiz); // Log the retrieved quiz
+          console.log('Retrieved quiz:', quiz);
           this.quizDataService.setCurrentQuiz(quiz);
           this.cdRef.markForCheck();
         },
@@ -107,7 +95,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         }
       });
   }
-
+  
   private handleQuizSelectionAndFetchQuestions(): void {
     this.isCheckedSubject.pipe(
       withLatestFrom(this.quizDataService.selectedQuiz$),
