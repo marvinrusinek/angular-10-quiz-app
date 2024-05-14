@@ -359,6 +359,16 @@ export class QuizService implements OnDestroy {
     return undefined;
   }
 
+  // Method to find the index of a question
+  findQuestionIndex(question: QuizQuestion): number {
+    if (!this.selectedQuiz || !Array.isArray(this.selectedQuiz.questions)) {
+      console.error('Quiz data is not properly initialized or questions are not available.');
+      return -1; // Indicate failure to find the index
+    }
+
+    return this.selectedQuiz.questions.findIndex(q => q.explanation === question.explanation);
+  }
+
   // Type guard function to check if an object is of type Quiz
   private isQuiz(item: any): item is Quiz {
     return typeof item === 'object' && 'quizId' in item;

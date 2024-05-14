@@ -911,7 +911,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const questionIndex = this.findQuestionIndex(question);
+    const questionIndex = this.quizService.findQuestionIndex(question);
     this.quizService.setCurrentQuestion(questionIndex);
 
     // Reset UI elements and messages as needed
@@ -919,16 +919,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedOption$.next(null);
     this.explanationTextService.explanationText$.next('');
     this.cdRef.detectChanges();
-  }
-
-  // Method to find the index of a question
-  findQuestionIndex(question: QuizQuestion): number {
-    if (!this.quizService.selectedQuiz || !Array.isArray(this.quizService.selectedQuiz.questions)) {
-      console.error('Quiz data is not properly initialized or questions are not available.');
-      return -1; // Indicate failure to find the index
-    }
-
-    return this.quizService.selectedQuiz.questions.findIndex(q => q.explanation === question.explanation);
   }
 
   subscribeRouterAndInit(): void {
