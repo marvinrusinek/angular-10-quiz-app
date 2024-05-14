@@ -353,7 +353,6 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-
   fetchQuizDataFromAPI(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       catchError((error: HttpErrorResponse) => {
