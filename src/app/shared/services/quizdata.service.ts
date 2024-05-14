@@ -81,7 +81,7 @@ export class QuizDataService implements OnDestroy {
 
   getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
-      filter(quizzes => quizzes.length > 0),  // Ensure quizzes are loaded
+      filter(quizzes => quizzes.length > 0),
       map((quizzes: Quiz[]) => {
         console.log('Available quizzes:', quizzes);
         const quiz = quizzes.find(quiz => quiz.quizId === quizId);
