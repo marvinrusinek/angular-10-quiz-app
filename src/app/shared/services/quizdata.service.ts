@@ -555,6 +555,10 @@ export class QuizDataService implements OnDestroy {
     this.currentQuizSubject.next(quiz);
   }
 
+  setSelectedQuiz(quiz: Quiz | null): void {
+    this.selectedQuizSubject.next(quiz);
+  }
+
   setSelectedQuizById(quizId: string): void {
     this.quizzes$.pipe(
       map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),

@@ -76,12 +76,12 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((params: ParamMap) => {
           const quizId = params.get('quizId');
-          return quizId ? this.quizDataService.getQuizById(quizId) : throwError(() => new Error('Quiz ID is null or undefined'));
+          return quizId ? this.quizDataService.getQuiz(quizId) : throwError(() => new Error('Quiz ID is null or undefined'));
         }),
         takeUntil(this.destroy$)
       )
       .subscribe((quiz: Quiz) => {
-        this.quizDataService.setSelectedQuiz(quiz);
+        this.quizDataService.setCurrentQuiz(quiz);
         this.cdRef.markForCheck();
       });
   }
