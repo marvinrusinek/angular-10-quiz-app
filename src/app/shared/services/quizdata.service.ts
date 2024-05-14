@@ -604,9 +604,20 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  private handleError(error: HttpErrorResponse): Observable<never> {
+  /* private handleError(error: HttpErrorResponse): Observable<never> {
     console.error('Error:', error);
     return throwError(() => new Error('An error occurred while fetching data: ' + error.message));
+  } */
+
+  private handleError(error: any): Observable<never> {
+    let errorMessage = 'An unknown error occurred';
+    if (error instanceof HttpErrorResponse) {
+      errorMessage = `An error occurred while fetching data: ${error.message}`;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    console.error('Error:', errorMessage);
+    return throwError(() => new Error(errorMessage));
   }
 
   async asyncOperationToSetQuestion(quizId: string, currentQuestionIndex: number): Promise<void> {
