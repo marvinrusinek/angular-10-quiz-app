@@ -86,8 +86,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   private handleRouteParameters(): void {
     this.activatedRoute.paramMap
       .pipe(
-        switchMap((params: ParamMap) => {
+        switchMap((params) => {
           const quizId = params.get('quizId');
+          console.log('Retrieved quizId:', quizId); // Log the quizId
           if (!quizId) {
             console.error('Quiz ID is null or undefined');
             return throwError(() => new Error('Quiz ID is null or undefined'));
@@ -105,7 +106,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           console.error('An error occurred while setting the quiz:', error.message);
         }
       });
-  }
+  }  
 
   private handleQuizSelectionAndFetchQuestions(): void {
     this.isCheckedSubject.pipe(
