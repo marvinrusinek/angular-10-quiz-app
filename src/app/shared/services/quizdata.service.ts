@@ -580,6 +580,27 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
+  getQuizById(quizId: string): Observable<Quiz> {
+    if (!quizId) {
+      throw new Error(`Quiz ID is undefined`);
+    }
+
+    return this.http.get<Quiz[]>(this.quizUrl).pipe(
+      map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId)),
+      switchMap((quiz) => {
+        if (!quiz) {
+          throw new Error(`Quiz with ID ${quizId} not found`);
+        }
+        return of(quiz);
+      }),
+      distinctUntilChanged(
+        (prevQuiz, currQuiz) =>
+          JSON.stringify(prevQuiz) === JSON.stringify(currQuiz)
+      ),
+      shareReplay()
+    );
+  }
+
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(
       map(quiz => quiz.questions),
