@@ -124,7 +124,7 @@ export class QuizGuard implements CanActivate {
               this.router.navigate(['/results', quizId]);
               return false;
             } else {
-              this.router.navigate(['/quiz', quizId, 'question', 1]);
+              this.router.navigate(['/intro', quizId]);
               return false;
             }
           }),
