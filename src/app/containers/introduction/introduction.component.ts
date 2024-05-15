@@ -79,20 +79,27 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.activatedRoute.params.pipe(
       map(params => params['quizId']),
       switchMap(quizId => {
-        console.log('Quiz ID:', quizId);
         return this.quizDataService.getQuiz(quizId);
       }),
       takeUntil(this.destroy$)
     ).subscribe({
       next: (quiz: Quiz) => {
         console.log('Quiz fetched:', quiz);
-        this.selectedQuiz$.next(quiz);
+        if (quiz && this.isQuizValid(quiz)) {
+          this.selectedQuiz$.next(quiz);
+        } else {
+          console.error('Invalid quiz data:', quiz);
+        }
         this.cdRef.markForCheck();
       },
       error: (error) => {
         console.error('Error loading quiz:', error);
       }
     });
+  }
+  
+  private isQuizValid(quiz: any): quiz is Quiz {
+    return quiz && typeof quiz.quizId === 'string' && typeof quiz.milestone === 'string';
   }
 
   private initializeData(): void {
