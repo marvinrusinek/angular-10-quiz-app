@@ -523,10 +523,23 @@ export class QuizDataService implements OnDestroy {
     this.destroy$.complete();
   }
 
-  loadQuizzesData(): void {
+  /* loadQuizzesData(): void {
     this.http.get<Quiz[]>(this.quizUrl).pipe(
       tap(quizzes => this.quizzes$.next(quizzes)),
       catchError((error: HttpErrorResponse) => throwError(() => new Error('Error loading quizzes: ' + error.message)))
+    ).subscribe();
+  } */
+
+  loadQuizzesData(): void {
+    this.http.get<Quiz[]>(this.quizUrl).pipe(
+      tap(quizzes => {
+        console.log("Loaded quizzes:", quizzes);
+        this.quizzes$.next(quizzes);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error loading quizzes:', error);
+        return throwError(() => new Error('Error loading quizzes: ' + error.message));
+      })
     ).subscribe();
   }
 
@@ -534,9 +547,20 @@ export class QuizDataService implements OnDestroy {
     return this.quizzes$.asObservable();
   }
 
-  isValidQuiz(quizId: string): Observable<boolean> {
+  /* isValidQuiz(quizId: string): Observable<boolean> {
     return this.getQuizzes().pipe(
       map(quizzes => quizzes.some(quiz => quiz.quizId === quizId))
+    );
+  } */
+
+  isValidQuiz(quizId: string): Observable<boolean> {
+    return this.getQuizzes().pipe(
+      tap(quizzes => console.log('Available quizzes:', quizzes)),
+      map(quizzes => {
+        const isValid = quizzes.some(quiz => quiz.quizId === quizId);
+        console.log(`Checking validity for ${quizId}: ${isValid}`);
+        return isValid;
+      })
     );
   }
 
@@ -546,6 +570,7 @@ export class QuizDataService implements OnDestroy {
 
   /* getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
+      filter(quizzes => quizzes.length > 0),
       map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
       switchMap(quiz => {
         if (!quiz) throw new Error(`Quiz with ID ${quizId} not found`);
@@ -558,8 +583,13 @@ export class QuizDataService implements OnDestroy {
 
   getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
-      filter(quizzes => quizzes.length > 0),
+      tap(quizzes => console.log("Current quizzes in BehaviorSubject:", quizzes)),
       map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
+      tap(quiz => {
+        if (!quiz) {
+          console.log(`Quiz with ID ${quizId} not found in available quizzes.`);
+        }
+      }),
       switchMap(quiz => {
         if (!quiz) throw new Error(`Quiz with ID ${quizId} not found`);
         return of(quiz);
@@ -567,7 +597,8 @@ export class QuizDataService implements OnDestroy {
       catchError((error: HttpErrorResponse) => throwError(() => new Error('Error getting quiz: ' + error.message))),
       distinctUntilChanged()
     );
-  }  
+  }
+  
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(

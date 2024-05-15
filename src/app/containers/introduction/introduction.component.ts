@@ -158,6 +158,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   } */
 
   onStartQuiz(quizId: string): void {
+    console.log('Attempting to start quiz with ID:', quizId);
     if (!quizId) {
       console.error('No quiz selected');
       return;
@@ -171,14 +172,18 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         }),
         takeUntil(this.destroy$)
       )
-      .subscribe((quiz: Quiz) => {
-        if (quiz) {
-          // Use selectedQuiz$ to update the selected quiz
-          this.quizDataService.selectedQuiz$.next(quiz);
-          // Navigate to the first question of the selected quiz
-          this.router.navigate(['/question', quiz.quizId, 1]);
-        } else {
-          console.error(`Quiz with ID ${quizId} not found`);
+      .subscribe({
+        next: (quiz: Quiz) => {
+          console.log('Quiz fetched successfully:', quiz);
+          if (quiz) {
+            this.quizDataService.selectedQuiz$.next(quiz);
+            this.router.navigate(['/question', quiz.quizId, 1]);
+          } else {
+            console.error(`Quiz with ID ${quizId} not found`);
+          }
+        },
+        error: (error) => {
+          console.error('Error in subscription:', error);
         }
       });
   }
