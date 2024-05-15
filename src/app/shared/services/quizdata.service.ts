@@ -560,7 +560,7 @@ export class QuizDataService implements OnDestroy {
   }
 
   getQuizzes(): Observable<Quiz[]> {
-    return this.quizzes$.asObservable();
+    return this.quizzes$;
   }
 
   /* isValidQuiz(quizId: string): Observable<boolean> {
