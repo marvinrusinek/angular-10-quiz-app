@@ -510,7 +510,11 @@ export class QuizDataService implements OnDestroy {
   private quizUrl = 'assets/data/quiz.json';
   private destroy$ = new Subject<void>();
 
-  quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
+  // quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
+
+  private quizzesSubject = new BehaviorSubject<Quiz[]>([]);
+  quizzes$ = this.quizzesSubject.asObservable();
+
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
   selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
 
