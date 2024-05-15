@@ -75,15 +75,17 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  loadQuiz(): void {
+  private loadQuiz(): void {
     this.activatedRoute.params.pipe(
       map(params => params['quizId']),
       switchMap(quizId => {
+        console.log('Quiz ID:', quizId);
         return this.quizDataService.getQuiz(quizId);
       }),
       takeUntil(this.destroy$)
     ).subscribe({
-      next: (quiz) => {
+      next: (quiz: Quiz) => {
+        console.log('Quiz fetched:', quiz);
         this.selectedQuiz$.next(quiz);
         this.cdRef.markForCheck();
       },
