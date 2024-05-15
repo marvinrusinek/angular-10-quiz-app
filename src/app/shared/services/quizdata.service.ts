@@ -660,7 +660,10 @@ export class QuizDataService implements OnDestroy {
     );
   }
   
-  
+  private handleError(error: any): Observable<never> {
+    console.error('Error:', error.message);
+    return throwError(() => new Error(error.message));
+  }
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(
