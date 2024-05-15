@@ -333,6 +333,16 @@
     "image": "https://raw.githubusercontent.com/marvinrusinek/codelab-angular-10-quiz-app/quiz/codelab-master/apps/playground/src/assets/images/DIDiagram.png",
     "questions": [
       {
+        "questionText": "What is Dependency Injection (DI) in Angular?",
+        "options": [
+          { "text": "A way to inject services into classes.", "correct": true },
+          { "text": "A method to create animations." },
+          { "text": "A pattern to store data." },
+          { "text": "A technique for managing routes." }
+        ],
+        "explanation": "a service gets passed to the client during DI"
+      },
+      {
         "questionText": "What is the objective of dependency injection?",
         "options": [
           { "text": "Pass the service to the client.", "correct": true },
