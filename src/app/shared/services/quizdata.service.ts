@@ -622,7 +622,7 @@ export class QuizDataService implements OnDestroy {
     );
   } */
 
-  getQuiz(quizId: string): Observable<Quiz> {
+  /* getQuiz(quizId: string): Observable<Quiz> {
     if (this.quizzes$.getValue().length === 0) {
       console.log("Quizzes not loaded yet, loading quizzes...");
       this.loadQuizzesData();
@@ -643,6 +643,20 @@ export class QuizDataService implements OnDestroy {
       }),
       catchError((error: HttpErrorResponse) => throwError(() => new Error('Error getting quiz: ' + error.message))),
       distinctUntilChanged()
+    );
+  } */
+
+  getQuiz(quizId: string): Observable<Quiz> {
+    return this.quizzes$.pipe(
+      filter(quizzes => quizzes.length > 0),
+      map((quizzes: Quiz[]) => {
+        const quiz = quizzes.find(quiz => quiz.quizId === quizId);
+        if (!quiz) {
+          throw new Error(`Quiz with ID ${quizId} not found`);
+        }
+        return quiz;
+      }),
+      catchError(this.handleError)
     );
   }
   
