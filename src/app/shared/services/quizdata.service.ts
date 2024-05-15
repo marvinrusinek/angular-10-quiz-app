@@ -498,7 +498,7 @@ export class QuizDataService implements OnDestroy {
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
@@ -543,7 +543,7 @@ export class QuizDataService implements OnDestroy {
     this.selectedQuiz$.next(quiz);
   }
 
-  getQuiz(quizId: string): Observable<Quiz> {
+  /* getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
       map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
       switchMap(quiz => {
@@ -553,7 +553,20 @@ export class QuizDataService implements OnDestroy {
       catchError((error: HttpErrorResponse) => throwError(() => new Error('Error getting quiz: ' + error.message))),
       distinctUntilChanged()
     );
-  }
+  } */
+
+  getQuiz(quizId: string): Observable<Quiz> {
+    return this.quizzes$.pipe(
+      filter(quizzes => quizzes.length > 0),
+      map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
+      switchMap(quiz => {
+        if (!quiz) throw new Error(`Quiz with ID ${quizId} not found`);
+        return of(quiz);
+      }),
+      catchError((error: HttpErrorResponse) => throwError(() => new Error('Error getting quiz: ' + error.message))),
+      distinctUntilChanged()
+    );
+  }  
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(
