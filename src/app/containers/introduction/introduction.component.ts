@@ -210,7 +210,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           console.log('Quiz fetched successfully:', quiz);
           if (quiz) {
             this.quizDataService.selectedQuiz$.next(quiz);
-            this.router.navigate(['/question', quiz.quizId, 1]);
+            // this.router.navigate(['/question', quiz.quizId, 1]);
+            this.router.navigate(['/quiz', quizId, 'question', 1]);
           } else {
             console.error(`Quiz with ID ${quizId} not found`);
           }
