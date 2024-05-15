@@ -133,7 +133,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.isCheckedSubject.next(event.checked);
   }
   
-  onStartQuiz(quizId: string): void {
+  /* onStartQuiz(quizId: string): void {
     if (!quizId) {
       console.error('No quiz selected');
       return;
@@ -155,7 +155,34 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           console.error(`Quiz with ID ${quizId} not found`);
         }
       });
+  } */
+
+  onStartQuiz(quizId: string): void {
+    if (!quizId) {
+      console.error('No quiz selected');
+      return;
+    }
+  
+    this.quizDataService.getQuiz(quizId)
+      .pipe(
+        catchError((error: Error) => {
+          console.error(`Error fetching quiz: ${error}`);
+          return throwError(() => error);
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((quiz: Quiz) => {
+        if (quiz) {
+          // Use selectedQuiz$ to update the selected quiz
+          this.quizDataService.selectedQuiz$.next(quiz);
+          // Navigate to the first question of the selected quiz
+          this.router.navigate(['/question', quiz.quizId, 1]);
+        } else {
+          console.error(`Quiz with ID ${quizId} not found`);
+        }
+      });
   }
+  
 
   public get milestone(): string {
     const milestone = this.selectedQuiz?.milestone || 'Milestone not found';
