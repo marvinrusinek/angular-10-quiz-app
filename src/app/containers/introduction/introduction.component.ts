@@ -25,7 +25,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizData: Quiz[];
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
-  selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+  // selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+  selectedQuiz$: Observable<Quiz>;
   private isCheckedSubject = new Subject<boolean>();
   shuffledQuestions: QuizQuestion[];
 
@@ -45,10 +46,10 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.activatedRoute.params.pipe(
+    this.selectedQuiz$ = this.route.params.pipe(
       map(params => params['quizId']),
       switchMap(quizId => this.quizDataService.getQuiz(quizId))
-      ).subscribe(quiz => this.selectedQuiz$.next(quiz));   
+    );
 
     this.initializeData();
     this.subscribeToSelectedQuiz();
