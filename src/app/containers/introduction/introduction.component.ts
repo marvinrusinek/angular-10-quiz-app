@@ -26,7 +26,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
   // selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
-  selectedQuiz$: Observable<Quiz>;
+  // selectedQuiz$: Observable<Quiz>;
+  selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
   private isCheckedSubject = new Subject<boolean>();
   shuffledQuestions: QuizQuestion[];
 
