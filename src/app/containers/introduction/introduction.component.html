@@ -1,5 +1,5 @@
 <ng-container *ngIf="selectedQuiz$ | async as selectedQuiz">
-  <mat-card>
+  <mat-card *ngIf="selectedQuiz; else loading">
     <mat-card-header>
       <img mat-card-avatar class="header-image" loading="lazy" />
       <mat-card-title-group>
@@ -69,4 +69,7 @@
       </mat-button>
     </mat-card-actions>
   </mat-card>
+  <ng-template #loading>
+    <p>Loading...</p>
+  </ng-template>
 </ng-container>
