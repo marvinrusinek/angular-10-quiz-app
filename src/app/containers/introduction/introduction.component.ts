@@ -204,7 +204,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       });
   } */
 
-  onStartQuiz(quizId: string): void {
+  /* onStartQuiz(quizId: string): void {
     console.log('Attempting to start quiz with ID:', quizId);
     if (!quizId) {
       console.error('No quiz selected');
@@ -234,6 +234,23 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           console.error('Error in subscription:', error);
         }
       });
+  } */
+
+  onStartQuiz(quizId: string): void {
+    console.log('Attempting to start quiz with ID:', quizId);
+    if (!quizId) {
+      console.error('No quiz selected');
+      return;
+    }
+    this.router.navigate(['/quiz', quizId, 'question', 1]).then(success => {
+      if (success) {
+        console.log('Navigation successful');
+      } else {
+        console.error('Navigation failed');
+      }
+    }).catch(error => {
+      console.error('Navigation error:', error);
+    });
   }
 
   
