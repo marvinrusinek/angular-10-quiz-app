@@ -55,7 +55,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       }),
       takeUntil(this.destroy$)
     ).subscribe({
-      next: (quiz: Quiz) => {
+      next: (quiz) => {
         console.log('Quiz fetched:', quiz);
         this.selectedQuiz$.next(quiz);
         this.cdRef.markForCheck();
