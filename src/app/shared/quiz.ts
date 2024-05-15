@@ -330,7 +330,7 @@ export const QUIZ_DATA: Quiz[] = [
           { text: 'A pattern to store data.' },
           { text: 'A technique for managing routes.' }
         ],
-        explanation: 'a service gets passed to the client during DI'
+        explanation: 'A way to inject services into classes.'
       },
       {
         questionText: 'What is the objective of dependency injection?',
