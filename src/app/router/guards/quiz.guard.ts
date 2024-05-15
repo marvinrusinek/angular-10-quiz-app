@@ -27,7 +27,7 @@ export class QuizGuard implements CanActivate {
           return of(false);
         }
 
-        return this.quizDataService.getQuizById(quizId).pipe(
+        return this.quizDataService.getQuiz(quizId).pipe(
           map((quiz: Quiz) => {
             const totalQuestions = quiz.questions.length;
             if ((questionIndex > 0 && questionIndex <= totalQuestions) || questionIndex === 0) {
