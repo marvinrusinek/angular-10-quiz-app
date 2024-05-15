@@ -157,7 +157,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       });
   } */
 
-  onStartQuiz(quizId: string): void {
+  /* onStartQuiz(quizId: string): void {
     console.log('Attempting to start quiz with ID:', quizId);
     if (!quizId) {
       console.error('No quiz selected');
@@ -186,7 +186,42 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           console.error('Error in subscription:', error);
         }
       });
+  } */
+
+  onStartQuiz(quizId: string): void {
+    console.log('Attempting to start quiz with ID:', quizId);
+    if (!quizId) {
+      console.error('No quiz selected');
+      return;
+    }
+  
+    this.quizDataService.getQuiz(quizId)
+      .pipe(
+        catchError((error: Error) => {
+          console.error(`Error fetching quiz: ${error}`);
+          this.router.navigate(['/select']);
+          return throwError(() => error);
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (quiz: Quiz) => {
+          console.log('Quiz fetched successfully:', quiz);
+          if (quiz) {
+            this.quizDataService.selectedQuiz$.next(quiz);
+            this.router.navigate(['/question', quiz.quizId, 1]);
+          } else {
+            console.error(`Quiz with ID ${quizId} not found`);
+            this.router.navigate(['/select']);
+          }
+        },
+        error: (error) => {
+          console.error('Error in subscription:', error);
+          this.router.navigate(['/select']);
+        }
+      });
   }
+  
   
 
   public get milestone(): string {
