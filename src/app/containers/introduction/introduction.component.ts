@@ -55,7 +55,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       }),
       takeUntil(this.destroy$)
     ).subscribe({
-      next: (quiz) => {
+      next: (quiz: Quiz) => {
         console.log('Quiz fetched:', quiz);
         this.selectedQuiz$.next(quiz);
         this.cdRef.markForCheck();
@@ -252,9 +252,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('Navigation error:', error);
     });
   }
-
-  
-  
 
   public get milestone(): string {
     const milestone = this.selectedQuiz?.milestone || 'Milestone not found';
