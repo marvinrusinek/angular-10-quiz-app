@@ -497,8 +497,8 @@ export class QuizDataService implements OnDestroy {
 
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject, throwError } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, map, tap } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
@@ -546,21 +546,14 @@ export class QuizDataService implements OnDestroy {
     ).subscribe();
   } */
 
-  loadQuizzesData(): void {
+  private loadQuizzesData(): void {
     this.http.get<Quiz[]>(this.quizUrl).pipe(
-      tap(quizzes => {
-        console.log("Loaded quizzes:", quizzes);
-        if (!quizzes.some(quiz => quiz.quizId === "dependency-injection")) {
-          console.log("Quiz with ID 'dependency-injection' is missing.");
-        }
-        this.quizzes$.next(quizzes);
+      tap((quizzes: Quiz[]) => {
+        this.quizzesSubject.next(quizzes);
       }),
-      catchError((error: HttpErrorResponse) => {
-        console.error('Error loading quizzes:', error);
-        return throwError(() => new Error('Error loading quizzes: ' + error.message));
-      })
+      catchError(this.handleError)
     ).subscribe();
-  }  
+  }
 
   getQuizzes(): Observable<Quiz[]> {
     return this.quizzes$.asObservable();
