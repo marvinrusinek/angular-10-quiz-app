@@ -47,23 +47,22 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.activatedRoute.params.pipe(
+    this.loadQuiz();
+    /* this.activatedRoute.params.pipe(
       map(params => params['quizId']),
       switchMap(quizId => {
-        console.log('Quiz ID:', quizId);
         return this.quizDataService.getQuiz(quizId);
       }),
       takeUntil(this.destroy$)
     ).subscribe({
-      next: (quiz) => {
-        console.log('Quiz fetched:', quiz);
+      next: (quiz: Quiz) => {
         this.selectedQuiz$.next(quiz);
         this.cdRef.markForCheck();
       },
       error: (error) => {
         console.error('Error loading quiz:', error);
       }
-    });
+    }); */
 
     this.initializeData();
     this.subscribeToSelectedQuiz();
@@ -74,6 +73,24 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  loadQuiz(): void {
+    this.activatedRoute.params.pipe(
+      map(params => params['quizId']),
+      switchMap(quizId => {
+        return this.quizDataService.getQuiz(quizId);
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (quiz: Quiz) => {
+        this.selectedQuiz$.next(quiz);
+        this.cdRef.markForCheck();
+      },
+      error: (error) => {
+        console.error('Error loading quiz:', error);
+      }
+    });
   }
 
   private initializeData(): void {
