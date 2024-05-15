@@ -514,6 +514,9 @@ export class QuizDataService implements OnDestroy {
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
   selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
 
+  private currentQuizSubject = new BehaviorSubject<Quiz | null>(null);
+  currentQuiz$ = this.currentQuizSubject.asObservable();
+
   constructor(private http: HttpClient) {
     this.loadQuizzesData();
   }
@@ -582,6 +585,10 @@ export class QuizDataService implements OnDestroy {
 
   setSelectedQuiz(quiz: Quiz | null): void {
     this.selectedQuiz$.next(quiz);
+  }
+
+  setCurrentQuiz(quiz: Quiz): void {
+    this.currentQuizSubject.next(quiz);
   }
 
   /* getQuiz(quizId: string): Observable<Quiz> {
