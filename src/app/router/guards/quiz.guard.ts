@@ -74,12 +74,16 @@ export class QuizGuard implements CanActivate {
         return this.quizDataService.getQuiz(quizId).pipe(
           map((quiz: Quiz) => {
             const totalQuestions = quiz.questions.length;
-            if ((questionIndex > 0 && questionIndex <= totalQuestions) || questionIndex === 0) {
+            if (questionIndex > 0 && questionIndex <= totalQuestions) {
               console.log(`Quiz ID ${quizId} and question index ${questionIndex} are valid.`);
               return true;
             } else if (questionIndex > totalQuestions) {
               console.log(`Question index ${questionIndex} exceeds total questions. Redirecting to results.`);
               this.router.navigate(['/results', quizId]);
+              return false;
+            } else if (questionIndex === 0) {
+              console.log(`Question index is 0. Redirecting to the first question.`);
+              this.router.navigate(['/quiz', quizId, 'question', 1]);
               return false;
             }
             console.log(`Question index ${questionIndex} is not valid. Redirecting to intro.`);
