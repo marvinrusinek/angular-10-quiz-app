@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+/* import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
 import { catchError, delay, distinctUntilChanged, filter, map, retryWhen, shareReplay, switchMap, take, takeUntil, tap } from 'rxjs/operators';
@@ -490,6 +490,90 @@ export class QuizDataService implements OnDestroy {
         console.error(`Error submitting quiz ${quiz.quizId}`, error);
         throw new Error(`Error submitting quiz ${quiz.quizId}`);
       }),
+      distinctUntilChanged()
+    );
+  }
+} */
+
+import { Injectable, OnDestroy } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
+import { catchError, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
+
+import { QuestionType } from '../../shared/models/question-type.enum';
+import { Option } from '../../shared/models/Option.model';
+import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+
+@Injectable({ providedIn: 'root' })
+export class QuizDataService implements OnDestroy {
+  private quizUrl = 'assets/data/quiz.json';
+  private destroy$ = new Subject<void>();
+
+  quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
+  selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+
+  constructor(private http: HttpClient) {
+    this.loadQuizzesData();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadQuizzesData(): void {
+    this.http.get<Quiz[]>(this.quizUrl).pipe(
+      tap(quizzes => this.quizzes$.next(quizzes)),
+      catchError((error: HttpErrorResponse) => throwError(() => new Error('Error loading quizzes: ' + error.message)))
+    ).subscribe();
+  }
+
+  getQuizzes(): Observable<Quiz[]> {
+    return this.quizzes$.asObservable();
+  }
+
+  isValidQuiz(quizId: string): Observable<boolean> {
+    return this.getQuizzes().pipe(
+      map(quizzes => quizzes.some(quiz => quiz.quizId === quizId))
+    );
+  }
+
+  setSelectedQuiz(quiz: Quiz | null): void {
+    this.selectedQuiz$.next(quiz);
+  }
+
+  getQuiz(quizId: string): Observable<Quiz> {
+    return this.quizzes$.pipe(
+      map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
+      switchMap(quiz => {
+        if (!quiz) throw new Error(`Quiz with ID ${quizId} not found`);
+        return of(quiz);
+      }),
+      catchError((error: HttpErrorResponse) => throwError(() => new Error('Error getting quiz: ' + error.message))),
+      distinctUntilChanged()
+    );
+  }
+
+  getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
+    return this.getQuiz(quizId).pipe(
+      map(quiz => quiz.questions.map(question => ({ ...question }))),
+      distinctUntilChanged()
+    );
+  }
+
+  getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
+    return this.getQuiz(quizId).pipe(
+      map(quiz => quiz.questions[questionIndex].options),
+      catchError((error: HttpErrorResponse) => throwError(() => new Error('Error fetching question options: ' + error.message))),
+      distinctUntilChanged()
+    );
+  }
+
+  submitQuiz(quiz: Quiz): Observable<any> {
+    const submitUrl = `${this.quizUrl}/results/${quiz.quizId}`;
+    return this.http.post(submitUrl, quiz).pipe(
+      catchError((error: HttpErrorResponse) => throwError(() => new Error(`Error submitting quiz ${quiz.quizId}: ` + error.message))),
       distinctUntilChanged()
     );
   }
