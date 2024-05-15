@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
-import { catchError, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -45,6 +45,13 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+
+    this.activatedRoute.params.pipe(
+      map(params => params['quizId']),
+      switchMap(quizId => this.quizDataService.getQuiz(quizId))
+      ).subscribe(quiz => this.selectedQuiz$.next(quiz));
+    }
+
     this.initializeData();
     this.subscribeToSelectedQuiz();
     this.handleRouteParameters();
@@ -56,12 +63,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /* private initializeData(): void {
-    this.quizId = this.selectedQuiz?.quizId;
-    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-    this.questionLabel = this.getPluralizedQuestionLabel(this.selectedQuiz?.questions.length);
-  } */
-
   private initializeData(): void {
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     this.selectedQuiz$.pipe(takeUntil(this.destroy$)).subscribe((quiz: Quiz | null) => {
@@ -70,7 +71,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       this.cdRef.markForCheck();
     });
   }
-  
+
   private subscribeToSelectedQuiz(): void {
     this.selectedQuiz$
       .pipe(takeUntil(this.destroy$))
