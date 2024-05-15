@@ -56,10 +56,19 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private initializeData(): void {
+  /* private initializeData(): void {
     this.quizId = this.selectedQuiz?.quizId;
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     this.questionLabel = this.getPluralizedQuestionLabel(this.selectedQuiz?.questions.length);
+  } */
+
+  private initializeData(): void {
+    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
+    this.selectedQuiz$.pipe(takeUntil(this.destroy$)).subscribe((quiz: Quiz | null) => {
+      this.quizId = quiz?.quizId ?? '';
+      this.questionLabel = this.getPluralizedQuestionLabel(quiz?.questions.length ?? 0);
+      this.cdRef.markForCheck();
+    });
   }
   
   private subscribeToSelectedQuiz(): void {
@@ -71,7 +80,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       });
   }
   
-  private handleRouteParameters(): void {
+  /* private handleRouteParameters(): void {
     this.activatedRoute.paramMap
       .pipe(
         switchMap((params: ParamMap) => {
@@ -83,6 +92,30 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .subscribe((quiz: Quiz) => {
         this.quizDataService.setSelectedQuiz(quiz);
         this.cdRef.markForCheck();
+      });
+  } */
+
+  private handleRouteParameters(): void {
+    this.activatedRoute.paramMap
+      .pipe(
+        switchMap((params: ParamMap) => {
+          const quizId = params.get('quizId');
+          if (!quizId) {
+            console.error('Quiz ID is null or undefined');
+            return throwError(() => new Error('Quiz ID is null or undefined'));
+          }
+          return this.quizDataService.getQuiz(quizId);
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (quiz: Quiz) => {
+          this.quizDataService.setCurrentQuiz(quiz);
+          this.cdRef.markForCheck();
+        },
+        error: (error) => {
+          console.error('An error occurred while setting the quiz:', error.message);
+        }
       });
   }
 
