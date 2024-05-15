@@ -105,7 +105,7 @@ export class QuizGuard implements CanActivate {
     );
   } */
 
-  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
+  /* canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
     const quizId = route.params['quizId'];
     const questionIndex = +route.params['questionIndex'];
   
@@ -139,5 +139,45 @@ export class QuizGuard implements CanActivate {
         return of(false);
       })
     );
-  }  
+  } */
+  
+  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
+    const quizId = route.params['quizId'];
+    const questionIndex = +route.params['questionIndex'];
+
+    return this.quizDataService.isValidQuiz(quizId).pipe(
+      switchMap(isValid => {
+        if (!isValid) {
+          this.router.navigate(['/select']);
+          return of(false);
+        }
+        return this.quizDataService.getQuiz(quizId).pipe(
+          map(quiz => {
+            const totalQuestions = quiz.questions.length;
+            if (questionIndex > 0 && questionIndex <= totalQuestions) {
+              return true;
+            } else if (questionIndex > totalQuestions) {
+              this.router.navigate(['/results', quizId]);
+              return false;
+            } else if (questionIndex === 0) {
+              console.log(`Question index is 0. Redirecting to the first question.`);
+              this.router.navigate(['/quiz', quizId, 'question', 1]);
+              return false;
+            } else {
+              this.router.navigate(['/intro', quizId]);
+              return false;
+            }
+          }),
+          catchError(() => {
+            this.router.navigate(['/select']);
+            return of(false);
+          })
+        );
+      }),
+      catchError(() => {
+        this.router.navigate(['/select']);
+        return of(false);
+      })
+    );
+  }
 }
