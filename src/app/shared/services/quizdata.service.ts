@@ -498,7 +498,7 @@ export class QuizDataService implements OnDestroy {
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
@@ -516,6 +516,8 @@ export class QuizDataService implements OnDestroy {
 
   private quizzesSubject = new BehaviorSubject<Quiz[]>([]);
   quizzes$ = this.quizzesSubject.asObservable();
+
+  private quizzes: Quiz[] = [];
 
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
   selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
@@ -595,6 +597,26 @@ export class QuizDataService implements OnDestroy {
 
   setSelectedQuiz(quiz: Quiz | null): void {
     this.selectedQuiz$.next(quiz);
+  }
+
+  setSelectedQuizById(quizId: string): Observable<void> {
+    return this.getQuizzes().pipe(
+      switchMap((quizzes: Quiz[]) => {
+        this.quizzes = quizzes;
+        const quiz = this.quizzes.find((q) => q.quizId === quizId);
+        if (!quiz) {
+          console.error('Selected quiz not found');
+          throw new Error('Selected quiz not found');
+        }
+        this.setSelectedQuiz(quiz);
+        return of(undefined);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error retrieving quizzes:', error);
+        throw new Error('Error retrieving quizzes');
+      }),
+      takeUntil(this.destroy$)
+    );
   }
 
   setCurrentQuiz(quiz: Quiz): void {
