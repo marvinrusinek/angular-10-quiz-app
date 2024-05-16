@@ -523,7 +523,8 @@ export class QuizDataService implements OnDestroy {
   currentQuiz$ = this.currentQuizSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    this.loadQuizzesData();
+    // this.loadQuizzesData();
+    this.loadQuizzes();
   }
 
   ngOnDestroy(): void {
@@ -535,6 +536,17 @@ export class QuizDataService implements OnDestroy {
     this.http.get<Quiz[]>(this.quizUrl).pipe(
       tap((quizzes: Quiz[]) => {
         this.quizzesSubject.next(quizzes);
+      }),
+      catchError(this.handleError)
+    ).subscribe();
+  }
+
+  private loadQuizzes(): void {
+    this.http.get<Quiz[]>('assets/data/quiz.json').pipe(
+      map((data: Quiz[]) => {
+        this.quizzes = data;
+        this.quizzesSubject.next(data);
+        return data;
       }),
       catchError(this.handleError)
     ).subscribe();
