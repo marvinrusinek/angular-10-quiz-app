@@ -171,6 +171,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     // this.updateQuestionDisplayForShuffledQuestions();
     console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
 
+    this.activatedRoute.paramMap.subscribe(params => {
+      this.quizId = params.get('quizId');
+      this.questionIndex = +params.get('questionIndex');
+      console.log('Quiz ID:', this.quizId);
+      console.log('Question Index:', this.questionIndex);
+      if (this.quizId && this.questionIndex) {
+        this.updateQuestionAndOptionsNew();
+      } else {
+        console.error('Invalid route parameters');
+      }
+    });
+
     // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
@@ -247,7 +259,23 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.src = "http://www.marvinrusinek.com/sound-correct.mp3";
     audio.load();
     audio.play();
-  }  
+  } 
+
+  private updateQuestionAndOptionsNew(): void {
+    this.quizDataService.fetchQuizQuestionByIdAndIndex(this.quizId, this.questionIndex).subscribe({
+      next: (question: QuizQuestion | null) => {
+        if (question) {
+          this.question = question;
+          console.log('Question fetched:', question);
+        } else {
+          console.error('Question is null');
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching question:', error);
+      }
+    });
+  }
 
   setupNavigation(): void {
     this.activatedRoute.params.pipe(
