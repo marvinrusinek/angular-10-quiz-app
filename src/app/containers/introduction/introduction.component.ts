@@ -119,21 +119,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         this.cdRef.markForCheck();
       });
   }
-  
-  /* private handleRouteParameters(): void {
-    this.activatedRoute.paramMap
-      .pipe(
-        switchMap((params: ParamMap) => {
-          const quizId = params.get('quizId');
-          return quizId ? this.quizDataService.getQuiz(quizId) : throwError(() => new Error('Quiz ID is null or undefined'));
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((quiz: Quiz) => {
-        this.quizDataService.setSelectedQuiz(quiz);
-        this.cdRef.markForCheck();
-      });
-  } */
 
   private handleRouteParameters(): void {
     this.activatedRoute.paramMap
