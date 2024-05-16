@@ -621,27 +621,6 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  /* getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
-    return this.getQuiz(quizId).pipe(
-      map(quiz => {
-        if (questionIndex < 1 || questionIndex > quiz.questions.length) {
-          console.error(`Question index ${questionIndex} out of bounds`);
-          return null;
-        }
-        const question = quiz.questions[questionIndex - 1];
-        if (!question) {
-          console.error(`Question not found for index ${questionIndex}`);
-          return null;
-        }
-        return [question, question.options] as [QuizQuestion, Option[]];
-      }),
-      catchError(error => {
-        console.error('Error fetching question and options:', error);
-        return of(null);
-      })
-    );
-  } */
-
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
     return this.getQuiz(quizId).pipe(
       map(quiz => {
