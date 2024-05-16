@@ -295,17 +295,20 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('No quiz selected');
       return;
     }
-    this.router.navigate(['/quiz', quizId, 'question', 1]).then(success => {
-      if (success) {
-        console.log('Navigation successful');
-      } else {
-        console.error('Navigation failed');
-      }
-    }).catch(error => {
-      console.error('Navigation error:', error);
-    });
+    this.router.navigate(['/quiz', quizId, 'question', 1])
+      .then(success => {
+        console.log('Navigation promise resolved:', success);
+        if (success) {
+          console.log('Navigation successful');
+        } else {
+          console.error('Navigation failed');
+        }
+      })
+      .catch(error => {
+        console.error('Navigation error:', error);
+      });
   }
-
+  
   public get milestone(): string {
     const milestone = this.selectedQuiz?.milestone || 'Milestone not found';
     return milestone;

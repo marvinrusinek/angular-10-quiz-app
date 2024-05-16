@@ -174,8 +174,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.paramMap.subscribe(params => {
       this.quizId = params.get('quizId');
       this.questionIndex = +params.get('questionIndex');
-      console.log('Quiz ID:', this.quizId);
-      console.log('Question Index:', this.questionIndex);
+      console.log('QuizComponent initialized with Quiz ID:', this.quizId, 'and Question Index:', this.questionIndex);
       if (this.quizId && this.questionIndex) {
         this.updateQuestionAndOptionsNew();
       } else {
