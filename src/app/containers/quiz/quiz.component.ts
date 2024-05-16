@@ -65,6 +65,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentOptions: Option[] = [];
   options$: Observable<Option[]>;
   currentQuiz: Quiz;
+  routeSubscription: Subscription;
   routerSubscription: Subscription;
   private questionAndOptionsSubscription: Subscription;
   resources: Resource[];
@@ -182,7 +183,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     }); */
 
-    this.routerSubscription = this.activatedRoute.paramMap.subscribe(params => {
+    this.routeSubscription = this.activatedRoute.paramMap.subscribe(params => {
       this.quizId = params.get('quizId');
       this.questionIndex = +params.get('questionIndex');
       console.log('QuizComponent initialized with Quiz ID:', this.quizId, 'and Question Index:', this.questionIndex);
@@ -473,7 +474,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-    this.routerSubscription.unsubscribe();
+    this.routeSubscription?.unsubscribe();
+    this.routerSubscription?.unsubscribe();
     this.questionAndOptionsSubscription?.unsubscribe();
     this.timerService.stopTimer(null);
   }
