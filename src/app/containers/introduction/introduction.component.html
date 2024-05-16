@@ -59,6 +59,7 @@
         disableRipple="true"
         name="start quiz"
         class="btn btn-outline-primary"
+        [routerLink]="['/quiz', selectedQuiz?.quizId, 'question', 1]"
         (click)="onStartQuiz(selectedQuiz?.quizId)"
       >
         <span i18n
