@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, delay, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -75,7 +75,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadQuiz(): void {
+  /* private loadQuiz(): void {
     this.activatedRoute.params.pipe(
       map(params => params['quizId']),
       switchMap(quizId => {
@@ -91,6 +91,33 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           console.error('Invalid quiz data:', quiz);
         }
         this.cdRef.markForCheck();
+      },
+      error: (error) => {
+        console.error('Error loading quiz:', error);
+      }
+    });
+  } */
+
+  private loadQuiz(): void {
+    console.log('loadQuiz called');
+    this.activatedRoute.params.pipe(
+      switchMap(params => {
+        const quizId = params['quizId'];
+        console.log('Fetching quiz with ID:', quizId);
+        return this.quizDataService.getQuiz(quizId).pipe(
+          delay(500) // Add delay to ensure data is fetched correctly
+        );
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (quiz: Quiz) => {
+        if (quiz) {
+          console.log('Quiz fetched:', quiz);
+          this.selectedQuiz$.next(quiz);
+          this.cdRef.markForCheck();
+        } else {
+          console.error('Quiz is undefined or null');
+        }
       },
       error: (error) => {
         console.error('Error loading quiz:', error);
