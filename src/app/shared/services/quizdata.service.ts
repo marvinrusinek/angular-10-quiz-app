@@ -562,9 +562,13 @@ export class QuizDataService implements OnDestroy {
         const isValid = quizzes.some(quiz => quiz.quizId === quizId);
         console.log(`Checking validity for ${quizId}: ${isValid}`);
         return isValid;
+      }),
+      catchError(error => {
+        console.error('Error validating quiz ID:', error);
+        return of(false);
       })
     );
-  }
+  }  
 
   setSelectedQuiz(quiz: Quiz | null): void {
     this.selectedQuiz$.next(quiz);
