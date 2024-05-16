@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes, Router, NavigationStart, NavigationEnd, NavigationError, Event } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 import { IntroductionComponent } from '../containers/introduction/introduction.component';
 import { QuizComponent } from '../containers/quiz/quiz.component';
