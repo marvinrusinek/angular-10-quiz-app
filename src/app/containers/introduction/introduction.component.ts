@@ -83,7 +83,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       }),
       takeUntil(this.destroy$)
     ).subscribe({
-      next: (quiz) => {
+      next: (quiz: Quiz) => {
         console.log('Quiz fetched:', quiz);
         if (quiz && this.isQuizValid(quiz)) {
           this.selectedQuiz$.next(quiz);
