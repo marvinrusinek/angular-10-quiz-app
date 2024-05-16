@@ -733,6 +733,19 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
+  async fetchQuestionAndOptionsFromAPI(quizId: string, currentQuestionIndex: number): 
+    Promise<[QuizQuestion, Option[]] | null> {
+    try {
+      const questionAndOptions = await firstValueFrom(
+        this.getQuestionAndOptions(quizId, currentQuestionIndex).pipe(take(1))
+      ) as [QuizQuestion, Option[]];
+      return questionAndOptions;
+    } catch (error) {
+      console.error('Error fetching question and options:', error);
+      return null;
+    }
+  }
+
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
     return this.getQuiz(quizId).pipe(
       map(quiz => quiz.questions[questionIndex].options),
