@@ -497,8 +497,8 @@ export class QuizDataService implements OnDestroy {
 
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, Observable, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, map, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
@@ -681,7 +681,6 @@ export class QuizDataService implements OnDestroy {
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
-    // Simulated implementation
     return this.getQuiz(quizId).pipe(
       map(quiz => {
         if (questionIndex < 1 || questionIndex > quiz.questions.length) {
@@ -693,7 +692,7 @@ export class QuizDataService implements OnDestroy {
           console.error(`Question not found for index ${questionIndex}`);
           return null;
         }
-        return [question, question.options];
+        return [question, question.options] as [QuizQuestion, Option[]];
       }),
       catchError(error => {
         console.error('Error fetching question and options:', error);
@@ -731,6 +730,8 @@ export class QuizDataService implements OnDestroy {
       distinctUntilChanged()
     );
   }
+
+  
 
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
     return this.getQuiz(quizId).pipe(
