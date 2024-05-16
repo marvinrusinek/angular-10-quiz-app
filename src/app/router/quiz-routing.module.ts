@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes, Router, NavigationStart, NavigationEnd, NavigationError } from '@angular/router';
+import { RouterModule, Routes, Router, NavigationStart, NavigationEnd, NavigationError, Event } from '@angular/router';
 
 import { IntroductionComponent } from '../containers/introduction/introduction.component';
 import { QuizComponent } from '../containers/quiz/quiz.component';
@@ -37,7 +37,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { enableTracing: false })],
+  imports: [RouterModule.forRoot(routes, { enableTracing: true })],
   exports: [RouterModule]
 })
 export class QuizRoutingModule {
