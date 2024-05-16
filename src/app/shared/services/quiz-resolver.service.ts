@@ -10,7 +10,7 @@ import { QuizDataService } from './quizdata.service';
 export class QuizResolverService implements Resolve<Quiz | null> {
   constructor(private quizDataService: QuizDataService) {}
 
-  /* resolve(route: ActivatedRouteSnapshot): Observable<Quiz | null> {
+  resolve(route: ActivatedRouteSnapshot): Observable<Quiz | null> {
     const quizId = route.params['quizId'];
     if (!quizId) {
       console.error('Quiz ID is missing in the route parameters.');
@@ -35,11 +35,11 @@ export class QuizResolverService implements Resolve<Quiz | null> {
         return of(null);
       })
     );
-  } */
+  }
 
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Quiz> {
+  /* resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Quiz> {
     const quizId = route.paramMap.get('quizId');
     console.log(`Resolving data for quizId: ${quizId}`);
     return this.quizDataService.getQuiz(quizId);
-  }
+  } */
 }
