@@ -141,7 +141,7 @@ export class QuizGuard implements CanActivate {
     );
   } */
   
-  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
+  /* canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
     const quizId = route.params['quizId'];
     const questionIndex = +route.params['questionIndex'];
 
@@ -175,6 +175,90 @@ export class QuizGuard implements CanActivate {
         );
       }),
       catchError(() => {
+        this.router.navigate(['/select']);
+        return of(false);
+      })
+    );
+  } */
+
+  /* canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
+    const quizId = route.params['quizId'];
+    const questionIndex = +route.params['questionIndex'];
+
+    return this.quizDataService.isValidQuiz(quizId).pipe(
+      switchMap(isValid => {
+        if (!isValid) {
+          console.log(`Quiz ID ${quizId} is not valid. Redirecting to selection screen.`);
+          this.router.navigate(['/select']);
+          return of(false);
+        }
+
+        return this.quizDataService.getQuiz(quizId).pipe(
+          map((quiz) => {
+            const totalQuestions = quiz.questions.length;
+            if (questionIndex > 0 && questionIndex <= totalQuestions) {
+              return true;
+            } else if (questionIndex > totalQuestions) {
+              this.router.navigate(['/results', quizId]);
+              return false;
+            } else {
+              this.router.navigate(['/intro', quizId]);
+              return false;
+            }
+          }),
+          catchError(error => {
+            console.error(`Error fetching quiz data for ID ${quizId}: ${error}`);
+            this.router.navigate(['/select']);
+            return of(false);
+          })
+        );
+      }),
+      catchError(error => {
+        console.error(`Error validating quiz ID ${quizId}: ${error}`);
+        this.router.navigate(['/select']);
+        return of(false);
+      })
+    );
+  } */
+
+  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
+    const quizId = route.params['quizId'];
+    const questionIndex = +route.params['questionIndex'];
+
+    console.log(`Attempting to activate route for quizId: ${quizId}, questionIndex: ${questionIndex}`);
+
+    return this.quizDataService.isValidQuiz(quizId).pipe(
+      switchMap(isValid => {
+        if (!isValid) {
+          console.log(`Quiz ID ${quizId} is not valid. Redirecting to selection screen.`);
+          this.router.navigate(['/select']);
+          return of(false);
+        }
+
+        return this.quizDataService.getQuiz(quizId).pipe(
+          map((quiz) => {
+            const totalQuestions = quiz.questions.length;
+            if (questionIndex > 0 && questionIndex <= totalQuestions) {
+              console.log(`Quiz ID ${quizId} and question index ${questionIndex} are valid.`);
+              return true;
+            } else if (questionIndex > totalQuestions) {
+              console.log(`Question index ${questionIndex} exceeds total questions. Redirecting to results.`);
+              this.router.navigate(['/results', quizId]);
+              return false;
+            }
+            console.log(`Question index ${questionIndex} is not valid. Redirecting to intro.`);
+            this.router.navigate(['/intro', quizId]);
+            return false;
+          }),
+          catchError(error => {
+            console.error(`Error fetching quiz data for ID ${quizId}: ${error}`);
+            this.router.navigate(['/select']);
+            return of(false);
+          })
+        );
+      }),
+      catchError(error => {
+        console.error(`Error validating quiz ID ${quizId}: ${error}`);
         this.router.navigate(['/select']);
         return of(false);
       })
