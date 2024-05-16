@@ -512,11 +512,8 @@ export class QuizDataService implements OnDestroy {
   
   private destroy$ = new Subject<void>();
 
-  // quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
-
   private quizzesSubject = new BehaviorSubject<Quiz[]>([]);
   quizzes$ = this.quizzesSubject.asObservable();
-
   private quizzes: Quiz[] = [];
 
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
@@ -534,26 +531,6 @@ export class QuizDataService implements OnDestroy {
     this.destroy$.complete();
   }
 
-  /* loadQuizzesData(): void {
-    this.http.get<Quiz[]>(this.quizUrl).pipe(
-      tap(quizzes => this.quizzes$.next(quizzes)),
-      catchError((error: HttpErrorResponse) => throwError(() => new Error('Error loading quizzes: ' + error.message)))
-    ).subscribe();
-  } */
-
-  /* loadQuizzesData(): void {
-    this.http.get<Quiz[]>(this.quizUrl).pipe(
-      tap(quizzes => {
-        console.log("Loaded quizzes:", quizzes);
-        this.quizzes$.next(quizzes);
-      }),
-      catchError((error: HttpErrorResponse) => {
-        console.error('Error loading quizzes:', error);
-        return throwError(() => new Error('Error loading quizzes: ' + error.message));
-      })
-    ).subscribe();
-  } */
-
   private loadQuizzesData(): void {
     this.http.get<Quiz[]>(this.quizUrl).pipe(
       tap((quizzes: Quiz[]) => {
@@ -566,23 +543,6 @@ export class QuizDataService implements OnDestroy {
   getQuizzes(): Observable<Quiz[]> {
     return this.quizzes$;
   }
-
-  /* isValidQuiz(quizId: string): Observable<boolean> {
-    return this.getQuizzes().pipe(
-      map(quizzes => quizzes.some(quiz => quiz.quizId === quizId))
-    );
-  } */
-
-  /* isValidQuiz(quizId: string): Observable<boolean> {
-    return this.getQuizzes().pipe(
-      tap(quizzes => console.log('Available quizzes:', quizzes)),
-      map(quizzes => {
-        const isValid = quizzes.some(quiz => quiz.quizId === quizId);
-        console.log(`Checking validity for ${quizId}: ${isValid}`);
-        return isValid;
-      })
-    );
-  } */
 
   isValidQuiz(quizId: string): Observable<boolean> {
     return this.getQuizzes().pipe(
@@ -622,61 +582,6 @@ export class QuizDataService implements OnDestroy {
   setCurrentQuiz(quiz: Quiz): void {
     this.currentQuizSubject.next(quiz);
   }
-
-  /* getQuiz(quizId: string): Observable<Quiz> {
-    return this.quizzes$.pipe(
-      filter(quizzes => quizzes.length > 0),
-      map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
-      switchMap(quiz => {
-        if (!quiz) throw new Error(`Quiz with ID ${quizId} not found`);
-        return of(quiz);
-      }),
-      catchError((error: HttpErrorResponse) => throwError(() => new Error('Error getting quiz: ' + error.message))),
-      distinctUntilChanged()
-    );
-  } */
-
-  /* getQuiz(quizId: string): Observable<Quiz> {
-    return this.quizzes$.pipe(
-      tap(quizzes => console.log("Current quizzes in BehaviorSubject:", quizzes)),
-      map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
-      tap(quiz => {
-        if (!quiz) {
-          console.log(`Quiz with ID ${quizId} not found in available quizzes.`);
-        }
-      }),
-      switchMap(quiz => {
-        if (!quiz) throw new Error(`Quiz with ID ${quizId} not found`);
-        return of(quiz);
-      }),
-      catchError((error: HttpErrorResponse) => throwError(() => new Error('Error getting quiz: ' + error.message))),
-      distinctUntilChanged()
-    );
-  } */
-
-  /* getQuiz(quizId: string): Observable<Quiz> {
-    if (this.quizzes$.getValue().length === 0) {
-      console.log("Quizzes not loaded yet, loading quizzes...");
-      this.loadQuizzesData();
-    }
-  
-    return this.quizzes$.pipe(
-      filter(quizzes => quizzes.length > 0),
-      tap(quizzes => console.log("Current quizzes in BehaviorSubject:", quizzes)),
-      map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
-      tap(quiz => {
-        if (!quiz) {
-          console.log(`Quiz with ID ${quizId} not found in available quizzes.`);
-        }
-      }),
-      switchMap(quiz => {
-        if (!quiz) throw new Error(`Quiz with ID ${quizId} not found`);
-        return of(quiz);
-      }),
-      catchError((error: HttpErrorResponse) => throwError(() => new Error('Error getting quiz: ' + error.message))),
-      distinctUntilChanged()
-    );
-  } */
 
   getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
