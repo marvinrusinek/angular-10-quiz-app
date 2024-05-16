@@ -141,7 +141,7 @@ export class QuizGuard implements CanActivate {
     );
   } */
   
-  /* canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
+  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
     const quizId = route.params['quizId'];
     const questionIndex = +route.params['questionIndex'];
 
@@ -179,7 +179,7 @@ export class QuizGuard implements CanActivate {
         return of(false);
       })
     );
-  } */
+  }
 
   /* canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
     const quizId = route.params['quizId'];
@@ -221,7 +221,7 @@ export class QuizGuard implements CanActivate {
     );
   } */
 
-  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
+  /* canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
     const quizId = route.params['quizId'];
     const questionIndex = +route.params['questionIndex'];
 
@@ -263,5 +263,5 @@ export class QuizGuard implements CanActivate {
         return of(false);
       })
     );
-  }
+  } */
 }
