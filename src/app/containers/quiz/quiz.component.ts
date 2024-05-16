@@ -171,11 +171,22 @@ export class QuizComponent implements OnInit, OnDestroy {
     // this.updateQuestionDisplayForShuffledQuestions();
     console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
 
-    this.routerSubscription = this.activatedRoute.paramMap.subscribe(params => {
+    /* this.routerSubscription = this.activatedRoute.paramMap.subscribe(params => {
       this.quizId = params.get('quizId');
       this.questionIndex = +params.get('questionIndex');
       console.log('QuizComponent initialized with Quiz ID:', this.quizId, 'and Question Index:', this.questionIndex);
       if (this.quizId && this.questionIndex) {
+        this.updateQuestionAndOptionsNew();
+      } else {
+        console.error('Invalid route parameters');
+      }
+    }); */
+
+    this.routerSubscription = this.activatedRoute.paramMap.subscribe(params => {
+      this.quizId = params.get('quizId');
+      this.questionIndex = +params.get('questionIndex');
+      console.log('QuizComponent initialized with Quiz ID:', this.quizId, 'and Question Index:', this.questionIndex);
+      if (this.quizId && this.questionIndex >= 0) {
         this.updateQuestionAndOptionsNew();
       } else {
         console.error('Invalid route parameters');
@@ -260,7 +271,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   } 
 
-  private updateQuestionAndOptionsNew(): void {
+  /* private updateQuestionAndOptionsNew(): void {
     this.quizDataService.fetchQuizQuestionByIdAndIndex(this.quizId, this.questionIndex).subscribe({
       next: (question: QuizQuestion | null) => {
         if (question) {
@@ -274,6 +285,22 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Error fetching question:', error);
       }
     });
+  } */
+
+  private async updateQuestionAndOptionsNew(): Promise<void> {
+    console.log('Fetching question and options for Quiz ID:', this.quizId, 'Question Index:', this.questionIndex);
+    try {
+      const result = await this.quizDataService.fetchQuestionAndOptionsFromAPI(this.quizId, this.questionIndex);
+      if (result) {
+        const [question, options] = result;
+        this.question = question;
+        console.log('Question fetched:', question);
+      } else {
+        console.error('Question or options are null');
+      }
+    } catch (error) {
+      console.error('Error fetching question:', error);
+    }
   }
 
   setupNavigation(): void {
