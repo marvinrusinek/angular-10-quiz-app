@@ -508,6 +508,8 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 @Injectable({ providedIn: 'root' })
 export class QuizDataService implements OnDestroy {
   private quizUrl = 'assets/data/quiz.json';
+  questionType: string;
+  
   private destroy$ = new Subject<void>();
 
   // quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
@@ -731,14 +733,18 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  
-
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
     return this.getQuiz(quizId).pipe(
       map(quiz => quiz.questions[questionIndex].options),
       catchError((error: HttpErrorResponse) => throwError(() => new Error('Error fetching question options: ' + error.message))),
       distinctUntilChanged()
     );
+  }
+
+  setQuestionType(question: QuizQuestion): void {
+    const numCorrectAnswers = question.options.filter((option) => option.correct).length;
+    question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
+    this.questionType = question.type;
   }
 
   submitQuiz(quiz: Quiz): Observable<any> {
