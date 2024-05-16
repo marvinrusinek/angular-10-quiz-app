@@ -23,7 +23,6 @@ const routes: Routes = [
     component: IntroductionComponent
   },
   {
-    //path: 'quiz/:quizId/question/:questionIndex',
     path: 'question/:quizId/:questionIndex',
     component: QuizComponent,
     canActivate: [QuizGuard],
@@ -41,15 +40,5 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class QuizRoutingModule {
-  constructor(private router: Router) {
-    this.router.events.subscribe((event: Event) => {
-      if (event instanceof NavigationStart) {
-        console.log('NavigationStart:', event.url);
-      } else if (event instanceof NavigationEnd) {
-        console.log('NavigationEnd:', event.url);
-      } else if (event instanceof NavigationError) {
-        console.error('NavigationError:', event.error);
-      }
-    });
-  }
+  constructor() {}
 }
