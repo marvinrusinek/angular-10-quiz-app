@@ -22,15 +22,14 @@ const routes: Routes = [
     path: 'intro/:quizId',
     component: IntroductionComponent
   },
-  { path: 'question/:quizId/:questionIndex', component: QuizComponent },
-  /* {
+  {
     //path: 'quiz/:quizId/question/:questionIndex',
     path: 'question/:quizId/:questionIndex',
     component: QuizComponent,
     canActivate: [QuizGuard],
     resolve: { quizData: QuizResolverService },
     runGuardsAndResolvers: 'always'
-  }, */
+  },
   {
     path: 'results/:quizId',
     component: ResultsComponent
