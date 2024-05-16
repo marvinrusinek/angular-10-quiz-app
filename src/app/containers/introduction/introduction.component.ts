@@ -25,9 +25,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizData: Quiz[];
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
-  // selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
-  // selectedQuiz$: Observable<Quiz>;
   selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
+  selectedQuizId: string = 'dependency-injection';
   private isCheckedSubject = new Subject<boolean>();
   shuffledQuestions: QuizQuestion[];
 
@@ -48,21 +47,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadQuiz();
-    /* this.activatedRoute.params.pipe(
-      map(params => params['quizId']),
-      switchMap(quizId => {
-        return this.quizDataService.getQuiz(quizId);
-      }),
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (quiz: Quiz) => {
-        this.selectedQuiz$.next(quiz);
-        this.cdRef.markForCheck();
-      },
-      error: (error) => {
-        console.error('Error loading quiz:', error);
-      }
-    }); */
 
     this.initializeData();
     this.subscribeToSelectedQuiz();
@@ -254,7 +238,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       return;
     }
     // this.router.navigate(['/quiz', quizId, 'question', 1])
-    this.router.navigate(['/question', quizId, 1])
+    this.router.navigate(['/question', this.selectedQuizId, 1])
       .then(success => {
         console.log('Navigation promise resolved:', success);
         if (success) {
