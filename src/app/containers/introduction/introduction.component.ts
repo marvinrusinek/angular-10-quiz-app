@@ -75,29 +75,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /* private loadQuiz(): void {
-    this.activatedRoute.params.pipe(
-      map(params => params['quizId']),
-      switchMap(quizId => {
-        return this.quizDataService.getQuiz(quizId);
-      }),
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (quiz: Quiz) => {
-        console.log('Quiz fetched:', quiz);
-        if (quiz && this.isQuizValid(quiz)) {
-          this.selectedQuiz$.next(quiz);
-        } else {
-          console.error('Invalid quiz data:', quiz);
-        }
-        this.cdRef.markForCheck();
-      },
-      error: (error) => {
-        console.error('Error loading quiz:', error);
-      }
-    });
-  } */
-
   private loadQuiz(): void {
     console.log('loadQuiz called');
     this.activatedRoute.params.pipe(
@@ -123,10 +100,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         console.error('Error loading quiz:', error);
       }
     });
-  }
-  
-  private isQuizValid(quiz: any): quiz is Quiz {
-    return quiz && typeof quiz.quizId === 'string' && typeof quiz.milestone === 'string';
   }
 
   private initializeData(): void {
