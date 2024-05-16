@@ -523,8 +523,7 @@ export class QuizDataService implements OnDestroy {
   currentQuiz$ = this.currentQuizSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    // this.loadQuizzesData();
-    this.loadQuizzes();
+    this.loadQuizzesData();
   }
 
   ngOnDestroy(): void {
