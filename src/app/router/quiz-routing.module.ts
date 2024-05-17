@@ -24,10 +24,10 @@ const routes: Routes = [
   },
   {
     path: 'question/:quizId/:questionIndex',
-    component: QuizComponent,
-    canActivate: [QuizGuard],
-    resolve: { quizData: QuizResolverService },
-    runGuardsAndResolvers: 'always'
+    component: QuizComponent
+    //canActivate: [QuizGuard],
+    //resolve: { quizData: QuizResolverService },
+    //runGuardsAndResolvers: 'always'
   },
   {
     path: 'results/:quizId',

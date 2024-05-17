@@ -195,21 +195,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.loadQuizData();
     }); */
 
-    this.activatedRoute.data.subscribe(data => {
-      this.quiz = data.quizData;
-      this.activatedRoute.params.subscribe(params => {
-        this.quizId = params['quizId'];
-        this.questionIndex = +params['questionIndex'];
-        console.log('Loaded quizId from route:', this.quizId);
-        console.log('Loaded questionIndex from route:', this.questionIndex);
-        if (this.quiz) {
-          this.currentQuestion = this.quiz.questions[this.questionIndex - 1];
-          console.log('Loaded quiz data:', this.quiz);
-          console.log('Current question:', this.currentQuestion);
-        } else {
-          console.error('Quiz data is unavailable.');
-        }
-      });
+    this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      this.quizId = params['quizId'];
+      this.questionIndex = +params['questionIndex'];
+      console.log('Loaded quizId from route:', this.quizId);
+      console.log('Loaded questionIndex from route:', this.questionIndex);
+      this.loadQuizData();
     });
 
     // Subscribe to router events and initialize
@@ -291,8 +282,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadQuizData(): void {
-    this.quizDataService.getQuiz(this.quizId).subscribe({
-      next: (quiz) => {
+    this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$)).subscribe(
+      quiz => {
         if (quiz) {
           this.quiz = quiz;
           this.currentQuestion = quiz.questions[this.questionIndex - 1];
@@ -302,11 +293,12 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Quiz data is unavailable.');
         }
       },
-      error: (error) => {
+      error => {
         console.error('Error loading quiz data:', error);
       }
-    });
+    );
   }
+
 
   /* private updateQuestionAndOptionsNew(): void {
     this.quizDataService.fetchQuizQuestionByIdAndIndex(this.quizId, this.questionIndex).subscribe({
@@ -616,7 +608,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  async fetchQuizData(): Promise<void> {
+  /* async fetchQuizData(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params['quizId'];
       const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
@@ -653,7 +645,47 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error in fetchQuizData:', error);
     }
+  } */
+
+  async fetchQuizData(): Promise<void> {
+    try {
+      const quizId = this.activatedRoute.snapshot.params['quizId'];
+      const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
+      const questionIndex = parseInt(questionIndexParam, 10);
+  
+      if (isNaN(questionIndex)) {
+        console.error('Invalid question index:', questionIndexParam);
+        return;
+      }
+  
+      const zeroBasedQuestionIndex = questionIndex - 1;
+  
+      const selectedQuiz = await firstValueFrom(
+        this.quizDataService.getQuiz(quizId).pipe(takeUntil(this.destroy$))
+      );
+  
+      if (!selectedQuiz) {
+        console.error('Selected quiz not found for quizId:', quizId);
+        return;
+      }
+  
+      this.processQuizData(zeroBasedQuestionIndex, selectedQuiz);
+      this.initializeSelectedQuizData(selectedQuiz);
+  
+      const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
+      if (!questionData) {
+        console.error('Question data could not be fetched.');
+        this.data = null;
+        return;
+      }
+  
+      this.initializeAndPrepareQuestion(questionData, quizId);
+      this.quizService.setCurrentQuestion(zeroBasedQuestionIndex);
+    } catch (error) {
+      console.error('Error in fetchQuizData:', error);
+    }
   }
+  
 
   private async fetchQuizDataFromService(quizId: string): Promise<Quiz | undefined> {
     try {
