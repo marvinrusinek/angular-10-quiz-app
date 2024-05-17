@@ -68,10 +68,12 @@ export class QuizResolverService implements Resolve<Quiz | null> {
       tap(quiz => {
         if (!quiz) {
           console.error(`Quiz with ID ${quizId} not found.`);
+          this.router.navigate(['/select']);
           throw new Error(`Quiz with ID ${quizId} not found.`);
         }
         console.log('QuizResolverService: Fetched quiz data:', quiz);
       }),
+      map(quiz => quiz as Quiz),
       catchError(error => {
         console.error('QuizResolverService: Error fetching quiz data:', error);
         this.router.navigate(['/select']);
