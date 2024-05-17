@@ -312,9 +312,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async loadQuizData(): Promise<void> {
     try {
+      console.log('Fetching quiz data...');
       const quiz = await firstValueFrom(this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$)));
       if (quiz) {
         this.quiz = quiz;
+        console.log('Fetched quiz:', this.quiz);
         if (quiz.questions && quiz.questions.length > 0) {
           this.currentQuestion = quiz.questions[this.questionIndex - 1];
           console.log('Loaded quiz data:', this.quiz);
