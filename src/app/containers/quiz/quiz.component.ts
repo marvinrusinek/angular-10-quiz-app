@@ -128,7 +128,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
-
+  private isDestroyed = false;
   audioAvailable = true;
 
   constructor(
@@ -282,6 +282,34 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
+  /* loadQuizData(): void {
+    this.quizDataService.getQuiz(this.quizId).pipe(
+      takeUntil(this.destroy$),
+      catchError(error => {
+        console.error('Error loading quiz data:', error);
+        throw error;
+      })
+    ).subscribe({
+      next: quiz => {
+        if (quiz) {
+          this.quiz = quiz;
+          if (quiz.questions && quiz.questions.length > 0) {
+            this.currentQuestion = quiz.questions[this.questionIndex - 1];
+            console.log('Loaded quiz data:', this.quiz);
+            console.log('Current question:', this.currentQuestion);
+          } else {
+            console.error('Quiz has no questions.');
+          }
+        } else {
+          console.error('Quiz data is unavailable.');
+        }
+      },
+      error: error => {
+        console.error('Error loading quiz data:', error);
+      }
+    });
+  } */
+
   loadQuizData(): void {
     this.quizDataService.getQuiz(this.quizId).pipe(
       takeUntil(this.destroy$),
@@ -297,6 +325,9 @@ export class QuizComponent implements OnInit, OnDestroy {
             this.currentQuestion = quiz.questions[this.questionIndex - 1];
             console.log('Loaded quiz data:', this.quiz);
             console.log('Current question:', this.currentQuestion);
+            if (!this.isDestroyed) {
+              this.cdRef.detectChanges();
+            }
           } else {
             console.error('Quiz has no questions.');
           }
@@ -508,6 +539,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.isDestroyed = true;
     this.destroy$.next();
     this.destroy$.complete();
     this.unsubscribe$.next();
