@@ -37,9 +37,27 @@ export class QuizResolverService implements Resolve<Quiz | null> {
     );
   } */
 
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Quiz> {
+  /* resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Quiz> {
     const quizId = route.paramMap.get('quizId');
     console.log(`Resolving data for quizId: ${quizId}`);
     return this.quizDataService.getQuiz(quizId);
+  } */
+
+  resolve(route: ActivatedRouteSnapshot): Observable<any> {
+    const quizId = route.params['quizId'];
+    console.log('Resolving data for quizId:', quizId);
+    return this.quizDataService.getQuiz(quizId).pipe(
+      map(quiz => {
+        if (!quiz) {
+          console.error(`Quiz with ID ${quizId} not found.`);
+          throw new Error(`Quiz with ID ${quizId} not found.`);
+        }
+        return quiz;
+      }),
+      catchError(error => {
+        console.error('Error in resolver:', error);
+        return of(null); // Ensuring the navigation can proceed if the quiz is not found
+      })
+    );
   }
 }
