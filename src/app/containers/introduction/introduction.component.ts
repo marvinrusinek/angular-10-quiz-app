@@ -46,7 +46,12 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.quizId = this.quizDataService.getCurrentQuizId();
+    this.activatedRoute.params.subscribe(params => {
+      this.quizId = params['quizId'];
+      console.log('Loaded quizId from route:', this.quizId); // Debug log
+    });
+
+    // this.quizId = this.quizDataService.getCurrentQuizId();
     this.loadQuiz();
 
     this.initializeData();
@@ -232,9 +237,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       });
   } */
 
-  onStartQuiz(quizId: string): void {
-    console.log('Attempting to start quiz with ID:', quizId);
-    if (!quizId) {
+  onStartQuiz(): void {
+    console.log('Attempting to start quiz with ID:', this.quizId);
+    if (!this.quizId) {
       console.error('No quiz selected');
       return;
     }
