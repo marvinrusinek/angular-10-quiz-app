@@ -1160,7 +1160,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async getQuestion(): Promise<void | null> {
+  /* private async getQuestion(): Promise<void | null> {
     try {
       const quizId = this.activatedRoute.snapshot.params.quizId;
       const currentQuestionIndex = this.currentQuestionIndex;
@@ -1184,7 +1184,33 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Error fetching question and options:', error);
       return null;
     }
-  }
+  } */
+
+  private async getQuestion(): Promise<void | null> {
+    try {
+      const quizId = this.activatedRoute.snapshot.params.quizId;
+      const currentQuestionIndex = this.currentQuestionIndex;
+  
+      if (!quizId || quizId.trim() === '') {
+        console.error("Quiz ID is required but not provided.");
+        return null;
+      }
+  
+      // Fetch the question and options
+      const result = await this.quizDataService.fetchQuestionAndOptionsFromAPI(quizId, currentQuestionIndex);
+      if (!result) {
+        console.error('No valid question found');
+        return null;
+      }
+      
+      const [question, options] = result;
+      this.handleQuestion(question);
+      this.handleOptions(options);
+    } catch (error) {
+      console.error('Error fetching question and options:', error);
+      return null;
+    }
+  }  
   
   initializeFirstQuestion(): void {
     this.resetQuestionDisplayState();
