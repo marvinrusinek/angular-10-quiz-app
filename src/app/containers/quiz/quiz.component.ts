@@ -195,13 +195,19 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.loadQuizData();
     }); */
 
-    this.activatedRoute.data.subscribe(data => {
+    this.route.data.subscribe(data => {
       this.quiz = data.quizData;
-      this.activatedRoute.params.subscribe(params => {
+      this.route.params.subscribe(params => {
         this.quizId = params['quizId'];
         this.questionIndex = +params['questionIndex'];
+        console.log('Loaded quizId from route:', this.quizId);
+        console.log('Loaded questionIndex from route:', this.questionIndex);
         if (this.quiz) {
           this.currentQuestion = this.quiz.questions[this.questionIndex - 1];
+          console.log('Loaded quiz data:', this.quiz);
+          console.log('Current question:', this.currentQuestion);
+        } else {
+          console.error('Quiz data is unavailable.');
         }
       });
     });
