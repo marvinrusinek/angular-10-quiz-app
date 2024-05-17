@@ -568,7 +568,12 @@ export class QuizDataService implements OnDestroy {
         return of(false);
       })
     );
-  }  
+  }
+  
+  getCurrentQuizId(): string | null {
+    const currentQuiz = this.currentQuizSubject.getValue();
+    return currentQuiz ? currentQuiz.quizId : null;
+  }
 
   setSelectedQuiz(quiz: Quiz | null): void {
     this.selectedQuiz$.next(quiz);
