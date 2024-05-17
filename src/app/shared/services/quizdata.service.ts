@@ -664,16 +664,17 @@ export class QuizDataService implements OnDestroy {
     return this.getQuiz(quizId).pipe(
       map(quiz => {
         if (!quiz) {
-          console.error(`Quiz with ID ${quizId} not found`);
           throw new Error(`Quiz with ID ${quizId} not found`);
         }
         if (!quiz.questions) {
-          console.error(`Quiz with ID ${quizId} has no questions`);
           throw new Error(`Quiz with ID ${quizId} has no questions`);
         }
         return quiz.questions.map(question => ({ ...question }));
       }),
-      distinctUntilChanged()
+      catchError(error => {
+        console.error('Error fetching questions for quiz:', error);
+        return of([]);
+      })
     );
   }
 
