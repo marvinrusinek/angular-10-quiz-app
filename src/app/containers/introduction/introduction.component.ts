@@ -270,6 +270,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuiz(quizId).subscribe({
       next: (quiz) => {
         if (quiz && quiz.questions && quiz.questions.length > 0) {
+          console.log('Quiz is valid, navigating...');
           this.router.navigate(['/question', quizId, 1]).then(success => {
             console.log('Navigation promise resolved:', success);
             if (success) {
