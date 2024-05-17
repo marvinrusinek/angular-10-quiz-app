@@ -237,14 +237,14 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       });
   } */
 
-  onStartQuiz(): void {
-    console.log('Attempting to start quiz with ID:', this.quizId);
-    if (!this.quizId) {
+  onStartQuiz(quizId: string): void {
+    console.log('Attempting to start quiz with ID:', quizId);
+    if (!quizId) {
       console.error('No quiz selected');
       return;
     }
     // this.router.navigate(['/quiz', quizId, 'question', 1])
-    this.router.navigate(['/question', this.quizId, 1])
+    this.router.navigate(['/question', quizId, 1])
       .then(success => {
         console.log('Navigation promise resolved:', success);
         if (success) {
