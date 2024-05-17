@@ -310,35 +310,27 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  loadQuizData(): void {
-    this.quizDataService.getQuiz(this.quizId).pipe(
-      takeUntil(this.destroy$),
-      catchError(error => {
-        console.error('Error loading quiz data:', error);
-        throw error;
-      })
-    ).subscribe({
-      next: quiz => {
-        if (quiz) {
-          this.quiz = quiz;
-          if (quiz.questions && quiz.questions.length > 0) {
-            this.currentQuestion = quiz.questions[this.questionIndex - 1];
-            console.log('Loaded quiz data:', this.quiz);
-            console.log('Current question:', this.currentQuestion);
-            if (!this.isDestroyed) {
-              this.cdRef.detectChanges();
-            }
-          } else {
-            console.error('Quiz has no questions.');
+  async loadQuizData(): Promise<void> {
+    try {
+      const quiz = await firstValueFrom(this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$)));
+      if (quiz) {
+        this.quiz = quiz;
+        if (quiz.questions && quiz.questions.length > 0) {
+          this.currentQuestion = quiz.questions[this.questionIndex - 1];
+          console.log('Loaded quiz data:', this.quiz);
+          console.log('Current question:', this.currentQuestion);
+          if (!this.isDestroyed) {
+            this.cdRef.detectChanges();
           }
         } else {
-          console.error('Quiz data is unavailable.');
+          console.error('Quiz has no questions.');
         }
-      },
-      error: error => {
-        console.error('Error loading quiz data:', error);
+      } else {
+        console.error('Quiz data is unavailable.');
       }
-    });
+    } catch (error) {
+      console.error('Error loading quiz data:', error);
+    }
   }
 
   /* private updateQuestionAndOptionsNew(): void {
