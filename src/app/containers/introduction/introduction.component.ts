@@ -237,7 +237,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       });
   } */
 
-  onStartQuiz(quizId: string): void {
+  /* onStartQuiz(quizId: string): void {
     console.log('Attempting to start quiz with ID:', quizId);
     if (!quizId) {
       console.error('No quiz selected');
@@ -258,6 +258,36 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           console.error('Navigation error:', error);
         });
     }, 1000); // Add a delay to ensure data is loaded
+  } */
+
+  onStartQuiz(quizId: string): void {
+    console.log('Attempting to start quiz with ID:', quizId);
+    if (!quizId) {
+      console.error('No quiz selected');
+      return;
+    }
+  
+    this.quizDataService.getQuiz(quizId).subscribe({
+      next: (quiz) => {
+        if (quiz && quiz.questions && quiz.questions.length > 0) {
+          this.router.navigate(['/question', quizId, 1]).then(success => {
+            console.log('Navigation promise resolved:', success);
+            if (success) {
+              console.log('Navigation successful');
+            } else {
+              console.error('Navigation failed');
+            }
+          }).catch(error => {
+            console.error('Navigation error:', error);
+          });
+        } else {
+          console.error('Quiz data is invalid or has no questions.');
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching quiz:', error);
+      }
+    });
   }
   
   public get milestone(): string {
