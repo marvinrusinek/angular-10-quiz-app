@@ -293,9 +293,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       next: quiz => {
         if (quiz) {
           this.quiz = quiz;
-          this.currentQuestion = quiz.questions[this.questionIndex - 1];
-          console.log('Loaded quiz data:', this.quiz);
-          console.log('Current question:', this.currentQuestion);
+          if (quiz.questions && quiz.questions.length > 0) {
+            this.currentQuestion = quiz.questions[this.questionIndex - 1];
+            console.log('Loaded quiz data:', this.quiz);
+            console.log('Current question:', this.currentQuestion);
+          } else {
+            console.error('Quiz has no questions.');
+          }
         } else {
           console.error('Quiz data is unavailable.');
         }
