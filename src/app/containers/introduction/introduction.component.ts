@@ -46,6 +46,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.quizId = this.quizDataService.getCurrentQuizId();
     this.loadQuiz();
 
     this.initializeData();
@@ -238,7 +239,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       return;
     }
     // this.router.navigate(['/quiz', quizId, 'question', 1])
-    this.router.navigate(['/question', this.selectedQuizId, 1])
+    this.router.navigate(['/question', this.quizId, 1])
       .then(success => {
         console.log('Navigation promise resolved:', success);
         if (success) {
