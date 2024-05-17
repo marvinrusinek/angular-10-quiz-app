@@ -127,6 +127,11 @@ export class QuizGuard implements CanActivate {
 
         return this.quizDataService.getQuiz(quizId).pipe(
           map(quiz => {
+            if (!quiz) {
+              console.log(`Quiz with ID ${quizId} not found. Redirecting to selection screen.`);
+              this.router.navigate(['/select']);
+              return false;
+            }
             const totalQuestions = quiz.questions.length;
             if (questionIndex > 0 && questionIndex <= totalQuestions) {
               console.log(`Quiz ID ${quizId} and question index ${questionIndex} are valid.`);
