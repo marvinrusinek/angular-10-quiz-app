@@ -634,7 +634,7 @@ export class QuizDataService implements OnDestroy {
     return this.quizzes$.pipe(
       switchMap(quizzes => {
         if (quizzes.length === 0) {
-          return this.http.get<Quiz[]>('assets/data/quiz.json').pipe(
+          return this.http.get<Quiz[]>(this.quizUrl).pipe(
             map(quizzes => {
               this.quizzesSubject.next(quizzes);
               return quizzes;
