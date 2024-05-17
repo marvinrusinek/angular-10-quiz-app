@@ -555,7 +555,7 @@ export class QuizDataService implements OnDestroy {
     return this.quizzes$;
   }
 
-  isValidQuiz(quizId: string): Observable<boolean> {
+  /* isValidQuiz(quizId: string): Observable<boolean> {
     return this.getQuizzes().pipe(
       tap(quizzes => console.log('Available quizzes:', quizzes)),
       map(quizzes => {
@@ -567,6 +567,13 @@ export class QuizDataService implements OnDestroy {
         console.error('Error validating quiz ID:', error);
         return of(false);
       })
+    );
+  } */
+
+  isValidQuiz(quizId: string): Observable<boolean> {
+    return this.getQuizzes().pipe(
+      map(quizzes => quizzes.some(quiz => quiz.quizId === quizId)),
+      catchError(() => of(false))
     );
   }
   

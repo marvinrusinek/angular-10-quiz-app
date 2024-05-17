@@ -187,11 +187,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizId = params.get('quizId');
       this.questionIndex = +params.get('questionIndex');
       console.log('QuizComponent initialized with Quiz ID:', this.quizId, 'and Question Index:', this.questionIndex);
-      if (this.quizId && this.questionIndex >= 0) {
+      /* if (this.quizId && this.questionIndex >= 0) {
         this.updateQuestionAndOptionsNew();
       } else {
         console.error('Invalid route parameters');
-      }
+      } */
+      this.loadQuizData();
     });
 
     // Subscribe to router events and initialize
@@ -270,7 +271,25 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.src = "http://www.marvinrusinek.com/sound-correct.mp3";
     audio.load();
     audio.play();
-  } 
+  }
+
+  loadQuizData(): void {
+    this.quizDataService.getQuiz(this.quizId).subscribe({
+      next: (quiz) => {
+        if (quiz) {
+          this.quiz = quiz;
+          this.currentQuestion = quiz.questions[this.questionIndex - 1];
+          console.log('Loaded quiz data:', this.quiz);
+          console.log('Current question:', this.currentQuestion);
+        } else {
+          console.error('Quiz data is unavailable.');
+        }
+      },
+      error: (error) => {
+        console.error('Error loading quiz data:', error);
+      }
+    });
+  }
 
   /* private updateQuestionAndOptionsNew(): void {
     this.quizDataService.fetchQuizQuestionByIdAndIndex(this.quizId, this.questionIndex).subscribe({
