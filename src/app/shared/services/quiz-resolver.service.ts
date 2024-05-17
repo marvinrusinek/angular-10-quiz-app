@@ -61,16 +61,22 @@ export class QuizResolverService implements Resolve<Quiz | null> {
     );
   } */
 
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Quiz> {
+  resolve(route: ActivatedRouteSnapshot): Observable<Quiz> {
     const quizId = route.params['quizId'];
-    console.log(`QuizResolverService: Resolving data for quizId: ${quizId}`);
+    console.log('Resolving data for quizId:', quizId);
     return this.quizDataService.getQuiz(quizId).pipe(
-      tap(quiz => console.log('QuizResolverService: Fetched quiz data:', quiz)),
+      tap(quiz => {
+        if (!quiz) {
+          console.error(`Quiz with ID ${quizId} not found.`);
+          throw new Error(`Quiz with ID ${quizId} not found.`);
+        }
+        console.log('QuizResolverService: Fetched quiz data:', quiz);
+      }),
       catchError(error => {
         console.error('QuizResolverService: Error fetching quiz data:', error);
         this.router.navigate(['/select']);
         return EMPTY;
       })
     );
-  }  
+  }
 }

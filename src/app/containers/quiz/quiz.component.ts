@@ -183,16 +183,27 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     }); */
 
-    this.routeSubscription = this.activatedRoute.paramMap.subscribe(params => {
+    /* this.routeSubscription = this.activatedRoute.paramMap.subscribe(params => {
       this.quizId = params.get('quizId');
       this.questionIndex = +params.get('questionIndex');
       console.log('QuizComponent initialized with Quiz ID:', this.quizId, 'and Question Index:', this.questionIndex);
-      /* if (this.quizId && this.questionIndex >= 0) {
+      if (this.quizId && this.questionIndex >= 0) {
         this.updateQuestionAndOptionsNew();
       } else {
         console.error('Invalid route parameters');
-      } */
+      }
       this.loadQuizData();
+    }); */
+
+    this.activatedRoute.data.subscribe(data => {
+      this.quiz = data.quizData;
+      this.activatedRoute.params.subscribe(params => {
+        this.quizId = params['quizId'];
+        this.questionIndex = +params['questionIndex'];
+        if (this.quiz) {
+          this.currentQuestion = this.quiz.questions[this.questionIndex - 1];
+        }
+      });
     });
 
     // Subscribe to router events and initialize
