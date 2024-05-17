@@ -283,8 +283,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadQuizData(): void {
-    this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$)).subscribe(
-      quiz => {
+    this.quizDataService.getQuiz(this.quizId).pipe(
+      takeUntil(this.destroy$),
+      catchError(error => {
+        console.error('Error loading quiz data:', error);
+        throw error;
+      })
+    ).subscribe({
+      next: quiz => {
         if (quiz) {
           this.quiz = quiz;
           this.currentQuestion = quiz.questions[this.questionIndex - 1];
@@ -294,12 +300,11 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Quiz data is unavailable.');
         }
       },
-      error => {
+      error: error => {
         console.error('Error loading quiz data:', error);
       }
-    );
+    });
   }
-
 
   /* private updateQuestionAndOptionsNew(): void {
     this.quizDataService.fetchQuizQuestionByIdAndIndex(this.quizId, this.questionIndex).subscribe({
