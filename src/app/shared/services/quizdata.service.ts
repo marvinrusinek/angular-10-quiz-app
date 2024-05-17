@@ -610,7 +610,7 @@ export class QuizDataService implements OnDestroy {
     this.currentQuizSubject.next(quiz);
   }
 
-  getQuiz(quizId: string): Observable<Quiz> {
+  /* getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
       filter(quizzes => quizzes.length > 0),
       map((quizzes: Quiz[]) => {
@@ -621,6 +621,22 @@ export class QuizDataService implements OnDestroy {
         return quiz;
       }),
       catchError(this.handleError)
+    );
+  } */
+
+  getQuiz(quizId: string): Observable<Quiz> {
+    return this.getQuizzes().pipe(
+      map(quizzes => {
+        const quiz = quizzes.find(quiz => quiz.quizId === quizId);
+        if (!quiz) {
+          throw new Error(`Quiz with ID ${quizId} not found`);
+        }
+        return quiz;
+      }),
+      catchError(error => {
+        console.error('Error fetching quiz:', error);
+        return of(null as Quiz);
+      })
     );
   }
   
