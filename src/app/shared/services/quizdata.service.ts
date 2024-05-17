@@ -648,9 +648,26 @@ export class QuizDataService implements OnDestroy {
     return throwError(() => new Error(error.message));
   }
 
-  getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
+  /* getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(
       map(quiz => quiz.questions.map(question => ({ ...question }))),
+      distinctUntilChanged()
+    );
+  } */
+
+  getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
+    return this.getQuiz(quizId).pipe(
+      map(quiz => {
+        if (!quiz) {
+          console.error(`Quiz with ID ${quizId} not found`);
+          throw new Error(`Quiz with ID ${quizId} not found`);
+        }
+        if (!quiz.questions) {
+          console.error(`Quiz with ID ${quizId} has no questions`);
+          throw new Error(`Quiz with ID ${quizId} has no questions`);
+        }
+        return quiz.questions.map(question => ({ ...question }));
+      }),
       distinctUntilChanged()
     );
   }
