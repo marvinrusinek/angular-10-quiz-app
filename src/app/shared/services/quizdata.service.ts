@@ -661,7 +661,7 @@ export class QuizDataService implements OnDestroy {
         return of(null as Quiz);
       })
     );
-  }
+  } 
   
   private handleError(error: any): Observable<never> {
     console.error('Error:', error.message);
