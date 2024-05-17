@@ -68,7 +68,7 @@ export class QuizResolverService implements Resolve<Quiz | null> {
       tap(quiz => console.log('QuizResolverService: Fetched quiz data:', quiz)),
       catchError(error => {
         console.error('QuizResolverService: Error fetching quiz data:', error);
-        this.router.navigate(['/quiz-selection']);
+        this.router.navigate(['/select']);
         return EMPTY;
       })
     );
