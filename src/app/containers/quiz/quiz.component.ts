@@ -903,7 +903,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.fetchQuestionAndOptions();
   }
 
-  private initializeSelectedQuiz(): void {
+  /* private initializeSelectedQuiz(): void {
     this.quizDataService.getQuiz(this.quizId).subscribe({
       next: (quiz: Quiz) => {
         this.selectedQuiz = quiz;
@@ -915,7 +915,28 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error(error);
       }
     });
-  }
+  } */
+
+  private initializeSelectedQuiz(): void {
+    this.quizDataService.getQuiz(this.quizId).subscribe({
+      next: (quiz: Quiz) => {
+        if (!quiz) {
+          console.error('Quiz data is null or undefined');
+          return;
+        }
+        this.selectedQuiz = quiz;
+        if (!this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
+          console.error('Quiz has no questions');
+          return;
+        }
+        const currentQuestionOptions = this.selectedQuiz.questions[this.currentQuestionIndex].options;
+        this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(currentQuestionOptions);
+      },
+      error: (error: any) => {
+        console.error(error);
+      }
+    });
+  }  
 
   private initializeObservables(): void {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
