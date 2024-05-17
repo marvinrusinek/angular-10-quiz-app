@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, EMPTY, map, tap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizDataService } from './quizdata.service';
@@ -43,7 +43,7 @@ export class QuizResolverService implements Resolve<Quiz | null> {
     return this.quizDataService.getQuiz(quizId);
   } */
 
-  resolve(route: ActivatedRouteSnapshot): Observable<any> {
+  /* resolve(route: ActivatedRouteSnapshot): Observable<any> {
     const quizId = route.params['quizId'];
     console.log('Resolving data for quizId:', quizId);
     return this.quizDataService.getQuiz(quizId).pipe(
@@ -59,5 +59,18 @@ export class QuizResolverService implements Resolve<Quiz | null> {
         return of(null); // Ensuring the navigation can proceed if the quiz is not found
       })
     );
-  }
+  } */
+
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Quiz> {
+    const quizId = route.params['quizId'];
+    console.log(`QuizResolverService: Resolving data for quizId: ${quizId}`);
+    return this.quizDataService.getQuiz(quizId).pipe(
+      tap(quiz => console.log('QuizResolverService: Fetched quiz data:', quiz)),
+      catchError(error => {
+        console.error('QuizResolverService: Error fetching quiz data:', error);
+        this.router.navigate(['/quiz-selection']);
+        return EMPTY;
+      })
+    );
+  }  
 }
