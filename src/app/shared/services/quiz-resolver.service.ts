@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { catchError, EMPTY, map, tap } from 'rxjs/operators';
+import { Resolve, ActivatedRouteSnapshot, Router, RouterStateSnapshot } from '@angular/router';
+import { EMPTY, Observable, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizDataService } from './quizdata.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuizResolverService implements Resolve<Quiz | null> {
-  constructor(private quizDataService: QuizDataService) {}
+  constructor(private quizDataService: QuizDataService, private router: Router) {}
 
   /* resolve(route: ActivatedRouteSnapshot): Observable<Quiz | null> {
     const quizId = route.params['quizId'];
@@ -69,6 +69,7 @@ export class QuizResolverService implements Resolve<Quiz | null> {
         if (!quiz) {
           console.error(`Quiz with ID ${quizId} not found.`);
           this.router.navigate(['/select']);
+          throw new Error(`Quiz with ID ${quizId} not found.`);
         }
         console.log('QuizResolverService: Fetched quiz data:', quiz);
       }),
