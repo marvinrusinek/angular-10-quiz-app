@@ -213,7 +213,7 @@ export class QuizGuard implements CanActivate {
         console.error(`Error validating quiz ID ${quizId}: ${error}`);
         this.router.navigate(['/select']);
         return of(false);
-      })
+      }) 
     );
   }
 }
