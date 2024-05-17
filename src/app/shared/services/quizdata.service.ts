@@ -533,11 +533,14 @@ export class QuizDataService implements OnDestroy {
 
   private loadQuizzesData(): void {
     this.http.get<Quiz[]>(this.quizUrl).pipe(
-      tap((quizzes: Quiz[]) => {
-        this.quizzesSubject.next(quizzes);
-      }),
-      catchError(this.handleError)
-    ).subscribe();
+      catchError(error => {
+        console.error('Error loading quizzes:', error);
+        return throwError(() => error);
+      })
+    ).subscribe(quizzes => {
+      console.log('Loaded quizzes:', quizzes);
+      this.quizzesSubject.next(quizzes);
+    });
   }
 
   private loadQuizzes(): void {
@@ -631,7 +634,7 @@ export class QuizDataService implements OnDestroy {
     return this.quizzes$.pipe(
       switchMap(quizzes => {
         if (quizzes.length === 0) {
-          return this.http.get<Quiz[]>(this.quizUrl).pipe(
+          return this.http.get<Quiz[]>('assets/data/quiz.json').pipe(
             map(quizzes => {
               this.quizzesSubject.next(quizzes);
               return quizzes;
@@ -661,7 +664,7 @@ export class QuizDataService implements OnDestroy {
         return of(null as Quiz);
       })
     );
-  } 
+  }
   
   private handleError(error: any): Observable<never> {
     console.error('Error:', error.message);
