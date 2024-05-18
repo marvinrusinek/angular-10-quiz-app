@@ -6,8 +6,8 @@ import {
   OnInit
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, delay, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
+import { catchError, delay, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -267,10 +267,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       return;
     }
   
-    this.quizDataService.getQuiz(quizId).subscribe({
+    this.quizDataService.getQuiz(quizId).pipe(take(1)).subscribe({
       next: (quiz) => {
         if (quiz && quiz.questions && quiz.questions.length > 0) {
-          console.log('Quiz is valid, navigating...');
           this.router.navigate(['/question', quizId, 1]).then(success => {
             console.log('Navigation promise resolved:', success);
             if (success) {
@@ -290,6 +289,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       }
     });
   }
+  
   
   public get milestone(): string {
     const milestone = this.selectedQuiz?.milestone || 'Milestone not found';
