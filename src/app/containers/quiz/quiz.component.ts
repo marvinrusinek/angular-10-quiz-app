@@ -1621,6 +1621,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       // this.explanationTextService.setShouldDisplayExplanation(false);
 
       const quizData: Quiz = await firstValueFrom(this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$)));
+      
+      if (!quizData || !quizData.questions || quizData.questions.length === 0) {
+        console.warn('Quiz data is unavailable or has no questions.');
+        return;
+      }
 
       // Check if the question index is valid
       const isValidIndex = await firstValueFrom(of(this.quizService.isValidQuestionIndex(questionIndex, quizData)));
