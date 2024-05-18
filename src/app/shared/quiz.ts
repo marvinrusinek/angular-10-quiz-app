@@ -401,6 +401,19 @@ export const QUIZ_DATA: Quiz[] = [
         explanation: 'a component tree in Angular shows how components are nested and related'
       },
       {
+        questionText: 'Why is understanding the component tree important in Angular development?',
+        options: [
+          { text: 'It helps in managing application styles.' },
+          { text: 'It assists in debugging and understanding component interactions.", "correct', correct: true },
+          { text: 'It is used to configure Angular modules.' },
+          { text: 'It determines the order of service injection.' }
+        ],
+        explanation: 'knowing the component tree aids in troubleshooting and clarifying how components relate to each other'
+      },
+
+
+
+      {
         questionText: 'How does a parent component pass data to its child component?',
         options: [
           { text: 'Using data binding.' },
