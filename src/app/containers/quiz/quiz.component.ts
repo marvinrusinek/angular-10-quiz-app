@@ -400,14 +400,24 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  initializeRouteParams(): void {
-    this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      this.quizId = params['quizId'];
-      this.questionIndex = +params['questionIndex'];
-      this.currentQuestionIndex = this.questionIndex - 1; // Ensure it's zero-based
-      console.log('Loaded quizId from route:', this.quizId);
-      console.log('Loaded questionIndex from route:', this.questionIndex);
-      this.loadQuizData();
+  resolveQuizData(): void {
+    this.activatedRoute.data.pipe(takeUntil(this.unsubscribe$)).subscribe((data: { quizData: Quiz }) => {
+      console.log('Resolved quiz data:', data.quizData);
+  
+      if (data.quizData && Array.isArray(data.quizData.questions) && data.quizData.questions.length > 0) {
+        this.selectedQuiz = data.quizData;
+        console.log('Selected quiz initialized:', this.selectedQuiz);
+  
+        this.quizService.setSelectedQuiz(data.quizData);
+        this.explanationTextService.initializeExplanationTexts(data.quizData.questions.map(question => question.explanation));
+  
+        this.initializeQuiz(); // Ensure this method sets currentQuestionIndex correctly
+      } else {
+        console.error('Quiz data is undefined, or there are no questions');
+        this.router.navigate(['/select']).then(() => {
+          console.log('No quiz data available.');
+        });
+      }
     });
   }  
 
