@@ -397,9 +397,7 @@ export class QuizService implements OnDestroy {
       return -1;
     }
   
-    console.log('Finding question index for question:', question);
     const index = this.selectedQuiz.questions.findIndex(q => q.explanation === question.explanation);
-    console.log('Found question index:', index);
     return index;
   }
   
