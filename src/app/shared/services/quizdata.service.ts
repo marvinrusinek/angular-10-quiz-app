@@ -603,20 +603,6 @@ export class QuizDataService implements OnDestroy {
     this.currentQuizSubject.next(quiz);
   }
 
-  /* getQuiz(quizId: string): Observable<Quiz> {
-    return this.quizzes$.pipe(
-      filter(quizzes => quizzes.length > 0),
-      map((quizzes: Quiz[]) => {
-        const quiz = quizzes.find(quiz => quiz.quizId === quizId);
-        if (!quiz) {
-          throw new Error(`Quiz with ID ${quizId} not found`);
-        }
-        return quiz;
-      }),
-      catchError(this.handleError)
-    );
-  } */
-
   getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
       filter(quizzes => quizzes.length > 0), // Ensure quizzes are loaded
@@ -639,13 +625,6 @@ export class QuizDataService implements OnDestroy {
     console.error('Error:', error.message);
     return throwError(() => new Error(error.message));
   }
-
-  /* getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
-    return this.getQuiz(quizId).pipe(
-      map(quiz => quiz.questions.map(question => ({ ...question }))),
-      distinctUntilChanged()
-    );
-  } */
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(
