@@ -369,7 +369,7 @@ export class QuizService implements OnDestroy {
     return this.selectedQuiz.questions.findIndex(q => q.explanation === question.explanation);
   } */
 
-  findQuestionIndex(question: QuizQuestion): number {
+  /* findQuestionIndex(question: QuizQuestion): number {
     if (!this.selectedQuiz || !Array.isArray(this.selectedQuiz.questions) || this.selectedQuiz.questions.length === 0) {
       console.error('Quiz data is not properly initialized or questions are not available.');
       return -1; // Indicate failure to find the index
@@ -379,7 +379,30 @@ export class QuizService implements OnDestroy {
     const index = this.selectedQuiz.questions.findIndex(q => q.explanation === question.explanation);
     console.log('Found question index:', index);
     return index;
+  } */
+
+  findQuestionIndex(question: QuizQuestion): number {
+    if (!this.selectedQuiz) {
+      console.error('Quiz data is not properly initialized: selectedQuiz is null');
+      return -1;
+    }
+  
+    if (!Array.isArray(this.selectedQuiz.questions)) {
+      console.error('Quiz data is not properly initialized: questions is not an array');
+      return -1;
+    }
+  
+    if (this.selectedQuiz.questions.length === 0) {
+      console.error('Quiz data is not properly initialized: questions array is empty');
+      return -1;
+    }
+  
+    console.log('Finding question index for question:', question);
+    const index = this.selectedQuiz.questions.findIndex(q => q.explanation === question.explanation);
+    console.log('Found question index:', index);
+    return index;
   }
+  
 
   // Type guard function to check if an object is of type Quiz
   private isQuiz(item: any): item is Quiz {

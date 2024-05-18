@@ -48,7 +48,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
       this.quizId = params['quizId'];
-      console.log('Loaded quizId from route:', this.quizId); // Debug log
     });
 
     // this.quizId = this.quizDataService.getCurrentQuizId();
@@ -66,11 +65,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   private loadQuiz(): void {
-    console.log('loadQuiz called');
     this.activatedRoute.params.pipe(
       switchMap(params => {
         const quizId = params['quizId'];
-        console.log('Fetching quiz with ID:', quizId);
         return this.quizDataService.getQuiz(quizId).pipe(
           delay(500) // Add delay to ensure data is fetched correctly
         );
@@ -79,7 +76,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (quiz: Quiz) => {
         if (quiz) {
-          console.log('Quiz fetched:', quiz);
           this.selectedQuiz$.next(quiz);
           this.cdRef.markForCheck();
         } else {
