@@ -891,12 +891,10 @@ export class QuizService implements OnDestroy {
     return valid;
   }
 
-  isValidQuestionIndex(index: number, data: any): boolean {
-    // First check if data is a Quiz object with a questions array
+  isValidQuestionIndex(index: number, data: Quiz | QuizQuestion[]): boolean {
     if (typeof data === 'object' && data !== null && 'questions' in data && Array.isArray(data.questions)) {
       return index >= 0 && index < data.questions.length;
     }
-    // Next, check if data is directly an array of QuizQuestion
     else if (Array.isArray(data)) {
       return index >= 0 && index < data.length;
     }
@@ -905,6 +903,7 @@ export class QuizService implements OnDestroy {
       return false;
     }
   }
+  
 
   updateCorrectMessageText(message: string): void {
     this.correctMessage$.next(message);
