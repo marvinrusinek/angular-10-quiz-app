@@ -738,7 +738,7 @@ export class QuizDataService implements OnDestroy {
     }
   } */
 
-  fetchQuestionAndOptionsFromAPI(quizId: string, currentQuestionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
+  /* fetchQuestionAndOptionsFromAPI(quizId: string, currentQuestionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
     return this.getQuestionsForQuiz(quizId).pipe(
       map(questions => {
         if (!questions || questions.length <= currentQuestionIndex) {
@@ -752,7 +752,19 @@ export class QuizDataService implements OnDestroy {
         return of(null);
       })
     );
-  }
+  } */
+
+  async fetchQuestionAndOptionsFromAPI(quizId: string, currentQuestionIndex: number): Promise<[QuizQuestion, Option[]] | null> {
+    try {
+      const questionAndOptions = await firstValueFrom(
+        this.getQuestionAndOptions(quizId, currentQuestionIndex).pipe(take(1))
+      ) as [QuizQuestion, Option[]];
+      return questionAndOptions;
+    } catch (error) {
+      console.error('Error fetching question and options:', error);
+      return null;
+    }
+  }  
 
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
     return this.getQuiz(quizId).pipe(
