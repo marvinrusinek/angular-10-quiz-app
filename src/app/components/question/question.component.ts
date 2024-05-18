@@ -289,7 +289,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   private loadQuiz(quizId: string, questionIndex: number): void {
-    this.quizDataService.getQuizById(quizId).subscribe({
+    this.quizDataService.getQuiz(quizId).subscribe({
       next: (quiz) => {
         if (quiz && quiz.questions && quiz.questions.length > questionIndex) {
           this.currentQuestion = quiz.questions[questionIndex];
