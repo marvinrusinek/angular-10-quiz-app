@@ -401,6 +401,16 @@
     "image": "https://raw.githubusercontent.com/marvinrusinek/codelab-angular-10-quiz-app/quiz/codelab-master/apps/playground/src/assets/images/tree.png",
     "questions": [
       {
+        "questionText": "What is a component tree in Angular?",
+        "options": [
+          { "text": "A visual representation of how components are nested within an application", "correct": true },
+          { "text": "A data structure used to store component metadata" },
+          { "text": "A tool for debugging Angular applications" },
+          { "text": "A lifecycle hook used to initialize components" }
+        ],
+        "explanation": "a component tree in Angular shows how components are nested and related"
+      },
+      {
         "questionText": "How does a parent component pass data to its child component?",
         "options": [
           { "text": "Using data binding." },
