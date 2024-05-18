@@ -396,11 +396,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   resolveQuizData(): void {
     this.activatedRoute.data.pipe(takeUntil(this.unsubscribe$)).subscribe((data: { quizData: Quiz }) => {
-      console.log('Resolved quiz data:', data.quizData);
+      // console.log('Resolved quiz data:', data.quizData);
   
       if (data.quizData && Array.isArray(data.quizData.questions) && data.quizData.questions.length > 0) {
         this.selectedQuiz = data.quizData;
-        console.log('Selected quiz initialized:', this.selectedQuiz);
   
         this.quizService.setSelectedQuiz(data.quizData);
         this.explanationTextService.initializeExplanationTexts(data.quizData.questions.map(question => question.explanation));
