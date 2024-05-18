@@ -994,6 +994,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     const questionIndex = this.quizService.findQuestionIndex(question);
+    if (questionIndex < 0 || questionIndex >= (this.selectedQuiz?.questions.length || 0)) {
+      console.error('Invalid question index:', questionIndex);
+      return;
+    }
     this.quizService.setCurrentQuestion(questionIndex);
 
     // Reset UI elements and messages as needed
@@ -1621,7 +1625,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // this.explanationTextService.setShouldDisplayExplanation(false);
 
       const quizData: Quiz = await firstValueFrom(this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$)));
-      
+
       if (!quizData || !quizData.questions || quizData.questions.length === 0) {
         console.warn('Quiz data is unavailable or has no questions.');
         return;
