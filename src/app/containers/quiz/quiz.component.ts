@@ -187,12 +187,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.selectedQuiz = data.quizData;
         console.log('Selected quiz initialized:', this.selectedQuiz);
   
-        // Initialize quiz data and other related services
         this.quizService.setSelectedQuiz(data.quizData);
         this.explanationTextService.initializeExplanationTexts(data.quizData.questions.map(question => question.explanation));
   
-        // Call additional initialization methods if necessary
-        this.initializeQuiz();
+        this.initializeQuiz(); // Ensure this method sets currentQuestionIndex correctly
       } else {
         console.error('Quiz data is undefined, or there are no questions');
         this.router.navigate(['/select']).then(() => {
