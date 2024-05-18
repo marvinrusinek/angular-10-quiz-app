@@ -73,12 +73,7 @@ export class QuizResolverService implements Resolve<Quiz | null> {
         }
         console.log('QuizResolverService: Fetched quiz data:', quiz);
       }),
-      map(quiz => {
-        if (!quiz) {
-          throw new Error('Quiz not found');
-        }
-        return quiz;
-      }),
+      map(quiz => quiz as Quiz),
       catchError(error => {
         console.error('QuizResolverService: Error fetching quiz data:', error);
         this.router.navigate(['/select']);
