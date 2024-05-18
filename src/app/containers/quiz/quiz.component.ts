@@ -201,7 +201,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex = this.questionIndex - 1; // Ensure it's zero-based
       console.log('Loaded quizId from route:', this.quizId);
       console.log('Loaded questionIndex from route:', this.questionIndex);
-      this.loadQuizData().then(() => this.getQuestion());
+      this.loadQuizData();
     });
 
     // Subscribe to router events and initialize
