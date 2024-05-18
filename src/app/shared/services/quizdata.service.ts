@@ -531,39 +531,12 @@ export class QuizDataService implements OnDestroy {
     this.destroy$.complete();
   }
 
-  /* private loadQuizzesData(): void {
-    this.http.get<Quiz[]>(this.quizUrl).pipe(
-      catchError(error => {
-        console.error('Error loading quizzes:', error);
-        return throwError(() => error);
-      })
-    ).subscribe(quizzes => {
-      console.log('Loaded quizzes:', quizzes);
-      this.quizzesSubject.next(quizzes);
-    });
-  } */
-
   private loadQuizzesData(): void {
     this.http.get<Quiz[]>(this.quizUrl).pipe(
       tap(quizzes => this.quizzesSubject.next(quizzes)),
       catchError(this.handleError)
     ).subscribe();
   }
-
-  private loadQuizzes(): void {
-    this.http.get<Quiz[]>('assets/data/quiz.json').pipe(
-      map((data: Quiz[]) => {
-        this.quizzes = data;
-        this.quizzesSubject.next(data);
-        return data;
-      }),
-      catchError(this.handleError)
-    ).subscribe();
-  }
-
-  /* getQuizzes(): Observable<Quiz[]> {
-    return this.quizzes$;
-  } */
 
   getQuizzes(): Observable<Quiz[]> {
     return this.quizzes$.pipe(
@@ -739,47 +712,6 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  /* async fetchQuestionAndOptionsFromAPI(quizId: string, currentQuestionIndex: number): 
-    Promise<[QuizQuestion, Option[]] | null> {
-    try {
-      const questionAndOptions = await firstValueFrom(
-        this.getQuestionAndOptions(quizId, currentQuestionIndex).pipe(take(1))
-      ) as [QuizQuestion, Option[]];
-      return questionAndOptions;
-    } catch (error) {
-      console.error('Error fetching question and options:', error);
-      return null;
-    }
-  } */
-
-  /* fetchQuestionAndOptionsFromAPI(quizId: string, currentQuestionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
-    return this.getQuestionsForQuiz(quizId).pipe(
-      map(questions => {
-        if (!questions || questions.length <= currentQuestionIndex) {
-          throw new Error(`No question found at index ${currentQuestionIndex} for quiz ID ${quizId}`);
-        }
-        const question = questions[currentQuestionIndex];
-        return [question, question.options] as [QuizQuestion, Option[]];
-      }),
-      catchError(error => {
-        console.error('Error fetching question and options:', error);
-        return of(null);
-      })
-    );
-  } */
-
-  /* async fetchQuestionAndOptionsFromAPI(quizId: string, currentQuestionIndex: number): Promise<[QuizQuestion, Option[]] | null> {
-    try {
-      const questionAndOptions = await firstValueFrom(
-        this.getQuestionAndOptions(quizId, currentQuestionIndex).pipe(take(1))
-      ) as [QuizQuestion, Option[]];
-      return questionAndOptions;
-    } catch (error) {
-      console.error('Error fetching question and options:', error);
-      return null;
-    }
-  } */
-
   async fetchQuestionAndOptionsFromAPI(quizId: string, currentQuestionIndex: number): Promise<[QuizQuestion, Option[]] | null> {
     try {
       const questionAndOptions = await firstValueFrom(
@@ -797,6 +729,31 @@ export class QuizDataService implements OnDestroy {
       map(quiz => quiz.questions[questionIndex].options),
       catchError((error: HttpErrorResponse) => throwError(() => new Error('Error fetching question options: ' + error.message))),
       distinctUntilChanged()
+    );
+  }
+
+  getAllExplanationTextsForQuiz(quizId: string): Observable<string[]> {
+    return this.getQuiz(quizId).pipe(
+      switchMap((quiz: Quiz) => {
+        if (!quiz) {
+          throw new Error(`Quiz with ID ${quizId} not found`);
+        }
+
+        const explanationTexts = quiz.questions.map((question) => {
+          // Check if explanation is defined and not null
+          if (typeof question.explanation === 'string') {
+            return question.explanation;
+          } else {
+            return '';
+          }
+        });
+
+        return of(explanationTexts);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error getting explanation texts:', error);
+        return of([]);
+      })
     );
   }
 
