@@ -1405,22 +1405,19 @@ export class QuizService implements OnDestroy {
 
   setCurrentQuestion(index: number): void {
     if (!this.selectedQuiz || !Array.isArray(this.selectedQuiz.questions)) {
-      console.error('Quiz data is not properly initialized.');
-      return;
+        console.error('Quiz data is not properly initialized.');
+        return;
     }
 
     if (index < 0 || index >= this.selectedQuiz.questions.length) {
-      console.error(`Invalid question index: ${index}`);
-      return;
+        console.error(`Invalid question index: ${index}`);
+        return;
     }
 
     const question = this.selectedQuiz.questions[index];
     if (!question) {
-      console.error(
-        `Selected Question at index ${index} is undefined`,
-        question
-      );
-      return;
+        console.error(`Selected Question at index ${index} is undefined`, question);
+        return;
     }
 
     this.currentQuestion.next(question);
