@@ -262,7 +262,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quiz = quiz;
         if (quiz.questions && quiz.questions.length > 0) {
           this.currentQuestion = quiz.questions[this.questionIndex - 1];
-          
+
           if (!this.isDestroyed) {
             this.cdRef.detectChanges();
           }
@@ -1620,8 +1620,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.animationState$.next('animationStarted');
       // this.explanationTextService.setShouldDisplayExplanation(false);
 
+      const quizData: Quiz = await firstValueFrom(this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$)));
+
       // Check if the question index is valid
-      const isValidIndex = await this.quizService.isValidQuestionIndex(questionIndex);
+      const isValidIndex = await this.quizService.isValidQuestionIndex(questionIndex, quizData);
       if (!isValidIndex) {
         console.warn('Invalid question index. Aborting.');
         return;
