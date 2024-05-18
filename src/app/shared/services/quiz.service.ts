@@ -400,7 +400,6 @@ export class QuizService implements OnDestroy {
     const index = this.selectedQuiz.questions.findIndex(q => q.explanation === question.explanation);
     return index;
   }
-  
 
   // Type guard function to check if an object is of type Quiz
   private isQuiz(item: any): item is Quiz {
