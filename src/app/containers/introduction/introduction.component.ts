@@ -50,11 +50,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       this.quizId = params['quizId'];
     });
 
-    // this.quizId = this.quizDataService.getCurrentQuizId();
-    this.loadQuiz();
-
     this.initializeData();
     this.subscribeToSelectedQuiz();
+    this.loadQuiz();
     this.handleRouteParameters();
     this.handleQuizSelectionAndFetchQuestions();
   }
@@ -62,6 +60,24 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private initializeData(): void {
+    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
+    this.selectedQuiz$.pipe(takeUntil(this.destroy$)).subscribe((quiz: Quiz | null) => {
+      this.quizId = quiz?.quizId ?? '';
+      this.questionLabel = this.getPluralizedQuestionLabel(quiz?.questions.length ?? 0);
+      this.cdRef.markForCheck();
+    });
+  }
+
+  private subscribeToSelectedQuiz(): void {
+    this.selectedQuiz$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((selectedQuiz: Quiz) => {
+        this.introImg = selectedQuiz ? this.imagePath + selectedQuiz.image : '';
+        this.cdRef.markForCheck();
+      });
   }
 
   private loadQuiz(): void {
@@ -86,24 +102,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         console.error('Error loading quiz:', error);
       }
     });
-  }
-
-  private initializeData(): void {
-    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-    this.selectedQuiz$.pipe(takeUntil(this.destroy$)).subscribe((quiz: Quiz | null) => {
-      this.quizId = quiz?.quizId ?? '';
-      this.questionLabel = this.getPluralizedQuestionLabel(quiz?.questions.length ?? 0);
-      this.cdRef.markForCheck();
-    });
-  }
-
-  private subscribeToSelectedQuiz(): void {
-    this.selectedQuiz$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((selectedQuiz: Quiz) => {
-        this.introImg = selectedQuiz ? this.imagePath + selectedQuiz.image : '';
-        this.cdRef.markForCheck();
-      });
   }
 
   private handleRouteParameters(): void {
