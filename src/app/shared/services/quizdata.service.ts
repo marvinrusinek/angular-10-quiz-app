@@ -721,6 +721,31 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
+  async asyncOperationToSetQuestion(quizId: string, currentQuestionIndex: number): Promise<void> {
+    try {
+      if (!quizId || currentQuestionIndex < 0) {
+        console.error('Invalid quiz ID or question index');
+        return;
+      }
+  
+      const observable = this.fetchQuizQuestionByIdAndIndex(quizId, currentQuestionIndex);
+      if (!observable) {
+        console.error('Received undefined Observable from fetchQuizQuestionByIdAndIndex');
+        return;
+      }
+  
+      const question = await firstValueFrom(observable);
+      if (!question) {
+        console.error('No question received for the given index');
+        return;
+      }
+  
+      this.question = question;
+    } catch (error) {
+      console.error('Error setting question:', error);
+    }
+  }
+
   setQuestionType(question: QuizQuestion): void {
     const numCorrectAnswers = question.options.filter((option) => option.correct).length;
     question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
