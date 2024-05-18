@@ -1623,7 +1623,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const quizData: Quiz = await firstValueFrom(this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$)));
 
       // Check if the question index is valid
-      const isValidIndex = await this.quizService.isValidQuestionIndex(questionIndex, quizData);
+      const isValidIndex = await firstValueFrom(of(this.quizService.isValidQuestionIndex(questionIndex, quizData)));
       if (!isValidIndex) {
         console.warn('Invalid question index. Aborting.');
         return;
