@@ -597,13 +597,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       const selectedQuiz: Quiz = await firstValueFrom(
         this.quizDataService.getQuiz(quizId).pipe(takeUntil(this.destroy$))
       );
-  
       if (!selectedQuiz) {
         console.error('Selected quiz not found for quizId:', quizId);
         return;
       }
-  
-      console.log('Fetched selected quiz:', selectedQuiz);
       this.selectedQuiz = selectedQuiz;
 
       // Ensure the current question is set
