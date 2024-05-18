@@ -508,6 +508,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 @Injectable({ providedIn: 'root' })
 export class QuizDataService implements OnDestroy {
   private quizUrl = 'assets/data/quiz.json';
+  question: QuizQuestion | null = null;
   questionType: string;
   
   private destroy$ = new Subject<void>();
@@ -680,7 +681,7 @@ export class QuizDataService implements OnDestroy {
     try {
       const questionAndOptions = await firstValueFrom(
         this.getQuestionAndOptions(quizId, currentQuestionIndex).pipe(take(1))
-      );
+      ) as [QuizQuestion, Option[]];
       return questionAndOptions;
     } catch (error) {
       console.error('Error fetching question and options:', error);
