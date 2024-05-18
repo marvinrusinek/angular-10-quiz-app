@@ -1102,7 +1102,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges();
   }
 
-  subscribeRouterAndInit(): void {
+  /* subscribeRouterAndInit(): void {
     this.getNextQuestion();  // Ensure this is the appropriate place to call this method.
     this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
 
@@ -1142,6 +1142,23 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       this.currentQuiz = quizData;
       this.quizService.setSelectedQuiz(quizData);
+    });
+  } */
+
+  private subscribeRouterAndInit(): void {
+    this.routerSubscription = this.activatedRoute.data.subscribe(data => {
+      const quizData: Quiz = data.quizData;
+      if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
+        console.error("Quiz data is undefined, or there are no questions");
+        this.router.navigate(['/select']).then(() => {
+          console.log('No quiz data available.');
+        });
+        return;
+      }
+
+      this.currentQuiz = quizData;
+      this.quizId = quizData.quizId;
+      this.questionIndex = +this.activatedRoute.snapshot.params['questionIndex'];
     });
   }
 
