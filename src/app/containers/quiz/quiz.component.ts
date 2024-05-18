@@ -998,7 +998,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const questionIndex = this.quizService.findQuestionIndex(question);
+    // Find the index of the current question
+    const questionIndex = this.quizService.findQuestionIndex(this.currentQuestion);
     if (questionIndex < 0 || questionIndex >= (this.selectedQuiz?.questions.length || 0)) {
       console.error('Invalid question index:', questionIndex);
       return;
