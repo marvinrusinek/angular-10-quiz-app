@@ -554,8 +554,15 @@ export class QuizDataService implements OnDestroy {
     ).subscribe();
   }
 
-  getQuizzes(): Observable<Quiz[]> {
+  /* getQuizzes(): Observable<Quiz[]> {
     return this.quizzes$;
+  } */
+
+  getQuizzes(): Observable<Quiz[]> {
+    return this.quizzes$.pipe(
+      filter(quizzes => quizzes.length > 0),  // Ensure data is loaded
+      take(1)  // Ensure it emits only once
+    );
   }
 
   /* isValidQuiz(quizId: string): Observable<boolean> {
