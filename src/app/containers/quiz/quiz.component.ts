@@ -605,6 +605,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       console.log('Fetched selected quiz:', selectedQuiz);
       this.selectedQuiz = selectedQuiz;
+
+      // Ensure the current question is set
+      const currentQuestion = selectedQuiz.questions[zeroBasedQuestionIndex];
+      if (!currentQuestion) {
+        console.error(`Question not found at index ${zeroBasedQuestionIndex} for quizId ${quizId}`);
+        return;
+      }
+      this.currentQuestion = currentQuestion;
+      console.log('Current question set:', this.currentQuestion);
+
       this.processQuizData(zeroBasedQuestionIndex, this.selectedQuiz);
       this.initializeSelectedQuizData(this.selectedQuiz);
   
