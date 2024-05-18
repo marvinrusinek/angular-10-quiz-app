@@ -1232,7 +1232,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
   
       // Fetch the question and options
-      const result = await firstValueFrom(this.quizDataService.fetchQuestionAndOptionsFromAPI(quizId, currentQuestionIndex));
+      const result = await firstValueFrom(of(this.quizDataService.fetchQuestionAndOptionsFromAPI(quizId, currentQuestionIndex)));
       
       if (!result) {
         console.error('No valid question found');
