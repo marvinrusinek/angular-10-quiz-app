@@ -617,18 +617,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Error in fetchQuizData:', error);
     }
   }
-  
-
-  private async fetchQuizDataFromService(quizId: string): Promise<Quiz | undefined> {
-    try {
-      const quizzes = await firstValueFrom(this.quizService.getQuizData());
-      const selectedQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-      return selectedQuiz;
-    } catch (error) {
-      console.error(`Error fetching quizzes:`, error);
-      return undefined;
-    }
-  }
 
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
     this.quizService.setQuizData([selectedQuiz]);
