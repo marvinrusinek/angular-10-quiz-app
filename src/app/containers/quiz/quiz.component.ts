@@ -364,9 +364,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.optionsToDisplay = question.options;
     this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
 
-    console.log("Loaded question text:", this.questionToDisplay);
-    console.log("Loaded options:", this.optionsToDisplay);
-
     this.fetchFormattedExplanationText(index);
   }
 
