@@ -591,8 +591,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
   
       const zeroBasedQuestionIndex = questionIndex - 1;
+      this.quizService.setCurrentQuestion(zeroBasedQuestionIndex);
   
-      const selectedQuiz = await firstValueFrom(
+      const selectedQuiz: Quiz = await firstValueFrom(
         this.quizDataService.getQuiz(quizId).pipe(takeUntil(this.destroy$))
       );
   
@@ -600,9 +601,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Selected quiz not found for quizId:', quizId);
         return;
       }
-  
-      this.processQuizData(zeroBasedQuestionIndex, selectedQuiz);
-      this.initializeSelectedQuizData(selectedQuiz);
+
+      this.selectedQuiz = selectedQuiz;
+      this.processQuizData(zeroBasedQuestionIndex, this.selectedQuiz);
+      this.initializeSelectedQuizData(this.selectedQuiz);
   
       const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
       if (!questionData) {
