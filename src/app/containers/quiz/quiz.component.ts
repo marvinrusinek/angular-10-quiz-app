@@ -1615,7 +1615,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // this.explanationTextService.setShouldDisplayExplanation(false);
 
       // Check if the question index is valid
-      const isValidIndex = await this.isQuestionIndexValid(questionIndex);
+      const isValidIndex = await this.quizService.isValidQuestionIndex(questionIndex);
       if (!isValidIndex) {
         console.warn('Invalid question index. Aborting.');
         return;
@@ -1649,11 +1649,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async isQuestionIndexValid(questionIndex: number): Promise<boolean> {
+  /* private async isQuestionIndexValid(questionIndex: number): Promise<boolean> {
     const totalQuestions: number = await this.getTotalQuestions();
     const isValid = questionIndex >= 0 && questionIndex < totalQuestions;
     return isValid;
-  }
+  } */
 
   private fetchQuestionDetails(questionIndex: number): QuizQuestion {
     const questionText = this.quizService.getQuestionTextForIndex(questionIndex);
