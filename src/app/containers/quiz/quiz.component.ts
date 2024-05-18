@@ -171,29 +171,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     // this.updateQuestionDisplayForShuffledQuestions();
     console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
 
-    /* this.routerSubscription = this.activatedRoute.paramMap.subscribe(params => {
-      this.quizId = params.get('quizId');
-      this.questionIndex = +params.get('questionIndex');
-      console.log('QuizComponent initialized with Quiz ID:', this.quizId, 'and Question Index:', this.questionIndex);
-      if (this.quizId && this.questionIndex) {
-        this.updateQuestionAndOptionsNew();
-      } else {
-        console.error('Invalid route parameters');
-      }
-    }); */
-
-    /* this.routeSubscription = this.activatedRoute.paramMap.subscribe(params => {
-      this.quizId = params.get('quizId');
-      this.questionIndex = +params.get('questionIndex');
-      console.log('QuizComponent initialized with Quiz ID:', this.quizId, 'and Question Index:', this.questionIndex);
-      if (this.quizId && this.questionIndex >= 0) {
-        this.updateQuestionAndOptionsNew();
-      } else {
-        console.error('Invalid route parameters');
-      }
-      this.loadQuizData();
-    }); */
-
     this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.quizId = params['quizId'];
       this.questionIndex = +params['questionIndex'];
@@ -201,6 +178,18 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Loaded quizId from route:', this.quizId);
       console.log('Loaded questionIndex from route:', this.questionIndex);
       this.loadQuizData();
+    });
+
+    this.activatedRoute.data.pipe(takeUntil(this.unsubscribe$)).subscribe((data: { quizData: Quiz }) => {
+      console.log("Resolved quiz data:", data.quizData);
+      if (data.quizData && Array.isArray(data.quizData.questions) && data.quizData.questions.length > 0) {
+        this.selectedQuiz = data.quizData;
+        console.log("Selected quiz initialized:", this.selectedQuiz);
+        this.initializeQuiz();
+      } else {
+        console.error("Quiz data is undefined, or there are no questions");
+        this.router.navigate(['/select']);
+      }
     });
 
     // Subscribe to router events and initialize
