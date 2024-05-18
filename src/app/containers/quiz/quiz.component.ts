@@ -989,10 +989,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     // Proceed to update the UI for the new question if all checks pass
-    this.updateQuizUIForNewQuestion();
+    this.updateQuizUIForNewQuestion(currentQuestion);
   }
 
-  private updateQuizUIForNewQuestion(): void {
+  private updateQuizUIForNewQuestion(question: QuizQuestion = this.currentQuestion): void {
+    if (!question) {
+        console.error('Invalid question:', question);
+        return;
+    }
+
     // Find the index of the current question
     const questionIndex = this.quizService.findQuestionIndex(this.currentQuestion);
     if (questionIndex < 0 || questionIndex >= (this.selectedQuiz?.questions.length || 0)) {
