@@ -644,45 +644,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* async fetchQuizData(): Promise<void> {
-    try {
-      const quizId = this.activatedRoute.snapshot.params['quizId'];
-      const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
-      const questionIndex = parseInt(questionIndexParam, 10);
-
-      if (isNaN(questionIndex)) {
-        console.error('Invalid question index:', questionIndexParam);
-        return;
-      }
-
-      // Use zero-based index for internal logic
-      const zeroBasedQuestionIndex = questionIndex - 1;
-
-      // Directly fetch the selected quiz based on quizId
-      const selectedQuiz = await this.fetchQuizDataFromService(quizId);
-      if (!selectedQuiz) {
-        console.error('Selected quiz not found for quizId:', quizId);
-        return;
-      }
-
-      this.processQuizData(zeroBasedQuestionIndex, selectedQuiz);
-      this.initializeSelectedQuizData(selectedQuiz);
-
-      // Ensure that question data is fetched using the correct index
-      const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
-      if (!questionData) {
-        console.error('Question data could not be fetched.');
-        this.data = null;
-        return;
-      }
-
-      this.initializeAndPrepareQuestion(questionData, quizId);
-      this.quizService.setCurrentQuestion(zeroBasedQuestionIndex);
-    } catch (error) {
-      console.error('Error in fetchQuizData:', error);
-    }
-  } */
-
   async fetchQuizData(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params['quizId'];
