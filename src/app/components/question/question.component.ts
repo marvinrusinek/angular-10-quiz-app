@@ -219,7 +219,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     // Handling changes to the question
     if (isSubsequentChange(changes.currentQuestion)) {
-      console.log('QuizQuestionComponent - ngOnChanges - Question changed:', this.question);
+      // console.log('QuizQuestionComponent - ngOnChanges - Question changed:', this.question);
       if (this.currentQuestion) {
         this.quizService.handleQuestionChange(
           this.currentQuestion,

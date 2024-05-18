@@ -621,7 +621,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
       this.currentQuestion = currentQuestion;
-      console.log('Current question set:', this.currentQuestion);
 
       this.processQuizData(zeroBasedQuestionIndex, this.selectedQuiz);
       this.initializeSelectedQuizData(this.selectedQuiz);
