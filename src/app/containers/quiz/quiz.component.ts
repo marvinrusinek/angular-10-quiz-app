@@ -257,15 +257,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async loadQuizData(): Promise<void> {
     try {
-      console.log('Fetching quiz data...');
-      const quiz = await firstValueFrom(this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$)));
+      const quiz = await firstValueFrom(this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))) as Quiz;
       if (quiz) {
         this.quiz = quiz;
-        console.log('Fetched quiz:', this.quiz);
         if (quiz.questions && quiz.questions.length > 0) {
           this.currentQuestion = quiz.questions[this.questionIndex - 1];
-          console.log('Loaded quiz data:', this.quiz);
-          console.log('Current question:', this.currentQuestion);
+          
           if (!this.isDestroyed) {
             this.cdRef.detectChanges();
           }
@@ -278,7 +275,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error loading quiz data:', error);
     }
-  }
+  }  
 
   setupNavigation(): void {
     this.activatedRoute.params.pipe(
