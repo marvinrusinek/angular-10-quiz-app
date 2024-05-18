@@ -172,7 +172,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
 
     // Initialize route parameters and subscribe to updates
-    this.initializeRouteParams();
+    this.fetchRouteParams();
     
     // Resolve quiz data from the route and subscribe to updates
     this.resolveQuizData();
@@ -389,7 +389,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges();
   }
 
-  initializeRouteParams(): void {
+  fetchRouteParams(): void {
     this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.quizId = params['quizId'];
       this.questionIndex = +params['questionIndex'];
