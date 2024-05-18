@@ -545,21 +545,6 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  /* isValidQuiz(quizId: string): Observable<boolean> {
-    return this.getQuizzes().pipe(
-      tap(quizzes => console.log('Available quizzes:', quizzes)),
-      map(quizzes => {
-        const isValid = quizzes.some(quiz => quiz.quizId === quizId);
-        console.log(`Checking validity for ${quizId}: ${isValid}`);
-        return isValid;
-      }),
-      catchError(error => {
-        console.error('Error validating quiz ID:', error);
-        return of(false);
-      })
-    );
-  } */
-
   isValidQuiz(quizId: string): Observable<boolean> {
     return this.getQuizzes().pipe(
       map(quizzes => quizzes.some(quiz => quiz.quizId === quizId)),
