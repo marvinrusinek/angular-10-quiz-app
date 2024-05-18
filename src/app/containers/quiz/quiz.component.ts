@@ -282,34 +282,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     audio.play();
   }
 
-  /* loadQuizData(): void {
-    this.quizDataService.getQuiz(this.quizId).pipe(
-      takeUntil(this.destroy$),
-      catchError(error => {
-        console.error('Error loading quiz data:', error);
-        throw error;
-      })
-    ).subscribe({
-      next: quiz => {
-        if (quiz) {
-          this.quiz = quiz;
-          if (quiz.questions && quiz.questions.length > 0) {
-            this.currentQuestion = quiz.questions[this.questionIndex - 1];
-            console.log('Loaded quiz data:', this.quiz);
-            console.log('Current question:', this.currentQuestion);
-          } else {
-            console.error('Quiz has no questions.');
-          }
-        } else {
-          console.error('Quiz data is unavailable.');
-        }
-      },
-      error: error => {
-        console.error('Error loading quiz data:', error);
-      }
-    });
-  } */
-
   async loadQuizData(): Promise<void> {
     try {
       console.log('Fetching quiz data...');
@@ -332,38 +304,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     } catch (error) {
       console.error('Error loading quiz data:', error);
-    }
-  }
-
-  /* private updateQuestionAndOptionsNew(): void {
-    this.quizDataService.fetchQuizQuestionByIdAndIndex(this.quizId, this.questionIndex).subscribe({
-      next: (question: QuizQuestion | null) => {
-        if (question) {
-          this.question = question;
-          console.log('Question fetched:', question);
-        } else {
-          console.error('Question is null');
-        }
-      },
-      error: (error) => {
-        console.error('Error fetching question:', error);
-      }
-    });
-  } */
-
-  private async updateQuestionAndOptionsNew(): Promise<void> {
-    console.log('Fetching question and options for Quiz ID:', this.quizId, 'Question Index:', this.questionIndex);
-    try {
-      const result = await this.quizDataService.fetchQuestionAndOptionsFromAPI(this.quizId, this.questionIndex);
-      if (result) {
-        const [question, options] = result;
-        this.question = question;
-        console.log('Question fetched:', question);
-      } else {
-        console.error('Question or options are null');
-      }
-    } catch (error) {
-      console.error('Error fetching question:', error);
     }
   }
 
