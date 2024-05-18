@@ -360,27 +360,6 @@ export class QuizService implements OnDestroy {
   }
 
   // Method to find the index of a question
-  /* findQuestionIndex(question: QuizQuestion): number {
-    if (!this.selectedQuiz || !Array.isArray(this.selectedQuiz.questions)) {
-      console.error('Quiz data is not properly initialized or questions are not available.');
-      return -1; // Indicate failure to find the index
-    }
-
-    return this.selectedQuiz.questions.findIndex(q => q.explanation === question.explanation);
-  } */
-
-  /* findQuestionIndex(question: QuizQuestion): number {
-    if (!this.selectedQuiz || !Array.isArray(this.selectedQuiz.questions) || this.selectedQuiz.questions.length === 0) {
-      console.error('Quiz data is not properly initialized or questions are not available.');
-      return -1; // Indicate failure to find the index
-    }
-    
-    console.log('Finding question index for question:', question);
-    const index = this.selectedQuiz.questions.findIndex(q => q.explanation === question.explanation);
-    console.log('Found question index:', index);
-    return index;
-  } */
-
   findQuestionIndex(question: QuizQuestion): number {
     if (!this.selectedQuiz) {
       console.error('Quiz data is not properly initialized: selectedQuiz is null');
