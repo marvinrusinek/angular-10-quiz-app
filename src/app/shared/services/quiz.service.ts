@@ -2247,6 +2247,23 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  getAllQuestions(): Observable<QuizQuestion[]> {
+    if (this.questions$.getValue().length === 0) {
+      this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
+        tap((questions: QuizQuestion[]) => {
+          const processedQuestions = this.checkedShuffle ? this.shuffleQuestions([...questions]) : questions;
+          this.questions$.next(processedQuestions); // Update BehaviorSubject with new data
+        }),
+        catchError((error: Error) => {
+          console.error('Error fetching questions:', error);
+          return of([]);
+        }),
+        shareReplay({ bufferSize: 1, refCount: true }) // Ensure the latest fetched data is replayed to new subscribers
+      ).subscribe();  // Start the Observable chain
+    }
+    return this.questions$.asObservable();
+  }
+
   getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       map(questions => questions.filter(question => (question as any).quizId === quizId)),
@@ -2719,6 +2736,25 @@ export class QuizService implements OnDestroy {
         'Quiz is not initialized or currentQuestionIndex is out of bounds'
       );
       return false;
+    }
+  }
+
+  handleQuestionChange(
+    question: any,
+    selectedOptions: any[],
+    options: Option[]
+  ): void {
+    // Logic to update options based on the question
+    if (question) {
+      options = question.options; // Assuming 'options' is a mutable array reference passed from the component
+      // Reset state logic here, if it's generic enough to be shared
+    }
+
+    // Logic to mark options as selected based on selectedOptions array
+    if (selectedOptions) {
+      options?.forEach((option: Option) => {
+        option.selected = selectedOptions.includes(option.value);
+      });
     }
   }
 
