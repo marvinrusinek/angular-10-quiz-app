@@ -2914,6 +2914,36 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  incrementScore(
+    answers: number[],
+    correctAnswerFound: boolean,
+    isMultipleAnswer: boolean
+  ): void {
+    if (isMultipleAnswer) {
+      // For multiple-answer questions, ALL correct answers should be marked correct for the score to increase
+      if (
+        correctAnswerFound &&
+        answers.length === this.numberOfCorrectAnswers
+      ) {
+        this.updateCorrectCountForResults(this.correctCount + 1);
+      }
+    } else {
+      // For single-answer questions, a single correct answer should increase the score
+      if (correctAnswerFound) {
+        this.updateCorrectCountForResults(this.correctCount + 1);
+      }
+    }
+  }
+
+  private updateCorrectCountForResults(value: number): void {
+    this.correctCount = value;
+    this.sendCorrectCountToResults(this.correctCount);
+  }
+
+  sendCorrectCountToResults(value: number): void {
+    this.correctAnswersCountSubject.next(value);
+  }
+
   getShuffledQuestions(): QuizQuestion[] {
     return this.shuffledQuestions;
   }
