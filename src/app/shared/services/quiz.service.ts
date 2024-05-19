@@ -2320,6 +2320,97 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  getNextQuestion(
+    currentQuestionIndex: number
+  ): Promise<QuizQuestion | undefined> {
+    return new Promise((resolve) => {
+      const currentQuiz = this.getCurrentQuiz();
+
+      if (
+        currentQuiz &&
+        currentQuiz.questions &&
+        currentQuestionIndex >= 0 &&
+        currentQuestionIndex < currentQuiz.questions.length
+      ) {
+        const nextQuestion = currentQuiz.questions[currentQuestionIndex];
+        this.nextQuestionSource.next(nextQuestion);
+        this.nextQuestionSubject.next(nextQuestion);
+        this.setCurrentQuestionAndNext(nextQuestion, '');
+        resolve(nextQuestion);
+      } else {
+        this.nextQuestionSource.next(null);
+        this.nextQuestionSubject.next(null);
+        resolve(undefined);
+      }
+    });
+  }
+
+  getPreviousQuestion(
+    questionIndex: number
+  ): Promise<QuizQuestion | undefined> {
+    return new Promise((resolve) => {
+      const currentQuiz = this.getCurrentQuiz();
+      const previousIndex = questionIndex - 1;
+
+      if (
+        currentQuiz &&
+        currentQuiz.questions &&
+        previousIndex >= 0 &&
+        previousIndex < currentQuiz.questions.length
+      ) {
+        resolve(currentQuiz.questions[previousIndex]);
+      } else {
+        resolve(undefined);
+      }
+    });
+  }
+
+  getNextOptions(currentQuestionIndex: number): Option[] | undefined {
+    const currentQuiz = this.getCurrentQuiz();
+
+    if (
+      currentQuiz &&
+      currentQuiz.questions &&
+      currentQuestionIndex >= 0 &&
+      currentQuestionIndex < currentQuiz.questions.length
+    ) {
+      const currentOptions =
+        currentQuiz.questions[currentQuestionIndex].options;
+
+      // Broadcasting the current options
+      this.nextOptionsSource.next(currentOptions);
+      this.nextOptionsSubject.next(currentOptions);
+
+      return currentOptions;
+    }
+
+    // Broadcasting null when index is invalid
+    this.nextOptionsSource.next(null);
+    this.nextOptionsSubject.next(null);
+
+    return undefined;
+  }
+
+  async getPreviousOptions(
+    questionIndex: number
+  ): Promise<Option[] | undefined> {
+    try {
+      const previousQuestion = await this.getPreviousQuestion(questionIndex);
+      if (previousQuestion) {
+        console.log('Previous question retrieved:', previousQuestion);
+        return previousQuestion.options;
+      }
+      console.log('No previous question found.');
+      return [];
+    } catch (error) {
+      console.error(
+        'Error occurred while fetching options for the previous question:',
+        error
+      );
+      throw error;
+    }
+  }
+
   calculateCorrectAnswers(questions: QuizQuestion[]): Map<string, number[]> {
     const correctAnswers = new Map<string, number[]>();
     questions.forEach((question) => {
