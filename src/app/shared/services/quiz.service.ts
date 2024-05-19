@@ -2296,6 +2296,10 @@ export class QuizService implements OnDestroy {
     this.answerStatus.next(status);
   }
 
+  isAnswered(questionIndex: number): boolean {
+    return !!this.selectedOptions[questionIndex];
+  }
+
   getTotalQuestions(): Observable<number> {
     return this.getQuizData().pipe(
       map((data: any) => {
