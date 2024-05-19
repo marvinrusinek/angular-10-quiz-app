@@ -2026,6 +2026,10 @@ export class QuizService implements OnDestroy {
     this.questions$.next(quiz.questions);
   }
 
+  getActiveQuiz(): Quiz | null {
+    return this.activeQuiz;
+  }
+
   setSelectedQuiz(selectedQuiz: Quiz): void {
     this.selectedQuiz$.next(selectedQuiz);
     this.selectedQuiz = selectedQuiz;

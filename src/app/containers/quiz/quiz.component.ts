@@ -838,7 +838,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (question: QuizQuestion | null) => {
         if (question) {
-          this.currentQuiz = this.quizService.getActiveQuiz();
+          this.currentQuiz = this.quizService.getActiveQuiz(); 
           this.currentQuestion = question;
         } else {
           console.error('No question data available after fetch.');
