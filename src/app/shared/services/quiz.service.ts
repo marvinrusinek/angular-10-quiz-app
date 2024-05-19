@@ -1285,6 +1285,27 @@ export class QuizService implements OnDestroy {
     this.correctAnswersCountSubject.next(value);
   }
 
+  submitQuizScore(userAnswers: number[]): Observable<void> {
+    const correctAnswersMap: Map<string, number[]> =
+      this.calculateCorrectAnswers(this.questions);
+
+    let score = 0;
+    correctAnswersMap.forEach((answers, questionId) => {
+      if (answers.includes(userAnswers[parseInt(questionId)])) {
+        score += 1;
+      }
+    });
+
+    const quizScore: QuizScore = {
+      quizId: this.selectedQuiz.quizId,
+      attemptDateTime: new Date(),
+      score: score,
+      totalQuestions: this.questions.length,
+    };
+    this.quizScore = quizScore;
+    return this.http.post<void>(`${this.quizUrl}/quiz/scores`, quizScore);
+  }
+
   getShuffledQuestions(): QuizQuestion[] {
     return this.shuffledQuestions;
   }

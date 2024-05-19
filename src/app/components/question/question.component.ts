@@ -1427,7 +1427,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.submitQuizScore(this.answers).subscribe(() => {
       this.router.navigate(['quiz', 'result']);
     });
-  }
+  } 
 
   /* playSound(selectedOption: Option): void {
     if (!selectedOption) {
