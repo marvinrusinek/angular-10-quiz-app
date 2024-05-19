@@ -1064,34 +1064,38 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         })
       )
       .subscribe((data: QuizQuestion[]) => {
-        this.questionsArray = data;
-
-        if (!this.questionsArray || this.questionsArray.length === 0) {
-          console.warn('Questions array is not initialized or empty.');
-          return;
-        }
-
-        if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
-          console.error(`Invalid questionIndex: ${questionIndex}`);
-          return;
-        }
-
-        const questionState = this.quizStateService.getQuestionState(
-          this.quizId,
+        this.handleQuestionData(data, questionIndex);
+      });
+  }
+  
+  private handleQuestionData(data: QuizQuestion[], questionIndex: number): void {
+    this.questionsArray = data;
+  
+    if (!this.questionsArray || this.questionsArray.length === 0) {
+      console.warn('Questions array is not initialized or empty.');
+      return;
+    }
+  
+    if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
+      console.error(`Invalid questionIndex: ${questionIndex}`);
+      return;
+    }
+  
+    const questionState = this.quizStateService.getQuestionState(
+      this.quizId,
+      questionIndex
+    );
+    // console.log('Question State:', questionState);
+    if (questionState && questionState.isAnswered) {
+      const explanationText =
+        this.explanationTextService.getFormattedExplanationTextForQuestion(
           questionIndex
         );
-        // console.log('Question State:', questionState);
-        if (questionState && questionState.isAnswered) {
-          const explanationText =
-            this.explanationTextService.getFormattedExplanationTextForQuestion(
-              questionIndex
-            );
-          this.explanationTextService.setExplanationText(explanationText);
-          this.explanationTextService.setShouldDisplayExplanation(true);
-        } else {
-          console.log(`Conditions for showing explanation not met.`);
-        }
-      });
+      this.explanationTextService.setExplanationText(explanationText);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+    } else {
+      console.log(`Conditions for showing explanation not met.`);
+    }
   }
 
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
