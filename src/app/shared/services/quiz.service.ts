@@ -2703,6 +2703,25 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  validateAndSetCurrentQuestion(
+    quiz: Quiz,
+    currentQuestionIndex: number
+  ): boolean {
+    if (
+      quiz &&
+      currentQuestionIndex >= 0 &&
+      currentQuestionIndex < quiz.questions.length
+    ) {
+      this.currentQuestion.next(quiz.questions[currentQuestionIndex]);
+      return true;
+    } else {
+      console.error(
+        'Quiz is not initialized or currentQuestionIndex is out of bounds'
+      );
+      return false;
+    }
+  }
+
   validateAnswers(currentQuestionValue: QuizQuestion, answers: any[]): boolean {
     if (!currentQuestionValue || !answers || answers.length === 0) {
       console.error('Question or Answers is not defined');
