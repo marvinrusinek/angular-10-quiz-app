@@ -177,6 +177,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Resolve quiz data from the route and subscribe to updates
     this.resolveQuizData();
 
+    this.notifyOnNavigationEnd();
+
     // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
