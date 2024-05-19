@@ -167,37 +167,47 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.questions = this.quizService.getShuffledQuestions();
-    // this.updateQuestionDisplayForShuffledQuestions();
-    console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
+    // Shuffle and initialize questions
+    this.initializeQuestions();
 
     // Initialize route parameters and subscribe to updates
+    this.initializeRouteParameters();
+
+    // Resolve and fetch quiz data
+    this.initializeQuizData();
+
+    // Fetch and display the current question
+    this.initializeCurrentQuestion();
+  }
+
+  // Grouping related tasks into separate functions for clarity
+  private initializeQuestions(): void {
+    this.questions = this.quizService.getShuffledQuestions();
+    console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
+  }
+
+  private initializeRouteParameters(): void {
     this.fetchRouteParams();
-    
-    // Resolve quiz data from the route and subscribe to updates
-    this.resolveQuizData();
-
-    // Need for updating the selection message
-    this.notifyOnNavigationEnd(); 
-
-    // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
+  }
 
-    // Fetch additional quiz data
+  private initializeQuizData(): void {
+    this.resolveQuizData();
     this.fetchQuizData();
-
-    // Initialize quiz-related properties
     this.initializeQuiz();
     this.initializeQuizFromRoute();
     this.retrieveTotalQuestionsCount();
+  }
 
-    // Fetch and display the current question
+  private initializeCurrentQuestion(): void {
     this.initializeQuestionStreams();
     this.loadQuizQuestionsForCurrentQuiz();
     this.createQuestionData();
     this.getQuestion();
     this.subscribeToCurrentQuestion();
+  }
+
 
     /* this.quizService.questionDataSubject.subscribe(
       (shuffledQuestions) => {
@@ -252,11 +262,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Audio element not found in the template.');
     } */
 
-    var audio = new Audio();
+    /* var audio = new Audio();
     audio.src = "http://www.marvinrusinek.com/sound-correct.mp3";
     audio.load();
-    audio.play();
-  }
+    audio.play(); */
+  
 
   async loadQuizData(): Promise<void> {
     try {
