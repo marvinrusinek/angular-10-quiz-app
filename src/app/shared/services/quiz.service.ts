@@ -2304,6 +2304,21 @@ export class QuizService implements OnDestroy {
     return null;
   }
 
+  // Sets the current question and the next question along with an explanation text.
+  setCurrentQuestionAndNext(
+    nextQuestion: QuizQuestion | null,
+    explanationText: string
+  ): void {
+    // Set the next question
+    this.nextQuestionSource.next(nextQuestion);
+
+    // Set the current question (effectively the next question)
+    this.currentQuestionSource.next(nextQuestion);
+
+    // Set the explanation text for the next question
+    this.nextExplanationTextSource.next(explanationText);
+  }
+
   setCurrentQuestion(index: number): void {
     if (!this.selectedQuiz || !Array.isArray(this.selectedQuiz.questions)) {
       console.error('Quiz data is not properly initialized.');
