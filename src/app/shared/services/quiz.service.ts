@@ -2680,6 +2680,25 @@ export class QuizService implements OnDestroy {
     return this.shuffledQuestions;
   }
 
+  isValidQuestionIndex(index: number, data: Quiz | QuizQuestion[]): boolean {
+    if (!data) {
+      console.error('Data is not provided');
+      return false;
+    }
+
+    // Check if data is a Quiz object with a questions array
+    if (typeof data === 'object' && data !== null && 'questions' in data && Array.isArray(data.questions)) {
+      return index >= 0 && index < data.questions.length;
+    }
+    // Check if data is directly an array of QuizQuestion
+    else if (Array.isArray(data)) {
+      return index >= 0 && index < data.length;
+    } else {
+      console.error('Unexpected data structure:', data);
+      return false;
+    }
+  }
+
   resetQuestions(): void {
     let currentQuizData = this.quizInitialState.find(
       (quiz) => quiz.quizId === this.quizId

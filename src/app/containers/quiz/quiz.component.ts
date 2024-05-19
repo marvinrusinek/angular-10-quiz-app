@@ -1008,7 +1008,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (!this.quizService.isValidQuestionIndex(questionIndex, selectedQuiz.questions)) {
       console.error(`Invalid question index: ${questionIndex} for Quiz ID ${this.quizId}`);
       return;
-    }
+    } 
 
     const currentQuestion = selectedQuiz.questions[questionIndex];
 
