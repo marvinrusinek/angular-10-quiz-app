@@ -1290,6 +1290,16 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  public isValidQuizQuestion(question: any): boolean {
+    const valid = typeof question === 'object' && question !== null &&
+                  'questionText' in question && 'options' in question &&
+                  Array.isArray(question.options);
+    if (!valid) {
+      console.warn('Question failed validation:', question);
+    }
+    return valid;
+  }
+
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return isEqual(question1, question2);
   }
