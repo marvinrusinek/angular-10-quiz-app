@@ -2686,6 +2686,10 @@ export class QuizService implements OnDestroy {
     return quizSelectionParams;
   }
 
+  shouldExplanationBeDisplayed(): boolean {
+    return this.shouldDisplayExplanation;
+  }
+
   saveHighScores(): void {
     this.quizScore = {
       quizId: this.quizId,

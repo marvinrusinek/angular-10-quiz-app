@@ -1439,7 +1439,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   shouldDisplayExplanation(): boolean {
-    return this.quizService.shouldExplanationBeDisplayed();
+    return this.quizService.shouldExplanationBeDisplayed(); 
   }
 
   /************** template logic functions ******************/
