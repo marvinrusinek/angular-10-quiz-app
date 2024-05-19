@@ -1107,6 +1107,24 @@ export class QuizService implements OnDestroy {
     return this.isNavigatingToPrevious.asObservable();
   }
 
+  // see where I can use this...
+  findCurrentMultipleAnswerQuestionIndex(): number {
+    if (!this.questions || this.questions.length === 0) {
+      console.error('No questions available');
+      return -1;
+    }
+
+    const currentQuestion = this.questions[this.currentQuestionIndex];
+    if (
+      currentQuestion &&
+      currentQuestion.type === QuestionType.MultipleAnswer
+    ) {
+      return this.currentQuestionIndex;
+    }
+
+    return -1;
+  }
+
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
 
@@ -1154,6 +1172,21 @@ export class QuizService implements OnDestroy {
     } catch (error) {
       console.error('Error determining the correct answer:', error);
       return false;
+    }
+  }
+
+  async fetchAndFindQuiz(quizId: string): Promise<Quiz | null> {
+    try {
+      const quizzes = await firstValueFrom(this.getQuizData());
+      if (quizzes && quizzes.length > 0) {
+        return quizzes.find((quiz) => quiz.quizId === quizId) || null;
+      } else {
+        console.error('No quizzes available');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching quizzes: ', error);
+      return null;
     }
   }
 
