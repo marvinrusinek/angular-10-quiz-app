@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+/* import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, combineLatest, firstValueFrom, from,
@@ -1181,14 +1181,14 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /* getCorrectAnswers(question: QuizQuestion): number[] {
-    if (question && question.options) {
-      return question.options
-        .map((option, index) => (option.correct ? index : null))
-        .filter((index, i, arr) => index !== null && arr.indexOf(index) === i);
-    }
-    return [];
-  } */
+  //getCorrectAnswers(question: QuizQuestion): number[] {
+  // if (question && question.options) {
+  //    return question.options
+  //      .map((option, index) => (option.correct ? index : null))
+  //      .filter((index, i, arr) => index !== null && arr.indexOf(index) === i);
+  //  }
+  //  return [];
+  //}
 
   getCorrectAnswers(question: QuizQuestion): number[] {
     if (!question) {
@@ -1265,7 +1265,7 @@ export class QuizService implements OnDestroy {
     return quizSelectionParams;
   }
 
-  /********* setter functions ***********/
+  // setter functions
   public setQuestionData(data: any): void {
     this.questionDataSubject.next(data);
   }
@@ -1684,7 +1684,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /********* navigation functions ***********/
+  // navigation functions
   navigateToResults() {
     this.quizCompleted = true;
     this.router.navigate([QuizRoutes.RESULTS, this.quizId]);
@@ -1698,7 +1698,7 @@ export class QuizService implements OnDestroy {
     return this.isNavigatingToPrevious.asObservable();
   }
 
-  /********* reset functions ***********/
+  // reset functions
   resetQuestions(): void {
     let currentQuizData = this.quizInitialState.find(
       (quiz) => quiz.quizId === this.quizId
@@ -1726,7 +1726,709 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndex = 0;
   }
 
-  /********* sound functions ***********/
+  // sound functions
+  // initializeSounds(): void {
+  //  if (!this.soundsLoaded) {
+  //    // URLs are directly accessible, ensure that you manually check these URLs in a web browser.
+  //    const baseHostedUrl = 'https://angular-10-quiz-app.stackblitz.io/assets/audio/';
+  //    console.log('Attempting to load correct sound from:', `${baseHostedUrl}sound-correct.mp3`);
+  //    console.log('Attempting to load incorrect sound from:', `${baseHostedUrl}sound-incorrect.mp3`);
+
+  //    this.correctSound = this.loadSound(
+  //      `${baseHostedUrl}sound-correct.mp3`, // Use the full URL confirmed to be accessible in a browser
+  //      'Correct'
+  //    );
+  //    this.incorrectSound = this.loadSound(
+  //      `${baseHostedUrl}sound-incorrect.mp3`, // Use the full URL confirmed to be accessible in a browser
+        'Incorrect'
+  //    );
+  //    this.soundsLoaded = true;
+  //  }
+  //}
+
+  // loadSound(url: string, soundName: string): Howl {
+  //  return new Howl({
+  //    src: [url],
+  //    html5: true, // Continue using HTML5 audio for compatibility
+  //    preload: 'auto', // Preload the sound
+  //    onload: () => console.log(`${soundName} sound successfully loaded from ${url}`),
+  //    onloaderror: (id, error) => {
+  //      console.error(`${soundName} failed to load from ${url}`, error);
+  //      console.error('Action required: Verify the file is present at the URL. Confirm that StackBlitz or your hosting environment supports serving .mp3 files with the correct MIME type. Additionally, check if there are any network or security settings that may be preventing the files from loading.');
+  //    },
+  //    onplayerror: (id, error) => {
+  //      console.error(`${soundName} playback error from ${url}`, error);
+  //      console.error('Possible playback issue, consider checking file encoding or consulting StackBlitz support/documentation for media file hosting limitations.');
+  //    }
+  //  });
+  //}
+
+  // Call this method to play the incorrect sound
+  //playIncorrectSound(): void {
+  //  if (this.incorrectSound) {
+  //      this.incorrectSound.play();
+  //  } else {
+  //    console.error('Incorrect sound not initialized');
+  //  }
+  //}
+
+
+
+  // Add this method to your QuizService or component
+  // playSoundOnOptionClick(isCorrect: boolean): void {
+  //  this.initializeSounds(); // Make sure sounds are loaded
+  //  const sound = isCorrect ? this.correctSound : this.incorrectSound;
+  //  if (sound) {
+  //    sound.play();
+  //  } else {
+  //    console.error(
+  //      'Sound not initialized:',
+  //      isCorrect ? 'Correct' : 'Incorrect'
+  //    );
+  //  }
+  //
+} */
+
+import { Injectable, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, combineLatest, firstValueFrom, from,
+  Observable, of, Subject, throwError } from 'rxjs';
+import { catchError, distinctUntilChanged, finalize, map,
+  shareReplay, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Howl } from 'howler';
+import _, { isEqual } from 'lodash';
+
+import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
+import { Utils } from '../../shared/utils/utils';
+import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
+import { QuestionType } from '../../shared/models/question-type.enum';
+import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
+import { Option } from '../../shared/models/Option.model';
+import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizData } from '../../shared/models/QuizData.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+import { QuizResource } from '../../shared/models/QuizResource.model';
+import { QuizScore } from '../../shared/models/QuizScore.model';
+import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
+import { Resource } from '../../shared/models/Resource.model';
+
+import { ExplanationTextService } from '../../shared/services/explanation-text.service';
+
+@Injectable({ providedIn: 'root' })
+export class QuizService implements OnDestroy {
+  currentQuestionIndex = -1;
+  activeQuiz: Quiz;
+  quiz: Quiz = QUIZ_DATA[this.currentQuestionIndex];
+  quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
+  private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
+  quizData: Quiz[] = this.quizInitialState;
+  private _quizData$ = new BehaviorSubject<Quiz[]>([]);
+  data: {
+    questionText: string;
+    correctAnswersText?: string;
+    currentOptions: Option[];
+  } = {
+    questionText: '',
+    correctAnswersText: '',
+    currentOptions: []
+  };
+  quizzes: Quiz[] = [];
+  quizResources: QuizResource[];
+  question: QuizQuestion;
+  questions: QuizQuestion[];
+  questions$ = new BehaviorSubject<QuizQuestion[]>([]);
+  nextQuestion: QuizQuestion;
+  isOptionSelected = false;
+  isNavigating = false;
+
+  private answerStatus = new BehaviorSubject<boolean>(false);
+  answerStatus$ = this.answerStatus.asObservable();
+
+  currentQuestionIndexSource = new BehaviorSubject<number>(0);
+  currentQuestionIndex$ = this.currentQuestionIndexSource.asObservable();
+
+  currentOptions: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
+  selectedOptions: Option[] = [];
+  resources: Resource[];
+  quizId = '';
+  answers: number[] = [];
+  totalQuestions = 0;
+  correctCount: number;
+
+  selectedQuiz: Quiz;
+  selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
+  selectedQuizId: string | undefined;
+  indexOfQuizId: number | null = null;
+  startedQuizId: string;
+  continueQuizId: string;
+  completedQuizId: string;
+  quizStarted: boolean;
+  quizCompleted: boolean;
+  status: string;
+
+  correctAnswers: Map<string, number[]> = new Map<string, number[]>();
+  private correctAnswersForEachQuestion: {
+    questionId: string;
+    answers: number[];
+  }[] = [];
+  correctAnswerOptions: Option[] = [];
+  correctMessage$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  numberOfCorrectAnswers: number;
+  correctAnswersCountSubject = new BehaviorSubject<number>(0);
+  currentQuestionIndexSubject = new BehaviorSubject<number>(0);
+  multipleAnswer = false;
+
+  private currentQuestionSource: Subject<QuizQuestion | null> =
+    new Subject<QuizQuestion | null>();
+  currentQuestion: BehaviorSubject<QuizQuestion | null> =
+    new BehaviorSubject<QuizQuestion | null>(null);
+  private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> =
+    new BehaviorSubject<QuizQuestion | null>(null);
+  public currentQuestion$: Observable<QuizQuestion | null> =
+    this.currentQuestionSubject.asObservable();
+
+  currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
+  private currentOptionsSource = new BehaviorSubject<Option[]>([]);
+  currentOptions$: Observable<Option[]> = this.currentOptionsSubject.asObservable();
+
+  totalQuestionsSubject = new BehaviorSubject<number>(0);
+  totalQuestions$ = this.totalQuestionsSubject.asObservable();
+
+  private questionDataSubject = new BehaviorSubject<any>(null);
+  questionData$ = this.questionDataSubject.asObservable();
+
+  explanationText: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  displayExplanation = false;
+  shouldDisplayExplanation = false;
+
+  currentAnswer = '';
+  nextQuestionText = '';
+
+  correctMessage: string;
+  correctOptions: string[] = [];
+  selectedOption$ = new BehaviorSubject<string>(null);
+
+  userAnswers = [];
+  previousAnswers = [];
+
+  private checkedShuffle = new BehaviorSubject<boolean>(false);
+  checkedShuffle$ = this.checkedShuffle.asObservable();
+  private shuffledQuestions: QuizQuestion[] = [];
+
+  private optionsSource: Subject<Option[]> = new Subject<Option[]>();
+  optionsSubject: BehaviorSubject<Option[] | null> = new BehaviorSubject<Option[] | null>(null);
+  options$: Observable<Option[]> = this.optionsSource.asObservable();
+
+  nextQuestionSource = new BehaviorSubject<QuizQuestion | null>(null);
+  private nextQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
+  nextQuestion$ = this.nextQuestionSubject.asObservable();
+
+  previousQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
+  previousQuestion$ = this.previousQuestionSubject.asObservable();
+
+  previousOptionsSubject = new BehaviorSubject<Option[]>([]);
+  previousOptions$ = this.previousOptionsSubject.asObservable();
+
+  private isNavigatingToPrevious = new BehaviorSubject<boolean>(false);
+
+  private correctAnswersSubject: BehaviorSubject<Map<string, number[]>> = new BehaviorSubject<Map<string, number[]>>(new Map());
+  correctAnswers$: Observable<Map<string, number[]>> = this.correctAnswersSubject.asObservable();
+
+  correctAnswersLoadedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public correctAnswersLoaded$: Observable<boolean> = this.correctAnswersLoadedSubject.asObservable();
+
+  private badgeTextSource = new BehaviorSubject<string>('');
+  badgeText = this.badgeTextSource.asObservable();
+
+  private questionTextSource = new BehaviorSubject<string>('');
+  questionText = this.questionTextSource.asObservable();
+  private correctAnswersCountTextSource = new BehaviorSubject<string>('Select answers');
+  correctAnswersCountText$ = this.correctAnswersCountTextSource.asObservable();
+
+  private nextExplanationTextSource = new BehaviorSubject<string>('');
+  nextExplanationText$ = this.nextExplanationTextSource.asObservable();
+
+  answersSubject = new BehaviorSubject<number[]>([0, 0, 0, 0]);
+  answers$ = this.answersSubject.asObservable();
+
+  private quizResetSource = new Subject<void>();
+  quizReset$ = this.quizResetSource.asObservable();
+
+  loadingQuestions = false;
+  lock = false;
+  questionsLoaded = false;
+  questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
+
+  score = 0;
+  currentScore$: Observable<number>;
+  quizScore: QuizScore;
+  highScores: QuizScore[];
+  highScoresLocal = JSON.parse(localStorage.getItem('highScoresLocal')) || [];
+
+  combinedQuestionDataSubject = new BehaviorSubject<CombinedQuestionDataType | null>(null);
+  combinedQuestionData$: Observable<CombinedQuestionDataType> = this.combinedQuestionDataSubject.asObservable();
+
+  destroy$ = new Subject<void>();
+  private quizUrl = 'assets/data/quiz.json';
+
+  correctSound: Howl | undefined;
+  incorrectSound: Howl | undefined;
+  private sound: Howl | undefined;
+  private soundsLoaded = false;
+
+  constructor(
+    private explanationTextService: ExplanationTextService,
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
+    private http: HttpClient
+  ) {
+    this.initializeData();
+    this.loadData();
+
+    const initialText = localStorage.getItem('correctAnswersText') || 'Please select an answer';
+    this.correctAnswersCountTextSource.next(initialText);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  get quizData$(): Observable<Quiz[]> {
+    return this._quizData$.asObservable();
+  }
+
+  initializeData(): void {
+    this.quizData = QUIZ_DATA || [];
+    if (QUIZ_DATA) {
+      this.quizInitialState = _.cloneDeep(QUIZ_DATA);
+    } else {
+      console.log('QUIZ_DATA is undefined or null');
+    }
+
+    this.quizResources = QUIZ_RESOURCES || [];
+
+    this.currentQuestion$ = this.currentQuestionSource.asObservable();
+  }
+
+  getQuizData(): Observable<Quiz[]> {
+    return this.http.get<Quiz[]>(this.quizUrl).pipe(
+      catchError((error) => {
+        console.error('Error fetching quiz data:', error);
+        return throwError(() => new Error('Error fetching quiz data'));
+      })
+    );
+  }
+
+  setActiveQuiz(quiz: Quiz): void {
+    this.activeQuiz = quiz;
+    this.questions$.next(quiz.questions);
+  }
+
+  setSelectedQuiz(selectedQuiz: Quiz): void {
+    this.selectedQuiz$.next(selectedQuiz);
+    this.selectedQuiz = selectedQuiz;
+  }
+
+  setQuizData(quizData: Quiz[]): void {
+    this.quizData = quizData;
+  }
+
+  setQuizId(id: string): void {
+    this.quizId = id;
+  }
+
+  getQuestions(index: number) {
+    console.log("Accessing questions at index:", index);
+    if (this.questions && index >= 0 && index < this.questions.length) {
+      return this.questions[index];
+    } else {
+      console.error('Invalid index or questions not initialized:', index);
+      return null;
+    }
+  }
+
+  private loadData(): void {
+    this.initializeQuizData();
+    this.loadRouteParams();
+  }
+
+  private initializeQuizData(): void {
+    this.getQuizData()
+      .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: Quiz[]) => {
+          this._quizData$.next(data);
+        },
+        error: (err) => {
+          console.error('Error fetching quiz data:', err);
+        },
+      });
+  }
+
+  private loadRouteParams(): void {
+    this.activatedRoute.paramMap
+      .pipe(
+        map((params) => params.get('quizId')),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (quizId: string | null) => {
+          this.quizId = quizId;
+          if (quizId === null) {
+            // console.error("Quiz ID is missing or invalid. Please select a quiz.");
+          } else {
+            this.processQuizId();
+          }
+        },
+        error: (err) => {
+          console.error('Error with route parameters:', err);
+        },
+      });
+  }
+
+  private processQuizId(): void {
+    this.indexOfQuizId = this.quizData.findIndex(
+      (elem) => elem.quizId === this.quizId
+    );
+
+    if (this.indexOfQuizId === -1) {
+      console.error('Quiz ID not found in quiz data');
+      // Handle the scenario where the quiz ID is not found
+    } else {
+      this.returnQuizSelectionParams();
+    }
+  }
+
+  getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
+    return this.questions$.pipe(
+      map((questions: QuizQuestion[]) => {
+        if (!questions || index < 0 || index >= questions.length) {
+          console.log(`Index ${index} is out of bounds, or questions are undefined`);
+          return null;
+        }
+        return questions[index];
+      }),
+      catchError((error: Error) => {
+        console.error('Error fetching question:', error);
+        return of(null);
+      })
+    );
+  }
+
+  getCurrentQuestionByIndex(quizId: string, questionIndex: number): Observable<QuizQuestion | null> {
+    return this.getQuizData().pipe(
+      map(quizzes => {
+        const selectedQuiz = quizzes.find(quiz => quiz.quizId === quizId);
+        if (!selectedQuiz) {
+          console.error(`No quiz found with ID: ${quizId}`);
+          throw new Error(`No quiz found with the given ID: ${quizId}`);
+        }
+        if (!selectedQuiz.questions || selectedQuiz.questions.length <= questionIndex) {
+          console.error(`No questions available or index out of bounds for quiz ID: ${quizId}`);
+          throw new Error(`No questions available or index out of bounds for quiz ID: ${quizId}`);
+        }
+        return selectedQuiz.questions[questionIndex];
+      }),
+      catchError(error => {
+        console.error('Error fetching specific question:', error);
+        return of(null);
+      })
+    );
+  }
+
+  async fetchQuizQuestions(): Promise<QuizQuestion[]> {
+    try {
+      const quizId = this.quizId;
+      const questionObjects: any[] = await this.fetchAndSetQuestions(quizId);
+      const questions: QuizQuestion[] = questionObjects[0].questions;
+
+      if (!questions || questions.length === 0) {
+        console.error('No questions found');
+        return [];
+      }
+
+      // Calculate correct answers
+      const correctAnswers = this.calculateCorrectAnswers(questions);
+      this.correctAnswersSubject.next(correctAnswers);
+
+      // Initialize combined question data
+      await this.initializeCombinedQuestionData();
+
+      // Set correct answers for questions
+      this.setCorrectAnswersForQuestions(questions, correctAnswers);
+
+      this.correctAnswersLoadedSubject.next(true);
+
+      return questions;
+    } catch (error) {
+      console.error('Error fetching quiz questions:', error);
+      return [];
+    }
+  }
+
+  async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
+    try {
+      const questionsData = await firstValueFrom(
+        this.getQuestionsForQuiz(quizId)
+      );
+      this.questions = questionsData.questions;
+      return questionsData.questions;
+    } catch (error) {
+      console.error('Error fetching questions for quiz:', error);
+      return [];
+    }
+  }
+
+  getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
+    return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
+      map(questions => questions.filter(question => (question as any).quizId === quizId)),
+      tap(filteredQuestions => {
+        if (this.checkedShuffle.value) {
+          Utils.shuffleArray(filteredQuestions);  // Shuffle questions
+          filteredQuestions.forEach(question => {
+            if (question.options) {
+              Utils.shuffleArray(question.options);  // Shuffle options within each question
+            }
+          });
+        }
+      }),
+      map(filteredQuestions => ({ quizId, questions: filteredQuestions })),
+      catchError(error => {
+        console.error('An error occurred while loading questions:', error);
+        return throwError(() => new Error('Failed to load questions'));
+      }),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    );
+  }
+
+  calculateCorrectAnswers(questions: QuizQuestion[]): Map<string, number[]> {
+    const correctAnswers = new Map<string, number[]>();
+    questions.forEach((question) => {
+      if (question?.options) {
+        const correctOptionNumbers = question.options
+          .filter((option) => option?.correct)
+          .map((option) => option?.optionId);
+        correctAnswers.set(question.questionText, correctOptionNumbers);
+      } else {
+        console.log('Options are undefined for question:', question);
+      }
+    });
+    return correctAnswers;
+  }
+
+  setCorrectAnswersForQuestions(
+    questions: QuizQuestion[],
+    correctAnswers: Map<string, number[]>
+  ): void {
+    questions.forEach((question) => {
+      const currentCorrectAnswers = correctAnswers.get(question.questionText);
+      if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
+        this.setCorrectAnswers(question, this.data.currentOptions);
+      }
+    });
+  }
+
+  updateCombinedQuestionData(newData: CombinedQuestionDataType): void {
+    this.combinedQuestionDataSubject.next(newData);
+  }
+
+  setCorrectMessage(
+    correctAnswerOptions: Option[],
+    currentOptions: Option[]
+  ): string {
+    console.log('Correct Answer Options:::>>>', correctAnswerOptions);
+    if (!Array.isArray(correctAnswerOptions)) {
+      console.error('correctAnswerOptions is not an array');
+      return;
+    }
+
+    if (!correctAnswerOptions || correctAnswerOptions.length === 0) {
+      return 'The correct answers are not available yet.';
+    }
+
+    const correctOptionIds = correctAnswerOptions
+      .filter((option) => option.correct)
+      .map((option) => option.optionId);
+
+    if (correctOptionIds.length === 0) {
+      return 'The correct answers are not available yet.';
+    }
+
+    const correctOptionTexts = currentOptions
+      .filter((option) => correctOptionIds.includes(option.optionId))
+      .map((option) => option.text);
+
+    const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
+    const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
+    return `The correct answer${
+      optionsText === 'Option' ? '' : 's'
+    } ${areIsText} ${correctOptionTexts.join(' and ')}.`;
+  }
+
+  updateBadgeText(questionNumber: number, totalQuestions: number): void {
+    if (questionNumber > 0 && questionNumber <= totalQuestions) {
+      const badgeText = `Question ${questionNumber} of ${totalQuestions}`;
+      this.badgeTextSource.next(badgeText);
+    }
+  }
+
+  updateQuestionText(newQuestionText: string) {
+    this.questionTextSource.next(newQuestionText);
+  }
+
+  updateCorrectAnswersText(newText: string): void {
+    localStorage.setItem('correctAnswersText', newText);
+    this.correctAnswersCountTextSource.next(newText);
+  }
+
+  setAnswers(answers: number[]): void {
+    this.answersSubject.next(answers);
+  }
+
+  setAnswerStatus(status: boolean): void {
+    this.answerStatus.next(status);
+  }
+
+  getTotalQuestions(): Observable<number> {
+    return this.getQuizData().pipe(
+      map((data: any) => {
+        const quiz = data.find((q) => q.quizId === this.quizId);
+        const quizLength = quiz?.questions?.length;
+        this.totalQuestionsSubject.next(quizLength);
+        return quizLength || 0;
+      })
+    );
+  }
+
+  setTotalQuestions(totalQuestions: number): void {
+    if (this.questions) {
+      this.totalQuestionsSubject.next(totalQuestions);
+    }
+  }
+
+  setCorrectAnswers(
+    question: QuizQuestion,
+    options: Option[]
+  ): Observable<void> {
+    return new Observable((observer) => {
+      const correctOptionNumbers = options
+        .filter((option) => option.correct)
+        .map((option) => option.optionId);
+
+      if (correctOptionNumbers.length > 0) {
+        this.correctAnswers.set(question.questionText, correctOptionNumbers);
+        this.correctAnswersSubject.next(this.correctAnswers); // Emit the updated correct answers
+
+        // Emit the correct answers loaded status
+        this.correctAnswersLoadedSubject.next(true);
+
+        observer.next(); // Emit a completion signal
+        observer.complete();
+      } else {
+        observer.error('No correct options found.');
+      }
+    });
+  }
+
+  returnQuizSelectionParams(): QuizSelectionParams {
+    const quizSelectionParams = {
+      startedQuizId: this.startedQuizId,
+      continueQuizId: this.continueQuizId,
+      completedQuizId: this.completedQuizId,
+      quizCompleted: this.quizCompleted,
+      status: this.status
+    };
+    return quizSelectionParams;
+  }
+
+  saveHighScores(): void {
+    this.quizScore = {
+      quizId: this.quizId,
+      attemptDateTime: new Date(),
+      score: this.calculatePercentageOfCorrectlyAnsweredQuestions(),
+      totalQuestions: this.totalQuestions,
+    };
+
+    const MAX_HIGH_SCORES = 10; // show results of the last 10 quizzes
+    this.highScoresLocal = this.highScoresLocal ?? [];
+    this.highScoresLocal.push(this.quizScore);
+    this.highScoresLocal.sort((a, b) => b.attemptDateTime - a.attemptDateTime);
+    this.highScoresLocal.reverse(); // show high scores from most recent to latest
+    this.highScoresLocal.splice(MAX_HIGH_SCORES);
+    localStorage.setItem(
+      'highScoresLocal',
+      JSON.stringify(this.highScoresLocal)
+    );
+    this.highScores = this.highScoresLocal;
+  }
+
+  calculatePercentageOfCorrectlyAnsweredQuestions(): number {
+    const correctAnswers = this.correctAnswersCountSubject.getValue();
+    const totalQuestions = this.totalQuestions;
+
+    if (totalQuestions === 0) {
+      return 0; // Handle division by zero
+    }
+
+    return Math.round((correctAnswers / totalQuestions) * 100);
+  }
+
+  shuffleQuestions(questions: QuizQuestion[]): QuizQuestion[] {
+    if (this.checkedShuffle && questions && questions.length > 0) {
+      const shuffledQuestions = Utils.shuffleArray([...questions]);  // Shuffle a copy to maintain immutability
+      this.questionDataSubject.next(shuffledQuestions);  // Emit the shuffled questions
+      return shuffledQuestions;
+    } else {
+      console.log('Skipping shuffle or no questions available.');
+      return questions;
+    }
+  }
+
+  shuffleAnswers(answers: Option[]): Option[] {
+    if (this.checkedShuffle && answers && answers.length > 0) {
+      return Utils.shuffleArray(answers);
+    } else {
+      console.log('Skipping shuffle or no answers available.');
+    }
+    return answers;
+  }
+
+  navigateToResults() {
+    this.quizCompleted = true;
+    this.router.navigate([QuizRoutes.RESULTS, this.quizId]);
+  }
+
+  resetQuestions(): void {
+    let currentQuizData = this.quizInitialState.find(
+      (quiz) => quiz.quizId === this.quizId
+    );
+    if (currentQuizData) {
+      this.quizData = _.cloneDeep([currentQuizData]);
+      this.questions = currentQuizData.questions;
+    } else {
+      this.quizData = null;
+      this.questions = [];
+    }
+  }
+
+  resetUserSelection(): void {
+    this.selectedOption$.next('');
+  }
+
+  resetAll(): void {
+    this.quizResetSource.next();
+    this.answers = null;
+    this.correctAnswersForEachQuestion = [];
+    this.correctAnswerOptions = [];
+    this.correctOptions = [];
+    this.correctMessage = '';
+    this.currentQuestionIndex = 0;
+  }
+
+  /* Audio functions to be retained */
   /* initializeSounds(): void {
     if (!this.soundsLoaded) {
       // URLs are directly accessible, ensure that you manually check these URLs in a web browser.
@@ -1744,9 +2446,9 @@ export class QuizService implements OnDestroy {
       );
       this.soundsLoaded = true;
     }
-  } */
+  }
 
-  /* loadSound(url: string, soundName: string): Howl {
+  loadSound(url: string, soundName: string): Howl {
     return new Howl({
       src: [url],
       html5: true, // Continue using HTML5 audio for compatibility
@@ -1761,9 +2463,8 @@ export class QuizService implements OnDestroy {
         console.error('Possible playback issue, consider checking file encoding or consulting StackBlitz support/documentation for media file hosting limitations.');
       }
     });
-  } */
+  }
 
-  // Call this method to play the incorrect sound
   playIncorrectSound(): void {
     if (this.incorrectSound) {
       this.incorrectSound.play();
@@ -1772,19 +2473,14 @@ export class QuizService implements OnDestroy {
     }
   }
 
-
-
-  // Add this method to your QuizService or component
-  /* playSoundOnOptionClick(isCorrect: boolean): void {
+  playSoundOnOptionClick(isCorrect: boolean): void {
     this.initializeSounds(); // Make sure sounds are loaded
     const sound = isCorrect ? this.correctSound : this.incorrectSound;
     if (sound) {
       sound.play();
     } else {
-      console.error(
-        'Sound not initialized:',
-        isCorrect ? 'Correct' : 'Incorrect'
-      );
+      console.error('Sound not initialized:', isCorrect ? 'Correct' : 'Incorrect');
     }
   } */
 }
+
