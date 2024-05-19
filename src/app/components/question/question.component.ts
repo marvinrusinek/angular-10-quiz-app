@@ -1185,7 +1185,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.quizId,
       this.currentQuestionIndex,
       option.optionId
-    );
+    ); 
 
     const explanationText =
       this.explanationTextService.getFormattedExplanationTextForQuestion(

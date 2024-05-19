@@ -1056,6 +1056,34 @@ export class QuizService implements OnDestroy {
     this.selectedOptions.push(option);
   }
 
+  updateSelectedOptions(
+    quizId: string,
+    questionIndex: number,
+    selectedOptionId: number
+  ): void {
+    const quiz = this.quizData.find((q) => q.quizId.trim() === quizId.trim());
+    if (!quiz) {
+      console.error('Quiz data is not initialized.');
+      return;
+    }
+
+    const question = quiz.questions[questionIndex];
+    if (question) {
+      // Find the Option object that matches the selectedOptionId
+      const selectedOption = question.options.find(
+        (option) => option.optionId === selectedOptionId
+      );
+
+      if (selectedOption) {
+        question.selectedOptions = [selectedOption];
+      } else {
+        console.error(
+          'Selected option ID does not match any option in the question.'
+        );
+      }
+    }
+  }
+
   returnQuizSelectionParams(): QuizSelectionParams {
     const quizSelectionParams = {
       startedQuizId: this.startedQuizId,
