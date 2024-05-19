@@ -915,6 +915,10 @@ export class QuizService implements OnDestroy {
     this.correctAnswersCountTextSource.next(newText);
   }
 
+  updateCorrectMessageText(message: string): void {
+    this.correctMessage$.next(message);
+  }
+
   setAnswers(answers: number[]): void {
     this.answersSubject.next(answers);
   }
