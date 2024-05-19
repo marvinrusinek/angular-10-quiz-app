@@ -180,12 +180,57 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.initializeCurrentQuestion();
   }
 
-  // Grouping related tasks into separate functions for clarity
+  ngOnDestroy(): void {
+    this.isDestroyed = true;
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    this.routeSubscription?.unsubscribe();
+    this.routerSubscription?.unsubscribe();
+    this.questionAndOptionsSubscription?.unsubscribe();
+    this.timerService.stopTimer(null);
+  }
+
+  // Public getter methods for determining UI state based on current quiz and question data.
+  public get isContentAvailable(): boolean {
+    return !!this.data?.questionText || !!this.data?.correctAnswersText;
+  }
+
+  public get shouldDisplayContent(): boolean {
+    return !!this.data?.questionText && !!this.questionToDisplay;
+  }
+
+  public get shouldApplyLastQuestionClass(): boolean {
+    return this.questionIndex === this.totalQuestions;
+  }
+
+  public get shouldHidePrevQuestionNav(): boolean {
+    return this.currentQuestionIndex === 0;
+  }
+
+  public get shouldHideNextButton(): boolean {
+    // Hide if data isn't loaded or on the last question
+    return !this.isQuizDataLoaded || this.currentQuestionIndex >= this.totalQuestions - 1;
+  }
+
+  public get shouldHideShowResultsButton(): boolean {
+    // Hide if data isn't loaded or not on the last question
+    return !this.isQuizDataLoaded || this.currentQuestionIndex < this.totalQuestions - 1;
+  }
+
+  public get shouldHideRestartNav(): boolean {
+    return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1;
+  }
+
+
+  /*************** Shuffle and initialize questions ******************/
   private initializeQuestions(): void {
     this.questions = this.quizService.getShuffledQuestions();
     console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
   }
 
+  /*************** ngOnInit barrel functions ******************/
   private initializeRouteParameters(): void {
     this.fetchRouteParams();
     this.subscribeRouterAndInit();
@@ -208,6 +253,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.subscribeToCurrentQuestion();
   }
 
+  /***************** Initialize route parameters and subscribe to updates ****************/
   fetchRouteParams(): void {
     this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.quizId = params['quizId'];
@@ -217,6 +263,32 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Loaded questionIndex from route:', this.questionIndex);
       this.loadQuizData();
     });
+  }
+
+  async loadQuizData(): Promise<void> {
+    try {
+      const quiz = await firstValueFrom(
+        this.quizDataService.getQuiz(this.quizId).pipe(
+          takeUntil(this.destroy$)
+        )
+      ) as Quiz;
+      if (quiz) {
+        this.quiz = quiz;
+        if (quiz.questions && quiz.questions.length > 0) {
+          this.currentQuestion = quiz.questions[this.questionIndex - 1];
+
+          if (!this.isDestroyed) {
+            this.cdRef.detectChanges();
+          }
+        } else {
+          console.error('Quiz has no questions.');
+        }
+      } else {
+        console.error('Quiz data is unavailable.');
+      }
+    } catch (error) {
+      console.error('Error loading quiz data:', error);
+    }
   }
 
   private subscribeRouterAndInit(): void {
@@ -442,34 +514,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
   }
-
-
-
-  async loadQuizData(): Promise<void> {
-    try {
-      const quiz = await firstValueFrom(
-        this.quizDataService.getQuiz(this.quizId).pipe(
-          takeUntil(this.destroy$)
-        )
-      ) as Quiz;
-      if (quiz) {
-        this.quiz = quiz;
-        if (quiz.questions && quiz.questions.length > 0) {
-          this.currentQuestion = quiz.questions[this.questionIndex - 1];
-
-          if (!this.isDestroyed) {
-            this.cdRef.detectChanges();
-          }
-        } else {
-          console.error('Quiz has no questions.');
-        }
-      } else {
-        console.error('Quiz data is unavailable.');
-      }
-    } catch (error) {
-      console.error('Error loading quiz data:', error);
-    }
-  }  
+  
 
   setupNavigation(): void {
     this.activatedRoute.params.pipe(
@@ -630,49 +675,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       default:
         console.error('An unknown error occurred.');
     }
-  }
-
-  ngOnDestroy(): void {
-    this.isDestroyed = true;
-    this.destroy$.next();
-    this.destroy$.complete();
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
-    this.routeSubscription?.unsubscribe();
-    this.routerSubscription?.unsubscribe();
-    this.questionAndOptionsSubscription?.unsubscribe();
-    this.timerService.stopTimer(null);
-  }
-
-  // Public getter methods for determining UI state based on current quiz and question data.
-  public get isContentAvailable(): boolean {
-    return !!this.data?.questionText || !!this.data?.correctAnswersText;
-  }
-
-  public get shouldDisplayContent(): boolean {
-    return !!this.data?.questionText && !!this.questionToDisplay;
-  }
-
-  public get shouldApplyLastQuestionClass(): boolean {
-    return this.questionIndex === this.totalQuestions;
-  }
-
-  public get shouldHidePrevQuestionNav(): boolean {
-    return this.currentQuestionIndex === 0;
-  }
-
-  public get shouldHideNextButton(): boolean {
-    // Hide if data isn't loaded or on the last question
-    return !this.isQuizDataLoaded || this.currentQuestionIndex >= this.totalQuestions - 1;
-  }
-
-  public get shouldHideShowResultsButton(): boolean {
-    // Hide if data isn't loaded or not on the last question
-    return !this.isQuizDataLoaded || this.currentQuestionIndex < this.totalQuestions - 1;
-  }
-
-  public get shouldHideRestartNav(): boolean {
-    return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1;
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): void {
@@ -871,8 +873,125 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
+  /************* Fetch and display the current question ***************/
+  initializeQuestionStreams(): void {
+    // Initialize questions stream
+    this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
 
+    this.questions$.subscribe(questions => {
+      if (questions) {
+        // Reset and set initial state for each question
+        questions.forEach((question, index) => {
+          const defaultState = this.quizStateService.createDefaultQuestionState();
+          this.quizStateService.setQuestionState(this.quizId, index, defaultState);
+        });
 
+        this.currentQuestionIndex = 0;
+      }
+    });
+
+    const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
+    const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
+  }
+
+  // Function to load all questions for the current quiz
+  private loadQuizQuestionsForCurrentQuiz(): void {
+    this.isQuizDataLoaded = false;
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: (questions) => {
+        this.questions = questions;
+        this.isQuizDataLoaded = true;
+      },
+      error: (error) => {
+        console.error('Failed to load questions:', error);
+        this.isQuizDataLoaded = true;
+      }
+    });
+  }
+
+  createQuestionData(): void {
+    const createQuestionData = (question: QuizQuestion | null, options: Option[] | null) => ({
+      questionText: question?.questionText ?? null,
+      correctAnswersText: null,
+      options
+    });
+
+    // Combine nextQuestion$ and nextOptions$ using combineLatest
+    this.combinedQuestionData$ = combineLatest([
+      this.quizService.nextQuestion$,
+      this.quizService.nextOptions$
+    ]).pipe(
+      switchMap(([nextQuestion, nextOptions]) =>
+        nextQuestion
+          ? of(createQuestionData(nextQuestion, nextOptions))
+          : combineLatest([
+              this.quizService.previousQuestion$,
+              this.quizService.previousOptions$
+            ]).pipe(
+              map(([previousQuestion, previousOptions]) =>
+                createQuestionData(previousQuestion, previousOptions)
+              )
+            )
+      )
+    );
+  }
+
+  private async getQuestion(): Promise<void | null> {
+    try {
+      const quizId = this.activatedRoute.snapshot.params.quizId;
+      const currentQuestionIndex = this.currentQuestionIndex;
+  
+      if (!quizId || quizId.trim() === '') {
+        console.error("Quiz ID is required but not provided.");
+        return null;
+      }
+  
+      // Fetch the question and options
+      const result = await firstValueFrom(of(this.quizDataService.fetchQuestionAndOptionsFromAPI(quizId, currentQuestionIndex)));
+      
+      if (!result) {
+        console.error('No valid question found');
+        return null;
+      }
+      
+      const [question, options] = result;
+      this.handleQuestion(question);
+      this.handleOptions(options);
+    } catch (error) {
+      console.error('Error fetching question and options:', error);
+      return null;
+    }
+  }  
+
+  // Function to subscribe to changes in the current question and update the currentQuestionType
+  private subscribeToCurrentQuestion(): void {
+    const combinedQuestionObservable = merge(
+      this.quizService.getCurrentQuestionObservable().pipe(
+        retry(2),
+        catchError((error: Error) => {
+          console.error('Error when subscribing to current question from quizService:', error);
+          return of(null);
+        })
+      ),
+      this.quizStateService.currentQuestion$
+    );
+
+    combinedQuestionObservable.pipe(
+      filter((question: QuizQuestion | null) => question !== null) // filter out null values to ensure only valid questions are processed
+    ).subscribe({
+      next: (question: QuizQuestion) => {
+        this.currentQuestion = question;
+        this.options = question.options;
+        this.currentQuestionType = question.type;
+      },
+      error: (error) => {
+        console.error('Error when processing the question streams:', error);
+        this.currentQuestion = null;
+        this.options = [];
+        this.currentQuestionType = null; // Reset on error
+      }
+    });
+  }
 
   storeFormattedExplanationText(questionId: number, explanationText: string): void {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
@@ -1038,33 +1157,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.showExplanation = false;
     }
   }
-
-  private async getQuestion(): Promise<void | null> {
-    try {
-      const quizId = this.activatedRoute.snapshot.params.quizId;
-      const currentQuestionIndex = this.currentQuestionIndex;
-  
-      if (!quizId || quizId.trim() === '') {
-        console.error("Quiz ID is required but not provided.");
-        return null;
-      }
-  
-      // Fetch the question and options
-      const result = await firstValueFrom(of(this.quizDataService.fetchQuestionAndOptionsFromAPI(quizId, currentQuestionIndex)));
-      
-      if (!result) {
-        console.error('No valid question found');
-        return null;
-      }
-      
-      const [question, options] = result;
-      this.handleQuestion(question);
-      this.handleOptions(options);
-    } catch (error) {
-      console.error('Error fetching question and options:', error);
-      return null;
-    }
-  }  
   
   initializeFirstQuestion(): void {
     this.resetQuestionDisplayState();
@@ -1127,97 +1219,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationToDisplay = 'Error loading explanation.';
   }
 
-  initializeQuestionStreams(): void {
-    // Initialize questions stream
-    this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
 
-    this.questions$.subscribe(questions => {
-      if (questions) {
-        // Reset and set initial state for each question
-        questions.forEach((question, index) => {
-          const defaultState = this.quizStateService.createDefaultQuestionState();
-          this.quizStateService.setQuestionState(this.quizId, index, defaultState);
-        });
-
-        this.currentQuestionIndex = 0;
-      }
-    });
-
-    const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
-    const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
-  }
-
-  // Function to load all questions for the current quiz
-  private loadQuizQuestionsForCurrentQuiz(): void {
-    this.isQuizDataLoaded = false;
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: (questions) => {
-        this.questions = questions;
-        this.isQuizDataLoaded = true;
-      },
-      error: (error) => {
-        console.error('Failed to load questions:', error);
-        this.isQuizDataLoaded = true;
-      }
-    });
-  }
-
-  createQuestionData(): void {
-    const createQuestionData = (question: QuizQuestion | null, options: Option[] | null) => ({
-      questionText: question?.questionText ?? null,
-      correctAnswersText: null,
-      options
-    });
-
-    // Combine nextQuestion$ and nextOptions$ using combineLatest
-    this.combinedQuestionData$ = combineLatest([
-      this.quizService.nextQuestion$,
-      this.quizService.nextOptions$
-    ]).pipe(
-      switchMap(([nextQuestion, nextOptions]) =>
-        nextQuestion
-          ? of(createQuestionData(nextQuestion, nextOptions))
-          : combineLatest([
-              this.quizService.previousQuestion$,
-              this.quizService.previousOptions$
-            ]).pipe(
-              map(([previousQuestion, previousOptions]) =>
-                createQuestionData(previousQuestion, previousOptions)
-              )
-            )
-      )
-    );
-  }
-
-  // Function to subscribe to changes in the current question and update the currentQuestionType
-  private subscribeToCurrentQuestion(): void {
-    const combinedQuestionObservable = merge(
-      this.quizService.getCurrentQuestionObservable().pipe(
-        retry(2),
-        catchError((error: Error) => {
-          console.error('Error when subscribing to current question from quizService:', error);
-          return of(null);
-        })
-      ),
-      this.quizStateService.currentQuestion$
-    );
-
-    combinedQuestionObservable.pipe(
-      filter((question: QuizQuestion | null) => question !== null) // filter out null values to ensure only valid questions are processed
-    ).subscribe({
-      next: (question: QuizQuestion) => {
-        this.currentQuestion = question;
-        this.options = question.options;
-        this.currentQuestionType = question.type;
-      },
-      error: (error) => {
-        console.error('Error when processing the question streams:', error);
-        this.currentQuestion = null;
-        this.options = [];
-        this.currentQuestionType = null; // Reset on error
-      }
-    });
-  }
 
 
   handleOptions(options: Option[]): void {
