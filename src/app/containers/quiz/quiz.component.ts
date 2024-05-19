@@ -208,65 +208,53 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.subscribeToCurrentQuestion();
   }
 
+  fetchRouteParams(): void {
+    this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      this.quizId = params['quizId'];
+      this.questionIndex = +params['questionIndex'];
+      this.currentQuestionIndex = this.questionIndex - 1; // Ensure it's zero-based
+      console.log('Loaded quizId from route:', this.quizId);
+      console.log('Loaded questionIndex from route:', this.questionIndex);
+      this.loadQuizData();
+    });
+  }
 
-    /* this.quizService.questionDataSubject.subscribe(
-      (shuffledQuestions) => {
-        this.questions = shuffledQuestions;
-        this.cdRef.detectChanges(); // Force update
-      },
-      (error) => {
-        console.error("Error subscribing to questions:", error);
-      },
-      () => {
-        console.log("Subscription completed"); // Optional, depending on your use case
+  private subscribeRouterAndInit(): void {
+    this.routerSubscription = this.activatedRoute.data.subscribe(data => {
+      const quizData: Quiz = data.quizData;
+      if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
+        console.error("Quiz data is undefined, or there are no questions");
+        this.router.navigate(['/select']).then(() => {
+          console.log('No quiz data available.');
+        });
+        return;
       }
-    ); */
 
-    /* this.quizService.getCorrectAnswersText().pipe(
-      takeUntil(this.unsubscribe$)
-    ).subscribe((text: string) => {
-      this.correctAnswersText = text;
-    }); */
+      this.currentQuiz = quizData;
+      this.quizId = quizData.quizId;
+      this.questionIndex = +this.activatedRoute.snapshot.params['questionIndex'];
+    });
+  }
 
+  initializeRouteParams(): void {
+    this.activatedRoute.params.subscribe((params) => {
+      this.quizId = params['quizId'];
 
-    // Check if audio is available and can be played
-    /* let audioElement: HTMLAudioElement = document.getElementById('quizAudio') as HTMLAudioElement;
+      // Correctly handle the case where 'questionIndex' might be 0 or undefined
+      const routeQuestionIndex = params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
 
-    // Enhance debugging by logging media capabilities and MIME type support directly
-    console.log('MP3 support:', document.createElement('audio').canPlayType('audio/mpeg'));
+      // Adjust for zero-based indexing
+      const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
 
-    // Simple fetch to test network access to the MP3 file
-    fetch('https://cors-anywhere.herokuapp.com/http://www.marvinrusinek.com/sound-correct.mp3')
-    .then(response => {
-      if (response.ok) {
-        console.log('MP3 file accessed successfully.');
+      if (adjustedIndex === 0) {
+        // Call the special initialization function for the first question
+        this.initializeFirstQuestion();
       } else {
-        console.error('Failed to fetch MP3 file. Status:', response.status);
+        // Handle all other questions through a general update display function
+        this.updateQuestionDisplay(adjustedIndex);
       }
-    })
-    .catch(error => {
-      console.error('Error fetching MP3 file through proxy:', error);
-    }); */
-
-    /* if (audioElement) {
-      audioElement.oncanplay = () => {
-        console.log('Audio is ready to play!');
-        this.audioAvailable = true; // Ensure controls are visible when audio is ready
-      };
-      audioElement.onerror = () => {
-        console.error('Error loading audio.');
-        this.audioAvailable = false; // Hide controls if there is an error
-      };
-      audioElement.load(); // Try loading the audio to test if it's available
-    } else {
-      console.error('Audio element not found in the template.');
-    } */
-
-    /* var audio = new Audio();
-    audio.src = "http://www.marvinrusinek.com/sound-correct.mp3";
-    audio.load();
-    audio.play(); */
-  
+    });
+  }
 
   async loadQuizData(): Promise<void> {
     try {
@@ -398,17 +386,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     this.cdRef.detectChanges();
-  }
-
-  fetchRouteParams(): void {
-    this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      this.quizId = params['quizId'];
-      this.questionIndex = +params['questionIndex'];
-      this.currentQuestionIndex = this.questionIndex - 1; // Ensure it's zero-based
-      console.log('Loaded quizId from route:', this.quizId);
-      console.log('Loaded questionIndex from route:', this.questionIndex);
-      this.loadQuizData();
-    });
   }
 
   resolveQuizData(): void {
@@ -1008,43 +985,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedOption$.next(null);
     this.explanationTextService.explanationText$.next('');
     this.cdRef.detectChanges();
-  }
-
-  private subscribeRouterAndInit(): void {
-    this.routerSubscription = this.activatedRoute.data.subscribe(data => {
-      const quizData: Quiz = data.quizData;
-      if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
-        console.error("Quiz data is undefined, or there are no questions");
-        this.router.navigate(['/select']).then(() => {
-          console.log('No quiz data available.');
-        });
-        return;
-      }
-
-      this.currentQuiz = quizData;
-      this.quizId = quizData.quizId;
-      this.questionIndex = +this.activatedRoute.snapshot.params['questionIndex'];
-    });
-  }
-
-  initializeRouteParams(): void {
-    this.activatedRoute.params.subscribe((params) => {
-      this.quizId = params['quizId'];
-
-      // Correctly handle the case where 'questionIndex' might be 0 or undefined
-      const routeQuestionIndex = params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
-
-      // Adjust for zero-based indexing
-      const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
-
-      if (adjustedIndex === 0) {
-        // Call the special initialization function for the first question
-        this.initializeFirstQuestion();
-      } else {
-        // Handle all other questions through a general update display function
-        this.updateQuestionDisplay(adjustedIndex);
-      }
-    });
   }
 
   updateQuestionDisplay(questionIndex: number): void {
