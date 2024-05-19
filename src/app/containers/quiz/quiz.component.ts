@@ -226,7 +226,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /*************** Shuffle and initialize questions ******************/
   private initializeQuestions(): void {
-    this.questions = this.quizService.getShuffledQuestions();
+    this.questions = this.quizService.getShuffledQuestions(); 
     console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
   }
 

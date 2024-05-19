@@ -2208,6 +2208,26 @@ export class QuizService implements OnDestroy {
     );
   }
 
+  setCurrentQuestion(index: number): void {
+    if (!this.selectedQuiz || !Array.isArray(this.selectedQuiz.questions)) {
+      console.error('Quiz data is not properly initialized.');
+      return;
+    }
+
+    if (index < 0 || index >= this.selectedQuiz.questions.length) {
+      console.error(`Invalid question index: ${index}`);
+      return;
+    }
+
+    const question = this.selectedQuiz.questions[index];
+    if (!question) {
+      console.error(`Selected Question at index ${index} is undefined`, question);
+      return;
+    }
+
+    this.currentQuestion.next(question);
+  }
+
   calculateCorrectAnswers(questions: QuizQuestion[]): Map<string, number[]> {
     const correctAnswers = new Map<string, number[]>();
     questions.forEach((question) => {
@@ -2459,6 +2479,10 @@ export class QuizService implements OnDestroy {
   navigateToResults() {
     this.quizCompleted = true;
     this.router.navigate([QuizRoutes.RESULTS, this.quizId]);
+  }
+
+  getShuffledQuestions(): QuizQuestion[] {
+    return this.shuffledQuestions;
   }
 
   resetQuestions(): void {
