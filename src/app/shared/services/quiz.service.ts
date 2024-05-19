@@ -931,6 +931,12 @@ export class QuizService implements OnDestroy {
     return !!this.selectedOptions[questionIndex];
   }
 
+  setTotalQuestions(totalQuestions: number): void {
+    if (this.questions) {
+      this.totalQuestionsSubject.next(totalQuestions);
+    }
+  }
+
   getTotalQuestions(): Observable<number> {
     return this.getQuizData().pipe(
       map((data: any) => {
@@ -942,10 +948,8 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  setTotalQuestions(totalQuestions: number): void {
-    if (this.questions) {
-      this.totalQuestionsSubject.next(totalQuestions);
-    }
+  getTotalCorrectAnswers(currentQuestion: QuizQuestion): number {
+    return currentQuestion.options.filter((option) => option.correct).length;
   }
 
   validateAndSetCurrentQuestion(
