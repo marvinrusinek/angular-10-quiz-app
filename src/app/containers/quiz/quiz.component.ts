@@ -1391,7 +1391,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   // not used, might remove...
   selectedAnswer(option: Option): void {
     this.answered = true;
-    this.quizService.checkIfAnsweredCorrectly();
+    this.quizService.checkIfAnsweredCorrectly(); 
 
     const correctAnswers = this.question.options.filter(
       (option) => option.correct
