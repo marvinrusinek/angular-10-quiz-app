@@ -1839,9 +1839,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   score!: number;
   elapsedTimeDisplay = 0;
   shouldDisplayCorrectAnswers = false;
+
   questionToDisplay = '';
   optionsToDisplay: Option[] = [];
   explanationToDisplay = '';
+
+  showExplanation = false;
+  displayExplanation = false;
   isExplanationVisible = false;
   isQuizDataLoaded = false;
   previousIndex: number | null = null;
@@ -2640,6 +2644,31 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.updateExplanationText(this.currentQuestionIndex);
     this.initializeOrUpdateQuestionState(this.currentQuestionIndex);
     this.updateProgressPercentage();
+  }
+
+  initializeFirstQuestion(): void {
+    this.resetQuestionDisplayState();
+
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: async (questions: QuizQuestion[]) => {
+        if (questions && questions.length > 0) {
+          this.questions = questions;
+          this.currentQuestion = questions[0];
+          this.questionToDisplay = this.currentQuestion.questionText;
+          this.optionsToDisplay = this.currentQuestion.options;
+          this.shouldDisplayCorrectAnswersFlag = false;
+
+          // Initialize or update the state for all questions
+          questions.forEach((_, index) => this.initializeOrUpdateQuestionState(index));
+        } else {
+          this.handleNoQuestionsAvailable();
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching questions:', err);
+        this.handleQuestionsLoadingError();
+      }
+    });
   }
 
   private initializeOrUpdateQuestionState(questionIndex: number): void {
