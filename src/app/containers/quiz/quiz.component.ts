@@ -1250,7 +1250,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const questionIndex = parseInt(params.get('questionIndex') || '0');
-    this.quizService.setCurrentQuestionIndex(questionIndex);
+    this.quizService.setCurrentQuestionIndex(questionIndex); 
 
     if (quizId) {
       this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
