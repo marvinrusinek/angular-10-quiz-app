@@ -2693,6 +2693,32 @@ export class QuizService implements OnDestroy {
     return undefined;
   }
 
+  // Method to find the index of a question
+  findQuestionIndex(question: QuizQuestion): number {
+    if (!this.selectedQuiz) {
+      console.error('Quiz data is not properly initialized: selectedQuiz is null');
+      return -1;
+    }
+  
+    if (!Array.isArray(this.selectedQuiz.questions)) {
+      console.error('Quiz data is not properly initialized: questions is not an array');
+      return -1;
+    }
+  
+    if (this.selectedQuiz.questions.length === 0) {
+      console.error('Quiz data is not properly initialized: questions array is empty');
+      return -1;
+    }
+  
+    const index = this.selectedQuiz.questions.findIndex(q => q.explanation === question.explanation);
+    return index;
+  }
+
+   // Type guard function to check if an object is of type Quiz
+   private isQuiz(item: any): item is Quiz {
+    return typeof item === 'object' && 'quizId' in item;
+  }
+
   isQuizQuestion(obj: any): obj is QuizQuestion {
     return obj != null && 
            typeof obj === 'object' &&
