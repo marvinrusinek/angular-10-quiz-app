@@ -2703,6 +2703,14 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  validateAnswers(currentQuestionValue: QuizQuestion, answers: any[]): boolean {
+    if (!currentQuestionValue || !answers || answers.length === 0) {
+      console.error('Question or Answers is not defined');
+      return false;
+    }
+    return true;
+  }
+
   async determineCorrectAnswer(question: QuizQuestion, answers: any[]): Promise<boolean[]> {
     return await Promise.all(
       answers.map(async (answer) => {
