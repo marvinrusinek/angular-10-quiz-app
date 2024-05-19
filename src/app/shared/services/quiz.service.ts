@@ -2228,6 +2228,43 @@ export class QuizService implements OnDestroy {
     this.currentQuestion.next(question);
   }
 
+  getCurrentQuestion(): Observable<QuizQuestion> {
+    this.questionLoadingSubject.next(true); // Set loading to true at the start
+    const quizId = this.getCurrentQuizId();
+
+    return this.getQuestionsForQuiz(quizId).pipe(
+      tap({
+        next: (data) => {
+          this.questions = data.questions;
+          this.loadingQuestions = false;
+        },
+        error: (error) => {
+          console.error('Error getting quiz questions:', error);
+          this.questionLoadingSubject.next(false);
+          this.loadingQuestions = false;
+        }
+      }),
+      map(data => data.questions),
+      switchMap((questions: QuizQuestion[]) => {
+        if (!Array.isArray(questions) || questions.length === 0) {
+          console.error('No questions available or invalid question data');
+          this.questionLoadingSubject.next(false);
+          return of(this.getFallbackQuestion());
+        }
+        const currentQuestionIndex = (this.currentQuestionIndex ?? 0) < questions.length ? (this.currentQuestionIndex ?? 0) : 0;
+        const currentQuestion = questions[currentQuestionIndex] ?? this.getFallbackQuestion();
+        this.currentQuestionSubject.next(currentQuestion);
+        this.questionLoadingSubject.next(false);
+        return of(currentQuestion);
+      }),    
+      catchError((error: Error) => {
+        console.error('Error in switchMap or map operations:', error);
+        this.questionLoadingSubject.next(false);
+        return throwError(() => new Error('Error processing quiz questions'));
+      })
+    );
+  }
+
   calculateCorrectAnswers(questions: QuizQuestion[]): Map<string, number[]> {
     const correctAnswers = new Map<string, number[]>();
     questions.forEach((question) => {

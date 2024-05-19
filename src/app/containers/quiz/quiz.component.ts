@@ -713,7 +713,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   refreshQuestionOnReset(): void {
-    this.quizService.getCurrentQuestion().pipe(
+    this.quizService.getCurrentQuestion().pipe( 
       takeUntil(this.unsubscribe$)
     ).subscribe((question: QuizQuestion) => {
       this.currentQuestion = question;
