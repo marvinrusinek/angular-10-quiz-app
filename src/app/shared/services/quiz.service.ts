@@ -1048,6 +1048,10 @@ export class QuizService implements OnDestroy {
     return correctAnswersForQuestion;
   }
 
+  addSelectedOption(option: Option) {
+    this.selectedOptions.push(option);
+  }
+
   returnQuizSelectionParams(): QuizSelectionParams {
     const quizSelectionParams = {
       startedQuizId: this.startedQuizId,

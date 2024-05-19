@@ -773,7 +773,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
-    this.quizService.addSelectedOption(option);
+    this.quizService.addSelectedOption(option); 
 
     try {
       const currentQuestion = await this.getCurrentQuestion();
