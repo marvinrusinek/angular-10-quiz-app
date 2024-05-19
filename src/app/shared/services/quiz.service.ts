@@ -2208,6 +2208,41 @@ export class QuizService implements OnDestroy {
     );
   }
 
+  public setQuestionData(data: any): void {
+    this.questionDataSubject.next(data);
+  }
+
+  getQuestionData(
+    quizId: string,
+    questionIndex: number
+  ): {
+    questionText: string;
+    correctAnswersText: string;
+    currentOptions: Option[];
+  } | null {
+    const currentQuiz = this.quizData.find((quiz) => quiz.quizId === quizId);
+
+    if (currentQuiz && currentQuiz.questions.length > questionIndex) {
+      const currentQuestion = currentQuiz.questions[questionIndex];
+
+      const correctAnswerOptions = currentQuestion.options.filter(
+        (option) => option.correct
+      );
+      const correctAnswersText = this.setCorrectMessage(
+        correctAnswerOptions,
+        currentQuestion.options
+      );
+
+      return {
+        questionText: currentQuestion.questionText,
+        correctAnswersText: correctAnswersText,
+        currentOptions: currentQuestion.options
+      };
+    }
+
+    return null;
+  }
+
   setCurrentQuestion(index: number): void {
     if (!this.selectedQuiz || !Array.isArray(this.selectedQuiz.questions)) {
       console.error('Quiz data is not properly initialized.');

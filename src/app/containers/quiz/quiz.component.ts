@@ -754,7 +754,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private async fetchQuestionData(quizId: string, questionIndex: number): Promise<any> {
     try {
-      const rawData = await firstValueFrom(of(this.quizService.getQuestionData(quizId, questionIndex)));
+      const rawData = await firstValueFrom(of(this.quizService.getQuestionData(quizId, questionIndex))); 
       const transformedData: QuizQuestion = {
         questionText: rawData.questionText,
         options: [],
