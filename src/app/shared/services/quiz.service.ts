@@ -2680,6 +2680,15 @@ export class QuizService implements OnDestroy {
     return this.shuffledQuestions;
   }
 
+  isQuizQuestion(obj: any): obj is QuizQuestion {
+    return obj != null && 
+           typeof obj === 'object' &&
+           'questionText' in obj &&
+           'options' in obj &&
+           Array.isArray(obj.options) &&
+           'explanation' in obj;
+  }
+
   isValidQuestionIndex(index: number, data: Quiz | QuizQuestion[]): boolean {
     if (!data) {
       console.error('Data is not provided');

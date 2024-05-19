@@ -1023,7 +1023,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private setExplanationTextForCurrentQuestion(question: QuizQuestion): void {
-    if (this.quizService.isQuizQuestion(question)) {
+    if (this.quizService.isQuizQuestion(question)) { 
       this.explanationTextService.setNextExplanationText(question.explanation);
     } else {
       console.error('Invalid question:', question);
