@@ -919,7 +919,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Combine nextQuestion$ and nextOptions$ using combineLatest
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$,
-      this.quizService.nextOptions$
+      this.quizService.nextOptions$ 
     ]).pipe(
       switchMap(([nextQuestion, nextOptions]) =>
         nextQuestion
