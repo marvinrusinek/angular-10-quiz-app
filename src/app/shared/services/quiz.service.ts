@@ -2901,6 +2901,10 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
+    return isEqual(question1, question2);
+  }
+
   resetQuestions(): void {
     let currentQuizData = this.quizInitialState.find(
       (quiz) => quiz.quizId === this.quizId
