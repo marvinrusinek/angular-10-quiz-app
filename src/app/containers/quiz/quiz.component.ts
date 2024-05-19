@@ -155,7 +155,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     this.quizService.quizReset$.subscribe(() => {
-      this.updateComponentState();
+      this.refreshQuestionOnReset();
     });
   }
 
@@ -257,7 +257,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async loadQuizData(): Promise<void> {
     try {
-      const quiz = await firstValueFrom(this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))) as Quiz;
+      const quiz = await firstValueFrom(
+        this.quizDataService.getQuiz(this.quizId).pipe(
+          takeUntil(this.destroy$)
+        )
+      ) as Quiz;
       if (quiz) {
         this.quiz = quiz;
         if (quiz.questions && quiz.questions.length > 0) {
@@ -547,13 +551,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     return -1;
   }
 
-  updateComponentState(): void {
+  refreshQuestionOnReset(): void {
     this.quizService.getCurrentQuestion().pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe((question: QuizQuestion) => {
       this.currentQuestion = question;
       this.options = question?.options || [];
-      // this.loadExplanationTextForCurrentQuestion();
     });
   }
 
@@ -839,20 +842,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.fetchQuestionAndOptions();
   }
 
-  /* private initializeSelectedQuiz(): void {
-    this.quizDataService.getQuiz(this.quizId).subscribe({
-      next: (quiz: Quiz) => {
-        this.selectedQuiz = quiz;
-        const currentQuestionOptions = this.selectedQuiz.questions[this.currentQuestionIndex].options;
-        this.numberOfCorrectAnswers =
-          this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(currentQuestionOptions);
-      },
-      error: (error: any) => {
-        console.error(error);
-      }
-    });
-  } */
-
   private initializeSelectedQuiz(): void {
     this.quizDataService.getQuiz(this.quizId).subscribe({
       next: (quiz: Quiz) => {
@@ -872,7 +861,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error(error);
       }
     });
-  }  
+  }
 
   private initializeObservables(): void {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
@@ -1412,17 +1401,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  /* loadExplanationTextForCurrentQuestion(): void {
-    this.explanationText = '';
-    if (this.quizData && this.quizData.length > this.currentQuestionIndex) {
-      const currentQuestion = this.quizData[this.currentQuestionIndex];
-      if (currentQuestion && this.quizService.isQuizQuestion(currentQuestion)) {
-        this.explanationTextService.setNextExplanationText(currentQuestion.explanation);
-      }
-    } else {
-      this.explanationTextService.setNextExplanationText('');
-    }
-  } */
+
 
   animationDoneHandler(): void {
     this.animationState$.next('none');
