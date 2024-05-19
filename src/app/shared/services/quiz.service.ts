@@ -1051,6 +1051,14 @@ export class QuizService implements OnDestroy {
       correctAnswersMap.get(question.questionText) || [];
     return correctAnswersForQuestion;
   }
+  
+  getCorrectAnswersAsString(): string {
+    // Convert the map to a comma-separated string
+    const correctAnswersString = Array.from(this.correctAnswers.values())
+      .map((answer) => answer.join(','))
+      .join(';');
+    return correctAnswersString;
+  }
 
   addSelectedOption(option: Option) {
     this.selectedOptions.push(option);

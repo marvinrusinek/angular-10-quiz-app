@@ -1338,7 +1338,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.combinedQuestionData$.next({
       questionText: currentQuestion?.questionText || '',
       explanationText: explanationText,
-      correctAnswersText: this.quizService.getCorrectAnswersAsString(),
+      correctAnswersText: this.quizService.getCorrectAnswersAsString(), 
       currentOptions: this.currentOptions,
     });
   }
