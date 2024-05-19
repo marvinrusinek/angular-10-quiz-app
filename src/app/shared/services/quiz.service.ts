@@ -2300,6 +2300,22 @@ export class QuizService implements OnDestroy {
     );
   }
 
+  getFallbackQuestion(): QuizQuestion {
+    // Check if quizData is available and has at least one question
+    if (
+      Array.isArray(this.quizData) &&
+      this.quizData.length > 0 &&
+      this.quizData[0].questions.length > 0
+    ) {
+      // Return the first question of the first quiz as the fallback question
+      return this.quizData[0].questions[0];
+    } else {
+      // Fallback to a more generic error handling if no questions are available
+      console.error('No questions available for fallback.');
+      return null;
+    }
+  }
+
   calculateCorrectAnswers(questions: QuizQuestion[]): Map<string, number[]> {
     const correctAnswers = new Map<string, number[]>();
     questions.forEach((question) => {
