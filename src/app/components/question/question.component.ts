@@ -1157,12 +1157,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         const questionIndex = this.questionsArray.findIndex(
           (q) => q.questionText === currentQuestion.questionText
         );
-        if (questionIndex === -1) {
-          console.error('Current question not found in questions array.');
-          this.isLoadingQuestions = false;
-          return;
-        }
-
         this.prepareAndSetExplanationText(questionIndex);
         this.isLoadingQuestions = false;
       },
