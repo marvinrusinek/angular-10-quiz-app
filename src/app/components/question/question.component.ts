@@ -484,7 +484,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               )
               .filter((option) => option !== undefined) as Option[];
 
-            this.quizService.setCorrectAnswerOptions(correctAnswerOptions);
+            this.quizService.setCorrectAnswerOptions(correctAnswerOptions); 
           }
 
           this.updateQuestionForm();

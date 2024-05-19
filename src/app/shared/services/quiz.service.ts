@@ -828,6 +828,24 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  private convertToOptions(options: Option[]): Option[] {
+    if (!Array.isArray(options)) {
+      return [];
+    }
+    return options.reduce((acc, option) => {
+      if (option && typeof option === 'object' && 'optionId' in option) {
+        acc.push({ optionId: option.optionId, text: option.text });
+      }
+      return acc;
+    }, [] as Option[]);
+  }
+
+  setCorrectAnswerOptions(optionOptions: Option[]): void {
+    const correctAnswerOptions = this.convertToOptions(optionOptions);
+    this.correctAnswerOptions = correctAnswerOptions;
+    this.setCorrectAnswers(this.question, this.currentOptionsSubject.value);
+  }
+
   setCorrectAnswersForQuestions(
     questions: QuizQuestion[],
     correctAnswers: Map<string, number[]>
