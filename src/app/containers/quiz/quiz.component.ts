@@ -1615,7 +1615,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private fetchQuestionDetails(questionIndex: number): QuizQuestion {
-    const questionText = this.quizService.getQuestionTextForIndex(questionIndex);
+    const questionText = this.quizService.getQuestionTextForIndex(questionIndex); 
     if (!questionText) {
       console.error('No question text found for index:', questionIndex);
     }

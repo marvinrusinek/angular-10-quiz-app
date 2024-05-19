@@ -2171,6 +2171,20 @@ export class QuizService implements OnDestroy {
     );
   }
 
+  getQuestionTextForIndex(index: number): string | undefined {
+    const currentQuiz = this.getCurrentQuiz();
+    if (
+      currentQuiz &&
+      currentQuiz.questions &&
+      index >= 0 &&
+      index < currentQuiz.questions.length
+    ) {
+      const questionText = currentQuiz.questions[index].questionText;
+      return questionText;
+    }
+    return undefined;
+  }
+
   async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
       const quizId = this.quizId;
