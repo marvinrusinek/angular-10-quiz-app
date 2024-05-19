@@ -236,6 +236,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
+  /******* initialize route parameters functions *********/
   initializeRouteParams(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
@@ -255,6 +256,129 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  /**** Initialize route parameters and subscribe to updates ****/
+  resolveQuizData(): void {
+    this.activatedRoute.data.pipe(takeUntil(this.unsubscribe$)).subscribe((data: { quizData: Quiz }) => {
+      // console.log('Resolved quiz data:', data.quizData);
+  
+      if (data.quizData && Array.isArray(data.quizData.questions) && data.quizData.questions.length > 0) {
+        this.selectedQuiz = data.quizData;
+  
+        this.quizService.setSelectedQuiz(data.quizData);
+        this.explanationTextService.initializeExplanationTexts(data.quizData.questions.map(question => question.explanation));
+  
+        this.initializeQuiz(); // Ensure this method sets currentQuestionIndex correctly
+      } else {
+        console.error('Quiz data is undefined, or there are no questions');
+        this.router.navigate(['/select']).then(() => {
+          console.log('No quiz data available.');
+        });
+      }
+    });
+  }
+
+  async fetchQuizData(): Promise<void> {
+    try {
+      const quizId = this.activatedRoute.snapshot.params['quizId'];
+      const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
+      const questionIndex = parseInt(questionIndexParam, 10);
+  
+      if (isNaN(questionIndex)) {
+        console.error('Invalid question index:', questionIndexParam);
+        return;
+      }
+  
+      const zeroBasedQuestionIndex = questionIndex - 1;
+  
+      console.log(`Fetching quiz data for quizId: ${quizId}, questionIndex: ${questionIndex}`);
+  
+      const selectedQuiz: Quiz = await firstValueFrom(
+        this.quizDataService.getQuiz(quizId).pipe(takeUntil(this.destroy$))
+      );
+      if (!selectedQuiz) {
+        console.error('Selected quiz not found for quizId:', quizId);
+        return;
+      }
+      this.selectedQuiz = selectedQuiz;
+
+      if (zeroBasedQuestionIndex < 0 || zeroBasedQuestionIndex >= selectedQuiz.questions.length) {
+        console.error('Invalid question index:', zeroBasedQuestionIndex);
+        return;
+      }
+
+      // Ensure the current question is set
+      const currentQuestion = selectedQuiz.questions[zeroBasedQuestionIndex];
+      if (!currentQuestion) {
+        console.error(`Question not found at index ${zeroBasedQuestionIndex} for quizId ${quizId}`);
+        return;
+      }
+      this.currentQuestion = currentQuestion;
+
+      this.processQuizData(zeroBasedQuestionIndex, this.selectedQuiz);
+      this.initializeSelectedQuizData(this.selectedQuiz);
+  
+      const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
+      if (!questionData) {
+        console.error('Question data could not be fetched.');
+        this.data = null;
+        return;
+      }
+  
+      this.initializeAndPrepareQuestion(questionData, quizId);
+      this.quizService.setCurrentQuestion(zeroBasedQuestionIndex);
+    } catch (error) {
+      console.error('Error in fetchQuizData:', error);
+    }
+  }
+
+  private initializeQuiz(): void {
+    this.prepareQuizSession();
+    this.initializeQuizDependencies();
+    this.initializeQuizBasedOnRouteParams();
+  }
+
+  private prepareQuizSession(): void {
+    this.currentQuestionIndex = 0;
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+
+    // Ensure the quiz data (including questions) is fetched and set
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: (questions) => {
+        this.questions = questions; // Store the fetched questions in a component property
+
+        // After ensuring we have the questions, proceed to check for stored states
+        const storedStates = this.quizStateService.getStoredState(this.quizId);
+
+        if (storedStates) {
+          // Logic to restore stored states to each question
+          storedStates.forEach((state, questionId) => {
+            this.quizStateService.setQuestionState(this.quizId, questionId, state);
+
+            if (state.isAnswered && state.explanationDisplayed) {
+              const explanationText = this.explanationTextService.getFormattedExplanation(Number(questionId));
+              this.storeFormattedExplanationText(Number(questionId), explanationText);
+            }
+          });
+
+          // Check and set explanation display for the first question if needed
+          const firstQuestionState = typeof storedStates.get === 'function' ? storedStates.get(0) : storedStates[0];
+          if (firstQuestionState && firstQuestionState.isAnswered) {
+            this.explanationTextService.setShouldDisplayExplanation(true);
+          }
+        } else {
+          // console.log("No stored state found for quizId:", this.quizId);
+          // Apply default states to all questions as no stored state is found
+          this.quizStateService.applyDefaultStates(this.quizId, questions);
+        }
+      },
+      error: (error) => {
+        console.error("Error fetching questions for quiz:", error);
+      }
+    });
+  }
+
+
 
   async loadQuizData(): Promise<void> {
     try {
@@ -386,26 +510,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     this.cdRef.detectChanges();
-  }
-
-  resolveQuizData(): void {
-    this.activatedRoute.data.pipe(takeUntil(this.unsubscribe$)).subscribe((data: { quizData: Quiz }) => {
-      // console.log('Resolved quiz data:', data.quizData);
-  
-      if (data.quizData && Array.isArray(data.quizData.questions) && data.quizData.questions.length > 0) {
-        this.selectedQuiz = data.quizData;
-  
-        this.quizService.setSelectedQuiz(data.quizData);
-        this.explanationTextService.initializeExplanationTexts(data.quizData.questions.map(question => question.explanation));
-  
-        this.initializeQuiz(); // Ensure this method sets currentQuestionIndex correctly
-      } else {
-        console.error('Quiz data is undefined, or there are no questions');
-        this.router.navigate(['/select']).then(() => {
-          console.log('No quiz data available.');
-        });
-      }
-    });
   }  
 
   shouldShowExplanation(index: number): boolean {
@@ -574,59 +678,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  async fetchQuizData(): Promise<void> {
-    try {
-      const quizId = this.activatedRoute.snapshot.params['quizId'];
-      const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
-      const questionIndex = parseInt(questionIndexParam, 10);
   
-      if (isNaN(questionIndex)) {
-        console.error('Invalid question index:', questionIndexParam);
-        return;
-      }
-  
-      const zeroBasedQuestionIndex = questionIndex - 1;
-  
-      console.log(`Fetching quiz data for quizId: ${quizId}, questionIndex: ${questionIndex}`);
-  
-      const selectedQuiz: Quiz = await firstValueFrom(
-        this.quizDataService.getQuiz(quizId).pipe(takeUntil(this.destroy$))
-      );
-      if (!selectedQuiz) {
-        console.error('Selected quiz not found for quizId:', quizId);
-        return;
-      }
-      this.selectedQuiz = selectedQuiz;
-
-      if (zeroBasedQuestionIndex < 0 || zeroBasedQuestionIndex >= selectedQuiz.questions.length) {
-        console.error('Invalid question index:', zeroBasedQuestionIndex);
-        return;
-      }
-
-      // Ensure the current question is set
-      const currentQuestion = selectedQuiz.questions[zeroBasedQuestionIndex];
-      if (!currentQuestion) {
-        console.error(`Question not found at index ${zeroBasedQuestionIndex} for quizId ${quizId}`);
-        return;
-      }
-      this.currentQuestion = currentQuestion;
-
-      this.processQuizData(zeroBasedQuestionIndex, this.selectedQuiz);
-      this.initializeSelectedQuizData(this.selectedQuiz);
-  
-      const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
-      if (!questionData) {
-        console.error('Question data could not be fetched.');
-        this.data = null;
-        return;
-      }
-  
-      this.initializeAndPrepareQuestion(questionData, quizId);
-      this.quizService.setCurrentQuestion(zeroBasedQuestionIndex);
-    } catch (error) {
-      console.error('Error in fetchQuizData:', error);
-    }
-  }
 
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
     this.quizService.setQuizData([selectedQuiz]);
@@ -719,6 +771,71 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error("Error fetching questions for quiz:", error);
       }
     });
+  }
+
+  private initializeQuizDependencies(): void {
+    this.initializeSelectedQuiz();
+    this.initializeObservables();
+    this.fetchQuestionAndOptions();
+  }
+
+  private initializeSelectedQuiz(): void {
+    this.quizDataService.getQuiz(this.quizId).subscribe({
+      next: (quiz: Quiz) => {
+        if (!quiz) {
+          console.error('Quiz data is null or undefined');
+          return;
+        }
+        this.selectedQuiz = quiz;
+        if (!this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
+          console.error('Quiz has no questions');
+          return;
+        }
+        const currentQuestionOptions = this.selectedQuiz.questions[this.currentQuestionIndex].options;
+        this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(currentQuestionOptions);
+      },
+      error: (error: any) => {
+        console.error(error);
+      }
+    });
+  }
+
+  private initializeObservables(): void {
+    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.quizDataService.setSelectedQuizById(quizId); 
+    this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
+      this.selectedQuiz = quiz;
+    });
+  }
+
+  private fetchQuestionAndOptions(): void {
+    if (document.hidden) {
+      console.log('Document is hidden, not loading question');
+      return;
+    }
+
+    if (!this.quizId || this.quizId.trim() === '') {
+      console.error("Quiz ID is required but not provided.");
+      return;
+    }
+
+    this.quizDataService
+      .getQuestionAndOptions(this.quizId, this.questionIndex)
+      .pipe(
+        map(data => Array.isArray(data) ? data : [null, null]),
+        map(([question, options]) => [question || null, options || null]),
+        catchError(error => {
+          console.error('Error fetching question and options:', error);
+          return of([null, null]);
+        })
+      )
+      .subscribe(([question, options]) => {
+        if (question && options) {
+          this.quizStateService.updateCurrentQuizState(of(question));
+        } else {
+          console.log('Question or options not found');
+        }
+      });
   }
 
   storeFormattedExplanationText(questionId: number, explanationText: string): void {
@@ -826,70 +943,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private initializeQuizDependencies(): void {
-    this.initializeSelectedQuiz();
-    this.initializeObservables();
-    this.fetchQuestionAndOptions();
-  }
-
-  private initializeSelectedQuiz(): void {
-    this.quizDataService.getQuiz(this.quizId).subscribe({
-      next: (quiz: Quiz) => {
-        if (!quiz) {
-          console.error('Quiz data is null or undefined');
-          return;
-        }
-        this.selectedQuiz = quiz;
-        if (!this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
-          console.error('Quiz has no questions');
-          return;
-        }
-        const currentQuestionOptions = this.selectedQuiz.questions[this.currentQuestionIndex].options;
-        this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(currentQuestionOptions);
-      },
-      error: (error: any) => {
-        console.error(error);
-      }
-    });
-  }
-
-  private initializeObservables(): void {
-    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.quizDataService.setSelectedQuizById(quizId); 
-    this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
-      this.selectedQuiz = quiz;
-    });
-  }
-
-  private fetchQuestionAndOptions(): void {
-    if (document.hidden) {
-      console.log('Document is hidden, not loading question');
-      return;
-    }
-
-    if (!this.quizId || this.quizId.trim() === '') {
-      console.error("Quiz ID is required but not provided.");
-      return;
-    }
-
-    this.quizDataService
-      .getQuestionAndOptions(this.quizId, this.questionIndex)
-      .pipe(
-        map(data => Array.isArray(data) ? data : [null, null]),
-        map(([question, options]) => [question || null, options || null]),
-        catchError(error => {
-          console.error('Error fetching question and options:', error);
-          return of([null, null]);
-        })
-      )
-      .subscribe(([question, options]) => {
-        if (question && options) {
-          this.quizStateService.updateCurrentQuizState(of(question));
-        } else {
-          console.log('Question or options not found');
-        }
-      });
-  }
+  
 
   async getNextQuestion(): Promise<void> {
     try {
