@@ -2761,6 +2761,14 @@ export class QuizService implements OnDestroy {
     this.router.navigate([QuizRoutes.RESULTS, this.quizId]);
   }
 
+  setIsNavigatingToPrevious(value: boolean): void {
+    this.isNavigatingToPrevious.next(value);
+  }
+
+  getIsNavigatingToPrevious(): Observable<boolean> {
+    return this.isNavigatingToPrevious.asObservable();
+  }
+
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
 
