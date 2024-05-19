@@ -2043,6 +2043,26 @@ export class QuizService implements OnDestroy {
     this.quizData = quizData;
   }
 
+  setQuiz(quiz: Quiz): Observable<Quiz | null> {
+    const quizId = quiz.quizId;
+
+    // Make the HTTP request to fetch the specific quiz data
+    return this.http.get<Quiz>(`${this.quizUrl}/${quizId}`).pipe(
+      tap((loadedQuiz: Quiz) => {
+        // Update the selected quiz data after successful loading
+        this.selectedQuizId = quizId;
+        this.quizId$.next(quizId);
+        this.selectedQuiz = loadedQuiz;
+        console.log('Quiz loaded successfully', loadedQuiz);
+      }),
+      catchError((err: any) => {
+        console.error('Error loading quiz', err);
+        // Handle the error gracefully and return null or an appropriate value
+        return of(null);
+      })
+    );
+  }
+
   setQuizId(id: string): void {
     this.quizId = id;
   }
