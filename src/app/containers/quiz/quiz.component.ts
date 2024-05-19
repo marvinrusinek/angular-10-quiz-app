@@ -966,7 +966,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
     const combinedQuestionObservable = merge(
-      this.quizService.getCurrentQuestionObservable().pipe(
+      this.quizService.getCurrentQuestionObservable().pipe( 
         retry(2),
         catchError((error: Error) => {
           console.error('Error when subscribing to current question from quizService:', error);

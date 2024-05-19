@@ -2324,6 +2324,10 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  getCurrentQuestionObservable(): Observable<QuizQuestion> {
+    return this.currentQuestion.asObservable();
+  }
+
   getNextQuestion(
     currentQuestionIndex: number
   ): Promise<QuizQuestion | undefined> {
