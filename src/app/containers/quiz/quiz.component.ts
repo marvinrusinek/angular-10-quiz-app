@@ -378,6 +378,71 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
+  private initializeQuizDependencies(): void {
+    this.initializeSelectedQuiz();
+    this.initializeObservables();
+    this.fetchQuestionAndOptions();
+  }
+
+  private initializeSelectedQuiz(): void {
+    this.quizDataService.getQuiz(this.quizId).subscribe({
+      next: (quiz: Quiz) => {
+        if (!quiz) {
+          console.error('Quiz data is null or undefined');
+          return;
+        }
+        this.selectedQuiz = quiz;
+        if (!this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
+          console.error('Quiz has no questions');
+          return;
+        }
+        const currentQuestionOptions = this.selectedQuiz.questions[this.currentQuestionIndex].options;
+        this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(currentQuestionOptions);
+      },
+      error: (error: any) => {
+        console.error(error);
+      }
+    });
+  }
+
+  private initializeObservables(): void {
+    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.quizDataService.setSelectedQuizById(quizId); 
+    this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
+      this.selectedQuiz = quiz;
+    });
+  }
+
+  private fetchQuestionAndOptions(): void {
+    if (document.hidden) {
+      console.log('Document is hidden, not loading question');
+      return;
+    }
+
+    if (!this.quizId || this.quizId.trim() === '') {
+      console.error("Quiz ID is required but not provided.");
+      return;
+    }
+
+    this.quizDataService
+      .getQuestionAndOptions(this.quizId, this.questionIndex)
+      .pipe(
+        map(data => Array.isArray(data) ? data : [null, null]),
+        map(([question, options]) => [question || null, options || null]),
+        catchError(error => {
+          console.error('Error fetching question and options:', error);
+          return of([null, null]);
+        })
+      )
+      .subscribe(([question, options]) => {
+        if (question && options) {
+          this.quizStateService.updateCurrentQuizState(of(question));
+        } else {
+          console.log('Question or options not found');
+        }
+      });
+  }
+
 
 
   async loadQuizData(): Promise<void> {
@@ -727,121 +792,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  private initializeQuiz(): void {
-    this.prepareQuizSession();
-    this.initializeQuizDependencies();
-    this.initializeQuizBasedOnRouteParams();
-  }
-
-  private prepareQuizSession(): void {
-    this.currentQuestionIndex = 0;
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-
-    // Ensure the quiz data (including questions) is fetched and set
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: (questions) => {
-        this.questions = questions; // Store the fetched questions in a component property
-
-        // After ensuring we have the questions, proceed to check for stored states
-        const storedStates = this.quizStateService.getStoredState(this.quizId);
-
-        if (storedStates) {
-          // Logic to restore stored states to each question
-          storedStates.forEach((state, questionId) => {
-            this.quizStateService.setQuestionState(this.quizId, questionId, state);
-
-            if (state.isAnswered && state.explanationDisplayed) {
-              const explanationText = this.explanationTextService.getFormattedExplanation(Number(questionId));
-              this.storeFormattedExplanationText(Number(questionId), explanationText);
-            }
-          });
-
-          // Check and set explanation display for the first question if needed
-          const firstQuestionState = typeof storedStates.get === 'function' ? storedStates.get(0) : storedStates[0];
-          if (firstQuestionState && firstQuestionState.isAnswered) {
-            this.explanationTextService.setShouldDisplayExplanation(true);
-          }
-        } else {
-          // console.log("No stored state found for quizId:", this.quizId);
-          // Apply default states to all questions as no stored state is found
-          this.quizStateService.applyDefaultStates(this.quizId, questions);
-        }
-      },
-      error: (error) => {
-        console.error("Error fetching questions for quiz:", error);
-      }
-    });
-  }
-
-  private initializeQuizDependencies(): void {
-    this.initializeSelectedQuiz();
-    this.initializeObservables();
-    this.fetchQuestionAndOptions();
-  }
-
-  private initializeSelectedQuiz(): void {
-    this.quizDataService.getQuiz(this.quizId).subscribe({
-      next: (quiz: Quiz) => {
-        if (!quiz) {
-          console.error('Quiz data is null or undefined');
-          return;
-        }
-        this.selectedQuiz = quiz;
-        if (!this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
-          console.error('Quiz has no questions');
-          return;
-        }
-        const currentQuestionOptions = this.selectedQuiz.questions[this.currentQuestionIndex].options;
-        this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(currentQuestionOptions);
-      },
-      error: (error: any) => {
-        console.error(error);
-      }
-    });
-  }
-
-  private initializeObservables(): void {
-    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.quizDataService.setSelectedQuizById(quizId); 
-    this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
-      this.selectedQuiz = quiz;
-    });
-  }
-
-  private fetchQuestionAndOptions(): void {
-    if (document.hidden) {
-      console.log('Document is hidden, not loading question');
-      return;
-    }
-
-    if (!this.quizId || this.quizId.trim() === '') {
-      console.error("Quiz ID is required but not provided.");
-      return;
-    }
-
-    this.quizDataService
-      .getQuestionAndOptions(this.quizId, this.questionIndex)
-      .pipe(
-        map(data => Array.isArray(data) ? data : [null, null]),
-        map(([question, options]) => [question || null, options || null]),
-        catchError(error => {
-          console.error('Error fetching question and options:', error);
-          return of([null, null]);
-        })
-      )
-      .subscribe(([question, options]) => {
-        if (question && options) {
-          this.quizStateService.updateCurrentQuizState(of(question));
-        } else {
-          console.log('Question or options not found');
-        }
-      });
-  }
-
-  storeFormattedExplanationText(questionId: number, explanationText: string): void {
-    this.explanationTextService.explanationTexts[questionId] = explanationText;
-  }
-
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
@@ -911,6 +861,24 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  public retrieveTotalQuestionsCount(): void {
+    this.getTotalQuestions().then(total => {
+      this.totalQuestions = total;
+      this.isQuizDataLoaded = true;
+    }).catch(error => {
+      console.error('Error fetching total questions:', error);
+    });
+  }
+
+
+
+
+  storeFormattedExplanationText(questionId: number, explanationText: string): void {
+    this.explanationTextService.explanationTexts[questionId] = explanationText;
+  }
+
+  
   
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
@@ -1484,15 +1452,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private async getTotalQuestions(): Promise<number> {
     return await firstValueFrom(this.quizService.getTotalQuestions());
-  }
-
-  public retrieveTotalQuestionsCount(): void {
-    this.getTotalQuestions().then(total => {
-      this.totalQuestions = total;
-      this.isQuizDataLoaded = true;
-    }).catch(error => {
-      console.error('Error fetching total questions:', error);
-    });
   }
 
   /************************ paging functions *********************/
