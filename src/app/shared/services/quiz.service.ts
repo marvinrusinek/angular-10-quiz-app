@@ -2680,6 +2680,19 @@ export class QuizService implements OnDestroy {
     return this.shuffledQuestions;
   }
 
+  // Helper function to find a quiz by quizId
+  findQuizByQuizId(quizId: string): Quiz | undefined {
+    // Find the quiz by quizId within the quizData array
+    const foundQuiz = this.quizData.find((quiz) => quiz.quizId === quizId);
+
+    // If a quiz is found and it's indeed a Quiz (as checked by this.isQuiz), return it
+    if (foundQuiz && this.isQuiz(foundQuiz)) {
+      return foundQuiz as Quiz;
+    }
+
+    return undefined;
+  }
+
   isQuizQuestion(obj: any): obj is QuizQuestion {
     return obj != null && 
            typeof obj === 'object' &&

@@ -1074,7 +1074,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private initializeQuizState(): void {
-    const currentQuiz = this.quizService.findQuizByQuizId(this.quizId);
+    const currentQuiz = this.quizService.findQuizByQuizId(this.quizId); 
 
     // Check if the currentQuiz object is found
     if (!currentQuiz) {
