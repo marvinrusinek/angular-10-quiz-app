@@ -2383,6 +2383,10 @@ export class QuizService implements OnDestroy {
     this.combinedQuestionDataSubject.next(newData);
   }
 
+  setCorrectAnswersLoaded(loaded: boolean): void {
+    this.correctAnswersLoadedSubject.next(loaded);
+  }
+
   setCorrectMessage(
     correctAnswerOptions: Option[],
     currentOptions: Option[]
