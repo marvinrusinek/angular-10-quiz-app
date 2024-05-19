@@ -2223,6 +2223,58 @@ export class QuizService implements OnDestroy {
     return correctAnswers;
   }
 
+  async initializeCombinedQuestionData(): Promise<void> {
+    try {
+      const currentQuestion = await firstValueFrom(this.currentQuestion$);
+      if (currentQuestion) {
+        const combinedQuestionData: CombinedQuestionDataType = {
+          questionText: currentQuestion.questionText,
+          correctAnswersText: '',
+          currentQuestion: currentQuestion,
+          currentOptions: this.data.currentOptions,
+          isNavigatingToPrevious: false,
+          explanationText: '',
+          formattedExplanation:
+            this.explanationTextService.formattedExplanation$.value,
+        };
+        this.combinedQuestionDataSubject.next(combinedQuestionData);
+        this.combinedQuestionData$ = combineLatest([
+          this.combinedQuestionDataSubject.asObservable(),
+        ]).pipe(map(([combinedData]) => combinedData));
+      } else {
+        // Set combinedQuestionData with default or placeholder values
+        const defaultCombinedQuestionData: CombinedQuestionDataType = {
+          questionText: '',
+          correctAnswersText: '',
+          currentQuestion: null,
+          currentOptions: [],
+          isNavigatingToPrevious: false,
+          explanationText: '',
+          formattedExplanation: '',
+        };
+        this.combinedQuestionDataSubject.next(defaultCombinedQuestionData);
+        this.combinedQuestionData$ = combineLatest([
+          this.combinedQuestionDataSubject.asObservable(),
+        ]).pipe(map(([combinedData]) => combinedData));
+      }
+    } catch (error) {
+      console.error('Error in initializeCombinedQuestionData:', error);
+      const errorStateCombinedQuestionData: CombinedQuestionDataType = {
+        questionText: 'Error loading question',
+        correctAnswersText: '',
+        currentQuestion: null,
+        currentOptions: [],
+        isNavigatingToPrevious: false,
+        explanationText: '',
+        formattedExplanation: 'An error occurred while loading the question.',
+      };
+      this.combinedQuestionDataSubject.next(errorStateCombinedQuestionData);
+      this.combinedQuestionData$ = combineLatest([
+        this.combinedQuestionDataSubject.asObservable(),
+      ]).pipe(map(([combinedData]) => combinedData));
+    }
+  }
+
   setCorrectAnswersForQuestions(
     questions: QuizQuestion[],
     correctAnswers: Map<string, number[]>
