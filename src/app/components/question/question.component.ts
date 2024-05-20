@@ -988,19 +988,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
-    const isOptionSelected = this.checkOptionSelected(option);
-    const index = this.selectedOptions.findIndex((opt) => opt === option);
-
-    if (!isOptionSelected && index === -1) {
-      this.quizService.addSelectedOption(option, currentQuestion);
+    const isOptionSelected = this.quizService.isOptionSelected(option);
+  
+    if (!isOptionSelected) {
+      this.quizService.addSelectedOption(option);
       this.selectOption(currentQuestion, option);
     } else {
-      if (index !== -1) {
-        this.quizService.removeSelectedOption(index);
-      }
+      this.quizService.removeSelectedOption(option);
       this.unselectOption();
     }
-
+  
     this.handleMultipleAnswer(currentQuestion);
   }
 
