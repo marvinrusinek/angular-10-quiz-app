@@ -1149,6 +1149,52 @@ export class QuizService implements OnDestroy {
     return Math.round((correctAnswers / totalQuestions) * 100);
   }
 
+  setCheckedShuffle(isChecked: boolean): void {
+    this.checkedShuffle.next(isChecked);
+    this.fetchAndShuffleQuestions(this.quizId);
+  }
+
+  fetchAndShuffleQuestions(quizId: string): void {
+    if (!quizId) {
+      console.error("Received null or undefined quizId");
+      return;
+    }
+
+    this.http.get<any>(this.quizUrl)
+      .pipe(
+        map(response => {
+          const quizzes = response.quizzes || response;
+          const foundQuiz = quizzes.find((quiz: Quiz) => quiz.quizId === quizId);
+          if (!foundQuiz) {
+            throw new Error(`Quiz with ID ${quizId} not found.`);
+          }
+          return foundQuiz.questions;
+        }),
+        tap(questions => {
+          if (this.checkedShuffle && questions.length > 0) {
+            console.log("Questions before shuffle in service:", questions.map(q => q.questionText));
+            Utils.shuffleArray(questions);
+            console.log("Questions after shuffle in service:", questions.map(q => q.questionText));
+            this.shuffledQuestions = questions;  // Store shuffled questions
+          }
+        }),
+        catchError(error => {
+          console.error('Failed to fetch or process questions:', error);
+          return throwError(() => new Error('Error processing quizzes'));
+        })
+      ).subscribe({
+        next: (questions: QuizQuestion[]) => {
+          this.questions$.next(questions); // Emitting the shuffled questions
+          console.log("Emitting shuffled questions from service:", questions.map(q => q.questionText));
+        },
+        error: (error) => console.error('Error in subscription:', error)
+      });
+  }
+
+  getShuffledQuestions(): QuizQuestion[] {
+    return this.shuffledQuestions;
+  }
+
   shuffleQuestions(questions: QuizQuestion[]): QuizQuestion[] {
     if (this.checkedShuffle && questions && questions.length > 0) {
       const shuffledQuestions = Utils.shuffleArray([...questions]);  // Shuffle a copy to maintain immutability
@@ -1314,10 +1360,6 @@ export class QuizService implements OnDestroy {
     };
     this.quizScore = quizScore;
     return this.http.post<void>(`${this.quizUrl}/quiz/scores`, quizScore);
-  }
-
-  getShuffledQuestions(): QuizQuestion[] {
-    return this.shuffledQuestions;
   }
 
   // Helper function to find a quiz by quizId

@@ -29,6 +29,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   selectedQuizId: string = 'dependency-injection';
   private isCheckedSubject = new Subject<boolean>();
   shuffledQuestions: QuizQuestion[];
+  shouldShuffleOptions = false;
 
   imagePath = '../../../assets/images/milestones/';
   introImg = '';
@@ -180,7 +181,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('No quiz selected');
       return;
     }
-    this.router.navigate(['/question', quizId, 1])
+    this.router.navigate(['/question', quizId, 1], { state: { shouldShuffleOptions: this.shouldShuffleOptions } })
+    // this.router.navigate(['/question', quizId, 1])
       .then(success => {
         console.log('Navigation promise resolved:', success);
         if (success) {
