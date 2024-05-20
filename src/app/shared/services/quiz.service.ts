@@ -57,7 +57,8 @@ export class QuizService implements OnDestroy {
   selectedOptions: Option[] = [];
   resources: Resource[];
   quizId = '';
-  answers: number[] = [];
+  answers: Option[] = [];
+  answersSubject: Subject<Option[]> = new Subject<Option[]>();
   totalQuestions = 0;
   correctCount: number;
 
