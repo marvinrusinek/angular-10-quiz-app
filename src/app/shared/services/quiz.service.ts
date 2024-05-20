@@ -957,9 +957,9 @@ export class QuizService implements OnDestroy {
     return this.getQuizData().pipe(
       map((data: any) => {
         const quiz = data.find((q) => q.quizId === this.quizId);
-        const quizLength = quiz?.questions?.length;
+        const quizLength = quiz?.questions?.length || 0;
         this.totalQuestionsSubject.next(quizLength);
-        return quizLength || 0;
+        return quizLength;
       })
     );
   }
