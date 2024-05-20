@@ -1116,20 +1116,15 @@ export class QuizService implements OnDestroy {
   }
 
   updateAnswersForOption(selectedOption: Option): void {
-    // Check if the selected option is already in the answers array
     const isOptionSelected = this.answers.some(
       (answer: Option) => answer.optionId === selectedOption.optionId
     );
   
-    // If the option is not already selected, add it to the answers array
     if (!isOptionSelected) {
       this.answers.push(selectedOption);
     }
   
-    // Extract the option IDs (or another numeric value) from the answers array
     const answerIds = this.answers.map((answer: Option) => answer.optionId);
-  
-    // Emit the updated array of option IDs
     this.answersSubject.next(answerIds);
   }
 
