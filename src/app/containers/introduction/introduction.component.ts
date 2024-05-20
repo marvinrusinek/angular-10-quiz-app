@@ -182,7 +182,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       return;
     }
     this.router.navigate(['/question', quizId, 1], { state: { shouldShuffleOptions: this.shouldShuffleOptions } })
-    // this.router.navigate(['/question', quizId, 1])
       .then(success => {
         console.log('Navigation promise resolved:', success);
         if (success) {
