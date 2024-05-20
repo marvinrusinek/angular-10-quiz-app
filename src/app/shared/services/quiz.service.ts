@@ -1113,6 +1113,21 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  updateAnswersForOption(selectedOption: Option): void {
+    // Check if the selected option is already in the answers array
+    const isOptionSelected = this.answers.some(
+      (answer: Option) => answer.optionId === selectedOption.optionId
+    );
+
+    // If the option is not already selected, add it to the answers array
+    if (!isOptionSelected) {
+      this.answers.push(selectedOption);
+    }
+
+    // Emit the updated answers array
+    this.answersSubject.next(this.answers);
+  }
+
   returnQuizSelectionParams(): QuizSelectionParams {
     const quizSelectionParams = {
       startedQuizId: this.startedQuizId,
