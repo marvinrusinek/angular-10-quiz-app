@@ -947,12 +947,6 @@ export class QuizService implements OnDestroy {
     return !!this.selectedOptions[questionIndex];
   }
 
-  setTotalQuestions(totalQuestions: number): void {
-    if (this.questions) {
-      this.totalQuestionsSubject.next(totalQuestions);
-    }
-  }
-
   getTotalQuestions(): Observable<number> {
     return this.getQuizData().pipe(
       map((data: any) => {

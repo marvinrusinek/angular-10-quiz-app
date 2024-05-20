@@ -865,11 +865,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   public retrieveTotalQuestionsCount(): void {
-    this.getTotalQuestions().then(total => {
-      this.totalQuestions = total;
-      this.isQuizDataLoaded = true;
-    }).catch(error => {
-      console.error('Error fetching total questions:', error);
+    this.quizService.getTotalQuestions().subscribe({
+      next: (total: number) => {
+        this.totalQuestions = total;
+        this.isQuizDataLoaded = true;
+      },
+      error: (error) => {
+        console.error('Error fetching total questions:', error);
+      }
     });
   }
 
@@ -1450,10 +1453,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   shouldDisableButton(): boolean {
     return !this.formControl || this.formControl.valid === false;
-  }
-
-  private async getTotalQuestions(): Promise<number> {
-    return await firstValueFrom(this.quizService.getTotalQuestions());
   }
 
   /************************ paging functions *********************/
