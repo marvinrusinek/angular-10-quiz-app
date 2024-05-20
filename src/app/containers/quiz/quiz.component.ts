@@ -1441,6 +1441,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
+  shouldDisplayExplanation(): boolean {
+    return this.quizService.shouldExplanationBeDisplayed(); 
+  }
+
   /************** template logic functions ******************/
   // currently not being used
   isMultipleCorrectAnswers(): boolean {

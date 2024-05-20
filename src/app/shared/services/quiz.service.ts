@@ -105,6 +105,7 @@ export class QuizService implements OnDestroy {
 
   explanationText: BehaviorSubject<string> = new BehaviorSubject<string>('');
   displayExplanation = false;
+  shouldDisplayExplanation = false;
 
   currentAnswer = '';
   nextQuestionText = '';
@@ -1110,6 +1111,10 @@ export class QuizService implements OnDestroy {
       status: this.status
     };
     return quizSelectionParams;
+  }
+
+  shouldExplanationBeDisplayed(): boolean {
+    return this.shouldDisplayExplanation;
   }
 
   saveHighScores(): void {
