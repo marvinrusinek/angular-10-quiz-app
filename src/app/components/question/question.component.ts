@@ -790,7 +790,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
       // Determine correctness after processing the question to ensure up-to-date state
       const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
-      this.handleAudioPlayback(isCorrect);
+      // this.handleAudioPlayback(isCorrect);
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
