@@ -127,7 +127,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   shouldDisplayCorrectAnswers = false;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
-  unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
   private isDestroyed = false;
   audioAvailable = true;
@@ -191,8 +190,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.isDestroyed = true;
     this.destroy$.next();
     this.destroy$.complete();
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
     this.routeSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
     this.questionAndOptionsSubscription?.unsubscribe();
@@ -336,7 +333,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /**** Initialize route parameters and subscribe to updates ****/
   resolveQuizData(): void {
-    this.activatedRoute.data.pipe(takeUntil(this.unsubscribe$)).subscribe((data: { quizData: Quiz }) => {
+    this.activatedRoute.data.pipe(takeUntil(this.destroy$)).subscribe((data: { quizData: Quiz }) => {
       // console.log('Resolved quiz data:', data.quizData);
   
       if (data.quizData && Array.isArray(data.quizData.questions) && data.quizData.questions.length > 0) {
@@ -716,7 +713,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   refreshQuestionOnReset(): void {
     this.quizService.getCurrentQuestion().pipe( 
-      takeUntil(this.unsubscribe$)
+      takeUntil(this.destroy$)
     ).subscribe((question: QuizQuestion) => {
       this.currentQuestion = question;
       this.options = question?.options || [];
