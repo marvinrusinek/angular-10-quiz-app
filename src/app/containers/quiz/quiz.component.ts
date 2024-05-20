@@ -1510,6 +1510,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
+  public async advanceToResults(): Promise<void> {
+    try {
+      this.quizService.resetAll();
+      this.timerService.stopTimer((elapsedTime: number) => {
+        this.elapsedTimeDisplay = elapsedTime;
+      });
+      this.timerService.resetTimer();
+  
+      await this.quizService.checkIfAnsweredCorrectly();
+      this.quizService.navigateToResults();
+    } catch (error) {
+      console.error("Error during checkIfAnsweredCorrectly:", error);
+    }
+  }
+
   // combined method for preparing question data and UI
   async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
     await this.fetchAndSetQuestionData(questionIndex);
@@ -1539,20 +1554,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  advanceToResults(): void {
-    this.quizService.resetAll();
-    this.timerService.stopTimer((elapsedTime: number) => {
-      this.elapsedTimeDisplay = elapsedTime;
-    });
-    this.timerService.resetTimer();
-
-    this.quizService.checkIfAnsweredCorrectly().then(() => {
-      this.quizService.navigateToResults();
-    }).catch(error => {
-      console.error("Error during checkIfAnsweredCorrectly:", error);
-    });
-  }
-
   updateNavigationAndExplanationState(): void {
     // Update the current question index in the quiz service
     this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
@@ -1572,7 +1573,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       // this.explanationTextService.setShouldDisplayExplanation(false);
 
       const quizData: Quiz = await firstValueFrom(this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$)));
-
       if (!quizData || !quizData.questions || quizData.questions.length === 0) {
         console.warn('Quiz data is unavailable or has no questions.');
         return;
