@@ -1428,7 +1428,7 @@ export class QuizService implements OnDestroy {
   resetAll(): void {
     this.quizResetSource.next();
     this.answers = null;
-    this.correctAnswersForEachQuestion = [];
+    // this.correctAnswersForEachQuestion = [];
     this.correctAnswerOptions = [];
     this.correctOptions = [];
     this.correctMessage = '';
