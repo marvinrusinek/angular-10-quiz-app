@@ -57,8 +57,12 @@ export class QuizService implements OnDestroy {
   selectedOptions: Option[] = [];
   resources: Resource[];
   quizId = '';
+
   answers: Option[] = [];
-  answersSubject: Subject<Option[]> = new Subject<Option[]>();
+  private answersSubject = new Subject<number[]>();
+  // answersSubject: Subject<Option[]> = new Subject<Option[]>();
+  answers$ = this.answersSubject.asObservable();
+
   totalQuestions = 0;
   correctCount: number;
 
@@ -157,9 +161,6 @@ export class QuizService implements OnDestroy {
 
   private nextExplanationTextSource = new BehaviorSubject<string>('');
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
-
-  answersSubject = new BehaviorSubject<number[]>([0, 0, 0, 0]);
-  answers$ = this.answersSubject.asObservable();
 
   private quizResetSource = new Subject<void>();
   quizReset$ = this.quizResetSource.asObservable();
@@ -1119,14 +1120,17 @@ export class QuizService implements OnDestroy {
     const isOptionSelected = this.answers.some(
       (answer: Option) => answer.optionId === selectedOption.optionId
     );
-
+  
     // If the option is not already selected, add it to the answers array
     if (!isOptionSelected) {
       this.answers.push(selectedOption);
     }
-
-    // Emit the updated answers array
-    this.answersSubject.next(this.answers);
+  
+    // Extract the option IDs (or another numeric value) from the answers array
+    const answerIds = this.answers.map((answer: Option) => answer.optionId);
+  
+    // Emit the updated array of option IDs
+    this.answersSubject.next(answerIds);
   }
 
   returnQuizSelectionParams(): QuizSelectionParams {
