@@ -1322,7 +1322,6 @@ export class QuizService implements OnDestroy {
       return false;
     }
   }
-  
 
   async fetchAndFindQuiz(quizId: string): Promise<Quiz | null> {
     try {
