@@ -92,6 +92,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   explanationVisibility: boolean[] = [];
   explanationVisible = false;
 
+  shouldShuffleOptions = false;
+
   private combinedQuestionDataSubject = new BehaviorSubject<{
     question: QuizQuestion;
     options: Option[];
@@ -167,6 +169,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      this.shouldShuffleOptions = navigation.extras.state.shouldShuffleOptions || false;
+    }
+
     // Shuffle and initialize questions
     this.initializeQuestions();
 
@@ -1235,7 +1242,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         } as Option)
     ) as Option[];
 
-    if (this.selectedQuiz && this.options.length > 1) {
+    if (this.shouldShuffleOptions && this.options.length > 1) {
       Utils.shuffleArray(this.options);
     }
 
