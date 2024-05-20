@@ -366,10 +366,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
-      const zeroBasedQuestionIndex = questionIndex - 1;
-  
-      console.log(`Fetching quiz data for quizId: ${quizId}, questionIndex: ${questionIndex}`);
-  
       const selectedQuiz: Quiz = await firstValueFrom(
         this.quizDataService.getQuiz(quizId).pipe(takeUntil(this.destroy$))
       );
@@ -379,6 +375,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
       this.selectedQuiz = selectedQuiz;
 
+      const zeroBasedQuestionIndex = questionIndex - 1;
       if (zeroBasedQuestionIndex < 0 || zeroBasedQuestionIndex >= selectedQuiz.questions.length) {
         console.error('Invalid question index:', zeroBasedQuestionIndex);
         return;
