@@ -1071,6 +1071,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.showFeedback = true;
     this.selectedOption = option;
   
+    console.log('Selected options:', this.selectedOptions); // Debugging statement
+  
     // After answering, check if it's the last question
     this.handleLastQuestionAnsweredMessage();
   
@@ -1079,7 +1081,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.quizId,
       this.currentQuestionIndex,
       option.optionId
-    );
+    ); 
   
     const explanationText =
       this.explanationTextService.getFormattedExplanationTextForQuestion(
@@ -1087,7 +1089,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       ) || 'No explanation available';
     this.explanationTextService.setExplanationText(explanationText);
   
-    // Set tanlde explanation text in the quiz question manager service (if needed)
+    // Set the explanation text in the quiz question manager service (if needed)
     this.quizQuestionManagerService.setExplanationText(
       currentQuestion.explanation || ''
     );
@@ -1095,6 +1097,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Emit events and update states after the option is selected
     this.isOptionSelected = true;
     this.isAnswered = this.selectedOptions.length > 0;
+    console.log('Is answer selected:', this.isAnswered); // Debugging statement
     this.optionClicked.emit();
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
@@ -1103,7 +1106,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       question: currentQuestion,
       selectedOptions: this.selectedOptions
     });
-  }
+  }  
   
   unselectOption(): void {
     this.selectedOptions = [];
