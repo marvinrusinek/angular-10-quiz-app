@@ -1420,11 +1420,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     // Ensure an answer is selected before proceeding
-    if (!this.isAnswerSelected()) {
+    /* if (!this.isAnswerSelected()) {
       console.warn('Please select an option before continuing.');
       this.isNavigating = false;
       return;
-    }
+    } */
 
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false); 
