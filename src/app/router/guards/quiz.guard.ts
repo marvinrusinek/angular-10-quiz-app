@@ -18,7 +18,7 @@ export class QuizGuard implements CanActivate {
     const quizId = route.params['quizId'];
     const questionIndex = +route.params['questionIndex'];
 
-    console.log(`Attempting to activate route for quizId: ${quizId}, questionIndex: ${questionIndex}`);
+    // console.log(`Attempting to activate route for quizId: ${quizId}, questionIndex: ${questionIndex}`);
 
     return this.quizDataService.isValidQuiz(quizId).pipe(
       switchMap(isValid => {
