@@ -1208,22 +1208,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges(); // Manually trigger change detection
   }
 
-  handleNoQuestionsAvailable(): void {
-    this.questions = [];
-    this.currentQuestion = null;
-    this.questionToDisplay = 'No questions available.';
-    this.optionsToDisplay = [];
-    this.explanationToDisplay = '';
+  handleQuestion(question: QuizQuestion): void {
+    if (!question) {
+      console.error('Question not found');
+      return;
+    }
+
+    this.question = question;
   }
-
-  handleQuestionsLoadingError(): void {
-    this.questionToDisplay = 'Error loading questions.';
-    this.optionsToDisplay = [];
-    this.explanationToDisplay = 'Error loading explanation.';
-  }
-
-
-
 
   handleOptions(options: Option[]): void {
     if (!options || options.length === 0) {
@@ -1250,20 +1242,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.setOptions();
   }
 
-  handleParamMap(params: ParamMap): void {
-    const quizId = params.get('quizId');
-    const questionIndex = parseInt(params.get('questionIndex') || '0');
-    this.quizService.setCurrentQuestionIndex(questionIndex); 
+  handleNoQuestionsAvailable(): void {
+    this.questions = [];
+    this.currentQuestion = null;
+    this.questionToDisplay = 'No questions available.';
+    this.optionsToDisplay = [];
+    this.explanationToDisplay = '';
+  }
 
-    if (quizId) {
-      this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
-        if (quiz) {
-          this.quiz = quiz;
-          this.quizService.setQuiz(quiz); 
-          this.quizDataService.setCurrentQuiz(quiz);
-        }
-      });
-    }
+  handleQuestionsLoadingError(): void {
+    this.questionToDisplay = 'Error loading questions.';
+    this.optionsToDisplay = [];
+    this.explanationToDisplay = 'Error loading explanation.';
   }
 
   handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
@@ -1277,14 +1267,19 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Question index is not a valid number:', params.get('questionIndex'));
       return throwError(() => new Error('Invalid question index'));
     }
-
-    return this.quizService.getQuizData().pipe(
-      map((quizzes: Quiz[]) => {
-        const quizData = quizzes.find(quiz => quiz.quizId === quizId);
-        if (!quizData) {
+  
+    this.quizService.setCurrentQuestionIndex(questionIndex);
+  
+    return this.quizDataService.getQuiz(quizId).pipe(
+      map((quiz) => {
+        if (!quiz) {
           throw new Error('Quiz not found');
         }
-        return { quizId, questionIndex, quizData };
+        this.quiz = quiz;
+        this.quizService.setQuiz(quiz);
+        this.quizDataService.setCurrentQuiz(quiz);
+  
+        return { quizId, questionIndex, quizData: quiz };
       }),
       catchError((error: Error) => {
         console.error('Error processing quiz data:', error);
@@ -1309,15 +1304,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.currentQuestionIndex = currentQuestionIndex;
     this.question = quiz.questions[currentQuestionIndex];
-  }
-
-  handleQuestion(question: QuizQuestion): void {
-    if (!question) {
-      console.error('Question not found');
-      return;
-    }
-
-    this.question = question;
   }
 
   async getQuiz(id: string): Promise<void> {
