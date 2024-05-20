@@ -1074,6 +1074,11 @@ export class QuizService implements OnDestroy {
     this.selectedOptions.push(option);
   }
 
+  private removeSelectedOption(index: number): void {
+    this.selectedOptions.splice(index, 1);
+    console.log('Option is already selected or clicked to unselect.');
+  }
+
   updateSelectedOptions(
     quizId: string,
     questionIndex: number,
