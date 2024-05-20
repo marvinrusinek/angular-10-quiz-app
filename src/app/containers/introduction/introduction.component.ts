@@ -85,9 +85,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.activatedRoute.params.pipe(
       switchMap(params => {
         const quizId = params['quizId'];
-        return this.quizDataService.getQuiz(quizId).pipe(
-          delay(500) // Add delay to ensure data is fetched correctly
-        );
+        return this.quizDataService.getQuiz(quizId);
       }),
       takeUntil(this.destroy$)
     ).subscribe({
