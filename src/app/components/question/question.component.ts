@@ -1099,21 +1099,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   handleLastQuestionAnsweredMessage(): void {
     this.quizService.getTotalQuestions().subscribe({
       next: (totalQuestions) => {
+        let message: string;
         if (this.currentQuestionIndex === totalQuestions - 1) {
           if (this.quizService.isAnswered(this.currentQuestionIndex)) {
-            this.selectionMessageService.updateSelectionMessage(
-              'Please click the Show Results button'
-            );
+            message = 'Please click the Show Results button';
           } else {
-            this.selectionMessageService.updateSelectionMessage(
-              'Please select an option to continue...'
-            );
+            message = 'Please select an option to continue...';
           }
         } else {
-          this.selectionMessageService.updateSelectionMessage(
-            'Please click the next button to continue...'
-          );
+          message = 'Please click the next button to continue...';
         }
+        this.selectionMessageService.updateSelectionMessage(message);
       },
       error: (error) =>
         console.error('Failed to fetch total questions:', error),
