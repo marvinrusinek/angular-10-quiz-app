@@ -1025,7 +1025,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  selectOption(currentQuestion: QuizQuestion, option: Option): void {
+  /* selectOption(currentQuestion: QuizQuestion, option: Option): void {
     this.selectedOptions = [option];
     this.showFeedbackForOption = { [option.optionId]: true };
     this.showFeedback = true;
@@ -1063,8 +1063,48 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       question: currentQuestion,
       selectedOptions: this.selectedOptions
     });
-  }
+  } */
 
+  selectOption(currentQuestion: QuizQuestion, option: Option): void {
+    this.selectedOptions = [option];
+    this.showFeedbackForOption = { [option.optionId]: true };
+    this.showFeedback = true;
+    this.selectedOption = option;
+  
+    // After answering, check if it's the last question
+    this.handleLastQuestionAnsweredMessage();
+  
+    // Update the selected option in the quiz service and mark the question as answered
+    this.quizService.updateSelectedOptions(
+      this.quizService.quizId,
+      this.currentQuestionIndex,
+      option.optionId
+    );
+  
+    const explanationText =
+      this.explanationTextService.getFormattedExplanationTextForQuestion(
+        this.currentQuestionIndex
+      ) || 'No explanation available';
+    this.explanationTextService.setExplanationText(explanationText);
+  
+    // Set the explanation text in the quiz question manager service (if needed)
+    this.quizQuestionManagerService.setExplanationText(
+      currentQuestion.explanation || ''
+    );
+  
+    // Emit events and update states after the option is selected
+    this.isOptionSelected = true;
+    this.isAnswered = this.selectedOptions.length > 0;
+    this.optionClicked.emit();
+    this.isAnswerSelectedChange.emit(this.isAnswered);
+    this.optionSelected.emit(this.isOptionSelected);
+  
+    this.selectionChanged.emit({
+      question: currentQuestion,
+      selectedOptions: this.selectedOptions
+    });
+  }
+  
   unselectOption(): void {
     this.selectedOptions = [];
     this.optionChecked = {};
