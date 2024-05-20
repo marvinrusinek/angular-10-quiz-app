@@ -1027,24 +1027,23 @@ export class QuizService implements OnDestroy {
     );
   } */
 
-  async determineCorrectAnswer(question: QuizQuestion, answers: number[]): Promise<boolean[]> {
+  async determineCorrectAnswer(question: QuizQuestion, answers: Option[]): Promise<boolean[]> {
     return await Promise.all(
-      answers.map(async (answerId) => {
-        const option = question.options && question.options.find(opt => opt.optionId === answerId);
-        console.log('Answer ID:', answerId, 'Option:', option);
+      answers.map(async (answer) => {
+        const option = question.options && question.options.find(opt => opt.optionId === answer.optionId);
+        console.log('Answer ID:', answer.optionId, 'Option:', option);
   
         if (!option) {
-          console.error('Option not found for answer ID:', answerId);
+          console.error('Option not found for answer ID:', answer.optionId);
           return false;
         }
   
-        const isCorrect = option['selected'] && option['correct'];
+        const isCorrect = answer['selected'] && option['correct'];
         console.log('Is correct:', isCorrect);
         return isCorrect;
       })
     );
   }
-  
 
   setCorrectAnswers(
     question: QuizQuestion,
