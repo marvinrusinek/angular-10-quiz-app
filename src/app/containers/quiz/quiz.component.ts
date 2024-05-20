@@ -1366,7 +1366,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   updateProgressPercentage(): void {
     this.quizService.getTotalQuestions().subscribe({
-      next: (total) => {
+      next: (total: number) => {
         this.totalQuestions = total;
 
         if (this.totalQuestions > 0) {
