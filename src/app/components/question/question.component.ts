@@ -1040,10 +1040,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  checkOptionSelected(option: Option): boolean {
-    return this.selectedOptions.includes(option as Option);
-  }
-
   selectOption(currentQuestion: QuizQuestion, option: Option): void {
     this.selectedOptions = [option];
     this.showFeedbackForOption = { [option.optionId]: true };
