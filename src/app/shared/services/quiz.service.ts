@@ -1009,7 +1009,7 @@ export class QuizService implements OnDestroy {
     return true;
   }
 
-  async determineCorrectAnswer(question: QuizQuestion, answers: any[]): Promise<boolean[]> {
+  /* async determineCorrectAnswer(question: QuizQuestion, answers: any[]): Promise<boolean[]> {
     return await Promise.all(
       answers.map(async (answer) => {
         const option = question.options && question.options[answer];
@@ -1025,7 +1025,26 @@ export class QuizService implements OnDestroy {
         return isCorrect;
       })
     );
+  } */
+
+  async determineCorrectAnswer(question: QuizQuestion, answers: number[]): Promise<boolean[]> {
+    return await Promise.all(
+      answers.map(async (answerId) => {
+        const option = question.options && question.options.find(opt => opt.optionId === answerId);
+        console.log('Answer ID:', answerId, 'Option:', option);
+  
+        if (!option) {
+          console.error('Option not found for answer ID:', answerId);
+          return false;
+        }
+  
+        const isCorrect = option['selected'] && option['correct'];
+        console.log('Is correct:', isCorrect);
+        return isCorrect;
+      })
+    );
   }
+  
 
   setCorrectAnswers(
     question: QuizQuestion,
