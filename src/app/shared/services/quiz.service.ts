@@ -1009,24 +1009,6 @@ export class QuizService implements OnDestroy {
     return true;
   }
 
-  /* async determineCorrectAnswer(question: QuizQuestion, answers: any[]): Promise<boolean[]> {
-    return await Promise.all(
-      answers.map(async (answer) => {
-        const option = question.options && question.options[answer];
-        console.log('Answer:', answer, 'Option:', option);
-
-        if (!option) {
-          console.error('Option not found for answer:', answer);
-          return false;
-        }
-
-        const isCorrect = option['selected'] && option['correct'];
-        console.log('Is correct:', isCorrect);
-        return isCorrect;
-      })
-    );
-  } */
-
   async determineCorrectAnswer(question: QuizQuestion, answers: Option[]): Promise<boolean[]> {
     return await Promise.all(
       answers.map(async (answer) => {
