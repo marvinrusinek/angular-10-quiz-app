@@ -1087,7 +1087,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       ) || 'No explanation available';
     this.explanationTextService.setExplanationText(explanationText);
   
-    // Set the explanation text in the quiz question manager service (if needed)
+    // Set tanlde explanation text in the quiz question manager service (if needed)
     this.quizQuestionManagerService.setExplanationText(
       currentQuestion.explanation || ''
     );
