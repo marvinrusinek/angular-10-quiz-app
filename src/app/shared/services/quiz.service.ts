@@ -1069,7 +1069,7 @@ export class QuizService implements OnDestroy {
     return correctAnswersString;
   }
 
-  addSelectedOption(option: Option) {
+  addSelectedOption(option: Option): void {
     this.selectedOptions.push(option);
   }
 
