@@ -761,6 +761,23 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  // set the text of the previous user answers in an array to show in the following quiz
+  setPreviousUserAnswersText(questions: QuizQuestion[], previousAnswers): void {
+    this.previousAnswers = previousAnswers.map((answer) => {
+      if (Array.isArray(answer)) {
+        return answer.map(
+          (ans) =>
+            questions[previousAnswers.indexOf(answer)].options.find(
+              (option) => option.text === ans
+            ).text
+        );
+      }
+      return questions[previousAnswers.indexOf(answer)].options.find(
+        (option) => option.text === answer
+      ).text;
+    });
+  }
+
   calculateCorrectAnswers(questions: QuizQuestion[]): Map<string, number[]> {
     const correctAnswers = new Map<string, number[]>();
     questions.forEach((question) => {
@@ -1418,7 +1435,7 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndex = 0;
   }
 
-  /* Audio functions to be retained */
+    /* Audio functions to be retained */
   /* initializeSounds(): void {
     if (!this.soundsLoaded) {
       // URLs are directly accessible, ensure that you manually check these URLs in a web browser.
