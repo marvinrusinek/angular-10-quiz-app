@@ -1354,9 +1354,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.getTotalQuestions().subscribe({
       next: (total: number) => {
         this.totalQuestions = total;
-
+  
         if (this.totalQuestions > 0) {
-          this.progressPercentage = (this.currentQuestionIndex / this.totalQuestions) * 100;
+          const clampedIndex = Math.max(0, Math.min(this.currentQuestionIndex, this.totalQuestions - 1));
+          this.progressPercentage = (clampedIndex / this.totalQuestions) * 100;
         } else {
           this.progressPercentage = 0;
         }
@@ -1366,8 +1367,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
-
-
 
   animationDoneHandler(): void {
     this.animationState$.next('none');
