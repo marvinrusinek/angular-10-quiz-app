@@ -45,7 +45,6 @@ export class QuizService implements OnDestroy {
   questions: QuizQuestion[];
   questions$ = new BehaviorSubject<QuizQuestion[]>([]);
   nextQuestion: QuizQuestion;
-  isOptionSelected = false;
   isNavigating = false;
 
   private answerStatus = new BehaviorSubject<boolean>(false);
@@ -1074,9 +1073,13 @@ export class QuizService implements OnDestroy {
     this.selectedOptions.push(option);
   }
 
-  private removeSelectedOption(index: number): void {
+  removeSelectedOption(index: number): void {
     this.selectedOptions.splice(index, 1);
     console.log('Option is already selected or clicked to unselect.');
+  }
+
+  isOptionSelected(option: Option): boolean {
+    return this.selectedOptions.includes(option);
   }
 
   updateSelectedOptions(
