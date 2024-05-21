@@ -42,7 +42,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeData();
-    this.subscribeToSelectedQuiz();
     this.loadQuiz();
     this.handleRouteParameters();
     this.handleQuizSelectionAndFetchQuestions();
@@ -62,15 +61,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     });
   }
 
-  private subscribeToSelectedQuiz(): void {
-    this.selectedQuiz$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((selectedQuiz: Quiz) => {
-        this.introImg = selectedQuiz ? this.imagePath + selectedQuiz.image : '';
-        this.cdRef.markForCheck();
-      });
-  }
-
   private loadQuiz(): void {
     this.activatedRoute.params.pipe(
       switchMap((params: ParamMap) => {
@@ -82,6 +72,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       next: (quiz: Quiz) => {
         if (quiz) {
           this.selectedQuiz$.next(quiz);
+          this.introImg = this.imagePath + quiz.image;
           this.cdRef.markForCheck();
         } else {
           console.error('Quiz is undefined or null');
@@ -92,6 +83,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       }
     });
   }
+  
 
   private handleRouteParameters(): void {
     this.activatedRoute.paramMap
