@@ -15,9 +15,14 @@ import { QuizDataService } from '../../../shared/services/quizdata.service';
 export class CodelabQuizHeaderComponent { 
   currentQuiz$: Observable<Quiz>;
 
-  constructor(private quizService: QuizService, private quizDataService: QuizDataService) {
+  constructor(
+    private quizService: QuizService,
+    private quizDataService: QuizDataService
+  ) {
     this.currentQuiz$ = this.quizDataService.quizzes$.pipe(
-      map(quizzes => quizzes.find((quiz: Quiz) => quiz.quizId === this.quizService.quizId))
+      map((quizzes: Quiz[]) => 
+        quizzes.find((quiz: Quiz) => quiz.quizId === this.quizService.quizId)
+      )
     );
   }
 }
