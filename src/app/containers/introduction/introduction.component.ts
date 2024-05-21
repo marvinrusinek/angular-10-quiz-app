@@ -26,9 +26,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   shuffledQuestions: QuizQuestion[];
   shouldShuffleOptions = false;
 
-  imagePath = '../../../assets/images/milestones/';
-  introImg = '';
   questionLabel = '';
+  introImg = '';
+  imagePath = '../../../assets/images/milestones/';
 
   private destroy$ = new Subject<void>();
 
