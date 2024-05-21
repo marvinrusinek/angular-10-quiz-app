@@ -151,14 +151,14 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     });
   } 
 
-  private handleQuestionOptions(questions: QuizQuestion[]): void {
+  /* private handleQuestionOptions(questions: QuizQuestion[]): void {
     questions.forEach(question => {
       if (question.options && Array.isArray(question.options)) {
         this.quizService.shuffleAnswers(question.options);
       }
     });
     this.cdRef.detectChanges(); // Ensure updates to options are detected too
-  }
+  } */ // remove
   
   onCheckboxChange(event: { checked: boolean }): void {
     console.log('Checkbox change event:', event);
