@@ -26,7 +26,6 @@ interface QuizTileStyles {
 })
 export class QuizSelectionComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
-  quizzes: Quiz[] = [];
   selectedQuiz: Quiz;
   currentQuestionIndex: number;
   animationState$ = new BehaviorSubject<AnimationState>('none');
