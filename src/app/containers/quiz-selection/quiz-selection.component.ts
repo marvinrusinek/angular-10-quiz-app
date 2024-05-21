@@ -135,14 +135,17 @@ export class QuizSelectionComponent implements OnInit {
 
   getLinkRouterLink(quiz: Quiz): string[] {
     const quizId = quiz.quizId;
+    const currentQuestionIndexStr = `${this.currentQuestionIndex}`;
+
     switch (quiz.status) {
       case QuizStatus.STARTED:
         return [QuizRoutes.INTRO, quizId];
       case QuizStatus.CONTINUE:
-        return [QuizRoutes.QUESTION, quizId, 
-          this.currentQuestionIndex.toString()];
+        return [QuizRoutes.QUESTION, quizId, currentQuestionIndexStr];
       case QuizStatus.COMPLETED:
         return [QuizRoutes.RESULTS, quizId];
+      default:
+        return [];
     }
   }
 
