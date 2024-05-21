@@ -77,8 +77,8 @@ export class QuizSelectionComponent implements OnInit {
         throw new Error('Quiz ID is null or undefined');
       }
   
-      this.quizService.setIndexOfQuizId(index);
       this.quizService.quizId = quizId;
+      this.quizService.setIndexOfQuizId(index);
       this.router.navigate([QuizRoutes.INTRO, quizId]);
     } catch (error) {
       console.error(error.message);
