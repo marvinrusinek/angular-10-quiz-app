@@ -41,10 +41,11 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.initializeData();
+    this.initializeComponent();
+    /* this.initializeData();
     this.loadQuiz();
     this.handleRouteParameters();
-    this.handleQuizSelectionAndFetchQuestions();
+    this.handleQuizSelectionAndFetchQuestions(); */
   }
   
   ngOnDestroy(): void {
@@ -52,16 +53,23 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  private initializeComponent(): void {
+    this.initializeData();
+    this.subscribeToRouteParameters();
+    this.handleQuizSelectionAndFetchQuestions();
+  }
+
   private initializeData(): void {
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     this.selectedQuiz$.pipe(takeUntil(this.destroy$)).subscribe((quiz: Quiz | null) => {
-      this.quizId = quiz?.quizId ?? '';
-      this.questionLabel = this.getPluralizedQuestionLabel(quiz?.questions.length ?? 0);
+      this.quizId = quiz.quizId;
+      this.questionLabel = this.getPluralizedQuestionLabel(quiz.questions.length);
+      this.introImg = this.imagePath + quiz.image;
       this.cdRef.markForCheck();
     });
   }
 
-  private loadQuiz(): void {
+  private subscribeToRouteParameters(): void {
     this.activatedRoute.params.pipe(
       switchMap((params: ParamMap) => {
         this.quizId = params['quizId'];
@@ -72,8 +80,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       next: (quiz: Quiz) => {
         if (quiz) {
           this.selectedQuiz$.next(quiz);
-          this.introImg = this.imagePath + quiz.image;
-          this.cdRef.markForCheck();
         } else {
           console.error('Quiz is undefined or null');
         }
@@ -83,9 +89,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       }
     });
   }
-  
 
-  private handleRouteParameters(): void {
+  /* private handleRouteParameters(): void {
     this.activatedRoute.paramMap
       .pipe(
         switchMap((params: ParamMap) => {
@@ -107,14 +112,14 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           console.error('An error occurred while setting the quiz:', error.message);
         }
       });
-  }
+  } */ // remove
 
   private handleQuizSelectionAndFetchQuestions(): void {
     this.isCheckedSubject.pipe(
-      withLatestFrom(this.quizDataService.selectedQuiz$),
+      withLatestFrom(this.selectedQuiz$),
       tap(([checked, selectedQuiz]) => {
         if (checked && selectedQuiz) {
-          this.fetchAndHandleQuestions(selectedQuiz?.quizId);
+          this.fetchAndHandleQuestions(selectedQuiz.quizId);
         } else {
           console.log('Waiting for checkbox to be checked and quiz to be selected');
         }
@@ -126,8 +131,14 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   private fetchAndHandleQuestions(quizId: string): void {
     this.quizDataService.getQuestionsForQuiz(quizId).pipe(
       switchMap((questions: QuizQuestion[]) => {
-        this.quizService.shuffleQuestions(questions);
-        return of([...questions]); // ensures a new array reference
+        if (this.shouldShuffleOptions) {
+          questions = this.quizService.shuffleQuestions(questions);
+          questions = questions.map(q => ({
+            ...q,
+            options: this.quizService.shuffleAnswers(q.options)
+          }));
+        }
+        return of(questions);
       }),
       catchError((error: Error) => {
         console.error('Failed to load questions for quiz:', error);
@@ -136,10 +147,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe((questions: QuizQuestion[]) => {
       this.shuffledQuestions = questions;
-      this.handleQuestionOptions(questions);
-      this.cdRef.detectChanges();
+      this.cdRef.markForCheck();
     });
-  }
+  } 
 
   private handleQuestionOptions(questions: QuizQuestion[]): void {
     questions.forEach(question => {
