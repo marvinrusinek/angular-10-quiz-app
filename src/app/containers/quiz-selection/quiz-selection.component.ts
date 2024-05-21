@@ -42,7 +42,6 @@ export class QuizSelectionComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeQuizSelection();
-    this.subscribeToSelectedQuiz();
   }
 
   ngOnDestroy(): void {
@@ -55,6 +54,7 @@ export class QuizSelectionComponent implements OnInit {
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.quizzes$ = this.quizDataService.getQuizzes();
+    this.subscribeToSelectedQuiz();
   }
 
   private subscribeToSelectedQuiz(): void {
