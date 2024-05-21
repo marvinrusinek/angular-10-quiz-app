@@ -59,8 +59,7 @@ export class QuizService implements OnDestroy {
   quizId = '';
 
   answers: Option[] = [];
-  private answersSubject = new Subject<number[]>();
-  // answersSubject: Subject<Option[]> = new Subject<Option[]>();
+  answersSubject = new Subject<number[]>();
   answers$ = this.answersSubject.asObservable();
 
   totalQuestions = 0;
