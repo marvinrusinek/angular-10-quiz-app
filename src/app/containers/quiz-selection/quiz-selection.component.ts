@@ -9,6 +9,7 @@ import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuizStatus } from '../../shared/models/quiz-status.enum';
 import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
+import { QuizTileStyles } from '../../shared/models/QuizTileStyles.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 
