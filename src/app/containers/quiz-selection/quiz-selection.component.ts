@@ -12,11 +12,6 @@ import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.mod
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 
-interface QuizTileStyles {
-  background: string;
-  'background-size': string;
-}
-
 @Component({
   selector: 'codelab-quiz-selection',
   templateUrl: './quiz-selection.component.html',
