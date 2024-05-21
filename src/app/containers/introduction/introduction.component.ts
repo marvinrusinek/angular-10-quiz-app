@@ -73,7 +73,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   private loadQuiz(): void {
     this.activatedRoute.params.pipe(
-      switchMap(params => {
+      switchMap((params: ParamMap) => {
         this.quizId = params['quizId'];
         return this.quizDataService.getQuiz(this.quizId);
       }),
@@ -92,7 +92,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       }
     });
   }
-  
 
   private handleRouteParameters(): void {
     this.activatedRoute.paramMap
@@ -161,8 +160,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   
   onCheckboxChange(event: { checked: boolean }): void {
     console.log('Checkbox change event:', event);
-    this.quizService.setCheckedShuffle(event.checked);
     this.isCheckedSubject.next(event.checked);
+    this.quizService.setCheckedShuffle(event.checked);
   }
 
   onStartQuiz(quizId: string): void {
