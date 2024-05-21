@@ -79,6 +79,10 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       next: (quiz: Quiz) => {
         if (quiz) {
           this.selectedQuiz$.next(quiz);
+          this.quiz = quiz;
+          this.introImg = this.imagePath + quiz.image;
+          this.questionLabel = this.getPluralizedQuestionLabel(quiz.questions.length);
+          this.cdRef.markForCheck();
           console.log('Quiz set in selectedQuiz$: ', quiz);
         } else {
           console.error('Quiz is undefined or null');
