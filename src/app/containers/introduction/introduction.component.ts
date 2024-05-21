@@ -54,32 +54,37 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   private initializeComponent(): void {
-    this.initializeData();
     this.subscribeToRouteParameters();
     this.handleQuizSelectionAndFetchQuestions();
   }
 
-  private initializeData(): void {
-    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-    this.selectedQuiz$.pipe(takeUntil(this.destroy$)).subscribe((quiz: Quiz | null) => {
-      this.quizId = quiz.quizId;
-      this.questionLabel = this.getPluralizedQuestionLabel(quiz.questions.length);
-      this.introImg = this.imagePath + quiz.image;
-      this.cdRef.markForCheck();
-    });
-  }
-
   private subscribeToRouteParameters(): void {
     this.activatedRoute.params.pipe(
-      switchMap((params: ParamMap) => {
+      tap((params: ParamMap) => {
+        console.log('Route params:', params);
         this.quizId = params['quizId'];
-        return this.quizDataService.getQuiz(this.quizId);
+      }),
+      switchMap((params: ParamMap) => {
+        const quizId = params['quizId'];
+        if (!quizId) {
+          console.error('No quiz ID found in route parameters');
+          return throwError(() => new Error('No quiz ID found in route parameters'));
+        }
+        console.log('Fetching quiz with ID:', quizId);
+        return this.quizDataService.getQuiz(quizId);
+      }),
+      tap(quiz => {
+        console.log('Quiz loaded:', quiz);
+        if (!quiz) {
+          console.error('Quiz is undefined or null after fetching');
+        }
       }),
       takeUntil(this.destroy$)
     ).subscribe({
       next: (quiz: Quiz) => {
         if (quiz) {
           this.selectedQuiz$.next(quiz);
+          console.log('Quiz set in selectedQuiz$: ', quiz);
         } else {
           console.error('Quiz is undefined or null');
         }
@@ -90,36 +95,15 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     });
   }
 
-  /* private handleRouteParameters(): void {
-    this.activatedRoute.paramMap
-      .pipe(
-        switchMap((params: ParamMap) => {
-          const quizId = params.get('quizId');
-          if (!quizId) {
-            console.error('Quiz ID is null or undefined');
-            return throwError(() => new Error('Quiz ID is null or undefined'));
-          }
-          return this.quizDataService.getQuiz(quizId);
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe({
-        next: (quiz: Quiz) => {
-          this.quizDataService.setCurrentQuiz(quiz);
-          this.cdRef.markForCheck();
-        },
-        error: (error) => {
-          console.error('An error occurred while setting the quiz:', error.message);
-        }
-      });
-  } */ // remove
-
   private handleQuizSelectionAndFetchQuestions(): void {
-    this.isCheckedSubject.pipe(
-      withLatestFrom(this.selectedQuiz$),
-      tap(([checked, selectedQuiz]) => {
-        if (checked && selectedQuiz) {
-          this.fetchAndHandleQuestions(selectedQuiz.quizId);
+    this.selectedQuiz$.pipe(
+      tap(quiz => console.log('Handling quiz selection:', quiz)),
+      withLatestFrom(this.isCheckedSubject),
+      tap(([quiz, checked]) => {
+        console.log('Checkbox checked:', checked);
+        if (checked && quiz) {
+          console.log('Fetching and handling questions for quiz:', quiz.quizId);
+          this.fetchAndHandleQuestions(quiz.quizId);
         } else {
           console.log('Waiting for checkbox to be checked and quiz to be selected');
         }
@@ -150,15 +134,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       this.cdRef.markForCheck();
     });
   } 
-
-  /* private handleQuestionOptions(questions: QuizQuestion[]): void {
-    questions.forEach(question => {
-      if (question.options && Array.isArray(question.options)) {
-        this.quizService.shuffleAnswers(question.options);
-      }
-    });
-    this.cdRef.detectChanges(); // Ensure updates to options are detected too
-  } */ // remove
   
   onCheckboxChange(event: { checked: boolean }): void {
     console.log('Checkbox change event:', event);
