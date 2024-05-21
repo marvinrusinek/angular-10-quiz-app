@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -28,12 +22,12 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
   selectedQuizId: string = 'dependency-injection';
   private isCheckedSubject = new Subject<boolean>();
+
   shuffledQuestions: QuizQuestion[];
   shouldShuffleOptions = false;
 
   imagePath = '../../../assets/images/milestones/';
   introImg = '';
-
   questionLabel = '';
 
   private destroy$ = new Subject<void>();
@@ -47,10 +41,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.activatedRoute.params.subscribe(params => {
-      this.quizId = params['quizId'];
-    });
-
     this.initializeData();
     this.subscribeToSelectedQuiz();
     this.loadQuiz();
@@ -84,8 +74,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   private loadQuiz(): void {
     this.activatedRoute.params.pipe(
       switchMap(params => {
-        const quizId = params['quizId'];
-        return this.quizDataService.getQuiz(quizId);
+        this.quizId = params['quizId'];
+        return this.quizDataService.getQuiz(this.quizId);
       }),
       takeUntil(this.destroy$)
     ).subscribe({
@@ -102,6 +92,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       }
     });
   }
+  
 
   private handleRouteParameters(): void {
     this.activatedRoute.paramMap
