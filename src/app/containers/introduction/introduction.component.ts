@@ -20,7 +20,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
   selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
-  selectedQuizId: string = 'dependency-injection';
   private isCheckedSubject = new Subject<boolean>();
 
   shuffledQuestions: QuizQuestion[];
@@ -42,10 +41,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeComponent();
-    /* this.initializeData();
-    this.loadQuiz();
-    this.handleRouteParameters();
-    this.handleQuizSelectionAndFetchQuestions(); */
   }
   
   ngOnDestroy(): void {
