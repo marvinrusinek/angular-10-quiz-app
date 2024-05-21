@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
-import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
