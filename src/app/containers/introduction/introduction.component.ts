@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
@@ -55,45 +55,55 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   private subscribeToRouteParameters(): void {
     this.activatedRoute.params.pipe(
-      tap((params: ParamMap) => {
-        console.log('Route params:', params);
-        this.quizId = params['quizId'];
-      }),
-      switchMap((params: ParamMap) => {
-        const quizId = params['quizId'];
-        if (!quizId) {
-          console.error('No quiz ID found in route parameters');
-          return throwError(() => new Error('No quiz ID found in route parameters'));
-        }
-        console.log('Fetching quiz with ID:', quizId);
-        return this.quizDataService.getQuiz(quizId);
-      }),
-      tap(quiz => {
-        console.log('Quiz loaded:', quiz);
-        if (!quiz) {
-          console.error('Quiz is undefined or null after fetching');
-        }
-      }),
+      tap(params => this.handleRouteParams(params)),
+      switchMap(params => this.fetchQuiz(params)),
+      tap(quiz => this.logQuizLoaded(quiz)),
       takeUntil(this.destroy$)
     ).subscribe({
-      next: (quiz: Quiz) => {
-        if (quiz) {
-          this.selectedQuiz$.next(quiz);
-          this.quiz = quiz;
-          this.introImg = this.imagePath + quiz.image;
-          this.questionLabel = this.getPluralizedQuestionLabel(quiz.questions.length);
-          this.cdRef.markForCheck();
-          console.log('Quiz set in selectedQuiz$: ', quiz);
-        } else {
-          console.error('Quiz is undefined or null');
-        }
-      },
-      error: (error) => {
-        console.error('Error loading quiz:', error);
-      }
+      next: quiz => this.handleLoadedQuiz(quiz),
+      error: error => this.handleError(error)
     });
   }
-
+  
+  private handleRouteParams(params: Params): void {
+    console.log('Route params:', params);
+    this.quizId = params['quizId'];
+  }
+  
+  private fetchQuiz(params: Params) {
+    const quizId = params['quizId'];
+    if (!quizId) {
+      console.error('No quiz ID found in route parameters');
+      return throwError(() => new Error('No quiz ID found in route parameters'));
+    }
+    console.log('Fetching quiz with ID:', quizId);
+    return this.quizDataService.getQuiz(quizId);
+  }
+  
+  private logQuizLoaded(quiz: Quiz | null): void {
+    console.log('Quiz loaded:', quiz);
+    if (!quiz) {
+      console.error('Quiz is undefined or null after fetching');
+    }
+  }
+  
+  private handleLoadedQuiz(quiz: Quiz): void {
+    if (quiz) {
+      this.selectedQuiz$.next(quiz);
+      this.quiz = quiz;
+      this.introImg = this.imagePath + quiz.image;
+      this.questionLabel = this.getPluralizedQuestionLabel(quiz.questions.length);
+      this.cdRef.markForCheck();
+      console.log('Quiz set in selectedQuiz$: ', quiz);
+    } else {
+      console.error('Quiz is undefined or null');
+    }
+  }
+  
+  private handleError(error: any): void {
+    console.error('Error loading quiz:', error);
+  }
+  
   private handleQuizSelectionAndFetchQuestions(): void {
     this.selectedQuiz$.pipe(
       tap(quiz => console.log('Handling quiz selection:', quiz)),
