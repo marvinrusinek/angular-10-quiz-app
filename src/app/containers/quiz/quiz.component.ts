@@ -734,10 +734,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  isAnswerSelected(): Observable<boolean> {
+  /* isAnswerSelected(): Observable<boolean> {
     console.log('isAnswerSelected called', this.isAnswered$); // Debugging
     return this.isAnswered$;
-  } 
+  } */
 
   private loadQuestion(index: number, resetMessage: boolean = false): void {
     this.quizService.getQuestionByIndex(index).pipe(
