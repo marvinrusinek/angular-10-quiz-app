@@ -713,14 +713,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     return -1;
   }
 
-  isAnswerSelected(): void {
-    this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
+  /* isAnswerSelected(): void {
+   this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
       next: (isAnswered) => {
         this.answered = isAnswered; // Update the class property
         // Perform additional actions if needed
       },
       error: (error) => console.error('Failed to determine if question is answered:', error)
     });
+  } */
+
+  isAnswerSelected(): Observable<boolean> {
+    return this.isAnswered$ || of(false);
   }
 
   private notifyOnNavigationEnd(): void {
