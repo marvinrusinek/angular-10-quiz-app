@@ -81,7 +81,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
   
   private logQuizLoaded(quiz: Quiz | null): void {
-    console.log('Quiz loaded:', quiz);
+    // console.log('Quiz loaded:', quiz);
     if (!quiz) {
       console.error('Quiz is undefined or null after fetching');
     }
@@ -94,7 +94,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       this.introImg = this.imagePath + quiz.image;
       this.questionLabel = this.getPluralizedQuestionLabel(quiz.questions.length);
       this.cdRef.markForCheck();
-      console.log('Quiz set in selectedQuiz$: ', quiz);
     } else {
       console.error('Quiz is undefined or null');
     }
@@ -106,7 +105,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   
   private handleQuizSelectionAndFetchQuestions(): void {
     this.selectedQuiz$.pipe(
-      tap(quiz => console.log('Handling quiz selection:', quiz)),
       withLatestFrom(this.isCheckedSubject),
       tap(([quiz, checked]) => {
         console.log('Checkbox checked:', checked);
