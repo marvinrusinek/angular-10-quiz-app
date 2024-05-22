@@ -178,7 +178,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.params.subscribe(params => {
       this.currentQuestionIndex = +params['index'];
-      this.loadQuestion(this.currentQuestionIndex, true);
+      this.loadQuestion(this.currentQuestionIndex);
     });
 
     // Shuffle and initialize questions
@@ -722,9 +722,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.router.events.pipe(
       filter((event: RouterEvent) => event instanceof NavigationEnd)
     ).subscribe(() => {
-      this.loadQuestion(this.currentQuestionIndex, false); // Ensure the question is reloaded on navigation end
+      this.route.params.subscribe(params => {
+        this.currentQuestionIndex = +params['index'];
+        this.loadQuestion(this.currentQuestionIndex);
+      });
     });
   }
+  
   
   private updateSelectionMessage(resetMessage: boolean = true): void {
     if (resetMessage) {
@@ -978,17 +982,28 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadQuestion(index: number, resetMessage: boolean = false): void {
+  private loadQuestion(index: number): void {
     this.quizService.getQuestionByIndex(index).subscribe({
       next: (question) => {
         this.currentQuestion = question;
-        this.updateSelectionMessage(resetMessage); // Call the update method after loading the question
+        this.quizService.isAnswered(index).subscribe({
+          next: (isAnswered) => {
+            const message = this.selectionMessageService.determineSelectionMessage(
+              index,
+              this.quizService.getTotalQuestionsCount(),
+              isAnswered
+            );
+            this.selectionMessageService.updateSelectionMessage(message);
+          },
+          error: (error) => console.error('Failed to determine if question is answered:', error)
+        });
       },
       error: (error) => {
         console.error('Failed to load question:', error);
       }
     });
   }
+  
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
