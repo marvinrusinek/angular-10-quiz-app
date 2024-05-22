@@ -10,7 +10,9 @@ export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = 
     new BehaviorSubject<string | null>('');
   explanationTexts: Record<number, string> = {};
+
   currentQuestionExplanation: string | null = null;
+  
   formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
