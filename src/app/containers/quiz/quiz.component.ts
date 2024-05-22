@@ -179,7 +179,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.params.subscribe(params => {
       this.currentQuestionIndex = +params['index'];
-      this.loadQuestion(this.currentQuestionIndex, true);
+      this.loadQuestionNew(this.currentQuestionIndex, true);
     });
 
     // Shuffle and initialize questions
@@ -211,9 +211,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.router.events.pipe(
       filter((event: RouterEvent) => event instanceof NavigationEnd)
     ).subscribe(() => {
-      this.route.params.subscribe(params => {
+      this.activatedRoute.params.subscribe(params => {
         this.currentQuestionIndex = +params['index'];
-        this.loadQuestion(this.currentQuestionIndex);
+        this.loadQuestionNew(this.currentQuestionIndex);
       });
     });
   }
@@ -1016,16 +1016,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadQuestion(index: number, resetMessage: boolean = false): void {
+  private loadQuestionNew(index: number, resetMessage: boolean = false): void {
     this.quizService.getQuestionByIndex(index).pipe(
       switchMap(question => {
         this.currentQuestion = question;
         this.isAnswered$ = this.quizService.isAnswered(index);
-        console.log('isAnswered$', this.isAnswered$);
+        console.log('isAnswered$', this.isAnswered$); // Debugging
         return this.quizService.getTotalQuestions().pipe(
           switchMap(totalQuestions => this.isAnswered$.pipe(
             tap(isAnswered => {
-              console.log('isAnswered', isAnswered);
+              console.log('isAnswered', isAnswered); // Debugging
               const message = this.selectionMessageService.determineSelectionMessage(
                 index,
                 totalQuestions,
