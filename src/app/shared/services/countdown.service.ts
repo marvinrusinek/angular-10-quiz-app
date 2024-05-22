@@ -9,7 +9,7 @@ export class CountdownService {
   reset$: Observable<number>;
   stop$: Observable<number>;
   concat$: Observable<number>;
-  timeLeft$: Observable<number>;
+  timeLeft$!: Observable<number>;
   elapsedTime = 0;
 
   timer: Observable<number>;

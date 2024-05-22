@@ -19,7 +19,7 @@ enum TimerType {
 })
 export class TimerComponent implements OnInit {
   timerType = TimerType;
-  timeLeft$: Observable<number>;
+  timeLeft$!: Observable<number>;
   answer: number;
   timePerQuestion = 30;
   time$: Observable<number>;
