@@ -82,7 +82,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswerField: number;
   selectionMessage: string;
   selectionMessage$: Observable<string>;
-  isAnswered$: Observable<boolean>;
+  isAnswered$: Observable<boolean> = of(false);
   correctAnswers: any[] = [];
   nextExplanationText = '';
   correctAnswersText: string;
