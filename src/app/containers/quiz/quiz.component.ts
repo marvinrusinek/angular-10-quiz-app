@@ -713,19 +713,21 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private updateSelectionMessage(): void {
+    let message: string;
+  
     if (this.currentQuestionIndex === this.totalQuestions - 1) {
       if (this.quizService.isAnswered(this.currentQuestionIndex)) {
-        this.selectionMessageService.selectionMessageSubject.next("Please click the Show Results button");
+        message = "Please click the Show Results button";
       } else {
-        this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
+        message = "Please select an option to continue...";
       }
     } else {
-      this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
+      message = "Please select an option to continue...";
     }
-  }
-
   
-
+    this.selectionMessageService.selectionMessageSubject.next(message);
+  }
+  
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
     this.quizService.setQuizData([selectedQuiz]);
     this.quizService.setSelectedQuiz(selectedQuiz);
