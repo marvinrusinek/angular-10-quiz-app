@@ -666,7 +666,16 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Error fetching question from service:', error);
       }
     });
-  }  
+  }
+
+  refreshQuestionOnReset(): void {
+    this.quizService.getCurrentQuestion().pipe( 
+      takeUntil(this.unsubscribe$)
+    ).subscribe((question: QuizQuestion) => {
+      this.currentQuestion = question;
+      this.options = question?.options || [];
+    });
+  }
 
   checkAndDisplayCorrectAnswers(): void {
     const multipleAnswerQuestionIndex = this.findCurrentMultipleAnswerQuestionIndex();
@@ -689,14 +698,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return -1;
   }
 
-  refreshQuestionOnReset(): void {
-    this.quizService.getCurrentQuestion().pipe( 
-      takeUntil(this.unsubscribe$)
-    ).subscribe((question: QuizQuestion) => {
-      this.currentQuestion = question;
-      this.options = question?.options || [];
-    });
-  }
+  
 
   isAnswerSelected(): boolean {
     return this.quizService.isAnswered(this.currentQuestionIndex);
