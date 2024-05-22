@@ -724,7 +724,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   isAnswerSelected(): Observable<boolean> {
-    return this.isAnswered$ || of(false);
+    return this.isAnswered$;
   }
 
   private notifyOnNavigationEnd(): void {
@@ -991,15 +991,19 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private loadQuestion(index: number, resetMessage: boolean = false): void {
-    this.quizService.getQuestionByIndex(index).subscribe({
-      next: (question) => {
+    this.quizService.getQuestionByIndex(index).pipe(
+      switchMap(question => {
         this.currentQuestion = question;
-        this.isAnswered$ = this.quizService.isAnswered(index); // Update isAnswered$ observable
+        this.isAnswered$ = this.quizService.isAnswered(index);
+        return this.quizService.getTotalQuestions();
+      })
+    ).subscribe({
+      next: (totalQuestions) => {
         this.isAnswered$.subscribe({
           next: (isAnswered) => {
             const message = this.selectionMessageService.determineSelectionMessage(
               index,
-              this.quizService.getTotalQuestions(),
+              totalQuestions,
               isAnswered
             );
             this.selectionMessageService.updateSelectionMessage(message);
@@ -1008,7 +1012,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         });
       },
       error: (error) => {
-        console.error('Failed to load question:', error);
+        console.error('Failed to load question or total questions:', error);
       }
     });
   }
