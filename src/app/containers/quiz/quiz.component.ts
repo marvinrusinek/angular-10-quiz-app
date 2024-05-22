@@ -515,7 +515,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
   }
   
-
+  /****** Start of functions responsible for handling navigation to a particular question using the URL. ******/
   setupNavigation(): void {
     this.activatedRoute.params.pipe(
       takeUntil(this.destroy$),
@@ -566,6 +566,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
+  // This function updates the content based on the provided index.
+  // It validates the index, checks if navigation is needed, and loads the appropriate question.
   updateContentBasedOnIndex(index: number): void {
     const adjustedIndex = index - 1; 
 
@@ -590,6 +592,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationToDisplay = "";
   }
 
+  // This function loads the question corresponding to the provided index.
+  // It sets the current question and options to display based on the index.
   loadQuestionByRouteIndex(index: number): void {
     if (!this.quiz || index < 0 || index >= this.quiz.questions.length) {
       console.error("Question index out of bounds:", index);
@@ -618,7 +622,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     this.cdRef.detectChanges();
-  }  
+  }
+  /****** end of functions responsible for handling navigation to a particular question using the URL. ******/
 
   shouldShowExplanation(index: number): boolean {
     return !!this.explanationToDisplay;
