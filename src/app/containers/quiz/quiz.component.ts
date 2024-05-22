@@ -1140,6 +1140,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questionToDisplay = selectedQuestion.questionText;
       this.optionsToDisplay = selectedQuestion.options;
       this.updateExplanationText(questionIndex);
+      this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
     } else {
       console.warn(`Invalid question index: ${questionIndex}. Unable to update the question display.`);
     }
@@ -1477,7 +1478,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         // Combine fetching data and initializing question state into a single method
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-        this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
 
         this.resetUI();
       } else {
