@@ -106,7 +106,7 @@
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
               aria-label="Next Question"
-              [disabled]="!(isAnswerSelected() | async)"
+              [disabled]="!isAnswered"
               title="Please select an option before continuing."
               data-toggle="tooltip" data-placement="top"
             >
