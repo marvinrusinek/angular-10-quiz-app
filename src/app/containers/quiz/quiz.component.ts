@@ -764,7 +764,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
   
-  private updateSelectionMessage(resetMessage: boolean = true): void {
+  /* private updateSelectionMessage(resetMessage: boolean = true): void {
     if (resetMessage) {
       this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
     } else {
@@ -781,7 +781,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Failed to fetch total questions:', error),
       });
     }
-  }
+  } */
   
 
   /* private updateSelectionMessage(): void {
