@@ -998,7 +998,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         return this.quizService.getTotalQuestions();
       })
     ).subscribe({
-      next: (totalQuestions) => {
+      next: (totalQuestions: number) => {
         this.isAnswered$.subscribe({
           next: (isAnswered) => {
             const message = this.selectionMessageService.determineSelectionMessage(
