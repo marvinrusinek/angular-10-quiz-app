@@ -943,8 +943,8 @@ export class QuizService implements OnDestroy {
     this.answerStatus.next(status);
   }
 
-  isAnswered(questionIndex: number): boolean {
-    return !!this.selectedOptions[questionIndex];
+  isAnswered(questionIndex: number): Observable<boolean> {
+    return of(!!this.selectedOptions[questionIndex]);
   }
 
   getTotalQuestions(): Observable<number> {
