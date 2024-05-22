@@ -569,15 +569,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   updateContentBasedOnIndex(index: number): void {
     const adjustedIndex = index - 1; 
 
-    console.log("Adjusted index to be 0-based:", adjustedIndex);
-
-    if (!this.quiz || adjustedIndex < 0 || adjustedIndex >= this.quiz.questions.length) {
+    // Check if the adjusted index is out of bounds
+    if (adjustedIndex < 0 || adjustedIndex >= this.quiz.questions.length) {
       console.error("Invalid index:", adjustedIndex);
       return;
     }
 
-    console.log("Updating content for index:", adjustedIndex);
-
+    // Check if the index has changed or if navigation is triggered by the URL
     if (this.previousIndex !== adjustedIndex || this.isNavigatedByUrl) {
       this.previousIndex = adjustedIndex;
       this.resetExplanationText();
