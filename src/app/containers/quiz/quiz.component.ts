@@ -207,6 +207,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.timerService.stopTimer(null);
   }
 
+  private notifyOnNavigationEnd(): void {
+    this.router.events.pipe(
+      filter((event: RouterEvent) => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.route.params.subscribe(params => {
+        this.currentQuestionIndex = +params['index'];
+        this.loadQuestion(this.currentQuestionIndex);
+      });
+    });
+  }
+
   // Public getter methods for determining UI state based on current quiz and question data.
   public get isContentAvailable(): boolean {
     return !!this.data?.questionText || !!this.data?.correctAnswersText;
