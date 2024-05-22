@@ -38,7 +38,7 @@ export class ExplanationTextService {
     return this.explanationText$.asObservable();
   }
 
-  setExplanationText(explanation: string) {
+  setExplanationText(explanation: string): void {
     this.explanationText$.next(explanation);
     this.isExplanationDisplayedSource.next(true); // Set to true when explanation is displayed
   }
