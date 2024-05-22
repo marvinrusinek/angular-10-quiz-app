@@ -623,10 +623,28 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.cdRef.detectChanges();
   }
-  /****** end of functions responsible for handling navigation to a particular question using the URL. ******/
+  /****** End of functions responsible for handling navigation to a particular question using the URL. ******/
 
   shouldShowExplanation(index: number): boolean {
     return !!this.explanationToDisplay;
+  }
+
+  updateQuestionDisplayForShuffledQuestions(): void {
+    this.questionToDisplay = this.questions[this.currentQuestionIndex].questionText;
+  }
+
+  getQuestionAndOptions(quizId: string, questionIndex: number): void {
+    // Fetch the question and options using the QuizDataService
+    this.questionAndOptionsSubscription = this.quizDataService.getQuestionAndOptions(quizId, questionIndex).subscribe({
+      next: ([question, options]) => {
+        // Update component state or variables to reflect the new question and options
+        this.question = question;
+        this.options = options;
+      },
+      error: error => {
+        console.error('Error fetching question and options:', error);
+      }
+    });
   }
 
   updateQuestionAndOptions(): void {
@@ -649,50 +667,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }  
-
-  updateQuestionDisplayForShuffledQuestions(): void {
-    this.questionToDisplay = this.questions[this.currentQuestionIndex].questionText;
-  }
-
-  private logAudioErrorDetails(e: Event): void {
-    const audioElement: HTMLAudioElement = (e.target as HTMLAudioElement);
-    if (!audioElement) {
-      console.error('Event target is not an HTMLAudioElement.');
-      return;
-    }
-    console.error('Audio error code:', audioElement.error?.code);
-    console.error('Audio error message:', audioElement.error?.message);
-    switch (audioElement.error?.code) {
-      case MediaError.MEDIA_ERR_ABORTED:
-        console.error('Audio loading aborted.');
-        break;
-      case MediaError.MEDIA_ERR_NETWORK:
-        console.error('Audio loading failed due to a network error.');
-        break;
-      case MediaError.MEDIA_ERR_DECODE:
-        console.error('Audio decoding failed due to corruption or unsupported features.');
-        break;
-      case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-        console.error('Audio format is not supported or source not found.');
-        break;
-      default:
-        console.error('An unknown error occurred.');
-    }
-  }
-
-  getQuestionAndOptions(quizId: string, questionIndex: number): void {
-    // Fetch the question and options using the QuizDataService
-    this.questionAndOptionsSubscription = this.quizDataService.getQuestionAndOptions(quizId, questionIndex).subscribe({
-      next: ([question, options]) => {
-        // Update component state or variables to reflect the new question and options
-        this.question = question;
-        this.options = options;
-      },
-      error: error => {
-        console.error('Error fetching question and options:', error);
-      }
-    });
-  }
 
   checkAndDisplayCorrectAnswers(): void {
     const multipleAnswerQuestionIndex = this.findCurrentMultipleAnswerQuestionIndex();
