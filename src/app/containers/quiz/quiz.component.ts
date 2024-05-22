@@ -735,6 +735,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   isAnswerSelected(): Observable<boolean> {
+    console.log('isAnswerSelected called', this.isAnswered$); // Debugging
     return this.isAnswered$;
   } 
 
@@ -1020,7 +1021,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.getQuestionByIndex(index).pipe(
       switchMap(question => {
         this.currentQuestion = question;
-        this.isAnswered$ = this.quizService.isAnswered(index);
+        this.isAnswered$ = this.quizService.isAnswered(index).pipe(
+          tap(isAnswered => console.log('isAnswered value:', isAnswered)) // Debugging
+        );
         console.log('isAnswered$', this.isAnswered$); // Debugging
         return this.quizService.getTotalQuestions().pipe(
           switchMap(totalQuestions => this.isAnswered$.pipe(
@@ -1043,6 +1046,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
+  
   
   
 
