@@ -80,6 +80,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedOptions: Option[] = [];
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
   selectedAnswerField: number;
+  selectionMessage: string;
   selectionMessage$: Observable<string>;
   correctAnswers: any[] = [];
   nextExplanationText = '';
@@ -168,6 +169,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.notifyOnNavigationEnd();
+
+    this.selectionMessageService.selectionMessageSubject.subscribe(
+      (message: string) => {
+        this.selectionMessage = message;
+      }
+    );
 
     // Shuffle and initialize questions
     this.initializeQuestions();
