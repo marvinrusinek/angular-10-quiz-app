@@ -176,6 +176,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     );
 
+    this.activatedRoute.params.subscribe(params => {
+      this.currentQuestionIndex = +params['index'];
+      this.loadQuestion(this.currentQuestionIndex, true);
+    });
+
     // Shuffle and initialize questions
     this.initializeQuestions();
 
@@ -717,10 +722,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.router.events.pipe(
       filter((event: RouterEvent) => event instanceof NavigationEnd)
     ).subscribe(() => {
-      this.updateSelectionMessage(false);
+      this.loadQuestion(this.currentQuestionIndex, false); // Ensure the question is reloaded on navigation end
     });
   }
-
+  
   private updateSelectionMessage(resetMessage: boolean = true): void {
     if (resetMessage) {
       this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
@@ -739,6 +744,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
     }
   }
+  
 
   /* private updateSelectionMessage(): void {
     let message: string;
@@ -970,7 +976,19 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Error fetching question and options:', error);
       return null;
     }
-  }  
+  }
+
+  private loadQuestion(index: number, resetMessage: boolean = false): void {
+    this.quizService.getQuestionByIndex(index).subscribe({
+      next: (question) => {
+        this.currentQuestion = question;
+        this.updateSelectionMessage(resetMessage); // Call the update method after loading the question
+      },
+      error: (error) => {
+        console.error('Failed to load question:', error);
+      }
+    });
+  }
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
@@ -1474,11 +1492,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false); 
+    this.updateSelectionMessage(true);
 
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
-        this.updateSelectionMessage(true);
 
         // Combine fetching data and initializing question state into a single method
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
