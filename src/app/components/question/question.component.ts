@@ -1184,6 +1184,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       option.optionId
     ); 
 
+    this.updateSelectionMessage();
+
     const explanationText =
       this.explanationTextService.getFormattedExplanationTextForQuestion(
         this.currentQuestionIndex
@@ -1205,6 +1207,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectionChanged.emit({
       question: currentQuestion,
       selectedOptions: this.selectedOptions
+    });
+  }
+
+  private updateSelectionMessage(): void {
+    this.quizService.getTotalQuestions().subscribe({
+      next: (totalQuestions) => {
+        const message = this.selectionMessageService.determineSelectionMessage(
+          this.currentQuestionIndex,
+          totalQuestions,
+          this.quizService.isAnswered(this.currentQuestionIndex)
+        );
+        this.selectionMessageService.updateSelectionMessage(message);
+      },
+      error: (error) =>
+        console.error('Failed to fetch total questions:', error),
     });
   }
 

@@ -1477,6 +1477,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         // Combine fetching data and initializing question state into a single method
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+        this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
 
         this.resetUI();
       } else {
