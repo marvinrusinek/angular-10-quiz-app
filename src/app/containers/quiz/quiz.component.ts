@@ -178,7 +178,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.params.subscribe(params => {
       this.currentQuestionIndex = +params['index'];
-      this.loadQuestion(this.currentQuestionIndex);
+      this.loadQuestion(this.currentQuestionIndex, true);
     });
 
     // Shuffle and initialize questions
@@ -726,10 +726,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.router.events.pipe(
       filter((event: RouterEvent) => event instanceof NavigationEnd)
     ).subscribe(() => {
-      //this.activatedRoute.params.subscribe(params => {
-      //  this.currentQuestionIndex = +params['index'];
+      this.activatedRoute.params.subscribe(params => {
+        this.currentQuestionIndex = +params['index'];
         this.loadQuestion(this.currentQuestionIndex);
-      //});
+      });
     });
   }
   
@@ -985,12 +985,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadQuestion(index: number): void {
+  private loadQuestion(index: number, resetMessage: boolean = false): void {
     this.quizService.getQuestionByIndex(index).subscribe({
       next: (question) => {
         this.currentQuestion = question;
         this.quizService.isAnswered(index).subscribe({
           next: (isAnswered) => {
+            this.answered = isAnswered;
             const message = this.selectionMessageService.determineSelectionMessage(
               index,
               this.quizService.getTotalQuestions(),
