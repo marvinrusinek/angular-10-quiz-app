@@ -13,7 +13,6 @@ import { TimerService } from '../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
-  answer: number;
   totalQuestions = 0;
   totalQuestions$ = new ReplaySubject<number>(1);
   questionNumber: number;
