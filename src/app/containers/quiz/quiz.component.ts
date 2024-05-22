@@ -82,6 +82,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswerField: number;
   selectionMessage: string;
   selectionMessage$: Observable<string>;
+  isAnswered$: Observable<boolean>;
   correctAnswers: any[] = [];
   nextExplanationText = '';
   correctAnswersText: string;
@@ -989,9 +990,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.getQuestionByIndex(index).subscribe({
       next: (question) => {
         this.currentQuestion = question;
-        this.quizService.isAnswered(index).subscribe({
+        this.isAnswered$ = this.quizService.isAnswered(index); // Update isAnswered$ observable
+        this.isAnswered$.subscribe({
           next: (isAnswered) => {
-            this.answered = isAnswered;
             const message = this.selectionMessageService.determineSelectionMessage(
               index,
               this.quizService.getTotalQuestions(),
