@@ -66,7 +66,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
   
   private handleRouteParams(params: Params): void {
-    console.log('Route params:', params);
+    // console.log('Route params:', params);
     this.quizId = params['quizId'];
   }
   
@@ -76,7 +76,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('No quiz ID found in route parameters');
       return throwError(() => new Error('No quiz ID found in route parameters'));
     }
-    console.log('Fetching quiz with ID:', quizId);
     return this.quizDataService.getQuiz(quizId);
   }
   
