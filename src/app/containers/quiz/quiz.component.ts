@@ -736,7 +736,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   isAnswerSelected(): Observable<boolean> {
     return this.isAnswered$;
-  }
+  } 
 
   private loadQuestion(index: number, resetMessage: boolean = false): void {
     this.quizService.getQuestionByIndex(index).pipe(
