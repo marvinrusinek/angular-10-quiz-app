@@ -82,7 +82,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswerField: number;
   selectionMessage: string;
   selectionMessage$: Observable<string>;
-  isAnswered$: Observable<boolean> = of(false);
+  isAnswered = false;
   correctAnswers: any[] = [];
   nextExplanationText = '';
   correctAnswersText: string;
@@ -1021,14 +1021,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.getQuestionByIndex(index).pipe(
       switchMap(question => {
         this.currentQuestion = question;
-        this.isAnswered$ = this.quizService.isAnswered(index).pipe(
-          tap(isAnswered => console.log('isAnswered value:', isAnswered)) // Debugging
-        );
-        console.log('isAnswered$', this.isAnswered$); // Debugging
-        return this.quizService.getTotalQuestions().pipe(
-          switchMap(totalQuestions => this.isAnswered$.pipe(
-            tap(isAnswered => {
-              console.log('isAnswered', isAnswered); // Debugging
+        return this.quizService.isAnswered(index).pipe(
+          tap(isAnswered => {
+            this.isAnswered = isAnswered;
+            console.log('isAnswered', isAnswered); // Debugging
+          }),
+          switchMap(isAnswered => this.quizService.getTotalQuestions().pipe(
+            tap(totalQuestions => {
               const message = this.selectionMessageService.determineSelectionMessage(
                 index,
                 totalQuestions,
