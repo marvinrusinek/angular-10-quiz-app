@@ -4,7 +4,6 @@ import { first, repeatWhen, scan, shareReplay, skip, switchMapTo, takeUntil, tap
 
 @Injectable({ providedIn: 'root' })
 export class CountdownService {
-  timePerQuestion = 30;
   time$: Observable<number>;
   start$: Observable<number>;
   reset$: Observable<number>;
@@ -25,14 +24,14 @@ export class CountdownService {
     this.concat$ = of(null);
   }
 
-  startCountdown(): Observable<number> {
+  startCountdown(timePerQuestion: number): Observable<number> {
     return this.concat$
       .pipe(
         // Switch to a new countdown timer whenever `concat$` emits.
         switchMapTo(
           timer(0, 1000).pipe(
             // Decrease the counter or stop at 0.
-            scan((acc: number) => Math.max(0, acc - 1), this.timePerQuestion)
+            scan((acc: number) => Math.max(0, acc - 1), timePerQuestion)
           )
         ),
         // Stop the countdown when `stop$` emits.
