@@ -1021,27 +1021,29 @@ export class QuizComponent implements OnInit, OnDestroy {
       switchMap(question => {
         this.currentQuestion = question;
         this.isAnswered$ = this.quizService.isAnswered(index);
-        return this.quizService.getTotalQuestions();
+        console.log('isAnswered$', this.isAnswered$);
+        return this.quizService.getTotalQuestions().pipe(
+          switchMap(totalQuestions => this.isAnswered$.pipe(
+            tap(isAnswered => {
+              console.log('isAnswered', isAnswered);
+              const message = this.selectionMessageService.determineSelectionMessage(
+                index,
+                totalQuestions,
+                isAnswered
+              );
+              this.selectionMessageService.updateSelectionMessage(message);
+            })
+          ))
+        );
       })
     ).subscribe({
-      next: (totalQuestions: number) => {
-        this.isAnswered$.subscribe({
-          next: (isAnswered) => {
-            const message = this.selectionMessageService.determineSelectionMessage(
-              index,
-              totalQuestions,
-              isAnswered
-            );
-            this.selectionMessageService.updateSelectionMessage(message);
-          },
-          error: (error) => console.error('Failed to determine if question is answered:', error)
-        });
-      },
+      next: () => {},
       error: (error) => {
         console.error('Failed to load question or total questions:', error);
       }
     });
   }
+  
   
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
