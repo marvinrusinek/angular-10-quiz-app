@@ -722,13 +722,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.router.events.pipe(
       filter((event: RouterEvent) => event instanceof NavigationEnd)
     ).subscribe(() => {
-      this.route.params.subscribe(params => {
-        this.currentQuestionIndex = +params['index'];
-        this.loadQuestion(this.currentQuestionIndex);
-      });
+      this.loadQuestion(this.currentQuestionIndex);
     });
   }
-  
   
   private updateSelectionMessage(resetMessage: boolean = true): void {
     if (resetMessage) {
