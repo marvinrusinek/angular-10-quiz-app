@@ -712,17 +712,24 @@ export class QuizComponent implements OnInit, OnDestroy {
     return -1;
   }
 
-  
-
-  isAnswerSelected(): boolean {
-    return this.quizService.isAnswered(this.currentQuestionIndex);
+  isAnswerSelected(): void {
+    this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
+      next: (isAnswered) => {
+        this.isAnswered = isAnswered; // Update the class property
+        // Perform additional actions if needed
+      },
+      error: (error) => console.error('Failed to determine if question is answered:', error)
+    });
   }
 
   private notifyOnNavigationEnd(): void {
     this.router.events.pipe(
       filter((event: RouterEvent) => event instanceof NavigationEnd)
     ).subscribe(() => {
-      this.loadQuestion(this.currentQuestionIndex);
+      this.route.params.subscribe(params => {
+        this.currentQuestionIndex = +params['index'];
+        this.loadQuestion(this.currentQuestionIndex);
+      });
     });
   }
   
