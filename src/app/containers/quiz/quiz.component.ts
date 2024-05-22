@@ -727,14 +727,29 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.isAnswered$;
   }
 
-  private notifyOnNavigationEnd(): void {
-    this.router.events.pipe(
-      filter((event: RouterEvent) => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      this.activatedRoute.params.subscribe(params => {
-        this.currentQuestionIndex = +params['index'];
-        this.loadQuestion(this.currentQuestionIndex);
-      });
+  private loadQuestion(index: number, resetMessage: boolean = false): void {
+    this.quizService.getQuestionByIndex(index).pipe(
+      switchMap(question => {
+        this.currentQuestion = question;
+        this.isAnswered$ = this.quizService.isAnswered(index);
+        return this.quizService.getTotalQuestions().pipe(
+          switchMap(totalQuestions => this.isAnswered$.pipe(
+            tap(isAnswered => {
+              const message = this.selectionMessageService.determineSelectionMessage(
+                index,
+                totalQuestions,
+                isAnswered
+              );
+              this.selectionMessageService.updateSelectionMessage(message);
+            })
+          ))
+        );
+      })
+    ).subscribe({
+      next: () => {},
+      error: (error) => {
+        console.error('Failed to load question or total questions:', error);
+      }
     });
   }
   
@@ -1520,7 +1535,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false); 
-    this.updateSelectionMessage(true);
+    // this.updateSelectionMessage(true);
 
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
