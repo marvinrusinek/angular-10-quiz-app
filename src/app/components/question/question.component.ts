@@ -1223,21 +1223,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
-  private updateSelectionMessage(): void {
-    this.quizService.getTotalQuestions().subscribe({
-      next: (totalQuestions) => {
-        const message = this.selectionMessageService.determineSelectionMessage(
-          this.currentQuestionIndex,
-          totalQuestions,
-          this.quizService.isAnswered(this.currentQuestionIndex)
-        );
-        this.selectionMessageService.updateSelectionMessage(message);
-      },
-      error: (error) =>
-        console.error('Failed to fetch total questions:', error),
-    });
-  }
-  
   handleLastQuestionAnsweredMessage(): void {
     this.updateSelectionMessage();
   }

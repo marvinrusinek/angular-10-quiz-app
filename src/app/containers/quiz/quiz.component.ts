@@ -167,6 +167,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    this.notifyOnNavigationEnd();
+
     // Shuffle and initialize questions
     this.initializeQuestions();
 
@@ -713,6 +715,21 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private updateSelectionMessage(): void {
+    this.quizService.getTotalQuestions().subscribe({
+      next: (totalQuestions) => {
+        const message = this.selectionMessageService.determineSelectionMessage(
+          this.currentQuestionIndex,
+          totalQuestions,
+          this.quizService.isAnswered(this.currentQuestionIndex)
+        );
+        this.selectionMessageService.updateSelectionMessage(message);
+      },
+      error: (error) =>
+        console.error('Failed to fetch total questions:', error),
+    });
+  }
+
+  /* private updateSelectionMessage(): void {
     let message: string;
   
     if (this.currentQuestionIndex === this.totalQuestions - 1) {
@@ -726,7 +743,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   
     this.selectionMessageService.selectionMessageSubject.next(message);
-  }
+  } */
   
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
     this.quizService.setQuizData([selectedQuiz]);
