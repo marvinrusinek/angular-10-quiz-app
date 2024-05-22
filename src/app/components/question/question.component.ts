@@ -1224,25 +1224,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   handleLastQuestionAnsweredMessage(): void {
-    this.quizService.getTotalQuestions().subscribe({
-      next: (totalQuestions) => {
-        let message: string;
-  
-        if (this.currentQuestionIndex === totalQuestions - 1) {
-          if (this.quizService.isAnswered(this.currentQuestionIndex)) {
-            message = 'Please click the Show Results button';
-          } else {
-            message = 'Please select an option to continue...';
-          }
-        } else {
-          message = 'Please click the next button to continue...';
-        }
-  
-        this.selectionMessageService.updateSelectionMessage(message);
-      },
-      error: (error) =>
-        console.error('Failed to fetch total questions:', error),
-    });
+    this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      this.isAnswered
+    );
   }
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<void> {
