@@ -1177,9 +1177,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.showFeedback = true;
     this.selectedOption = option;
 
-    // After answering, check if it's the last question
-    this.handleLastQuestionAnsweredMessage();
-
     // Update the selected option in the quiz service and mark the question as answered
     this.quizService.updateSelectedOptions(
       this.quizService.quizId,
@@ -1222,11 +1219,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     );
     this.quizQuestionManagerService.setExplanationText(null);
   }
-
-  handleLastQuestionAnsweredMessage(): void {
-    this.updateSelectionMessage();
-  }
-  
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<void> {
     if (document.hidden) {
