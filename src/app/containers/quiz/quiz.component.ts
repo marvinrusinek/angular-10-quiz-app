@@ -717,23 +717,27 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.router.events.pipe(
       filter((event: RouterEvent) => event instanceof NavigationEnd)
     ).subscribe(() => {
-      this.updateSelectionMessage();
+      this.updateSelectionMessage(false);
     });
   }
 
-  private updateSelectionMessage(): void {
-    this.quizService.getTotalQuestions().subscribe({
-      next: (totalQuestions) => {
-        const message = this.selectionMessageService.determineSelectionMessage(
-          this.currentQuestionIndex,
-          totalQuestions,
-          this.quizService.isAnswered(this.currentQuestionIndex)
-        );
-        this.selectionMessageService.updateSelectionMessage(message);
-      },
-      error: (error) =>
-        console.error('Failed to fetch total questions:', error),
-    });
+  private updateSelectionMessage(resetMessage: boolean = true): void {
+    if (resetMessage) {
+      this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
+    } else {
+      this.quizService.getTotalQuestions().subscribe({
+        next: (totalQuestions) => {
+          const message = this.selectionMessageService.determineSelectionMessage(
+            this.currentQuestionIndex,
+            totalQuestions,
+            this.quizService.isAnswered(this.currentQuestionIndex)
+          );
+          this.selectionMessageService.updateSelectionMessage(message);
+        },
+        error: (error) =>
+          console.error('Failed to fetch total questions:', error),
+      });
+    }
   }
 
   /* private updateSelectionMessage(): void {
@@ -1140,7 +1144,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questionToDisplay = selectedQuestion.questionText;
       this.optionsToDisplay = selectedQuestion.options;
       this.updateExplanationText(questionIndex);
-      this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
     } else {
       console.warn(`Invalid question index: ${questionIndex}. Unable to update the question display.`);
     }
@@ -1475,6 +1478,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
+        this.updateSelectionMessage(true);
 
         // Combine fetching data and initializing question state into a single method
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
