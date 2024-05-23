@@ -1002,7 +1002,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   private loadQuestionNew(index: number, resetMessage: boolean): void {
     console.log('Loading question index:', index); // Debugging
     this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: (questions) => {
+      next: (quizData) => {
+        const questions = quizData.questions; // Extract questions array
         console.log('Fetched questions:', questions); // Debugging
         if (questions && questions[index]) {
           this.currentQuestion = questions[index];
