@@ -998,17 +998,17 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private loadQuestionNew(index: number, resetMessage: boolean): void {
-    console.log('Loading question index:', index); // Debugging
-    this.quizDataService.getQuestionsForQuiz('yourQuizId').subscribe({
+    console.log('Loading question index:', index);
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (questions) => {
         if (questions && questions[index]) {
           this.currentQuestion = questions[index];
-          console.log('Loaded question:', this.currentQuestion); // Debugging
+          console.log('Loaded question:', this.currentQuestion);
 
           this.quizService.isAnswered(index).subscribe({
             next: (isAnswered) => {
               this.isAnswered = isAnswered;
-              console.log('Question', index, 'answered:', isAnswered); // Debugging
+              console.log('Question', index, 'answered:', isAnswered);
               this.cdRef.detectChanges(); // Manually trigger change detection
 
               this.quizService.getTotalQuestions().subscribe({
