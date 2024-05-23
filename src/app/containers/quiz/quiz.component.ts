@@ -999,11 +999,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private loadQuestionNew(index: number, resetMessage: boolean): void {
     console.log('Loading question index:', index); // Debugging
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: (question) => {
-        this.currentQuestion = question;
-        console.log('Loaded question:', question); // Debugging
-        if (question) {
+    this.quizDataService.getQuestionsForQuiz('yourQuizId').subscribe({
+      next: (questions) => {
+        if (questions && questions[index]) {
+          this.currentQuestion = questions[index];
+          console.log('Loaded question:', this.currentQuestion); // Debugging
+
           this.quizService.isAnswered(index).subscribe({
             next: (isAnswered) => {
               this.isAnswered = isAnswered;
@@ -1033,7 +1034,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Failed to load question:', error);
+        console.error('Failed to load questions:', error);
       }
     });
   }
