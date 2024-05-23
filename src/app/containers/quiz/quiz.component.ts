@@ -996,17 +996,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadQuestionNew(index: number, resetMessage: boolean = false): void {
+  private loadQuestionNew(index: number, resetMessage: boolean): void {
+    console.log('Loading question index:', index); // Debugging
     this.quizService.getQuestionByIndex(index).subscribe({
       next: (question) => {
         this.currentQuestion = question;
+        console.log('Loaded question:', question); // Debugging
         this.quizService.isAnswered(index).subscribe({
           next: (isAnswered) => {
             this.isAnswered = isAnswered;
             console.log('isAnswered', isAnswered); // Debugging
-            this.cdRef.detectChanges(); // Manually trigger change detection
+            this.cdr.detectChanges(); // Manually trigger change detection
 
-            // Now update the selection message
             this.quizService.getTotalQuestions().subscribe({
               next: (totalQuestions) => {
                 const message = this.selectionMessageService.determineSelectionMessage(
