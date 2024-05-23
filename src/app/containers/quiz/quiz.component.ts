@@ -738,38 +738,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('isAnswerSelected called', this.isAnswered$); // Debugging
     return this.isAnswered$;
   } */
-
-  private loadQuestionNew(index: number, resetMessage: boolean = false): void {
-    this.quizService.getQuestionByIndex(index).pipe(
-      switchMap(question => {
-        this.currentQuestion = question;
-        return this.quizService.isAnswered(index).pipe(
-          tap(isAnswered => {
-            this.isAnswered = isAnswered;
-            console.log('isAnswered', isAnswered); // Debugging
-            this.cdr.detectChanges(); // Manually trigger change detection
-          }),
-          switchMap(isAnswered => this.quizService.getTotalQuestions().pipe(
-            tap(totalQuestions => {
-              const message = this.selectionMessageService.determineSelectionMessage(
-                index,
-                totalQuestions,
-                isAnswered
-              );
-              this.selectionMessageService.updateSelectionMessage(message);
-            })
-          ))
-        );
-      })
-    ).subscribe({
-      next: () => {
-        console.log('loadQuestionNew completed'); // Debugging
-      },
-      error: (error) => {
-        console.error('Failed to load question or total questions:', error);
-      }
-    });
-  }
   
   /* private updateSelectionMessage(resetMessage: boolean = true): void {
     if (resetMessage) {
@@ -1031,6 +999,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           tap(isAnswered => {
             this.isAnswered = isAnswered;
             console.log('isAnswered', isAnswered); // Debugging
+            this.cdRef.detectChanges(); // Manually trigger change detection
           }),
           switchMap(isAnswered => this.quizService.getTotalQuestions().pipe(
             tap(totalQuestions => {
@@ -1045,7 +1014,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         );
       })
     ).subscribe({
-      next: () => {},
+      next: () => {
+        console.log('loadQuestionNew completed'); // Debugging
+      },
       error: (error) => {
         console.error('Failed to load question or total questions:', error);
       }
