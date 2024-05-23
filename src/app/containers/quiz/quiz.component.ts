@@ -178,6 +178,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
 
     this.activatedRoute.params.subscribe(params => {
+      this.quizId = params['quizId'];
       this.currentQuestionIndex = +params['questionIndex'] - 1;
       console.log('Current Question Index::::', this.currentQuestionIndex); // Debugging
       this.loadQuestionNew(this.currentQuestionIndex, true);
@@ -213,6 +214,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       filter((event: RouterEvent) => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.activatedRoute.params.subscribe(params => {
+        this.quizId = params['quizId'];
         this.currentQuestionIndex = +params['questionIndex'] - 1;
         this.loadQuestionNew(this.currentQuestionIndex, false);
       });
@@ -999,7 +1001,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private loadQuestionNew(index: number, resetMessage: boolean): void {
     console.log('Loading question index:', index);
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+    this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (questions) => {
         if (questions && questions[index]) {
           this.currentQuestion = questions[index];
