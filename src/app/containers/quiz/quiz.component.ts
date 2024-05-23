@@ -1032,6 +1032,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  answerSelected(isAnswered: boolean): void {
+    this.isAnswered = isAnswered;
+    this.cdRef.detectChanges();
+  }
   
   
   
