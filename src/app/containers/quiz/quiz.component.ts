@@ -999,7 +999,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private loadQuestionNew(index: number, resetMessage: boolean): void {
     console.log('Loading question index:', index); // Debugging
-    this.quizService.getQuestionByIndex(index).subscribe({
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (question) => {
         this.currentQuestion = question;
         console.log('Loaded question:', question); // Debugging
