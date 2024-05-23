@@ -178,7 +178,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
 
     this.activatedRoute.params.subscribe(params => {
-      this.currentQuestionIndex = +params['index'];
+      this.currentQuestionIndex = +params['questionIndex'];
       this.loadQuestionNew(this.currentQuestionIndex, true);
     });
 
@@ -997,16 +997,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private loadQuestionNew(index: number, resetMessage: boolean): void {
-    console.log('Loading question index:', index); // Debugging
+    console.log('Loading question index:', index);
     this.quizService.getQuestionByIndex(index).subscribe({
       next: (question) => {
         this.currentQuestion = question;
-        console.log('Loaded question:', question); // Debugging
+        console.log('Loaded question:', question);
         this.quizService.isAnswered(index).subscribe({
           next: (isAnswered) => {
             this.isAnswered = isAnswered;
-            console.log('isAnswered', isAnswered); // Debugging
-            this.cdRef.detectChanges(); // Manually trigger change detection
+            console.log('isAnswered', isAnswered);
+            this.cdRef.detectChanges();
 
             this.quizService.getTotalQuestions().subscribe({
               next: (totalQuestions) => {
