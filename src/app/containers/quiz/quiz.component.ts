@@ -992,33 +992,37 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private loadQuestionNew(index: number, resetMessage: boolean = false): void {
-    this.quizService.getQuestionByIndex(index).pipe(
-      switchMap(question => {
+    this.quizService.getQuestionByIndex(index).subscribe({
+      next: (question) => {
         this.currentQuestion = question;
-        return this.quizService.isAnswered(index).pipe(
-          tap(isAnswered => {
+        this.quizService.isAnswered(index).subscribe({
+          next: (isAnswered) => {
             this.isAnswered = isAnswered;
             console.log('isAnswered', isAnswered); // Debugging
             this.cdRef.detectChanges(); // Manually trigger change detection
-          }),
-          switchMap(isAnswered => this.quizService.getTotalQuestions().pipe(
-            tap(totalQuestions => {
-              const message = this.selectionMessageService.determineSelectionMessage(
-                index,
-                totalQuestions,
-                isAnswered
-              );
-              this.selectionMessageService.updateSelectionMessage(message);
-            })
-          ))
-        );
-      })
-    ).subscribe({
-      next: () => {
-        console.log('loadQuestionNew completed'); // Debugging
+
+            // Now update the selection message
+            this.quizService.getTotalQuestions().subscribe({
+              next: (totalQuestions) => {
+                const message = this.selectionMessageService.determineSelectionMessage(
+                  index,
+                  totalQuestions,
+                  isAnswered
+                );
+                this.selectionMessageService.updateSelectionMessage(message);
+              },
+              error: (error) => {
+                console.error('Failed to fetch total questions:', error);
+              }
+            });
+          },
+          error: (error) => {
+            console.error('Failed to determine if question is answered:', error);
+          }
+        });
       },
       error: (error) => {
-        console.error('Failed to load question or total questions:', error);
+        console.error('Failed to load question:', error);
       }
     });
   }
