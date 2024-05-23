@@ -213,7 +213,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe(() => {
       this.activatedRoute.params.subscribe(params => {
         this.currentQuestionIndex = +params['index'];
-        this.loadQuestionNew(this.currentQuestionIndex);
+        this.loadQuestionNew(this.currentQuestionIndex, false);
       });
     });
   }
