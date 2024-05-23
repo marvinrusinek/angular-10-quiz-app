@@ -739,14 +739,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.isAnswered$;
   } */
 
-  private loadQuestion(index: number, resetMessage: boolean = false): void {
+  private loadQuestionNew(index: number, resetMessage: boolean = false): void {
     this.quizService.getQuestionByIndex(index).pipe(
       switchMap(question => {
         this.currentQuestion = question;
-        this.isAnswered$ = this.quizService.isAnswered(index);
-        return this.quizService.getTotalQuestions().pipe(
-          switchMap(totalQuestions => this.isAnswered$.pipe(
-            tap(isAnswered => {
+        return this.quizService.isAnswered(index).pipe(
+          tap(isAnswered => {
+            this.isAnswered = isAnswered;
+            console.log('isAnswered', isAnswered); // Debugging
+            this.cdr.detectChanges(); // Manually trigger change detection
+          }),
+          switchMap(isAnswered => this.quizService.getTotalQuestions().pipe(
+            tap(totalQuestions => {
               const message = this.selectionMessageService.determineSelectionMessage(
                 index,
                 totalQuestions,
@@ -758,7 +762,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         );
       })
     ).subscribe({
-      next: () => {},
+      next: () => {
+        console.log('loadQuestionNew completed'); // Debugging
+      },
       error: (error) => {
         console.error('Failed to load question or total questions:', error);
       }
