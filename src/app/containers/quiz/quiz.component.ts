@@ -178,7 +178,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
 
     this.activatedRoute.params.subscribe(params => {
-      this.currentQuestionIndex = +params['questionIndex'];
+      this.currentQuestionIndex = +params['questionIndex'] - 1;
       console.log('Current Question Index::::', this.currentQuestionIndex); // Debugging
       this.loadQuestionNew(this.currentQuestionIndex, true);
     });
@@ -213,7 +213,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       filter((event: RouterEvent) => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.activatedRoute.params.subscribe(params => {
-        this.currentQuestionIndex = +params['questionIndex'];
+        this.currentQuestionIndex = +params['questionIndex'] - 1;
         this.loadQuestionNew(this.currentQuestionIndex, false);
       });
     });
