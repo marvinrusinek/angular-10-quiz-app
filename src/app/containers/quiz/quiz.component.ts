@@ -998,41 +998,46 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private loadQuestionNew(index: number, resetMessage: boolean): void {
-    console.log('Loading question index:', index);
+    console.log('Loading question index:', index); // Debugging
     this.quizService.getQuestionByIndex(index).subscribe({
       next: (question) => {
         this.currentQuestion = question;
-        console.log('Loaded question:', question);
-        this.quizService.isAnswered(index).subscribe({
-          next: (isAnswered) => {
-            this.isAnswered = isAnswered;
-            console.log('isAnswered', isAnswered);
-            this.cdRef.detectChanges();
+        console.log('Loaded question:', question); // Debugging
+        if (question) {
+          this.quizService.isAnswered(index).subscribe({
+            next: (isAnswered) => {
+              this.isAnswered = isAnswered;
+              console.log('Question', index, 'answered:', isAnswered); // Debugging
+              this.cdr.detectChanges(); // Manually trigger change detection
 
-            this.quizService.getTotalQuestions().subscribe({
-              next: (totalQuestions) => {
-                const message = this.selectionMessageService.determineSelectionMessage(
-                  index,
-                  totalQuestions,
-                  isAnswered
-                );
-                this.selectionMessageService.updateSelectionMessage(message);
-              },
-              error: (error) => {
-                console.error('Failed to fetch total questions:', error);
-              }
-            });
-          },
-          error: (error) => {
-            console.error('Failed to determine if question is answered:', error);
-          }
-        });
+              this.quizService.getTotalQuestions().subscribe({
+                next: (totalQuestions) => {
+                  const message = this.selectionMessageService.determineSelectionMessage(
+                    index,
+                    totalQuestions,
+                    isAnswered
+                  );
+                  this.selectionMessageService.updateSelectionMessage(message);
+                },
+                error: (error) => {
+                  console.error('Failed to fetch total questions:', error);
+                }
+              });
+            },
+            error: (error) => {
+              console.error('Failed to determine if question is answered:', error);
+            }
+          });
+        } else {
+          console.error('Question not found for index:', index);
+        }
       },
       error: (error) => {
         console.error('Failed to load question:', error);
       }
     });
   }
+
 
   answerSelected(isAnswered: boolean): void {
     this.isAnswered = isAnswered;
