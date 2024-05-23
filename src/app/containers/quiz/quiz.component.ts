@@ -1000,20 +1000,26 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private loadQuestionNew(index: number, resetMessage: boolean): void {
-    console.log('Loading question index:', index);
+    console.log('Loading question index:', index); // Debugging
     this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (questions) => {
+        console.log('Fetched questions:', questions); // Debugging
         if (questions && questions[index]) {
           this.currentQuestion = questions[index];
-          console.log('Loaded question:', this.currentQuestion);
+          console.log('Loaded question:', this.currentQuestion); // Debugging
+
+          if (resetMessage) {
+            const initialMessage = 'Please select an option to continue...';
+            this.selectionMessageService.updateSelectionMessage(initialMessage);
+          }
 
           this.quizService.isAnswered(index).subscribe({
             next: (isAnswered) => {
               this.isAnswered = isAnswered;
-              console.log('Question', index, 'answered:', isAnswered);
-              this.cdRef.detectChanges(); // Manually trigger change detection
+              console.log('Question', index, 'answered:', isAnswered); // Debugging
+              this.cdr.detectChanges(); // Manually trigger change detection
 
-              this.quizService.getTotalQuestions().subscribe({
+              this.quizService.getTotalQuestions(this.quizId).subscribe({
                 next: (totalQuestions) => {
                   const message = this.selectionMessageService.determineSelectionMessage(
                     index,
@@ -1040,7 +1046,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
-
 
   answerSelected(isAnswered: boolean): void {
     this.isAnswered = isAnswered;
