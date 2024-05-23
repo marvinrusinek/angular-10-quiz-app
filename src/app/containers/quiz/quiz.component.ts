@@ -245,10 +245,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !this.isQuizDataLoaded || this.currentQuestionIndex < this.totalQuestions - 1;
   }
 
-  public get shouldHideRestartNav(): boolean {
+  /* public get shouldHideRestartNav(): boolean {
     return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1;
-  }
+  } */
 
+  public get shouldHideRestartNav(): boolean {
+    return this.currentQuestionIndex === 0 || 
+           (this.selectedQuiz?.questions && this.currentQuestionIndex === this.selectedQuiz.questions.length - 1);
+  }
+  
 
   /*************** Shuffle and initialize questions ******************/
   private initializeQuestions(): void {
