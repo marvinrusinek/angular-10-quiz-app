@@ -1009,7 +1009,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.currentQuestion = questions[index];
           console.log('Loaded question:', this.currentQuestion); // Debugging
           
-          this.isAnswered = false;
+          this.isAnswered = false; // Initially set to false when loading a new question
 
           if (resetMessage) {
             const initialMessage = 'Please select an option to continue...';
@@ -1020,7 +1020,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             next: (isAnswered) => {
               this.isAnswered = isAnswered;
               console.log('Question', index, 'answered:', isAnswered); // Debugging
-              this.cdRef.detectChanges(); // Manually trigger change detection
+              this.cdr.detectChanges(); // Manually trigger change detection
 
               if (isAnswered) {
                 const message = this.selectionMessageService.determineSelectionMessage(
