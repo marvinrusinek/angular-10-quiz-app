@@ -178,7 +178,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.params.subscribe(params => {
       this.quizId = params['quizId'];
       this.currentQuestionIndex = +params['questionIndex'] - 1;
-      this.loadQuestionNew(this.currentQuestionIndex, true);
+      this.prepareQuestionForDisplay(this.currentQuestionIndex, true);
     });
 
     // Shuffle and initialize questions
@@ -984,7 +984,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadQuestionNew(index: number, resetMessage: boolean): void {
+  private prepareQuestionForDisplay(index: number, resetMessage: boolean): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: async (questions: QuizQuestion[]) => {
         if (questions && questions[index]) {
