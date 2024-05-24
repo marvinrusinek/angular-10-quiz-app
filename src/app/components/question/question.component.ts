@@ -830,7 +830,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.toggleOptionSelection(option);
 
       // Update the selection message based on the current state
-      await this.updateSelectionMessage();
+      this.updateSelectionMessage();
 
       // Process the current question
       const currentQuestion = await this.getCurrentQuestion();
@@ -1295,18 +1295,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   private updateSelectionMessage(): void {
-    const totalQuestions = this.quizService.getTotalQuestions().toPromise();
-    const isAnswered = this.quizService.isAnswered(this.currentQuestionIndex).toPromise();
-
-    Promise.all([totalQuestions, isAnswered]).then(([totalQuestions, isAnswered]) => {
-      const message = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        totalQuestions,
-        isAnswered
-      );
+    this.quizService.isAnswered(this.currentQuestionIndex).subscribe(isAnswered => {
+      const message = isAnswered
+        ? 'Please click the next button to continue...'
+        : 'Please select an option to continue...';
       this.selectionMessageService.updateSelectionMessage(message);
-    }).catch((error) => {
-      console.error('Failed to update selection message:', error);
     });
   }
 
