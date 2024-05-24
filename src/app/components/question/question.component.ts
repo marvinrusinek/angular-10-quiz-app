@@ -780,7 +780,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  async onOptionClicked(option: Option, index: number): Promise<void> {
+  /* async onOptionClicked(option: Option, index: number): Promise<void> {
     const selectedOptions = this.quizService.getSelectedOptions(this.currentQuestionIndex);
     const wasSelected = selectedOptions.some(selectedOption => selectedOption.optionId === option.optionId);
 
@@ -822,6 +822,47 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     console.log('Option selected:', option.optionId, 'Selected options:', this.quizService.selectedOptions); // Debugging
+  } */
+
+  async onOptionClicked(option: Option, index: number): Promise<void> {
+    try {
+      // Toggle the selection of the option
+      this.toggleOptionSelection(option);
+
+      // Update the selection message based on the current state
+      this.updateSelectionMessage();
+
+      // Process the current question
+      const currentQuestion = await this.getCurrentQuestion();
+      if (!currentQuestion) {
+        console.error('Could not retrieve the current question.');
+        return;
+      }
+
+      this.handleOptionSelection(option, index, currentQuestion);
+      await this.processCurrentQuestion(currentQuestion);
+      this.questionAnswered.emit();
+      this.updateQuestionStateForExplanation(this.currentQuestionIndex);
+
+      // Handle audio playback based on correctness
+      const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
+      this.handleAudioPlayback(isCorrect);
+    } catch (error) {
+      console.error('An error occurred while processing the option click:', error);
+    }
+
+    console.log('Option selected:', option.optionId, 'Selected options:', this.quizService.selectedOptions); // Debugging
+  }
+
+  private toggleOptionSelection(option: Option): void {
+    const selectedOptions = this.quizService.getSelectedOptions(this.currentQuestionIndex);
+    const wasSelected = selectedOptions.some(selectedOption => selectedOption.optionId === option.optionId);
+
+    if (wasSelected) {
+      this.quizService.removeSelectedOption(option, this.currentQuestionIndex);
+    } else {
+      this.quizService.addSelectedOption(option, this.currentQuestionIndex);
+    }
   }
 
   private async processCurrentQuestion(
@@ -1238,9 +1279,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
+  /* private updateSelectionMessage(): void {
+    this.quizService.getTotalQuestions().subscribe({
+      next: (totalQuestions) => {
+        const message = this.selectionMessageService.determineSelectionMessage(
+          this.currentQuestionIndex,
+          totalQuestions,
+          this.quizService.isAnswered(this.currentQuestionIndex)
+        );
+        this.selectionMessageService.updateSelectionMessage(message);
+      },
+      error: (error) =>
+        console.error('Failed to fetch total questions:', error),
+    });
+  } */
+
   private updateSelectionMessage(): void {
     this.quizService.getTotalQuestions().subscribe({
       next: (totalQuestions) => {
+        const isAnswered = this.quizService.isAnswered(this.currentQuestionIndex);
         const message = this.selectionMessageService.determineSelectionMessage(
           this.currentQuestionIndex,
           totalQuestions,
