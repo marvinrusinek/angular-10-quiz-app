@@ -781,50 +781,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  /* async onOptionClicked(option: Option, index: number): Promise<void> {
-    const selectedOptions = this.quizService.getSelectedOptions(this.currentQuestionIndex);
-    const wasSelected = selectedOptions.some(selectedOption => selectedOption.optionId === option.optionId);
-
-    if (wasSelected) {
-      this.quizService.removeSelectedOption(option, this.currentQuestionIndex);
-    } else {
-      this.quizService.addSelectedOption(option, this.currentQuestionIndex);
-    }
-
-    // Check if any option is selected
-    const updatedSelectedOptions = this.quizService.getSelectedOptions(this.currentQuestionIndex);
-    const isAnyOptionSelected = updatedSelectedOptions.length > 0;
-
-    // Update the selection message based on the selection state
-    if (isAnyOptionSelected) {
-      this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
-    } else {
-      this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
-    }
-
-    try {
-      const currentQuestion = await this.getCurrentQuestion();
-      if (!currentQuestion) {
-        console.error('Could not retrieve the current question.');
-        return;
-      }
-
-      this.handleOptionSelection(option, index, currentQuestion);
-      await this.processCurrentQuestion(currentQuestion);
-      this.questionAnswered.emit();
-
-      this.updateQuestionStateForExplanation(this.currentQuestionIndex);
-
-      // Determine correctness after processing the question to ensure up-to-date state
-      const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
-      this.handleAudioPlayback(isCorrect);
-    } catch (error) {
-      console.error('An error occurred while processing the option click:', error);
-    }
-
-    console.log('Option selected:', option.optionId, 'Selected options:', this.quizService.selectedOptions); // Debugging
-  } */
-
   async onOptionClicked(option: Option, index: number): Promise<void> {
     try {
       console.log('Option clicked:', option); // Debugging
@@ -870,16 +826,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateSelectionMessage(): void {
-    this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
-      next: (isAnswered) => {
-        const message = isAnswered
-          ? 'Please click the next button to continue...'
-          : 'Please select an option to continue...';
-        console.log('Updating selection message to:', message); // Debugging
-        this.selectionMessageService.updateSelectionMessage(message);
-      },
-      error: (error) => console.error('Failed to determine if question is answered:', error)
-    });
+    const message = 'Please click the next button to continue...';
+    console.log('Updating selection message to:', message); // Debugging
+    this.selectionMessageService.updateSelectionMessage(message);
   }
   
   private async processCurrentQuestion(
