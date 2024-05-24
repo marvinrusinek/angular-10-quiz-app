@@ -1020,6 +1020,11 @@ export class QuizComponent implements OnInit, OnDestroy {
               console.log('Question', index, 'answered:', isAnswered); // Debugging
               this.cdRef.detectChanges(); // Manually trigger change detection
 
+              if (!isAnswered && !resetMessage) {
+                const initialMessage = 'Please select an option to continue...';
+                this.selectionMessageService.updateSelectionMessage(initialMessage);
+              }
+
               this.quizService.getTotalQuestions().subscribe({
                 next: (totalQuestions) => {
                   const message = this.selectionMessageService.determineSelectionMessage(
