@@ -1008,8 +1008,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         if (questions && questions[index]) {
           this.currentQuestion = questions[index];
           console.log('Loaded question:', this.currentQuestion); // Debugging
-          
-          this.isAnswered = false; // Initially set to false when loading a new question
+
+          // Always reset isAnswered to false when a new question loads
+          this.isAnswered = false;
 
           if (resetMessage) {
             const initialMessage = 'Please select an option to continue...';
@@ -1020,16 +1021,14 @@ export class QuizComponent implements OnInit, OnDestroy {
             next: (isAnswered) => {
               this.isAnswered = isAnswered;
               console.log('Question', index, 'answered:', isAnswered); // Debugging
-              this.cdr.detectChanges(); // Manually trigger change detection
 
+              // Update the selection message only if the question is already answered
               if (isAnswered) {
-                const message = this.selectionMessageService.determineSelectionMessage(
-                  index,
-                  questions.length,
-                  isAnswered
-                );
+                const message = 'Please click the next button to continue...';
                 this.selectionMessageService.updateSelectionMessage(message);
               }
+
+              this.cdRef.detectChanges(); // Manually trigger change detection
             },
             error: (error) => {
               console.error('Failed to determine if question is answered:', error);
@@ -1044,14 +1043,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
-
-  answerSelected(isAnswered: boolean): void {
-    this.isAnswered = isAnswered;
-    this.cdRef.detectChanges();
-  }
-  
-  
-  
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
