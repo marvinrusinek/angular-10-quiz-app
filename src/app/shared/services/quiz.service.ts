@@ -1072,8 +1072,23 @@ export class QuizService implements OnDestroy {
     return correctAnswersString;
   }
 
-  addSelectedOption(option: Option): void {
+  /* addSelectedOption(option: Option): void {
     this.selectedOptions.push(option);
+  } */
+
+  addSelectedOption(option: Option, questionIndex: number): void {
+    if (!this.selectedOptions[questionIndex]) {
+      this.selectedOptions[questionIndex] = [];
+    }
+    const selectedOptions = this.selectedOptions[questionIndex];
+    const wasSelected = selectedOptions.some(selectedOption => selectedOption.optionId === option.optionId);
+    if (wasSelected) {
+      // Remove the option if it was already selected
+      this.selectedOptions[questionIndex] = selectedOptions.filter(selectedOption => selectedOption.optionId !== option.optionId);
+    } else {
+      // Add the option if it wasn't selected
+      this.selectedOptions[questionIndex].push(option);
+    }
   }
 
   removeSelectedOption(option: Option): void {
