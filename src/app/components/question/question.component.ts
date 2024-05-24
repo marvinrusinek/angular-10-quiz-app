@@ -44,7 +44,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     new EventEmitter<string>();
   @Output() showExplanationChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
-  @Output() isAnswered = false;
   @Input() data: {
     questionText: string;
     explanationText?: string;
@@ -66,8 +65,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     new BehaviorSubject<boolean>(false);
   @Input() explanationText: string | null;
   @Input() isOptionSelected = false;
-  @Input() selectionMessage: string;
   @Input() showFeedback = false;
+
+  @Input() selectionMessage: string;
+  @Output() selectionMessageChange = new EventEmitter<string>();
+  @Output() isAnsweredChange = new EventEmitter<boolean>();
+  @Output() isAnswered = false;
 
   combinedQuestionData$: Subject<{
     questionText: string;
@@ -169,6 +172,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.log('QuizQuestionComponent - ngOnInit - Initial options:', this.currentQuestion.options);
     }
+
+    // Initial message setting
+    const initialMessage = 'Please select an option to continue...';
+    this.selectionMessageService.updateSelectionMessage(initialMessage);
+    this.selectionMessageChange.emit(initialMessage);
 
     this.logInitialData();
     this.initializeQuizQuestion();
