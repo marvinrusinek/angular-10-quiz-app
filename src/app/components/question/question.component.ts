@@ -780,30 +780,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  /* async onOptionClicked(option: Option, index: number): Promise<void> {
-    this.quizService.addSelectedOption(option); 
-
-    try {
-      const currentQuestion = await this.getCurrentQuestion();
-      if (!currentQuestion) {
-        console.error('Could not retrieve the current question.');
-        return;
-      }
-
-      this.handleOptionSelection(option, index, currentQuestion);
-      await this.processCurrentQuestion(currentQuestion);
-      this.questionAnswered.emit();
-
-      this.updateQuestionStateForExplanation(this.currentQuestionIndex);
-
-      // Determine correctness after processing the question to ensure up-to-date state
-      const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
-      this.handleAudioPlayback(isCorrect);
-    } catch (error) {
-      console.error('An error occurred while processing the option click:', error);
-    }
-  } */
-
   async onOptionClicked(option: Option, index: number): Promise<void> {
     const selectedOptions = this.quizService.getSelectedOptions(this.currentQuestionIndex);
     const wasSelected = selectedOptions.some(selectedOption => selectedOption.optionId === option.optionId);
