@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, filter, map, skipWhile, take, tap } from 'rxjs/operators';
+import { catchError, filter, forkJoin, map, skipWhile, take, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
@@ -1294,19 +1294,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   } */
 
-  private async updateSelectionMessage(): Promise<void> {
-    try {
-      const totalQuestions = await this.quizService.getTotalQuestions().toPromise();
-      const isAnswered = await this.quizService.isAnswered(this.currentQuestionIndex).toPromise();
+  private updateSelectionMessage(): void {
+    const totalQuestions = this.quizService.getTotalQuestions().toPromise();
+    const isAnswered = this.quizService.isAnswered(this.currentQuestionIndex).toPromise();
+
+    Promise.all([totalQuestions, isAnswered]).then(([totalQuestions, isAnswered]) => {
       const message = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
         totalQuestions,
         isAnswered
       );
       this.selectionMessageService.updateSelectionMessage(message);
-    } catch (error) {
+    }).catch((error) => {
       console.error('Failed to update selection message:', error);
-    }
+    });
   }
 
   unselectOption(): void {
