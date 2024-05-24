@@ -809,7 +809,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.addSelectedOption(option, this.currentQuestionIndex);
 
     // Check if any option is selected
-    const selectedOptions = this.quizService.selectedOptions[this.currentQuestionIndex] || [];
+    const selectedOptions = this.quizService.getSelectedOptions(this.currentQuestionIndex);
     const isAnyOptionSelected = selectedOptions.length > 0;
     const message = isAnyOptionSelected
       ? 'Please click the next button to continue...'
