@@ -805,17 +805,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
-    // Update the state of selected options
-    const wasSelected = this.quizService.selectedOptions[this.currentQuestionIndex]?.includes(option.optionId);
+    // Check if the option was already selected
+    const selectedOptions = this.quizService.selectedOptions[this.currentQuestionIndex] || [];
+    const wasSelected = selectedOptions.some(selectedOption => selectedOption.optionId === option.optionId);
+
     if (wasSelected) {
       // Remove the option if it was already selected
-      this.quizService.selectedOptions[this.currentQuestionIndex] = this.quizService.selectedOptions[this.currentQuestionIndex].filter((id: number) => id !== option.optionId);
+      this.quizService.selectedOptions[this.currentQuestionIndex] = selectedOptions.filter(selectedOption => selectedOption.optionId !== option.optionId);
     } else {
       // Add the option if it wasn't selected
-      if (!this.quizService.selectedOptions[this.currentQuestionIndex]) {
-        this.quizService.selectedOptions[this.currentQuestionIndex] = [];
-      }
-      this.quizService.selectedOptions[this.currentQuestionIndex].push(option.optionId);
+      this.quizService.selectedOptions[this.currentQuestionIndex] = [...selectedOptions, option];
     }
 
     // Check if any option is selected
