@@ -805,7 +805,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
-    this.quizService.addSelectedOption(option);
+    // Update the state of selected options
+    const wasSelected = this.quizService.selectedOptions[this.currentQuestionIndex]?.includes(option.optionId);
+    if (wasSelected) {
+      // Remove the option if it was already selected
+      this.quizService.selectedOptions[this.currentQuestionIndex] = this.quizService.selectedOptions[this.currentQuestionIndex].filter((id: number) => id !== option.optionId);
+    } else {
+      // Add the option if it wasn't selected
+      if (!this.quizService.selectedOptions[this.currentQuestionIndex]) {
+        this.quizService.selectedOptions[this.currentQuestionIndex] = [];
+      }
+      this.quizService.selectedOptions[this.currentQuestionIndex].push(option.optionId);
+    }
+
+    // Check if any option is selected
+    const isAnyOptionSelected = this.quizService.selectedOptions[this.currentQuestionIndex]?.length > 0;
+    const message = isAnyOptionSelected
+      ? 'Please click the next button to continue...'
+      : 'Please select an option to continue...';
+    this.selectionMessageService.updateSelectionMessage(message);
 
     try {
       const currentQuestion = await this.getCurrentQuestion();
@@ -823,16 +841,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Determine correctness after processing the question to ensure up-to-date state
       const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
       this.handleAudioPlayback(isCorrect);
-
-      // Update the selection message based on whether an option is selected
-      const isAnyOptionSelected = !!this.quizService.selectedOptions[this.currentQuestionIndex];
-      const message = isAnyOptionSelected
-        ? 'Please click the next button to continue...'
-        : 'Please select an option to continue...';
-      this.selectionMessageService.updateSelectionMessage(message);
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
+
+    console.log('Option selected:', option.optionId, 'Selected options:', this.quizService.selectedOptions); // Debugging
   }
 
   private async processCurrentQuestion(
