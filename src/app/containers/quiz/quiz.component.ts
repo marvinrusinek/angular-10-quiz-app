@@ -1027,7 +1027,7 @@ export class QuizComponent implements OnInit, OnDestroy {
                 console.log('Updated selectionMessage to:', message); // Debugging
               }
   
-              this.cdr.detectChanges(); // Manually trigger change detection
+              this.cdRef.detectChanges(); // Manually trigger change detection
             },
             error: (error) => {
               console.error('Failed to determine if question is answered:', error);
