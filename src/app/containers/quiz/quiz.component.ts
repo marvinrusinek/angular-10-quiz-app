@@ -169,19 +169,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.selectionMessageService.selectionMessageSubject.subscribe(
-      (message: string) => {
-        this.selectionMessage = message;
-      }
-    );
+    this.subscribeToSelectionMessage();
 
-    this.activatedRoute.params.subscribe(params => {
-      this.quizId = params['quizId'];
-      this.currentQuestionIndex = +params['questionIndex'] - 1;
-      this.loadAndSetupQuestion(this.currentQuestionIndex, true);
-    });
-
-    // Shuffle and initialize questions
+    // Initialize and shuffle questions
     this.initializeQuestions();
 
     // Initialize route parameters and subscribe to updates
@@ -233,15 +223,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !this.isQuizDataLoaded || this.currentQuestionIndex < this.totalQuestions - 1;
   }
 
-  /* public get shouldHideRestartNav(): boolean {
-    return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.selectedQuiz?.questions.length - 1;
-  } */
-
   public get shouldHideRestartNav(): boolean {
     return this.currentQuestionIndex === 0 || 
            (this.selectedQuiz?.questions && this.currentQuestionIndex === this.selectedQuiz.questions.length - 1);
   }
   
+
+  private subscribeToSelectionMessage(): void {
+    this.selectionMessageService.selectionMessageSubject.subscribe(
+      (message: string) => {
+        this.selectionMessage = message;
+        console.log('Updated selection message in component:', message); // Debugging
+      }
+    );
+  }
+
 
   /*************** Shuffle and initialize questions ******************/
   private initializeQuestions(): void {
@@ -253,6 +249,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   private initializeRouteParameters(): void {
     this.fetchRouteParams();
     this.subscribeRouterAndInit();
+    this.subscribeToRouteParams();
     this.initializeRouteParams();
   }
 
@@ -328,6 +325,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   /******* initialize route parameters functions *********/
+  private subscribeToRouteParams(): void {
+    this.activatedRoute.params.subscribe(params => {
+      this.quizId = params['quizId'];
+      this.currentQuestionIndex = +params['questionIndex'] - 1;
+      this.loadAndSetupQuestion(this.currentQuestionIndex, true);
+    });
+  }
+
   initializeRouteParams(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
