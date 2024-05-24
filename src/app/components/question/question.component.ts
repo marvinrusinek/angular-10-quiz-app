@@ -1301,7 +1301,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         const message = this.selectionMessageService.determineSelectionMessage(
           this.currentQuestionIndex,
           totalQuestions,
-          this.quizService.isAnswered(this.currentQuestionIndex)
+          isAnswered
         );
         this.selectionMessageService.updateSelectionMessage(message);
       },
