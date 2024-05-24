@@ -1008,6 +1008,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         if (questions && questions[index]) {
           this.currentQuestion = questions[index];
           console.log('Loaded question:', this.currentQuestion); // Debugging
+          
+          this.isAnswered = false; // Initially set to false when loading a new question
 
           if (resetMessage) {
             const initialMessage = 'Please select an option to continue...';
@@ -1018,26 +1020,16 @@ export class QuizComponent implements OnInit, OnDestroy {
             next: (isAnswered) => {
               this.isAnswered = isAnswered;
               console.log('Question', index, 'answered:', isAnswered); // Debugging
-              this.cdRef.detectChanges(); // Manually trigger change detection
+              this.cdr.detectChanges(); // Manually trigger change detection
 
-              if (resetMessage || !this.isAnswered) {
-                const initialMessage = 'Please select an option to continue...';
-                this.selectionMessageService.updateSelectionMessage(initialMessage);
+              if (isAnswered) {
+                const message = this.selectionMessageService.determineSelectionMessage(
+                  index,
+                  questions.length,
+                  isAnswered
+                );
+                this.selectionMessageService.updateSelectionMessage(message);
               }
-
-              this.quizService.getTotalQuestions().subscribe({
-                next: (totalQuestions) => {
-                  const message = this.selectionMessageService.determineSelectionMessage(
-                    index,
-                    totalQuestions,
-                    isAnswered
-                  );
-                  this.selectionMessageService.updateSelectionMessage(message);
-                },
-                error: (error) => {
-                  console.error('Failed to fetch total questions:', error);
-                }
-              });
             },
             error: (error) => {
               console.error('Failed to determine if question is answered:', error);
