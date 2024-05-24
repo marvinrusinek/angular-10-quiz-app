@@ -780,7 +780,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  async onOptionClicked(option: Option, index: number): Promise<void> {
+  /* async onOptionClicked(option: Option, index: number): Promise<void> {
     this.quizService.addSelectedOption(option); 
 
     try {
@@ -799,6 +799,37 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Determine correctness after processing the question to ensure up-to-date state
       const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
       this.handleAudioPlayback(isCorrect);
+    } catch (error) {
+      console.error('An error occurred while processing the option click:', error);
+    }
+  } */
+
+  async onOptionClicked(option: Option, index: number): Promise<void> {
+    this.quizService.addSelectedOption(option);
+
+    try {
+      const currentQuestion = await this.getCurrentQuestion();
+      if (!currentQuestion) {
+        console.error('Could not retrieve the current question.');
+        return;
+      }
+
+      this.handleOptionSelection(option, index, currentQuestion);
+      await this.processCurrentQuestion(currentQuestion);
+      this.questionAnswered.emit();
+
+      this.updateQuestionStateForExplanation(this.currentQuestionIndex);
+
+      // Determine correctness after processing the question to ensure up-to-date state
+      const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
+      this.handleAudioPlayback(isCorrect);
+
+      // Update the selection message based on whether an option is selected
+      const isAnyOptionSelected = !!this.quizService.selectedOptions[this.currentQuestionIndex];
+      const message = isAnyOptionSelected
+        ? 'Please click the next button to continue...'
+        : 'Please select an option to continue...';
+      this.selectionMessageService.updateSelectionMessage(message);
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
