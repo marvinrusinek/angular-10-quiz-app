@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, filter, forkJoin, map, skipWhile, take, tap } from 'rxjs/operators';
+import { catchError, filter, map, skipWhile, take, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
@@ -783,7 +783,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
     try {
-      console.log('Option clicked:', option); // Debugging
       // Toggle the selection of the option
       this.toggleOptionSelection(option);
 
@@ -808,8 +807,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
-
-    console.log('Option selected:', option.optionId, 'Selected options:', this.quizService.selectedOptions); // Debugging
   }
 
   private toggleOptionSelection(option: Option): void {
@@ -817,17 +814,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const wasSelected = selectedOptions.some(selectedOption => selectedOption.optionId === option.optionId);
 
     if (wasSelected) {
-      console.log('Removing selected option:', option); // Debugging
       this.quizService.removeSelectedOption(option, this.currentQuestionIndex);
     } else {
-      console.log('Adding selected option:', option); // Debugging
       this.quizService.addSelectedOption(option, this.currentQuestionIndex);
     }
   }
 
   private updateSelectionMessage(): void {
     const message = 'Please click the next button to continue...';
-    console.log('Updating selection message to:', message); // Debugging
     this.selectionMessageService.updateSelectionMessage(message);
   }
   
