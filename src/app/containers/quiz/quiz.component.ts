@@ -1022,7 +1022,7 @@ export class QuizComponent implements OnInit, OnDestroy {
               console.log('isAnswered for question', index, ':', isAnswered); // Debugging
               this.isAnswered = isAnswered;
   
-              // Update the selection message only if the question is already answered
+              // Ensure that message update only happens if the question is already answered
               if (isAnswered) {
                 const message = 'Please click the next button to continue...';
                 this.selectionMessageService.updateSelectionMessage(message);
@@ -1044,6 +1044,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
+  
   
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
