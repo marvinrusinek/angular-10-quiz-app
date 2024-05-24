@@ -263,15 +263,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return option.optionId;
   }
 
-  private buildForm() {
+  private buildForm(): void {
     this.questionForm = this.fb.group({
       answer: ['', Validators.required]
     });
   }
 
-  handleQuestionUpdate(newQuestion: QuizQuestion) {
-    console.log('handleQuestionUpdate - Received newQuestion:', newQuestion);
-
+  handleQuestionUpdate(newQuestion: QuizQuestion): void {
     if (!newQuestion.selectedOptions) {
       newQuestion.selectedOptions = [];
     }
