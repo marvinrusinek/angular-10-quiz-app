@@ -24,7 +24,7 @@
         </codelab-quiz-content-component> 
         <ng-content select="[question-content]"></ng-content>
 
-        <ng-container *ngIf="optionsToDisplay && optionsToDisplay.length > 0">
+        <ng-container *ngIf="optionsToDisplay">
           <codelab-quiz-question
             *ngIf="isContentAvailable"
             [data]="data"
@@ -59,7 +59,7 @@
   
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
-      <h5 *ngIf="selectionMessage" class="selection-message">
+      <h5 class="selection-message">
         {{ selectionMessage }}
       </h5>
 
