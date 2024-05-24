@@ -827,6 +827,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
     try {
+      console.log('Option clicked:', option); // Debugging
       // Toggle the selection of the option
       this.toggleOptionSelection(option);
 
@@ -860,8 +861,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const wasSelected = selectedOptions.some(selectedOption => selectedOption.optionId === option.optionId);
 
     if (wasSelected) {
+      console.log('Removing selected option:', option); // Debugging
       this.quizService.removeSelectedOption(option, this.currentQuestionIndex);
     } else {
+      console.log('Adding selected option:', option); // Debugging
       this.quizService.addSelectedOption(option, this.currentQuestionIndex);
     }
   }
@@ -871,6 +874,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const message = this.isNextMessage
       ? 'Please click the next button to continue...'
       : 'Please select an option to continue...';
+    console.log('Updating selection message to:', message); // Debugging
     this.selectionMessageService.updateSelectionMessage(message);
   }
   
