@@ -870,12 +870,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateSelectionMessage(): void {
-    this.isNextMessage = !this.isNextMessage; // Toggle the message state
-    const message = this.isNextMessage
-      ? 'Please click the next button to continue...'
-      : 'Please select an option to continue...';
-    console.log('Updating selection message to:', message); // Debugging
-    this.selectionMessageService.updateSelectionMessage(message);
+    this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
+      next: (isAnswered) => {
+        const message = isAnswered
+          ? 'Please click the next button to continue...'
+          : 'Please select an option to continue...';
+        console.log('Updating selection message to:', message); // Debugging
+        this.selectionMessageService.updateSelectionMessage(message);
+      },
+      error: (error) => console.error('Failed to determine if question is answered:', error)
+    });
   }
   
   private async processCurrentQuestion(
