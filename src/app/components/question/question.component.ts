@@ -806,11 +806,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async onOptionClicked(option: Option, index: number): Promise<void> {
     // Use the service method to add/remove the selected option
-    this.quizService.addSelectedOption(option, this.currentQuestionIndex);
+    const selectedOptions = this.quizService.getSelectedOptions(this.currentQuestionIndex);
+    const wasSelected = selectedOptions.some(selectedOption => selectedOption.optionId === option.optionId);
+
+    if (wasSelected) {
+      this.quizService.removeSelectedOption(option, this.currentQuestionIndex);
+    } else {
+      this.quizService.addSelectedOption(option, this.currentQuestionIndex);
+    }
 
     // Check if any option is selected
-    const selectedOptions = this.quizService.getSelectedOptions(this.currentQuestionIndex);
-    const isAnyOptionSelected = selectedOptions.length > 0;
+    const updatedSelectedOptions = this.quizService.getSelectedOptions(this.currentQuestionIndex);
+    const isAnyOptionSelected = updatedSelectedOptions.length > 0;
     const message = isAnyOptionSelected
       ? 'Please click the next button to continue...'
       : 'Please select an option to continue...';
