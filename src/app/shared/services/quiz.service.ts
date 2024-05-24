@@ -1078,6 +1078,10 @@ export class QuizService implements OnDestroy {
     this.selectedOptions.push(option);
   } */
 
+  getSelectedOptions(questionIndex: number): SelectedOption[] {
+    return this.selectedOptions.filter(option => option.questionIndex === questionIndex);
+  }
+
   addSelectedOption(option: Option, questionIndex: number): void {
     const optionWithIndex: SelectedOption = { ...option, questionIndex };
     const index = this.selectedOptions.findIndex(
