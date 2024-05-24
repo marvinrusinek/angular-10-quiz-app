@@ -866,8 +866,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateSelectionMessage(): void {
-    this.messageToggleState = !this.messageToggleState; // Toggle the state
-    const message = this.messageToggleState
+    const selectedOptions = this.quizService.getSelectedOptions(this.currentQuestionIndex);
+    const isAnyOptionSelected = selectedOptions.length > 0;
+
+    const message = isAnyOptionSelected
       ? 'Please click the next button to continue...'
       : 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(message);
