@@ -946,7 +946,7 @@ export class QuizService implements OnDestroy {
   }
 
   isAnswered(questionIndex: number): Observable<boolean> {
-    const isAnswered = !!this.selectedOptions[questionIndex];
+    const isAnswered = !!this.getSelectedOptions(questionIndex).length;
     console.log(`Question ${questionIndex} answered: ${isAnswered}`); // Debugging
     return of(isAnswered);
   }
