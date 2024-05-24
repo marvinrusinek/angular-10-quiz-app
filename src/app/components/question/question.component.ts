@@ -110,6 +110,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isLoadingQuestions = false;
   isPaused = false;
   private initialized = false;
+  private isNextMessage = false;
 
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -866,10 +867,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateSelectionMessage(): void {
-    const selectedOptions = this.quizService.getSelectedOptions(this.currentQuestionIndex);
-    const isAnyOptionSelected = selectedOptions.length > 0;
-
-    const message = isAnyOptionSelected
+    this.isNextMessage = !this.isNextMessage; // Toggle the message state
+    const message = this.isNextMessage
       ? 'Please click the next button to continue...'
       : 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(message);
