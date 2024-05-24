@@ -11,6 +11,7 @@ import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
+import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -54,7 +55,8 @@ export class QuizService implements OnDestroy {
   currentQuestionIndex$ = this.currentQuestionIndexSource.asObservable();
 
   currentOptions: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
-  selectedOptions: Option[] = [];
+  // selectedOptions: Option[] = [];
+  selectedOptions: SelectedOption[] = [];
   resources: Resource[];
   quizId = '';
 
@@ -1077,17 +1079,17 @@ export class QuizService implements OnDestroy {
   } */
 
   addSelectedOption(option: Option, questionIndex: number): void {
-    if (!this.selectedOptions[questionIndex]) {
-      this.selectedOptions[questionIndex] = [];
-    }
-    const selectedOptions = this.selectedOptions[questionIndex];
-    const wasSelected = selectedOptions.some(selectedOption => selectedOption.optionId === option.optionId);
-    if (wasSelected) {
+    const optionWithIndex: SelectedOption = { ...option, questionIndex };
+    const index = this.selectedOptions.findIndex(
+      selectedOption => selectedOption.optionId === option.optionId && selectedOption.questionIndex === questionIndex
+    );
+
+    if (index > -1) {
       // Remove the option if it was already selected
-      this.selectedOptions[questionIndex] = selectedOptions.filter(selectedOption => selectedOption.optionId !== option.optionId);
+      this.selectedOptions.splice(index, 1);
     } else {
       // Add the option if it wasn't selected
-      this.selectedOptions[questionIndex].push(option);
+      this.selectedOptions.push(optionWithIndex);
     }
   }
 
