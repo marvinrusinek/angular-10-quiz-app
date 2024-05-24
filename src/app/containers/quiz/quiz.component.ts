@@ -169,8 +169,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.notifyOnNavigationEnd();
-
     this.selectionMessageService.selectionMessageSubject.subscribe(
       (message: string) => {
         this.selectionMessage = message;
@@ -206,14 +204,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.routerSubscription?.unsubscribe();
     this.questionAndOptionsSubscription?.unsubscribe();
     this.timerService.stopTimer(null);
-  }
-
-  private notifyOnNavigationEnd(): void {
-    this.router.events.pipe(
-      filter((event: RouterEvent) => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      this.loadQuestionNew(this.currentQuestionIndex, true);
-    });
   }
 
   // Public getter methods for determining UI state based on current quiz and question data.
