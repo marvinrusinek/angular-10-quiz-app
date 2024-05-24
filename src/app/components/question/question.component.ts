@@ -444,7 +444,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             explanationText:
               ((data as any) && (data as any).explanationText) || '',
             correctAnswersText: data.correctAnswersText,
-            options: data.currentOptions,
+            options: data.currentOptions
           };
 
           this.correctAnswers = correctAnswers.get(data.questionText);
@@ -464,7 +464,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               correctAnswersText: '',
               currentOptions: this.data.options,
               currentQuestion: this.currentQuestion,
-              isNavigatingToPrevious: this.isNavigatingToPrevious,
+              isNavigatingToPrevious: this.isNavigatingToPrevious
             });
           }
           console.log('CA:', this.correctAnswers);
@@ -521,7 +521,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const data = {
       questionText: this.data.questionText,
       correctAnswersText: this.data.correctAnswersText || '',
-      currentOptions: this.data.options,
+      currentOptions: this.data.options
     };
     console.log('Data to be passed to fetchCorrectAnswersText:', data);
     console.log('questionData:::', this.questionData);
@@ -539,11 +539,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       data.questionText
     );
     if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
-      await this.quizService.setCorrectAnswers(
+      await firstValueFrom(this.quizService.setCorrectAnswers(
         this.currentQuestion,
         data.currentOptions
-      );
-    } else {
+      ));
       this.correctAnswers = currentCorrectAnswers;
     }
 
