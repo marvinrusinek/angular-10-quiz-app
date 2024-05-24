@@ -1001,36 +1001,34 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private loadQuestionNew(index: number, resetMessage: boolean): void {
     console.log('Loading question index:', index); // Debugging
-    this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: (quizData) => {
-        const questions = quizData.questions; // Extract questions array
-        console.log('Fetched questions:', questions); // Debugging
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: async (questions: QuizQuestion[]) => {
         if (questions && questions[index]) {
           this.currentQuestion = questions[index];
           console.log('Loaded question:', this.currentQuestion); // Debugging
-
+  
           // Always reset isAnswered to false and reset the message when a new question loads
           this.isAnswered = false;
-
+  
           if (resetMessage) {
             const initialMessage = 'Please select an option to continue...';
             this.selectionMessageService.updateSelectionMessage(initialMessage);
             console.log('Reset selectionMessage to:', initialMessage); // Debugging
           }
-
+  
           this.quizService.isAnswered(index).subscribe({
             next: (isAnswered) => {
               console.log('isAnswered for question', index, ':', isAnswered); // Debugging
               this.isAnswered = isAnswered;
-
+  
               // Ensure that message update only happens if the question is already answered
               if (isAnswered) {
                 const message = 'Please click the next button to continue...';
                 this.selectionMessageService.updateSelectionMessage(message);
                 console.log('Updated selectionMessage to:', message); // Debugging
               }
-
-              this.cdRef.detectChanges(); // Manually trigger change detection
+  
+              this.cdr.detectChanges(); // Manually trigger change detection
             },
             error: (error) => {
               console.error('Failed to determine if question is answered:', error);
@@ -1045,8 +1043,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
-  
-  
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
