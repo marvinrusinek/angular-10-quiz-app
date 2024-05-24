@@ -866,14 +866,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateSelectionMessage(): void {
-    this.quizService.isAnswered(this.currentQuestionIndex).subscribe(isAnswered => {
-      const message = isAnswered
-        ? 'Please click the next button to continue...'
-        : 'Please select an option to continue...';
-      this.selectionMessageService.updateSelectionMessage(message);
-    });
+    this.messageToggleState = !this.messageToggleState; // Toggle the state
+    const message = this.messageToggleState
+      ? 'Please click the next button to continue...'
+      : 'Please select an option to continue...';
+    this.selectionMessageService.updateSelectionMessage(message);
   }
-
+  
   private async processCurrentQuestion(
     currentQuestion: QuizQuestion
   ): Promise<void> {
