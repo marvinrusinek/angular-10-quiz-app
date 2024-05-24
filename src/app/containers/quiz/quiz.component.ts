@@ -1014,6 +1014,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             const initialMessage = 'Please select an option to continue...';
             this.selectionMessageService.updateSelectionMessage(initialMessage);
             console.log('Reset selectionMessage to:', initialMessage); // Debugging
+            this.cdr.detectChanges(); // Manually trigger change detection after reset
           }
   
           this.quizService.isAnswered(index).subscribe({
@@ -1032,7 +1033,7 @@ export class QuizComponent implements OnInit, OnDestroy {
                 console.log('Updated selectionMessage back to:', initialMessage); // Debugging
               }
   
-              this.cdRef.detectChanges(); // Manually trigger change detection
+              this.cdr.detectChanges(); // Manually trigger change detection
             },
             error: (error) => {
               console.error('Failed to determine if question is answered:', error);
@@ -1047,6 +1048,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
+  
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
