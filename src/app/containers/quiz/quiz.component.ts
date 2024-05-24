@@ -216,7 +216,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.activatedRoute.params.subscribe(params => {
         this.quizId = params['quizId'];
         this.currentQuestionIndex = +params['questionIndex'] - 1;
-        this.loadQuestionNew(this.currentQuestionIndex, false);
+        this.loadQuestionNew(this.currentQuestionIndex, true);
       });
     });
   }
