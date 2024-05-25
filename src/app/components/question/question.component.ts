@@ -801,7 +801,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.toggleOptionSelection(option);
   
       // Check if the current question is answered after an option is selected
-      this.isAnswerSelected();
+      await this.isAnswerSelected();
   
       // Update the selection message based on the current state
       this.updateSelectionMessage();
