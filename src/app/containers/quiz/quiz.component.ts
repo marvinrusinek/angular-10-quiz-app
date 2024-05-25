@@ -1538,7 +1538,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false); 
-    // this.updateSelectionMessage(true);
 
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
