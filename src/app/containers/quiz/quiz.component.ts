@@ -983,7 +983,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       next: async (questions: QuizQuestion[]) => {
         if (questions && questions[index]) {
           this.currentQuestion = questions[index];
-          
+  
           // Always reset isAnswered to false when a new question loads
           this.isAnswered = false;
           console.log('Question loaded. isAnswered set to false.');
