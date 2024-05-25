@@ -5,9 +5,8 @@ export interface CombinedQuestionDataType {
   questionText: string;
   explanationText?: string;
   correctAnswersText?: string;
-  currentQuestion: QuizQuestion;
-  currentOptions?: Option[];
   options: Option[];
+  currentOptions: Option[];
+  currentQuestion: QuizQuestion;
   isNavigatingToPrevious: boolean;
-  formattedExplanation?: string;
 }
