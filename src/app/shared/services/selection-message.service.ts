@@ -16,7 +16,7 @@ export class SelectionMessageService {
     }
   } */
 
-  determineSelectionMessage(
+  /* determineSelectionMessage(
     currentQuestionIndex: number,
     totalQuestions: number,
     isAnswered: boolean
@@ -27,6 +27,14 @@ export class SelectionMessageService {
       return 'Please click the next button to continue...';
     } else {
       return 'You have completed the quiz!';
+    }
+  } */
+
+  determineSelectionMessage(currentQuestionIndex: number, totalQuestions: number, isAnswered: boolean): string {
+    if (currentQuestionIndex === totalQuestions - 1) {
+      return isAnswered ? 'Please click the Show Results button' : 'Please select an option to continue...';
+    } else {
+      return isAnswered ? 'Please click the next button to continue...' : 'Please select an option to continue...';
     }
   }
 
