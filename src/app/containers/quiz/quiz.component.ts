@@ -978,6 +978,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
+  isAnswerSelected(): void {
+    this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
+      next: (isAnswered) => {
+        this.isAnswered = isAnswered;
+        console.log(`isAnswerSelected: ${isAnswered}`);
+      },
+      error: (error) => console.error('Failed to determine if question is answered:', error)
+    });
+  }
+  
   private loadAndSetupQuestion(index: number, resetMessage: boolean): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: async (questions: QuizQuestion[]) => {
@@ -1019,6 +1029,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
+  
   
   onSelectionMessageChange(message: string) {
     this.selectionMessage = message;
