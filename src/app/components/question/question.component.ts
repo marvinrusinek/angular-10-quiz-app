@@ -826,10 +826,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private isAnswerSelected(): void {
+  private async isAnswerSelected(): Promise<void> {
     this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
       next: (isAnswered) => {
-        this.isAnswered = isAnswered; // Update the class property
+        this.isAnswered = isAnswered;
         console.log(`isAnswerSelected: ${isAnswered}`);
       },
       error: (error) => console.error('Failed to determine if question is answered:', error)
