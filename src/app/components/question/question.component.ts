@@ -9,7 +9,6 @@ import { catchError, filter, map, skipWhile, take, tap } from 'rxjs/operators';
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
-import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -50,9 +49,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     explanationText?: string;
     correctAnswersText?: string;
     options: Option[];
-    currentOptions?: Option[];
-    currentQuestion?: QuizQuestion;
-    isNavigatingToPrevious?: boolean;
   };
   @Input() questionData: QuizQuestion;
   @Input() question!: QuizQuestion;
@@ -81,7 +77,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     explanationText?: string;
     correctAnswersText?: string;
     currentOptions: Option[];
-    currentQuestion: QuizQuestion;
   }> = new Subject();
 
   questionIndex: number;
@@ -467,7 +462,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.quizService.combinedQuestionDataSubject.next({
               questionText: this.data.questionText,
               correctAnswersText: '',
-              options: this.data.options,
               currentOptions: this.data.options,
               currentQuestion: this.currentQuestion,
               isNavigatingToPrevious: this.isNavigatingToPrevious
@@ -486,18 +480,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.updateCorrectMessageText(this.correctMessage); // Update with the error message
           }
 
-          const currentOptions = this.currentQuestion.options;
-
-          this.data = {
-            questionText: this.currentQuestion.questionText,
-            options: currentOptions,
-            currentOptions: currentOptions,
-            currentQuestion: this.currentQuestion,
-            explanationText: this.currentQuestion.explanation,
-            isNavigatingToPrevious: false
-          };
-      
-          this.fetchCorrectAnswersAndText(this.data);
+          this.fetchCorrectAnswersAndText(this.data, this.data.options);
 
           if (this.currentOptions && this.correctAnswers) {
             const correctAnswerOptions: Option[] = this.correctAnswers
@@ -569,31 +552,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('MY CORR MSG:', this.correctMessage);
   }
 
-  /* private async fetchCorrectAnswersAndText(data: CombinedQuestionDataType): Promise<void> {
-    try {
-      console.log('fetchCorrectAnswersAndText called with data:', data);
-      const currentOptions = data.currentOptions || data.options; // Use currentOptions or fallback to options
-  
-      if (!currentOptions || currentOptions.length === 0) {
-        console.error('currentOptions is undefined or empty:', currentOptions);
-        throw new Error('Options array is undefined or empty.');
-      }
-  
-      const currentCorrectAnswers = this.quizService.correctAnswers.get(data.questionText);
-      if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
-        await firstValueFrom(this.quizService.setCorrectAnswers(this.currentQuestion, currentOptions));
-        this.correctAnswers = this.quizService.correctAnswers.get(data.questionText);
-      }
-  
-      await this.fetchCorrectAnswersText(data, currentOptions);
-      console.log('After fetchCorrectAnswersText...');
-      console.log('MY CORR MSG:', this.correctMessage);
-    } catch (error) {
-      console.error('Error in fetchCorrectAnswersAndText:', error);
-    }
-  } */
-  
-    
   getOptionsForQuestion(): Option[] {
     return this.currentQuestionIndex === this.previousQuestionIndex
       ? this.optionsToDisplay
