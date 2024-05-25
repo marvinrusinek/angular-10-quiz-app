@@ -423,7 +423,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.setCorrectAnswerOptions(this.correctAnswers);
   } */
 
-  private subscribeToCorrectAnswersAndData(): void {
+  /* private async subscribeToCorrectAnswersAndData(): Promise<void> {
     combineLatest([
       this.quizService.correctAnswers$,
       this.quizService.combinedQuestionData$.pipe(
@@ -480,7 +480,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.updateCorrectMessageText(this.correctMessage); // Update with the error message
           }
 
-          this.fetchCorrectAnswersAndText(this.data, this.data.options);
+          await this.fetchCorrectAnswersAndText(this.data, this.data.options);
 
           if (this.currentOptions && this.correctAnswers) {
             const correctAnswerOptions: Option[] = this.correctAnswers
@@ -503,7 +503,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.updateCorrectMessageText(this.correctMessage); // Update with the error message
         }
       });
+  } */
+
+  private async subscribeToCorrectAnswersAndData(): Promise<void> {
+    try {
+      // Initialize data
+      await this.fetchCorrectAnswersAndText(this.data, this.data.options);
+      console.log('fetchCorrectAnswersAndText completed successfully');
+    } catch (error) {
+      console.error('Error in subscribeToCorrectAnswersAndData:', error);
+    }
   }
+  
 
   private subscriptionToOptions(): void {
     this.quizService.currentOptions$.subscribe((options) => {
