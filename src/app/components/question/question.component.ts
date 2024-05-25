@@ -547,7 +547,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('MY CORR MSG', this.correctMessage);
   }
 
-  /* private async fetchCorrectAnswersAndText(
+  private async fetchCorrectAnswersAndText(
     data: any,
     currentOptions: Option[]
   ): Promise<void> {
@@ -567,9 +567,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     await this.fetchCorrectAnswersText(data, data.currentOptions);
     console.log('After fetchCorrectAnswersText...');
     console.log('MY CORR MSG:', this.correctMessage);
-  } */
+  }
 
-  private async fetchCorrectAnswersAndText(data: CombinedQuestionDataType): Promise<void> {
+  /* private async fetchCorrectAnswersAndText(data: CombinedQuestionDataType): Promise<void> {
     try {
       console.log('fetchCorrectAnswersAndText called with data:', data);
       const currentOptions = data.currentOptions || data.options; // Use currentOptions or fallback to options
@@ -591,7 +591,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('Error in fetchCorrectAnswersAndText:', error);
     }
-  }
+  } */
   
     
   getOptionsForQuestion(): Option[] {
