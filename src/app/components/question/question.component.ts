@@ -51,6 +51,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     correctAnswersText?: string;
     options: Option[];
     currentOptions?: Option[];
+    currentQuestion?: QuizQuestion;
+    isNavigatingToPrevious?: boolean;
   };
   @Input() questionData: QuizQuestion;
   @Input() question!: QuizQuestion;
@@ -79,6 +81,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     explanationText?: string;
     correctAnswersText?: string;
     currentOptions: Option[];
+    currentQuestion: QuizQuestion;
   }> = new Subject();
 
   questionIndex: number;
@@ -488,7 +491,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.data = {
             questionText: this.currentQuestion.questionText,
             options: currentOptions,
-            currentOptions: currentOptions
+            currentOptions: currentOptions,
+            currentQuestion: this.currentQuestion,
+            explanationText: this.currentQuestion.explanation,
+            isNavigatingToPrevious: false
           };
       
           this.fetchCorrectAnswersAndText(this.data);
