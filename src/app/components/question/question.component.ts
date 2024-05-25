@@ -9,6 +9,7 @@ import { catchError, filter, map, skipWhile, take, tap } from 'rxjs/operators';
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
+import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -480,7 +481,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.updateCorrectMessageText(this.correctMessage); // Update with the error message
           }
 
-          this.fetchCorrectAnswersAndText(this.data, this.data.options);
+          const currentOptions = this.currentQuestion.options;
+
+          this.data = {
+            questionText: this.currentQuestion.questionText,
+            options: currentOptions,
+            currentOptions: currentOptions
+          };
+      
+          this.fetchCorrectAnswersAndText(this.data);
 
           if (this.currentOptions && this.correctAnswers) {
             const correctAnswerOptions: Option[] = this.correctAnswers
@@ -552,26 +561,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('MY CORR MSG:', this.correctMessage);
   } */
 
-  private async fetchCorrectAnswersAndText(data: { questionText: string, currentOptions: Option[] }): Promise<void> {
+  private async fetchCorrectAnswersAndText(data: CombinedQuestionDataType): Promise<void> {
     try {
-      // Debug logs to check the input parameters
       console.log('fetchCorrectAnswersAndText called with data:', data);
-      const { currentOptions } = data;
+      const currentOptions = data.currentOptions || data.options; // Use currentOptions or fallback to options
   
-      // Check if currentOptions is defined and not empty
       if (!currentOptions || currentOptions.length === 0) {
         console.error('currentOptions is undefined or empty:', currentOptions);
         throw new Error('Options array is undefined or empty.');
       }
   
-      // Fetch the correct answers if they are not already available
       const currentCorrectAnswers = this.quizService.correctAnswers.get(data.questionText);
       if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
         await firstValueFrom(this.quizService.setCorrectAnswers(this.currentQuestion, currentOptions));
         this.correctAnswers = this.quizService.correctAnswers.get(data.questionText);
       }
   
-      // Fetch the correct answers text or update it with the correct message
       await this.fetchCorrectAnswersText(data, currentOptions);
       console.log('After fetchCorrectAnswersText...');
       console.log('MY CORR MSG:', this.correctMessage);
