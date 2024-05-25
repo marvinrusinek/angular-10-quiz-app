@@ -1137,8 +1137,8 @@ export class QuizService implements OnDestroy {
   }
 
   isOptionSelected(option: Option): boolean {
-    return this.selectedOptions.includes(option as Option);
-  }
+    return this.selectedOptions.some((selectedOption: SelectedOption) => selectedOption.text === option.text);
+  }  
 
   updateSelectedOptions(
     quizId: string,
