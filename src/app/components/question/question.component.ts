@@ -552,9 +552,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('MY CORR MSG:', this.correctMessage);
   } */
 
-  private async fetchCorrectAnswersAndText(
-    data: any
-  ): Promise<void> {
+  private async fetchCorrectAnswersAndText(data: { questionText: string, currentOptions: Option[] }): Promise<void> {
     try {
       // Debug logs to check the input parameters
       console.log('fetchCorrectAnswersAndText called with data:', data);
@@ -581,6 +579,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Error in fetchCorrectAnswersAndText:', error);
     }
   }
+  
     
   getOptionsForQuestion(): Option[] {
     return this.currentQuestionIndex === this.previousQuestionIndex
