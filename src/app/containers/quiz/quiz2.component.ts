@@ -228,5 +228,121 @@ export class QuizComponent implements OnInit, OnDestroy {
            (this.selectedQuiz?.questions && this.currentQuestionIndex === this.selectedQuiz.questions.length - 1);
   }
 
+
+  /*************** Shuffle and initialize questions ******************/
+  private initializeQuestions(): void {
+    this.questions = this.quizService.getShuffledQuestions(); 
+    console.log("Shuffled questions received in component:", this.questions.map(q => q.questionText));
+  }
+
+  /*************** ngOnInit barrel functions ******************/
+  private initializeRouteParameters(): void {
+    this.fetchRouteParams();
+    this.subscribeRouterAndInit();
+    this.subscribeToRouteParams();
+    this.initializeRouteParams();
+  }
+
+  private initializeQuizData(): void {
+    this.resolveQuizData();
+    this.fetchQuizData();
+    this.initializeQuiz();
+    this.initializeQuizFromRoute();
+    this.retrieveTotalQuestionsCount();
+  }
+
+  private initializeCurrentQuestion(): void {
+    this.initializeQuestionStreams();
+    this.loadQuizQuestionsForCurrentQuiz();
+    this.createQuestionData();
+    this.getQuestion();
+    this.subscribeToCurrentQuestion();
+    this.subscribeToSelectionMessage();
+  }
+
+  /***************** Initialize route parameters and subscribe to updates ****************/
+  fetchRouteParams(): void {
+    this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      this.quizId = params['quizId'];
+      this.questionIndex = +params['questionIndex'];
+      this.currentQuestionIndex = this.questionIndex - 1; // Ensure it's zero-based
+      console.log('Loaded quizId from route:', this.quizId);
+      console.log('Loaded questionIndex from route:', this.questionIndex);
+      this.loadQuizData();
+    });
+  }
+
+  async loadQuizData(): Promise<void> {
+    try {
+      const quiz = await firstValueFrom(
+        this.quizDataService.getQuiz(this.quizId).pipe(
+          takeUntil(this.destroy$)
+        )
+      ) as Quiz;
+      if (quiz) {
+        this.quiz = quiz;
+        if (quiz.questions && quiz.questions.length > 0) {
+          this.currentQuestion = quiz.questions[this.questionIndex - 1];
+
+          if (!this.isDestroyed) {
+            this.cdRef.detectChanges();
+          }
+        } else {
+          console.error('Quiz has no questions.');
+        }
+      } else {
+        console.error('Quiz data is unavailable.');
+      }
+    } catch (error) {
+      console.error('Error loading quiz data:', error);
+    }
+  }
+
+  private subscribeRouterAndInit(): void {
+    this.routerSubscription = this.activatedRoute.data.subscribe(data => {
+      const quizData: Quiz = data.quizData;
+      if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
+        console.error("Quiz data is undefined, or there are no questions");
+        this.router.navigate(['/select']).then(() => {
+          console.log('No quiz data available.');
+        });
+        return;
+      }
+
+      this.currentQuiz = quizData;
+      this.quizId = quizData.quizId;
+      this.questionIndex = +this.activatedRoute.snapshot.params['questionIndex'];
+    });
+  }
+
+  /******* initialize route parameters functions *********/
+  private subscribeToRouteParams(): void {
+    this.activatedRoute.params.subscribe(params => {
+      this.quizId = params['quizId'];
+      this.currentQuestionIndex = +params['questionIndex'] - 1;
+      this.loadAndSetupQuestion(this.currentQuestionIndex, true);
+    });
+  }
+
+  initializeRouteParams(): void {
+    this.activatedRoute.params.subscribe((params) => {
+      this.quizId = params['quizId'];
+
+      // Correctly handle the case where 'questionIndex' might be 0 or undefined
+      const routeQuestionIndex = params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
+
+      // Adjust for zero-based indexing
+      const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
+
+      if (adjustedIndex === 0) {
+        // Call the special initialization function for the first question
+        this.initializeFirstQuestion();
+      } else {
+        // Handle all other questions through a general update display function
+        this.updateQuestionDisplay(adjustedIndex);
+      }
+    });
+  }
+
   
 
