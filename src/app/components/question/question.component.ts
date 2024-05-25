@@ -797,28 +797,41 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     try {
       // Toggle the selection of the option
       this.toggleOptionSelection(option);
-
+  
+      // Check if the current question is answered after an option is selected
+      this.isAnswerSelected();
+  
       // Update the selection message based on the current state
       this.updateSelectionMessage();
-
+  
       // Process the current question
       const currentQuestion = await this.getCurrentQuestion();
       if (!currentQuestion) {
         console.error('Could not retrieve the current question.');
         return;
       }
-
+  
       this.handleOptionSelection(option, index, currentQuestion);
       await this.processCurrentQuestion(currentQuestion);
       this.questionAnswered.emit();
       this.updateQuestionStateForExplanation(this.currentQuestionIndex);
-
+  
       // Handle audio playback based on correctness
       const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
       this.handleAudioPlayback(isCorrect);
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
+  }
+
+  private isAnswerSelected(): void {
+    this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
+      next: (isAnswered) => {
+        this.isAnswered = isAnswered; // Update the class property
+        console.log(`isAnswerSelected: ${isAnswered}`);
+      },
+      error: (error) => console.error('Failed to determine if question is answered:', error)
+    });
   }
 
   private toggleOptionSelection(option: Option): void {
@@ -832,10 +845,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private updateSelectionMessage(): void {
+  /* private updateSelectionMessage(): void {
     const message = 'Please click the next button to continue...';
     this.selectionMessageService.updateSelectionMessage(message);
+  } */
+
+  private updateSelectionMessage(): void {
+    const message = this.isAnswered
+      ? 'Please click the next button to continue...'
+      : 'Please select an option to continue...';
+    this.selectionMessageService.updateSelectionMessage(message);
   }
+  
   
   private async processCurrentQuestion(
     currentQuestion: QuizQuestion
