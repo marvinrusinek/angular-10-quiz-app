@@ -536,7 +536,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       map(params => +params['questionIndex']),
       distinctUntilChanged(),
       tap(currentIndex => {
-        console.log("Handling navigation to question index:", currentIndex);
         this.isNavigatedByUrl = true;
         this.updateContentBasedOnIndex(currentIndex);
       })
