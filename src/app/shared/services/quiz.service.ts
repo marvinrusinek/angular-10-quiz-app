@@ -1509,14 +1509,38 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  public isValidQuizQuestion(question: any): boolean {
-    const valid = typeof question === 'object' && question !== null &&
-                  'questionText' in question && 'options' in question &&
-                  Array.isArray(question.options);
-    if (!valid) {
-      console.warn('Question failed validation:', question);
+  isValidQuizQuestion(question: any): boolean {
+    if (typeof question !== 'object' || question === null) {
+      console.warn('Question is not an object or is null:', question);
+      return false;
     }
-    return valid;
+  
+    if (!('questionText' in question) || typeof question.questionText !== 'string' || question.questionText.trim() === '') {
+      console.warn('Invalid or missing questionText:', question);
+      return false;
+    }
+  
+    if (!('options' in question) || !Array.isArray(question.options) || question.options.length === 0) {
+      console.warn('Invalid or missing options:', question);
+      return false;
+    }
+  
+    for (const option of question.options) {
+      if (typeof option !== 'object' || option === null) {
+        console.warn('Option is not an object or is null:', option);
+        return false;
+      }
+      if (!('text' in option) || typeof option.text !== 'string' || option.text.trim() === '') {
+        console.warn('Invalid or missing text in option:', option);
+        return false;
+      }
+      if ('correct' in option && typeof option.correct !== 'boolean') {
+        console.warn('Invalid correct flag in option:', option);
+        return false;
+      }
+    }
+  
+    return true;
   }
 
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
