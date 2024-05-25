@@ -807,7 +807,7 @@ export class QuizService implements OnDestroy {
           isNavigatingToPrevious: false,
           explanationText: '',
           formattedExplanation:
-            this.explanationTextService.formattedExplanation$.value,
+            this.explanationTextService.formattedExplanation$.value
         };
         this.combinedQuestionDataSubject.next(combinedQuestionData);
         this.combinedQuestionData$ = combineLatest([
@@ -823,7 +823,7 @@ export class QuizService implements OnDestroy {
           options: [],
           isNavigatingToPrevious: false,
           explanationText: '',
-          formattedExplanation: '',
+          formattedExplanation: ''
         };
         this.combinedQuestionDataSubject.next(defaultCombinedQuestionData);
         this.combinedQuestionData$ = combineLatest([
@@ -840,7 +840,7 @@ export class QuizService implements OnDestroy {
         options: [],
         isNavigatingToPrevious: false,
         explanationText: '',
-        formattedExplanation: 'An error occurred while loading the question.',
+        formattedExplanation: 'An error occurred while loading the question.'
       };
       this.combinedQuestionDataSubject.next(errorStateCombinedQuestionData);
       this.combinedQuestionData$ = combineLatest([
