@@ -986,6 +986,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           
           // Always reset isAnswered to false when a new question loads
           this.isAnswered = false;
+          console.log('Question loaded. isAnswered set to false.');
   
           // If resetMessage is true, set the initial message
           if (resetMessage) {
@@ -997,6 +998,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizService.isAnswered(index).subscribe({
             next: (isAnswered) => {
               this.isAnswered = isAnswered;
+              console.log(`Question ${index} answered status: ${isAnswered}`);
   
               // Update the message based on whether the question is answered
               const message = isAnswered
