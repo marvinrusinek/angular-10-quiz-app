@@ -50,6 +50,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     explanationText?: string;
     correctAnswersText?: string;
     options: Option[];
+    currentOptions?: Option[];
   };
   @Input() questionData: QuizQuestion;
   @Input() question!: QuizQuestion;
@@ -463,6 +464,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.quizService.combinedQuestionDataSubject.next({
               questionText: this.data.questionText,
               correctAnswersText: '',
+              options: this.data.options,
               currentOptions: this.data.options,
               currentQuestion: this.currentQuestion,
               isNavigatingToPrevious: this.isNavigatingToPrevious
