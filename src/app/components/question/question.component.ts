@@ -530,7 +530,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('MY CORR MSG', this.correctMessage);
   }
 
-  private async fetchCorrectAnswersAndText(
+  /* private async fetchCorrectAnswersAndText(
     data: any,
     currentOptions: Option[]
   ): Promise<void> {
@@ -550,8 +550,38 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     await this.fetchCorrectAnswersText(data, data.currentOptions);
     console.log('After fetchCorrectAnswersText...');
     console.log('MY CORR MSG:', this.correctMessage);
-  }
+  } */
 
+  private async fetchCorrectAnswersAndText(
+    data: any
+  ): Promise<void> {
+    try {
+      // Debug logs to check the input parameters
+      console.log('fetchCorrectAnswersAndText called with data:', data);
+      const { currentOptions } = data;
+  
+      // Check if currentOptions is defined and not empty
+      if (!currentOptions || currentOptions.length === 0) {
+        console.error('currentOptions is undefined or empty:', currentOptions);
+        throw new Error('Options array is undefined or empty.');
+      }
+  
+      // Fetch the correct answers if they are not already available
+      const currentCorrectAnswers = this.quizService.correctAnswers.get(data.questionText);
+      if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
+        await firstValueFrom(this.quizService.setCorrectAnswers(this.currentQuestion, currentOptions));
+        this.correctAnswers = this.quizService.correctAnswers.get(data.questionText);
+      }
+  
+      // Fetch the correct answers text or update it with the correct message
+      await this.fetchCorrectAnswersText(data, currentOptions);
+      console.log('After fetchCorrectAnswersText...');
+      console.log('MY CORR MSG:', this.correctMessage);
+    } catch (error) {
+      console.error('Error in fetchCorrectAnswersAndText:', error);
+    }
+  }
+    
   getOptionsForQuestion(): Option[] {
     return this.currentQuestionIndex === this.previousQuestionIndex
       ? this.optionsToDisplay
