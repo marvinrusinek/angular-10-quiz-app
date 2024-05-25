@@ -1510,6 +1510,8 @@ export class QuizService implements OnDestroy {
   }
 
   isValidQuizQuestion(question: any): boolean {
+    console.log('Validating question:', question); // Add this line
+  
     if (typeof question !== 'object' || question === null) {
       console.warn('Question is not an object or is null:', question);
       return false;
