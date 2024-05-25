@@ -983,27 +983,26 @@ export class QuizComponent implements OnInit, OnDestroy {
       next: async (questions: QuizQuestion[]) => {
         if (questions && questions[index]) {
           this.currentQuestion = questions[index];
-           
+          
           // Always reset isAnswered to false when a new question loads
           this.isAnswered = false;
   
+          // If resetMessage is true, set the initial message
           if (resetMessage) {
             const initialMessage = 'Please select an option to continue...';
             this.selectionMessageService.updateSelectionMessage(initialMessage);
           }
   
+          // Check if the current question is answered
           this.quizService.isAnswered(index).subscribe({
             next: (isAnswered) => {
               this.isAnswered = isAnswered;
   
-              // Ensure that message update only happens if the question is already answered
-              if (isAnswered) {
-                const message = 'Please click the next button to continue...';
-                this.selectionMessageService.updateSelectionMessage(message);
-              } else {
-                const initialMessage = 'Please select an option to continue...';
-                this.selectionMessageService.updateSelectionMessage(initialMessage);
-              }
+              // Update the message based on whether the question is answered
+              const message = isAnswered
+                ? 'Please click the next button to continue...'
+                : 'Please select an option to continue...';
+              this.selectionMessageService.updateSelectionMessage(message);
             },
             error: (error) => {
               console.error('Failed to determine if question is answered:', error);
@@ -1018,7 +1017,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
-
+  
   onSelectionMessageChange(message: string) {
     this.selectionMessage = message;
   }
