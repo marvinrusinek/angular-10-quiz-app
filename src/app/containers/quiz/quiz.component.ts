@@ -171,14 +171,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.subscribeToSelectionMessage();
 
-    // Initialize and shuffle questions
-    this.initializeQuestions();
-
     // Initialize route parameters and subscribe to updates
     this.initializeRouteParameters();
 
     // Resolve and fetch quiz data
     this.initializeQuizData();
+
+    // Initialize and shuffle questions
+    this.initializeQuestions();
 
     // Fetch and display the current question
     this.initializeCurrentQuestion();
@@ -227,16 +227,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.currentQuestionIndex === 0 || 
            (this.selectedQuiz?.questions && this.currentQuestionIndex === this.selectedQuiz.questions.length - 1);
   }
-  
-
-  private subscribeToSelectionMessage(): void {
-    this.selectionMessageService.selectionMessageSubject.subscribe(
-      (message: string) => {
-        this.selectionMessage = message;
-      }
-    );
-  }
-
 
   /*************** Shuffle and initialize questions ******************/
   private initializeQuestions(): void {
@@ -266,6 +256,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.createQuestionData();
     this.getQuestion();
     this.subscribeToCurrentQuestion();
+    this.subscribeToSelectionMessage();
   }
 
   /***************** Initialize route parameters and subscribe to updates ****************/
@@ -1065,6 +1056,14 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestionType = null; // Reset on error
       }
     });
+  }
+
+  private subscribeToSelectionMessage(): void {
+    this.selectionMessageService.selectionMessageSubject.subscribe(
+      (message: string) => {
+        this.selectionMessage = message;
+      }
+    );
   }
 
   storeFormattedExplanationText(questionId: number, explanationText: string): void {
