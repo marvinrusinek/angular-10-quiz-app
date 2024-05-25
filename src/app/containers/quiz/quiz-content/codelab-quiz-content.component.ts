@@ -465,6 +465,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     const combinedQuestionData: CombinedQuestionDataType = {
       currentQuestion: currentQuestion,
       currentOptions: currentOptions,
+      options: currentOptions,
       questionText: currentQuestion ? currentQuestion.questionText : '',
       explanationText: currentQuestion ? currentQuestion.explanation : '',
       formattedExplanation: formattedExplanation,
