@@ -507,14 +507,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async subscribeToCorrectAnswersAndData(): Promise<void> {
     try {
-      // Initialize data
-      await this.fetchCorrectAnswersAndText(this.data, this.data.options);
-      console.log('fetchCorrectAnswersAndText completed successfully');
+      await this.fetchCorrectAnswersAndText(this.data, this.data.options); // Initialize data
     } catch (error) {
       console.error('Error in subscribeToCorrectAnswersAndData:', error);
     }
-  }
-  
+  }  
 
   private subscriptionToOptions(): void {
     this.quizService.currentOptions$.subscribe((options) => {
