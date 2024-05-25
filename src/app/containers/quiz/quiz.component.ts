@@ -987,8 +987,37 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: (error) => console.error('Failed to determine if question is answered:', error)
     });
   }
-  
+
   private loadAndSetupQuestion(index: number, resetMessage: boolean): void {
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: async (questions: QuizQuestion[]) => {
+        if (questions && questions[index]) {
+          this.currentQuestion = questions[index];
+  
+          // Always reset isAnswered to false when a new question loads
+          this.isAnswered = false;
+          console.log('Question loaded. isAnswered set to false.');
+  
+          // If resetMessage is true, set the initial message
+          if (resetMessage) {
+            const initialMessage = 'Please select an option to continue...';
+            this.selectionMessageService.updateSelectionMessage(initialMessage);
+          }
+  
+          // Check if the current question is answered
+          this.isAnswerSelected();
+        } else {
+          console.error('Question not found for index:', index);
+        }
+      },
+      error: (error) => {
+        console.error('Failed to load questions:', error);
+      }
+    });
+  }
+  
+  
+  /* private loadAndSetupQuestion(index: number, resetMessage: boolean): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: async (questions: QuizQuestion[]) => {
         if (questions && questions[index]) {
@@ -1028,7 +1057,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Failed to load questions:', error);
       }
     });
-  }
+  } */
   
   
   onSelectionMessageChange(message: string) {
