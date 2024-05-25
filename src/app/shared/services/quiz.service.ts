@@ -1030,7 +1030,7 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  setCorrectAnswers(
+  /* setCorrectAnswers(
     question: QuizQuestion,
     options: Option[]
   ): Observable<void> {
@@ -1046,6 +1046,35 @@ export class QuizService implements OnDestroy {
         // Emit the correct answers loaded status
         this.correctAnswersLoadedSubject.next(true);
 
+        observer.next(); // Emit a completion signal
+        observer.complete();
+      } else {
+        observer.error('No correct options found.');
+      }
+    });
+  } */
+
+  setCorrectAnswers(
+    question: QuizQuestion,
+    options: Option[]
+  ): Observable<void> {
+    return new Observable((observer) => {
+      if (!options || options.length === 0) {
+        observer.error('Options array is undefined or empty.');
+        return;
+      }
+  
+      const correctOptionNumbers = options
+        .filter((option) => option.correct)
+        .map((option) => option.optionId);
+  
+      if (correctOptionNumbers.length > 0) {
+        this.correctAnswers.set(question.questionText, correctOptionNumbers);
+        this.correctAnswersSubject.next(this.correctAnswers); // Emit the updated correct answers
+  
+        // Emit the correct answers loaded status
+        this.correctAnswersLoadedSubject.next(true);
+  
         observer.next(); // Emit a completion signal
         observer.complete();
       } else {
