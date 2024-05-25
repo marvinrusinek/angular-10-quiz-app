@@ -803,6 +803,7 @@ export class QuizService implements OnDestroy {
           correctAnswersText: '',
           currentQuestion: currentQuestion,
           currentOptions: this.data.currentOptions,
+          options: this.data.currentOptions,
           isNavigatingToPrevious: false,
           explanationText: '',
           formattedExplanation:
@@ -819,6 +820,7 @@ export class QuizService implements OnDestroy {
           correctAnswersText: '',
           currentQuestion: null,
           currentOptions: [],
+          options: [],
           isNavigatingToPrevious: false,
           explanationText: '',
           formattedExplanation: '',
@@ -835,6 +837,7 @@ export class QuizService implements OnDestroy {
         correctAnswersText: '',
         currentQuestion: null,
         currentOptions: [],
+        options: [],
         isNavigatingToPrevious: false,
         explanationText: '',
         formattedExplanation: 'An error occurred while loading the question.',
