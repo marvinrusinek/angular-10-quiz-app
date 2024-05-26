@@ -1324,7 +1324,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
           // Set the initial state for the first question
           this.currentQuestionIndex = 0;
-          this.quizService.setTotalQuestions(questions.length); // Set total questions in the service
   
           // Check if the first question is answered and update the message
           await this.checkIfAnswerSelected(false); // Pass false since the first question is not answered initially
