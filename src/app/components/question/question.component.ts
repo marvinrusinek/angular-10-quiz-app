@@ -836,12 +836,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private checkIfAnswerSelected(): void {
-    this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
-      next: (isAnswered) => {
+    this.quizService.isAnswered(this.currentQuestionIndex).pipe(
+      switchMap((isAnswered) => {
         this.quizService.setAnsweredState(isAnswered); // Update the service state
         console.log(`checkIfAnswerSelected: ${isAnswered}`);
-        this.cdRef.markForCheck(); // Trigger change detection
-      },
+
+        // Retrieve total questions value
+        return this.quizService.totalQuestions$.pipe(
+          switchMap((totalQuestions) => {
+            // Update the selection message
+            const message = this.selectionMessageService.determineSelectionMessage(this.currentQuestionIndex, totalQuestions, isAnswered);
+            this.selectionMessageService.updateSelectionMessage(message);
+
+            this.cdRef.markForCheck(); // Trigger change detection
+            return [];
+          })
+        );
+      })
+    ).subscribe({
       error: (error) => console.error('Failed to determine if question is answered:', error)
     });
   }
