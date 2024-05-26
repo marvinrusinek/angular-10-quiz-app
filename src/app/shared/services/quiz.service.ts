@@ -1126,7 +1126,7 @@ export class QuizService implements OnDestroy {
     return this.selectedOptions.filter(option => option.questionIndex === questionIndex);
   }
 
-  addSelectedOption(option: Option, questionIndex: number): void {
+  /* addSelectedOption(option: Option, questionIndex: number): void {
     const optionWithIndex: SelectedOption = { ...option, questionIndex };
     const index = this.selectedOptions.findIndex(
       selectedOption => selectedOption.optionId === option.optionId && selectedOption.questionIndex === questionIndex
@@ -1148,6 +1148,43 @@ export class QuizService implements OnDestroy {
     if (index !== -1) {
       this.selectedOptions.splice(index, 1);
       console.log('Option is already selected or clicked to unselect.');
+    }
+  } */
+
+  // Method to add a selected option for a question
+  addSelectedOption(option: SelectedOption): void {
+    const index = this.selectedOptions.findIndex(
+      selectedOption => selectedOption.optionId === option.optionId && selectedOption.questionIndex === option.questionIndex
+    );
+
+    if (index > -1) {
+      // Remove the option if it was already selected
+      this.selectedOptions.splice(index, 1);
+    } else {
+      // Add the option if it wasn't selected
+      this.selectedOptions.push(option);
+    }
+    console.log(`addSelectedOption for questionIndex ${option.questionIndex}:`, this.selectedOptions); // Debugging log
+
+    // Update the isAnswered state
+    const isAnswered = !!this.getSelectedOptions(option.questionIndex).length;
+    console.log(`Updating isAnswered state to: ${isAnswered}`);
+    this.setAnsweredState(isAnswered);
+  }
+
+  // Method to remove a selected option for a question
+  removeSelectedOption(option: SelectedOption): void {
+    const index = this.selectedOptions.findIndex(
+      selectedOption => selectedOption.optionId === option.optionId && selectedOption.questionIndex === option.questionIndex
+    );
+    if (index !== -1) {
+      this.selectedOptions.splice(index, 1);
+      console.log(`removeSelectedOption for questionIndex ${option.questionIndex}:`, this.selectedOptions); // Debugging log
+
+      // Update the isAnswered state
+      const isAnswered = !!this.getSelectedOptions(option.questionIndex).length;
+      console.log(`Updating isAnswered state to: ${isAnswered}`);
+      this.setAnsweredState(isAnswered);
     }
   }
 
