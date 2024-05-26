@@ -123,6 +123,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   previousIndex: number | null = null;
   isQuestionIndexChanged = false;
   private isNavigatedByUrl = false;
+  isAnswered$: Observable<boolean> = of(false);
 
   shouldDisplayCorrectAnswers = false;
 
@@ -159,6 +160,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.quizReset$.subscribe(() => {
       this.refreshQuestionOnReset();
     });
+
+    this.isAnswered$ = this.quizService.isAnswered$(this.currentQuestionIndex);
   }
 
   @HostListener('window:focus', ['$event'])
@@ -182,6 +185,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Fetch and display the current question
     this.initializeCurrentQuestion();
+
+    this.checkIfAnswerSelected();
   }
 
   ngOnDestroy(): void {
@@ -1569,6 +1574,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     return await firstValueFrom(this.quizService.getTotalQuestions());
   }
 
+  private checkIfAnswerSelected(): void {
+    this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
+      next: (isAnswered) => {
+        this.isAnswered$ = of(isAnswered); // Update the observable state
+        console.log(`checkIfAnswerSelected: ${isAnswered}`);
+        this.cdRef.markForCheck(); // Trigger change detection
+      },
+      error: (error) => console.error('Failed to determine if question is answered:', error)
+    });
+  }
+
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     if (this.isNavigating) {
@@ -1582,6 +1598,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
+        this.checkIfAnswerSelected();
 
         // Combine fetching data and initializing question state into a single method
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
