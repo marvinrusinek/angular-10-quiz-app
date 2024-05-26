@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
   Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, filter, map, skipWhile, take, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
@@ -71,8 +71,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() selectionMessageChange = new EventEmitter<string>();
   @Output() isAnsweredChange = new EventEmitter<boolean>();
   @Output() isAnswered = false;
-  isAnswered$: Observable<boolean>;
-  
+
   combinedQuestionData$: Subject<{
     questionText: string;
     explanationText?: string;
@@ -156,8 +155,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.questionForm = this.fb.group({
       selectedOption: ['']
     });
-
-    this.isAnswered$ = of(false);
 
     /* this.sharedVisibilitySubscription =
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
@@ -808,7 +805,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.isAnswerSelected();
 
       // Check if the current question is answered after an option is selected
-      await this.checkIfAnswerSelected();
+      this.checkIfAnswerSelected();
   
       // Update the selection message based on the current state
       this.updateSelectionMessage();
@@ -833,10 +830,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private async checkIfAnswerSelected(): Promise<void> {
+  private checkIfAnswerSelected(): void {
     this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
       next: (isAnswered) => {
-        this.isAnswered$ = of(isAnswered); // Update the observable state
+        this.quizService.setAnsweredState(isAnswered); // Update the service state
         console.log(`checkIfAnswerSelected: ${isAnswered}`);
         this.cdRef.markForCheck(); // Trigger change detection
       },

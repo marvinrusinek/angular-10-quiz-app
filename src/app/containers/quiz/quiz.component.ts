@@ -160,8 +160,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.quizReset$.subscribe(() => {
       this.refreshQuestionOnReset();
     });
-
-    this.isAnswered$ = this.quizService.isAnswered$(this.currentQuestionIndex);
   }
 
   @HostListener('window:focus', ['$event'])
