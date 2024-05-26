@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
+import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, take, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, first, map, retry, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
@@ -1280,7 +1280,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
   
-  initializeFirstQuestion(): void {
+  /* initializeFirstQuestion(): void {
     this.resetQuestionDisplayState();
 
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
@@ -1303,7 +1303,44 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.handleQuestionsLoadingError();
       }
     });
+  } */
+
+  initializeFirstQuestion(): void {
+    this.resetQuestionDisplayState();
+  
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: async (questions: QuizQuestion[]) => {
+        if (questions && questions.length > 0) {
+          this.questions = questions;
+          this.currentQuestion = questions[0];
+          this.questionToDisplay = this.currentQuestion.questionText;
+          this.optionsToDisplay = this.currentQuestion.options;
+          this.shouldDisplayCorrectAnswersFlag = false;
+  
+          // Initialize or update the state for all questions
+          for (let index = 0; index < questions.length; index++) {
+            await this.initializeOrUpdateQuestionState(index);
+          }
+  
+          // Set the initial state for the first question
+          this.currentQuestionIndex = 0;
+          // this.quizService.setTotalQuestions(questions.length); // Set total questions in the service
+  
+          // Check if the first question is answered and update the message
+          await this.checkIfAnswerSelected();
+ 
+          this.cdRef.markForCheck(); // Trigger change detection
+        } else {
+          this.handleNoQuestionsAvailable();
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching questions:', err);
+        this.handleQuestionsLoadingError();
+      }
+    });
   }
+  
 
   initializeOrUpdateQuestionState(questionIndex: number): void {
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
