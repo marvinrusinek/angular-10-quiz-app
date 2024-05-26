@@ -175,10 +175,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('QuizQuestionComponent - ngOnInit - Initial options:', this.currentQuestion.options);
     }
 
+    this.checkIfAnswerSelected(true);
+
     // Initial message setting
-    const initialMessage = 'Please select an option to continue...';
+    /* const initialMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(initialMessage);
-    this.selectionMessageChange.emit(initialMessage);
+    this.selectionMessageChange.emit(initialMessage); */
 
     this.logInitialData();
     this.initializeQuizQuestion();
@@ -846,19 +848,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.cdRef.markForCheck(); // Trigger change detection
   } */
 
-  private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
+  private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
     const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
     this.quizService.setAnsweredState(isAnswered); // Update the service state
     console.log(`checkIfAnswerSelected: ${isAnswered}`);
-  
+
     // Update the selection message
     if (!isFirstQuestion || isAnswered) {
-      await this.updateSelectionMessage();
+      await this.updateSelectionMessage(isAnswered);
     } else {
       // If it's the first question and not answered, set the initial message
       this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
     }
-  
+
     this.cdRef.markForCheck(); // Trigger change detection
   }
   
@@ -873,10 +875,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private updateSelectionMessage(): void {
-    const message = this.isAnswered
-      ? 'Please click the next button to continue...'
-      : 'Please select an option to continue...';
+  private async updateSelectionMessage(isAnswered: boolean): Promise<void> {
+    const totalQuestions: number = await lastValueFrom(this.quizService.totalQuestions$.pipe(take(1)));
+    const message = this.selectionMessageService.determineSelectionMessage(this.currentQuestionIndex, totalQuestions, isAnswered);
+    console.log(`Determined selection message: ${message}`);
     this.selectionMessageService.updateSelectionMessage(message);
   }
   
