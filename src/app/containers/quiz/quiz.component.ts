@@ -1577,6 +1577,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   private checkIfAnswerSelected(): void {
     this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
       next: (isAnswered) => {
+        this.quizService.setAnsweredState(isAnswered);
         this.isAnswered$ = of(isAnswered); // Update the observable state
         console.log(`checkIfAnswerSelected: ${isAnswered}`);
         this.cdRef.markForCheck(); // Trigger change detection
