@@ -76,7 +76,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
 
   combinedText$: Observable<string>;
-  textToDisplay: string = '';
+  textToDisplay = '';
 
   previousIndex: number | null = null; // to track if the index has changed
   isQuestionIndexChanged = false; // flag to control the display based on index change
