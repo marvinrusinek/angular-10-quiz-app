@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
   Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, filter, map, skipWhile, switchMap, take, tap } from 'rxjs/operators';
+import { BehaviorSubject, firstValueFrom, lastValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { catchError, filter, map, skipWhile, take, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
@@ -800,24 +800,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async onOptionClicked(option: Option, index: number): Promise<void> {
     try {
       // Toggle the selection of the option
-      const selectedOption: SelectedOption = 
-        { optionId: option.optionId,
-          questionIndex: this.currentQuestionIndex,
-          text: option.text
-        };
+      const selectedOption: SelectedOption = { 
+        optionId: option.optionId,
+        questionIndex: this.currentQuestionIndex,
+        text: option.text
+      };
       this.quizService.toggleSelectedOption(selectedOption); 
 
       // Check if the current question is answered after an option is selected
-      // await this.isAnswerSelected();
-
-      // Check if the current question is answered after an option is selected
-      this.checkIfAnswerSelected();
-
-      // Always update the selection message to "Please click the next button to continue..."
-      this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
-  
-      /* Update the selection message based on the current state
-      this.updateSelectionMessage(); */
+      await firstValueFrom(of(this.checkIfAnswerSelected()));
   
       // Process the current question
       const currentQuestion = await this.getCurrentQuestion();
@@ -839,7 +830,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private checkIfAnswerSelected(): void {
+  private async checkIfAnswerSelected(): Promise<void> {
+    const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+    this.quizService.setAnsweredState(isAnswered); // Update the service state
+    console.log(`checkIfAnswerSelected: ${isAnswered}`);
+
+    // Retrieve total questions value
+    const totalQuestions = await lastValueFrom(this.quizService.totalQuestions$.pipe(take(1)));
+
+    // Update the selection message
+    const message = this.selectionMessageService.determineSelectionMessage(this.currentQuestionIndex, totalQuestions, isAnswered);
+    console.log(`Determined selection message: ${message}`);
+    this.selectionMessageService.updateSelectionMessage(message);
+
+    this.cdRef.markForCheck(); // Trigger change detection
+  }
+
+  /* private checkIfAnswerSelected(): void {
     this.quizService.isAnswered(this.currentQuestionIndex).pipe(
       switchMap((isAnswered) => {
         this.quizService.setAnsweredState(isAnswered); // Update the service state
@@ -861,7 +868,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe({
       error: (error) => console.error('Failed to determine if question is answered:', error)
     });
-  }
+  } */
 
   private async isAnswerSelected(): Promise<void> {
     this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
