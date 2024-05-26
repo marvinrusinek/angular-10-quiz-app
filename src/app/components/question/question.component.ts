@@ -808,9 +808,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
       // Check if the current question is answered after an option is selected
       this.checkIfAnswerSelected();
+
+      // Always update the selection message to "Please click the next button to continue..."
+      this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
   
-      // Update the selection message based on the current state
-      this.updateSelectionMessage();
+      /* Update the selection message based on the current state
+      this.updateSelectionMessage(); */
   
       // Process the current question
       const currentQuestion = await this.getCurrentQuestion();
