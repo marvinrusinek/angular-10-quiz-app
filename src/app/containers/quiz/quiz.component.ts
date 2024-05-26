@@ -123,7 +123,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   previousIndex: number | null = null;
   isQuestionIndexChanged = false;
   private isNavigatedByUrl = false;
-  isAnswered$: Observable<boolean> = of(false);
+  isAnswered$: Observable<boolean>;
 
   shouldDisplayCorrectAnswers = false;
 
@@ -1578,7 +1578,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
       next: (isAnswered) => {
         this.quizService.setAnsweredState(isAnswered);
-        this.isAnswered$ = of(isAnswered); // Update the observable state
+        // this.isAnswered$ = of(isAnswered); // Update the observable state
         console.log(`checkIfAnswerSelected: ${isAnswered}`);
         this.cdRef.markForCheck(); // Trigger change detection
       },
