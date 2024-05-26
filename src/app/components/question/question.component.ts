@@ -843,6 +843,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
         // Retrieve total questions value
         return this.quizService.totalQuestions$.pipe(
+          take(1),
           switchMap((totalQuestions) => {
             // Update the selection message
             const message = this.selectionMessageService.determineSelectionMessage(this.currentQuestionIndex, totalQuestions, isAnswered);
