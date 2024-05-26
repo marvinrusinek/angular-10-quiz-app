@@ -1313,6 +1313,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         if (questions && questions.length > 0) {
           this.questions = questions;
           this.currentQuestion = questions[0];
+          this.currentQuestionIndex = 0;
           this.questionToDisplay = this.currentQuestion.questionText;
           this.optionsToDisplay = this.currentQuestion.options;
           this.shouldDisplayCorrectAnswersFlag = false;
@@ -1322,11 +1323,10 @@ export class QuizComponent implements OnInit, OnDestroy {
             await this.initializeOrUpdateQuestionState(index);
           }
   
-          // Set the initial state for the first question
-          this.currentQuestionIndex = 0;
+          // this.quizService.setTotalQuestions(questions.length); // Set total questions in the service
   
           // Check if the first question is answered and update the message
-          await this.checkIfAnswerSelected(true); // Pass false since the first question is not answered initially
+          await this.checkIfAnswerSelected(true); // Pass true to indicate it's the first question
   
           this.cdRef.markForCheck(); // Trigger change detection
         } else {
@@ -1338,7 +1338,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.handleQuestionsLoadingError();
       }
     });
-  }
+  }  
   
   /* private async updateSelectionMessage(isAnswered: boolean): Promise<void> {
     const totalQuestions: number = await lastValueFrom(this.quizService.totalQuestions$.pipe(take(1)));
