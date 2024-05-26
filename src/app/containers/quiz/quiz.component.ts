@@ -186,7 +186,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Fetch and display the current question
     this.initializeCurrentQuestion();
 
-    // this.checkIfAnswerSelected();
+    this.checkIfAnswerSelected(true);
   }
 
   ngOnDestroy(): void {
@@ -1349,7 +1349,15 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private async updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean): Promise<void> {
     const totalQuestions: number = await lastValueFrom(this.quizService.totalQuestions$.pipe(take(1)));
-    const message = this.selectionMessageService.determineSelectionMessage(this.currentQuestionIndex, totalQuestions, isAnswered);
+    let message: string;
+
+    if (!isFirstQuestion || isAnswered) {
+      message = this.selectionMessageService.determineSelectionMessage(this.currentQuestionIndex, totalQuestions, isAnswered);
+    } else {
+      // If it's the first question and not answered, set the initial message
+      message = 'Please select an option to continue...';
+    }
+    
     console.log(`Determined selection message: ${message}`);
     this.selectionMessageService.updateSelectionMessage(message);
   }
@@ -1656,7 +1664,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
-        // this.checkIfAnswerSelected();
+        this.checkIfAnswerSelected(false);
 
         // Combine fetching data and initializing question state into a single method
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
