@@ -800,7 +800,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async onOptionClicked(option: Option, index: number): Promise<void> {
     try {
       // Toggle the selection of the option
-      // this.toggleOptionSelection(option);
       const selectedOption: SelectedOption = { optionId: option.optionId, questionIndex: this.currentQuestionIndex, text: option.text };
       this.toggleOptionSelection(selectedOption);
 
@@ -859,9 +858,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const wasSelected = selectedOptions.some(selectedOption => selectedOption.optionId === option.optionId);
 
     if (wasSelected) {
-      this.quizService.removeSelectedOption(option, this.currentQuestionIndex);
+      this.quizService.removeSelectedOption(option);
     } else {
-      this.quizService.addSelectedOption(option, this.currentQuestionIndex);
+      this.quizService.addSelectedOption(option);
     }
   }
 
