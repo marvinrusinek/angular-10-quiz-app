@@ -1165,7 +1165,6 @@ export class QuizService implements OnDestroy {
       // Add the option if it wasn't selected
       this.selectedOptions.push(option);
     }
-    console.log(`addSelectedOption for questionIndex ${option.questionIndex}: ${JSON.stringify(this.selectedOptions)}`); // Debugging log
 
     // Update the isAnswered state
     const isAnswered = this.getSelectedOptions(option.questionIndex).length > 0;
@@ -1187,6 +1186,25 @@ export class QuizService implements OnDestroy {
       console.log(`Updating isAnswered state to: ${isAnswered}`);
       this.setAnsweredState(isAnswered);
     }
+  }
+
+  // Method to add or remove a selected option for a question
+  toggleSelectedOption(option: SelectedOption): void {
+    const index = this.selectedOptions.findIndex(
+      selectedOption => selectedOption.optionId === option.optionId && selectedOption.questionIndex === option.questionIndex
+    );
+
+    if (index > -1) {
+      this.selectedOptions.splice(index, 1); // Remove the option if it was already selected
+    } else {
+      this.selectedOptions.push(option); // Add the option if it wasn't selected
+    }
+    console.log(`toggleSelectedOption for questionIndex ${option.questionIndex}: ${JSON.stringify(this.selectedOptions)}`); // Debugging log
+
+    // Update the isAnswered state
+    const isAnswered = this.getSelectedOptions(option.questionIndex).length > 0;
+    console.log(`Updating isAnswered state to: ${isAnswered}`);
+    this.setAnsweredState(isAnswered);
   }
 
   isOptionSelected(option: Option): boolean {
