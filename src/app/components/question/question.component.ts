@@ -853,7 +853,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     // Update the selection message
     if (!isFirstQuestion || isAnswered) {
-      await this.updateSelectionMessage();
+      await this.updateSelectionMessage(isAnswered);
     } else {
       // If it's the first question and not answered, set the initial message
       this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
@@ -861,6 +861,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     this.cdRef.markForCheck(); // Trigger change detection
   }
+  
 
   private async isAnswerSelected(): Promise<void> {
     this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
