@@ -186,7 +186,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Fetch and display the current question
     this.initializeCurrentQuestion();
 
-    this.checkIfAnswerSelected();
+    // this.checkIfAnswerSelected();
   }
 
   ngOnDestroy(): void {
@@ -789,7 +789,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private initializeAndPrepareQuestion(questionData: CombinedQuestionDataType, quizId: string): void {
-    this.data = questionData;
+    const data = {
+      ...questionData,
+      currentOptions: questionData.currentOptions || []
+    };
+    this.data = data;
     this.quizService.setQuizId(quizId);
     this.quizService.fetchQuizQuestions();
     this.quizService.setQuestionData(questionData);

@@ -175,9 +175,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('QuizQuestionComponent - ngOnInit - Initial options:', this.currentQuestion.options);
     }
 
-    this.isAnswerSelected();
-    this.checkIfAnswerSelected();
-
     // Initial message setting
     const initialMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(initialMessage);
