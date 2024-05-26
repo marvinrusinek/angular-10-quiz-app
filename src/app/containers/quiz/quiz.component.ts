@@ -1324,11 +1324,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   
           // Set the initial state for the first question
           this.currentQuestionIndex = 0;
-          // this.quizService.setTotalQuestions(questions.length); // Set total questions in the service
+          this.quizService.setTotalQuestions(questions.length); // Set total questions in the service
   
           // Check if the first question is answered and update the message
-          await this.checkIfAnswerSelected();
- 
+          await this.checkIfAnswerSelected(false); // Pass false since the first question is not answered initially
+  
           this.cdRef.markForCheck(); // Trigger change detection
         } else {
           this.handleNoQuestionsAvailable();
@@ -1340,6 +1340,14 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
+  
+  private async updateSelectionMessage(isAnswered: boolean): Promise<void> {
+    const totalQuestions: number = await lastValueFrom(this.quizService.totalQuestions$.pipe(take(1)));
+    const message = this.selectionMessageService.determineSelectionMessage(this.currentQuestionIndex, totalQuestions, isAnswered);
+    console.log(`Determined selection message: ${message}`);
+    this.selectionMessageService.updateSelectionMessage(message);
+  }
+  
   
 
   initializeOrUpdateQuestionState(questionIndex: number): void {

@@ -827,7 +827,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private async checkIfAnswerSelected(): Promise<void> {
+  /* private async checkIfAnswerSelected(): Promise<void> {
     const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
     this.quizService.setAnsweredState(isAnswered); // Update the service state
     console.log(`checkIfAnswerSelected: ${isAnswered}`);
@@ -840,6 +840,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log(`Determined selection message: ${message}`);
     this.selectionMessageService.updateSelectionMessage(message);
 
+    this.cdRef.markForCheck(); // Trigger change detection
+  } */
+
+  private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
+    const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+    this.quizService.setAnsweredState(isAnswered); // Update the service state
+    console.log(`checkIfAnswerSelected: ${isAnswered}`);
+  
+    // Update the selection message
+    if (!isFirstQuestion || isAnswered) {
+      await this.updateSelectionMessage();
+    } else {
+      // If it's the first question and not answered, set the initial message
+      this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
+    }
+  
     this.cdRef.markForCheck(); // Trigger change detection
   }
 
