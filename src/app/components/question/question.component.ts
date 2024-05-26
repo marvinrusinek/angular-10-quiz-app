@@ -805,7 +805,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.toggleSelectedOption(selectedOption); 
 
       // Check if the current question is answered after an option is selected
-      await this.checkIfAnswerSelected();
+      await this.checkIfAnswerSelected(false);
 
       // Always update the selection message to "Please click the next button to continue..."
       this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
@@ -853,7 +853,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     // Update the selection message
     if (!isFirstQuestion || isAnswered) {
-      await this.updateSelectionMessage(isAnswered);
+      await this.updateSelectionMessage();
     } else {
       // If it's the first question and not answered, set the initial message
       this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
