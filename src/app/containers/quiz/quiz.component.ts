@@ -1355,7 +1355,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       message = this.selectionMessageService.determineSelectionMessage(this.currentQuestionIndex, totalQuestions, isAnswered);
     } else {
       // If it's the first question and not answered, set the initial message
-      message = 'Please select an option to continue...';
+      message = 'Please select the next button to continue...';
     }
     
     console.log(`Determined selection message: ${message}`);
@@ -1649,6 +1649,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: (error) => console.error('Failed to determine if question is answered:', error)
     });
   }
+
 
 
   /************************ paging functions *********************/
