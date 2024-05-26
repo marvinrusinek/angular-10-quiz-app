@@ -1326,7 +1326,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.currentQuestionIndex = 0;
   
           // Check if the first question is answered and update the message
-          await this.checkIfAnswerSelected(false); // Pass false since the first question is not answered initially
+          await this.checkIfAnswerSelected(true); // Pass false since the first question is not answered initially
   
           this.cdRef.markForCheck(); // Trigger change detection
         } else {
@@ -1340,7 +1340,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
   
-  private async updateSelectionMessage(isAnswered: boolean): Promise<void> {
+  /* private async updateSelectionMessage(isAnswered: boolean): Promise<void> {
+    const totalQuestions: number = await lastValueFrom(this.quizService.totalQuestions$.pipe(take(1)));
+    const message = this.selectionMessageService.determineSelectionMessage(this.currentQuestionIndex, totalQuestions, isAnswered);
+    console.log(`Determined selection message: ${message}`);
+    this.selectionMessageService.updateSelectionMessage(message);
+  } */
+
+  private async updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean): Promise<void> {
     const totalQuestions: number = await lastValueFrom(this.quizService.totalQuestions$.pipe(take(1)));
     const message = this.selectionMessageService.determineSelectionMessage(this.currentQuestionIndex, totalQuestions, isAnswered);
     console.log(`Determined selection message: ${message}`);
@@ -1622,17 +1629,19 @@ export class QuizComponent implements OnInit, OnDestroy {
     return await firstValueFrom(this.quizService.getTotalQuestions());
   }
 
-  private checkIfAnswerSelected(): void {
+  private checkIfAnswerSelected(isFirstQuestion: boolean): void {
+    console.log('Checking if answer is selected for question index:', this.currentQuestionIndex);
     this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
       next: (isAnswered) => {
         this.quizService.setAnsweredState(isAnswered);
-        // this.isAnswered$ = of(isAnswered); // Update the observable state
         console.log(`checkIfAnswerSelected: ${isAnswered}`);
+        this.updateSelectionMessage(isAnswered, isFirstQuestion);
         this.cdRef.markForCheck(); // Trigger change detection
       },
       error: (error) => console.error('Failed to determine if question is answered:', error)
     });
   }
+
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
@@ -1647,7 +1656,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
-        this.checkIfAnswerSelected();
+        // this.checkIfAnswerSelected();
 
         // Combine fetching data and initializing question state into a single method
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
