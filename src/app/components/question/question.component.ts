@@ -804,7 +804,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.toggleOptionSelection(selectedOption);
 
       // Check if the current question is answered after an option is selected
-      await this.isAnswerSelected();
+      // await this.isAnswerSelected();
 
       // Check if the current question is answered after an option is selected
       this.checkIfAnswerSelected();
@@ -878,6 +878,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.quizService.addSelectedOption(option);
     }
+
+    console.log('Toggled option selection:', this.quizService.getSelectedOptions(this.currentQuestionIndex));
   }
 
   /* private updateSelectionMessage(): void {

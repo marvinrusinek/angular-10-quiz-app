@@ -1160,16 +1160,16 @@ export class QuizService implements OnDestroy {
     );
 
     if (index > -1) {
-      // Remove the option if it was already selected
-      this.selectedOptions.splice(index, 1);
+      // If option is already selected, do nothing
+      console.log(`Option ${option.optionId} is already selected for questionIndex ${option.questionIndex}`);
     } else {
       // Add the option if it wasn't selected
       this.selectedOptions.push(option);
     }
-    console.log(`addSelectedOption for questionIndex ${option.questionIndex}:`, this.selectedOptions); // Debugging log
+    console.log(`addSelectedOption for questionIndex ${option.questionIndex}: ${JSON.stringify(this.selectedOptions)}`); // Debugging log
 
     // Update the isAnswered state
-    const isAnswered = !!this.getSelectedOptions(option.questionIndex).length;
+    const isAnswered = this.getSelectedOptions(option.questionIndex).length > 0;
     console.log(`Updating isAnswered state to: ${isAnswered}`);
     this.setAnsweredState(isAnswered);
   }
@@ -1181,10 +1181,10 @@ export class QuizService implements OnDestroy {
     );
     if (index !== -1) {
       this.selectedOptions.splice(index, 1);
-      console.log(`removeSelectedOption for questionIndex ${option.questionIndex}:`, this.selectedOptions); // Debugging log
+      console.log(`removeSelectedOption for questionIndex ${option.questionIndex}: ${JSON.stringify(this.selectedOptions)}`); // Debugging log
 
       // Update the isAnswered state
-      const isAnswered = !!this.getSelectedOptions(option.questionIndex).length;
+      const isAnswered = this.getSelectedOptions(option.questionIndex).length > 0;
       console.log(`Updating isAnswered state to: ${isAnswered}`);
       this.setAnsweredState(isAnswered);
     }
