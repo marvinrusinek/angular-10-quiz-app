@@ -856,19 +856,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private toggleOptionSelection(option: SelectedOption): void {
-    const selectedOptions = this.quizService.getSelectedOptions(this.currentQuestionIndex);
-    const wasSelected = selectedOptions.some(selectedOption => selectedOption.optionId === option.optionId);
-
-    if (wasSelected) {
-      this.quizService.removeSelectedOption(option);
-    } else {
-      this.quizService.addSelectedOption(option);
-    }
-
-    console.log('Toggled option selection:', this.quizService.getSelectedOptions(this.currentQuestionIndex));
-  }
-
   /* private updateSelectionMessage(): void {
     const message = 'Please click the next button to continue...';
     this.selectionMessageService.updateSelectionMessage(message);
