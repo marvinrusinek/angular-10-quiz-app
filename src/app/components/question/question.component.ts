@@ -71,7 +71,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() selectionMessageChange = new EventEmitter<string>();
   @Output() isAnsweredChange = new EventEmitter<boolean>();
   @Output() isAnswered = false;
-
+  isAnswered$: Observable<boolean>;
+  
   combinedQuestionData$: Subject<{
     questionText: string;
     explanationText?: string;
@@ -156,6 +157,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOption: ['']
     });
 
+    this.isAnswered$ = of(false);
+
     /* this.sharedVisibilitySubscription =
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
         this.handlePageVisibilityChange(isHidden);
@@ -175,6 +178,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.isAnswerSelected();
+    this.checkIfAnswerSelected();
 
     // Initial message setting
     const initialMessage = 'Please select an option to continue...';
@@ -802,6 +806,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       // Check if the current question is answered after an option is selected
       await this.isAnswerSelected();
+
+      // Check if the current question is answered after an option is selected
+      await this.checkIfAnswerSelected();
   
       // Update the selection message based on the current state
       this.updateSelectionMessage();
@@ -824,6 +831,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
+  }
+
+  private async checkIfAnswerSelected(): Promise<void> {
+    this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
+      next: (isAnswered) => {
+        this.isAnswered$ = of(isAnswered); // Update the observable state
+        console.log(`checkIfAnswerSelected: ${isAnswered}`);
+        this.cdRef.markForCheck(); // Trigger change detection
+      },
+      error: (error) => console.error('Failed to determine if question is answered:', error)
+    });
   }
 
   private async isAnswerSelected(): Promise<void> {
