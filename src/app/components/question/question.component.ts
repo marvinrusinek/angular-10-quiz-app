@@ -856,11 +856,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  /* private updateSelectionMessage(): void {
-    const message = 'Please click the next button to continue...';
-    this.selectionMessageService.updateSelectionMessage(message);
-  } */
-
   private updateSelectionMessage(): void {
     const message = this.isAnswered
       ? 'Please click the next button to continue...'
