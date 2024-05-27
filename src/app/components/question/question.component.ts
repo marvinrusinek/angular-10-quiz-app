@@ -1207,7 +1207,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
+  handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
     const isOptionSelected = this.checkOptionSelected(option);
     const index = this.selectedOptions.findIndex((opt) => opt === option);
 
@@ -1221,7 +1221,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.handleMultipleAnswer(currentQuestion);
-  } */
+  }
 
   /* handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
     const isOptionSelected = this.checkOptionSelected(option);
@@ -1240,7 +1240,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.updateSelectionMessage();
   } */
 
-  private handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
+  /* private handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
     const isOptionSelected = this.quizService.getSelectedOptions(this.currentQuestionIndex).some(opt => opt.optionId === option.optionId);
     const index = this.quizService.getSelectedOptions(this.currentQuestionIndex).findIndex(opt => opt.optionId === option.optionId);
 
@@ -1257,7 +1257,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     const isAnswered = this.quizService.getSelectedOptions(this.currentQuestionIndex).length > 0;
     this.updateSelectionMessage(isAnswered, this.isFirstQuestion);; // Ensure the selection message is updated
-  }
+  } */
   
 
   private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
