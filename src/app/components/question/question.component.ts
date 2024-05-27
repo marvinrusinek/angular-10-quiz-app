@@ -1256,7 +1256,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleMultipleAnswer(currentQuestion);
 
     const isAnswered = this.quizService.getSelectedOptions(this.currentQuestionIndex).length > 0;
-    this.updateSelectionMessage(isAnswered, this.isFirstQuestion); // Ensure the selection message is updated
+    this.updateSelectionMessage(isAnswered, this.isFirstQuestion);; // Ensure the selection message is updated
   }
   
 
