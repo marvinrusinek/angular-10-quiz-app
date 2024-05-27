@@ -1183,7 +1183,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
+  /* handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
     const isOptionSelected = this.checkOptionSelected(option);
     const index = this.selectedOptions.findIndex((opt) => opt === option);
 
@@ -1197,7 +1197,42 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.handleMultipleAnswer(currentQuestion);
+  } */
+
+  /* handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
+    const isOptionSelected = this.checkOptionSelected(option);
+    const index = this.quizService.getSelectedOptions(this.currentQuestionIndex).findIndex(opt => opt.optionId === option.optionId);
+
+    if (!isOptionSelected && index === -1) {
+        this.quizService.addSelectedOption(option);
+    } else {
+      if (index !== -1) {
+        this.quizService.removeSelectedOption(option);
+      }
+      this.unselectOption();
+    }
+
+    this.handleMultipleAnswer(currentQuestion);
+    this.updateSelectionMessage();
+  } */
+
+  handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
+    const isOptionSelected = this.checkOptionSelected(option);
+    const index = this.quizService.getSelectedOptions(this.currentQuestionIndex).findIndex(opt => opt.optionId === option.optionId);
+  
+    if (!isOptionSelected && index === -1) {
+      this.quizService.addSelectedOption(option);
+    } else {
+      if (index !== -1) {
+        this.quizService.removeSelectedOption(option);
+      }
+      this.unselectOption();
+    }
+  
+    this.handleMultipleAnswer(currentQuestion);
+    this.updateSelectionMessage(); // Ensure the selection message is updated
   }
+  
 
   private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
     this.quizStateService.isMultipleAnswerQuestion(currentQuestion).subscribe({
@@ -1241,6 +1276,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   checkOptionSelected(option: Option): boolean {
     return this.selectedOptions.includes(option as Option);
   }
+  
 
   selectOption(currentQuestion: QuizQuestion, option: Option): void {
     this.selectedOptions = [option];
