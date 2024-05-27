@@ -808,7 +808,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.checkIfAnswerSelected(false);
 
       // Always update the selection message to "Please click the next button to continue..."
-      // this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
+      this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
   
       // Process the current question
       const currentQuestion = await this.getCurrentQuestion();
@@ -852,14 +852,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log(`checkIfAnswerSelected: ${isAnswered}`);
   
     // Update the selection message
-    /* if (!isFirstQuestion || isAnswered) {
+    if (!isFirstQuestion || isAnswered) {
       await this.updateSelectionMessage();
     } else {
       // If it's the first question and not answered, set the initial message
       this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
-    } */
-
-    await this.updateSelectionMessage();
+    }
   
     this.cdRef.markForCheck(); // Trigger change detection
   }
