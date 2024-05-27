@@ -900,7 +900,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean = false): void {
     const message = isAnswered 
       ? 'Please click the next button to continue...' 
-      : (isFirstQuestion && !isAnswered ? 'Please select an option to continue...' : 'Please select an option to continue...');
+      : (isFirstQuestion ? 'Please select an option to continue...' : 'Please select an option to continue...');
     this.selectionMessageService.updateSelectionMessage(message);
   }
   
@@ -1256,7 +1256,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleMultipleAnswer(currentQuestion);
 
     const isAnswered = this.quizService.getSelectedOptions(this.currentQuestionIndex).length > 0;
-    this.updateSelectionMessage(isAnswered); // Ensure the selection message is updated
+    this.updateSelectionMessage(isAnswered, this.isFirstQuestion); // Ensure the selection message is updated
   }
   
 
