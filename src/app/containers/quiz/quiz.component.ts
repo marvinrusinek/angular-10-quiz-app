@@ -1361,8 +1361,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log(`Determined selection message: ${message}`);
     this.selectionMessageService.updateSelectionMessage(message);
   }
-  
-  
 
   initializeOrUpdateQuestionState(questionIndex: number): void {
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
