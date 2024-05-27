@@ -112,6 +112,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isPaused = false;
   private initialized = false;
   private isNextMessage = false;
+  private isFirstQuestion = true;
 
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -805,7 +806,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.toggleSelectedOption(selectedOption); 
 
       // Check if the current question is answered after an option is selected
-      await this.checkIfAnswerSelected(false);
+      await this.checkIfAnswerSelected(this.isFirstQuestion);
+      this.isFirstQuestion = false;  // Reset after the first option click
 
       // Always update the selection message to "Please click the next button to continue..."
       this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
@@ -846,7 +848,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.cdRef.markForCheck(); // Trigger change detection
   } */
 
-  private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
+  /* private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
     const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
     this.quizService.setAnsweredState(isAnswered); // Update the service state
     console.log(`checkIfAnswerSelected: ${isAnswered}`);
@@ -860,6 +862,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   
     this.cdRef.markForCheck(); // Trigger change detection
+  } */
+
+  private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
+    const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+    this.quizService.setAnsweredState(isAnswered);
+    this.updateSelectionMessage(isAnswered, isFirstQuestion);
   }
   
 
@@ -873,9 +881,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private updateSelectionMessage(): void {
+  /* private updateSelectionMessage(): void {
     const message = this.isAnswered
       ? 'Please click the next button to continue...'
+      : 'Please select an option to continue...';
+    this.selectionMessageService.updateSelectionMessage(message);
+  } */
+
+  private updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean): void {
+    const message = isFirstQuestion && !isAnswered 
+      ? 'Please select an option to continue...' 
+      : isAnswered 
+      ? 'Please click the next button to continue...' 
       : 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(message);
   }
@@ -1216,10 +1233,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.updateSelectionMessage();
   } */
 
-  handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
-    const isOptionSelected = this.checkOptionSelected(option);
+  private handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
+    const isOptionSelected = this.quizService.getSelectedOptions(this.currentQuestionIndex).some(opt => opt.optionId === option.optionId);
     const index = this.quizService.getSelectedOptions(this.currentQuestionIndex).findIndex(opt => opt.optionId === option.optionId);
-  
+
     if (!isOptionSelected && index === -1) {
       this.quizService.addSelectedOption(option);
     } else {
@@ -1228,9 +1245,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
       this.unselectOption();
     }
-  
+
     this.handleMultipleAnswer(currentQuestion);
-    this.updateSelectionMessage(); // Ensure the selection message is updated
+
+    const isAnswered = this.quizService.getSelectedOptions(this.currentQuestionIndex).length > 0;
+    this.updateSelectionMessage(isAnswered, this.isFirstQuestion); // Ensure the selection message is updated
   }
   
 
