@@ -186,6 +186,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Fetch and display the current question
     this.initializeCurrentQuestion();
 
+    this.quizService.totalQuestions$.subscribe({
+      next: (totalQuestions) => this.quizService.setTotalQuestions(totalQuestions),
+      error: (error) => console.error('Failed to get total questions:', error)
+    });
     this.checkIfAnswerSelected(true);
   }
 
