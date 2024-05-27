@@ -859,7 +859,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
     } */
 
-    await this.updateSelectionMessage(isAnswered, isFirstQuestion);
+    await this.updateSelectionMessage();
   
     this.cdRef.markForCheck(); // Trigger change detection
   }
@@ -875,18 +875,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private async updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean): Promise<void> {
-    const totalQuestions: number = await lastValueFrom(this.quizService.totalQuestions$.pipe(take(1)));
-    let message: string;
-
-    if (!isFirstQuestion || isAnswered) {
-      message = this.selectionMessageService.determineSelectionMessage(this.currentQuestionIndex, totalQuestions, isAnswered);
-    } else {
-      // If it's the first question and not answered, set the initial message
-      message = 'Please select an option to continue...';
-    }
-    
-    console.log(`Determined selection message: ${message}`);
+  private updateSelectionMessage(): void {
+    const message = this.isAnswered
+      ? 'Please click the next button to continue...'
+      : 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(message);
   }
   
