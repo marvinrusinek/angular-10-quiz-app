@@ -808,7 +808,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.checkIfAnswerSelected(false);
 
       // Always update the selection message to "Please click the next button to continue..."
-      this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
+      // this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
   
       // Process the current question
       const currentQuestion = await this.getCurrentQuestion();
@@ -852,12 +852,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log(`checkIfAnswerSelected: ${isAnswered}`);
   
     // Update the selection message
-    if (!isFirstQuestion || isAnswered) {
+    /* if (!isFirstQuestion || isAnswered) {
       await this.updateSelectionMessage();
     } else {
       // If it's the first question and not answered, set the initial message
       this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
-    }
+    } */
+
+    await this.updateSelectionMessage(isAnswered, isFirstQuestion);
   
     this.cdRef.markForCheck(); // Trigger change detection
   }
@@ -873,10 +875,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private updateSelectionMessage(): void {
-    const message = this.isAnswered
-      ? 'Please click the next button to continue...'
-      : 'Please select an option to continue...';
+  private async updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean): Promise<void> {
+    const totalQuestions: number = await lastValueFrom(this.quizService.totalQuestions$.pipe(take(1)));
+    let message: string;
+
+    if (!isFirstQuestion || isAnswered) {
+      message = this.selectionMessageService.determineSelectionMessage(this.currentQuestionIndex, totalQuestions, isAnswered);
+    } else {
+      // If it's the first question and not answered, set the initial message
+      message = 'Please select an option to continue...';
+    }
+    
+    console.log(`Determined selection message: ${message}`);
     this.selectionMessageService.updateSelectionMessage(message);
   }
   
