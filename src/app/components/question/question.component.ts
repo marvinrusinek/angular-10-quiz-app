@@ -794,7 +794,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  async onOptionClicked(option: Option, index: number): Promise<void> {
+  async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
       // Toggle the selection of the option
       const selectedOption: SelectedOption = { 
@@ -1068,7 +1068,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async handleOptionSelection(
-    option: Option,
+    option: SelectedOption,
     index: number,
     currentQuestion: QuizQuestion
   ): Promise<void> {
@@ -1095,7 +1095,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private processOptionSelection(
     currentQuestion: QuizQuestion,
-    option: Option
+    option: SelectedOption
   ): void {
     this.handleOptionClicked(currentQuestion, option);
 
