@@ -41,6 +41,7 @@ export class QuizService implements OnDestroy {
     currentOptions: []
   };
   quizzes: Quiz[] = [];
+  quizId = '';
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
@@ -58,8 +59,9 @@ export class QuizService implements OnDestroy {
   // selectedOptions: Option[] = [];
   selectedOptions: SelectedOption[] = [];
   private selectedOptionsMap: Map<number, Option[]> = new Map();
+  private isAnsweredSubject = new BehaviorSubject<boolean>(false);
+
   resources: Resource[];
-  quizId = '';
 
   answers: Option[] = [];
   answersSubject = new Subject<number[]>();
@@ -122,8 +124,6 @@ export class QuizService implements OnDestroy {
 
   userAnswers = [];
   previousAnswers = [];
-
-  private isAnsweredSubject = new BehaviorSubject<boolean>(false);
 
   private checkedShuffle = new BehaviorSubject<boolean>(false);
   checkedShuffle$ = this.checkedShuffle.asObservable();
@@ -965,6 +965,10 @@ export class QuizService implements OnDestroy {
   // Method to update the isAnswered state
   setAnsweredState(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
+  }
+
+  setTotalQuestions(total: number): void {
+    this.totalQuestionsSubject.next(total);
   }
 
   getTotalQuestions(): Observable<number> {
