@@ -4,7 +4,11 @@ import { BehaviorSubject, Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
   selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  selectionMessage$: Observable<string> = this.selectionMessageSubject.asObservable();
+  // selectionMessage$: Observable<string> = this.selectionMessageSubject.asObservable();
+
+  get selectionMessage$(): Observable<string> {
+    return this.selectionMessageSubject.asObservable();
+  }
 
   /* determineSelectionMessage(currentQuestionIndex: number, totalQuestions: number, isAnswered: boolean): string {
     if (currentQuestionIndex === totalQuestions - 1) {
@@ -16,7 +20,7 @@ export class SelectionMessageService {
     }
   } */
 
-  /* determineSelectionMessage(
+  determineSelectionMessage(
     currentQuestionIndex: number,
     totalQuestions: number,
     isAnswered: boolean
@@ -28,17 +32,18 @@ export class SelectionMessageService {
     } else {
       return 'You have completed the quiz!';
     }
-  } */
+  }
 
-  determineSelectionMessage(currentQuestionIndex: number, totalQuestions: number, isAnswered: boolean): string {
+  /* determineSelectionMessage(currentQuestionIndex: number, totalQuestions: number, isAnswered: boolean): string {
     if (currentQuestionIndex === totalQuestions - 1) {
       return isAnswered ? 'Please click the Show Results button' : 'Please select an option to continue...';
     } else {
       return isAnswered ? 'Please click the next button to continue...' : 'Please select an option to continue...';
     }
-  }
+  } */
 
   updateSelectionMessage(message: string): void {
     this.selectionMessageSubject.next(message);
+    console.log(`Updated selection message: ${message}`);
   }
 }
