@@ -136,6 +136,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.correctAnswersTextSource.complete();
+    this.correctAnswersDisplaySubject.complete();
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
   }
@@ -559,11 +561,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
     const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
 
-    // Push the new state into the debounced subject
     if (isMultipleAnswer) {
+      const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
+      this.correctAnswersTextSource.next(`Number of correct answers: ${numberOfCorrectAnswers}`);
       this.correctAnswersDisplaySubject.next(true);
+      this.shouldDisplayCorrectAnswers = true;
     } else {
       this.correctAnswersDisplaySubject.next(false);
+      this.shouldDisplayCorrectAnswers = false;
     }
   }
 
