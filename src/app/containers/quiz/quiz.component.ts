@@ -380,8 +380,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       const zeroBasedQuestionIndex = questionIndex - 1;
   
-      console.log(`Fetching quiz data for quizId: ${quizId}, questionIndex: ${questionIndex}`);
-  
       const selectedQuiz: Quiz = await firstValueFrom(
         this.quizDataService.getQuiz(quizId).pipe(takeUntil(this.destroy$))
       );

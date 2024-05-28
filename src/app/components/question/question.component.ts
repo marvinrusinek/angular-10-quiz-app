@@ -1061,19 +1061,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const selectedOptions = this.quizService.getSelectedOptionIndices(this.currentQuestionIndex);
     const isOptionSelected = selectedOptions.includes(optionIndex);
   
-    console.log('Initial selected option indices:', selectedOptions);
-    console.log('Clicked option index:', optionIndex);
-  
     if (!isOptionSelected) {
-      console.log('Adding option index:', optionIndex);
       this.quizService.addSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
     } else {
-      console.log('Removing option index:', optionIndex);
       this.quizService.removeSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
     }
   
     const updatedSelectedOptions = this.quizService.getSelectedOptionIndices(this.currentQuestionIndex);
-    console.log('Selected options after toggle:', updatedSelectedOptions);
   
     this.handleMultipleAnswer(currentQuestion);
   
