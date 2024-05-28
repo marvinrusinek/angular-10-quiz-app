@@ -965,7 +965,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     currentQuestion: QuizQuestion,
     option: SelectedOption
   ): void {
-    this.handleOptionClicked(currentQuestion, option);
+    this.handleOptionClicked(currentQuestion, option.optionId);
 
     // Check if the clicked option is selected
     const isOptionSelected = this.isSelectedOption(option);
