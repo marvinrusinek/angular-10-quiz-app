@@ -940,7 +940,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     index: number,
     currentQuestion: QuizQuestion
   ): Promise<void> {
-    this.processOptionSelection(currentQuestion, option);
+    this.processOptionSelection(currentQuestion, option, index);
     this.updateAnswersForOption(option);
     this.checkAndHandleCorrectAnswer();
     this.logDebugInformation();
@@ -963,9 +963,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private processOptionSelection(
     currentQuestion: QuizQuestion,
-    option: SelectedOption
+    option: SelectedOption, 
+    index: number
   ): void {
-    this.handleOptionClicked(currentQuestion, option.optionId);
+    this.handleOptionClicked(currentQuestion, index);
 
     // Check if the clicked option is selected
     const isOptionSelected = this.isSelectedOption(option);
