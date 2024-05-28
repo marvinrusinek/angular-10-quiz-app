@@ -732,8 +732,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     ); // not a function */
 
     // Call the isMultipleAnswer function to determine if the question is a multiple-answer question
-    data.isMultipleAnswer =
-      firstValueFrom(of(await this.quizStateService.isMultipleAnswerQuestion(this.question)));
+    data.isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(this.question));
   }
 
   setQuestionOptions(): void {
