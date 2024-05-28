@@ -4,7 +4,10 @@ import { BehaviorSubject, Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
   selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  selectionMessage$: Observable<string> = this.selectionMessageSubject.asObservable();
+
+  get selectionMessage$(): Observable<string> {
+    return this.selectionMessageSubject.asObservable();
+  }
 
   determineSelectionMessage(currentQuestionIndex: number, totalQuestions: number, isAnswered: boolean): string {
     if (currentQuestionIndex === totalQuestions - 1) {
