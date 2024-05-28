@@ -834,87 +834,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* private async checkIfAnswerSelected(): Promise<void> {
-    const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
-    this.quizService.setAnsweredState(isAnswered); // Update the service state
-    console.log(`checkIfAnswerSelected: ${isAnswered}`);
-
-    // Retrieve total questions value
-    const totalQuestions = await lastValueFrom(this.quizService.totalQuestions$.pipe(take(1)));
-
-    // Update the selection message
-    const message = this.selectionMessageService.determineSelectionMessage(this.currentQuestionIndex, totalQuestions, isAnswered);
-    console.log(`Determined selection message: ${message}`);
-    this.selectionMessageService.updateSelectionMessage(message);
-
-    this.cdRef.markForCheck(); // Trigger change detection
-  } */
-
-  /* private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
-    const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
-    this.quizService.setAnsweredState(isAnswered); // Update the service state
-    console.log(`checkIfAnswerSelected: ${isAnswered}`);
-  
-    // Update the selection message
-    if (!isFirstQuestion || isAnswered) {
-      await this.updateSelectionMessage();
-    } else {
-      // If it's the first question and not answered, set the initial message
-      this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
-    }
-  
-    this.cdRef.markForCheck(); // Trigger change detection
-  } */
-
   private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
     const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
     this.quizService.setAnsweredState(isAnswered);
     this.updateSelectionMessage(isAnswered, isFirstQuestion);
   }
-  
-
-  private async isAnswerSelected(): Promise<void> {
-    this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
-      next: (isAnswered) => {
-        this.isAnswered = isAnswered;
-        console.log(`isAnswerSelected: ${isAnswered}`);
-      },
-      error: (error) => console.error('Failed to determine if question is answered:', error)
-    });
-  }
-
-  /* private updateSelectionMessage(): void {
-    const message = this.isAnswered
-      ? 'Please click the next button to continue...'
-      : 'Please select an option to continue...';
-    this.selectionMessageService.updateSelectionMessage(message);
-  } */
-
-  /* private updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean): void {
-    const message = isFirstQuestion && !isAnswered 
-      ? 'Please select an option to continue...' 
-      : isAnswered 
-      ? 'Please click the next button to continue...' 
-      : 'Please select an option to continue...';
-    this.selectionMessageService.updateSelectionMessage(message);
-  } */
-
-  /* private updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean = false): void {
-    const message = isAnswered 
-      ? 'Please click the next button to continue...' 
-      : (isFirstQuestion ? 'Please select an option to continue...' : 'Please select an option to continue...');
-    this.selectionMessageService.updateSelectionMessage(message);
-  } */
 
   private updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean = false): void {
     const message = isAnswered 
       ? 'Please click the next button to continue...' 
       : 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(message);
-  }
-  
-  
-  
+  }  
   
   private async processCurrentQuestion(
     currentQuestion: QuizQuestion
@@ -975,104 +906,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.showExplanationChange.emit(false); // Emit the flag to hide the explanation
     }
   }
-
-  /* handleAudioPlayback(isCorrect: boolean): void {
-    if (isCorrect) {
-      this.playCorrectSound = true;
-      setTimeout(() => this.playCorrectSound = false, 1000); // Reset the flag after playback
-    } else {
-      this.playIncorrectSound = true;
-      setTimeout(() => this.playIncorrectSound = false, 1000); // Reset the flag after playback
-    }
-  } */
-
-  /* handleAudioPlayback(isCorrect: boolean): void {
-    const audioSrc = isCorrect ? this.correctAudioSource : this.incorrectAudioSource;
-    let audio = new Audio(audioSrc);
-    audio.play().then(() => {
-      console.log("Audio started playing!");
-    }).catch(error => {
-      console.error("Error playing audio:", error);
-      // Handle specific errors, e.g., User didn't interact with the document first.
-    });
-  } */
-
-  /* handleAudioPlayback(isCorrect: boolean): void {
-    const audioSrc = isCorrect ? this.correctAudioSource : this.incorrectAudioSource;
-    let audio = new Audio(audioSrc);
-
-    audio.oncanplaythrough = () => {
-        console.log("Audio is ready and can play through without interruption.");
-        audio.play().catch(error => {
-            console.error("Error while trying to play audio:", error);
-        });
-    };
-
-    audio.onerror = () => {
-        console.error("Error loading audio source:", audio.error);
-        // Log specific error details if available
-        if (audio.error) {
-            console.log(`Media error code: ${audio.error.code}`);
-            switch (audio.error.code) {
-                case MediaError.MEDIA_ERR_ABORTED:
-                    console.error("Audio loading aborted.");
-                    break;
-                case MediaError.MEDIA_ERR_NETWORK:
-                    console.error("Audio loading failed due to a network error.");
-                    break;
-                case MediaError.MEDIA_ERR_DECODE:
-                    console.error("Audio decoding failed due to a corrupted data or unsupported feature.");
-                    break;
-                case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-                    console.error("Audio format not supported or source not found.");
-                    break;
-                default:
-                    console.error("An unknown error occurred.");
-                    break;
-            }
-        }
-    };
-
-    audio.load();  // Explicitly call load if needed, though setting src usually suffices.
-  } */
-
-  /* handleAudioPlayback(isCorrect: boolean): void {
-    if (isCorrect) {
-        this.playCorrectSound = true;
-        this.cdRef.detectChanges(); // Force update to the view
-        setTimeout(() => {
-            this.playCorrectSound = false;
-            this.cdRef.detectChanges(); // Update the view after stopping the sound
-        }, 1000);
-    } else {
-        this.playIncorrectSound = true;
-        this.cdRef.detectChanges();
-        setTimeout(() => {
-            this.playIncorrectSound = false;
-            this.cdRef.detectChanges();
-        }, 1000);
-    }
-  } */
-
-  /* handleAudioPlayback(isCorrect: boolean): void {
-    if (isCorrect) {
-      this.audioList.push(this.correctAudioSource);
-    } else {
-      this.audioList.push(this.incorrectAudioSource);
-    }
-
-    // Reset the audio list after playback
-    setTimeout(() => this.audioList = [], 1000);
-  } */
-
-  /* handleAudioPlayback(isCorrect: boolean): void {
-    this.audioList = isCorrect ? [this.correctAudioSource] : [this.incorrectAudioSource];
-
-    // Reset the audio list after playback to ensure the component refreshes
-    setTimeout(() => {
-        this.audioList = [];
-    }, 1000); // Adjust this time based on the length of audio
-  } */
 
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
@@ -1242,64 +1075,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('Is question answered:', isAnswered);
     this.updateSelectionMessage(isAnswered);
     this.cdRef.markForCheck(); // Ensure Angular change detection picks up state changes
-  }
-  
-
-  /* handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
-    const isOptionSelected = this.checkOptionSelected(option);
-    const index = this.selectedOptions.findIndex((opt) => opt === option);
-
-    if (!isOptionSelected && index === -1) {
-      this.quizService.addSelectedOption(option);
-    } else {
-      if (index !== -1) {
-        this.quizService.removeSelectedOption(option);
-      }
-      this.unselectOption();
-    }
-
-    // Call selectOption to handle the selection process
-    this.selectOption(currentQuestion, option);
-
-    this.handleMultipleAnswer(currentQuestion);
-  } */
-
-  /* handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
-    const isOptionSelected = this.checkOptionSelected(option);
-    const index = this.quizService.getSelectedOptions(this.currentQuestionIndex).findIndex(opt => opt.optionId === option.optionId);
-
-    if (!isOptionSelected && index === -1) {
-        this.quizService.addSelectedOption(option);
-    } else {
-      if (index !== -1) {
-        this.quizService.removeSelectedOption(option);
-      }
-      this.unselectOption();
-    }
-
-    this.handleMultipleAnswer(currentQuestion);
-    this.updateSelectionMessage();
-  } */
-
-  /* private handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
-    const isOptionSelected = this.quizService.getSelectedOptions(this.currentQuestionIndex).some(opt => opt.optionId === option.optionId);
-    const index = this.quizService.getSelectedOptions(this.currentQuestionIndex).findIndex(opt => opt.optionId === option.optionId);
-
-    if (!isOptionSelected && index === -1) {
-      this.quizService.addSelectedOption(option);
-    } else {
-      if (index !== -1) {
-        this.quizService.removeSelectedOption(option);
-      }
-      this.unselectOption();
-    }
-
-    this.handleMultipleAnswer(currentQuestion);
-
-    const isAnswered = this.quizService.getSelectedOptions(this.currentQuestionIndex).length > 0;
-    this.updateSelectionMessage(isAnswered, this.isFirstQuestion);; // Ensure the selection message is updated
-  } */
-  
+  }  
 
   private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
     this.quizStateService.isMultipleAnswerQuestion(currentQuestion).subscribe({
@@ -1383,21 +1159,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOptions: this.selectedOptions
     });
   }
-
-  /* private updateSelectionMessage(): void {
-    this.quizService.getTotalQuestions().subscribe({
-      next: (totalQuestions) => {
-        const message = this.selectionMessageService.determineSelectionMessage(
-          this.currentQuestionIndex,
-          totalQuestions,
-          this.quizService.isAnswered(this.currentQuestionIndex)
-        );
-        this.selectionMessageService.updateSelectionMessage(message);
-      },
-      error: (error) =>
-        console.error('Failed to fetch total questions:', error),
-    });
-  } */
 
   unselectOption(): void {
     this.selectedOptions = [];
