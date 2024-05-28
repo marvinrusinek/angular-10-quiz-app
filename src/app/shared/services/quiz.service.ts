@@ -56,7 +56,7 @@ export class QuizService implements OnDestroy {
   currentQuestionIndex$ = this.currentQuestionIndexSource.asObservable();
 
   currentOptions: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
-  private selectedOptions: SelectedOption[] = [];
+  selectedOptions: SelectedOption[] = [];
   private isAnsweredSubject = new BehaviorSubject<boolean>(false);
 
   resources: Resource[];
