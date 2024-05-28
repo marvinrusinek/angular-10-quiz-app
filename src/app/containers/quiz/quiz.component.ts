@@ -936,7 +936,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
       next: (isAnswered) => {
         this.isAnswered = isAnswered;
-        console.log(`isAnswerSelected: ${isAnswered}`);
       },
       error: (error) => console.error('Failed to determine if question is answered:', error)
     });

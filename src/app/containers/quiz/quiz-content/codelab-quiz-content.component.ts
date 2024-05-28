@@ -201,6 +201,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.quizService.updateCorrectAnswersText(
         this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.quizService.numberOfCorrectAnswers)
       );
+      this.setDisplayStateForCorrectAnswers(question);
     } else {
       this.quizService.updateCorrectAnswersText("Select one answer");
     }
@@ -536,6 +537,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   }
   
+  
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
       take(1), // Take the first value emitted and then complete
@@ -550,6 +552,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     if (isMultipleAnswer) {
       const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
+      console.log(`Number of correct answers: ${numberOfCorrectAnswers}`);
       this.correctAnswersTextSource.next(`Number of correct answers: ${numberOfCorrectAnswers}`);
       this.correctAnswersDisplaySubject.next(true);
       this.shouldDisplayCorrectAnswers = true;
