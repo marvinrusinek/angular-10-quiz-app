@@ -1218,8 +1218,34 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
   
+  handleOptionClicked(currentQuestion: QuizQuestion, optionIndex: number): void {
+    const selectedOptionIndices = this.quizService.getSelectedOptionIndices(this.currentQuestionIndex);
+    const isOptionSelected = selectedOptionIndices.includes(optionIndex);
+  
+    console.log('Initial selected option indices:', selectedOptionIndices);
+    console.log('Clicked option index:', optionIndex);
+  
+    if (!isOptionSelected) {
+      console.log('Adding option index:', optionIndex);
+      this.quizService.addSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
+    } else {
+      console.log('Removing option index:', optionIndex);
+      this.quizService.removeSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
+    }
+  
+    const updatedSelectedOptionIndices = this.quizService.getSelectedOptionIndices(this.currentQuestionIndex);
+    console.log('Selected option indices after toggle:', updatedSelectedOptionIndices);
+  
+    this.handleMultipleAnswer(currentQuestion);
+  
+    const isAnswered = updatedSelectedOptionIndices.length > 0;
+    console.log('Is question answered:', isAnswered);
+    this.updateSelectionMessage(isAnswered);
+    this.cdRef.markForCheck(); // Ensure Angular change detection picks up state changes
+  }
+  
 
-  handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
+  /* handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
     const isOptionSelected = this.checkOptionSelected(option);
     const index = this.selectedOptions.findIndex((opt) => opt === option);
 
@@ -1236,7 +1262,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectOption(currentQuestion, option);
 
     this.handleMultipleAnswer(currentQuestion);
-  }
+  } */
 
   /* handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
     const isOptionSelected = this.checkOptionSelected(option);
