@@ -715,57 +715,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     return -1;
   }
-
-  /* isAnswerSelected(): void {
-   this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
-      next: (isAnswered) => {
-        this.answered = isAnswered; // Update the class property
-        // Perform additional actions if needed
-      },
-      error: (error) => console.error('Failed to determine if question is answered:', error)
-    });
-  } */
-
-  /* isAnswerSelected(): Observable<boolean> {
-    console.log('isAnswerSelected called', this.isAnswered$); // Debugging
-    return this.isAnswered$;
-  } */
-  
-  /* private updateSelectionMessage(resetMessage: boolean = true): void {
-    if (resetMessage) {
-      this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
-    } else {
-      this.quizService.getTotalQuestions().subscribe({
-        next: (totalQuestions) => {
-          const message = this.selectionMessageService.determineSelectionMessage(
-            this.currentQuestionIndex,
-            totalQuestions,
-            this.quizService.isAnswered(this.currentQuestionIndex)
-          );
-          this.selectionMessageService.updateSelectionMessage(message);
-        },
-        error: (error) =>
-          console.error('Failed to fetch total questions:', error),
-      });
-    }
-  } */
-  
-
-  /* private updateSelectionMessage(): void {
-    let message: string;
-  
-    if (this.currentQuestionIndex === this.totalQuestions - 1) {
-      if (this.quizService.isAnswered(this.currentQuestionIndex)) {
-        message = "Please click the Show Results button";
-      } else {
-        message = "Please select an option to continue...";
-      }
-    } else {
-      message = "Please select an option to continue...";
-    }
-  
-    this.selectionMessageService.selectionMessageSubject.next(message);
-  } */
   
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
     this.quizService.setQuizData([selectedQuiz]);
