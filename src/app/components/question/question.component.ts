@@ -1219,10 +1219,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   handleOptionClicked(currentQuestion: QuizQuestion, optionIndex: number): void {
-    const selectedOptionIndices = this.quizService.getSelectedOptionIndices(this.currentQuestionIndex);
-    const isOptionSelected = selectedOptionIndices.includes(optionIndex);
+    const selectedOptions = this.quizService.getSelectedOptionIndices(this.currentQuestionIndex);
+    const isOptionSelected = selectedOptions.includes(optionIndex);
   
-    console.log('Initial selected option indices:', selectedOptionIndices);
+    console.log('Initial selected option indices:', selectedOptions);
     console.log('Clicked option index:', optionIndex);
   
     if (!isOptionSelected) {
@@ -1233,12 +1233,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.removeSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
     }
   
-    const updatedSelectedOptionIndices = this.quizService.getSelectedOptionIndices(this.currentQuestionIndex);
-    console.log('Selected option indices after toggle:', updatedSelectedOptionIndices);
+    const updatedSelectedOptions = this.quizService.getSelectedOptionIndices(this.currentQuestionIndex);
+    console.log('Selected options after toggle:', updatedSelectedOptions);
   
     this.handleMultipleAnswer(currentQuestion);
   
-    const isAnswered = updatedSelectedOptionIndices.length > 0;
+    const isAnswered = updatedSelectedOptions.length > 0;
     console.log('Is question answered:', isAnswered);
     this.updateSelectionMessage(isAnswered);
     this.cdRef.markForCheck(); // Ensure Angular change detection picks up state changes
