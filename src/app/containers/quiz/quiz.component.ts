@@ -1184,31 +1184,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.showExplanation = false;
     }
   }
-  
-  /* initializeFirstQuestion(): void {
-    this.resetQuestionDisplayState();
-
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: async (questions: QuizQuestion[]) => {
-        if (questions && questions.length > 0) {
-          this.questions = questions;
-          this.currentQuestion = questions[0];
-          this.questionToDisplay = this.currentQuestion.questionText;
-          this.optionsToDisplay = this.currentQuestion.options;
-          this.shouldDisplayCorrectAnswersFlag = false;
-
-          // Initialize or update the state for all questions
-          questions.forEach((_, index) => this.initializeOrUpdateQuestionState(index));
-        } else {
-          this.handleNoQuestionsAvailable();
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching questions:', err);
-        this.handleQuestionsLoadingError();
-      }
-    });
-  } */
 
   initializeFirstQuestion(): void {
     this.resetQuestionDisplayState();
@@ -1227,8 +1202,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           for (let index = 0; index < questions.length; index++) {
             await this.initializeOrUpdateQuestionState(index);
           }
-  
-          // this.quizService.setTotalQuestions(questions.length); // Set total questions in the service
   
           // Check if the first question is answered and update the message
           await this.checkIfAnswerSelected(true); // Pass true to indicate it's the first question
