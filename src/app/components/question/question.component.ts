@@ -1069,7 +1069,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleMultipleAnswer(currentQuestion);
   
     const isAnswered = updatedSelectedOptions.length > 0;
-    console.log('Is question answered:', isAnswered);
     this.updateSelectionMessage(isAnswered);
     this.cdRef.markForCheck(); // Ensure Angular change detection picks up state changes
   }  
