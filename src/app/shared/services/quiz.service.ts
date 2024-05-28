@@ -951,11 +951,6 @@ export class QuizService implements OnDestroy {
   }
 
   // Method to check if the current question is answered
-  /* isAnswered(questionIndex: number): Observable<boolean> {
-    const isAnswered = this.getSelectedOptions(questionIndex).length > 0;
-    return of(isAnswered);
-  } */
-
   isAnswered(questionIndex: number): Observable<boolean> {
     const isAnswered = this.getSelectedOptionIndices(questionIndex).length > 0;
     return of(isAnswered);
@@ -1131,18 +1126,6 @@ export class QuizService implements OnDestroy {
     return correctAnswersString;
   }
 
-  /* addSelectedOption(option: Option): void {
-    this.selectedOptions.push(option);
-  } */
-
-  /* getSelectedOptions(questionIndex: number): SelectedOption[] {
-    return this.selectedOptions.filter(option => option.questionIndex === questionIndex);
-  } */
-
-  /* getSelectedOptions(questionIndex: number): number[] {
-    return this.selectedOptions[questionIndex] || [];
-  } */
-
   getSelectedOptionIndices(questionIndex: number): number[] {
     return this.selectedOptionIndices[questionIndex] || [];
   }
@@ -1167,81 +1150,6 @@ export class QuizService implements OnDestroy {
       }
     }
   }
-
-
-  /* addSelectedOption(option: Option, questionIndex: number): void {
-    const optionWithIndex: SelectedOption = { ...option, questionIndex };
-    const index = this.selectedOptions.findIndex(
-      selectedOption => selectedOption.optionId === option.optionId && selectedOption.questionIndex === questionIndex
-    );
-
-    if (index > -1) {
-      // Remove the option if it was already selected
-      this.selectedOptions.splice(index, 1);
-    } else {
-      // Add the option if it wasn't selected
-      this.selectedOptions.push(optionWithIndex);
-    }
-  }
-
-  removeSelectedOption(option: Option, questionIndex: number): void {
-    const index = this.selectedOptions.findIndex(
-      selectedOption => selectedOption.optionId === option.optionId && selectedOption.questionIndex === questionIndex
-    );
-    if (index !== -1) {
-      this.selectedOptions.splice(index, 1);
-      console.log('Option is already selected or clicked to unselect.');
-    }
-  } */
-
-  /* addSelectedOption(questionIndex: number, optionIndex: number): void {
-    if (!this.selectedOptions[questionIndex]) {
-      this.selectedOptions[questionIndex] = [];
-    }
-
-    if (!this.selectedOptions[questionIndex].includes(optionIndex)) {
-      this.selectedOptions[questionIndex].push(optionIndex);
-      this.updateAnsweredState(questionIndex);
-    }
-  }
-
-  removeSelectedOption(questionIndex: number, optionIndex: number): void {
-    if (this.selectedOptions[questionIndex]) {
-      const optionPos = this.selectedOptions[questionIndex].indexOf(optionIndex);
-      if (optionPos > -1) {
-        this.selectedOptions[questionIndex].splice(optionPos, 1);
-        this.updateAnsweredState(questionIndex);
-      }
-    }
-  } */
-  
-  
-  /* addSelectedOption(option: SelectedOption): void {
-    const index = this.selectedOptions.findIndex(
-      selectedOption => selectedOption.optionId === option.optionId && selectedOption.questionIndex === option.questionIndex
-    );
-
-    if (index === -1) {
-      this.selectedOptions.push(option);
-      this.updateAnsweredState(option.questionIndex);
-    }
-  }
-
-  removeSelectedOption(option: SelectedOption): void {
-    const index = this.selectedOptions.findIndex(
-      selectedOption => selectedOption.optionId === option.optionId && selectedOption.questionIndex === option.questionIndex
-    );
-
-    if (index !== -1) {
-      this.selectedOptions.splice(index, 1);
-      this.updateAnsweredState(option.questionIndex);
-    }
-  } */
-
-  /* private updateAnsweredState(questionIndex: number): void {
-    const isAnswered = this.getSelectedOptions(questionIndex).length > 0;
-    this.setAnsweredState(isAnswered);
-  } */
 
   private updateAnsweredState(questionIndex: number): void {
     const isAnswered = this.getSelectedOptionIndices(questionIndex).length > 0;
