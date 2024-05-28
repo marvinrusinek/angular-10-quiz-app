@@ -79,7 +79,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   textToDisplay = '';
 
   previousIndex: number | null = null; // to track if the index has changed
-  isQuestionIndexChanged = false; // flag to control the display based on index change
 
   private destroy$ = new Subject<void>();
 
@@ -110,18 +109,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.handleQuestionDisplayLogic();
     this.handleQuestionUpdate(this.question);
     this.setupCombinedTextObservable();
-
-    this.activatedRoute.params.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(params => {
-      const currentIndex = +params['questionIndex'];
-      if (this.previousIndex !== null && this.previousIndex !== currentIndex) {
-        this.isQuestionIndexChanged = true;  // Set flag to true if index changes
-      } else {
-        this.isQuestionIndexChanged = false; // Set flag to false if index remains the same or is the first load
-      }
-      this.previousIndex = currentIndex; // Update previousIndex for next change detection
-    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
