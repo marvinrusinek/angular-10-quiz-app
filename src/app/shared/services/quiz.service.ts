@@ -1193,16 +1193,11 @@ export class QuizService implements OnDestroy {
     );
 
     if (index > -1) {
-      this.selectedOptions.splice(index, 1); // Remove the option if it was already selected
+      this.selectedOptions.splice(index, 1);
     } else {
-      this.selectedOptions.push(option); // Add the option if it wasn't selected
+      this.selectedOptions.push(option);
     }
-    console.log(`toggleSelectedOption for questionIndex ${option.questionIndex}: ${JSON.stringify(this.selectedOptions)}`); // Debugging log
-
-    // Update the isAnswered state
-    const isAnswered = this.getSelectedOptions(option.questionIndex).length > 0;
-    console.log(`Updating isAnswered state to: ${isAnswered}`);
-    this.setAnsweredState(isAnswered);
+    this.updateAnsweredState(option.questionIndex);
   }
 
   isOptionSelected(option: Option): boolean {
