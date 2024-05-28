@@ -848,7 +848,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           ? 'Please click the next button to continue...' 
           : 'Please select an option to continue...';
       
-      console.log('Updated selection message:', message);
       this.selectionMessageService.updateSelectionMessage(message);
     });
   }
