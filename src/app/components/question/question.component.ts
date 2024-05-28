@@ -1232,6 +1232,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.unselectOption();
     }
 
+    // Call selectOption to handle the selection process
+    this.selectOption(currentQuestion, option);
+
     this.handleMultipleAnswer(currentQuestion);
   }
 
@@ -1329,7 +1332,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       option.optionId
     ); 
 
-    this.updateSelectionMessage();
+    this.updateSelectionMessage(true);
 
     const explanationText =
       this.explanationTextService.getFormattedExplanationTextForQuestion(
