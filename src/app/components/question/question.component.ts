@@ -897,17 +897,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectionMessageService.updateSelectionMessage(message);
   } */
 
-  /* private updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean = false): void {
+  private updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean = false): void {
     const message = isAnswered 
       ? 'Please click the next button to continue...' 
       : (isFirstQuestion ? 'Please select an option to continue...' : 'Please select an option to continue...');
-    this.selectionMessageService.updateSelectionMessage(message);
-  } */
-
-  private updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean = false): void {
-    const message = isAnswered
-      ? 'Please click the next button to continue...'
-      : 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(message);
   }
   
@@ -1214,26 +1207,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
-    const isOptionSelected = this.quizService.getSelectedOptions(this.currentQuestionIndex).some(opt => opt.optionId === option.optionId);
-    const index = this.quizService.getSelectedOptions(this.currentQuestionIndex).findIndex(opt => opt.optionId === option.optionId);
-
-    if (!isOptionSelected && index === -1) {
-      this.quizService.addSelectedOption(option);
-    } else {
-      if (index !== -1) {
-        this.quizService.removeSelectedOption(option);
-      }
-      this.unselectOption();
-    }
-
-    this.handleMultipleAnswer(currentQuestion);
-
-    const isAnswered = this.quizService.getSelectedOptions(this.currentQuestionIndex).length > 0;
-    this.updateSelectionMessage(isAnswered);
-  }
-
-  /* handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
+  handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
     const isOptionSelected = this.checkOptionSelected(option);
     const index = this.selectedOptions.findIndex((opt) => opt === option);
 
@@ -1247,7 +1221,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.handleMultipleAnswer(currentQuestion);
-  } */
+  }
 
   /* handleOptionClicked(currentQuestion: QuizQuestion, option: SelectedOption): void {
     const isOptionSelected = this.checkOptionSelected(option);
