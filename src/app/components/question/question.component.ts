@@ -809,9 +809,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Check if the current question is answered after an option is selected
       await this.checkIfAnswerSelected(this.isFirstQuestion);
       this.isFirstQuestion = false;  // Reset after the first option click
-
-      // Always update the selection message to "Please click the next button to continue..."
-      this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
   
       // Process the current question
       const currentQuestion = await this.getCurrentQuestion();
@@ -822,8 +819,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       this.handleOptionSelection(option, index, currentQuestion);
       await this.processCurrentQuestion(currentQuestion);
-      this.questionAnswered.emit();
       this.updateQuestionStateForExplanation(this.currentQuestionIndex);
+      this.questionAnswered.emit();
   
       // Handle audio playback based on correctness
       const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
