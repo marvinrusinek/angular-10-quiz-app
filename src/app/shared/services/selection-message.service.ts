@@ -19,6 +19,5 @@ export class SelectionMessageService {
 
   updateSelectionMessage(message: string): void {
     this.selectionMessageSubject.next(message);
-    console.log(`Updated selection message: ${message}`);
   }
 }
