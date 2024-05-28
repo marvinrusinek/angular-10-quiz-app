@@ -1229,7 +1229,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       message = 'Please select an option to continue...';
     }
     
-    console.log(`Determined selection message: ${message}`);
     this.selectionMessageService.updateSelectionMessage(message);
   }
 
