@@ -57,6 +57,7 @@ export class QuizService implements OnDestroy {
 
   currentOptions: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   selectedOptions: SelectedOption[] = [];
+  private selectedOptionIndices: { [key: number]: number[] } = {};
   private isAnsweredSubject = new BehaviorSubject<boolean>(false);
 
   resources: Resource[];
@@ -1129,9 +1130,39 @@ export class QuizService implements OnDestroy {
     this.selectedOptions.push(option);
   } */
 
-  getSelectedOptions(questionIndex: number): SelectedOption[] {
+  /* getSelectedOptions(questionIndex: number): SelectedOption[] {
     return this.selectedOptions.filter(option => option.questionIndex === questionIndex);
+  } */
+
+  /* getSelectedOptions(questionIndex: number): number[] {
+    return this.selectedOptions[questionIndex] || [];
+  } */
+
+  getSelectedOptionIndices(questionIndex: number): number[] {
+    return this.selectedOptionIndices[questionIndex] || [];
   }
+
+  addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
+    if (!this.selectedOptionIndices[questionIndex]) {
+      this.selectedOptionIndices[questionIndex] = [];
+    }
+
+    if (!this.selectedOptionIndices[questionIndex].includes(optionIndex)) {
+      this.selectedOptionIndices[questionIndex].push(optionIndex);
+      this.updateAnsweredState(questionIndex);
+    }
+  }
+
+  removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
+    if (this.selectedOptionIndices[questionIndex]) {
+      const optionPos = this.selectedOptionIndices[questionIndex].indexOf(optionIndex);
+      if (optionPos > -1) {
+        this.selectedOptionIndices[questionIndex].splice(optionPos, 1);
+        this.updateAnsweredState(questionIndex);
+      }
+    }
+  }
+
 
   /* addSelectedOption(option: Option, questionIndex: number): void {
     const optionWithIndex: SelectedOption = { ...option, questionIndex };
@@ -1158,7 +1189,29 @@ export class QuizService implements OnDestroy {
     }
   } */
 
-  addSelectedOption(option: SelectedOption): void {
+  /* addSelectedOption(questionIndex: number, optionIndex: number): void {
+    if (!this.selectedOptions[questionIndex]) {
+      this.selectedOptions[questionIndex] = [];
+    }
+
+    if (!this.selectedOptions[questionIndex].includes(optionIndex)) {
+      this.selectedOptions[questionIndex].push(optionIndex);
+      this.updateAnsweredState(questionIndex);
+    }
+  }
+
+  removeSelectedOption(questionIndex: number, optionIndex: number): void {
+    if (this.selectedOptions[questionIndex]) {
+      const optionPos = this.selectedOptions[questionIndex].indexOf(optionIndex);
+      if (optionPos > -1) {
+        this.selectedOptions[questionIndex].splice(optionPos, 1);
+        this.updateAnsweredState(questionIndex);
+      }
+    }
+  } */
+  
+  
+  /* addSelectedOption(option: SelectedOption): void {
     const index = this.selectedOptions.findIndex(
       selectedOption => selectedOption.optionId === option.optionId && selectedOption.questionIndex === option.questionIndex
     );
@@ -1178,7 +1231,7 @@ export class QuizService implements OnDestroy {
       this.selectedOptions.splice(index, 1);
       this.updateAnsweredState(option.questionIndex);
     }
-  }
+  } */
 
   private updateAnsweredState(questionIndex: number): void {
     const isAnswered = this.getSelectedOptions(questionIndex).length > 0;
