@@ -1340,13 +1340,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }  
   
-  /* private async updateSelectionMessage(isAnswered: boolean): Promise<void> {
-    const totalQuestions: number = await lastValueFrom(this.quizService.totalQuestions$.pipe(take(1)));
-    const message = this.selectionMessageService.determineSelectionMessage(this.currentQuestionIndex, totalQuestions, isAnswered);
-    console.log(`Determined selection message: ${message}`);
-    this.selectionMessageService.updateSelectionMessage(message);
-  } */
-
   private async updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean): Promise<void> {
     const totalQuestions: number = await lastValueFrom(this.quizService.totalQuestions$.pipe(take(1)));
     let message: string;
