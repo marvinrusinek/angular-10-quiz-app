@@ -1153,7 +1153,6 @@ export class QuizService implements OnDestroy {
 
   private updateAnsweredState(questionIndex: number): void {
     const isAnswered = this.getSelectedOptionIndices(questionIndex).length > 0;
-    console.log(`Updating isAnswered state to: ${isAnswered}`);
     this.setAnsweredState(isAnswered);
   }
 
