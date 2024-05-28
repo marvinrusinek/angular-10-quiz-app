@@ -952,7 +952,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
           // Always reset isAnswered to false when a new question loads
           this.isAnswered = false;
-          console.log('Question loaded. isAnswered set to false.');
   
           // If resetMessage is true, set the initial message
           if (resetMessage) {
