@@ -1151,11 +1151,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  private updateAnsweredState(questionIndex: number): void {
-    const isAnswered = this.getSelectedOptionIndices(questionIndex).length > 0;
-    this.setAnsweredState(isAnswered);
-  }
-
   // Method to add or remove a selected option for a question
   toggleSelectedOption(option: SelectedOption): void {
     const index = this.selectedOptions.findIndex(
@@ -1196,6 +1191,11 @@ export class QuizService implements OnDestroy {
         );
       }
     }
+  }
+
+  private updateAnsweredState(questionIndex: number): void {
+    const isAnswered = this.getSelectedOptionIndices(questionIndex).length > 0;
+    this.setAnsweredState(isAnswered);
   }
 
   updateAnswersForOption(selectedOption: Option): void {
