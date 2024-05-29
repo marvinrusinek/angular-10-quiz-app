@@ -548,6 +548,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
+    if (!question || !question.options) {
+      console.error('Question or options are undefined');
+      this.correctAnswersDisplaySubject.next(false);
+      this.shouldDisplayCorrectAnswers = false;
+      return;
+    }
+
     const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
 
     if (isMultipleAnswer) {
