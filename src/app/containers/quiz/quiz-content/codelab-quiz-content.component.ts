@@ -122,15 +122,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               console.log(`Using question index: ${validIndex}`);
 
               const questions: QuizQuestion[] = data.questions;
+              console.log('Questions array:', questions);
               const question = questions[validIndex];
               console.log('Retrieved question:', question);
 
-              if (question) {
+              if (this.quizService.isValidQuizQuestion(question)) {
                 console.log('Setting current question:', question);
                 this.currentQuestion.next(question);
                 this.handleQuestionUpdate(question);
               } else {
-                console.error('Failed to load question: Question is null or undefined');
+                console.error('Failed to load question: Question is not valid');
               }
             } else {
               console.error('No questions found in the quiz or invalid data structure');
@@ -241,7 +242,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
   }
 
-  handleQuestionUpdate(question: QuizQuestion): void {
+  /* handleQuestionUpdate(question: QuizQuestion): void {
     console.log('Handling question update with question:', question);
     if (question && question.options) {
       this.setDisplayStateForCorrectAnswers(question);
@@ -254,6 +255,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       );
     } else {
       this.quizService.updateCorrectAnswersText("Select one answer");
+    }
+  } */
+
+  private handleQuestionUpdate(question: QuizQuestion): void {
+    console.log('Handling question update with question:', question);
+
+    if (!question) {
+      console.error('Question is undefined in handleQuestionUpdate');
+      return;
+    }
+
+    if (!question.options || question.options.length === 0) {
+      console.error('Question options are undefined or empty in handleQuestionUpdate');
+      console.log('Question options:', question.options);
+      return;
+    }
+
+    this.setDisplayStateForCorrectAnswers(question);
+
+    if (this.quizStateService.isMultipleAnswerQuestion(question)) {
+      const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
+      this.quizService.updateCorrectAnswersText(`Number of correct answers: ${numberOfCorrectAnswers}`);
+    } else {
+      this.quizService.updateCorrectAnswersText('Select one answer');
     }
   }
 
