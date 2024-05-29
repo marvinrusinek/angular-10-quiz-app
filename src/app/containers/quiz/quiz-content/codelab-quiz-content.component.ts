@@ -102,36 +102,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   ngOnInit(): void {
     console.log('CodelabQuizContentComponent initialized');
-    this.activatedRoute.paramMap.pipe(
-      tap(params => {
-        const questionIndex = +params.get('questionIndex');
-        console.log(`Route param questionIndex: ${questionIndex}`);
-      }),
-      switchMap(params => {
-        const questionIndex = +params.get('questionIndex');
-        if (questionIndex >= 0) {
-          return this.quizService.getQuestionByIndex(questionIndex);
-        } else {
-          console.error('Invalid question index found in route');
-          return [];
+    this.activatedRoute.paramMap.subscribe(async params => {
+      const questionIndex = +params.get('questionIndex');
+      console.log(`Route param questionIndex: ${questionIndex}`);
+      if (questionIndex >= 0) {
+        try {
+          const question: QuizQuestion = await this.quizService.getQuestionByIndex(questionIndex).toPromise();
+          console.log('Received question from service:', question);
+          if (question) {
+            console.log('Setting current question:', question);
+            this.currentQuestion.next(question);
+            this.handleQuestionUpdate(question);
+          } else {
+            console.error('Failed to load question: Question is null or undefined');
+          }
+        } catch (error) {
+          console.error('Error fetching question:', error);
         }
-      }),
-      tap((question: QuizQuestion) => {
-        console.log('Received question from service:', question);
-        if (question) {
-          console.log('Setting current question:', question);
-          this.currentQuestion.next(question);
-          this.handleQuestionUpdate(question);
-        } else {
-          console.error('Failed to load question: Question is null or undefined');
-        }
-      })
-    ).subscribe(
-      () => {},
-      error => {
-        console.error('Error fetching question:', error);
+      } else {
+        console.error('Invalid question index found in route');
       }
-    );
+    });
 
     this.initializeSubscriptions();
     this.restoreQuestionState();
