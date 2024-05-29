@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, withLatestFrom } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -102,29 +102,36 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   ngOnInit(): void {
     console.log('CodelabQuizContentComponent initialized');
-    this.activatedRoute.paramMap.subscribe(params => {
-      const questionIndex = +params.get('questionIndex');
-      console.log(`Route param questionIndex: ${questionIndex}`);
-      if (questionIndex >= 0) {
-        this.quizService.getQuestionByIndex(questionIndex).subscribe(
-          (question: QuizQuestion) => {
-            console.log('Received question from service:', question);
-            if (question) {
-              console.log('Setting current question:', question);
-              this.currentQuestion.next(question);
-              this.handleQuestionUpdate(question);
-            } else {
-              console.error('Failed to load question: Question is null or undefined');
-            }
-          },
-          error => {
-            console.error('Error fetching question:', error);
-          }
-        );
-      } else {
-        console.error('Invalid question index found in route');
+    this.activatedRoute.paramMap.pipe(
+      tap(params => {
+        const questionIndex = +params.get('questionIndex');
+        console.log(`Route param questionIndex: ${questionIndex}`);
+      }),
+      switchMap(params => {
+        const questionIndex = +params.get('questionIndex');
+        if (questionIndex >= 0) {
+          return this.quizService.getQuestionByIndex(questionIndex);
+        } else {
+          console.error('Invalid question index found in route');
+          return [];
+        }
+      }),
+      tap((question: QuizQuestion) => {
+        console.log('Received question from service:', question);
+        if (question) {
+          console.log('Setting current question:', question);
+          this.currentQuestion.next(question);
+          this.handleQuestionUpdate(question);
+        } else {
+          console.error('Failed to load question: Question is null or undefined');
+        }
+      })
+    ).subscribe(
+      () => {},
+      error => {
+        console.error('Error fetching question:', error);
       }
-    });
+    );
 
     this.initializeSubscriptions();
     this.restoreQuestionState();
