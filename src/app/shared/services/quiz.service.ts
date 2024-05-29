@@ -1577,40 +1577,63 @@ export class QuizService implements OnDestroy {
 
   isValidQuizQuestion(question: any): boolean {
     console.log('Validating question:', question);
-  
+
     if (typeof question !== 'object' || question === null) {
       console.warn('Question is not an object or is null:', question);
       return false;
     }
-  
-    if (!('questionText' in question) || typeof question.questionText !== 'string' || question.questionText.trim() === '') {
-      console.warn('Invalid or missing questionText:', question);
+
+    if (!('questionText' in question)) {
+      console.warn('Missing questionText:', question);
       return false;
     }
-  
-    if (!('options' in question) || !Array.isArray(question.options) || question.options.length === 0) {
-      console.warn('Invalid or missing options:', question);
+    if (typeof question.questionText !== 'string') {
+      console.warn('questionText is not a string:', question.questionText);
       return false;
     }
-  
+    if (question.questionText.trim() === '') {
+      console.warn('questionText is empty:', question.questionText);
+      return false;
+    }
+
+    if (!('options' in question)) {
+      console.warn('Missing options:', question);
+      return false;
+    }
+    if (!Array.isArray(question.options)) {
+      console.warn('options is not an array:', question.options);
+      return false;
+    }
+    if (question.options.length === 0) {
+      console.warn('options array is empty:', question.options);
+      return false;
+    }
+
     for (const option of question.options) {
       if (typeof option !== 'object' || option === null) {
         console.warn('Option is not an object or is null:', option);
         return false;
       }
-      if (!('text' in option) || typeof option.text !== 'string' || option.text.trim() === '') {
-        console.warn('Invalid or missing text in option:', option);
+      if (!('text' in option)) {
+        console.warn('Missing text in option:', option);
+        return false;
+      }
+      if (typeof option.text !== 'string') {
+        console.warn('text in option is not a string:', option.text);
+        return false;
+      }
+      if (option.text.trim() === '') {
+        console.warn('text in option is empty:', option.text);
         return false;
       }
       if ('correct' in option && typeof option.correct !== 'boolean') {
-        console.warn('Invalid correct flag in option:', option);
+        console.warn('Invalid correct flag in option:', option.correct);
         return false;
       }
     }
-  
+
     return true;
   }
-  
 
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return isEqual(question1, question2);
