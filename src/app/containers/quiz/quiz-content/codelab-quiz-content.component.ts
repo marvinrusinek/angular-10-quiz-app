@@ -117,11 +117,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             console.log('Received data from service:', data);
 
             if (data && data.questions && data.questions.length > 0) {
-              console.log('Full quiz data:', data); // Log full quiz data
+              console.log('Questions array length:', data.questions.length);
               const validIndex = questionIndex < data.questions.length ? questionIndex : 0;
               console.log(`Using question index: ${validIndex}`);
 
-              const question = data.questions[validIndex];
+              const questions: QuizQuestion[] = data.questions;
+              const question = questions[validIndex];
               console.log('Extracted question:', question);
 
               if (this.quizService.isValidQuizQuestion(question)) {
