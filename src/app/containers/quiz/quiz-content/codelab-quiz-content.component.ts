@@ -104,23 +104,38 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     console.log('CodelabQuizContentComponent initialized');
     this.activatedRoute.paramMap.subscribe(async params => {
       this.quizId = params.get('quizId');
-      const questionIndex = +params.get('questionIndex');
-      console.log(`Route param questionIndex: ${questionIndex}`);
-      if (this.quizId && questionIndex >= 0) {
-        try {
-          const data = await firstValueFrom(this.quizService.getQuestionsForQuiz(this.quizId));
-          const questions: QuizQuestion[] = data.questions;
-          const question = questions[questionIndex];
-          console.log('Received question from service:', question);
-          if (question) {
-            console.log('Setting current question:', question);
-            this.currentQuestion.next(question);
-            this.handleQuestionUpdate(question);
-          } else {
-            console.error('Failed to load question: Question is null or undefined');
+      const questionIndexStr = params.get('questionIndex');
+      console.log(`Route param quizId: ${this.quizId}, questionIndexStr: ${questionIndexStr}`);
+
+      if (this.quizId && questionIndexStr) {
+        const questionIndex = +questionIndexStr;
+        console.log(`Parsed questionIndex: ${questionIndex}`);
+
+        if (questionIndex >= 0) {
+          try {
+            const data = await firstValueFrom(this.quizService.getQuestionsForQuiz(this.quizId));
+            console.log('Received data from service:', data);
+
+            if (data && data.questions && data.questions.length > 0) {
+              const questions: QuizQuestion[] = data.questions;
+              const question = questions[questionIndex];
+              console.log('Retrieved question:', question);
+
+              if (question) {
+                console.log('Setting current question:', question);
+                this.currentQuestion.next(question);
+                this.handleQuestionUpdate(question);
+              } else {
+                console.error('Failed to load question: Question is null or undefined');
+              }
+            } else {
+              console.error('No questions found in the quiz');
+            }
+          } catch (error) {
+            console.error('Error fetching question:', error);
           }
-        } catch (error) {
-          console.error('Error fetching question:', error);
+        } else {
+          console.error('Invalid question index found in route');
         }
       } else {
         console.error('Invalid question index or quiz ID found in route');
