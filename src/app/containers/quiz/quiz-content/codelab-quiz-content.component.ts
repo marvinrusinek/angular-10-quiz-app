@@ -101,14 +101,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   ngOnInit(): void {
+    console.log('CodelabQuizContentComponent initialized');
     this.activatedRoute.paramMap.subscribe(params => {
       const questionIndex = +params.get('questionIndex');
       console.log(`Route param questionIndex: ${questionIndex}`);
       if (questionIndex >= 0) {
         this.quizService.getQuestionByIndex(questionIndex).subscribe(
           (question: QuizQuestion) => {
+            console.log('Received question from service:', question);
             if (question) {
-              console.log('Fetched question:', question);
+              console.log('Setting current question:', question);
               this.currentQuestion.next(question);
               this.handleQuestionUpdate(question);
             } else {
@@ -224,7 +226,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.quizService.updateCorrectAnswersText(
         this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.quizService.numberOfCorrectAnswers)
       );
-      this.setDisplayStateForCorrectAnswers(question);
+      if (question && question.options) {
+        this.setDisplayStateForCorrectAnswers(question);
+      } else {
+        console.error('Question or options are undefined in handleQuestionUpdate');
+      }
     } else {
       this.quizService.updateCorrectAnswersText("Select one answer");
     }
@@ -571,12 +577,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
-    /* if (!question || !question.options) {
+    console.log('Setting display state for correct answers with question:', question);
+    if (!question || !question.options) {
       console.error('Question or options are undefined');
       this.correctAnswersDisplaySubject.next(false);
       this.shouldDisplayCorrectAnswers = false;
       return;
-    } */
+    }
 
     const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
 
