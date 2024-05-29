@@ -103,11 +103,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   ngOnInit(): void {
     console.log('CodelabQuizContentComponent initialized');
     this.activatedRoute.paramMap.subscribe(async params => {
+      this.quizId = params.get('quizId');
       const questionIndex = +params.get('questionIndex');
       console.log(`Route param questionIndex: ${questionIndex}`);
-      if (questionIndex >= 0) {
+      if (this.quizId && questionIndex >= 0) {
         try {
-          const question: QuizQuestion = await this.quizService.getQuestionByIndex(questionIndex).toPromise();
+          const questions: QuizQuestion[] = await firstValueFrom(this.quizService.getQuestionsForQuiz(this.quizId));
+          const question = questions[questionIndex];
           console.log('Received question from service:', question);
           if (question) {
             console.log('Setting current question:', question);
@@ -120,7 +122,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           console.error('Error fetching question:', error);
         }
       } else {
-        console.error('Invalid question index found in route');
+        console.error('Invalid question index or quiz ID found in route');
       }
     });
 
