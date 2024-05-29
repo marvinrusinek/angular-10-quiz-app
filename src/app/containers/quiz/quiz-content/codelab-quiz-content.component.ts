@@ -108,7 +108,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       console.log(`Route param questionIndex: ${questionIndex}`);
       if (this.quizId && questionIndex >= 0) {
         try {
-          const questions: QuizQuestion[] = await firstValueFrom(this.quizService.getQuestionsForQuiz(this.quizId));
+          const data = await firstValueFrom(this.quizService.getQuestionsForQuiz(this.quizId));
+          const questions: QuizQuestion[] = data.questions;
           const question = questions[questionIndex];
           console.log('Received question from service:', question);
           if (question) {
