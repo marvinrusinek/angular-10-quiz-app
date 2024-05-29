@@ -117,8 +117,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             console.log('Received data from service:', data);
 
             if (data && data.questions && data.questions.length > 0) {
+              console.log('Questions array length:', data.questions.length);
+              const validIndex = questionIndex < data.questions.length ? questionIndex : 0;
+              console.log(`Using question index: ${validIndex}`);
+
               const questions: QuizQuestion[] = data.questions;
-              const question = questions[questionIndex];
+              const question = questions[validIndex];
               console.log('Retrieved question:', question);
 
               if (question) {
@@ -129,7 +133,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
                 console.error('Failed to load question: Question is null or undefined');
               }
             } else {
-              console.error('No questions found in the quiz');
+              console.error('No questions found in the quiz or invalid data structure');
             }
           } catch (error) {
             console.error('Error fetching question:', error);
