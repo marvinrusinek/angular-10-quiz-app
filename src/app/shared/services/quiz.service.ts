@@ -1583,29 +1583,13 @@ export class QuizService implements OnDestroy {
       return false;
     }
 
-    if (!('questionText' in question)) {
-      console.warn('Missing questionText:', question);
-      return false;
-    }
-    if (typeof question.questionText !== 'string') {
-      console.warn('questionText is not a string:', question.questionText);
-      return false;
-    }
-    if (question.questionText.trim() === '') {
-      console.warn('questionText is empty:', question.questionText);
+    if (!question.questionText || typeof question.questionText !== 'string') {
+      console.warn('Invalid or missing questionText:', question.questionText);
       return false;
     }
 
-    if (!('options' in question)) {
-      console.warn('Missing options:', question);
-      return false;
-    }
-    if (!Array.isArray(question.options)) {
-      console.warn('options is not an array:', question.options);
-      return false;
-    }
-    if (question.options.length === 0) {
-      console.warn('options array is empty:', question.options);
+    if (!Array.isArray(question.options) || question.options.length === 0) {
+      console.warn('Invalid or missing options:', question.options);
       return false;
     }
 
@@ -1614,26 +1598,14 @@ export class QuizService implements OnDestroy {
         console.warn('Option is not an object or is null:', option);
         return false;
       }
-      if (!('text' in option)) {
-        console.warn('Missing text in option:', option);
-        return false;
-      }
       if (typeof option.text !== 'string') {
-        console.warn('text in option is not a string:', option.text);
-        return false;
-      }
-      if (option.text.trim() === '') {
-        console.warn('text in option is empty:', option.text);
-        return false;
-      }
-      if ('correct' in option && typeof option.correct !== 'boolean') {
-        console.warn('Invalid correct flag in option:', option.correct);
+        console.warn('Invalid or missing text in option:', option.text);
         return false;
       }
     }
 
     return true;
-  }  
+  }
   
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return isEqual(question1, question2);
