@@ -103,14 +103,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   ngOnInit(): void {
     this.activatedRoute.paramMap.subscribe(params => {
       const questionIndex = +params.get('questionIndex');
-      if (questionIndex) {
+      console.log(`Route param questionIndex: ${questionIndex}`);
+      if (questionIndex >= 0) {
         this.quizService.getQuestionByIndex(questionIndex).subscribe(
           (question: QuizQuestion) => {
             if (question) {
+              console.log('Fetched question:', question);
               this.currentQuestion.next(question);
               this.handleQuestionUpdate(question);
             } else {
-              console.error('Failed to load question');
+              console.error('Failed to load question: Question is null or undefined');
             }
           },
           error => {
@@ -118,7 +120,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           }
         );
       } else {
-        console.error('Question index not found in route');
+        console.error('Invalid question index found in route');
       }
     });
 
