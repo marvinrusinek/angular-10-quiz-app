@@ -101,6 +101,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   ngOnInit(): void {
+    this.activatedRoute.paramMap.subscribe(params => {
+      const questionIndex = +params.get('questionIndex');
+      if (questionIndex) {
+        this.quizService.getQuestionByIndex(questionIndex).subscribe(
+          (question: QuizQuestion) => {
+            if (question) {
+              this.currentQuestion.next(question);
+              this.handleQuestionUpdate(question);
+            } else {
+              console.error('Failed to load question');
+            }
+          },
+          error => {
+            console.error('Error fetching question:', error);
+          }
+        );
+      } else {
+        console.error('Question index not found in route');
+      }
+    });
+
     this.initializeSubscriptions();
     this.restoreQuestionState();
     this.subscribeToQuestionState();
