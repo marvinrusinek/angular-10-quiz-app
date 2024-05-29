@@ -943,7 +943,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     currentQuestion: QuizQuestion
   ): Promise<void> {
     this.processOptionSelection(currentQuestion, option, index);
-    this.updateAnswersForOption(option);
+    this.quizService.updateAnswersForOption(option);
     this.checkAndHandleCorrectAnswer();
     this.logDebugInformation();
 
@@ -976,21 +976,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Set shouldDisplayExplanation to true when an option is selected, otherwise set it to false
     this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
     this.explanationTextService.toggleExplanationDisplay(isOptionSelected);
-  }
-
-  private updateAnswersForOption(selectedOption: Option): void {
-    // Check if the selected option is already in the answers array
-    const isOptionSelected = this.answers.some(
-      (answer) => answer.id === selectedOption.optionId
-    );
-
-    // If the option is not already selected, add it to the answers array
-    if (!isOptionSelected) {
-      this.answers.push(selectedOption);
-    }
-
-    // Emit the updated answers array
-    this.quizService.answersSubject.next(this.answers);
   }
 
   private logDebugInformation(): void {
