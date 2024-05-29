@@ -1170,10 +1170,6 @@ export class QuizService implements OnDestroy {
     this.updateAnsweredState(option.questionIndex);
   }
 
-  isOptionSelected(option: Option): boolean {
-    return this.selectedOptions.some((selectedOption: SelectedOption) => selectedOption.text === option.text);
-  }  
-
   updateSelectedOptions(
     quizId: string,
     questionIndex: number,
