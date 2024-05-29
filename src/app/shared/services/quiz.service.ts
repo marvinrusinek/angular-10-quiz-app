@@ -1577,12 +1577,12 @@ export class QuizService implements OnDestroy {
 
   isValidQuizQuestion(question: any): boolean {
     console.log('Validating question:', question);
-
+  
     if (typeof question !== 'object' || question === null) {
       console.warn('Question is not an object or is null:', question);
       return false;
     }
-
+  
     if (!('questionText' in question)) {
       console.warn('Missing questionText:', question);
       return false;
@@ -1595,7 +1595,7 @@ export class QuizService implements OnDestroy {
       console.warn('questionText is empty:', question.questionText);
       return false;
     }
-
+  
     if (!('options' in question)) {
       console.warn('Missing options:', question);
       return false;
@@ -1608,7 +1608,7 @@ export class QuizService implements OnDestroy {
       console.warn('options array is empty:', question.options);
       return false;
     }
-
+  
     for (const option of question.options) {
       if (typeof option !== 'object' || option === null) {
         console.warn('Option is not an object or is null:', option);
@@ -1631,9 +1631,10 @@ export class QuizService implements OnDestroy {
         return false;
       }
     }
-
+  
     return true;
   }
+  
 
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return isEqual(question1, question2);
