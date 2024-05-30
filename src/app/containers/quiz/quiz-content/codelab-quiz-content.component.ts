@@ -102,60 +102,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   ngOnInit(): void {
     console.log('CodelabQuizContentComponent initialized');
-    this.activatedRoute.paramMap.subscribe(async params => {
-      this.quizId = params.get('quizId');
-      const questionIndexStr = params.get('questionIndex');
-      console.log(`Route param quizId: ${this.quizId}, questionIndexStr: ${questionIndexStr}`);
-
-      if (this.quizId && questionIndexStr) {
-        const questionIndex = +questionIndexStr;
-        console.log(`Parsed questionIndex: ${questionIndex}`);
-
-        if (questionIndex >= 0) {
-          try {
-            const data = await firstValueFrom(this.quizService.getQuestionsForQuiz(this.quizId));
-            console.log('Received data from service:', data);
-
-            if (data && data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
-              console.log('Questions array length:', data.questions.length);
-
-              const questions = data.questions;
-              console.log('Questions array:', questions);
-
-              const validIndex = questionIndex < questions.length ? questionIndex : 0;
-              console.log(`Using question index: ${validIndex}`);
-
-              const question = questions[validIndex];
-              console.log('Extracted question:', question);
-
-              if (question) {
-                console.log('Validating extracted question:', question);
-                const isValid = this.quizService.isValidQuizQuestion(question);
-                console.log('Is valid question:', isValid);
-
-                if (isValid) {
-                  console.log('Setting current question:', question);
-                  this.currentQuestion.next(question);
-                  this.handleQuestionUpdate(question);
-                } else {
-                  console.error('Failed to load question: Question is not valid');
-                }
-              } else {
-                console.error('Failed to extract a valid question at index:', validIndex);
-              }
-            } else {
-              console.error('No questions found in the quiz or invalid data structure');
-            }
-          } catch (error) {
-            console.error('Error fetching question:', error);
-          }
-        } else {
-          console.error('Invalid question index found in route');
-        }
-      } else {
-        console.error('Invalid question index or quiz ID found in route');
-      }
-    });
 
     this.initializeSubscriptions();
     this.restoreQuestionState();
@@ -429,39 +375,56 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
-      console.error('Question is undefined or missing questionText');
-      return;
+        console.error('Question is undefined or missing questionText');
+        return;
     }
 
-    const questions: QuizQuestion[] = await firstValueFrom(
-      this.quizDataService.getQuestionsForQuiz(this.quizId)
-    );
+    try {
+        const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
+        console.log("Received questions from service:", data);
 
-    const questionIndex = questions.findIndex((q) =>
-      q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
-    );
+        const questions: QuizQuestion[] = data;
+        console.log("MYQS", questions);
 
-    if (questionIndex === -1) {
-      console.error('Current question not found in the questions array.');
-      return;
+        const questionIndex = questions.findIndex((q) =>
+            q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
+        );
+
+        if (questionIndex === -1) {
+            console.error('Current question not found in the questions array.');
+            return;
+        }
+
+        const currentQuestion = questions[questionIndex];
+        console.log("Current question to validate:", currentQuestion);
+        
+        // Validate the current question
+        if (this.quizService.isValidQuizQuestion(currentQuestion)) {
+            console.log("Current question is valid");
+
+            if (questionIndex < questions.length - 1) {
+                const nextQuestion = questions[questionIndex + 1];
+                if (nextQuestion) {
+                    this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
+                    this.updateExplanationForQuestion(nextQuestion);
+                    // Set the explanation display state to true when a new explanation is fetched
+                    this.explanationTextService.setIsExplanationTextDisplayed(true);
+                } else {
+                    console.warn('Next question not found in the questions array.');
+                }
+            } else {
+                console.warn('Current question is the last question in the array.');
+            }
+
+            this.explanationTextService.setIsExplanationTextDisplayed(true);
+        } else {
+            console.error("Current question is not valid");
+        }
+    } catch (error) {
+        console.error('Error fetching questions:', error);
     }
-
-    if (questionIndex < questions.length - 1) {
-      const nextQuestion = questions[questionIndex + 1];
-      if (nextQuestion) {
-        this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
-        this.updateExplanationForQuestion(nextQuestion);
-        // Set the explanation display state to true when a new explanation is fetched
-        this.explanationTextService.setIsExplanationTextDisplayed(true);
-      } else {
-        console.warn('Next question not found in the questions array.');
-      }
-    } else {
-      // console.warn('Current question is the last question in the array.');
-    }
-
-    this.explanationTextService.setIsExplanationTextDisplayed(true);
   }
+
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
