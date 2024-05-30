@@ -198,22 +198,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
   }
 
-  /* handleQuestionUpdate(question: QuizQuestion): void {
-    console.log('Handling question update with question:', question);
-    if (question && question.options) {
-      this.setDisplayStateForCorrectAnswers(question);
-    } else {
-      console.error('Question or options are undefined in handleQuestionUpdate');
-    }
-    if (this.quizStateService.isMultipleAnswerQuestion(question)) {
-      this.quizService.updateCorrectAnswersText(
-        this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.quizService.numberOfCorrectAnswers)
-      );
-    } else {
-      this.quizService.updateCorrectAnswersText("Select one answer");
-    }
-  } */
-
   private handleQuestionUpdate(question: QuizQuestion): void {
     console.log('Handling question update with question:', question);
 
