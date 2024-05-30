@@ -382,22 +382,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     try {
       const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
       console.log("Received questions from service:", data);
-
       const questions: QuizQuestion[] = data;
-      console.log("MYQS", questions);
 
       const questionIndex = questions.findIndex((q) =>
         q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
       );
-
       if (questionIndex === -1) {
         console.error('Current question not found in the questions array.');
         return;
       }
 
-      const currentQuestion = questions[questionIndex];
-      console.log("Current question to validate:", currentQuestion);
-        
+      const currentQuestion = questions[questionIndex];        
       // Validate the current question
       if (this.quizService.isValidQuizQuestion(currentQuestion)) {
         // console.log("Current question is valid");
