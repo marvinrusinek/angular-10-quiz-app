@@ -1605,7 +1605,7 @@ export class QuizService implements OnDestroy {
     }
 
     return true;
-  } 
+  }
   
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return isEqual(question1, question2);
