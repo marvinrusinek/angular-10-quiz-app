@@ -152,7 +152,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       } else {
         console.error('Invalid question index or quiz ID found in route');
       }
-    });
+    }); 
 
     this.initializeSubscriptions();
     this.restoreQuestionState();
