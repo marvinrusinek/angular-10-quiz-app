@@ -121,7 +121,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               const validIndex = questionIndex < data.questions.length ? questionIndex : 0;
               console.log(`Using question index: ${validIndex}`);
 
-              const question = data.questions[validIndex];
+              const questions: QuizQuestion[] = data.questions;
+              const question = questions[validIndex];
               console.log('Extracted question:', question);
 
               // Detailed logging of individual question
