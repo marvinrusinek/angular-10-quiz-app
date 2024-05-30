@@ -375,53 +375,53 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
-        console.error('Question is undefined or missing questionText');
-        return;
+      console.error('Question is undefined or missing questionText');
+      return;
     }
 
     try {
-        const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
-        console.log("Received questions from service:", data);
+      const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
+      console.log("Received questions from service:", data);
 
-        const questions: QuizQuestion[] = data;
-        console.log("MYQS", questions);
+      const questions: QuizQuestion[] = data;
+      console.log("MYQS", questions);
 
-        const questionIndex = questions.findIndex((q) =>
-            q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
-        );
+      const questionIndex = questions.findIndex((q) =>
+        q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
+      );
 
-        if (questionIndex === -1) {
-            console.error('Current question not found in the questions array.');
-            return;
-        }
+      if (questionIndex === -1) {
+        console.error('Current question not found in the questions array.');
+        return;
+      }
 
-        const currentQuestion = questions[questionIndex];
-        console.log("Current question to validate:", currentQuestion);
+      const currentQuestion = questions[questionIndex];
+      console.log("Current question to validate:", currentQuestion);
         
-        // Validate the current question
-        if (this.quizService.isValidQuizQuestion(currentQuestion)) {
-            console.log("Current question is valid");
+      // Validate the current question
+      if (this.quizService.isValidQuizQuestion(currentQuestion)) {
+        // console.log("Current question is valid");
 
-            if (questionIndex < questions.length - 1) {
-                const nextQuestion = questions[questionIndex + 1];
-                if (nextQuestion) {
-                    this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
-                    this.updateExplanationForQuestion(nextQuestion);
-                    // Set the explanation display state to true when a new explanation is fetched
-                    this.explanationTextService.setIsExplanationTextDisplayed(true);
-                } else {
-                    console.warn('Next question not found in the questions array.');
-                }
-            } else {
-                console.warn('Current question is the last question in the array.');
-            }
-
+        if (questionIndex < questions.length - 1) {
+          const nextQuestion = questions[questionIndex + 1];
+          if (nextQuestion) {
+            this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
+            this.updateExplanationForQuestion(nextQuestion);
+            // Set the explanation display state to true when a new explanation is fetched
             this.explanationTextService.setIsExplanationTextDisplayed(true);
+          } else {
+            console.warn('Next question not found in the questions array.');
+          }
         } else {
-            console.error("Current question is not valid");
+          console.warn('Current question is the last question in the array.');
         }
+
+        this.explanationTextService.setIsExplanationTextDisplayed(true);
+      } else {
+        console.error("Current question is not valid");
+      }
     } catch (error) {
-        console.error('Error fetching questions:', error);
+      console.error('Error fetching questions:', error);
     }
   }
 
