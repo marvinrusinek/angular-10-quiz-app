@@ -101,8 +101,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   ngOnInit(): void {
-    console.log('CodelabQuizContentComponent initialized');
-
     this.initializeSubscriptions();
     this.restoreQuestionState();
     this.subscribeToQuestionState();
