@@ -109,7 +109,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.updateQuizStatus();
     this.initializeComponent();
     this.handleQuestionDisplayLogic();
-    // this.handleQuestionUpdate(this.question);
+    this.handleQuestionUpdate(this.question);
     this.setupCombinedTextObservable();
   }
 
