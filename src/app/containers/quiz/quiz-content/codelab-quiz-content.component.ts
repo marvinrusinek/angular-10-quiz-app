@@ -113,11 +113,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         if (questionIndex >= 0) {
           try {
-            const questions = await firstValueFrom(this.quizService.getQuestionsForQuiz(this.quizId));
-            console.log('Received data from service:', questions);
+            const data = await firstValueFrom(this.quizService.getQuestionsForQuiz(this.quizId));
+            console.log('Received data from service:', data);
 
-            if (questions && questions.length > 0) {
-              console.log('Questions array length:', questions.length);
+            if (data && data.questions && data.questions.length > 0) {
+              console.log('Full quiz data:', data); // Log full quiz data
+              const questions: QuizQuestion[] = data.questions;
               const validIndex = questionIndex < questions.length ? questionIndex : 0;
               console.log(`Using question index: ${validIndex}`);
 
@@ -151,7 +152,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       } else {
         console.error('Invalid question index or quiz ID found in route');
       }
-    }); 
+    });
 
     this.initializeSubscriptions();
     this.restoreQuestionState();
