@@ -113,7 +113,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         if (questionIndex >= 0) {
           try {
-            const data = await firstValueFrom(this.quizService.getQuestionsForQuiz(this.quizId));
+            const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
             console.log('Received data from service:', data);
 
             if (data && data.questions && data.questions.length > 0) {
