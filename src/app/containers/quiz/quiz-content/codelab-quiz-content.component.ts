@@ -626,7 +626,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   }
 
-  private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
+  /* private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
     console.log('Setting display state for correct answers with question:', question);
     if (!question || !question.options) {
       console.error('Question or options are undefined');
@@ -654,6 +654,43 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       },
       error: (err) => {
         console.error("Error determining if multiple answer question:", err);
+        this.correctAnswersDisplaySubject.next(false);
+        this.shouldDisplayCorrectAnswers = false;
+      }
+    });
+  } */
+
+  private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
+    console.log('Setting display state for correct answers with question:', question);
+    if (!question || !question.options) {
+      console.error('Question or options are undefined');
+      this.correctAnswersDisplaySubject.next(false);
+      this.shouldDisplayCorrectAnswers = false;
+      return;
+    }
+
+    console.log("Current question before subscription:", question);
+
+    this.quizStateService.isMultipleAnswerQuestion(question).subscribe({
+      next: (isMultipleAnswer) => {
+        console.log("IMA", isMultipleAnswer);
+        console.log("Question options after subscription:", question.options);
+
+        if (isMultipleAnswer) {
+          const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
+          console.log(`Number of correct answers: ${numberOfCorrectAnswers}`);
+          this.shouldDisplayCorrectAnswers = numberOfCorrectAnswers > 1;
+          this.correctAnswersTextSource.next(`Number of correct answers: ${numberOfCorrectAnswers}`);
+          this.correctAnswersDisplaySubject.next(true);
+        } else {
+          this.correctAnswersTextSource.next(''); // Clear text for single-answer questions
+          this.correctAnswersDisplaySubject.next(false);
+          this.shouldDisplayCorrectAnswers = false;
+        }
+      },
+      error: (err) => {
+        console.error("Error determining if multiple answer question:", err);
+        this.correctAnswersTextSource.next('');
         this.correctAnswersDisplaySubject.next(false);
         this.shouldDisplayCorrectAnswers = false;
       }
