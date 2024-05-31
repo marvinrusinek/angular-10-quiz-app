@@ -329,7 +329,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     return !isMultipleAnswer && isExplanationDisplayed;
   }
 
-  private calculateAndDisplayNumberOfCorrectAnswers(): void {
+  /* private calculateAndDisplayNumberOfCorrectAnswers(): void {
     // Subscribe to the currentIndex Observable to get its value
     this.quizStateService.getCurrentQuestionIndex$().subscribe({
       next: (currentIndex) => {
@@ -367,6 +367,43 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           console.error('Error retrieving current question index:', err);
           this.correctAnswersTextSource.next('Error accessing question index.');
         }
+    });
+  } */
+
+  private calculateAndDisplayNumberOfCorrectAnswers(): void {
+    this.quizStateService.getCurrentQuestionIndex$().subscribe({
+      next: (currentIndex) => {
+        console.log("Current Index:", currentIndex); // Log currentIndex
+        // Fetch the current question directly using the currentIndex
+        this.quizService.getCurrentQuestionByIndex(this.quizId, currentIndex).subscribe({
+          next: (currentQuestion) => {
+            console.log("Current Question:", currentQuestion); // Log currentQuestion
+            if (currentQuestion && currentQuestion.options) {
+              this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
+                currentQuestion.options
+              );
+              console.log("NOCA", this.numberOfCorrectAnswers); // Log NOCA
+              this.shouldDisplayCorrectAnswers = this.numberOfCorrectAnswers > 1;
+              const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+                this.numberOfCorrectAnswers
+              );
+              console.log("Correct Answers Text:", correctAnswersText); // Log correctAnswersText
+              this.correctAnswersTextSource.next(correctAnswersText);
+            } else {
+              console.error('No valid current question or options available');
+              this.correctAnswersTextSource.next('Error: No valid question data available.');
+            }
+          },
+          error: (error) => {
+            console.error('Error fetching current question:', error);
+            this.correctAnswersTextSource.next('Error fetching current question data.');
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error retrieving current question index:', err);
+        this.correctAnswersTextSource.next('Error accessing question index.');
+      }
     });
   }
 
@@ -592,25 +629,34 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
     console.log('Setting display state for correct answers with question:', question);
     if (!question || !question.options) {
-      console.error('Question or options are undefined');
-      this.correctAnswersDisplaySubject.next(false);
-      this.shouldDisplayCorrectAnswers = false;
-      return;
+        console.error('Question or options are undefined');
+        this.correctAnswersDisplaySubject.next(false);
+        this.shouldDisplayCorrectAnswers = false;
+        return;
     }
 
-    const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
-    console.log("IMA", isMultipleAnswer);
+    this.quizStateService.isMultipleAnswerQuestion(question).subscribe({
+        next: (isMultipleAnswer) => {
+            console.log("IMA", isMultipleAnswer);
+            console.log("Question options:", question.options);
 
-    if (isMultipleAnswer) {
-      const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
-      console.log(`Number of correct answers: ${numberOfCorrectAnswers}`);
-      this.shouldDisplayCorrectAnswers = this.numberOfCorrectAnswers > 1;
-      this.correctAnswersTextSource.next(`Number of correct answers: ${numberOfCorrectAnswers}`);
-      this.correctAnswersDisplaySubject.next(true);
-    } else {
-      this.correctAnswersDisplaySubject.next(false);
-      this.shouldDisplayCorrectAnswers = false;
-    }
+            if (isMultipleAnswer) {
+                const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
+                console.log(`Number of correct answers: ${numberOfCorrectAnswers}`);
+                this.shouldDisplayCorrectAnswers = numberOfCorrectAnswers > 1;
+                this.correctAnswersTextSource.next(`Number of correct answers: ${numberOfCorrectAnswers}`);
+                this.correctAnswersDisplaySubject.next(true);
+            } else {
+                this.correctAnswersDisplaySubject.next(false);
+                this.shouldDisplayCorrectAnswers = false;
+            }
+        },
+        error: (err) => {
+            console.error("Error determining if multiple answer question:", err);
+            this.correctAnswersDisplaySubject.next(false);
+            this.shouldDisplayCorrectAnswers = false;
+        }
+    });
   }
 
   private updateCorrectAnswersDisplayState(): void {
