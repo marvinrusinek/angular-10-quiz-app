@@ -375,6 +375,46 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
   } */
 
+  /* private calculateAndDisplayNumberOfCorrectAnswers(): void {
+    if (this.questionIndexSubscription) {
+        this.questionIndexSubscription.unsubscribe();
+    }
+
+    this.questionIndexSubscription = this.quizStateService.getCurrentQuestionIndex$().subscribe({
+        next: (currentIndex) => {
+            console.log("Current Index:", currentIndex);
+
+            if (this.questionSubscription) {
+                this.questionSubscription.unsubscribe();
+            }
+
+            this.questionSubscription = this.quizService.getCurrentQuestionByIndex(this.quizId, currentIndex).subscribe({
+                next: (currentQuestion) => {
+                    console.log("Current Question:", currentQuestion);
+                    if (currentQuestion && currentQuestion.options) {
+                        this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
+                            currentQuestion.options
+                        );
+                        console.log("NOCA:", this.numberOfCorrectAnswers);
+                        this.setDisplayStateForCorrectAnswers(currentQuestion);
+                    } else {
+                        console.error('No valid current question or options available');
+                        this.correctAnswersTextSource.next('Error: No valid question data available.');
+                    }
+                },
+                error: (error) => {
+                    console.error('Error fetching current question:', error);
+                    this.correctAnswersTextSource.next('Error fetching current question data.');
+                }
+            });
+        },
+        error: (err) => {
+            console.error('Error retrieving current question index:', err);
+            this.correctAnswersTextSource.next('Error accessing question index.');
+        }
+    });
+  } */
+
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
     if (this.questionIndexSubscription) {
         this.questionIndexSubscription.unsubscribe();
