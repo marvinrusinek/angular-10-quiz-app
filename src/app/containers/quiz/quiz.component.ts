@@ -1499,26 +1499,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     return await firstValueFrom(this.quizService.getTotalQuestions());
   }
 
-  /* private checkIfAnswerSelected(isFirstQuestion: boolean): void {
-    console.log('Checking if answer is selected for question index:', this.currentQuestionIndex);
-    this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
-      next: (isAnswered) => {
-        this.quizService.setAnsweredState(isAnswered);
-        console.log(`checkIfAnswerSelected: ${isAnswered}`);
-        this.updateSelectionMessage(isAnswered, isFirstQuestion);
-        this.cdRef.markForCheck(); // Trigger change detection
-      },
-      error: (error) => console.error('Failed to determine if question is answered:', error)
-    });
-  } */
-
   private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
     const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
     this.quizService.setAnsweredState(isAnswered);
     this.updateSelectionMessage(isAnswered, isFirstQuestion);
   }
-
-
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
