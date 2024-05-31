@@ -107,7 +107,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.updateQuizStatus();
     this.initializeComponent();
     this.handleQuestionDisplayLogic();
-    this.handleQuestionUpdate(this.currentQuestion.getValue());
+    // this.handleQuestionUpdate(this.currentQuestion.getValue());
+    this.handleQuestionUpdate();
     this.setupCombinedTextObservable();
   }
 
@@ -196,8 +197,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
   }
 
-  private handleQuestionUpdate(question: QuizQuestion): void {
-    console.log('Handling question update with question:', question);
+  private handleQuestionUpdate(): void {
+    // console.log('Handling question update with question:', question);
+
+    const question = this.currentQuestion.getValue();
 
     if (!question) {
       console.error('Question is undefined in handleQuestionUpdate');
