@@ -428,8 +428,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       if (this.quizService.isValidQuizQuestion(currentQuestion)) {
         // Set the current question
         this.currentQuestion.next(currentQuestion);
-
-        // Call handleQuestionUpdate after setting the current question
         this.handleQuestionUpdate();
 
         if (questionIndex < questions.length - 1) {
