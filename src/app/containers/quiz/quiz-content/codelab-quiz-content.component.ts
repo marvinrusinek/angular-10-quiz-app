@@ -599,13 +599,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     }
 
     const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(question);
+    console.log("IMA", isMultipleAnswer);
 
     if (isMultipleAnswer) {
       const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
       console.log(`Number of correct answers: ${numberOfCorrectAnswers}`);
+      this.shouldDisplayCorrectAnswers = this.numberOfCorrectAnswers > 1;
       this.correctAnswersTextSource.next(`Number of correct answers: ${numberOfCorrectAnswers}`);
       this.correctAnswersDisplaySubject.next(true);
-      this.shouldDisplayCorrectAnswers = true;
     } else {
       this.correctAnswersDisplaySubject.next(false);
       this.shouldDisplayCorrectAnswers = false;
