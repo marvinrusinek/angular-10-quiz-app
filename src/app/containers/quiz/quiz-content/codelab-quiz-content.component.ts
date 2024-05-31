@@ -108,6 +108,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.initializeComponent();
     this.handleQuestionDisplayLogic();
     this.setupCombinedTextObservable();
+
+    // Subscribe to changes in currentQuestion
+    this.currentQuestion.subscribe(question => {
+      if (question) {
+        this.handleQuestionUpdate();
+      }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
