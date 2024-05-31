@@ -629,10 +629,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
     console.log('Setting display state for correct answers with question:', question);
     if (!question || !question.options) {
-        console.error('Question or options are undefined');
-        this.correctAnswersDisplaySubject.next(false);
-        this.shouldDisplayCorrectAnswers = false;
-        return;
+      console.error('Question or options are undefined');
+      this.correctAnswersDisplaySubject.next(false);
+      this.shouldDisplayCorrectAnswers = false;
+      return;
     }
 
     this.quizStateService.isMultipleAnswerQuestion(question).subscribe({
@@ -646,6 +646,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           this.shouldDisplayCorrectAnswers = numberOfCorrectAnswers > 1;
           this.correctAnswersTextSource.next(`Number of correct answers: ${numberOfCorrectAnswers}`);
           this.correctAnswersDisplaySubject.next(true);
+          this.cdRef.detectChanges();
         } else {
           this.correctAnswersDisplaySubject.next(false);
           this.shouldDisplayCorrectAnswers = false;
