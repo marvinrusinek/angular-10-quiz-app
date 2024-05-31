@@ -383,7 +383,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return;
       }
 
-      const currentQuestion = questions[questionIndex];      
+      const currentQuestion = questions[questionIndex - 1];      
       // Validate the current question
       if (this.quizService.isValidQuizQuestion(currentQuestion)) {
         console.log('Setting current question:', currentQuestion);
