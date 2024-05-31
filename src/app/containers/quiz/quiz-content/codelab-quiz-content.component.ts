@@ -636,26 +636,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     }
 
     this.quizStateService.isMultipleAnswerQuestion(question).subscribe({
-        next: (isMultipleAnswer) => {
-            console.log("IMA", isMultipleAnswer);
-            console.log("Question options:", question.options);
+      next: (isMultipleAnswer) => {
+        console.log("IMA", isMultipleAnswer);
+        console.log("Question options:", question.options);
 
-            if (isMultipleAnswer) {
-                const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
-                console.log(`Number of correct answers: ${numberOfCorrectAnswers}`);
-                this.shouldDisplayCorrectAnswers = numberOfCorrectAnswers > 1;
-                this.correctAnswersTextSource.next(`Number of correct answers: ${numberOfCorrectAnswers}`);
-                this.correctAnswersDisplaySubject.next(true);
-            } else {
-                this.correctAnswersDisplaySubject.next(false);
-                this.shouldDisplayCorrectAnswers = false;
-            }
-        },
-        error: (err) => {
-            console.error("Error determining if multiple answer question:", err);
-            this.correctAnswersDisplaySubject.next(false);
-            this.shouldDisplayCorrectAnswers = false;
+        if (isMultipleAnswer) {
+          const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
+          console.log(`Number of correct answers: ${numberOfCorrectAnswers}`);
+          this.shouldDisplayCorrectAnswers = numberOfCorrectAnswers > 1;
+          this.correctAnswersTextSource.next(`Number of correct answers: ${numberOfCorrectAnswers}`);
+          this.correctAnswersDisplaySubject.next(true);
+        } else {
+          this.correctAnswersDisplaySubject.next(false);
+          this.shouldDisplayCorrectAnswers = false;
         }
+      },
+      error: (err) => {
+        console.error("Error determining if multiple answer question:", err);
+        this.correctAnswersDisplaySubject.next(false);
+        this.shouldDisplayCorrectAnswers = false;
+      }
     });
   }
 
