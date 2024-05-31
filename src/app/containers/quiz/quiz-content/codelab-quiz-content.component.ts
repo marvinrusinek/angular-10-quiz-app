@@ -112,6 +112,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.handleQuestionDisplayLogic();
     this.setupCombinedTextObservable();
 
+    this.activatedRoute.paramMap.subscribe(params => {
+      const quizId = params.get('quizId');
+      const questionIndex = +params.get('questionIndex');
+      this.loadQuestion(quizId, questionIndex);
+    });
+
     // Subscribe to changes in currentQuestion
     this.currentQuestion.subscribe(question => {
       if (question) {
@@ -138,6 +144,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.questionIndexSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
+  }
+
+  loadQuestion(quizId: string, questionIndex: number) {
+    this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
+      this.currentQuestion.next(questions[questionIndex - 1]);
+    });
   }
 
   initializeSubscriptions(): void {
