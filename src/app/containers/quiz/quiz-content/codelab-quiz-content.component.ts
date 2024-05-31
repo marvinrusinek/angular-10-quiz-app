@@ -75,6 +75,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
 
+  questionIndexSubscription: Subscription;
+  questionSubscription: Subscription;
+
   combinedText$: Observable<string>;
   textToDisplay = '';
 
@@ -131,6 +134,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.destroy$.complete();
     this.correctAnswersTextSource.complete();
     this.correctAnswersDisplaySubject.complete();
+    this.questionSubscription?.unsubscribe();
+    this.questionIndexSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
   }

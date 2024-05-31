@@ -179,7 +179,7 @@ export class QuizStateService {
     this.currentQuestionSubject.next(newQuestion);
   }
 
-  isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
+  /* isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
     try {
       let correctAnswersCount: number;
       if (question && Array.isArray(question.options)) {
@@ -197,6 +197,21 @@ export class QuizStateService {
       console.error('Error determining if it is a multiple-answer question:', error);
       return of(false);
     }
+  } */
+
+  isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
+    if (!question || !Array.isArray(question.options)) {
+        console.error('Invalid question or options:', question);
+        return of(false);
+    }
+
+    const correctAnswersCount = question.options.filter(option => option.correct).length;
+    const hasMultipleAnswers = correctAnswersCount > 1;
+
+    console.log('Question:', question);
+    console.log('Has multiple answers:', hasMultipleAnswers);
+
+    return of(hasMultipleAnswers);
   }
 
   setQuizQuestionCreated(): void {
