@@ -340,6 +340,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
                 currentQuestion.options
               );
+              console.log("NOCA", this.numberOfCorrectAnswers);
+
+              if (this.numberOfCorrectAnswers > 1) {
+                this.shouldDisplayCorrectAnswers = true;
+              } else {
+                this.shouldDisplayCorrectAnswers = false;
+              }
 
               const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
                 this.numberOfCorrectAnswers
