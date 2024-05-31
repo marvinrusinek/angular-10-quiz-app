@@ -107,7 +107,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.updateQuizStatus();
     this.initializeComponent();
     this.handleQuestionDisplayLogic();
-    this.handleQuestionUpdate(this.question);
+    this.handleQuestionUpdate(this.currentQuestion.getValue());
     this.setupCombinedTextObservable();
   }
 
@@ -204,6 +204,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       return;
     }
 
+    console.log('Question options:', question.options);
     if (!question.options || question.options.length === 0) {
       console.error('Question options are undefined or empty in handleQuestionUpdate');
       console.log('Question options:', question.options);
@@ -276,6 +277,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    console.log("TEST QUESTION LOG", question);
     // Update question details and display correct answers
     this.updateQuestionDetailsAndDisplayCorrectAnswers(question);
 
