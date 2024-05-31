@@ -333,24 +333,23 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // Subscribe to the currentIndex Observable to get its value
     this.quizStateService.getCurrentQuestionIndex$().subscribe({
       next: (currentIndex) => {
+        console.log("Current Index:", currentIndex); // Log currentIndex
         // Fetch the current question directly using the currentIndex
         this.quizService.getCurrentQuestionByIndex(this.quizId, currentIndex).subscribe({
           next: (currentQuestion) => {
+            console.log("Current Question:", currentQuestion); // Log currentQuestion
             if (currentQuestion && currentQuestion.options) {
               this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
                 currentQuestion.options
               );
-              console.log("NOCA", this.numberOfCorrectAnswers);
+              console.log("NOCA", this.numberOfCorrectAnswers); // Log NOCA
 
-              if (this.numberOfCorrectAnswers > 1) {
-                this.shouldDisplayCorrectAnswers = true;
-              } else {
-                this.shouldDisplayCorrectAnswers = false;
-              }
+              this.shouldDisplayCorrectAnswers = this.numberOfCorrectAnswers > 1;
 
               const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
                 this.numberOfCorrectAnswers
               );
+              console.log("Correct Answers Text:", correctAnswersText); // Log correctAnswersText
 
               this.correctAnswersTextSource.next(correctAnswersText);
             } else {
@@ -363,11 +362,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             this.correctAnswersTextSource.next('Error fetching current question data.');
           }
         });
-      },
-      error: (err) => {
-        console.error('Error retrieving current question index:', err);
-        this.correctAnswersTextSource.next('Error accessing question index.');
-      }
+        },
+        error: (err) => {
+          console.error('Error retrieving current question index:', err);
+          this.correctAnswersTextSource.next('Error accessing question index.');
+        }
     });
   }
 
