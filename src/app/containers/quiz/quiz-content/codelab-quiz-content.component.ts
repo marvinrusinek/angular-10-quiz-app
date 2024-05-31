@@ -227,7 +227,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     if (this.quizStateService.isMultipleAnswerQuestion(question)) {
       const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
-      this.quizService.updateCorrectAnswersText(`Number of correct answers: ${numberOfCorrectAnswers}`);
+      this.quizService.updateCorrectAnswersText(`(${numberOfCorrectAnswers} answers are correct)`);
     } else {
       this.quizService.updateCorrectAnswersText('Select one answer');
     }
