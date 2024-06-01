@@ -872,11 +872,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         // Only update if the new text is different from the current text
         if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
+          console.log('Updating correctAnswersTextSource:', newCorrectAnswersText);
           this.correctAnswersTextSource.next(newCorrectAnswersText);
         }
 
         const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
         if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
+          console.log('Updating shouldDisplayCorrectAnswersSubject:', shouldDisplayCorrectAnswers);
           this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
         }
         console.log(`shouldDisplayCorrectAnswers: ${shouldDisplayCorrectAnswers}`);
