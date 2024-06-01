@@ -127,8 +127,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     }); */
     this.currentQuestion.pipe(
       debounceTime(200),
+      tap(question => this.logCurrentQuestion(question)),
       switchMap(question => this.updateCorrectAnswersDisplay(question))
-    ).subscribe()
+    ).subscribe();
   }
 
   /* ngOnChanges(changes: SimpleChanges): void {
@@ -873,6 +874,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           ? `(${correctAnswers} answers are correct)`
           : 'Select one answer';
 
+        // Only update if the new text is different from the current text
         if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
           console.log(`Updating correctAnswersTextSource from '${this.correctAnswersTextSource.getValue()}' to '${newCorrectAnswersText}'`);
           this.correctAnswersTextSource.next(newCorrectAnswersText);
@@ -894,6 +896,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
       map(() => void 0)
     );
+  }
+
+  private logCurrentQuestion(question: QuizQuestion | null) {
+    console.log('currentQuestion updated:', question);
   }
 
   private updateCorrectAnswersDisplayState(): void {
