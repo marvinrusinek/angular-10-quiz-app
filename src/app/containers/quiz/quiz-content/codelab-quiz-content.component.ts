@@ -811,11 +811,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
   }
 
-  private updateCorrectAnswersDisplay(question: QuizQuestion): void {
+  /* private updateCorrectAnswersDisplay(question: QuizQuestion): void {
     console.log('Updating correct answers display for:', question);
 
     const correctAnswers = question.options.filter(option => option.correct).length;
-    console.log('Correct answers count:', correctAnswers);
+    console.log('Correct answers count:::', correctAnswers);
     
     if (correctAnswers > 1) {
       this.correctAnswersTextSource.next(`(${correctAnswers} answers are correct)`);
@@ -825,6 +825,64 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     
     this.updateCorrectAnswersDisplayState();
     console.log(`Number of correct answers: ${correctAnswers}`);
+    console.log(`correctAnswersTextSource: ${this.correctAnswersTextSource.getValue()}`);
+  } */
+
+  /* private updateCorrectAnswersDisplay(question: QuizQuestion): void {
+    console.log('Updating correct answers display for:', question);
+
+    this.quizStateService.isMultipleAnswerQuestion(question).subscribe({
+      next: (isMultipleAnswer) => {
+        console.log("isMultipleAnswer:", isMultipleAnswer);
+        const correctAnswers = question.options.filter(option => option.correct).length;
+        console.log('Correct answers count:', correctAnswers);
+
+        if (isMultipleAnswer) {
+          this.correctAnswersTextSource.next(`(${correctAnswers} answers are correct)`);
+        } else {
+          this.correctAnswersTextSource.next('Select one answer');
+        }
+
+        const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
+        this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+        console.log(`shouldDisplayCorrectAnswers: ${shouldDisplayCorrectAnswers}`);
+      },
+      error: (err) => {
+        console.error("Error determining if multiple answer question:", err);
+        this.correctAnswersTextSource.next('');
+        this.shouldDisplayCorrectAnswersSubject.next(false);
+      }
+    });
+
+    console.log(`correctAnswersTextSource: ${this.correctAnswersTextSource.getValue()}`);
+  } */
+
+  private updateCorrectAnswersDisplay(question: QuizQuestion): void {
+    console.log('Updating correct answers display for:', question);
+
+    this.quizStateService.isMultipleAnswerQuestion(question).subscribe({
+      next: (isMultipleAnswer) => {
+        console.log("isMultipleAnswer:", isMultipleAnswer);
+        const correctAnswers = question.options.filter(option => option.correct).length;
+        console.log('Correct answers count:', correctAnswers);
+
+        if (isMultipleAnswer) {
+          this.correctAnswersTextSource.next(`(${correctAnswers} answers are correct)`);
+        } else {
+          this.correctAnswersTextSource.next('Select one answer');
+        }
+
+        const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
+        this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+        console.log(`shouldDisplayCorrectAnswers: ${shouldDisplayCorrectAnswers}`);
+      },
+      error: (err) => {
+        console.error("Error determining if multiple answer question:", err);
+        this.correctAnswersTextSource.next('');
+        this.shouldDisplayCorrectAnswersSubject.next(false);
+      }
+    });
+
     console.log(`correctAnswersTextSource: ${this.correctAnswersTextSource.getValue()}`);
   }
 
@@ -868,11 +926,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     }
   }
 
-  private processQuestion(question: QuizQuestion): void {
+  /* private processQuestion(question: QuizQuestion): void {
     console.log('Processing question:', question);
     this.calculateCorrectAnswers(question);
     this.setDisplayStateForCorrectAnswers(question);
-  }
+  } */ // probably can remove...
 
   updateQuizStatus(): void {
     this.questionText = this.question.questionText;
