@@ -896,10 +896,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   }
 
-  private logCurrentQuestion(question: QuizQuestion | null) {
-    console.log('currentQuestion updated:', question);
-  }
-
   private updateCorrectAnswersDisplayState(): void {
     this.isCurrentQuestionMultipleAnswer().subscribe(isMultiple => {
       const shouldDisplayCorrectAnswers = isMultiple && !this.isExplanationDisplayed;
@@ -907,20 +903,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       console.log(`shouldDisplayCorrectAnswers: ${shouldDisplayCorrectAnswers}`);
     });
   }
-
-  /* calculateCorrectAnswers(): void {
-    console.log('Calculating correct answers...');
-    if (this.currentQuestion && this.currentQuestion.value) {
-      const correctAnswers = this.currentQuestion.value.options.filter(
-        (option) => option.correct
-      ).length;
-      this.shouldDisplayCorrectAnswers = correctAnswers > 1;
-      this.correctAnswersTextSource.next(`(${correctAnswers} answers are correct)`);
-      console.log(`Number of correct answers: ${correctAnswers}`);
-      console.log(`shouldDisplayCorrectAnswers: ${this.shouldDisplayCorrectAnswers}`);
-      console.log(`correctAnswersTextSource: ${this.correctAnswersTextSource.getValue()}`);
-    }
-  } */
 
   calculateCorrectAnswers(): void {
     console.log('Calculating correct answers...');
@@ -939,12 +921,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       console.log('currentQuestion or currentQuestion.value is not set.');
     }
   }
-
-  /* private processQuestion(question: QuizQuestion): void {
-    console.log('Processing question:', question);
-    this.calculateCorrectAnswers(question);
-    this.setDisplayStateForCorrectAnswers(question);
-  } */ // probably can remove...
 
   updateQuizStatus(): void {
     this.questionText = this.question.questionText;
