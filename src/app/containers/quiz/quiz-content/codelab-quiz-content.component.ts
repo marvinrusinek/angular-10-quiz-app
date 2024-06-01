@@ -832,6 +832,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.isCurrentQuestionMultipleAnswer().subscribe(isMultiple => {
       const shouldDisplayCorrectAnswers = isMultiple && !this.isExplanationDisplayed;
       this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+      console.log(`shouldDisplayCorrectAnswers: ${shouldDisplayCorrectAnswers}`);
     });
   }
 
