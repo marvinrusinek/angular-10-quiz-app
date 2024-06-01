@@ -759,7 +759,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
   } */
 
-  private setDisplayStateForCorrectAnswers(question: QuizQuestion): void {
+  private setDisplayStateForCorrectAnswers(question: QuizQuestion | null): void {
     console.log('Setting display state for correct answers with question:', question);
     if (!question || !question.options || !Array.isArray(question.options)) {
       console.error('Invalid question or options:', question);
