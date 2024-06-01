@@ -111,6 +111,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.initializeComponent();
     this.handleQuestionDisplayLogic();
     this.setupCombinedTextObservable();
+    this.calculateCorrectAnswers();
 
     this.activatedRoute.paramMap.subscribe(params => {
       const quizId = params.get('quizId');
@@ -800,6 +801,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       const shouldDisplayCorrectAnswers = isMultiple && !this.isExplanationDisplayed;
       this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
     });
+  }
+
+  calculateCorrectAnswers(): void {
+    if (this.currentQuestion && this.currentQuestion.value) {
+      const correctAnswers = this.currentQuestion.value.options.filter(
+        (option) => option.correct
+      ).length;
+      this.shouldDisplayCorrectAnswers = correctAnswers > 1;
+      this.correctAnswersTextSource.next(`(${correctAnswers} answers are correct)`);
+      console.log(`Number of correct answers: ${correctAnswers}`);
+      console.log(`shouldDisplayCorrectAnswers: ${this.shouldDisplayCorrectAnswers}`);
+      console.log(`correctAnswersTextSource: ${this.correctAnswersTextSource.getValue()}`);
+    }
   }
 
   updateQuizStatus(): void {
