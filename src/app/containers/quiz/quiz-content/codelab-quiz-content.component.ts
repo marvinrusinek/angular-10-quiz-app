@@ -34,6 +34,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input() options$: Observable<Option[]>;
   @Input() correctAnswersText = '';
   shouldDisplayCorrectAnswers = false;
+  private shouldDisplayCorrectAnswersSubject = new BehaviorSubject<boolean>(false);
+  shouldDisplayCorrectAnswers$ = this.shouldDisplayCorrectAnswersSubject.asObservable();
   quizId = '';
   questionIndex: number;
   questionText = '';
@@ -59,8 +61,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   numberOfCorrectAnswers = 0;
   numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
   shouldDisplayNumberOfCorrectAnswers: boolean;
-  private shouldDisplayCorrectAnswersSubject = new BehaviorSubject<boolean>(false);
-  shouldDisplayCorrectAnswers$ = this.shouldDisplayCorrectAnswersSubject.asObservable();
 
   currentQuestionSubscription: Subscription;
   formattedExplanationSubscription: Subscription;
