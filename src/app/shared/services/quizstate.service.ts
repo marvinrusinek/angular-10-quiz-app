@@ -199,7 +199,7 @@ export class QuizStateService {
     }
   } */
 
-  isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
+  /* isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
     try {
       if (question && Array.isArray(question.options)) {
         const correctAnswersCount = question.options.filter(option => option.correct).length;
@@ -212,6 +212,12 @@ export class QuizStateService {
       console.error('Error determining if it is a multiple-answer question:', error);
       return of(false);
     }
+  } */
+
+  isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
+    // Logic to determine if a question is a multiple-answer question
+    const correctOptions = question.options.filter(option => option.correct).length;
+    return of(correctOptions > 1);
   }
 
   setQuizQuestionCreated(): void {
