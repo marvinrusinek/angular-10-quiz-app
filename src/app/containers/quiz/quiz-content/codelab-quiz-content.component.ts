@@ -857,40 +857,37 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     console.log(`correctAnswersTextSource: ${this.correctAnswersTextSource.getValue()}`);
   } */
 
-  private updateCorrectAnswersDisplay(question: QuizQuestion): void {
-    console.log('Updating correct answers display for:', question);
+  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+    if (!question) {
+      return of(void 0);
+    }
 
-    this.quizStateService.isMultipleAnswerQuestion(question).subscribe({
-      next: (isMultipleAnswer) => {
-        console.log("isMultipleAnswer:", isMultipleAnswer);
+    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
+      map(isMultipleAnswer => {
         const correctAnswers = question.options.filter(option => option.correct).length;
-        console.log('Correct answers count:', correctAnswers);
 
         const newCorrectAnswersText = isMultipleAnswer
           ? `(${correctAnswers} answers are correct)`
           : 'Select one answer';
 
-        // Only update if the new text is different from the current text
         if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
-          console.log('Updating correctAnswersTextSource:', newCorrectAnswersText);
           this.correctAnswersTextSource.next(newCorrectAnswersText);
         }
 
         const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
         if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
-          console.log('Updating shouldDisplayCorrectAnswersSubject:', shouldDisplayCorrectAnswers);
           this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
         }
-        console.log(`shouldDisplayCorrectAnswers: ${shouldDisplayCorrectAnswers}`);
-      },
-      error: (err) => {
-        console.error("Error determining if multiple answer question:", err);
-        this.correctAnswersTextSource.next('');
-        this.shouldDisplayCorrectAnswersSubject.next(false);
-      }
-    });
 
-    console.log(`correctAnswersTextSource: ${this.correctAnswersTextSource.getValue()}`);
+        console.log('Update: ', {
+          question,
+          isMultipleAnswer,
+          correctAnswers,
+          newCorrectAnswersText,
+          shouldDisplayCorrectAnswers,
+        });
+      })
+    );
   }
 
   private updateCorrectAnswersDisplayState(): void {
