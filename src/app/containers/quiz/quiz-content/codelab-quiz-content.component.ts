@@ -129,8 +129,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.currentQuestion && changes.currentQuestion.currentValue) {
       // Ensure the current question is unwrapped from the BehaviorSubject
-      const currentQuestionValue = changes.currentQuestion.currentValue.value;
-      this.setDisplayStateForCorrectAnswers(currentQuestionValue);
+      // const currentQuestionValue = changes.currentQuestion.currentValue.value;
+      const question = this.currentQuestion.getValue();
+      this.setDisplayStateForCorrectAnswers(question);
+      // this.setDisplayStateForCorrectAnswers(currentQuestionValue);
       this.updateCorrectAnswersDisplayState();
     }
   }
