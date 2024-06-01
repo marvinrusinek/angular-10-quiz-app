@@ -907,7 +907,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       tap(isMultipleAnswer => {
         const correctAnswers = question.options.filter(option => option.correct).length;
         const newCorrectAnswersText = isMultipleAnswer
-          ? `(${correctAnswers} answers are correct)` : '';
+          ? `(${correctAnswers} answers are correct)`
+          : '';
 
         // Only update if the new text is different from the current text
         if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
@@ -935,7 +936,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(() => void 0)
     );
   }
-
 
   private logCurrentQuestion(question: QuizQuestion | null) {
     console.log('currentQuestion updated:', question);
