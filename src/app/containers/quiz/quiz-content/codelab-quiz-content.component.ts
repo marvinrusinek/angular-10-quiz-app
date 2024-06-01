@@ -144,12 +144,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.currentQuestion) {
       console.log('ngOnChanges - currentQuestion changed');
-      this.calculateCorrectAnswers();
+      // this.calculateCorrectAnswers();
     }
     if (changes.currentQuestion && changes.currentQuestion.currentValue) {
       console.log('ngOnChanges - currentQuestion currentValue exists');
       const question = this.currentQuestion.getValue();
-      this.setDisplayStateForCorrectAnswers(question);
+      // this.setDisplayStateForCorrectAnswers(question);
     }
   }
 
