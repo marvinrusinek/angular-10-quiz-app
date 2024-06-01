@@ -122,8 +122,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // Subscribe to changes in currentQuestion
     this.currentQuestion.subscribe(question => {
       console.log('currentQuestion updated:', question);
-      this.calculateCorrectAnswers();
-      this.setDisplayStateForCorrectAnswers(question);
+      this.processQuestion(question);
     });
   }
 
@@ -848,6 +847,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     } else {
       console.log('currentQuestion or currentQuestion.value is not set.');
     }
+  }
+
+  private processQuestion(question: QuizQuestion): void {
+    console.log('Processing question:', question);
+    this.calculateCorrectAnswers(question);
+    this.setDisplayStateForCorrectAnswers(question);
   }
 
   updateQuizStatus(): void {
