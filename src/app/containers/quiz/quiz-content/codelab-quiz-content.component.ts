@@ -835,6 +835,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   calculateCorrectAnswers(): void {
     console.log('Calculating correct answers...');
     if (this.currentQuestion && this.currentQuestion.value) {
+      console.log('Current question in calculateCorrectAnswers:', this.currentQuestion.value);
       const correctAnswers = this.currentQuestion.value.options.filter(
         (option) => option.correct
       ).length;
