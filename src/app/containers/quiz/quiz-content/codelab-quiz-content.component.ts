@@ -121,9 +121,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     // Subscribe to changes in currentQuestion
     this.currentQuestion.subscribe(question => {
-      if (question) {
-        this.handleQuestionUpdate();
-      }
+      console.log('currentQuestion updated:', question);
+      this.calculateCorrectAnswers();
+      this.setDisplayStateForCorrectAnswers(question);
     });
   }
 
