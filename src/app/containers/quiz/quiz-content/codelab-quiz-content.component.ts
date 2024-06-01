@@ -866,14 +866,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const correctAnswers = question.options.filter(option => option.correct).length;
         console.log('Correct answers count:', correctAnswers);
 
-        if (isMultipleAnswer) {
-          this.correctAnswersTextSource.next(`(${correctAnswers} answers are correct)`);
-        } else {
-          this.correctAnswersTextSource.next('Select one answer');
+        const newCorrectAnswersText = isMultipleAnswer
+          ? `(${correctAnswers} answers are correct)`
+          : 'Select one answer';
+
+        // Only update if the new text is different from the current text
+        if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
+          this.correctAnswersTextSource.next(newCorrectAnswersText);
         }
 
         const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-        this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+        if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
+          this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+        }
         console.log(`shouldDisplayCorrectAnswers: ${shouldDisplayCorrectAnswers}`);
       },
       error: (err) => {
