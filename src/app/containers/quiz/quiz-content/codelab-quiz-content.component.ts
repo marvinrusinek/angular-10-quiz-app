@@ -867,19 +867,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     }
 
     return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
-      map(isMultipleAnswer => {
+      tap(isMultipleAnswer => {
         const correctAnswers = question.options.filter(option => option.correct).length;
-
         const newCorrectAnswersText = isMultipleAnswer
           ? `(${correctAnswers} answers are correct)`
           : 'Select one answer';
 
         if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
+          console.log(`Updating correctAnswersTextSource from '${this.correctAnswersTextSource.getValue()}' to '${newCorrectAnswersText}'`);
           this.correctAnswersTextSource.next(newCorrectAnswersText);
         }
 
         const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
         if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
+          console.log(`Updating shouldDisplayCorrectAnswersSubject from '${this.shouldDisplayCorrectAnswersSubject.getValue()}' to '${shouldDisplayCorrectAnswers}'`);
           this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
         }
 
@@ -890,7 +891,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           newCorrectAnswersText,
           shouldDisplayCorrectAnswers,
         });
-      })
+      }),
+      map(() => void 0)
     );
   }
 
