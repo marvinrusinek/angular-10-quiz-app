@@ -64,7 +64,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   currentQuestionSubscription: Subscription;
   formattedExplanationSubscription: Subscription;
 
-  private correctAnswersTextSource = new BehaviorSubject<string>('');
+  correctAnswersTextSource: BehaviorSubject<string> = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
 
   private explanationTextSource = new BehaviorSubject<string>(null);
@@ -237,13 +237,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     this.setDisplayStateForCorrectAnswers(question);
 
-    if (this.quizStateService.isMultipleAnswerQuestion(question)) {
+    /* if (this.quizStateService.isMultipleAnswerQuestion(question)) {
       const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
       this.shouldDisplayCorrectAnswers = numberOfCorrectAnswers > 1;
       this.quizService.updateCorrectAnswersText(`(${numberOfCorrectAnswers} answers are correct)`);
     } else {
       this.quizService.updateCorrectAnswersText('Select one answer');
-    }
+    } */
   }
 
   private initializeComponent(): void {
