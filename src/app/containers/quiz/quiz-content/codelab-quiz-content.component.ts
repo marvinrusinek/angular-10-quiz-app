@@ -937,6 +937,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   }
 
+
   private logCurrentQuestion(question: QuizQuestion | null) {
     console.log('currentQuestion updated:', question);
   }
