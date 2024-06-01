@@ -120,11 +120,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
 
     // Subscribe to changes in currentQuestion
-    this.currentQuestion.pipe(debounceTime(200)).subscribe((question: QuizQuestion) => {
+    /* this.currentQuestion.pipe(debounceTime(200)).subscribe((question: QuizQuestion) => {
       console.log('currentQuestion updated:', question);
       // this.processQuestion(question);
       this.updateCorrectAnswersDisplay(question);
-    });
+    }); */
+    this.currentQuestion.pipe(
+      debounceTime(200),
+      switchMap(question => this.updateCorrectAnswersDisplay(question))
+    ).subscribe()
   }
 
   /* ngOnChanges(changes: SimpleChanges): void {
@@ -888,6 +892,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         });
       })
     );
+  }
+
+  private logCurrentQuestion(question: QuizQuestion | null) {
+    console.log('currentQuestion updated:', question);
   }
 
   private updateCorrectAnswersDisplayState(): void {
