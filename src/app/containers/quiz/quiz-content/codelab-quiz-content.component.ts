@@ -22,8 +22,9 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
 })
 export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy {
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
-  @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
-    new BehaviorSubject<QuizQuestion>(null);
+  // @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
+  //   new BehaviorSubject<QuizQuestion>(null);
+  @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() explanationToDisplay: string;
   @Input() questionToDisplay: string;
   @Input() question!: QuizQuestion;
@@ -111,7 +112,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.initializeComponent();
     this.handleQuestionDisplayLogic();
     this.setupCombinedTextObservable();
-    this.calculateCorrectAnswers();
 
     this.activatedRoute.paramMap.subscribe(params => {
       const quizId = params.get('quizId');
@@ -127,7 +127,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
+    if (changes.currentQuestion) {
+      this.calculateCorrectAnswers();
+    }
     if (changes.currentQuestion && changes.currentQuestion.currentValue) {
       // Ensure the current question is unwrapped from the BehaviorSubject
       // const currentQuestionValue = changes.currentQuestion.currentValue.value;
@@ -135,6 +138,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.setDisplayStateForCorrectAnswers(question);
       // this.setDisplayStateForCorrectAnswers(currentQuestionValue);
       this.updateCorrectAnswersDisplayState();
+    }
+  } */
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.currentQuestion) {
+      console.log('ngOnChanges - currentQuestion changed');
+      this.calculateCorrectAnswers();
+    }
+    if (changes.currentQuestion && changes.currentQuestion.currentValue) {
+      console.log('ngOnChanges - currentQuestion currentValue exists');
+      const question = this.currentQuestion.getValue();
+      this.setDisplayStateForCorrectAnswers(question);
     }
   }
 
@@ -804,6 +819,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   calculateCorrectAnswers(): void {
+    console.log('Calculating correct answers...');
     if (this.currentQuestion && this.currentQuestion.value) {
       const correctAnswers = this.currentQuestion.value.options.filter(
         (option) => option.correct
