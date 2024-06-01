@@ -122,7 +122,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // Subscribe to changes in currentQuestion
     this.currentQuestion.subscribe(question => {
       console.log('currentQuestion updated:', question);
-      this.processQuestion(question);
+      // this.processQuestion(question);
+      this.updateCorrectAnswersDisplay(question);
     });
   }
 
@@ -808,6 +809,23 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.shouldDisplayCorrectAnswers = false;
       }
     });
+  }
+
+  private updateCorrectAnswersDisplay(question: QuizQuestion): void {
+    console.log('Updating correct answers display for:', question);
+
+    const correctAnswers = question.options.filter(option => option.correct).length;
+    console.log('Correct answers count:', correctAnswers);
+    
+    if (correctAnswers > 1) {
+      this.correctAnswersTextSource.next(`(${correctAnswers} answers are correct)`);
+    } else {
+      this.correctAnswersTextSource.next('Select one answer');
+    }
+    
+    this.updateCorrectAnswersDisplayState();
+    console.log(`Number of correct answers: ${correctAnswers}`);
+    console.log(`correctAnswersTextSource: ${this.correctAnswersTextSource.getValue()}`);
   }
 
   private updateCorrectAnswersDisplayState(): void {
