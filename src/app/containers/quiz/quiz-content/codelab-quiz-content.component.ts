@@ -73,13 +73,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
 
-  questionIndexSubscription: Subscription;
-  questionSubscription: Subscription;
-
   combinedText$: Observable<string>;
   textToDisplay = '';
 
-  previousIndex: number | null = null; // to track if the index has changed
+  previousIndex: number | null = null; // to track if the index has changed, not being used, might remove...
 
   private destroy$ = new Subject<void>();
 
@@ -117,8 +114,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.correctAnswersTextSource.complete();
     this.correctAnswersDisplaySubject.complete();
-    this.questionSubscription?.unsubscribe();
-    this.questionIndexSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
   }
