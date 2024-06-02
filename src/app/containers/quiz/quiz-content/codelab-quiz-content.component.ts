@@ -371,9 +371,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     }
 
     try {
-      console.log('Fetching questions for quizId:', this.quizId);  // Log quizId
       const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
-      console.log("Received questions from service:", data);
       const questions: QuizQuestion[] = data;
 
       if (questions.length === 0) {
@@ -384,8 +382,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       const questionIndex = questions.findIndex((q) =>
         q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
       );
-      console.log("QI", questionIndex);
-      if (questionIndex === -1) {
+      if (questionIndex < 0) {
         console.error('Current question not found in the questions array.');
         return;
       }
@@ -393,10 +390,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       const currentQuestion = questions[questionIndex];
       // Validate the current question
       if (this.quizService.isValidQuizQuestion(currentQuestion)) {
-        console.log('Setting current question:', currentQuestion);
         // Set the current question
         this.currentQuestion.next(currentQuestion);
-        console.log('Updated currentQuestion observable:', this.currentQuestion.getValue());
 
         if (questionIndex < questions.length - 1) {
           const nextQuestion = questions[questionIndex + 1];
