@@ -126,10 +126,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   loadQuizDataFromRoute(): void {
     this.activatedRoute.paramMap.subscribe(params => {
-      const quizId = params.get('quizId');
+      this.quizId = params.get('quizId');
       const questionIndex = +params.get('questionIndex');
       const zeroBasedIndex = questionIndex - 1;
-      this.loadQuestion(quizId, zeroBasedIndex);
+      this.loadQuestion(this.quizId, zeroBasedIndex);
     })
 
     this.currentQuestion.pipe(
