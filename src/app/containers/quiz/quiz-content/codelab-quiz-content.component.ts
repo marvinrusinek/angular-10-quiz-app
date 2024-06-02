@@ -134,7 +134,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   loadQuestion(quizId: string, zeroBasedIndex: number) {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
-      console.log('Questions loaded:', questions);
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
         this.currentQuestion.next(question);
@@ -267,7 +266,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
 
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    console.log("TEST QUESTION LOG", question);
     // Update question details and display correct answers
     this.updateQuestionDetailsAndDisplayCorrectAnswers(question);
 
