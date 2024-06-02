@@ -22,8 +22,6 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
 })
 export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
-  // @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
-  //   new BehaviorSubject<QuizQuestion>(null);
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() explanationToDisplay: string;
   @Input() questionToDisplay: string;
@@ -105,27 +103,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.loadQuizDataFromRoute();
     this.initializeSubscriptions();
     this.restoreQuestionState();
     this.subscribeToQuestionState();
     this.updateQuizStatus();
     this.initializeComponent();
     this.handleQuestionDisplayLogic();
-    this.setupCombinedTextObservable();
-
-    this.activatedRoute.paramMap.subscribe(params => {
-      const quizId = params.get('quizId');
-      const questionIndex = +params.get('questionIndex');
-      const zeroBasedIndex = questionIndex - 1;
-      this.loadQuestion(quizId, zeroBasedIndex);
-    })
-
-    this.currentQuestion.pipe(
-      debounceTime(200),
-      tap((question: QuizQuestion | null) => {
-        console.log('Current Question in Stream:', question);
-      })
-    ).subscribe()
+    this.setupCombinedTextObservable(); 
   }
 
   ngOnDestroy(): void {
@@ -138,6 +123,23 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
   }
+
+  loadQuizDataFromRoute(): void {
+    this.activatedRoute.paramMap.subscribe(params => {
+      const quizId = params.get('quizId');
+      const questionIndex = +params.get('questionIndex');
+      const zeroBasedIndex = questionIndex - 1;
+      this.loadQuestion(quizId, zeroBasedIndex);
+    })
+
+    this.currentQuestion.pipe(
+      debounceTime(200),
+      tap((question: QuizQuestion | null) => {
+        console.log('Current Question in Stream:', question);
+      })
+    ).subscribe();
+  }
+
 
   loadQuestion(quizId: string, zeroBasedIndex: number) {
     console.log(`Loading question for quizId: ${quizId}, zeroBasedIndex: ${zeroBasedIndex}`);
