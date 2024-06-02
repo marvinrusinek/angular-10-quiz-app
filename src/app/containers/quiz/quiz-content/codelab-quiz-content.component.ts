@@ -22,6 +22,8 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
 })
 export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
+  // @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
+  //   new BehaviorSubject<QuizQuestion>(null);
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() explanationToDisplay: string;
   @Input() questionToDisplay: string;
@@ -38,7 +40,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   questionIndex: number;
   questionText = '';
   currentQuestionIndexValue: number;
-  currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  currentQuestion$: BehaviorSubject<QuizQuestion | null> =
+    new BehaviorSubject<QuizQuestion | null>(null);
   currentOptions$: BehaviorSubject<Option[] | null> = new BehaviorSubject<Option[]>([]);
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
@@ -102,14 +105,20 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loadQuizDataFromRoute();
-    this.initializeComponent();
     this.initializeSubscriptions();
-    this.subscribeToQuestionState();
     this.restoreQuestionState();
-    this.setupCombinedTextObservable();
-    this.handleQuestionDisplayLogic();
+    this.subscribeToQuestionState();
     this.updateQuizStatus();
+    this.initializeComponent();
+    this.handleQuestionDisplayLogic();
+    this.setupCombinedTextObservable();
+
+    this.activatedRoute.paramMap.subscribe(params => {
+      const quizId = params.get('quizId');
+      const questionIndex = +params.get('questionIndex');
+      const zeroBasedIndex = questionIndex - 1;
+      this.loadQuestion(quizId, zeroBasedIndex);
+    })
 
     this.currentQuestion.pipe(
       debounceTime(200),
@@ -130,17 +139,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
-  private loadQuizDataFromRoute(): void {
-    this.activatedRoute.paramMap.subscribe(params => {
-      const quizId = params.get('quizId');
-      const questionIndex = +params.get('questionIndex');
-      const zeroBasedIndex = questionIndex - 1;
-      this.loadQuestion(quizId, zeroBasedIndex);
-    });
-  }
-
   loadQuestion(quizId: string, zeroBasedIndex: number) {
+    console.log(`Loading question for quizId: ${quizId}, zeroBasedIndex: ${zeroBasedIndex}`);
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
+      console.log('Questions loaded:', questions);
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
         this.currentQuestion.next(question);
@@ -221,6 +223,33 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   }
 
+  private handleQuestionUpdate(): void {
+    const question = this.currentQuestion.getValue();
+    console.log('Handling question update with question:', question);
+
+    if (!question) {
+      console.error('Question is undefined in handleQuestionUpdate');
+      return;
+    }
+
+    console.log('Question options:', question.options);
+    if (!question.options || question.options.length === 0) {
+      console.error('Question options are undefined or empty in handleQuestionUpdate');
+      console.log('Question options:', question.options);
+      return;
+    }
+
+    // this.setDisplayStateForCorrectAnswers(question);
+
+    /* if (this.quizStateService.isMultipleAnswerQuestion(question)) {
+      const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
+      this.shouldDisplayCorrectAnswers = numberOfCorrectAnswers > 1;
+      this.quizService.updateCorrectAnswersText(`(${numberOfCorrectAnswers} answers are correct)`);
+    } else {
+      this.quizService.updateCorrectAnswersText('Select one answer');
+    } */
+  }
+
   private initializeComponent(): void {
     this.initializeQuestionData();
     this.initializeCombinedQuestionData();
@@ -277,8 +306,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
 
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    console.log("TEST QUESTION LOG", question);
     // Update question details and display correct answers
     this.updateQuestionDetailsAndDisplayCorrectAnswers(question);
+
+    // Fetch and display explanation for the question
+    // await this.fetchAndDisplayExplanationText(question);
+
     // Determine if correct answers count should be displayed
     this.handleCorrectAnswersDisplay(question);
   }
@@ -286,6 +320,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   // Function to update question details and display correct answers
   private updateQuestionDetailsAndDisplayCorrectAnswers(question: QuizQuestion): void {
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers();
   }
 
   // Function to handle the display of correct answers
@@ -311,30 +346,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       });
   }
 
-  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
-    if (!question) {
-      return of(void 0);
-    }
-
-    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
-      tap(isMultipleAnswer => {
-        const correctAnswers = question.options.filter(option => option.correct).length;
-        const newCorrectAnswersText = isMultipleAnswer
-          ? `(${correctAnswers} answers are correct)`
-          : '';
-
-        if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
-          this.correctAnswersTextSource.next(newCorrectAnswersText);
-        }
-
-        const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-
-        if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
-          this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-        }
-      }),
-      map(() => void 0)
-    );
+  // Helper function to check if it's a single-answer question with an explanation
+  private isSingleAnswerWithExplanation(isMultipleAnswer: boolean, isExplanationDisplayed: boolean): boolean {
+    return !isMultipleAnswer && isExplanationDisplayed;
   }
 
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
@@ -344,6 +358,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     this.questionIndexSubscription = this.quizStateService.getCurrentQuestionIndex$().subscribe({
       next: (currentIndex) => {
+        console.log("Current Index:", currentIndex);
+
         if (this.questionSubscription) {
           this.questionSubscription.unsubscribe();
         }
@@ -355,6 +371,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
               this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
                 currentQuestion.options
               );
+              console.log("NOCA:", this.numberOfCorrectAnswers);
+              // this.setDisplayStateForCorrectAnswers(currentQuestion);
             } else {
               console.error('No valid current question or options available');
               this.correctAnswersTextSource.next('Error: No valid question data available.');
@@ -373,7 +391,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   }
 
-  private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
+  /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
       console.error('Question is undefined or missing questionText');
       return;
@@ -381,6 +399,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     try {
       const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
+      console.log("Received questions from service:", data);
       const questions: QuizQuestion[] = data;
 
       const questionIndex = questions.findIndex((q) =>
@@ -391,11 +410,64 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         return;
       }
 
+      const currentQuestion = questions[questionIndex - 1];      
+      // Validate the current question
+      if (this.quizService.isValidQuizQuestion(currentQuestion)) {
+        console.log('Setting current question:', currentQuestion);
+        // Set the current question
+        this.currentQuestion.next(currentQuestion);
+        console.log('Updated currentQuestion observable:', this.currentQuestion.getValue());
+
+        if (questionIndex < questions.length - 1) {
+          const nextQuestion = questions[questionIndex + 1];
+          if (nextQuestion) {
+            this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
+            this.updateExplanationForQuestion(nextQuestion);
+            // Set the explanation display state to true when a new explanation is fetched
+            this.explanationTextService.setIsExplanationTextDisplayed(true);
+          } else {
+            console.warn('Next question not found in the questions array.');
+          }
+        } else {
+          console.warn('Current question is the last question in the array.');
+        }
+
+        this.explanationTextService.setIsExplanationTextDisplayed(true);
+      } else {
+        console.error("Current question is not valid");
+      }
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+    }
+  } */
+
+  private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
+    if (!question || !question.questionText) {
+      console.error('Question is undefined or missing questionText');
+      return;
+    }
+
+    try {
+      const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
+      console.log("Received questions from service:", data);
+      const questions: QuizQuestion[] = data;
+
+      const questionIndex = questions.findIndex((q) =>
+        q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
+      );
+      if (questionIndex === -1) {
+        console.error('Current question not found in the questions array.');
+        return;
+      }
+
+      console.log("QI", questionIndex);
       const currentQuestion = questions[questionIndex];
       // Validate the current question
       if (this.quizService.isValidQuizQuestion(currentQuestion)) {
+        console.log('Setting current question:', currentQuestion);
         // Set the current question
         this.currentQuestion.next(currentQuestion);
+        console.log('Updated currentQuestion observable:', this.currentQuestion.getValue());
 
         if (questionIndex < questions.length - 1) {
           const nextQuestion = questions[questionIndex + 1];
@@ -579,6 +651,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
   
+  
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
       take(1), // Take the first value emitted and then complete
@@ -589,6 +662,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
 
   private setDisplayStateForCorrectAnswers(question: QuizQuestion | null): void {
+    console.log('Setting display state for correct answers with question:', question);
     if (!question || !question.options || !Array.isArray(question.options)) {
       console.error('Invalid question or options:', question);
       this.correctAnswersTextSource.next('');
@@ -599,8 +673,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     this.quizStateService.isMultipleAnswerQuestion(question).subscribe({
       next: (isMultipleAnswer) => {
+        console.log("IMA:", isMultipleAnswer);
+        console.log("Question options after subscription:", question.options);
+
         if (isMultipleAnswer) {
           const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
+          console.log(`Number of correct answers: ${numberOfCorrectAnswers}`);
           this.shouldDisplayCorrectAnswers = true;
           this.correctAnswersTextSource.next(`(${numberOfCorrectAnswers} answers are correct)`);
           this.correctAnswersDisplaySubject.next(true);
@@ -619,9 +697,49 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Helper function to check if it's a single-answer question with an explanation
-  private isSingleAnswerWithExplanation(isMultipleAnswer: boolean, isExplanationDisplayed: boolean): boolean {
-    return !isMultipleAnswer && isExplanationDisplayed;
+  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+    if (!question) {
+      return of(void 0);
+    }
+
+    console.log('Evaluating question:', question);
+
+    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
+      tap(isMultipleAnswer => {
+        const correctAnswers = question.options.filter(option => option.correct).length;
+        const newCorrectAnswersText = isMultipleAnswer
+          ? `(${correctAnswers} answers are correct)`
+          : '';
+
+        console.log('Current correctAnswersTextSource:', this.correctAnswersTextSource.getValue());
+        console.log('New correctAnswersText:', newCorrectAnswersText);
+        console.log('isMultipleAnswer:', isMultipleAnswer);
+        console.log('correctAnswers:', correctAnswers);
+
+        if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
+          console.log(`Updating correctAnswersTextSource from '${this.correctAnswersTextSource.getValue()}' to '${newCorrectAnswersText}'`);
+          this.correctAnswersTextSource.next(newCorrectAnswersText);
+        }
+
+        const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
+        console.log('Current shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswersSubject.getValue());
+        console.log('New shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
+
+        if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
+          console.log(`Updating shouldDisplayCorrectAnswersSubject from '${this.shouldDisplayCorrectAnswersSubject.getValue()}' to '${shouldDisplayCorrectAnswers}'`);
+          this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+        }
+
+        console.log('Update: ', {
+          question,
+          isMultipleAnswer,
+          correctAnswers,
+          newCorrectAnswersText,
+          shouldDisplayCorrectAnswers,
+        });
+      }),
+      map(() => void 0)
+    );
   }
 
   updateQuizStatus(): void {
