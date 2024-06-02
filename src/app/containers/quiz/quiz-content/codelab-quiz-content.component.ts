@@ -171,7 +171,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   loadQuestion(quizId: string, questionIndex: number) {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
-      this.currentQuestion.next(questions[questionIndex - 1]);
+      if (questions && questions.length > 0 && questionIndex > 0 && questionIndex <= questions.length) {
+        const question = questions[questionIndex - 1];
+        console.log('Loading question:', question);
+        this.currentQuestion.next(question);
+      } else {
+        console.error('Invalid question index:', questionIndex);
+      }
     });
   }
 
