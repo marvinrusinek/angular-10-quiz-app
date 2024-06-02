@@ -159,6 +159,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         console.log('Selected question:', question);
         this.currentQuestion.next(question);
         this.fetchAndDisplayExplanationText(question);
+        this.setDisplayStateForCorrectAnswers(question);
         this.updateCorrectAnswersDisplay(question).subscribe();
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
@@ -249,7 +250,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       return;
     }
 
-    this.setDisplayStateForCorrectAnswers(question);
+    // this.setDisplayStateForCorrectAnswers(question);
 
     /* if (this.quizStateService.isMultipleAnswerQuestion(question)) {
       const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
@@ -382,7 +383,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
                 currentQuestion.options
               );
               console.log("NOCA:", this.numberOfCorrectAnswers);
-              this.setDisplayStateForCorrectAnswers(currentQuestion);
+              // this.setDisplayStateForCorrectAnswers(currentQuestion);
             } else {
               console.error('No valid current question or options available');
               this.correctAnswersTextSource.next('Error: No valid question data available.');
