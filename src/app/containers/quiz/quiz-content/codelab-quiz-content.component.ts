@@ -301,7 +301,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       });
   }
 
-  /* private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
     if (!question) {
       return of(void 0);
     }
@@ -325,53 +325,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       }),
       map(() => void 0)
     );
-  } */
-
-  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
-    if (!question) {
-      return of(void 0);
-    }
-
-    console.log('Evaluating question:', question);
-
-    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
-      tap(isMultipleAnswer => {
-        const correctAnswers = question.options.filter(option => option.correct).length;
-        const newCorrectAnswersText = isMultipleAnswer && !this.isExplanationDisplayed
-          ? `(${correctAnswers} answers are correct)`
-          : '';
-
-        console.log('Current correctAnswersTextSource:', this.correctAnswersTextSource.getValue());
-        console.log('New correctAnswersText:', newCorrectAnswersText);
-        console.log('isMultipleAnswer:', isMultipleAnswer);
-        console.log('correctAnswers:', correctAnswers);
-
-        if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
-          console.log(`Updating correctAnswersTextSource from '${this.correctAnswersTextSource.getValue()}' to '${newCorrectAnswersText}'`);
-          this.correctAnswersTextSource.next(newCorrectAnswersText);
-        }
-
-        const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-        console.log('Current shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswersSubject.getValue());
-        console.log('New shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
-
-        if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
-          console.log(`Updating shouldDisplayCorrectAnswersSubject from '${this.shouldDisplayCorrectAnswersSubject.getValue()}' to '${shouldDisplayCorrectAnswers}'`);
-          this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-        }
-
-        console.log('Update: ', {
-          question,
-          isMultipleAnswer,
-          correctAnswers,
-          newCorrectAnswersText,
-          shouldDisplayCorrectAnswers,
-        });
-      }),
-      map(() => void 0)
-    );
   }
-
 
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
     if (this.questionIndexSubscription) {
