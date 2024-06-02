@@ -119,12 +119,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.loadQuestion(quizId, questionIndex);
     });
 
-    // Subscribe to changes in currentQuestion
-    /* this.currentQuestion.pipe(debounceTime(200)).subscribe((question: QuizQuestion) => {
-      console.log('currentQuestion updated:', question);
-      // this.processQuestion(question);
-      this.updateCorrectAnswersDisplay(question);
-    }); */
     this.currentQuestion.pipe(
       debounceTime(200),
       tap((question: QuizQuestion | null) => {
