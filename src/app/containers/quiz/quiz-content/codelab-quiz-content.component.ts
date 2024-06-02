@@ -799,7 +799,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
           console.log(`Number of correct answers: ${numberOfCorrectAnswers}`);
           this.shouldDisplayCorrectAnswers = true;
-          this.correctAnswersTextSource.next(`(${numberOfCorrectAnswers} answers are correct`);
+          this.correctAnswersTextSource.next(`(${numberOfCorrectAnswers} answers are correct)`);
           this.correctAnswersDisplaySubject.next(true);
         } else {
           this.correctAnswersTextSource.next(''); // Clear text for single-answer questions
