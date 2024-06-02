@@ -158,11 +158,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const question = questions[zeroBasedIndex];
         console.log('Selected question:', question);
         this.currentQuestion.next(question);
+        // Directly use the question for further operations
+        this.updateCorrectAnswersDisplay(question).subscribe();
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
       }
     });
-  } 
+  }
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
