@@ -129,8 +129,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.currentQuestion.pipe(
       debounceTime(200),
       tap((question: QuizQuestion | null) => {
-          console.log('Current Question in Stream:', question);
-          this.updateCorrectAnswersDisplay(question).subscribe();
+        console.log('Current Question in Stream:', question);
+        this.updateCorrectAnswersDisplay(question).subscribe();
       })
     ).subscribe();
   }
