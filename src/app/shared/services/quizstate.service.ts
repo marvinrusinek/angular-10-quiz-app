@@ -184,7 +184,6 @@ export class QuizStateService {
       if (question && Array.isArray(question.options)) {
         const correctAnswersCount = question.options.filter(option => option.correct).length;
         const hasMultipleAnswers = correctAnswersCount > 1;
-        console.log(`isMultipleAnswerQuestion: Question has ${correctAnswersCount} correct answers. isMultipleAnswer = ${hasMultipleAnswers}`);
         return of(hasMultipleAnswers);
       } else {
         return of(false);
