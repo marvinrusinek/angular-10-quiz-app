@@ -110,6 +110,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.setupCombinedTextObservable();
     this.handleQuestionDisplayLogic();
     this.updateQuizStatus();
+
+    this.currentQuestion.pipe(
+      debounceTime(200),
+      tap((question: QuizQuestion | null) => {
+        console.log('Current Question in Stream:', question);
+      })
+    ).subscribe()
   }
 
   ngOnDestroy(): void {
