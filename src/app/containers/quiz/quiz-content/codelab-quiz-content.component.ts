@@ -397,6 +397,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
 
 
+
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
     if (this.questionIndexSubscription) {
       this.questionIndexSubscription.unsubscribe();
