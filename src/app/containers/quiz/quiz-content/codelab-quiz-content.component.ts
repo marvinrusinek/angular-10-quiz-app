@@ -707,24 +707,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
   }
 
-  calculateCorrectAnswers(): void {
-    console.log('Calculating correct answers...');
-    if (this.currentQuestion && this.currentQuestion.value) {
-      console.log('Current question in calculateCorrectAnswers:', this.currentQuestion.value);
-      const correctAnswers = this.currentQuestion.value.options.filter(
-        (option) => option.correct
-      ).length;
-      console.log('Correct answers count:', correctAnswers);
-      this.shouldDisplayCorrectAnswers = correctAnswers > 1;
-      this.correctAnswersTextSource.next(`(${correctAnswers} answers are correct)`);
-      console.log(`Number of correct answers: ${correctAnswers}`);
-      console.log(`shouldDisplayCorrectAnswers: ${this.shouldDisplayCorrectAnswers}`);
-      console.log(`correctAnswersTextSource: ${this.correctAnswersTextSource.getValue()}`);
-    } else {
-      console.log('currentQuestion or currentQuestion.value is not set.');
-    }
-  }
-
   updateQuizStatus(): void {
     this.questionText = this.question.questionText;
     this.correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
