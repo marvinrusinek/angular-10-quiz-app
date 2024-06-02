@@ -116,8 +116,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.activatedRoute.paramMap.subscribe(params => {
       const quizId = params.get('quizId');
       const questionIndex = +params.get('questionIndex');
-      const zeroBasedIndex = questionIndex - 1;
-      this.loadQuestion(quizId, zeroBasedIndex);
+      this.loadQuestion(quizId, questionIndex - 1); // Convert to zero-based index
     });
 
     this.currentQuestion.pipe(
@@ -148,16 +147,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
-  loadQuestion(quizId: string, questionIndex: number) {
-    console.log(`Loading question for quizId: ${quizId}, questionIndex: ${questionIndex}`);
+  loadQuestion(quizId: string, zeroBasedIndex: number) {
+    console.log(`Loading question for quizId: ${quizId}, zeroBasedIndex: ${zeroBasedIndex}`);
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
       console.log('Questions loaded:', questions);
-      if (questions && questions.length > 0 && questionIndex >= 0 && questionIndex < questions.length) {
-        const question = questions[questionIndex];
+      if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
+        const question = questions[zeroBasedIndex];
         console.log('Selected question:', question);
         this.currentQuestion.next(question);
       } else {
-        console.error('Invalid question index:', questionIndex);
+        console.error('Invalid question index:', zeroBasedIndex);
       }
     });
   }
