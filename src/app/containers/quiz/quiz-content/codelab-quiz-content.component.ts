@@ -132,7 +132,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadQuestion(quizId: string, zeroBasedIndex: number) {
+  /* loadQuestion(quizId: string, zeroBasedIndex: number) {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
@@ -145,7 +145,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Invalid question index:', zeroBasedIndex);
       }
     });
+  } */
+
+  loadQuestion(quizId: string, zeroBasedIndex: number) {
+    this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
+      if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
+        const question = questions[zeroBasedIndex];
+        this.currentQuestion.next(question);
+        this.calculateAndDisplayNumberOfCorrectAnswers();
+        this.setDisplayStateForCorrectAnswers(question);
+        this.updateCorrectAnswersDisplay(question).subscribe(() => {
+          this.fetchAndDisplayExplanationText(question);
+        });
+      } else {
+        console.error('Invalid question index:', zeroBasedIndex);
+      }
+    });
   }
+  
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
@@ -329,51 +346,53 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
     if (!question) {
-        return of(void 0);
+      return of(void 0);
     }
 
     console.log('Evaluating question:', question);
 
     return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
-        tap(isMultipleAnswer => {
-            const correctAnswers = question.options.filter(option => option.correct).length;
-            let newCorrectAnswersText = '';
+      tap(isMultipleAnswer => {
+        const correctAnswers = question.options.filter(option => option.correct).length;
+        let newCorrectAnswersText = '';
 
-            if (isMultipleAnswer && !this.isExplanationDisplayed) {
-                newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
-            }
+        if (isMultipleAnswer && !this.isExplanationDisplayed) {
+          newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
+        }
 
-            console.log('Current correctAnswersTextSource:', this.correctAnswersTextSource.getValue());
-            console.log('New correctAnswersText:', newCorrectAnswersText);
-            console.log('isMultipleAnswer:', isMultipleAnswer);
-            console.log('correctAnswers:', correctAnswers);
+        console.log('Current correctAnswersTextSource:', this.correctAnswersTextSource.getValue());
+        console.log('New correctAnswersText:', newCorrectAnswersText);
+        console.log('isMultipleAnswer:', isMultipleAnswer);
+        console.log('correctAnswers:', correctAnswers);
 
-            if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
-                console.log(`Updating correctAnswersTextSource from '${this.correctAnswersTextSource.getValue()}' to '${newCorrectAnswersText}'`);
-                this.correctAnswersTextSource.next(newCorrectAnswersText);
-            }
+        if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
+          console.log(`Updating correctAnswersTextSource from '${this.correctAnswersTextSource.getValue()}' to '${newCorrectAnswersText}'`);
+          this.correctAnswersTextSource.next(newCorrectAnswersText);
+        }
 
-            const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-            console.log('Current shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswersSubject.getValue());
-            console.log('New shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
+        const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
+        console.log('Current shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswersSubject.getValue());
+        console.log('New shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
 
-            if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
-                console.log(`Updating shouldDisplayCorrectAnswersSubject from '${this.shouldDisplayCorrectAnswersSubject.getValue()}' to '${shouldDisplayCorrectAnswers}'`);
-                this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-            }
+        if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
+          console.log(`Updating shouldDisplayCorrectAnswersSubject from '${this.shouldDisplayCorrectAnswersSubject.getValue()}' to '${shouldDisplayCorrectAnswers}'`);
+          this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+        }
 
-            console.log('Update: ', {
-                question,
-                isMultipleAnswer,
-                correctAnswers,
-                newCorrectAnswersText,
-                shouldDisplayCorrectAnswers,
-                isExplanationDisplayed: this.isExplanationDisplayed
-            });
-        }),
-        map(() => void 0)
+        console.log('Update: ', {
+          question,
+          isMultipleAnswer,
+          correctAnswers,
+          newCorrectAnswersText,
+          shouldDisplayCorrectAnswers,
+          isExplanationDisplayed: this.isExplanationDisplayed
+        });
+      }),
+      map(() => void 0)
     );
   }
+
+
 
 
 
