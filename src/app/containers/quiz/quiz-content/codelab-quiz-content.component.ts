@@ -22,8 +22,6 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
 })
 export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
-  // @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
-  //   new BehaviorSubject<QuizQuestion>(null);
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() explanationToDisplay: string;
   @Input() questionToDisplay: string;
@@ -40,8 +38,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   questionIndex: number;
   questionText = '';
   currentQuestionIndexValue: number;
-  currentQuestion$: BehaviorSubject<QuizQuestion | null> =
-    new BehaviorSubject<QuizQuestion | null>(null);
+  currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   currentOptions$: BehaviorSubject<Option[] | null> = new BehaviorSubject<Option[]>([]);
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
@@ -119,13 +116,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       const zeroBasedIndex = questionIndex - 1;
       this.loadQuestion(quizId, zeroBasedIndex);
     })
-
-    this.currentQuestion.pipe(
-      debounceTime(200),
-      tap((question: QuizQuestion | null) => {
-        console.log('Current Question in Stream:', question);
-      })
-    ).subscribe()
   }
 
   ngOnDestroy(): void {
