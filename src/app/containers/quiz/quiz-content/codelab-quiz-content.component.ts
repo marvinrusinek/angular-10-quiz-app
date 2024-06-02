@@ -162,7 +162,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         console.error('Invalid question index:', zeroBasedIndex);
       }
     });
-  }
+  } 
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
