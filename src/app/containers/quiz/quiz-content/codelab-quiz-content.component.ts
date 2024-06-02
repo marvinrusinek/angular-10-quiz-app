@@ -654,8 +654,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   }
-  
-  
+    
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
       take(1), // Take the first value emitted and then complete
@@ -666,7 +665,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
 
   private setDisplayStateForCorrectAnswers(question: QuizQuestion | null): void {
-    console.log('Setting display state for correct answers with question:', question);
     if (!question || !question.options || !Array.isArray(question.options)) {
       console.error('Invalid question or options:', question);
       this.correctAnswersTextSource.next('');
@@ -677,12 +675,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     this.quizStateService.isMultipleAnswerQuestion(question).subscribe({
       next: (isMultipleAnswer) => {
-        console.log("IMA:", isMultipleAnswer);
-        console.log("Question options after subscription:", question.options);
-
         if (isMultipleAnswer) {
           const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
-          console.log(`Number of correct answers: ${numberOfCorrectAnswers}`);
           this.shouldDisplayCorrectAnswers = true;
           this.correctAnswersTextSource.next(`(${numberOfCorrectAnswers} answers are correct)`);
           this.correctAnswersDisplaySubject.next(true);
