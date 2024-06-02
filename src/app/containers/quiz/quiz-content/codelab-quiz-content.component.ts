@@ -910,7 +910,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           ? `(${correctAnswers} answers are correct)`
           : '';
 
-        // Only update if the new text is different from the current text
+        console.log('Current correctAnswersTextSource:', this.correctAnswersTextSource.getValue());
+        console.log('New correctAnswersText:', newCorrectAnswersText);
+
         if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
           console.log(`Updating correctAnswersTextSource from '${this.correctAnswersTextSource.getValue()}' to '${newCorrectAnswersText}'`);
           this.correctAnswersTextSource.next(newCorrectAnswersText);
