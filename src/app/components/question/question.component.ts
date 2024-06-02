@@ -170,19 +170,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    if (!this.quizService.isValidQuizQuestion(this.currentQuestion)) {
+    /* if (!this.quizService.isValidQuizQuestion(this.currentQuestion)) {
       console.warn('QuizQuestionComponent - ngOnInit - Question is not properly initialized:', this.currentQuestion);
     } else {
       console.log('QuizQuestionComponent - ngOnInit - Initial options:', this.currentQuestion.options);
-    }
+    } */
 
     this.checkIfAnswerSelected(true);
-
-    // Initial message setting
-    // const initialMessage = 'Please select an option to continue...';
-    // this.selectionMessageService.updateSelectionMessage(initialMessage);
-    // this.selectionMessageChange.emit(initialMessage);
-
     this.logInitialData();
     this.initializeQuizQuestion();
 
