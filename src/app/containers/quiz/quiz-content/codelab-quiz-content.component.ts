@@ -126,8 +126,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       debounceTime(200),
       tap((question: QuizQuestion | null) => {
         console.log('Current Question in Stream:', question);
-      }),
-      switchMap((question: QuizQuestion | null) => this.updateCorrectAnswersDisplay(question))
+      })
+      // switchMap((question: QuizQuestion | null) => this.updateCorrectAnswersDisplay(question))
     ).subscribe()
   }
 
@@ -135,7 +135,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     if (changes.currentQuestion && changes.currentQuestion.currentValue) {
       console.log('ngOnChanges - currentQuestion currentValue exists:', changes.currentQuestion.currentValue);
       const question = this.currentQuestion.getValue();
-      this.updateCorrectAnswersDisplay(question).subscribe();
+      // this.updateCorrectAnswersDisplay(question).subscribe();
     }
   }
 
