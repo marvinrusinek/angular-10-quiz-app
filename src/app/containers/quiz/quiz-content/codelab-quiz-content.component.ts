@@ -116,8 +116,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.activatedRoute.paramMap.subscribe(params => {
       const quizId = params.get('quizId');
       const questionIndex = +params.get('questionIndex');
-      this.loadQuestion(quizId, questionIndex - 1); // Convert to zero-based index
-    });
+      console.log('URL Parameters:', { quizId, questionIndex });
+      const zeroBasedIndex = questionIndex - 1;
+      console.log('Zero-based question index:', zeroBasedIndex);
+      this.loadQuestion(quizId, zeroBasedIndex);
+    })
 
     this.currentQuestion.pipe(
       debounceTime(200),
