@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -20,7 +20,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
   styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy {
+export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   // @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
   //   new BehaviorSubject<QuizQuestion>(null);
@@ -116,9 +116,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.activatedRoute.paramMap.subscribe(params => {
       const quizId = params.get('quizId');
       const questionIndex = +params.get('questionIndex');
-      console.log('URL Parameters:', { quizId, questionIndex });
       const zeroBasedIndex = questionIndex - 1;
-      console.log('Zero-based question index:', zeroBasedIndex);
       this.loadQuestion(quizId, zeroBasedIndex);
     })
 
@@ -127,16 +125,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       tap((question: QuizQuestion | null) => {
         console.log('Current Question in Stream:', question);
       })
-      // switchMap((question: QuizQuestion | null) => this.updateCorrectAnswersDisplay(question))
     ).subscribe()
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.currentQuestion && changes.currentQuestion.currentValue) {
-      console.log('ngOnChanges - currentQuestion currentValue exists:', changes.currentQuestion.currentValue);
-      const question = this.currentQuestion.getValue();
-      // this.updateCorrectAnswersDisplay(question).subscribe();
-    }
   }
 
   ngOnDestroy(): void {
@@ -156,11 +145,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       console.log('Questions loaded:', questions);
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
-        console.log('Selected question:', question);
         this.currentQuestion.next(question);
-        this.fetchAndDisplayExplanationText(question);
-        this.setDisplayStateForCorrectAnswers(question);
         this.updateCorrectAnswersDisplay(question).subscribe();
+        this.calculateAndDisplayNumberOfCorrectAnswers();
+        this.setDisplayStateForCorrectAnswers(question);
+        this.fetchAndDisplayExplanationText(question);
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
       }
