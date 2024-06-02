@@ -303,35 +303,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       });
   }
 
- /* private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
-    if (!question) {
-      return of(void 0);
-    }
-
-    console.log('Evaluating question:', question);
-
-    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
-      tap(isMultipleAnswer => {
-        const correctAnswers = question.options.filter(option => option.correct).length;
-        let newCorrectAnswersText = '';
-
-        if (isMultipleAnswer && !this.isExplanationDisplayed) {
-          newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
-        }
-
-        if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
-          this.correctAnswersTextSource.next(newCorrectAnswersText);
-        }
-
-        const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-        if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
-          this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-        }
-      }),
-      map(() => void 0)
-    );
-  } */
-
   private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
     if (!question) {
       return of(void 0);
