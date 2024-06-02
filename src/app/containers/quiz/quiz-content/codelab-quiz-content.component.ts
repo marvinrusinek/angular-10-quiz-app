@@ -129,7 +129,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.currentQuestion.pipe(
       debounceTime(200),
       tap((question: QuizQuestion | null) => {
-        console.log('Current Question in Stream:', question);
         this.updateCorrectAnswersDisplay(question).subscribe();
       })
     ).subscribe();
@@ -180,7 +179,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   private initializeExplanationTextSubscription(): void {
     this.formattedExplanationSubscription = this.explanationTextService.formattedExplanation$.subscribe(explanationText => {
       this.explanationText = explanationText;
-      this.cdRef.detectChanges();
     });
   }
 
@@ -309,8 +307,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       return of(void 0);
     }
 
-    console.log('Evaluating question:', question);
-
     return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
       tap(isMultipleAnswer => {
         const correctAnswers = question.options.filter(option => option.correct).length;
@@ -320,22 +316,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
         }
 
-        console.log('isMultipleAnswer:', isMultipleAnswer);
-        console.log('correctAnswers:', correctAnswers);
-        console.log('New correctAnswersText:', newCorrectAnswersText);
-
         if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
           this.correctAnswersTextSource.next(newCorrectAnswersText);
         }
 
         const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-        console.log('shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
 
         if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
           this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
         }
-
-        console.log('isExplanationDisplayed:', this.isExplanationDisplayed);
       }),
       map(() => void 0)
     );
