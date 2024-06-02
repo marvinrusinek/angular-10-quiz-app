@@ -130,19 +130,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       const questionIndex = +params.get('questionIndex');
       const zeroBasedIndex = questionIndex - 1;
       this.loadQuestion(this.quizId, zeroBasedIndex);
-    })
-
-    this.currentQuestion.pipe(
-      debounceTime(200),
-      tap((question: QuizQuestion | null) => {
-        console.log('Current Question in Stream:', question);
-      })
-    ).subscribe();
+    });
   }
 
-
   loadQuestion(quizId: string, zeroBasedIndex: number) {
-    console.log(`Loading question for quizId: ${quizId}, zeroBasedIndex: ${zeroBasedIndex}`);
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
       console.log('Questions loaded:', questions);
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
