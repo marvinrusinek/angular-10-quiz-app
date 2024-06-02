@@ -128,29 +128,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ).subscribe()
   }
 
-  /* ngOnChanges(changes: SimpleChanges): void {
-    if (changes.currentQuestion) {
-      this.calculateCorrectAnswers();
-    }
-    if (changes.currentQuestion && changes.currentQuestion.currentValue) {
-      // Ensure the current question is unwrapped from the BehaviorSubject
-      // const currentQuestionValue = changes.currentQuestion.currentValue.value;
-      const question = this.currentQuestion.getValue();
-      this.setDisplayStateForCorrectAnswers(question);
-      // this.setDisplayStateForCorrectAnswers(currentQuestionValue);
-      this.updateCorrectAnswersDisplayState();
-    }
-  } */
-
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.currentQuestion) {
-      console.log('ngOnChanges - currentQuestion changed');
-      // this.calculateCorrectAnswers();
-    }
     if (changes.currentQuestion && changes.currentQuestion.currentValue) {
-      console.log('ngOnChanges - currentQuestion currentValue exists');
+      console.log('ngOnChanges - currentQuestion currentValue exists:', changes.currentQuestion.currentValue);
       const question = this.currentQuestion.getValue();
-      // this.setDisplayStateForCorrectAnswers(question);
+      this.updateCorrectAnswersDisplay(question).subscribe();
     }
   }
 
