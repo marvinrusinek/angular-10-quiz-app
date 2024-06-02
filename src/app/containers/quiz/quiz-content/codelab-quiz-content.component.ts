@@ -371,7 +371,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     try {
       const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
-      console.log("Received questions from service:", data);
       const questions: QuizQuestion[] = data;
 
       const questionIndex = questions.findIndex((q) =>
@@ -382,14 +381,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         return;
       }
 
-      console.log("QI", questionIndex);
       const currentQuestion = questions[questionIndex];
       // Validate the current question
       if (this.quizService.isValidQuizQuestion(currentQuestion)) {
-        console.log('Setting current question:', currentQuestion);
         // Set the current question
         this.currentQuestion.next(currentQuestion);
-        console.log('Updated currentQuestion observable:', this.currentQuestion.getValue());
 
         if (questionIndex < questions.length - 1) {
           const nextQuestion = questions[questionIndex + 1];
@@ -573,7 +569,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
   
-  
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
       take(1), // Take the first value emitted and then complete
@@ -584,7 +579,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
 
   private setDisplayStateForCorrectAnswers(question: QuizQuestion | null): void {
-    console.log('Setting display state for correct answers with question:', question);
     if (!question || !question.options || !Array.isArray(question.options)) {
       console.error('Invalid question or options:', question);
       this.correctAnswersTextSource.next('');
@@ -595,12 +589,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     this.quizStateService.isMultipleAnswerQuestion(question).subscribe({
       next: (isMultipleAnswer) => {
-        console.log("IMA:", isMultipleAnswer);
-        console.log("Question options after subscription:", question.options);
-
         if (isMultipleAnswer) {
           const numberOfCorrectAnswers = question.options.filter(option => option.correct).length;
-          console.log(`Number of correct answers: ${numberOfCorrectAnswers}`);
           this.shouldDisplayCorrectAnswers = true;
           this.correctAnswersTextSource.next(`(${numberOfCorrectAnswers} answers are correct)`);
           this.correctAnswersDisplaySubject.next(true);
@@ -616,18 +606,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.correctAnswersDisplaySubject.next(false);
         this.shouldDisplayCorrectAnswers = false;
       }
-    });
-  }
-
-  private logCurrentQuestion(question: QuizQuestion | null) {
-    console.log('currentQuestion updated:', question);
-  }
-
-  private updateCorrectAnswersDisplayState(): void {
-    this.isCurrentQuestionMultipleAnswer().subscribe(isMultiple => {
-      const shouldDisplayCorrectAnswers = isMultiple && !this.isExplanationDisplayed;
-      this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-      console.log(`shouldDisplayCorrectAnswers: ${shouldDisplayCorrectAnswers}`);
     });
   }
 
