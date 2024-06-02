@@ -149,10 +149,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   loadQuestion(quizId: string, questionIndex: number) {
+    console.log(`Loading question for quizId: ${quizId}, questionIndex: ${questionIndex}`);
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
-      if (questions && questions.length > 0 && questionIndex > 0 && questionIndex <= questions.length) {
-        const question = questions[questionIndex - 1];
-        console.log('Loading question:', question);
+      console.log('Questions loaded:', questions);
+      if (questions && questions.length > 0 && questionIndex >= 0 && questionIndex < questions.length) {
+        const question = questions[questionIndex];
+        console.log('Selected question:', question);
         this.currentQuestion.next(question);
       } else {
         console.error('Invalid question index:', questionIndex);
@@ -694,7 +696,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(() => void 0)
     );
   }
-
 
   private logCurrentQuestion(question: QuizQuestion | null) {
     console.log('currentQuestion updated:', question);
