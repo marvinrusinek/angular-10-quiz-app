@@ -137,9 +137,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
         this.currentQuestion.next(question);
-        this.updateCorrectAnswersDisplay(question).subscribe();
         this.calculateAndDisplayNumberOfCorrectAnswers();
         this.setDisplayStateForCorrectAnswers(question);
+        this.updateCorrectAnswersDisplay(question).subscribe();
         this.fetchAndDisplayExplanationText(question);
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
