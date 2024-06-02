@@ -354,29 +354,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     return !isMultipleAnswer && isExplanationDisplayed;
   }
 
-  /* private calculateAndDisplayNumberOfCorrectAnswers(): void {
-    // Subscribe to the currentIndex Observable to get its value
-    this.quizStateService.getCurrentQuestionIndex$().subscribe({
+  private calculateAndDisplayNumberOfCorrectAnswers(): void {
+    if (this.questionIndexSubscription) {
+      this.questionIndexSubscription.unsubscribe();
+    }
+
+    this.questionIndexSubscription = this.quizStateService.getCurrentQuestionIndex$().subscribe({
       next: (currentIndex) => {
-        console.log("Current Index:", currentIndex); // Log currentIndex
-        // Fetch the current question directly using the currentIndex
-        this.quizService.getCurrentQuestionByIndex(this.quizId, currentIndex).subscribe({
+        console.log("Current Index:", currentIndex);
+
+        if (this.questionSubscription) {
+          this.questionSubscription.unsubscribe();
+        }
+
+        this.questionSubscription = this.quizService.getCurrentQuestionByIndex(this.quizId, currentIndex).subscribe({
           next: (currentQuestion) => {
-            console.log("Current Question:", currentQuestion); // Log currentQuestion
+            console.log("Current Question:", currentQuestion);
             if (currentQuestion && currentQuestion.options) {
               this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
                 currentQuestion.options
               );
-              console.log("NOCA", this.numberOfCorrectAnswers); // Log NOCA
-
-              this.shouldDisplayCorrectAnswers = this.numberOfCorrectAnswers > 1;
-
-              const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-                this.numberOfCorrectAnswers
-              );
-              console.log("Correct Answers Text:", correctAnswersText); // Log correctAnswersText
-
-              this.correctAnswersTextSource.next(correctAnswersText);
+              console.log("NOCA:", this.numberOfCorrectAnswers);
+              this.setDisplayStateForCorrectAnswers(currentQuestion);
             } else {
               console.error('No valid current question or options available');
               this.correctAnswersTextSource.next('Error: No valid question data available.');
@@ -387,91 +386,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             this.correctAnswersTextSource.next('Error fetching current question data.');
           }
         });
-        },
-        error: (err) => {
-          console.error('Error retrieving current question index:', err);
-          this.correctAnswersTextSource.next('Error accessing question index.');
-        }
-    });
-  } */
-
-  /* private calculateAndDisplayNumberOfCorrectAnswers(): void {
-    if (this.questionIndexSubscription) {
-        this.questionIndexSubscription.unsubscribe();
-    }
-
-    this.questionIndexSubscription = this.quizStateService.getCurrentQuestionIndex$().subscribe({
-        next: (currentIndex) => {
-            console.log("Current Index:", currentIndex);
-
-            if (this.questionSubscription) {
-                this.questionSubscription.unsubscribe();
-            }
-
-            this.questionSubscription = this.quizService.getCurrentQuestionByIndex(this.quizId, currentIndex).subscribe({
-                next: (currentQuestion) => {
-                    console.log("Current Question:", currentQuestion);
-                    if (currentQuestion && currentQuestion.options) {
-                        this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
-                            currentQuestion.options
-                        );
-                        console.log("NOCA:", this.numberOfCorrectAnswers);
-                        this.setDisplayStateForCorrectAnswers(currentQuestion);
-                    } else {
-                        console.error('No valid current question or options available');
-                        this.correctAnswersTextSource.next('Error: No valid question data available.');
-                    }
-                },
-                error: (error) => {
-                    console.error('Error fetching current question:', error);
-                    this.correctAnswersTextSource.next('Error fetching current question data.');
-                }
-            });
-        },
-        error: (err) => {
-            console.error('Error retrieving current question index:', err);
-            this.correctAnswersTextSource.next('Error accessing question index.');
-        }
-    });
-  } */
-
-  private calculateAndDisplayNumberOfCorrectAnswers(): void {
-    if (this.questionIndexSubscription) {
-        this.questionIndexSubscription.unsubscribe();
-    }
-
-    this.questionIndexSubscription = this.quizStateService.getCurrentQuestionIndex$().subscribe({
-        next: (currentIndex) => {
-            console.log("Current Index:", currentIndex);
-
-            if (this.questionSubscription) {
-                this.questionSubscription.unsubscribe();
-            }
-
-            this.questionSubscription = this.quizService.getCurrentQuestionByIndex(this.quizId, currentIndex).subscribe({
-                next: (currentQuestion) => {
-                    console.log("Current Question:", currentQuestion);
-                    if (currentQuestion && currentQuestion.options) {
-                        this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
-                            currentQuestion.options
-                        );
-                        console.log("NOCA:", this.numberOfCorrectAnswers);
-                        this.setDisplayStateForCorrectAnswers(currentQuestion);
-                    } else {
-                        console.error('No valid current question or options available');
-                        this.correctAnswersTextSource.next('Error: No valid question data available.');
-                    }
-                },
-                error: (error) => {
-                    console.error('Error fetching current question:', error);
-                    this.correctAnswersTextSource.next('Error fetching current question data.');
-                }
-            });
-        },
-        error: (err) => {
-            console.error('Error retrieving current question index:', err);
-            this.correctAnswersTextSource.next('Error accessing question index.');
-        }
+      },
+      error: (err) => {
+        console.error('Error retrieving current question index:', err);
+        this.correctAnswersTextSource.next('Error accessing question index.');
+      }
     });
   }
 
