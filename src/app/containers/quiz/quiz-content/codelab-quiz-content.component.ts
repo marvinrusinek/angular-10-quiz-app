@@ -903,6 +903,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       return of(void 0);
     }
 
+    console.log('Evaluating question:', question);
+
     return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
       tap(isMultipleAnswer => {
         const correctAnswers = question.options.filter(option => option.correct).length;
@@ -912,6 +914,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         console.log('Current correctAnswersTextSource:', this.correctAnswersTextSource.getValue());
         console.log('New correctAnswersText:', newCorrectAnswersText);
+        console.log('isMultipleAnswer:', isMultipleAnswer);
+        console.log('correctAnswers:', correctAnswers);
 
         if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
           console.log(`Updating correctAnswersTextSource from '${this.correctAnswersTextSource.getValue()}' to '${newCorrectAnswersText}'`);
