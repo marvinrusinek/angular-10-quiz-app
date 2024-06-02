@@ -127,9 +127,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     }); */
     this.currentQuestion.pipe(
       debounceTime(200),
-      tap((question: QuizQuestion) => this.logCurrentQuestion(question)),
-      switchMap((question: QuizQuestion) => this.updateCorrectAnswersDisplay(question))
-    ).subscribe();
+      tap((question: QuizQuestion | null) => {
+        console.log('Current Question:', question);
+        this.logCurrentQuestion(question);
+      }),
+      switchMap((question: QuizQuestion | null) => this.updateCorrectAnswersDisplay(question))
+    ).subscribe()
   }
 
   /* ngOnChanges(changes: SimpleChanges): void {
