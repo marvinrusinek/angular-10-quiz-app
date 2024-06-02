@@ -102,20 +102,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.initializeSubscriptions();
-    this.restoreQuestionState();
-    this.subscribeToQuestionState();
-    this.updateQuizStatus();
+    this.loadQuizDataFromRoute();
     this.initializeComponent();
-    this.handleQuestionDisplayLogic();
+    this.initializeSubscriptions();
+    this.subscribeToQuestionState();
+    this.restoreQuestionState();
     this.setupCombinedTextObservable();
-
-    this.activatedRoute.paramMap.subscribe(params => {
-      const quizId = params.get('quizId');
-      const questionIndex = +params.get('questionIndex');
-      const zeroBasedIndex = questionIndex - 1;
-      this.loadQuestion(quizId, zeroBasedIndex);
-    })
+    this.handleQuestionDisplayLogic();
+    this.updateQuizStatus();
   }
 
   ngOnDestroy(): void {
@@ -127,6 +121,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.questionIndexSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
+  }
+
+  private loadQuizDataFromRoute(): void {
+    this.activatedRoute.paramMap.subscribe(params => {
+      const quizId = params.get('quizId');
+      const questionIndex = +params.get('questionIndex');
+      const zeroBasedIndex = questionIndex - 1;
+      this.loadQuestion(quizId, zeroBasedIndex);
+    });
   }
 
   loadQuestion(quizId: string, zeroBasedIndex: number) {
