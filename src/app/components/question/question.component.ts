@@ -176,13 +176,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('QuizQuestionComponent - ngOnInit - Initial options:', this.currentQuestion.options);
     } */
 
-    this.checkIfAnswerSelected(true);
     this.logInitialData();
-    this.initializeQuizQuestion();
 
     if (!this.initialized) {
       await this.initializeQuiz();
     }
+
+    this.initializeQuizQuestion();
+    this.checkIfAnswerSelected(true);
 
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
