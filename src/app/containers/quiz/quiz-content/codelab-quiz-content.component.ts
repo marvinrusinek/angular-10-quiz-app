@@ -158,7 +158,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const question = questions[zeroBasedIndex];
         console.log('Selected question:', question);
         this.currentQuestion.next(question);
-        // Directly use the question for further operations
+        this.fetchAndDisplayExplanationText(question);
         this.updateCorrectAnswersDisplay(question).subscribe();
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
@@ -321,7 +321,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.updateQuestionDetailsAndDisplayCorrectAnswers(question);
 
     // Fetch and display explanation for the question
-    await this.fetchAndDisplayExplanationText(question);
+    // await this.fetchAndDisplayExplanationText(question);
 
     // Determine if correct answers count should be displayed
     this.handleCorrectAnswersDisplay(question);
@@ -470,7 +470,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return;
       }
 
-      const currentQuestion = questions[questionIndex - 1];
+      console.log("QI", questionIndex);
+      const currentQuestion = questions[questionIndex];
       // Validate the current question
       if (this.quizService.isValidQuizQuestion(currentQuestion)) {
         console.log('Setting current question:', currentQuestion);
