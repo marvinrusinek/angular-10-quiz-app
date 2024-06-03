@@ -405,14 +405,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.isExplanationTextDisplayed$,
       this.formattedExplanation$
     ]).pipe(
-      switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) =>
-        this.calculateCombinedQuestionData(currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation)
-      )
+      switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+        return this.calculateCombinedQuestionData(currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+      })
     );
   
     this.combinedText$ = this.combinedQuestionData$.pipe(
       map(data => {
-        console.log('combinedQuestionData:', data); // Debugging
+        console.log('initializeCombinedQuestionData - combinedQuestionData:', data);
         let combinedText = data.questionText;
         if (data.explanationText) {
           combinedText += ` ${data.explanationText}`;
@@ -420,11 +421,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         if (!data.explanationText && data.correctAnswersText) {
           combinedText += ` ${data.correctAnswersText}`;
         }
-        console.log('combinedText:', combinedText); // Debugging
+        console.log('initializeCombinedQuestionData - combinedText:', combinedText);
         return combinedText;
       })
     );
-  }  
+  }    
 
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
@@ -512,6 +513,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   ): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
   
+    console.log('calculateCombinedQuestionData - isExplanationDisplayed:', isExplanationDisplayed);
+    console.log('calculateCombinedQuestionData - formattedExplanation:', formattedExplanation);
+    console.log('calculateCombinedQuestionData - numberOfCorrectAnswers:', numberOfCorrectAnswers);
+  
     let correctAnswersText = '';
     if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
@@ -530,11 +535,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       isNavigatingToPrevious: this.isNavigatingToPrevious
     };
   
-    console.log('combinedQuestionData:', combinedQuestionData); // Debugging
+    console.log('calculateCombinedQuestionData - combinedQuestionData:', combinedQuestionData);
   
     return of(combinedQuestionData);
   }
-  
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
