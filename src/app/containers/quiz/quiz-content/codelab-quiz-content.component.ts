@@ -426,6 +426,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   }
+  
       
 
   async initializeQuestionState(): Promise<void> {
@@ -540,6 +541,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
     return of(combinedQuestionData);
   }
+  
   
     
   handleQuestionDisplayLogic(): void {
