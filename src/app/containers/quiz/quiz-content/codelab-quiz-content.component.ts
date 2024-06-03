@@ -412,7 +412,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
     this.combinedText$ = this.combinedQuestionData$.pipe(
       map(data => {
-        console.log('data:', data);
+        console.log('combinedQuestionData:', data); // Debugging
         let combinedText = data.questionText;
         if (data.explanationText) {
           combinedText += ` ${data.explanationText}`;
@@ -420,10 +420,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         if (!data.explanationText && data.correctAnswersText) {
           combinedText += ` ${data.correctAnswersText}`;
         }
+        console.log('combinedText:', combinedText); // Debugging
         return combinedText;
       })
     );
-  }
+  }  
 
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
@@ -511,10 +512,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   ): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
   
-    console.log('isExplanationDisplayed:', isExplanationDisplayed);
-    console.log('formattedExplanation:', formattedExplanation);
-    console.log('numberOfCorrectAnswers:', numberOfCorrectAnswers);
-  
     let correctAnswersText = '';
     if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
@@ -533,10 +530,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       isNavigatingToPrevious: this.isNavigatingToPrevious
     };
   
-    console.log('combinedQuestionData:', combinedQuestionData);
+    console.log('combinedQuestionData:', combinedQuestionData); // Debugging
   
     return of(combinedQuestionData);
   }
+  
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
