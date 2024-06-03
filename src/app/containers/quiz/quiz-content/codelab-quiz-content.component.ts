@@ -409,7 +409,21 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.calculateCombinedQuestionData(currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation)
       )
     );
+  
+    this.combinedText$ = this.combinedQuestionData$.pipe(
+      map(data => {
+        let combinedText = data.questionText;
+        if (data.formattedExplanation) {
+          combinedText += ` ${data.formattedExplanation}`;
+        }
+        if (data.correctAnswersText && !data.formattedExplanation) {
+          combinedText += ` ${data.correctAnswersText}`;
+        }
+        return combinedText;
+      })
+    );
   }
+  
   
 
   async initializeQuestionState(): Promise<void> {
@@ -512,14 +526,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       options: currentOptions,
       questionText: currentQuestion ? currentQuestion.questionText : '',
       explanationText: currentQuestion ? currentQuestion.explanation : '',
-      formattedExplanation: formattedExplanation,
+      formattedExplanation: isExplanationDisplayed ? formattedExplanation : '',
       correctAnswersText: correctAnswersText,
       isNavigatingToPrevious: this.isNavigatingToPrevious
     };
   
     return of(combinedQuestionData);
   }
-  
 
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
