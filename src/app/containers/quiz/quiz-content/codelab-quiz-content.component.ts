@@ -377,7 +377,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   }
 
-  private initializeCombinedQuestionData(): void {
+  /* private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
     this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
@@ -392,7 +392,25 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation)
       )
     );
+  } */
+
+  private initializeCombinedQuestionData(): void {
+    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
+    this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
+    this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
+  
+    this.combinedQuestionData$ = combineLatest([
+      currentQuestionAndOptions$,
+      this.numberOfCorrectAnswers$,
+      this.isExplanationTextDisplayed$,
+      this.formattedExplanation$
+    ]).pipe(
+      switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) =>
+        this.calculateCombinedQuestionData(currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation)
+      )
+    );
   }
+  
 
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
@@ -436,7 +454,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
 
-  private calculateCombinedQuestionData(
+  /* private calculateCombinedQuestionData(
     currentQuestionData: {
       currentQuestion: QuizQuestion | null;
       currentOptions: Option[];
@@ -467,7 +485,41 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     };
 
     return of(combinedQuestionData);
+  } */
+
+  private calculateCombinedQuestionData(
+    currentQuestionData: {
+      currentQuestion: QuizQuestion | null;
+      currentOptions: Option[];
+    },
+    numberOfCorrectAnswers: number | undefined,
+    isExplanationDisplayed: boolean,
+    formattedExplanation: string
+  ): Observable<CombinedQuestionDataType> {
+    const { currentQuestion, currentOptions } = currentQuestionData;
+  
+    let correctAnswersText = '';
+    if (currentQuestion && !isExplanationDisplayed && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
+      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
+      if (questionHasMultipleAnswers) {
+        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+      }
+    }
+  
+    const combinedQuestionData: CombinedQuestionDataType = {
+      currentQuestion: currentQuestion,
+      currentOptions: currentOptions,
+      options: currentOptions,
+      questionText: currentQuestion ? currentQuestion.questionText : '',
+      explanationText: currentQuestion ? currentQuestion.explanation : '',
+      formattedExplanation: formattedExplanation,
+      correctAnswersText: correctAnswersText,
+      isNavigatingToPrevious: this.isNavigatingToPrevious
+    };
+  
+    return of(combinedQuestionData);
   }
+  
 
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
