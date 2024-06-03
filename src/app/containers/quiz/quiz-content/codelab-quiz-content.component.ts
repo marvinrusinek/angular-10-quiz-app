@@ -104,7 +104,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.subscribeToQuestionState(); // remove?
     this.restoreQuestionState(); // remove?
     this.setupCombinedTextObservable(); 
-    this.handleQuestionDisplayLogic();
+    this.handleQuestionDisplayLogic(); // remove?
   }
 
   ngOnDestroy(): void {
