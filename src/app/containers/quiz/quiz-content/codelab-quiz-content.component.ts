@@ -423,7 +423,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         return combinedText;
       })
     );
-  }      
+  }
+        
 
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
@@ -516,7 +517,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     console.log('numberOfCorrectAnswers:', numberOfCorrectAnswers);
   
     let correctAnswersText = '';
-    if (currentQuestion && !isExplanationDisplayed && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
+    if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
       if (questionHasMultipleAnswers) {
         correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
