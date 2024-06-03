@@ -425,7 +425,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         return combinedText;
       })
     );
-  }    
+  }
+      
 
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
@@ -539,6 +540,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
     return of(combinedQuestionData);
   }
+  
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
