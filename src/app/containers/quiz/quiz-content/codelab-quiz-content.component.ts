@@ -106,7 +106,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.restoreQuestionState();
     this.setupCombinedTextObservable(); 
     this.handleQuestionDisplayLogic();
-    this.updateQuizStatus();
   }
 
   ngOnDestroy(): void {
@@ -548,13 +547,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         question ? this.quizStateService.isMultipleAnswerQuestion(question) : of(false)
       )
     );
-  }
-
-  updateQuizStatus(): void {
-    this.questionText = this.question.questionText;
-    this.correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
-    this.quizService.updateQuestionText(this.questionText);
-    this.quizService.updateCorrectAnswersText(this.correctAnswersText);
   }
 
   // Helper function to check if it's a single-answer question with an explanation
