@@ -415,22 +415,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       map(data => {
         console.log('initializeCombinedQuestionData - combinedQuestionData:', data);
         let combinedText = data.questionText;
-  
+    
         // If explanation text is displayed, append it to the combinedText
         if (data.explanationText && data.isExplanationDisplayed) {
+          console.log('Explanation text is displayed');
           combinedText += ` ${data.explanationText}`;
         }
         
         // If explanation text is not displayed and it's not a multiple-answer question,
         // append the correct answers text
         else if (!data.isExplanationDisplayed && !this.quizStateService.isMultipleAnswerQuestion(data.currentQuestion)) {
+          console.log('Correct answers text is displayed');
           combinedText += ` ${data.correctAnswersText}`;
         }
-  
+    
         console.log('initializeCombinedQuestionData - combinedText:', combinedText);
         return combinedText;
       })
-    );
+    );    
   }
   
   
