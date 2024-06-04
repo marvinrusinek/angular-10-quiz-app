@@ -9,5 +9,6 @@ export interface CombinedQuestionDataType {
   currentOptions?: Option[];
   options: Option[];
   isNavigatingToPrevious: boolean;
+  isExplanationDisplayed: boolean;
   formattedExplanation?: string;
 }

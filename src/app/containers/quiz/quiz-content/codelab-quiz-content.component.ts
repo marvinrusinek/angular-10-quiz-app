@@ -417,13 +417,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         let combinedText = data.questionText;
   
         // If explanation text is displayed, append it to the combinedText
-        if (data.explanationText && data.isExplanationDisplayed) {
+        if (isExplanationDisplayed && data.explanationText) {
           combinedText += ` ${data.explanationText}`;
         }
   
         // If explanation text is not displayed, and it's not a multiple-answer question,
         // and there's no explanation text, append the correct answers text
-        else if (!data.isExplanationDisplayed && !data.explanationText && data.correctAnswersText && !this.quizStateService.isMultipleAnswerQuestion(data.currentQuestion)) {
+        else if (!isExplanationDisplayed && !data.explanationText && data.correctAnswersText && !this.quizStateService.isMultipleAnswerQuestion(data.currentQuestion)) {
           combinedText += ` ${data.correctAnswersText}`;
         }
   
@@ -432,6 +432,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   }
+  
+  
   
   
   
