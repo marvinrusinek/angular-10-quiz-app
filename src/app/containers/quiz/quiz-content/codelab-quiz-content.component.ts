@@ -407,7 +407,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ]).pipe(
       switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
         console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-        return this.calculateCombinedQuestionData(currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+        return this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
       })
     );
   
