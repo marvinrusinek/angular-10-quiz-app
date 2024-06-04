@@ -394,22 +394,22 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   } */
 
-  private initializeCombinedQuestionData(): void {
+  /* private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
     this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
   
-    /* this.combinedQuestionData$ = combineLatest([
-      currentQuestionAndOptions$,
-      this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$,
-      this.formattedExplanation$
-    ]).pipe(
-      switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-        return this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-      })
-    ); */
+    // this.combinedQuestionData$ = combineLatest([
+    //  currentQuestionAndOptions$,
+    //  this.numberOfCorrectAnswers$,
+    //  this.isExplanationTextDisplayed$,
+    //  this.formattedExplanation$
+    //]).pipe(
+    //  switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+    //    console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+    //    return this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+    //  })
+    //);
 
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
@@ -455,10 +455,45 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         return combinedText;
       })
     );    
-  }
+  } */
   
+  private initializeCombinedQuestionData(): void {
+    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
+    this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
+    this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
   
+    this.combinedQuestionData$ = combineLatest([
+      currentQuestionAndOptions$,
+      this.numberOfCorrectAnswers$,
+      this.isExplanationTextDisplayed$,
+      this.formattedExplanation$
+    ]).pipe(
+      switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+        return this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+      })
+    );
   
+    this.combinedText$ = this.combinedQuestionData$.pipe(
+      map(data => {
+        console.log('initializeCombinedQuestionData - combinedQuestionData:', data);
+        let combinedText = data.questionText;
+  
+        // Display the explanation text if it exists and isExplanationDisplayed is true
+        if (data.explanationText && data.isExplanationDisplayed) {
+          combinedText += ` ${data.explanationText}`;
+        }
+  
+        // If explanation text is not displayed and it's not a multiple-answer question, append the correct answers text
+        else if (!data.isExplanationDisplayed && !this.quizStateService.isMultipleAnswerQuestion(data.currentQuestion)) {
+          combinedText += ` ${data.correctAnswersText}`;
+        }
+  
+        console.log('initializeCombinedQuestionData - combinedText:', combinedText);
+        return combinedText;
+      })
+    );
+  }  
   
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
