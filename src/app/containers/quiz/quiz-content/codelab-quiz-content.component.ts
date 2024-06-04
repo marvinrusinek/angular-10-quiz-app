@@ -457,7 +457,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );    
   } */
   
-  // Inside the initializeCombinedQuestionData() method
   private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
