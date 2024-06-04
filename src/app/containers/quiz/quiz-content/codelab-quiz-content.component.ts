@@ -405,6 +405,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.isExplanationTextDisplayed$,
       this.formattedExplanation$
     ]).pipe(
+      tap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+        console.log('Type of isExplanationDisplayed:', typeof isExplanationDisplayed);
+      }),
       switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
         console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
         return this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
@@ -416,7 +419,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.log('initializeCombinedQuestionData - combinedQuestionData:', data);
         let combinedText = data.questionText;
   
-        // If explanation text is displayed, append it to the combinedText
+        // Ensure that isExplanationDisplayed is accessed correctly
         if (isExplanationDisplayed && data.explanationText) {
           combinedText += ` ${data.explanationText}`;
         }
@@ -432,10 +435,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   }
-  
-  
-  
-  
   
 
   async initializeQuestionState(): Promise<void> {
