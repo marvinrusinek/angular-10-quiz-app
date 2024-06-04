@@ -420,8 +420,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         if (data.explanationText && data.isExplanationDisplayed) {
           combinedText += ` ${data.explanationText}`;
         }
-        // If explanation text is not displayed and it's a multiple-answer question, append the correct answers text
-        else if (!data.isExplanationDisplayed && data.correctAnswersText && this.quizStateService.isMultipleAnswerQuestion(data.currentQuestion)) {
+        // If explanation text is not displayed, and it's not a multiple-answer question, append the correct answers text
+        else if (!data.isExplanationDisplayed && data.correctAnswersText && !this.quizStateService.isMultipleAnswerQuestion(data.currentQuestion)) {
           combinedText += ` ${data.correctAnswersText}`;
         }
     
@@ -429,17 +429,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         return combinedText;
       })
     );
-    
-    
-    
-    
-    
   }
-  
-  
-  
-  
-      
 
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
