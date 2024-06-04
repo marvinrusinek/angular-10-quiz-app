@@ -434,6 +434,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
   
   
+  
+  
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
     this.subscribeToQuestionState();
@@ -520,6 +522,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   ): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
     
+    console.log('calculateCombinedQuestionData - isExplanationDisplayed:', isExplanationDisplayed); // Add this line for logging
+    
     let correctAnswersText = '';
     if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
@@ -536,11 +540,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       explanationText: isExplanationDisplayed ? formattedExplanation : '',
       correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '',
       isNavigatingToPrevious: this.isNavigatingToPrevious,
-      isExplanationDisplayed: isExplanationDisplayed // Ensure isExplanationDisplayed is included in the data
+      isExplanationDisplayed: isExplanationDisplayed
     };
     
     return of(combinedQuestionData);
   }
+  
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
