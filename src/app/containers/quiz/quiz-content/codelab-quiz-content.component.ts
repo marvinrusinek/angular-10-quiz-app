@@ -415,17 +415,19 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       map(data => {
         console.log('initializeCombinedQuestionData - combinedQuestionData:', data);
         let combinedText = data.questionText;
-        if (data.explanationText) {
-          combinedText += ` ${data.explanationText}`;
-        }
         if (!data.explanationText && data.correctAnswersText) {
           combinedText += ` ${data.correctAnswersText}`;
+        } else if (data.explanationText) {
+          combinedText += ` ${data.explanationText}`;
         }
         console.log('initializeCombinedQuestionData - combinedText:', combinedText);
         return combinedText;
       })
-    );
+    );    
   }
+  
+  
+  
   
       
 
