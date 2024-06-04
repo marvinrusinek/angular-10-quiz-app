@@ -398,45 +398,39 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
     this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
-  
+    
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
       this.isExplanationTextDisplayed$,
       this.formattedExplanation$
     ]).pipe(
-      tap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-        console.log('Type of isExplanationDisplayed:', typeof isExplanationDisplayed);
-      }),
       switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
         console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
         return this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
       })
     );
-  
+    
     this.combinedText$ = this.combinedQuestionData$.pipe(
       map(data => {
         console.log('initializeCombinedQuestionData - combinedQuestionData:', data);
         let combinedText = data.questionText;
-  
-        // Ensure that isExplanationDisplayed is accessed correctly
-        if (isExplanationDisplayed && data.explanationText) {
+    
+        // If explanation text is displayed, append it to the combinedText
+        if (data.explanationText && data.isExplanationDisplayed) {
           combinedText += ` ${data.explanationText}`;
         }
-  
-        // If explanation text is not displayed, and it's not a multiple-answer question,
-        // and there's no explanation text, append the correct answers text
-        else if (!isExplanationDisplayed && !data.explanationText && data.correctAnswersText && !this.quizStateService.isMultipleAnswerQuestion(data.currentQuestion)) {
+        // If explanation text is not displayed, and it's not a multiple-answer question, append the correct answers text
+        else if (!data.isExplanationDisplayed && data.correctAnswersText && !this.quizStateService.isMultipleAnswerQuestion(data.currentQuestion)) {
           combinedText += ` ${data.correctAnswersText}`;
         }
-  
+    
         console.log('initializeCombinedQuestionData - combinedText:', combinedText);
         return combinedText;
       })
     );
   }
   
-
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
     this.subscribeToQuestionState();
@@ -522,11 +516,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     formattedExplanation: string
   ): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
-  
-    console.log('calculateCombinedQuestionData - isExplanationDisplayed:', isExplanationDisplayed);
-    console.log('calculateCombinedQuestionData - formattedExplanation:', formattedExplanation);
-    console.log('calculateCombinedQuestionData - numberOfCorrectAnswers:', numberOfCorrectAnswers);
-  
+    
     let correctAnswersText = '';
     if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
@@ -534,7 +524,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
       }
     }
-  
+    
     const combinedQuestionData: CombinedQuestionDataType = {
       currentQuestion: currentQuestion,
       currentOptions: currentOptions,
@@ -542,15 +532,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       questionText: currentQuestion ? currentQuestion.questionText : '',
       explanationText: isExplanationDisplayed ? formattedExplanation : '',
       correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '',
-      isNavigatingToPrevious: this.isNavigatingToPrevious
+      isNavigatingToPrevious: this.isNavigatingToPrevious,
+      isExplanationDisplayed: isExplanationDisplayed // Ensure isExplanationDisplayed is included in the data
     };
-  
-    console.log('calculateCombinedQuestionData - combinedQuestionData:', combinedQuestionData);
-  
+    
     return of(combinedQuestionData);
   }
-  
-  
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
