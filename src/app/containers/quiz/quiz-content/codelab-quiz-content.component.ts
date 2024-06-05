@@ -489,6 +489,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
 
+
   
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
