@@ -122,24 +122,25 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       const zeroBasedIndex = questionIndex - 1;
       this.loadQuestion(this.quizId, zeroBasedIndex);
     });
-
+  
     this.currentQuestion.pipe(
       debounceTime(200),
       tap((question: QuizQuestion | null) => {
-        this.updateCorrectAnswersDisplay(question).subscribe();
+        if (question) {
+          this.updateCorrectAnswersDisplay(question).subscribe(() => {
+            this.fetchAndDisplayExplanationText(question);
+          });
+        }
       })
     ).subscribe();
   }
-
+  
   loadQuestion(quizId: string, zeroBasedIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
         this.currentQuestion.next(question);
         this.isExplanationDisplayed = false; // Reset explanation display state
-        this.updateCorrectAnswersDisplay(question).subscribe(() => {
-          this.fetchAndDisplayExplanationText(question);
-        });
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
       }
