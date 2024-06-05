@@ -124,34 +124,35 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       console.log('Loading question with index:', zeroBasedIndex);
       this.loadQuestion(this.quizId, zeroBasedIndex);
     });
-  
+
     this.currentQuestion.pipe(
       debounceTime(200),
       switchMap((question: QuizQuestion | null) => {
         console.log('Current question updated:', question);
         if (question) {
           return this.updateCorrectAnswersDisplay(question).pipe(
-            tap(() => {
-              console.log('Updated correct answers display for question:', question);
-              this.fetchAndDisplayExplanationText(question);
-            }),
-            switchMap(() => this.shouldDisplayCorrectAnswersText(question))
+            tap(() => this.fetchAndDisplayExplanationText(question)),
+            map(() => question) // Pass the question along
           );
         } else {
           return of(null);
         }
-      }),
-      tap((shouldDisplay: boolean | null) => {
-        console.log('Should display correct answers text:', shouldDisplay);
-        if (shouldDisplay) {
-          console.log('Displaying number of correct answers text');
-        } else {
-          console.log('Not displaying number of correct answers text');
-        }
       })
-    ).subscribe();
+    ).subscribe((question: QuizQuestion | null) => {
+      if (question) {
+        this.shouldDisplayCorrectAnswersText(question).subscribe(shouldDisplay => {
+          console.log('Should display correct answers text:', shouldDisplay);
+          if (shouldDisplay) {
+            console.log('Displaying number of correct answers text');
+            // Your logic to display the number of correct answers text
+          } else {
+            console.log('Not displaying number of correct answers text');
+          }
+        });
+      }
+    });
   }
-  
+
   loadQuestion(quizId: string, zeroBasedIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
       console.log('Questions fetched for quiz:', questions);
@@ -170,7 +171,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     // Implement your logic to determine if the correct answers text should be displayed
     // For example, if the question has multiple correct answers
     return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
-      tap((isMultiple: boolean) => {
+      tap(isMultiple => {
         console.log('Is multiple answer question:', isMultiple);
       })
     );
