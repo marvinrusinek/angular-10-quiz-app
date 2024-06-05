@@ -117,33 +117,63 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   loadQuizDataFromRoute(): void {
     this.activatedRoute.paramMap.subscribe(params => {
+      console.log('Route params:', params);
       this.quizId = params.get('quizId');
       const questionIndex = +params.get('questionIndex');
       const zeroBasedIndex = questionIndex - 1;
+      console.log('Loading question with index:', zeroBasedIndex);
       this.loadQuestion(this.quizId, zeroBasedIndex);
     });
-
+  
     this.currentQuestion.pipe(
       debounceTime(200),
-      tap((question: QuizQuestion | null) => {
-        this.updateCorrectAnswersDisplay(question).subscribe();
+      switchMap((question: QuizQuestion | null) => {
+        console.log('Current question updated:', question);
+        if (question) {
+          return this.updateCorrectAnswersDisplay(question).pipe(
+            tap(() => {
+              console.log('Updated correct answers display for question:', question);
+              this.fetchAndDisplayExplanationText(question);
+            }),
+            switchMap(() => this.shouldDisplayCorrectAnswersText(question))
+          );
+        } else {
+          return of(null);
+        }
+      }),
+      tap((shouldDisplay: boolean | null) => {
+        console.log('Should display correct answers text:', shouldDisplay);
+        if (shouldDisplay) {
+          console.log('Displaying number of correct answers text');
+        } else {
+          console.log('Not displaying number of correct answers text');
+        }
       })
     ).subscribe();
   }
-
+  
   loadQuestion(quizId: string, zeroBasedIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
+      console.log('Questions fetched for quiz:', questions);
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
-        this.currentQuestion.next(question);
+        console.log('Question to load:', question);
         this.isExplanationDisplayed = false; // Reset explanation display state
-        this.updateCorrectAnswersDisplay(question).subscribe(() => {
-          this.fetchAndDisplayExplanationText(question);
-        });
+        this.currentQuestion.next(question);
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
       }
     });
+  }
+
+  shouldDisplayCorrectAnswersText(question: QuizQuestion): Observable<boolean> {
+    // Implement your logic to determine if the correct answers text should be displayed
+    // For example, if the question has multiple correct answers
+    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
+      tap((isMultiple: boolean) => {
+        console.log('Is multiple answer question:', isMultiple);
+      })
+    );
   }
 
   initializeSubscriptions(): void {
