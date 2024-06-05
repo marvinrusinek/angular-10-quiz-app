@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, EMPTY, finalize, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -130,6 +130,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         const question = questions[zeroBasedIndex];
         this.isExplanationDisplayed = false; // Reset explanation display state
         this.currentQuestion.next(question);
+        // Perform updates related to the new question here to avoid the loop
         this.updateCorrectAnswersDisplay(question).subscribe(() => {
           this.fetchAndDisplayExplanationText(question);
         });
@@ -137,7 +138,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Invalid question index:', zeroBasedIndex);
       }
     });
-  }
+  }  
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
@@ -481,7 +482,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   }
-  
 
 
   
@@ -570,31 +570,30 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     formattedExplanation: string
   ): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
-  
+    
     console.log('calculateCombinedQuestionData - isExplanationDisplayed:', isExplanationDisplayed); // Add this line for logging
-  
+    
     let correctAnswersText = '';
     if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
-      if (questionHasMultipleAnswers && !isExplanationDisplayed) { // Adjusted condition here
+      if (questionHasMultipleAnswers) {
         correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
       }
     }
-  
+    
     const combinedQuestionData: CombinedQuestionDataType = {
       currentQuestion: currentQuestion,
       currentOptions: currentOptions,
       options: currentOptions,
       questionText: currentQuestion ? currentQuestion.questionText : '',
       explanationText: isExplanationDisplayed ? formattedExplanation : '',
-      correctAnswersText: correctAnswersText, // Always set correctAnswersText
+      correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '',
       isNavigatingToPrevious: this.isNavigatingToPrevious,
       isExplanationDisplayed: isExplanationDisplayed
     };
-  
+    
     return of(combinedQuestionData);
   }
-  
   
     
   handleQuestionDisplayLogic(): void {
