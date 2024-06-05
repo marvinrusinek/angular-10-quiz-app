@@ -570,30 +570,31 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     formattedExplanation: string
   ): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
-    
+  
     console.log('calculateCombinedQuestionData - isExplanationDisplayed:', isExplanationDisplayed); // Add this line for logging
-    
+  
     let correctAnswersText = '';
     if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
-      if (questionHasMultipleAnswers) {
+      if (questionHasMultipleAnswers && !isExplanationDisplayed) { // Adjusted condition here
         correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
       }
     }
-    
+  
     const combinedQuestionData: CombinedQuestionDataType = {
       currentQuestion: currentQuestion,
       currentOptions: currentOptions,
       options: currentOptions,
       questionText: currentQuestion ? currentQuestion.questionText : '',
       explanationText: isExplanationDisplayed ? formattedExplanation : '',
-      correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '',
+      correctAnswersText: correctAnswersText, // Always set correctAnswersText
       isNavigatingToPrevious: this.isNavigatingToPrevious,
       isExplanationDisplayed: isExplanationDisplayed
     };
-    
+  
     return of(combinedQuestionData);
   }
+  
   
     
   handleQuestionDisplayLogic(): void {
