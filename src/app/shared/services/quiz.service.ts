@@ -1588,7 +1588,7 @@ export class QuizService implements OnDestroy {
       this.quizData = null;
       this.questions = [];
     }
-  }
+  } 
 
   resetUserSelection(): void {
     this.selectedOption$.next('');
