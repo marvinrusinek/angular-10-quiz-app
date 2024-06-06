@@ -157,11 +157,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.isAnswered$ = this.quizService.isAnswered$;
+
+    this.quizService.getTotalQuestions().subscribe(total => {
+      this.totalQuestions = total;
+    });
+
     this.quizService.quizReset$.subscribe(() => {
       this.refreshQuestionOnReset();
     });
-
-    this.isAnswered$ = this.quizService.isAnswered$;
   }
 
   @HostListener('window:focus', ['$event'])
@@ -187,10 +191,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
-
-    this.quizService.getTotalQuestions().subscribe(total => {
-      this.totalQuestions = total;
-    });
   }
 
   ngOnDestroy(): void {
@@ -682,15 +682,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Error fetching question from service:', error);
       }
-    });
-  }
-
-  refreshQuestionOnReset(): void {
-    this.quizService.getCurrentQuestion().pipe( 
-      takeUntil(this.unsubscribe$)
-    ).subscribe((question: QuizQuestion) => {
-      this.currentQuestion = question;
-      this.options = question?.options || [];
     });
   }
 
@@ -1208,6 +1199,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
   private async updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean): Promise<void> {
     const totalQuestions: number = await lastValueFrom(this.quizService.totalQuestions$.pipe(take(1)));
+
     let message: string;
 
     if (!isFirstQuestion || isAnswered) {
