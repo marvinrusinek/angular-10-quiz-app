@@ -1028,7 +1028,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const currentQuestion = selectedQuiz.questions[questionIndex];
 
     // Initialize the quiz state for the current question
-    this.initializeQuizState();
+    this.quizStateService.createDefaultQuestionState();
 
     // Set the explanation text for the current question
     this.setExplanationTextForCurrentQuestion(currentQuestion);
@@ -1784,19 +1784,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }).catch(error => {
       console.error('Error during quiz restart:', error);
     });
-  }
-
-  initializeQuestionState(): void {
-    const questionStates = new Map<number, QuestionState>();
-    this.questions.forEach((question, index) => {
-      questionStates.set(index, {
-        selectedOptions: [],
-        isAnswered: false,
-        numberOfCorrectAnswers: 0
-      });
-    });
-
-    this.quizStateService.questionStates = questionStates;
   }
 
   setDisplayStateForExplanationsAfterRestart(): Promise<void> {
