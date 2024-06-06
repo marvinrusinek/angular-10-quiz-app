@@ -187,6 +187,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
+
+    this.quizService.getTotalQuestions().subscribe(total => {
+      this.totalQuestions = total;
+    });
   }
 
   ngOnDestroy(): void {
