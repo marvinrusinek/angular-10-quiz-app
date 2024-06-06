@@ -687,4 +687,4 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   private isSingleAnswerWithExplanation(isMultipleAnswer: boolean, isExplanationDisplayed: boolean): boolean {
     return !isMultipleAnswer && isExplanationDisplayed;
   }
-} 
+}
