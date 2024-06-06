@@ -252,7 +252,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.fetchQuizData();
     this.initializeQuiz();
     this.initializeQuizFromRoute();
-    this.retrieveTotalQuestionsCount();
   }
 
   private initializeCurrentQuestion(): void {
@@ -830,15 +829,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       } else {
         console.error("Quiz data is unavailable.");
       }
-    });
-  }
-
-  public retrieveTotalQuestionsCount(): void {
-    this.getTotalQuestions().then(total => {
-      this.totalQuestions = total;
-      this.isQuizDataLoaded = true;
-    }).catch(error => {
-      console.error('Error fetching total questions:', error);
     });
   }
 
@@ -1493,10 +1483,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   shouldDisableButton(): boolean {
     return !this.formControl || this.formControl.valid === false;
-  }
-
-  private async getTotalQuestions(): Promise<number> {
-    return await firstValueFrom(this.quizService.getTotalQuestions());
   }
 
   private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
