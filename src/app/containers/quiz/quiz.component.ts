@@ -685,6 +685,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
+  refreshQuestionOnReset(): void {
+    this.quizService.getCurrentQuestion().pipe( 
+      takeUntil(this.unsubscribe$)
+    ).subscribe((question: QuizQuestion) => {
+      this.currentQuestion = question;
+      this.options = question?.options || [];
+    });
+  }
+
   checkAndDisplayCorrectAnswers(): void {
     const multipleAnswerQuestionIndex = this.findCurrentMultipleAnswerQuestionIndex();
     if (this.quizService.isAnswered(multipleAnswerQuestionIndex)) {
