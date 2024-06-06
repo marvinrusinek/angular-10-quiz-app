@@ -1749,7 +1749,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   restartQuiz(): void {
     // Initialize or clear question states at the beginning of the quiz restart
     this.initializeQuestionState();  // Initialize all question states
-    this.clearSelectedOptions();  // Clear selected options for all questions
+    this.quizStateService.clearSelectedOptions();  // Clear selected options for all questions
 
     // Step 1: Reset quiz-specific states and services
     this.quizService.resetAll();
@@ -1797,12 +1797,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     this.quizStateService.questionStates = questionStates;
-  }
-
-  clearSelectedOptions(): void {
-    this.quizStateService.questionStates.forEach((state, key) => {
-      state.selectedOptions = [];
-    });
   }
 
   setDisplayStateForExplanationsAfterRestart(): Promise<void> {

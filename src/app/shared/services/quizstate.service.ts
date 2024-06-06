@@ -194,6 +194,12 @@ export class QuizStateService {
     }
   }
 
+  clearSelectedOptions(): void {
+    this.questionStates.forEach((state, key) => {
+      state.selectedOptions = [];
+    });
+  }
+
   setQuizQuestionCreated(): void {
     this.quizQuestionCreated = true;
   }
