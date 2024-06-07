@@ -270,7 +270,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       });
   }
 
-  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+  /* private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
     if (!question) {
       return of(void 0);
     }
@@ -296,7 +296,41 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       }),
       map(() => void 0)
     );
+  } */
+
+  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+    if (!question) {
+      return of(void 0);
+    }
+  
+    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
+      tap(isMultipleAnswer => {
+        const correctAnswers = question.options.filter(option => option.correct).length;
+        let newCorrectAnswersText = '';
+  
+        if (isMultipleAnswer) {
+          if (this.isExplanationDisplayed) {
+            // If explanation is displayed, don't show correct answers text
+            newCorrectAnswersText = '';
+          } else {
+            newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
+          }
+        }
+  
+        if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
+          this.correctAnswersTextSource.next(newCorrectAnswersText);
+        }
+  
+        const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
+  
+        if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
+          this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+        }
+      }),
+      map(() => void 0)
+    );
   }
+  
 
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
@@ -478,12 +512,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       map(data => {
         console.log('initializeCombinedQuestionData - combinedQuestionData:', data);
         let combinedText = data.questionText;
-
+    
         // Combine question text and explanation text if applicable
-        if (data.explanationText && data.isExplanationDisplayed) {
+        if (data.isExplanationDisplayed) {
           combinedText += ` ${data.explanationText}`;
         }
-
+    
         return combinedText;
       })
     );
@@ -602,6 +636,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     
     return of(combinedQuestionData);
   }
+  
   
   
   
