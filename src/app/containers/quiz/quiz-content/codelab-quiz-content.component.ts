@@ -610,31 +610,30 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     formattedExplanation: string
   ): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
-    
-    console.log('calculateCombinedQuestionData - isExplanationDisplayed:', isExplanationDisplayed); // Add this line for logging
-    
-    let shouldDisplayCorrectAnswers = false; // Flag to determine whether correct answers text should be displayed
   
+    let correctAnswersText = '';
     if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
       if (questionHasMultipleAnswers && !isExplanationDisplayed) {
-        shouldDisplayCorrectAnswers = true; // Set flag to true if it's a multiple-answer question and explanation is not displayed
+        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
       }
     }
-    
+  
     const combinedQuestionData: CombinedQuestionDataType = {
       currentQuestion: currentQuestion,
       currentOptions: currentOptions,
       options: currentOptions,
       questionText: currentQuestion ? currentQuestion.questionText : '',
       explanationText: isExplanationDisplayed ? formattedExplanation : '',
-      correctAnswersText: shouldDisplayCorrectAnswers ? this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers) : '', // Include correct answers text only if the flag is true
+      correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '', // Display correct answers text only if explanation is not displayed
       isNavigatingToPrevious: this.isNavigatingToPrevious,
       isExplanationDisplayed: isExplanationDisplayed
     };
-    
+  
     return of(combinedQuestionData);
   }
+  
+  
   
   
   
