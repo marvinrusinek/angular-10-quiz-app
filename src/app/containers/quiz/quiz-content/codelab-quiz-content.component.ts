@@ -613,13 +613,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     
     console.log('calculateCombinedQuestionData - isExplanationDisplayed:', isExplanationDisplayed); // Add this line for logging
     
-    let correctAnswersText = '';
+    let shouldDisplayCorrectAnswers = false; // Flag to determine whether correct answers text should be displayed
+  
     if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
-      if (questionHasMultipleAnswers) {
-        if (!isExplanationDisplayed) {
-          correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-        }
+      if (questionHasMultipleAnswers && !isExplanationDisplayed) {
+        shouldDisplayCorrectAnswers = true; // Set flag to true if it's a multiple-answer question and explanation is not displayed
       }
     }
     
@@ -629,13 +628,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       options: currentOptions,
       questionText: currentQuestion ? currentQuestion.questionText : '',
       explanationText: isExplanationDisplayed ? formattedExplanation : '',
-      correctAnswersText: correctAnswersText,
+      correctAnswersText: shouldDisplayCorrectAnswers ? this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers) : '', // Include correct answers text only if the flag is true
       isNavigatingToPrevious: this.isNavigatingToPrevious,
       isExplanationDisplayed: isExplanationDisplayed
     };
     
     return of(combinedQuestionData);
   }
+  
   
   
   
