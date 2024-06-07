@@ -583,7 +583,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
       if (questionHasMultipleAnswers) {
-        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+        if (!isExplanationDisplayed) {
+          correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+        }
       }
     }
     
@@ -593,13 +595,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       options: currentOptions,
       questionText: currentQuestion ? currentQuestion.questionText : '',
       explanationText: isExplanationDisplayed ? formattedExplanation : '',
-      correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '',
+      correctAnswersText: correctAnswersText,
       isNavigatingToPrevious: this.isNavigatingToPrevious,
       isExplanationDisplayed: isExplanationDisplayed
     };
     
     return of(combinedQuestionData);
   }
+  
+  
+  
+  
   
     
   handleQuestionDisplayLogic(): void {
