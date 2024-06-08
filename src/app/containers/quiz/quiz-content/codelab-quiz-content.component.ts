@@ -370,25 +370,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
         tap(isMultipleAnswer => {
-            const correctAnswers = question.options.filter(option => option.correct).length;
             let newCorrectAnswersText = '';
 
             if (isMultipleAnswer && !this.isExplanationDisplayed) {
-                newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
+                newCorrectAnswersText = '(Multiple answers are correct)';
             }
 
             console.log('updateCorrectAnswersDisplay - isExplanationDisplayed:', this.isExplanationDisplayed);
             console.log('Correct answers text:', newCorrectAnswersText);
-            if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
-                this.correctAnswersTextSource.next(newCorrectAnswersText);
-            }
 
-            const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-            console.log('shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
-
-            if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
-                this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-            }
+            this.correctAnswersTextSource.next(newCorrectAnswersText);
         }),
         map(() => void 0)
     );
@@ -473,19 +464,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         if (this.quizService.isValidQuizQuestion(currentQuestion)) {
             this.currentQuestion.next(currentQuestion);
 
-            if (questionIndex < questions.length - 1) {
-                const nextQuestion = questions[questionIndex + 1];
-                if (nextQuestion) {
-                    this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
-                    this.updateExplanationForQuestion(nextQuestion);
-                    this.explanationTextService.setIsExplanationTextDisplayed(true);
-                    console.log('Explanation displayed for question:', question);
-                } else {
-                    console.warn('Next question not found in the questions array.');
-                }
-            } else {
-                console.warn('Current question is the last question in the array.');
-            }
+            this.explanationTextService.setIsExplanationTextDisplayed(true);
+            console.log('fetchAndDisplayExplanationText: Explanation displayed for question:', currentQuestion);
         } else {
             console.error("Current question is not valid");
         }
@@ -493,6 +473,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
+
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
