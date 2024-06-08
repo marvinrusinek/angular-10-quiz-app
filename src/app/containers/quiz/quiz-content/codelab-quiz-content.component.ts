@@ -330,7 +330,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   } */
 
-  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+  /* private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
     if (!question) {
       return of(void 0);
     }
@@ -360,6 +360,34 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }
       }),
       map(() => void 0)
+    );
+  } */
+
+  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+    if (!question) {
+        return of(void 0);
+    }
+
+    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
+        tap(isMultipleAnswer => {
+            const correctAnswers = question.options.filter(option => option.correct).length;
+            let newCorrectAnswersText = '';
+
+            if (isMultipleAnswer && !this.isExplanationDisplayed) {
+                newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
+            }
+
+            if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
+                this.correctAnswersTextSource.next(newCorrectAnswersText);
+            }
+
+            const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
+
+            if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
+                this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+            }
+        }),
+        map(() => void 0)
     );
   }
   
@@ -684,7 +712,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     return of(combinedQuestionData);
   } */
 
-  private calculateCombinedQuestionData(
+  /* private calculateCombinedQuestionData(
     currentQuestionData: {
       currentQuestion: QuizQuestion | null;
       currentOptions: Option[];
@@ -720,7 +748,41 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     };
   
     return of(combinedQuestionData);
+  } */
+
+  private calculateCombinedQuestionData(
+    currentQuestionData: {
+        currentQuestion: QuizQuestion | null;
+        currentOptions: Option[];
+    },
+    numberOfCorrectAnswers: number | undefined,
+    isExplanationDisplayed: boolean,
+    formattedExplanation: string
+): Observable<CombinedQuestionDataType> {
+    const { currentQuestion, currentOptions } = currentQuestionData;
+
+    let correctAnswersText = '';
+    if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
+        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
+        if (questionHasMultipleAnswers && !isExplanationDisplayed) {
+            correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+        }
+    }
+
+    const combinedQuestionData: CombinedQuestionDataType = {
+        currentQuestion: currentQuestion,
+        currentOptions: currentOptions,
+        options: currentOptions,
+        questionText: currentQuestion ? currentQuestion.questionText : '',
+        explanationText: isExplanationDisplayed ? formattedExplanation : '',
+        correctAnswersText: correctAnswersText, // Always include correct answers text
+        isNavigatingToPrevious: this.isNavigatingToPrevious,
+        isExplanationDisplayed: isExplanationDisplayed
+    };
+
+    return of(combinedQuestionData);
   }
+
   
   
   
