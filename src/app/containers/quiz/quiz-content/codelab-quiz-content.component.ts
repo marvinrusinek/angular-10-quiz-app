@@ -383,14 +383,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             console.log('updateCorrectAnswersDisplay - isExplanationDisplayed:', this.isExplanationDisplayed);
             console.log('Correct answers text:', newCorrectAnswersText);
 
-            if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
-                this.correctAnswersTextSource.next(newCorrectAnswersText);
-            }
+            this.correctAnswersTextSource.next(newCorrectAnswersText);
         }),
         map(() => void 0)
     );
   }
-
 
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
@@ -773,7 +770,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     return of(combinedQuestionData);
   }
-
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
