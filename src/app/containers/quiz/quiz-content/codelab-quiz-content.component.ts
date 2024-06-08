@@ -131,7 +131,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
-  loadQuestion(quizId: string, zeroBasedIndex: number): void {
+  /* loadQuestion(quizId: string, zeroBasedIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
@@ -144,7 +144,30 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Invalid question index:', zeroBasedIndex);
       }
     });
+  } */
+
+  loadQuestion(quizId: string, zeroBasedIndex: number): void {
+    this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
+        if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
+            const question = questions[zeroBasedIndex];
+            this.currentQuestion.next(question);
+
+            // Subscribe to isExplanationTextDisplayed$ to log the emitted value
+            this.explanationTextService.isExplanationTextDisplayed$.subscribe(isDisplayed => {
+                console.log('isExplanationTextDisplayed$ value:', isDisplayed);
+                this.isExplanationDisplayed = isDisplayed; // Update isExplanationDisplayed
+            });
+
+            this.updateCorrectAnswersDisplay(question).subscribe(() => {
+                this.fetchAndDisplayExplanationText(question);
+            });
+        } else {
+            console.error('Invalid question index:', zeroBasedIndex);
+        }
+    });
   }
+
+
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
@@ -612,9 +635,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     const { currentQuestion, currentOptions } = currentQuestionData;
   
     let correctAnswersText = '';
-    if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
+    if (
+      currentQuestion &&
+      numberOfCorrectAnswers !== undefined &&
+      numberOfCorrectAnswers > 1 &&
+      !isExplanationDisplayed // Only display correct answers text if explanation is not displayed
+    ) {
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
-      if (questionHasMultipleAnswers && !isExplanationDisplayed) {
+      if (questionHasMultipleAnswers) {
         correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
       }
     }
@@ -625,13 +653,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       options: currentOptions,
       questionText: currentQuestion ? currentQuestion.questionText : '',
       explanationText: isExplanationDisplayed ? formattedExplanation : '',
-      correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '', // Display correct answers text only if explanation is not displayed
+      correctAnswersText: correctAnswersText,
       isNavigatingToPrevious: this.isNavigatingToPrevious,
       isExplanationDisplayed: isExplanationDisplayed
     };
   
     return of(combinedQuestionData);
   }
+  
   
   
   
