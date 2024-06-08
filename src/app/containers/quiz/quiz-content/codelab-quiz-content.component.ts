@@ -164,6 +164,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
           // Subscribe to isExplanationTextDisplayed$
           this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
+            console.log('isExplanationTextDisplayed$ value:', isDisplayed);
             this.isExplanationDisplayed = isDisplayed;
           });
         } else {
