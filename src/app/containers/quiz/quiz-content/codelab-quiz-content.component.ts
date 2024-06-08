@@ -96,7 +96,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
 
-    this.explanationTextService.isExplanationTextDisplayed$.subscribe(isDisplayed => {
+    this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
+
+    this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
       console.log('isExplanationTextDisplayed$ value:', isDisplayed);
       this.isExplanationDisplayed = isDisplayed; // Update the local state
     });
@@ -472,9 +474,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }
 
         const currentQuestion = questions[questionIndex];
-        // Validate the current question
         if (this.quizService.isValidQuizQuestion(currentQuestion)) {
-            // Set the current question
             this.currentQuestion.next(currentQuestion);
 
             if (questionIndex < questions.length - 1) {
@@ -482,8 +482,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
                 if (nextQuestion) {
                     this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
                     this.updateExplanationForQuestion(nextQuestion);
-                    // Set the explanation display state to true when a new explanation is fetched
-                    this.explanationTextService.setIsExplanationTextDisplayed(true);
+                    this.explanationTextService.setIsExplanationTextDisplayed(true); // Explanation is displayed
                 } else {
                     console.warn('Next question not found in the questions array.');
                 }
@@ -497,6 +496,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
+
 
 
 
