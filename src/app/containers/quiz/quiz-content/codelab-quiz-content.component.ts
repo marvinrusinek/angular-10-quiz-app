@@ -756,7 +756,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     const { currentQuestion, currentOptions } = currentQuestionData;
 
     let correctAnswersText = '';
-    console.log("Current Question:", currentQuestion);
+    console.log("Current Question Data:", currentQuestionData);
     console.log("Number of Correct Answers:", numberOfCorrectAnswers);
     console.log("Is Explanation Displayed:", isExplanationDisplayed);
 
@@ -785,6 +785,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     return of(combinedQuestionData);
   }
+
   
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
