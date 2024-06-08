@@ -155,16 +155,20 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             this.currentQuestion.next(question);
             this.isExplanationDisplayed = false; // Reset explanation display state
             
-            // Subscribe to isExplanationTextDisplayed$ first
-            this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
-                this.isExplanationDisplayed = isDisplayed;
-                
-                // Call updateCorrectAnswersDisplay inside the subscription
+            // Ensure isExplanationTextDisplayed$ is defined before subscribing
+            if (this.isExplanationTextDisplayed$) {
                 this.updateCorrectAnswersDisplay(question).subscribe(() => {
                     // Fetch and display explanation text
                     this.fetchAndDisplayExplanationText(question);
                 });
-            });
+
+                // Subscribe to isExplanationTextDisplayed$
+                this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
+                    this.isExplanationDisplayed = isDisplayed;
+                });
+            } else {
+                console.error('isExplanationTextDisplayed$ is not initialized.');
+            }
         } else {
             console.error('Invalid question index:', zeroBasedIndex);
         }
