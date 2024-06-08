@@ -380,21 +380,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             console.log('updateCorrectAnswersDisplay - isExplanationDisplayed:', this.isExplanationDisplayed);
             console.log('Correct answers text:', newCorrectAnswersText);
 
-            if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
-                this.correctAnswersTextSource.next(newCorrectAnswersText);
-            }
-
-            const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-            console.log('shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
-
-            if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
-                this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-            }
+            this.correctAnswersTextSource.next(newCorrectAnswersText);
         }),
         map(() => void 0)
     );
   }
-
 
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
@@ -485,8 +475,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
-
-
 
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
