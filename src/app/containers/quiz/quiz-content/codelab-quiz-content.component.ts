@@ -95,6 +95,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.quizService.getIsNavigatingToPrevious().subscribe(
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
+
+    this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
   }
 
   ngOnInit(): void {
@@ -152,19 +154,27 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             const question = questions[zeroBasedIndex];
             this.currentQuestion.next(question);
             this.isExplanationDisplayed = false; // Reset explanation display state
-            this.updateCorrectAnswersDisplay(question).subscribe(() => {
-                // Fetch and display explanation text
-                this.fetchAndDisplayExplanationText(question);
-                // Update isExplanationDisplayed based on whether explanation is displayed
+            
+            // Ensure isExplanationTextDisplayed$ is defined before subscribing
+            if (this.isExplanationTextDisplayed$) {
+                this.updateCorrectAnswersDisplay(question).subscribe(() => {
+                    // Fetch and display explanation text
+                    this.fetchAndDisplayExplanationText(question);
+                });
+
+                // Subscribe to isExplanationTextDisplayed$
                 this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
                     this.isExplanationDisplayed = isDisplayed;
                 });
-            });
+            } else {
+                console.error('isExplanationTextDisplayed$ is not initialized.');
+            }
         } else {
             console.error('Invalid question index:', zeroBasedIndex);
         }
     });
   }
+
 
 
 
@@ -354,7 +364,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
   
 
-  private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
+  /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
       console.error('Question is undefined or missing questionText');
       return;
@@ -404,7 +414,59 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
+  } */
+
+  private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
+    if (!question || !question.questionText) {
+        console.error('Question is undefined or missing questionText');
+        return;
+    }
+
+    try {
+        const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
+        const questions: QuizQuestion[] = data;
+
+        if (questions.length === 0) {
+            console.error('No questions received from service.');
+            return;
+        }
+
+        const questionIndex = questions.findIndex((q) =>
+            q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
+        );
+        if (questionIndex < 0) {
+            console.error('Current question not found in the questions array.');
+            return;
+        }
+
+        const currentQuestion = questions[questionIndex];
+        // Validate the current question
+        if (this.quizService.isValidQuizQuestion(currentQuestion)) {
+            // Set the current question
+            this.currentQuestion.next(currentQuestion);
+
+            if (questionIndex < questions.length - 1) {
+                const nextQuestion = questions[questionIndex + 1];
+                if (nextQuestion) {
+                    this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
+                    this.updateExplanationForQuestion(nextQuestion);
+                    // Set the explanation display state to true when a new explanation is fetched
+                    this.explanationTextService.setIsExplanationTextDisplayed(true);
+                } else {
+                    console.warn('Next question not found in the questions array.');
+                }
+            } else {
+                console.warn('Current question is the last question in the array.');
+            }
+        } else {
+            console.error("Current question is not valid");
+        }
+    } catch (error) {
+        console.error('Error fetching questions:', error);
+    }
   }
+
+
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
