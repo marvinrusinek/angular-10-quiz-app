@@ -100,7 +100,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
       console.log('isExplanationTextDisplayed$ value:', isDisplayed);
-      this.isExplanationDisplayed = isDisplayed; // Update the local state
+      this.isExplanationDisplayed = isDisplayed;
+      console.log('isExplanationDisplayed updated:', this.isExplanationDisplayed);
     });
   }
 
@@ -155,34 +156,25 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   loadQuestion(quizId: string, zeroBasedIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
-      if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
-        const question = questions[zeroBasedIndex];
-        this.currentQuestion.next(question);
-        this.isExplanationDisplayed = false; // Reset explanation display state
+        if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
+            const question = questions[zeroBasedIndex];
+            this.currentQuestion.next(question);
+            this.isExplanationDisplayed = false; // Reset explanation display state
             
-        // Ensure isExplanationTextDisplayed$ is defined before subscribing
-        if (this.isExplanationTextDisplayed$) {
-          this.updateCorrectAnswersDisplay(question).subscribe(() => {
-            // Fetch and display explanation text
-            this.fetchAndDisplayExplanationText(question);
-          });
-
-          // Subscribe to isExplanationTextDisplayed$
-          this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
-            console.log('isExplanationTextDisplayed$ value:', isDisplayed);
-            this.isExplanationDisplayed = isDisplayed;
-          });
+            // Subscribe to isExplanationTextDisplayed$
+            this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
+                this.isExplanationDisplayed = isDisplayed;
+                console.log('Updated isExplanationDisplayed:', this.isExplanationDisplayed);
+            });
+            
+            this.updateCorrectAnswersDisplay(question).subscribe(() => {
+                this.fetchAndDisplayExplanationText(question);
+            });
         } else {
-          console.error('isExplanationTextDisplayed$ is not initialized.');
+            console.error('Invalid question index:', zeroBasedIndex);
         }
-      } else {
-        console.error('Invalid question index:', zeroBasedIndex);
-      }
     });
   }
-
-
-
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
@@ -482,8 +474,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
                 if (nextQuestion) {
                     this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
                     this.updateExplanationForQuestion(nextQuestion);
-                    // Set to true when explanation is displayed
-                    this.explanationTextService.setIsExplanationTextDisplayed(true);
+                    this.explanationTextService.setIsExplanationTextDisplayed(true); // Set explanation as displayed
                 } else {
                     console.warn('Next question not found in the questions array.');
                 }
@@ -497,8 +488,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
-
-
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
@@ -756,37 +745,36 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   private calculateCombinedQuestionData(
     currentQuestionData: {
-      currentQuestion: QuizQuestion | null;
-      currentOptions: Option[];
+        currentQuestion: QuizQuestion | null;
+        currentOptions: Option[];
     },
     numberOfCorrectAnswers: number | undefined,
     isExplanationDisplayed: boolean,
     formattedExplanation: string
-  ): Observable<CombinedQuestionDataType> {
+): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
-  
+
     let correctAnswersText = '';
     if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
-      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
-      if (questionHasMultipleAnswers && !isExplanationDisplayed) {
-        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-      }
+        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
+        if (questionHasMultipleAnswers && !isExplanationDisplayed) {
+            correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+        }
     }
-  
+
     const combinedQuestionData: CombinedQuestionDataType = {
-      currentQuestion: currentQuestion,
-      currentOptions: currentOptions,
-      options: currentOptions,
-      questionText: currentQuestion ? currentQuestion.questionText : '',
-      explanationText: isExplanationDisplayed ? formattedExplanation : '',
-      correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '', // Display correct answers text only if explanation is not displayed
-      isNavigatingToPrevious: this.isNavigatingToPrevious,
-      isExplanationDisplayed: isExplanationDisplayed
+        currentQuestion: currentQuestion,
+        currentOptions: currentOptions,
+        options: currentOptions,
+        questionText: currentQuestion ? currentQuestion.questionText : '',
+        explanationText: isExplanationDisplayed ? formattedExplanation : '',
+        correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '', // Update logic
+        isNavigatingToPrevious: this.isNavigatingToPrevious,
+        isExplanationDisplayed: isExplanationDisplayed
     };
-  
+
     return of(combinedQuestionData);
   }
-  
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
