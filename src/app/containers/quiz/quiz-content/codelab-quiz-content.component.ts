@@ -391,7 +391,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }),
         map(() => void 0)
     );
-}
+  }
 
 
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
@@ -773,7 +773,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         options: currentOptions,
         questionText: currentQuestion ? currentQuestion.questionText : '',
         explanationText: isExplanationDisplayed ? formattedExplanation : '',
-        correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '', // Ensure the correct condition
+        correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '', // Ensure correct condition
         isNavigatingToPrevious: this.isNavigatingToPrevious,
         isExplanationDisplayed: isExplanationDisplayed
     };
