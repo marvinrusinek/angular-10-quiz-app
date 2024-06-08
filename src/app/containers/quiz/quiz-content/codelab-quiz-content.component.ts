@@ -161,8 +161,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   loadQuestion(quizId: string, zeroBasedIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
+        console.log("Loaded Questions:", questions);
         if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
             const question = questions[zeroBasedIndex];
+            console.log("Selected Question:", question);
             this.currentQuestion.next(question);
             this.isExplanationDisplayed = false; // Reset explanation display state
             this.explanationTextService.setIsExplanationTextDisplayed(false); // Ensure state reset
