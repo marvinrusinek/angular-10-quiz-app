@@ -131,7 +131,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
-  /* loadQuestion(quizId: string, zeroBasedIndex: number): void {
+  loadQuestion(quizId: string, zeroBasedIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
@@ -144,30 +144,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Invalid question index:', zeroBasedIndex);
       }
     });
-  } */
-
-  loadQuestion(quizId: string, zeroBasedIndex: number): void {
-    this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
-        if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
-            const question = questions[zeroBasedIndex];
-            this.currentQuestion.next(question);
-
-            // Subscribe to isExplanationTextDisplayed$ to log the emitted value
-            this.explanationTextService.isExplanationTextDisplayed$.subscribe(isDisplayed => {
-                console.log('isExplanationTextDisplayed$ value:', isDisplayed);
-                this.isExplanationDisplayed = isDisplayed; // Update isExplanationDisplayed
-            });
-
-            this.updateCorrectAnswersDisplay(question).subscribe(() => {
-                this.fetchAndDisplayExplanationText(question);
-            });
-        } else {
-            console.error('Invalid question index:', zeroBasedIndex);
-        }
-    });
   }
-
-
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
