@@ -400,6 +400,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
 
 
+
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
       console.error('Question is undefined or missing questionText');
@@ -489,6 +490,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
+
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
@@ -752,7 +754,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     numberOfCorrectAnswers: number | undefined,
     isExplanationDisplayed: boolean,
     formattedExplanation: string
-): Observable<CombinedQuestionDataType> {
+  ): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
 
     let correctAnswersText = '';
@@ -780,7 +782,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     console.log('combinedQuestionData:', combinedQuestionData);
 
     return of(combinedQuestionData);
-  } 
+  }
+
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
