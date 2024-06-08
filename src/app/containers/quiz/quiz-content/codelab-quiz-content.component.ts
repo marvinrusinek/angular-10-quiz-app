@@ -150,28 +150,28 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   loadQuestion(quizId: string, zeroBasedIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
-        if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
-            const question = questions[zeroBasedIndex];
-            this.currentQuestion.next(question);
-            this.isExplanationDisplayed = false; // Reset explanation display state
+      if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
+        const question = questions[zeroBasedIndex];
+        this.currentQuestion.next(question);
+        this.isExplanationDisplayed = false; // Reset explanation display state
             
-            // Ensure isExplanationTextDisplayed$ is defined before subscribing
-            if (this.isExplanationTextDisplayed$) {
-                this.updateCorrectAnswersDisplay(question).subscribe(() => {
-                    // Fetch and display explanation text
-                    this.fetchAndDisplayExplanationText(question);
-                });
+        // Ensure isExplanationTextDisplayed$ is defined before subscribing
+        if (this.isExplanationTextDisplayed$) {
+          this.updateCorrectAnswersDisplay(question).subscribe(() => {
+            // Fetch and display explanation text
+            this.fetchAndDisplayExplanationText(question);
+          });
 
-                // Subscribe to isExplanationTextDisplayed$
-                this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
-                    this.isExplanationDisplayed = isDisplayed;
-                });
-            } else {
-                console.error('isExplanationTextDisplayed$ is not initialized.');
-            }
+          // Subscribe to isExplanationTextDisplayed$
+          this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
+            this.isExplanationDisplayed = isDisplayed;
+          });
         } else {
-            console.error('Invalid question index:', zeroBasedIndex);
+          console.error('isExplanationTextDisplayed$ is not initialized.');
         }
+      } else {
+        console.error('Invalid question index:', zeroBasedIndex);
+      }
     });
   }
 
