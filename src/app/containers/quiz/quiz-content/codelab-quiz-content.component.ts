@@ -370,10 +370,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
         tap(isMultipleAnswer => {
+            const correctAnswers = question.options.filter(option => option.correct).length;
             let newCorrectAnswersText = '';
 
             if (isMultipleAnswer && !this.isExplanationDisplayed) {
-                newCorrectAnswersText = '(Multiple answers are correct)';
+                newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
             }
 
             console.log('updateCorrectAnswersDisplay - isExplanationDisplayed:', this.isExplanationDisplayed);
