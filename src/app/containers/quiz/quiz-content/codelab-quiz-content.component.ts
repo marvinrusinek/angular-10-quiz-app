@@ -165,7 +165,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             const question = questions[zeroBasedIndex];
             this.currentQuestion.next(question);
             this.isExplanationDisplayed = false; // Reset explanation display state
-            this.explanationTextService.setIsExplanationTextDisplayed(false);
+            this.explanationTextService.setIsExplanationTextDisplayed(false); // Ensure state reset
 
             console.log('loadQuestion: Reset isExplanationDisplayed to false for new question');
 
@@ -177,6 +177,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }
     });
   }
+
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
@@ -386,6 +387,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
 
+
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
       console.error('Question is undefined or missing questionText');
@@ -465,7 +467,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         if (this.quizService.isValidQuizQuestion(currentQuestion)) {
             this.currentQuestion.next(currentQuestion);
 
-            // Set explanation display to true when explanation is fetched
+            // Set explanation display to true
             this.explanationTextService.setIsExplanationTextDisplayed(true);
             console.log('fetchAndDisplayExplanationText: Explanation displayed for question:', currentQuestion);
         } else {
@@ -475,7 +477,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
-
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
@@ -768,7 +769,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     return of(combinedQuestionData);
   }
-
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
