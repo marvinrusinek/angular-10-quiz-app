@@ -383,7 +383,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             console.log('updateCorrectAnswersDisplay - isExplanationDisplayed:', this.isExplanationDisplayed);
             console.log('Correct answers text:', newCorrectAnswersText);
 
-            this.correctAnswersTextSource.next(newCorrectAnswersText);
+            if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
+                this.correctAnswersTextSource.next(newCorrectAnswersText);
+            }
+
+            const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
+            console.log('shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
+
+            if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
+                this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+            }
         }),
         map(() => void 0)
     );
