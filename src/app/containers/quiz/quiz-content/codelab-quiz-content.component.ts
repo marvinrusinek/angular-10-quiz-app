@@ -476,6 +476,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             // Update the explanation display state only once
             this.explanationTextService.setIsExplanationTextDisplayed(true);
             this.isExplanationDisplayed = true;
+            this.correctAnswersTextSource.next('');
             console.log('Explanation set to displayed for question:', currentQuestion);
         } else {
             console.error("Current question is not valid");
@@ -766,15 +767,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       options: currentOptions,
       questionText: currentQuestion ? currentQuestion.questionText : '',
       explanationText: isExplanationDisplayed ? formattedExplanation : '',
-      correctAnswersText: isExplanationDisplayed ? '' : correctAnswersText, // Reset correctAnswersText if explanation is displayed
+      correctAnswersText: isExplanationDisplayed ? '' : correctAnswersText, // Clear text if explanation is displayed
       isNavigatingToPrevious: this.isNavigatingToPrevious,
       isExplanationDisplayed: isExplanationDisplayed
     };
 
     return of(combinedQuestionData);
   }
-
-
   
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
