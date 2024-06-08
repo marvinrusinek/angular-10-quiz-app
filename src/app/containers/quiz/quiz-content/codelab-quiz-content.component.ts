@@ -380,15 +380,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
                 newCorrectAnswersText = ''; // Clear text if explanation is displayed
             }
 
-            console.log('updateCorrectAnswersDisplay - isExplanationDisplayed:', this.isExplanationDisplayed);
-            console.log('Correct answers text:', newCorrectAnswersText);
-
             if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
                 this.correctAnswersTextSource.next(newCorrectAnswersText);
             }
 
             const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-            console.log('shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
 
             if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
                 this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
@@ -397,8 +393,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         map(() => void 0)
     );
   }
-
-
 
 
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
@@ -480,9 +474,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         if (this.quizService.isValidQuizQuestion(currentQuestion)) {
             this.currentQuestion.next(currentQuestion);
 
-            // Set explanation display to true
+            // Update the explanation display state only once
             this.explanationTextService.setIsExplanationTextDisplayed(true);
-            console.log('fetchAndDisplayExplanationText: Explanation displayed for question:', currentQuestion);
+            console.log('Explanation set to displayed for question:', currentQuestion);
         } else {
             console.error("Current question is not valid");
         }
@@ -490,6 +484,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
+
 
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
@@ -754,7 +749,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     numberOfCorrectAnswers: number | undefined,
     isExplanationDisplayed: boolean,
     formattedExplanation: string
-  ): Observable<CombinedQuestionDataType> {
+): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
 
     let correctAnswersText = '';
@@ -764,9 +759,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
         }
     }
-
-    console.log('calculateCombinedQuestionData - isExplanationDisplayed:', isExplanationDisplayed);
-    console.log('calculateCombinedQuestionData - correctAnswersText:', correctAnswersText);
 
     const combinedQuestionData: CombinedQuestionDataType = {
         currentQuestion: currentQuestion,
@@ -779,12 +771,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         isExplanationDisplayed: isExplanationDisplayed
     };
 
-    console.log('combinedQuestionData:', combinedQuestionData);
-
     return of(combinedQuestionData);
   }
-
-    
+  
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$),

@@ -14,9 +14,12 @@
         </div>
       </ng-template>
 
-      <span class="number-correct" *ngIf="(shouldDisplayCorrectAnswers$ | async) && !isExplanationDisplayed">
+      <!--<span class="number-correct" *ngIf="(shouldDisplayCorrectAnswers$ | async) && !isExplanationDisplayed">
         {{ correctAnswersText$ | async }}
-      </span> 
+      </span>-->
+      <span class="number-correct" *ngIf="(shouldDisplayCorrectAnswers$ | async) && !combinedData.isExplanationDisplayed">
+        {{ combinedData.correctAnswersText }}
+      </span>
     </h3>
   </section>
 </ng-container>
