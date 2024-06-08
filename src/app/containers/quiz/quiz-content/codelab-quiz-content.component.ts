@@ -383,7 +383,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             this.correctAnswersTextSource.next(newCorrectAnswersText);
         }),
         map(() => void 0)
-    );
+   );
   }
 
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
@@ -465,6 +465,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         if (this.quizService.isValidQuizQuestion(currentQuestion)) {
             this.currentQuestion.next(currentQuestion);
 
+            // Display explanation only for valid questions
             this.explanationTextService.setIsExplanationTextDisplayed(true);
             console.log('fetchAndDisplayExplanationText: Explanation displayed for question:', currentQuestion);
         } else {
@@ -474,6 +475,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
+
 
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
@@ -749,6 +751,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }
     }
 
+    console.log('calculateCombinedQuestionData - isExplanationDisplayed:', isExplanationDisplayed);
+    console.log('calculateCombinedQuestionData - correctAnswersText:', correctAnswersText);
+
     const combinedQuestionData: CombinedQuestionDataType = {
         currentQuestion: currentQuestion,
         currentOptions: currentOptions,
@@ -760,11 +765,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         isExplanationDisplayed: isExplanationDisplayed
     };
 
-    console.log('Combined question data:', combinedQuestionData);
+    console.log('combinedQuestionData:', combinedQuestionData);
 
     return of(combinedQuestionData);
   }
-
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
