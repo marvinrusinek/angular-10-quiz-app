@@ -96,7 +96,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       isNavigating => this.isNavigatingToPrevious = isNavigating
     );
 
-    this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
+    this.explanationTextService.isExplanationTextDisplayed$.subscribe(isDisplayed => {
+      console.log('isExplanationTextDisplayed$ value:', isDisplayed);
+      this.isExplanationDisplayed = isDisplayed; // Update the local state
+    });
   }
 
   ngOnInit(): void {
