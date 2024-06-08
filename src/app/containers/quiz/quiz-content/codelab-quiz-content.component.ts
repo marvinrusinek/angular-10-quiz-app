@@ -380,11 +380,21 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             console.log('updateCorrectAnswersDisplay - isExplanationDisplayed:', this.isExplanationDisplayed);
             console.log('Correct answers text:', newCorrectAnswersText);
 
-            this.correctAnswersTextSource.next(newCorrectAnswersText);
+            if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
+                this.correctAnswersTextSource.next(newCorrectAnswersText);
+            }
+
+            const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
+            console.log('shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
+
+            if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
+                this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+            }
         }),
         map(() => void 0)
-   );
+    );
   }
+
 
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
@@ -465,7 +475,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         if (this.quizService.isValidQuizQuestion(currentQuestion)) {
             this.currentQuestion.next(currentQuestion);
 
-            // Display explanation only for valid questions
+            // Set explanation display to true when explanation is fetched
             this.explanationTextService.setIsExplanationTextDisplayed(true);
             console.log('fetchAndDisplayExplanationText: Explanation displayed for question:', currentQuestion);
         } else {
@@ -475,6 +485,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
+
 
 
 
@@ -769,6 +780,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     return of(combinedQuestionData);
   }
+
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
