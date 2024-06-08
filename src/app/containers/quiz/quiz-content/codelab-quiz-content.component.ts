@@ -155,28 +155,21 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             this.currentQuestion.next(question);
             this.isExplanationDisplayed = false; // Reset explanation display state
             
-            // Ensure isExplanationTextDisplayed$ is defined before subscribing
-            if (this.isExplanationTextDisplayed$) {
+            // Subscribe to isExplanationTextDisplayed$ first
+            this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
+                this.isExplanationDisplayed = isDisplayed;
+                
+                // Call updateCorrectAnswersDisplay inside the subscription
                 this.updateCorrectAnswersDisplay(question).subscribe(() => {
                     // Fetch and display explanation text
                     this.fetchAndDisplayExplanationText(question);
                 });
-
-                // Subscribe to isExplanationTextDisplayed$
-                this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
-                    this.isExplanationDisplayed = isDisplayed;
-                });
-            } else {
-                console.error('isExplanationTextDisplayed$ is not initialized.');
-            }
+            });
         } else {
             console.error('Invalid question index:', zeroBasedIndex);
         }
     });
   }
-
-
-
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
@@ -775,24 +768,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         options: currentOptions,
         questionText: currentQuestion ? currentQuestion.questionText : '',
         explanationText: isExplanationDisplayed ? formattedExplanation : '',
-        correctAnswersText: correctAnswersText, // Always include correct answers text
+        correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '', // Correct answers text is displayed only when explanation is not displayed
         isNavigatingToPrevious: this.isNavigatingToPrevious,
         isExplanationDisplayed: isExplanationDisplayed
     };
 
     return of(combinedQuestionData);
   }
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
