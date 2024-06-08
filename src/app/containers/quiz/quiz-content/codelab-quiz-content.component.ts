@@ -479,6 +479,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     }
   }
 
+
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
     this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, nextExplanationText);
