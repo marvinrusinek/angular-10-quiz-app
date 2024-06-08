@@ -778,7 +778,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     console.log('combinedQuestionData:', combinedQuestionData);
 
     return of(combinedQuestionData);
-  }
+  } 
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
