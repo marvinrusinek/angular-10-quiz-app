@@ -386,17 +386,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
                 this.correctAnswersTextSource.next(newCorrectAnswersText);
             }
-
-            const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-            console.log('shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
-
-            if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
-                this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-            }
         }),
         map(() => void 0)
     );
   }
+
 
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
@@ -487,7 +481,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
-
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
@@ -780,6 +773,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     return of(combinedQuestionData);
   }
+
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
