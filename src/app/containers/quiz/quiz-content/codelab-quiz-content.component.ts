@@ -380,16 +380,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
                 newCorrectAnswersText = ''; // Clear text if explanation is displayed
             }
 
-            console.log('updateCorrectAnswersDisplay - isExplanationDisplayed:', this.isExplanationDisplayed);
-            console.log('Correct answers text:', newCorrectAnswersText);
-
             if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
                 this.correctAnswersTextSource.next(newCorrectAnswersText);
             }
 
             const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-            console.log('shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
-
             if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
                 this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
             }
@@ -397,7 +392,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         map(() => void 0)
     );
   }
-  
+
+
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
       console.error('Question is undefined or missing questionText');
@@ -746,41 +742,37 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   private calculateCombinedQuestionData(
     currentQuestionData: {
-        currentQuestion: QuizQuestion | null;
-        currentOptions: Option[];
+      currentQuestion: QuizQuestion | null;
+      currentOptions: Option[];
     },
     numberOfCorrectAnswers: number | undefined,
     isExplanationDisplayed: boolean,
     formattedExplanation: string
-): Observable<CombinedQuestionDataType> {
+  ): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
 
     let correctAnswersText = '';
     if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
-        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
-        if (questionHasMultipleAnswers && !isExplanationDisplayed) {
-            correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-        }
+      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
+      if (questionHasMultipleAnswers && !isExplanationDisplayed) {
+        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+      }
     }
 
     const combinedQuestionData: CombinedQuestionDataType = {
-        currentQuestion: currentQuestion,
-        currentOptions: currentOptions,
-        options: currentOptions,
-        questionText: currentQuestion ? currentQuestion.questionText : '',
-        explanationText: isExplanationDisplayed ? formattedExplanation : '',
-        correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '',
-        isNavigatingToPrevious: this.isNavigatingToPrevious,
-        isExplanationDisplayed: isExplanationDisplayed
+      currentQuestion: currentQuestion,
+      currentOptions: currentOptions,
+      options: currentOptions,
+      questionText: currentQuestion ? currentQuestion.questionText : '',
+      explanationText: isExplanationDisplayed ? formattedExplanation : '',
+      correctAnswersText: isExplanationDisplayed ? '' : correctAnswersText, // Reset correctAnswersText if explanation is displayed
+      isNavigatingToPrevious: this.isNavigatingToPrevious,
+      isExplanationDisplayed: isExplanationDisplayed
     };
-
-    // Reset the correct answers text after it's used
-    if (isExplanationDisplayed) {
-        correctAnswersText = '';
-    }
 
     return of(combinedQuestionData);
   }
+
 
   
   handleQuestionDisplayLogic(): void {

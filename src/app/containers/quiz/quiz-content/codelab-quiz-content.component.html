@@ -17,7 +17,7 @@
       <!--<span class="number-correct" *ngIf="(shouldDisplayCorrectAnswers$ | async) && !isExplanationDisplayed">
         {{ correctAnswersText$ | async }}
       </span>-->
-      <span class="number-correct" *ngIf="(shouldDisplayCorrectAnswers$ | async) && !combinedData.isExplanationDisplayed">
+      <span class="number-correct" *ngIf="!combinedData.isExplanationDisplayed">
         {{ correctAnswersText$ | async }}
       </span>
     </h3>
