@@ -391,7 +391,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }),
         map(() => void 0)
     );
-  }
+}
+
 
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
