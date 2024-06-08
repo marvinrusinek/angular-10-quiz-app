@@ -379,11 +379,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             }
 
             console.log('updateCorrectAnswersDisplay - isExplanationDisplayed:', this.isExplanationDisplayed);
+            console.log('Correct answers text:', newCorrectAnswersText);
             if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
                 this.correctAnswersTextSource.next(newCorrectAnswersText);
             }
 
             const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
+            console.log('shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
 
             if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
                 this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
@@ -392,6 +394,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         map(() => void 0)
     );
   }
+
 
 
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
@@ -767,16 +770,21 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }
     }
 
+    console.log('calculateCombinedQuestionData - isExplanationDisplayed:', isExplanationDisplayed);
+    console.log('calculateCombinedQuestionData - correctAnswersText:', correctAnswersText);
+
     const combinedQuestionData: CombinedQuestionDataType = {
         currentQuestion: currentQuestion,
         currentOptions: currentOptions,
         options: currentOptions,
         questionText: currentQuestion ? currentQuestion.questionText : '',
         explanationText: isExplanationDisplayed ? formattedExplanation : '',
-        correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '', // Ensure correct condition
+        correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '', // Ensure the correct condition
         isNavigatingToPrevious: this.isNavigatingToPrevious,
         isExplanationDisplayed: isExplanationDisplayed
     };
+
+    console.log('combinedQuestionData:', combinedQuestionData);
 
     return of(combinedQuestionData);
   }
