@@ -161,12 +161,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             this.currentQuestion.next(question);
             this.isExplanationDisplayed = false; // Reset explanation display state
             
+            this.explanationTextService.setIsExplanationTextDisplayed(false);
+
             // Subscribe to isExplanationTextDisplayed$
-            this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
+            this.explanationTextService.isExplanationTextDisplayed$.subscribe(isDisplayed => {
                 this.isExplanationDisplayed = isDisplayed;
                 console.log('Updated isExplanationDisplayed:', this.isExplanationDisplayed);
             });
-            
+
             this.updateCorrectAnswersDisplay(question).subscribe(() => {
                 this.fetchAndDisplayExplanationText(question);
             });
@@ -175,6 +177,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }
     });
   }
+
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
@@ -474,7 +477,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
                 if (nextQuestion) {
                     this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
                     this.updateExplanationForQuestion(nextQuestion);
-                    this.explanationTextService.setIsExplanationTextDisplayed(true); // Ensure this is called when the explanation is shown
+                    this.explanationTextService.setIsExplanationTextDisplayed(true); // Set explanation as displayed
                 } else {
                     console.warn('Next question not found in the questions array.');
                 }
@@ -488,6 +491,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
+
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
