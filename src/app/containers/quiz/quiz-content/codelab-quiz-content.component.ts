@@ -388,6 +388,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
 
 
+
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
       console.error('Question is undefined or missing questionText');
@@ -769,6 +770,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     return of(combinedQuestionData);
   }
+
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
