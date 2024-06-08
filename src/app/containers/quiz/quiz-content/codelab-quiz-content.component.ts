@@ -175,6 +175,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   }
 
+
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
     this.initializeResetQuizSubscription();
