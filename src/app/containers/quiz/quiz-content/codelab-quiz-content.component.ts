@@ -753,36 +753,37 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   private calculateCombinedQuestionData(
     currentQuestionData: {
-        currentQuestion: QuizQuestion | null;
-        currentOptions: Option[];
+      currentQuestion: QuizQuestion | null;
+      currentOptions: Option[];
     },
     numberOfCorrectAnswers: number | undefined,
     isExplanationDisplayed: boolean,
     formattedExplanation: string
-): Observable<CombinedQuestionDataType> {
+  ): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
-
+  
     let correctAnswersText = '';
     if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
-        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
-        if (questionHasMultipleAnswers && !isExplanationDisplayed) {
-            correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-        }
+      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
+      if (questionHasMultipleAnswers && !isExplanationDisplayed) {
+        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+      }
     }
-
+  
     const combinedQuestionData: CombinedQuestionDataType = {
-        currentQuestion: currentQuestion,
-        currentOptions: currentOptions,
-        options: currentOptions,
-        questionText: currentQuestion ? currentQuestion.questionText : '',
-        explanationText: isExplanationDisplayed ? formattedExplanation : '',
-        correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '', // Correct answers text is displayed only when explanation is not displayed
-        isNavigatingToPrevious: this.isNavigatingToPrevious,
-        isExplanationDisplayed: isExplanationDisplayed
+      currentQuestion: currentQuestion,
+      currentOptions: currentOptions,
+      options: currentOptions,
+      questionText: currentQuestion ? currentQuestion.questionText : '',
+      explanationText: isExplanationDisplayed ? formattedExplanation : '',
+      correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '', // Display correct answers text only if explanation is not displayed
+      isNavigatingToPrevious: this.isNavigatingToPrevious,
+      isExplanationDisplayed: isExplanationDisplayed
     };
-
+  
     return of(combinedQuestionData);
   }
+  
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
