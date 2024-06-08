@@ -395,8 +395,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
 
-
-
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
       console.error('Question is undefined or missing questionText');
@@ -481,7 +479,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
                 if (nextQuestion) {
                     this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
                     this.updateExplanationForQuestion(nextQuestion);
-                    this.explanationTextService.setIsExplanationTextDisplayed(true); // Set explanation as displayed
+                    this.explanationTextService.setIsExplanationTextDisplayed(true);
+                    console.log('Explanation displayed for question:', question);
                 } else {
                     console.warn('Next question not found in the questions array.');
                 }
@@ -495,7 +494,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
-
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
@@ -770,24 +768,22 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }
     }
 
-    console.log('calculateCombinedQuestionData - isExplanationDisplayed:', isExplanationDisplayed);
-    console.log('calculateCombinedQuestionData - correctAnswersText:', correctAnswersText);
-
     const combinedQuestionData: CombinedQuestionDataType = {
         currentQuestion: currentQuestion,
         currentOptions: currentOptions,
         options: currentOptions,
         questionText: currentQuestion ? currentQuestion.questionText : '',
         explanationText: isExplanationDisplayed ? formattedExplanation : '',
-        correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '', // Ensure the correct condition
+        correctAnswersText: !isExplanationDisplayed ? correctAnswersText : '',
         isNavigatingToPrevious: this.isNavigatingToPrevious,
         isExplanationDisplayed: isExplanationDisplayed
     };
 
-    console.log('combinedQuestionData:', combinedQuestionData);
+    console.log('Combined question data:', combinedQuestionData);
 
     return of(combinedQuestionData);
   }
+
     
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
