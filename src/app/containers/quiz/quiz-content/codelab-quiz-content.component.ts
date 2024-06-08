@@ -476,8 +476,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             // Update the explanation display state only once
             this.explanationTextService.setIsExplanationTextDisplayed(true);
             this.isExplanationDisplayed = true;
+            console.log('fetchAndDisplayExplanationText: isExplanationDisplayed set to true for question:', currentQuestion);
+
+            // Reset correct answers text to avoid carryover
             this.correctAnswersTextSource.next('');
-            console.log('Explanation set to displayed for question:', currentQuestion);
         } else {
             console.error("Current question is not valid");
         }
