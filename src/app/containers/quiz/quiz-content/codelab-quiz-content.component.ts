@@ -383,6 +383,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
                 newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
             }
 
+            console.log('updateCorrectAnswersDisplay - isExplanationDisplayed:', this.isExplanationDisplayed);
             if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
                 this.correctAnswersTextSource.next(newCorrectAnswersText);
             }
@@ -396,7 +397,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         map(() => void 0)
     );
   }
-  
 
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
@@ -482,7 +482,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
                 if (nextQuestion) {
                     this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
                     this.updateExplanationForQuestion(nextQuestion);
-                    this.explanationTextService.setIsExplanationTextDisplayed(true); // Explanation is displayed
+                    // Set to true when explanation is displayed
+                    this.explanationTextService.setIsExplanationTextDisplayed(true);
                 } else {
                     console.warn('Next question not found in the questions array.');
                 }
@@ -496,7 +497,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
-
 
 
 
