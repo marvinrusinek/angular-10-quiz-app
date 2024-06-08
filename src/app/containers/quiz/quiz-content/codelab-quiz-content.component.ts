@@ -376,6 +376,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
             if (isMultipleAnswer && !this.isExplanationDisplayed) {
                 newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
+            } else {
+                newCorrectAnswersText = ''; // Clear text if explanation is displayed
             }
 
             console.log('updateCorrectAnswersDisplay - isExplanationDisplayed:', this.isExplanationDisplayed);
