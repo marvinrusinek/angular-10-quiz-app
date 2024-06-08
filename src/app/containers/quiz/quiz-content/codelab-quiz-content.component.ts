@@ -165,14 +165,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             const question = questions[zeroBasedIndex];
             this.currentQuestion.next(question);
             this.isExplanationDisplayed = false; // Reset explanation display state
-            
             this.explanationTextService.setIsExplanationTextDisplayed(false);
 
-            // Subscribe to isExplanationTextDisplayed$
-            this.explanationTextService.isExplanationTextDisplayed$.subscribe(isDisplayed => {
-                this.isExplanationDisplayed = isDisplayed;
-                console.log('Updated isExplanationDisplayed:', this.isExplanationDisplayed);
-            });
+            console.log('loadQuestion: Reset isExplanationDisplayed to false for new question');
 
             this.updateCorrectAnswersDisplay(question).subscribe(() => {
                 this.fetchAndDisplayExplanationText(question);
@@ -182,7 +177,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }
     });
   }
-
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
