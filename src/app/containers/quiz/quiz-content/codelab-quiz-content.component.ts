@@ -752,27 +752,36 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     numberOfCorrectAnswers: number | undefined,
     isExplanationDisplayed: boolean,
     formattedExplanation: string
-  ): Observable<CombinedQuestionDataType> {
+): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
 
     let correctAnswersText = '';
+    console.log("Current Question:", currentQuestion);
+    console.log("Number of Correct Answers:", numberOfCorrectAnswers);
+    console.log("Is Explanation Displayed:", isExplanationDisplayed);
+
     if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
-      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
-      if (questionHasMultipleAnswers && !isExplanationDisplayed) {
-        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-      }
+        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
+        console.log("Question Has Multiple Answers:", questionHasMultipleAnswers);
+
+        if (questionHasMultipleAnswers && !isExplanationDisplayed) {
+            correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+            console.log("CAT", correctAnswersText);
+        }
     }
 
     const combinedQuestionData: CombinedQuestionDataType = {
-      currentQuestion: currentQuestion,
-      currentOptions: currentOptions,
-      options: currentOptions,
-      questionText: currentQuestion ? currentQuestion.questionText : '',
-      explanationText: isExplanationDisplayed ? formattedExplanation : '',
-      correctAnswersText: isExplanationDisplayed ? '' : correctAnswersText, // Clear text if explanation is displayed
-      isNavigatingToPrevious: this.isNavigatingToPrevious,
-      isExplanationDisplayed: isExplanationDisplayed
+        currentQuestion: currentQuestion,
+        currentOptions: currentOptions,
+        options: currentOptions,
+        questionText: currentQuestion ? currentQuestion.questionText : '',
+        explanationText: isExplanationDisplayed ? formattedExplanation : '',
+        correctAnswersText: isExplanationDisplayed ? '' : correctAnswersText, // Clear text if explanation is displayed
+        isNavigatingToPrevious: this.isNavigatingToPrevious,
+        isExplanationDisplayed: isExplanationDisplayed
     };
+
+    console.log("Combined Question Data:", combinedQuestionData);
 
     return of(combinedQuestionData);
   }
