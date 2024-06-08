@@ -474,7 +474,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
                 if (nextQuestion) {
                     this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
                     this.updateExplanationForQuestion(nextQuestion);
-                    this.explanationTextService.setIsExplanationTextDisplayed(true); // Set explanation as displayed
+                    this.explanationTextService.setIsExplanationTextDisplayed(true); // Ensure this is called when the explanation is shown
                 } else {
                     console.warn('Next question not found in the questions array.');
                 }
