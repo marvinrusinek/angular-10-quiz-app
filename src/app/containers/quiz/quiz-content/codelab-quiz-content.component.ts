@@ -800,14 +800,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     }
 
     const combinedQuestionData: CombinedQuestionDataType = {
-        currentQuestion: currentQuestion,
-        currentOptions: currentOptions,
-        options: currentOptions,
-        questionText: currentQuestion ? currentQuestion.questionText : '',
-        explanationText: isExplanationDisplayed ? formattedExplanation : '',
-        correctAnswersText: isExplanationDisplayed ? '' : correctAnswersText, // Clear text if explanation is displayed
-        isNavigatingToPrevious: this.isNavigatingToPrevious,
-        isExplanationDisplayed: isExplanationDisplayed
+      currentQuestion: currentQuestion,
+      currentOptions: currentOptions,
+      options: currentOptions,
+      questionText: currentQuestion ? currentQuestion.questionText : '',
+      explanationText: isExplanationDisplayed ? formattedExplanation : '',
+      correctAnswersText: isExplanationDisplayed ? '' : correctAnswersText,
+      isNavigatingToPrevious: this.isNavigatingToPrevious,
+      isExplanationDisplayed: isExplanationDisplayed
     };
 
     console.log("Combined Question Data:", combinedQuestionData);
