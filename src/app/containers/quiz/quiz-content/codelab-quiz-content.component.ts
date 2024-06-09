@@ -99,14 +99,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
 
     this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
-      console.log('isExplanationTextDisplayed$ value:', isDisplayed);
+      console.log('isExplanationTextDisplayed$ emitted:', isDisplayed);
       this.isExplanationDisplayed = isDisplayed;
   
       // Reset correct answers text when explanation is displayed
       if (isDisplayed) {
         this.correctAnswersTextSource.next('');
+        console.log('Explanation displayed, clearing correctAnswersText');
       }
-      console.log('Updated isExplanationDisplayed and correctAnswersTextSource:', this.isExplanationDisplayed, this.correctAnswersTextSource.getValue());
+      console.log('Updated isExplanationDisplayed to:', this.isExplanationDisplayed);
     });
   }
 
@@ -495,10 +496,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             // Update the explanation display state
             this.explanationTextService.setIsExplanationTextDisplayed(true);
             this.isExplanationDisplayed = true;
-            console.log('fetchAndDisplayExplanationText: isExplanationDisplayed set to true for question:', currentQuestion);
-
-            // Log explanation details
-            console.log("Explanation for Question:", currentQuestion.explanation);
+            console.log('Explanation displayed for question:', currentQuestion);
 
             // Reset correct answers text to avoid carryover
             this.correctAnswersTextSource.next('');
@@ -789,7 +787,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
         if (questionHasMultipleAnswers && !isExplanationDisplayed) {
             correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-            console.log("Correct Answers Text:", correctAnswersText);
+            console.log("Setting Correct Answers Text:", correctAnswersText);
         }
     }
 
