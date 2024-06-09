@@ -663,7 +663,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
-    this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
     this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
 
     this.combinedQuestionData$ = combineLatest([
