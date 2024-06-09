@@ -184,7 +184,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             this.isExplanationDisplayed = false;
             this.explanationTextService.setIsExplanationTextDisplayed(false);
             this.correctAnswersTextSource.next(''); // Clear correct answers text
-            console.log('loadQuestion: Reset isExplanationDisplayed to false and cleared correctAnswersText for new question');
+            console.log('Loaded new question, reset state:', {
+              isExplanationDisplayed: this.isExplanationDisplayed,
+              correctAnswersText: this.correctAnswersTextSource.getValue()
+            });
 
             this.updateCorrectAnswersDisplay(question).subscribe(() => {
                 this.fetchAndDisplayExplanationText(question);
