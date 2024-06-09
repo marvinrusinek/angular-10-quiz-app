@@ -767,8 +767,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   private calculateCombinedQuestionData(
     currentQuestionData: {
-      currentQuestion: QuizQuestion | null;
-      currentOptions: Option[];
+        currentQuestion: QuizQuestion | null;
+        currentOptions: Option[];
     },
     numberOfCorrectAnswers: number | undefined,
     isExplanationDisplayed: boolean,
@@ -777,7 +777,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     const { currentQuestion, currentOptions } = currentQuestionData;
 
     let correctAnswersText = '';
-    console.log("Current Question Data:", currentQuestionData);
+    console.log("Calculating combined data for question:", currentQuestion);
     console.log("Number of Correct Answers:", numberOfCorrectAnswers);
     console.log("Is Explanation Displayed:", isExplanationDisplayed);
 
@@ -797,7 +797,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         options: currentOptions,
         questionText: currentQuestion ? currentQuestion.questionText : '',
         explanationText: isExplanationDisplayed ? formattedExplanation : '',
-        correctAnswersText: isExplanationDisplayed ? '' : correctAnswersText, // Clear text if explanation is displayed
+        correctAnswersText: isExplanationDisplayed ? '' : correctAnswersText,
         isNavigatingToPrevious: this.isNavigatingToPrevious,
         isExplanationDisplayed: isExplanationDisplayed
     };
@@ -806,7 +806,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     return of(combinedQuestionData);
   }
-
   
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
