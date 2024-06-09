@@ -99,9 +99,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
 
     this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
-      console.log('isExplanationTextDisplayed$ value:', isDisplayed);
+      console.log('isExplanationTextDisplayed$ emitted:', isDisplayed);
       this.isExplanationDisplayed = isDisplayed;
-      console.log('isExplanationDisplayed updated:', this.isExplanationDisplayed);
+      console.log('Updated isExplanationDisplayed:', this.isExplanationDisplayed);
     });
   }
 
@@ -161,15 +161,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   loadQuestion(quizId: string, zeroBasedIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
-        console.log("Loaded Questions:", questions);
+        console.log("Loaded Questions:", questions);  // Log all questions
+
         if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
             const question = questions[zeroBasedIndex];
-            console.log("Selected Question:", question);
+            console.log("Selected Question:", question);  // Log the selected question
+
+            // Log question details for debugging
+            console.log("Question Text:", question.questionText);
+            console.log("Question Options:", question.options);
+            console.log("Number of Correct Options:", question.options.filter(option => option.correct).length);
+
             this.currentQuestion.next(question);
-            this.isExplanationDisplayed = false; // Reset explanation display state
-            this.explanationTextService.setIsExplanationTextDisplayed(false); // Ensure state reset
-            this.correctAnswersTextSource.next('');
-            console.log('loadQuestion: Reset isExplanationDisplayed to false for new question');
+
+            // Reset explanation and correct answers state
+            this.isExplanationDisplayed = false;
+            this.explanationTextService.setIsExplanationTextDisplayed(false);
+            this.correctAnswersTextSource.next(''); // Clear correct answers text
+            console.log('loadQuestion: Reset isExplanationDisplayed to false and cleared correctAnswersText for new question');
 
             this.updateCorrectAnswersDisplay(question).subscribe(() => {
                 this.fetchAndDisplayExplanationText(question);
@@ -179,6 +188,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }
     });
   }
+
 
 
   initializeSubscriptions(): void {
@@ -390,11 +400,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
                 this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
             }
+
+            console.log("Correct Answers Text for Display:", newCorrectAnswersText);
+            console.log("Should Display Correct Answers:", shouldDisplayCorrectAnswers);
         }),
         map(() => void 0)
     );
   }
-
 
   /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
@@ -475,10 +487,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         if (this.quizService.isValidQuizQuestion(currentQuestion)) {
             this.currentQuestion.next(currentQuestion);
 
-            // Update the explanation display state only once
+            // Update the explanation display state
             this.explanationTextService.setIsExplanationTextDisplayed(true);
             this.isExplanationDisplayed = true;
             console.log('fetchAndDisplayExplanationText: isExplanationDisplayed set to true for question:', currentQuestion);
+
+            // Log explanation details
+            console.log("Explanation for Question:", currentQuestion.explanation);
 
             // Reset correct answers text to avoid carryover
             this.correctAnswersTextSource.next('');
@@ -489,6 +504,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
+
 
 
 
@@ -768,7 +784,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
         if (questionHasMultipleAnswers && !isExplanationDisplayed) {
             correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-            console.log("CAT", correctAnswersText);
+            console.log("Correct Answers Text:", correctAnswersText);
         }
     }
 
