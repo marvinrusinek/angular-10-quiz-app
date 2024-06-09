@@ -504,6 +504,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             this.currentQuestion.next(currentQuestion);
 
             const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+
+            // Log the question state
+            console.log('Current Question State:', questionState);
+
             if (questionState?.isAnswered) {
                 this.explanationTextService.setIsExplanationTextDisplayed(true);
                 this.isExplanationDisplayed = true;
@@ -512,8 +516,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
                 this.isExplanationDisplayed = false;
             }
 
-            // Clear correct answers text
-            this.correctAnswersTextSource.next('');
+            // Clear correct answers text when explanation is displayed
+            if (this.isExplanationDisplayed) {
+              this.correctAnswersTextSource.next('');
+            }
+
+            // Log the state reset
+            console.log('Explanation text state set and correct answers text reset:', {
+                isExplanationDisplayed: this.isExplanationDisplayed,
+                correctAnswersText: this.correctAnswersTextSource.getValue()
+            });
         } else {
             console.error("Current question is not valid");
         }
@@ -521,6 +533,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
+
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
