@@ -628,7 +628,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           if (nextQuestion) {
             this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
             this.updateExplanationForQuestion(nextQuestion);
+
+            // Set explanation display state
+            this.isExplanationDisplayed = true;
             this.explanationTextService.setIsExplanationTextDisplayed(true);
+            this.correctAnswersTextSource.next(''); // Clear correct answers text
           } else {
             console.warn('Next question not found in the questions array.');
           }
@@ -636,7 +640,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           console.warn('Current question is the last question in the array.');
         }
 
+        // Set explanation display state
+        this.isExplanationDisplayed = true;
         this.explanationTextService.setIsExplanationTextDisplayed(true);
+        this.correctAnswersTextSource.next(''); // Clear correct answers text
       } else {
         console.error("Current question is not valid");
       }
@@ -644,7 +651,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       console.error('Error fetching questions:', error);
     }
   }
-
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
