@@ -109,14 +109,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       }
       console.log('Updated isExplanationDisplayed to:', this.isExplanationDisplayed);
     });
-
-    this.correctAnswersText$.subscribe(text => {
-      console.log('correctAnswersText updated to:', text);
-    });
-
-    this.combinedQuestionData$.subscribe(data => {
-        console.log('Combined Question Data:', data);
-    });
   }
 
   ngOnInit(): void {
