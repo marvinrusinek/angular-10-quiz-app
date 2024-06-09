@@ -629,7 +629,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );    
   } */
   
-  private initializeCombinedQuestionData(): void {
+  /* private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
     this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
@@ -659,8 +659,38 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         return combinedText;
       })
     );
-  }
+  } */
 
+  private initializeCombinedQuestionData(): void {
+    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
+    this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
+    this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
+
+    this.combinedQuestionData$ = combineLatest([
+        currentQuestionAndOptions$,
+        this.numberOfCorrectAnswers$,
+        this.isExplanationTextDisplayed$,
+        this.formattedExplanation$
+    ]).pipe(
+        switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+            console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+            return this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+        })
+    );
+
+    this.combinedText$ = this.combinedQuestionData$.pipe(
+        map(data => {
+            console.log('initializeCombinedQuestionData - combinedQuestionData:', data);
+            let combinedText = data.questionText;
+
+            if (data.isExplanationDisplayed) {
+                combinedText += ` ${data.explanationText}`;
+            }
+
+            return combinedText;
+        })
+    );
+  }
 
   
   async initializeQuestionState(): Promise<void> {
