@@ -503,28 +503,28 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         if (this.quizService.isValidQuizQuestion(currentQuestion)) {
             this.currentQuestion.next(currentQuestion);
 
+            // Get the question state to check if it is answered
             const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+            this.isExplanationDisplayed = questionState?.isAnswered || false;
+            this.explanationTextService.setIsExplanationTextDisplayed(this.isExplanationDisplayed);
 
-            // Log the question state
-            console.log('Current Question State:', questionState);
+            // Log the state before clearing correct answers text
+            console.log('Explanation displayed state before clearing correct answers text:', {
+              isExplanationDisplayed: this.isExplanationDisplayed,
+              correctAnswersText: this.correctAnswersTextSource.getValue()
+            });
 
-            if (questionState?.isAnswered) {
-                this.explanationTextService.setIsExplanationTextDisplayed(true);
-                this.isExplanationDisplayed = true;
-            } else {
-                this.explanationTextService.setIsExplanationTextDisplayed(false);
-                this.isExplanationDisplayed = false;
-            }
-
-            // Clear correct answers text when explanation is displayed
+            // Clear correct answers text if explanation is displayed
             if (this.isExplanationDisplayed) {
               this.correctAnswersTextSource.next('');
+              console.log('Correct answers text cleared.');
             }
 
-            // Log the state reset
-            console.log('Explanation text state set and correct answers text reset:', {
-                isExplanationDisplayed: this.isExplanationDisplayed,
-                correctAnswersText: this.correctAnswersTextSource.getValue()
+            // Log the final state
+            console.log('State after fetching explanation:', {
+              questionText: currentQuestion.questionText,
+              isExplanationDisplayed: this.isExplanationDisplayed,
+              correctAnswersText: this.correctAnswersTextSource.getValue()
             });
         } else {
             console.error("Current question is not valid");
@@ -533,7 +533,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions:', error);
     }
   }
-
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
