@@ -167,45 +167,27 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   loadQuestion(quizId: string, zeroBasedIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
-        console.log("Loaded Questions:", questions);  // Log all questions
+      if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
+        const question = questions[zeroBasedIndex];
+        this.currentQuestion.next(question);
 
-        if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
-            const question = questions[zeroBasedIndex];
-            console.log("Selected Question:", question);  // Log the selected question
+        this.isExplanationDisplayed = false;
+        this.explanationTextService.setIsExplanationTextDisplayed(false);
+        this.correctAnswersTextSource.next('');
 
-            // Log question details for debugging
-            console.log("Question Text:", question.questionText);
-            console.log("Question Options:", question.options);
-            console.log("Number of Correct Options:", question.options.filter(option => option.correct).length);
+        console.log('New question loaded, reset state:', {
+          isExplanationDisplayed: this.isExplanationDisplayed,
+          correctAnswersText: this.correctAnswersTextSource.getValue()
+        });
 
-            this.currentQuestion.next(question);
-
-            // Log before resetting states
-            console.log('Before resetting states for new question:', {
-              question: question.questionText,
-              isExplanationDisplayed: this.isExplanationDisplayed,
-              correctAnswersText: this.correctAnswersTextSource.getValue()
-            });
-
-            // Reset explanation and correct answers state
-            this.isExplanationDisplayed = false;
-            this.explanationTextService.setIsExplanationTextDisplayed(false);
-            this.correctAnswersTextSource.next(''); // Clear correct answers text
-            console.log('Loaded new question, reset state:', {
-              isExplanationDisplayed: this.isExplanationDisplayed,
-              correctAnswersText: this.correctAnswersTextSource.getValue()
-            });
-
-            this.updateCorrectAnswersDisplay(question).subscribe(() => {
-                this.fetchAndDisplayExplanationText(question);
-            });
-        } else {
-            console.error('Invalid question index:', zeroBasedIndex);
-        }
+        this.updateCorrectAnswersDisplay(question).subscribe(() => {
+          this.fetchAndDisplayExplanationText(question);
+        });
+      } else {
+        console.error('Invalid question index:', zeroBasedIndex);
+      }
     });
   }
-
-
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
