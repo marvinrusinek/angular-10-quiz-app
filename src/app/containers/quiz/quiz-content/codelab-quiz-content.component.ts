@@ -561,21 +561,21 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             this.currentQuestion.next(currentQuestion);
 
             // Get the question state to check if it is answered
-            const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
-            this.isExplanationDisplayed = questionState?.isAnswered || false;
-            this.explanationTextService.setIsExplanationTextDisplayed(this.isExplanationDisplayed);
+            //const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+            //this.isExplanationDisplayed = questionState?.isAnswered || false;
+            //this.explanationTextService.setIsExplanationTextDisplayed(this.isExplanationDisplayed);
 
             // Log the state before clearing correct answers text
-            console.log('Explanation displayed state before clearing correct answers text:', {
-              isExplanationDisplayed: this.isExplanationDisplayed,
+            //console.log('Explanation displayed state before clearing correct answers text:', {
+            //isExplanationDisplayed: this.isExplanationDisplayed,
               correctAnswersText: this.correctAnswersTextSource.getValue()
             });
 
             // Clear correct answers text if explanation is displayed
-            if (this.isExplanationDisplayed) {
-              this.correctAnswersTextSource.next('');
-              console.log('Correct answers text cleared.');
-            }
+            //if (this.isExplanationDisplayed) {
+            // this.correctAnswersTextSource.next('');
+            //  console.log('Correct answers text cleared.');
+            //}
 
             // Set explanation display state
             this.isExplanationDisplayed = true;
