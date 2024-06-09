@@ -103,12 +103,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.isExplanationDisplayed = isDisplayed;
   
       if (isDisplayed) {
-        this.correctAnswersTextSource.next('');
+        this.correctAnswersTextSource.next(''); // Clear correct answers text
         console.log('Explanation is displayed, resetting correctAnswersTextSource.');
       } else {
         console.log('Explanation is not displayed, current correct answers text:', this.correctAnswersTextSource.getValue());
       }
-    }); 
+    });
   }
 
   ngOnInit(): void {
@@ -486,7 +486,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         if (this.quizService.isValidQuizQuestion(currentQuestion)) {
             this.currentQuestion.next(currentQuestion);
 
-            // Get the question state to check if it is answered
+            /* // Get the question state to check if it is answered
             const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
             this.isExplanationDisplayed = questionState?.isAnswered || false;
             this.explanationTextService.setIsExplanationTextDisplayed(this.isExplanationDisplayed);
@@ -501,7 +501,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             if (this.isExplanationDisplayed) {
               this.correctAnswersTextSource.next('');
               console.log('Correct answers text cleared.');
-            }
+            } */
+
+            // Set explanation display state
+            this.isExplanationDisplayed = true;
+            this.explanationTextService.setIsExplanationTextDisplayed(true);
+            this.correctAnswersTextSource.next(''); // Clear correct answers text
 
             // Log the final state
             console.log('State after fetching explanation:', {
