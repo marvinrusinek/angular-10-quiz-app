@@ -180,6 +180,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
             this.currentQuestion.next(question);
 
+            // Log before resetting states
+            console.log('Before resetting states for new question:', {
+              question: question.questionText,
+              isExplanationDisplayed: this.isExplanationDisplayed,
+              correctAnswersText: this.correctAnswersTextSource.getValue()
+            });
+
             // Reset explanation and correct answers state
             this.isExplanationDisplayed = false;
             this.explanationTextService.setIsExplanationTextDisplayed(false);
@@ -499,7 +506,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             // Update the explanation display state
             this.explanationTextService.setIsExplanationTextDisplayed(true);
             this.isExplanationDisplayed = true;
-            console.log('Explanation displayed for question:', currentQuestion);
+
+            // Log state after setting
+            console.log('Explanation displayed, current state:', {
+              isExplanationDisplayed: this.isExplanationDisplayed,
+              correctAnswersText: this.correctAnswersTextSource.getValue()
+            });
 
             // Reset correct answers text to avoid carryover
             this.correctAnswersTextSource.next('');
