@@ -99,15 +99,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
 
     this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
-      console.log('isExplanationTextDisplayed$ emitted:', isDisplayed);
+      console.log('isExplanationTextDisplayed updated to:', isDisplayed);
       this.isExplanationDisplayed = isDisplayed;
   
-      // Reset correct answers text when explanation is displayed
       if (isDisplayed) {
         this.correctAnswersTextSource.next('');
-        console.log('Explanation displayed, clearing correctAnswersText');
+        console.log('Explanation is displayed, resetting correctAnswersTextSource.');
       }
-      console.log('Updated isExplanationDisplayed to:', this.isExplanationDisplayed);
     });
   }
 
