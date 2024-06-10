@@ -792,7 +792,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   } */
 
   private initializeCombinedQuestionData(): void {
-    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
+    const currentQuestionAndOptions$ = this.currentQuestion.pipe(
+      map(currentQuestion => ({
+        currentQuestion,
+        currentOptions: currentQuestion ? currentQuestion.options : []
+      }))
+    );
+    // const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
     this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
 
     this.combinedQuestionData$ = combineLatest([
