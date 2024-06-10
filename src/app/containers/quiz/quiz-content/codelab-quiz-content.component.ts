@@ -204,7 +204,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           });
 
           // Subscribe to isExplanationTextDisplayed$
-          this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
+          this.isExplanationTextDisplayed$.pipe(distinctUntilChanged()).subscribe((isDisplayed: boolean) => {
             this.isExplanationDisplayed = isDisplayed;
             if (isDisplayed) {
               this.correctAnswersTextSource.next('');
@@ -948,14 +948,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     let correctAnswersText = '';
     if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
-        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
-        if (questionHasMultipleAnswers && !isExplanationDisplayed) {
-            correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-            console.log("Correct Answers Text set to:", correctAnswersText);
-        } else {
-            console.log("Explanation is displayed, clearing Correct Answers Text");
-            correctAnswersText = '';
-        }
+      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
+      if (questionHasMultipleAnswers && !isExplanationDisplayed) {
+        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+        console.log("Correct Answers Text set to:", correctAnswersText);
+      } else {
+        console.log("Explanation is displayed, clearing Correct Answers Text");
+        correctAnswersText = '';
+      }
     }
 
     const combinedQuestionData: CombinedQuestionDataType = {
@@ -964,7 +964,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       options: currentOptions,
       questionText: currentQuestion ? currentQuestion.questionText : '',
       explanationText: isExplanationDisplayed ? formattedExplanation : '',
-      correctAnswersText: isExplanationDisplayed ? '' : correctAnswersText,
+      correctAnswersText: correctAnswersText,
       isNavigatingToPrevious: this.isNavigatingToPrevious,
       isExplanationDisplayed: isExplanationDisplayed
     };
