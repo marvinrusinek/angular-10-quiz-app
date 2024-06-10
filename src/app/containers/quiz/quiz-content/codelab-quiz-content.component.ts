@@ -439,7 +439,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   } */
 
-  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+  /* private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
     if (!question) {
         return of(void 0);
     }
@@ -478,6 +478,36 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             console.log("Should Display Correct Answers:", shouldDisplayCorrectAnswers);
         }),
         map(() => void 0)
+    );
+  } */
+
+  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+    if (!question) {
+      return of(void 0);
+    }
+
+    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
+      tap(isMultipleAnswer => {
+        const correctAnswers = question.options.filter(option => option.correct).length;
+        let newCorrectAnswersText = '';
+
+        console.log('Evaluating conditions:', {
+          isMultipleAnswer,
+          isExplanationDisplayed: this.explanationTextService.isExplanationTextDisplayedSource.getValue()
+        });
+
+        if (isMultipleAnswer && !this.explanationTextService.isExplanationTextDisplayedSource.getValue()) {
+          newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
+        } else {
+          newCorrectAnswersText = ''; // Clear text if explanation is displayed
+        }
+
+        if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
+          this.correctAnswersTextSource.next(newCorrectAnswersText);
+          console.log('Updated correct answers text to:', newCorrectAnswersText);
+        }
+      }),
+      map(() => void 0)
     );
   }
 
@@ -824,6 +854,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
             return combinedText;
         })
+    );
+
+    this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
+      map(data => {
+        const shouldDisplay = !data.isExplanationDisplayed && !!data.correctAnswersText;
+        return shouldDisplay;
+      })
     );
   }
 
