@@ -856,12 +856,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         })
     );
 
-    this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
+    /* this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
       map(data => {
         const shouldDisplay = !data.isExplanationDisplayed && !!data.correctAnswersText;
         return shouldDisplay;
       })
-    );
+    ); */
   }
 
   
