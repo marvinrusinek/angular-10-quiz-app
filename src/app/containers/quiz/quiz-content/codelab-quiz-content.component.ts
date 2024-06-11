@@ -512,13 +512,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   } */
 
   private combineCurrentQuestionAndOptions(): Observable<{currentQuestion: any, currentOptions: any[]}> {
-    this.quizService.getCurrentQuestion().subscribe(question => {
-      this.currentQuestion$.next(question);
-    });
-
-    this.quizService.currentOptions.subscribe(options => {
-      this.currentOptions$.next(options);
-    });
+    const currentQuestion$ = this.currentQuestion$.asObservable();
+    const currentOptions$ = this.currentOptions$.asObservable();
 
     return combineLatest([
       this.currentQuestion$,

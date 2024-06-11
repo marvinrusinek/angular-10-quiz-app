@@ -104,6 +104,8 @@ export class QuizService implements OnDestroy {
   currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
   currentOptions$: Observable<Option[]> = this.currentOptionsSubject.asObservable();
 
+  private optionsLoadingSubject = new BehaviorSubject<boolean>(false);
+
   totalQuestionsSubject = new BehaviorSubject<number>(0);
   // totalQuestions$ = this.totalQuestionsSubject.asObservable();
 
@@ -598,6 +600,43 @@ export class QuizService implements OnDestroy {
         console.error('Error in switchMap or map operations:', error);
         this.questionLoadingSubject.next(false);
         return throwError(() => new Error('Error processing quiz questions'));
+      })
+    );
+  }
+
+  // Get the current options for the current quiz and question
+  getCurrentOptions(): Observable<Option[]> {
+    this.optionsLoadingSubject.next(true); // Start loading indicator
+
+    return this.getQuizData().pipe(
+      map(quizzes => quizzes.find(quiz => quiz.quizId === this.quizId)),
+      switchMap(quiz => {
+        if (!quiz) {
+          console.error('Quiz not found');
+          this.optionsLoadingSubject.next(false);
+          return of([]);
+        }
+
+        if (this.currentQuestionIndex >= quiz.questions.length) {
+          console.error('Question index out of bounds');
+          this.optionsLoadingSubject.next(false);
+          return of([]);
+        }
+
+        const question = quiz.questions[this.currentQuestionIndex];
+        if (!question || !question.options) {
+          console.error('Options not found for the current question');
+          this.optionsLoadingSubject.next(false);
+          return of([]);
+        }
+
+        this.optionsLoadingSubject.next(false);
+        return of(question.options);
+      }),
+      catchError((error: Error) => {
+        console.error('Error fetching options:', error);
+        this.optionsLoadingSubject.next(false);
+        return throwError(() => new Error('Error fetching options'));
       })
     );
   }
