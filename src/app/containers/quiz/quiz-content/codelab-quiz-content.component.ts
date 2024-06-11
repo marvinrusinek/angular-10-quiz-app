@@ -196,6 +196,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.currentQuestion.next(question);
         this.isExplanationDisplayed = false; // Reset explanation display state
 
+        // Reset explanation state
+        this.explanationTextService.resetExplanationState();
+        console.log('Explanation state reset when loading a new question.');
+
         // Ensure isExplanationTextDisplayed$ is defined before subscribing
         if (this.isExplanationTextDisplayed$) {
           this.updateCorrectAnswersDisplay(question).subscribe(() => {
