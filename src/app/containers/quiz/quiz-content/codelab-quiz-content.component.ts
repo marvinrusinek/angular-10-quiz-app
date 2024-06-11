@@ -154,7 +154,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
+        console.log("MYQ", question);
         this.currentQuestion.next(question);
+        console.log("MYCQ", this.currentQuestion);
         this.isExplanationDisplayed = false; // Reset explanation display state
 
         // Reset explanation state
@@ -436,6 +438,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
+    currentQuestionAndOptions$.subscribe(data => {
+      console.log("CQAO data", data);
+    });
     this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
 
     this.combinedQuestionData$ = combineLatest([
@@ -495,7 +500,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   }
   
-  private combineCurrentQuestionAndOptions():
+  /* private combineCurrentQuestionAndOptions():
     Observable<{ currentQuestion: QuizQuestion | null,
                  currentOptions: Option[] }> {
     return this.quizStateService.currentQuestion$.pipe(
@@ -504,8 +509,28 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         currentQuestion, currentOptions
       }))
     );
-  }
+  } */
 
+  private combineCurrentQuestionAndOptions(): Observable<{currentQuestion: any, currentOptions: any[]}> {
+    this.quizService.getCurrentQuestion().subscribe(question => {
+      this.currentQuestion$.next(question);
+    });
+
+    this.quizService.currentOptions.subscribe(options => {
+      this.currentOptions$.next(options);
+    });
+
+    return combineLatest([
+      this.currentQuestion$,
+      this.currentOptions$
+    ]).pipe(
+      map(([currentQuestion, currentOptions]) => {
+        return { currentQuestion, currentOptions };
+      })
+    );
+  }
+  
+ 
   private calculateCombinedQuestionData(
     currentQuestionData: {
         currentQuestion: QuizQuestion | null;
@@ -540,7 +565,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       isExplanationDisplayed: isExplanationDisplayed
     };
 
-    console.log("Combined Question Data:", combinedQuestionData);
+    console.log("Final Combined Question Data:", combinedQuestionData);
     return of(combinedQuestionData);
   }
   
