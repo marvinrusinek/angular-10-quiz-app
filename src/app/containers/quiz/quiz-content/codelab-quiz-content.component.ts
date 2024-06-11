@@ -119,6 +119,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     this.loadQuizDataFromRoute();
     this.initializeComponent();
+    this.initializeCurrentQuizAndQuestion();
     this.initializeQuestionState();
     this.initializeSubscriptions();
     this.setupCombinedTextObservable(); 
@@ -499,6 +500,18 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  private initializeCurrentQuizAndQuestion(): void {
+    // Fetch the current question
+    this.quizService.getCurrentQuestion().subscribe(question => {
+      this.currentQuestion$.next(question);
+    });
+
+    // Fetch the current options
+    this.quizService.getCurrentOptions().subscribe(options => {
+      this.currentOptions$.next(options);
+    });
+  }
   
   /* private combineCurrentQuestionAndOptions():
     Observable<{ currentQuestion: QuizQuestion | null,
@@ -511,20 +524,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   } */
 
-  private combineCurrentQuestionAndOptions(): Observable<{currentQuestion: any, currentOptions: any[]}> {
+  private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion, currentOptions: Option[] }> {
     const currentQuestion$ = this.currentQuestion$.asObservable();
     const currentOptions$ = this.currentOptions$.asObservable();
 
-    return combineLatest([
-      this.currentQuestion$,
-      this.currentOptions$
-    ]).pipe(
+    return combineLatest([currentQuestion$, currentOptions$]).pipe(
       map(([currentQuestion, currentOptions]) => {
+        console.log('Combining data: ', { currentQuestion, currentOptions });
         return { currentQuestion, currentOptions };
       })
     );
   }
-  
  
   private calculateCombinedQuestionData(
     currentQuestionData: {
