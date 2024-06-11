@@ -477,7 +477,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       console.log("CQAO data", data);
     });
 
-    this.formattedExplanation$ = this.getFormattedExplanation(); // Placeholder for formatted explanation Observable
+    this.formattedExplanation$ = this.explanationTextService.formattedExplanation$
 
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
