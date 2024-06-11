@@ -477,7 +477,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       console.log("CQAO data", data);
     });
 
-    this.formattedExplanation$ = this.explanationTextService.formattedExplanation$
+    this.formattedExplanation$ = this.explanationTextService.formattedExplanation$; // Placeholder for your explanation service
 
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
@@ -492,7 +492,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.log('Questions:', currentQuiz ? currentQuiz.questions : 'No questions');
         console.log('Current Question Index:', currentQuestionIndex);
 
-        if (currentQuiz && currentQuiz.questions && currentQuiz.questions.length > currentQuestionIndex) {
+        // Check if currentQuiz and questions array are valid
+        if (currentQuiz && Array.isArray(currentQuiz.questions) && currentQuiz.questions.length > currentQuestionIndex) {
           const currentQuestion = currentQuiz.questions[currentQuestionIndex];
           console.log('Current Question:', currentQuestion);
 
