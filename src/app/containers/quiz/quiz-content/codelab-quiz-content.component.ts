@@ -150,45 +150,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
-  /* loadQuestion(quizId: string, zeroBasedIndex: number): void {
-    this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
-      if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
-        const question = questions[zeroBasedIndex];
-        this.currentQuestion.next(question);
-        this.isExplanationDisplayed = false; // Reset explanation display state
-        this.updateCorrectAnswersDisplay(question).subscribe(() => {
-          this.fetchAndDisplayExplanationText(question);
-        });
-      } else {
-        console.error('Invalid question index:', zeroBasedIndex);
-      }
-    });
-  } */
-
-  /* loadQuestion(quizId: string, zeroBasedIndex: number): void {
-    this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
-      if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
-        const question = questions[zeroBasedIndex];
-        this.currentQuestion.next(question);
-
-        this.isExplanationDisplayed = false;
-        this.explanationTextService.setIsExplanationTextDisplayed(false);
-        this.correctAnswersTextSource.next('');
-
-        console.log('New question loaded, reset state:', {
-          isExplanationDisplayed: this.isExplanationDisplayed,
-          correctAnswersText: this.correctAnswersTextSource.getValue()
-        });
-
-        this.updateCorrectAnswersDisplay(question).subscribe(() => {
-          this.fetchAndDisplayExplanationText(question);
-        });
-      } else {
-        console.error('Invalid question index:', zeroBasedIndex);
-      }
-    });
-  } */
-
   private loadQuestion(quizId: string, zeroBasedIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
