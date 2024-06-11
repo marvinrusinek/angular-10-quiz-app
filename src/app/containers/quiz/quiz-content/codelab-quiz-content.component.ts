@@ -486,7 +486,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ]).pipe(
       map(([currentQuizData, isExplanationDisplayed, formattedExplanation]) => {
         const currentQuiz = currentQuizData.currentQuiz;
-        const currentQuestionIndex = this.quizService.currentQuestionIndex;
+        const currentQuestionIndex = this.currentQuestionIndexValue;
 
         console.log('Current Quiz Data:', JSON.stringify(currentQuiz, null, 2));
         console.log('Questions:', currentQuiz ? currentQuiz.questions : 'No questions');
@@ -585,7 +585,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   private initializeCurrentQuizAndQuestion(): void {
     // Fetch the current question
     this.quizService.getCurrentQuestion().subscribe(question => {
-      this.currentQuestion$.next(question);
+      if (question) {
+        this.currentQuestion$.next(question);
+      } else {
+        console.error('No current question available');
+        this.currentQuestion$.next(null);
+      }
     });
 
     // Fetch the current options
