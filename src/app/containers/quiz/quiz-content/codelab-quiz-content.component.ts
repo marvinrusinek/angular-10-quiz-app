@@ -439,37 +439,65 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
+  
     currentQuestionAndOptions$.subscribe(data => {
       console.log("CQAO data", data);
     });
+  
     this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
-
+  
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
-      this.numberOfCorrectAnswers$,
       this.isExplanationTextDisplayed$,
       this.formattedExplanation$
     ]).pipe(
-      switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-        return this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+      map(([currentQuizData, isExplanationDisplayed, formattedExplanation]) => {
+        // Assuming you have currentQuizData which contains the quiz object
+        const currentQuiz = currentQuizData.currentQuiz;  // renamed from currentQuestion to currentQuiz
+        
+        if (currentQuiz && currentQuiz.questions && currentQuiz.questions.length > this.currentQuestionIndexValue) {
+          const currentQuestion = currentQuiz.questions[currentQuestionIndex];
+          
+          return {
+            currentQuiz: currentQuiz,
+            currentQuestion: currentQuestion,
+            currentOptions: currentQuestion.options,
+            questionText: currentQuestion.questionText,
+            explanationText: isExplanationDisplayed ? formattedExplanation : '',
+            correctAnswersText: '',  // Update this based on your logic for correct answers
+            isExplanationDisplayed: isExplanationDisplayed,
+            isNavigatingToPrevious: false  // Or update based on your navigation logic
+          };
+        } else {
+          console.error('Invalid question index or question data');
+          return {
+            currentQuiz: currentQuiz,
+            currentQuestion: null,
+            currentOptions: [],
+            questionText: '',
+            explanationText: '',
+            correctAnswersText: '',
+            isExplanationDisplayed: isExplanationDisplayed,
+            isNavigatingToPrevious: false
+          };
+        }
       })
     );
-
+  
     this.combinedText$ = this.combinedQuestionData$.pipe(
       map(data => {
-        console.log('initializeCombinedQuestionData - combinedQuestionData:', data);
+        console.log('Final Combined Question Data:', data);
         let combinedText = data.questionText;
-
-        if (data.isExplanationDisplayed) {
+  
+        if (data.explanationText) {
           combinedText += ` ${data.explanationText}`;
         }
-
+  
         return combinedText;
       })
     );
   }
-  
+    
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
     this.subscribeToQuestionState();
