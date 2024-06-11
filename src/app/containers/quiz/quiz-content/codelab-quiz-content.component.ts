@@ -310,297 +310,45 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       });
   }
 
-  /* private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
-    if (!question) {
-      return of(void 0);
-    }
-
-    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
-      tap(isMultipleAnswer => {
-        const correctAnswers = question.options.filter(option => option.correct).length;
-        let newCorrectAnswersText = '';
-
-        if (isMultipleAnswer && !this.isExplanationDisplayed) {
-          newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
-        }
-
-        if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
-          this.correctAnswersTextSource.next(newCorrectAnswersText);
-        }
-
-        const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-
-        if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
-          this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-        }
-      }),
-      map(() => void 0)
-    );
-  } */
-
-  /* private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
-    if (!question) {
-      return of(void 0);
-    }
-  
-    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
-      tap(isMultipleAnswer => {
-        const correctAnswers = question.options.filter(option => option.correct).length;
-        let newCorrectAnswersText = '';
-  
-        if (isMultipleAnswer) {
-          if (this.isExplanationDisplayed) {
-            // If explanation is displayed, don't show correct answers text
-            newCorrectAnswersText = '';
-          } else {
-            newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
-          }
-        }
-  
-        if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
-          this.correctAnswersTextSource.next(newCorrectAnswersText);
-        }
-  
-        const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-  
-        if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
-          this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-        }
-      }),
-      map(() => void 0)
-    );
-  } */
-
-  /* private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
-    if (!question) {
-        return of(void 0);
-    }
-
-    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
-        tap(isMultipleAnswer => {
-            const correctAnswers = question.options.filter(option => option.correct).length;
-            let newCorrectAnswersText = '';
-
-            if (isMultipleAnswer && !this.isExplanationDisplayed) {
-                newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
-            } else {
-                newCorrectAnswersText = ''; // Clear text if explanation is displayed
-            }
-
-            if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
-                this.correctAnswersTextSource.next(newCorrectAnswersText);
-            }
-
-            const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-            if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
-              console.log('Updating shouldDisplayCorrectAnswersSubject to:', shouldDisplayCorrectAnswers);
-              this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-            }
-
-            console.log("Correct Answers Text for Display:", newCorrectAnswersText);
-            console.log("Should Display Correct Answers:", shouldDisplayCorrectAnswers);
-        }),
-        map(() => void 0)
-    );
-  } */
-
-  /* private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
-    if (!question) {
-        return of(void 0);
-    }
-
-    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
-        tap(isMultipleAnswer => {
-            const correctAnswers = question.options.filter(option => option.correct).length;
-            let newCorrectAnswersText = '';
-
-            // Detailed logging to debug state
-            console.log('Evaluating conditions:', {
-                isMultipleAnswer,
-                isExplanationDisplayed: this.isExplanationDisplayed
-            });
-
-            if (isMultipleAnswer && !this.isExplanationDisplayed) {
-                newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
-            } else {
-                newCorrectAnswersText = ''; // Clear text if explanation is displayed
-            }
-
-            // Update correct answers text and log changes
-            if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
-                this.correctAnswersTextSource.next(newCorrectAnswersText);
-                console.log('Updated correct answers text to:', newCorrectAnswersText);
-            }
-
-            // Update state for displaying correct answers
-            const shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
-            if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
-                console.log('Updating shouldDisplayCorrectAnswersSubject to:', shouldDisplayCorrectAnswers);
-                this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-            }
-
-            console.log("Correct Answers Text for Display:", newCorrectAnswersText);
-            console.log("Should Display Correct Answers:", shouldDisplayCorrectAnswers);
-        }),
-        map(() => void 0)
-    );
-  } */
-
   private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
     if (!question) {
-        return of(void 0);
+      return of(void 0);
     }
 
     return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
-        tap(isMultipleAnswer => {
-            const correctAnswers = question.options.filter(option => option.correct).length;
-            let newCorrectAnswersText = '';
+      tap(isMultipleAnswer => {
+        const correctAnswers = question.options.filter(option => option.correct).length;
+        let newCorrectAnswersText = '';
 
-            const explanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
-            console.log('Evaluating conditions:', {
-                isMultipleAnswer,
-                isExplanationDisplayed: explanationDisplayed
-            });
+        const explanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
+        console.log('Evaluating conditions:', {
+          isMultipleAnswer,
+          isExplanationDisplayed: explanationDisplayed
+        });
 
-            if (isMultipleAnswer && !explanationDisplayed) {
-                newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
-            } else {
-                newCorrectAnswersText = ''; // Clear text if explanation is displayed
-            }
+        if (isMultipleAnswer && !explanationDisplayed) {
+          newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
+        } else {
+          newCorrectAnswersText = ''; // Clear text if explanation is displayed
+        }
 
-            if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
-                this.correctAnswersTextSource.next(newCorrectAnswersText);
-                console.log('Updated correct answers text to:', newCorrectAnswersText);
-            }
+        if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
+          this.correctAnswersTextSource.next(newCorrectAnswersText);
+          console.log('Updated correct answers text to:', newCorrectAnswersText);
+        }
 
-            const shouldDisplayCorrectAnswers = isMultipleAnswer && !explanationDisplayed;
-            if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
-                console.log('Updating shouldDisplayCorrectAnswersSubject to:', shouldDisplayCorrectAnswers);
-                this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-            }
+        const shouldDisplayCorrectAnswers = isMultipleAnswer && !explanationDisplayed;
+        if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
+          console.log('Updating shouldDisplayCorrectAnswersSubject to:', shouldDisplayCorrectAnswers);
+          this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+        }
 
-            console.log("Correct Answers Text for Display:", newCorrectAnswersText);
-            console.log("Should Display Correct Answers:", shouldDisplayCorrectAnswers);
-        }),
-        map(() => void 0)
+        console.log("Correct Answers Text for Display:", newCorrectAnswersText);
+        console.log("Should Display Correct Answers:", shouldDisplayCorrectAnswers);
+      }),
+      map(() => void 0)
     );
   }
-
-
-  /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
-    if (!question || !question.questionText) {
-      console.error('Question is undefined or missing questionText');
-      return;
-    }
-
-    try {
-      const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
-      const questions: QuizQuestion[] = data;
-
-      if (questions.length === 0) {
-        console.error('No questions received from service.');
-        return;
-      }
-
-      const questionIndex = questions.findIndex((q) =>
-        q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
-      );
-      if (questionIndex < 0) {
-        console.error('Current question not found in the questions array.');
-        return;
-      }
-
-      const currentQuestion = questions[questionIndex];
-      // Validate the current question
-      if (this.quizService.isValidQuizQuestion(currentQuestion)) {
-        // Set the current question
-        this.currentQuestion.next(currentQuestion);
-
-        if (questionIndex < questions.length - 1) {
-          const nextQuestion = questions[questionIndex + 1];
-          if (nextQuestion) {
-            this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
-            this.updateExplanationForQuestion(nextQuestion);
-            // Set the explanation display state to true when a new explanation is fetched
-            this.explanationTextService.setIsExplanationTextDisplayed(true);
-          } else {
-            console.warn('Next question not found in the questions array.');
-          }
-        } else {
-          console.warn('Current question is the last question in the array.');
-        }
-
-        this.explanationTextService.setIsExplanationTextDisplayed(true);
-      } else {
-        console.error("Current question is not valid");
-      }
-    } catch (error) {
-      console.error('Error fetching questions:', error);
-    }
-  } */
-
-  /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
-    if (!question || !question.questionText) {
-        console.error('Question is undefined or missing questionText');
-        return;
-    }
-
-    try {
-        const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
-        const questions: QuizQuestion[] = data;
-
-        if (questions.length === 0) {
-            console.error('No questions received from service.');
-            return;
-        }
-
-        const questionIndex = questions.findIndex((q) =>
-            q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
-        );
-        if (questionIndex < 0) {
-            console.error('Current question not found in the questions array.');
-            return;
-        }
-
-        const currentQuestion = questions[questionIndex];
-        if (this.quizService.isValidQuizQuestion(currentQuestion)) {
-            this.currentQuestion.next(currentQuestion);
-
-            // Get the question state to check if it is answered
-            //const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
-            //this.isExplanationDisplayed = questionState?.isAnswered || false;
-            //this.explanationTextService.setIsExplanationTextDisplayed(this.isExplanationDisplayed);
-
-            // Log the state before clearing correct answers text
-            //console.log('Explanation displayed state before clearing correct answers text:', {
-            //isExplanationDisplayed: this.isExplanationDisplayed,
-              correctAnswersText: this.correctAnswersTextSource.getValue()
-            });
-
-            // Clear correct answers text if explanation is displayed
-            //if (this.isExplanationDisplayed) {
-            // this.correctAnswersTextSource.next('');
-            //  console.log('Correct answers text cleared.');
-            //}
-
-            // Set explanation display state
-            this.isExplanationDisplayed = true;
-            this.explanationTextService.setIsExplanationTextDisplayed(true);
-            this.correctAnswersTextSource.next(''); // Clear correct answers text
-
-            // Log the final state
-            console.log('State after fetching explanation:', {
-              questionText: currentQuestion.questionText,
-              isExplanationDisplayed: this.isExplanationDisplayed,
-              correctAnswersText: this.correctAnswersTextSource.getValue()
-            });
-        } else {
-            console.error("Current question is not valid");
-        }
-    } catch (error) {
-        console.error('Error fetching questions:', error);
-    }
-  } */
 
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
@@ -685,118 +433,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   }
 
-  /* private initializeCombinedQuestionData(): void {
-    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
-    this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
-    this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
-
-    this.combinedQuestionData$ = combineLatest([
-      currentQuestionAndOptions$,
-      this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$,
-      this.formattedExplanation$
-    ]).pipe(
-      switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) =>
-        this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation)
-      )
-    );
-  } */
-
-  /* private initializeCombinedQuestionData(): void {
-    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
-    this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
-    this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
-  
-    // this.combinedQuestionData$ = combineLatest([
-    //  currentQuestionAndOptions$,
-    //  this.numberOfCorrectAnswers$,
-    //  this.isExplanationTextDisplayed$,
-    //  this.formattedExplanation$
-    //]).pipe(
-    //  switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-    //    console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-    //    return this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-    //  })
-    //);
-
-    this.combinedQuestionData$ = combineLatest([
-      currentQuestionAndOptions$,
-      this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$,
-      this.formattedExplanation$
-    ]).pipe(
-      tap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-        console.log('Combined data emitted:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-      }),
-      switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-        return this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-      }),
-      catchError(error => {
-        console.error('Error in combinedQuestionData$', error);
-        return EMPTY; // or other error handling logic
-      }),
-      finalize(() => {
-        console.log('Combined data observable completed or errored');
-      })
-    );    
-  
-    this.combinedText$ = this.combinedQuestionData$.pipe(
-      map(data => {
-        console.log('initializeCombinedQuestionData - combinedQuestionData:', data);
-        let combinedText = data.questionText;
-    
-        // If explanation text is displayed, append it to the combinedText
-        if (data.explanationText && data.isExplanationDisplayed) {
-          console.log('Explanation text is displayed');
-          combinedText += ` ${data.explanationText}`;
-        }
-        
-        // If explanation text is not displayed and it's not a multiple-answer question,
-        // append the correct answers text
-        else if (!data.isExplanationDisplayed && !this.quizStateService.isMultipleAnswerQuestion(data.currentQuestion)) {
-          console.log('Correct answers text is displayed');
-          combinedText += ` ${data.correctAnswersText}`;
-        }
-    
-        console.log('initializeCombinedQuestionData - combinedText:', combinedText);
-        return combinedText;
-      })
-    );    
-  } */
-  
-  /* private initializeCombinedQuestionData(): void {
-    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
-    this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
-    this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
-
-    this.combinedQuestionData$ = combineLatest([
-      currentQuestionAndOptions$,
-      this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$,
-      this.formattedExplanation$
-    ]).pipe(
-      switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-        return this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-      })
-    );
-
-    this.combinedText$ = this.combinedQuestionData$.pipe(
-      map(data => {
-        console.log('initializeCombinedQuestionData - combinedQuestionData:', data);
-        let combinedText = data.questionText;
-    
-        // Combine question text and explanation text if applicable
-        if (data.isExplanationDisplayed) {
-          combinedText += ` ${data.explanationText}`;
-        }
-    
-        return combinedText;
-      })
-    );
-  } */
-
   private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.currentQuestion.pipe(
       map(currentQuestion => ({
@@ -808,38 +444,30 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
 
     this.combinedQuestionData$ = combineLatest([
-        currentQuestionAndOptions$,
-        this.numberOfCorrectAnswers$,
-        this.isExplanationTextDisplayed$,
-        this.formattedExplanation$
+      currentQuestionAndOptions$,
+      this.numberOfCorrectAnswers$,
+      this.isExplanationTextDisplayed$,
+      this.formattedExplanation$
     ]).pipe(
-        switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-            console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-            return this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-        })
+      switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+        return this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+      })
     );
 
     this.combinedText$ = this.combinedQuestionData$.pipe(
-        map(data => {
-            console.log('initializeCombinedQuestionData - combinedQuestionData:', data);
-            let combinedText = data.questionText;
-
-            if (data.isExplanationDisplayed) {
-                combinedText += ` ${data.explanationText}`;
-            }
-
-            return combinedText;
-        })
-    );
-
-    /* this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
       map(data => {
-        const shouldDisplay = !data.isExplanationDisplayed && !!data.correctAnswersText;
-        return shouldDisplay;
-      })
-    ); */
-  }
+        console.log('initializeCombinedQuestionData - combinedQuestionData:', data);
+        let combinedText = data.questionText;
 
+        if (data.isExplanationDisplayed) {
+          combinedText += ` ${data.explanationText}`;
+        }
+
+        return combinedText;
+      })
+    );
+  }
   
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
@@ -882,77 +510,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       }))
     );
   }
-
-  /* private calculateCombinedQuestionData(
-    currentQuestionData: {
-      currentQuestion: QuizQuestion | null;
-      currentOptions: Option[];
-    },
-    numberOfCorrectAnswers: number | undefined,
-    isExplanationDisplayed: boolean,
-    formattedExplanation: string
-  ): Observable<CombinedQuestionDataType> {
-    const { currentQuestion, currentOptions } = currentQuestionData;
-
-    let correctAnswersText = '';
-    if (currentQuestion && !isExplanationDisplayed && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
-      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
-      if (questionHasMultipleAnswers) {
-        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-      }
-    }
-
-    const combinedQuestionData: CombinedQuestionDataType = {
-      currentQuestion: currentQuestion,
-      currentOptions: currentOptions,
-      options: currentOptions,
-      questionText: currentQuestion ? currentQuestion.questionText : '',
-      explanationText: currentQuestion ? currentQuestion.explanation : '',
-      formattedExplanation: formattedExplanation,
-      correctAnswersText: correctAnswersText,
-      isNavigatingToPrevious: this.isNavigatingToPrevious
-    };
-
-    return of(combinedQuestionData);
-  } */
-
-  /* private calculateCombinedQuestionData(
-    currentQuestionData: {
-      currentQuestion: QuizQuestion | null;
-      currentOptions: Option[];
-    },
-    numberOfCorrectAnswers: number | undefined,
-    isExplanationDisplayed: boolean,
-    formattedExplanation: string
-  ): Observable<CombinedQuestionDataType> {
-    const { currentQuestion, currentOptions } = currentQuestionData;
-  
-    let correctAnswersText = '';
-    if (
-      currentQuestion &&
-      numberOfCorrectAnswers !== undefined &&
-      numberOfCorrectAnswers > 1 &&
-      !isExplanationDisplayed // Only display correct answers text if explanation is not displayed
-    ) {
-      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
-      if (questionHasMultipleAnswers) {
-        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-      }
-    }
-  
-    const combinedQuestionData: CombinedQuestionDataType = {
-      currentQuestion: currentQuestion,
-      currentOptions: currentOptions,
-      options: currentOptions,
-      questionText: currentQuestion ? currentQuestion.questionText : '',
-      explanationText: isExplanationDisplayed ? formattedExplanation : '',
-      correctAnswersText: correctAnswersText,
-      isNavigatingToPrevious: this.isNavigatingToPrevious,
-      isExplanationDisplayed: isExplanationDisplayed
-    };
-  
-    return of(combinedQuestionData);
-  } */
 
   private calculateCombinedQuestionData(
     currentQuestionData: {
@@ -1062,7 +619,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   }
-  
     
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
