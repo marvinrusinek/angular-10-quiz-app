@@ -437,27 +437,65 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   }
 
-  private initializeCombinedQuestionData(): void {
+  /* private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
-  
     currentQuestionAndOptions$.subscribe(data => {
       console.log("CQAO data", data);
     });
-  
     this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
-  
+
+    this.combinedQuestionData$ = combineLatest([
+      currentQuestionAndOptions$,
+      this.numberOfCorrectAnswers$,
+      this.isExplanationTextDisplayed$,
+      this.formattedExplanation$
+    ]).pipe(
+      switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+        return this.calculateCombinedQuestionData(currentQuestionData, +numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+      })
+    );
+
+    this.combinedText$ = this.combinedQuestionData$.pipe(
+      map(data => {
+        console.log('initializeCombinedQuestionData - combinedQuestionData:', data);
+        let combinedText = data.questionText;
+
+        if (data.isExplanationDisplayed) {
+          combinedText += ` ${data.explanationText}`;
+        }
+
+        return combinedText;
+      })
+    );
+  } */
+
+  private initializeCombinedQuestionData(): void {
+    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
+
+    currentQuestionAndOptions$.subscribe(data => {
+      console.log("CQAO data", data);
+    });
+
+    this.formattedExplanation$ = this.getFormattedExplanation(); // Placeholder for formatted explanation Observable
+
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.isExplanationTextDisplayed$,
       this.formattedExplanation$
     ]).pipe(
       map(([currentQuizData, isExplanationDisplayed, formattedExplanation]) => {
-        // Assuming you have currentQuizData which contains the quiz object
-        const currentQuiz = currentQuizData.currentQuiz;  // renamed from currentQuestion to currentQuiz
-        
-        if (currentQuiz && currentQuiz.questions && currentQuiz.questions.length > this.currentQuestionIndexValue) {
+        const currentQuiz = currentQuizData.currentQuiz;
+        const currentQuestionIndex = this.quizService.currentQuestionIndex;
+
+        console.log('Current Quiz Data:', JSON.stringify(currentQuiz, null, 2));
+        console.log('Questions:', currentQuiz ? currentQuiz.questions : 'No questions');
+        console.log('Current Question Index:', currentQuestionIndex);
+
+        if (currentQuiz && currentQuiz.questions && currentQuiz.questions.length > currentQuestionIndex) {
           const currentQuestion = currentQuiz.questions[currentQuestionIndex];
-          
+          console.log('Current Question:', currentQuestion);
+
           return {
             currentQuiz: currentQuiz,
             currentQuestion: currentQuestion,
@@ -481,23 +519,37 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             isNavigatingToPrevious: false
           };
         }
+      }),
+      catchError((error: Error) => {
+        console.error('Error combining question data:', error);
+        return of({
+          currentQuiz: null,
+          currentQuestion: null,
+          currentOptions: [],
+          questionText: '',
+          explanationText: '',
+          correctAnswersText: '',
+          isExplanationDisplayed: false,
+          isNavigatingToPrevious: false
+        });
       })
     );
-  
+
     this.combinedText$ = this.combinedQuestionData$.pipe(
       map(data => {
         console.log('Final Combined Question Data:', data);
         let combinedText = data.questionText;
-  
+
         if (data.explanationText) {
           combinedText += ` ${data.explanationText}`;
         }
-  
+
         return combinedText;
       })
     );
   }
-    
+  
+  
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
     this.subscribeToQuestionState();
