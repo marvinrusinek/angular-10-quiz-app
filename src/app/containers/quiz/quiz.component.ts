@@ -1608,7 +1608,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.updateProgressPercentage();
   }
 
-  private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
+  /* private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
     try {
       this.animationState$.next('animationStarted');
       // this.explanationTextService.setShouldDisplayExplanation(false);
@@ -1653,7 +1653,53 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
     }
+  } */
+
+  private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
+    try {
+      this.animationState$.next('animationStarted');
+  
+      const quizData: Quiz = await firstValueFrom(
+        this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
+      );
+  
+      if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
+        console.warn('Quiz data is unavailable or has no questions.');
+        return;
+      }
+  
+      const isValidIndex = await firstValueFrom(
+        of(this.quizService.isValidQuestionIndex(questionIndex, quizData))
+      );
+      if (!isValidIndex) {
+        console.warn('Invalid question index. Aborting.');
+        return;
+      }
+  
+      if (this.currentQuestion && this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)) {
+        const newText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
+        this.quizService.updateCorrectAnswersText(newText);
+      }
+  
+      const questionDetails: QuizQuestion | undefined = await this.fetchQuestionDetails(questionIndex);
+      if (questionDetails) {
+        const { questionText, options, explanation } = questionDetails;
+  
+        this.currentQuestion = questionDetails;
+        this.quizStateService.updateCurrentQuestion(questionDetails);
+        this.setQuestionDetails(questionText, options, explanation);
+  
+        await this.quizService.checkIfAnsweredCorrectly();
+  
+        await this.resetUIAndNavigate(questionIndex);
+      } else {
+        console.warn('No question details found for index:', questionIndex);
+      }
+    } catch (error) {
+      console.error('Error in fetchAndSetQuestionData:', error);
+    }
   }
+  
 
   private fetchQuestionDetails(questionIndex: number): QuizQuestion {
     const questionText = this.quizService.getQuestionTextForIndex(questionIndex); 
