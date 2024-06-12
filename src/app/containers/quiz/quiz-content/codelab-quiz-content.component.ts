@@ -6,6 +6,7 @@ import { catchError, debounceTime, distinctUntilChanged, EMPTY, finalize, map, m
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
 import { QuestionType } from '../../../shared/models/question-type.enum';
+import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
@@ -558,13 +559,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   } */
 
   private initializeCombinedQuestionData(): void {
-    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
+    const currentQuizAndOptions$ = this.combineCurrentQuestionAndOptions();
   
-    currentQuestionAndOptions$.subscribe({
+    currentQuizAndOptions$.subscribe({
       next: data => {
         console.log("CQAO data", data);
       },
-      error: err => console.error('Error combining question and options:', err)
+      error: err => console.error('Error combining current quiz and options:', err)
     });
   
     this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).subscribe({
@@ -578,23 +579,23 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   
     this.combinedQuestionData$ = combineLatest([
-      currentQuestionAndOptions$,
+      currentQuizAndOptions$,
       this.numberOfCorrectAnswers$,
       this.isExplanationTextDisplayed$,
       this.formattedExplanation$
     ]).pipe(
-      switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+      switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
   
         return this.calculateCombinedQuestionData(
-          currentQuestionData, 
+          currentQuizData, 
           numberOfCorrectAnswers, 
           isExplanationDisplayed, 
           formattedExplanation
         );
       }),
       catchError((error: Error) => {
-        console.error('Error combining question data:', error);
+        console.error('Error combining quiz data:', error);
         return of({
           currentQuiz: null,
           currentQuestion: null,
@@ -622,6 +623,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   }
+  
   
   
   async initializeQuestionState(): Promise<void> {
@@ -683,15 +685,19 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   } */
 
-  private combineCurrentQuestionAndOptions(): Observable<{ currentQuiz: QuizQuestion, currentOptions: Option[] }> {
+  private combineCurrentQuestionAndOptions(): Observable<{ currentQuiz: Quiz, currentOptions: Option[] }> {
     return combineLatest([
-      this.quizService.getCurrentQuestion(),
+      this.quizService.getCurrentQuiz(),
       this.quizService.getCurrentOptions()
     ]).pipe(
       map(([currentQuiz, currentOptions]) => {
-        if (!currentQuiz) {
-          throw new Error('No current quiz found');
+        console.log('Current Quiz:', currentQuiz);
+        console.log('Current Options:', currentOptions);
+  
+        if (!currentQuiz || !Array.isArray(currentOptions)) {
+          throw new Error('Invalid quiz or options data');
         }
+  
         return { currentQuiz, currentOptions };
       }),
       catchError(error => {
@@ -700,6 +706,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   }
+  
+  
+  
+  
+  
+  
   
  
   private calculateCombinedQuestionData(

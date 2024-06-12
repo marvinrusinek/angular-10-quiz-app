@@ -245,12 +245,20 @@ export class QuizService implements OnDestroy {
     return this.activeQuiz;
   }
 
-  getCurrentQuiz(): Quiz | undefined {
+  /* getCurrentQuiz(): Quiz | undefined {
     if (Array.isArray(this.quizData)) {
       return this.quizData.find((quiz) => quiz.quizId === this.quizId);
     }
     return undefined;
+  } */
+
+  getCurrentQuiz(): Observable<Quiz | undefined> {
+    const quiz = Array.isArray(this.quizData)
+      ? this.quizData.find((quiz) => quiz.quizId === this.quizId)
+      : undefined;
+    return of(quiz); // Return as an observable
   }
+
 
   getCurrentQuizId(): string {
     return this.quizId;
