@@ -685,7 +685,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   } */
 
-  private combineCurrentQuestionAndOptions(): Observable<{ currentQuiz: Quiz, currentOptions: Option[] }> {
+  private combineCurrentQuestionAndOptions(): Observable<{ currentQuiz: Quiz | undefined, currentOptions: Option[] }> {
     return combineLatest([
       this.quizService.getCurrentQuiz(),
       this.quizService.getCurrentOptions()
@@ -693,19 +693,18 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       map(([currentQuiz, currentOptions]) => {
         console.log('Current Quiz:', currentQuiz);
         console.log('Current Options:', currentOptions);
-  
-        if (!currentQuiz || !Array.isArray(currentOptions)) {
-          throw new Error('Invalid quiz or options data');
+        if (!currentQuiz || !currentOptions.length) {
+          throw new Error('No quiz or options data found');
         }
-  
         return { currentQuiz, currentOptions };
       }),
       catchError(error => {
         console.error('Error combining current quiz and options:', error);
-        return of({ currentQuiz: null, currentOptions: [] });
+        return of({ currentQuiz: undefined, currentOptions: [] });
       })
     );
   }
+  
   
   
   

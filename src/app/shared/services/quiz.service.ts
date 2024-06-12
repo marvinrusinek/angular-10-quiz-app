@@ -258,6 +258,7 @@ export class QuizService implements OnDestroy {
       : undefined;
     return of(quiz); // Return as an observable
   }
+  
 
 
   getCurrentQuizId(): string {
@@ -413,7 +414,7 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  getQuestionTextForIndex(index: number): string | undefined {
+  /* getQuestionTextForIndex(index: number): string | undefined {
     const currentQuiz = this.getCurrentQuiz();
     if (
       currentQuiz &&
@@ -425,7 +426,24 @@ export class QuizService implements OnDestroy {
       return questionText;
     }
     return undefined;
+  } */
+
+  getQuestionTextForIndex(index: number): Observable<string | undefined> {
+    return this.getCurrentQuiz().pipe(
+      map(currentQuiz => {
+        if (
+          currentQuiz &&
+          currentQuiz.questions &&
+          index >= 0 &&
+          index < currentQuiz.questions.length
+        ) {
+          return currentQuiz.questions[index].questionText;
+        }
+        return undefined;
+      })
+    );
   }
+  
 
   async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
@@ -617,7 +635,7 @@ export class QuizService implements OnDestroy {
   }
 
   // Get the current options for the current quiz and question
-  getCurrentOptions(): Observable<Option[]> {
+  /* getCurrentOptions(): Observable<Option[]> {
     this.optionsLoadingSubject.next(true); // Start loading indicator
 
     return this.getQuizData().pipe(
@@ -651,6 +669,16 @@ export class QuizService implements OnDestroy {
         return throwError(() => new Error('Error fetching options'));
       })
     );
+  } */
+
+  getCurrentOptions(): Observable<Option[]> {
+    const quiz = Array.isArray(this.quizData)
+      ? this.quizData.find((quiz) => quiz.quizId === this.quizId)
+      : undefined;
+    const currentQuestionIndex = this.getCurrentQuestionIndex();
+    const options = quiz ? quiz.questions[currentQuestionIndex]?.options : [];
+    console.log('Emitting options:', options);
+    return of(options);
   }
 
   getFallbackQuestion(): QuizQuestion {
