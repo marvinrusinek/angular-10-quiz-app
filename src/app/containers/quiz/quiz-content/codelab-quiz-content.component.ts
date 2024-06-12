@@ -556,6 +556,73 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   } */
+
+  private initializeCombinedQuestionData(): void {
+    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
+  
+    currentQuestionAndOptions$.subscribe({
+      next: data => {
+        console.log("CQAO data", data);
+      },
+      error: err => console.error('Error combining question and options:', err)
+    });
+  
+    this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).subscribe({
+      next: explanation => {
+        this.formattedExplanation$.next(explanation);
+      },
+      error: err => {
+        console.error('Error fetching formatted explanation:', err);
+        this.formattedExplanation$.next('Error fetching explanation');
+      }
+    });
+  
+    this.combinedQuestionData$ = combineLatest([
+      currentQuestionAndOptions$,
+      this.numberOfCorrectAnswers$,
+      this.isExplanationTextDisplayed$,
+      this.formattedExplanation$
+    ]).pipe(
+      switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+        
+        // Ensure proper transformation into CombinedQuestionDataType
+        return this.calculateCombinedQuestionData(
+          currentQuizData, 
+          numberOfCorrectAnswers, 
+          isExplanationDisplayed, 
+          formattedExplanation
+        );
+      }),
+      catchError((error: Error) => {
+        console.error('Error combining question data:', error);
+        return of({
+          currentQuiz: null,
+          currentQuestion: null,
+          currentOptions: [],
+          questionText: '',
+          explanationText: '',
+          correctAnswersText: '',
+          numberOfCorrectAnswers: 0,
+          isExplanationDisplayed: false,
+          isNavigatingToPrevious: false
+        } as CombinedQuestionDataType);
+      })
+    );
+  
+    this.combinedText$ = this.combinedQuestionData$.pipe(
+      map(data => {
+        console.log('Final Combined Question Data:', data);
+        let combinedText = data.questionText;
+  
+        if (data.explanationText) {
+          combinedText += ` ${data.explanationText}`;
+        }
+  
+        return combinedText;
+      })
+    );
+  }
   
   
   async initializeQuestionState(): Promise<void> {
