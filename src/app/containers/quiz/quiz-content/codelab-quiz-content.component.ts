@@ -494,7 +494,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ]).pipe(
       map(([currentQuizData, isExplanationDisplayed, formattedExplanation]) => {
         const currentQuiz = currentQuizData.currentQuiz;
-        const currentQuestionIndex = this.quizService.currentQuestionIndex;
+        const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
 
         console.log('Current Quiz Data:', JSON.stringify(currentQuiz, null, 2));
         console.log('Questions:', currentQuiz ? currentQuiz.questions : 'No questions');
@@ -617,14 +617,20 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   } */
 
-  private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion, currentOptions: Option[] }> {
-    const currentQuestion$ = this.currentQuestion$.asObservable();
-    const currentOptions$ = this.currentOptions$.asObservable();
-
-    return combineLatest([currentQuestion$, currentOptions$]).pipe(
-      map(([currentQuestion, currentOptions]) => {
-        console.log('Combining data: ', { currentQuestion, currentOptions });
-        return { currentQuestion, currentOptions };
+  private combineCurrentQuestionAndOptions(): Observable<{ currentQuiz: QuizQuestion, currentOptions: Option[] }> {
+    return combineLatest([
+      this.quizService.getCurrentQuestion(),
+      this.quizService.getCurrentOptions()
+    ]).pipe(
+      map(([currentQuiz, currentOptions]) => {
+        if (!currentQuiz) {
+          throw new Error('No current quiz found');
+        }
+        return { currentQuiz, currentOptions };
+      }),
+      catchError(error => {
+        console.error('Error combining current question and options:', error);
+        return of({ currentQuiz: null, currentOptions: [] });
       })
     );
   }
