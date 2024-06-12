@@ -613,14 +613,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
     this.combinedText$ = this.combinedQuestionData$.pipe(
       map(data => {
-        console.log('Final Combined Question Data:', data);
+        /* console.log('Final Combined Question Data:', data);
         let combinedText = data.questionText;
   
         if (data.explanationText) {
           combinedText += ` ${data.explanationText}`;
         }
   
-        return combinedText;
+        return combinedText; */
+        
+        // Directly set combinedText to explanationText
+        return data.explanationText;
       })
     );
   }
