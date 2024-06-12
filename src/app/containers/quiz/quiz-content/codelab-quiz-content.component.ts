@@ -470,7 +470,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   } */
 
-  private initializeCombinedQuestionData(): void {
+  /* private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
 
     currentQuestionAndOptions$.subscribe(data => {
@@ -555,7 +555,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         return combinedText;
       })
     );
-  }
+  } */
   
   
   async initializeQuestionState(): Promise<void> {
