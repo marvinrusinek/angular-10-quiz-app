@@ -477,15 +477,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       console.log("CQAO data", data);
     });
 
-    this.explanationTextService.getFormattedExplanation(this.quizService.currentQuestionIndex).subscribe(
-      explanation => {
+    this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).subscribe({
+      next: explanation => {
         this.formattedExplanation$.next(explanation);
       },
-      error => {
-        console.error('Error fetching formatted explanation:', error);
+      error: err => {
+        console.error('Error fetching formatted explanation:', err);
         this.formattedExplanation$.next('Error fetching explanation');
       }
-    );
+    });
     
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
