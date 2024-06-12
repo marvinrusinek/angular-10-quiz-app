@@ -866,8 +866,9 @@ export class QuizService implements OnDestroy {
         options: [],
         isNavigatingToPrevious: false,
         explanationText: '',
-        formattedExplanation: 'An error occurred while loading the question.'
-      };
+        formattedExplanation: 'An error occurred while loading the question.',
+        isExplanationDisplayed: false
+      };      
       this.combinedQuestionDataSubject.next(errorStateCombinedQuestionData);
       this.combinedQuestionData$ = combineLatest([
         this.combinedQuestionDataSubject.asObservable(),
