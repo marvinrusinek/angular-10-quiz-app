@@ -693,45 +693,49 @@ export class QuizService implements OnDestroy {
   }
 
   getNextQuestion(currentQuestionIndex: number): Promise<QuizQuestion | undefined> {
-    return this.getCurrentQuiz().pipe(
-      map((currentQuiz: Quiz | undefined): QuizQuestion | undefined => {
-        if (
-          currentQuiz &&
-          currentQuiz.questions &&
-          currentQuestionIndex >= 0 &&
-          currentQuestionIndex < currentQuiz.questions.length
-        ) {
-          const nextQuestion = currentQuiz.questions[currentQuestionIndex];
-          this.nextQuestionSource.next(nextQuestion);
-          this.nextQuestionSubject.next(nextQuestion);
-          this.setCurrentQuestionAndNext(nextQuestion, '');
-          return nextQuestion;
-        } else {
-          this.nextQuestionSource.next(null);
-          this.nextQuestionSubject.next(null);
-          return undefined;
-        }
-      })
-    ).toPromise() as Promise<QuizQuestion | undefined>; // Convert Observable to Promise
+    return firstValueFrom(
+      this.getCurrentQuiz().pipe(
+        map((currentQuiz: Quiz | undefined): QuizQuestion | undefined => {
+          if (
+            currentQuiz &&
+            Array.isArray(currentQuiz.questions) &&
+            currentQuestionIndex >= 0 &&
+            currentQuestionIndex < currentQuiz.questions.length
+          ) {
+            const nextQuestion = currentQuiz.questions[currentQuestionIndex];
+            this.nextQuestionSource.next(nextQuestion);
+            this.nextQuestionSubject.next(nextQuestion);
+            this.setCurrentQuestionAndNext(nextQuestion, '');
+            return nextQuestion;
+          } else {
+            this.nextQuestionSource.next(null);
+            this.nextQuestionSubject.next(null);
+            return undefined;
+          }
+        })
+      )
+    );
   }
 
   getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
-    return this.getCurrentQuiz().pipe(
-      map((currentQuiz: Quiz | undefined): QuizQuestion | undefined => {
-        const previousIndex = questionIndex - 1;
-
-        if (
-          currentQuiz &&
-          currentQuiz.questions &&
-          previousIndex >= 0 &&
-          previousIndex < currentQuiz.questions.length
-        ) {
-          return currentQuiz.questions[previousIndex];
-        } else {
-          return undefined;
-        }
-      })
-    ).toPromise() as Promise<QuizQuestion | undefined>; // Convert Observable to Promise
+    return firstValueFrom(
+      this.getCurrentQuiz().pipe(
+        map((currentQuiz: Quiz | undefined): QuizQuestion | undefined => {
+          const previousIndex = questionIndex - 1;
+  
+          if (
+            currentQuiz &&
+            Array.isArray(currentQuiz.questions) &&
+            previousIndex >= 0 &&
+            previousIndex < currentQuiz.questions.length
+          ) {
+            return currentQuiz.questions[previousIndex];
+          } else {
+            return undefined;
+          }
+        })
+      )
+    );
   }
 
   getNextOptions(currentQuestionIndex: number): Promise<Option[] | undefined> {
