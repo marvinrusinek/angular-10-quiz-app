@@ -831,9 +831,9 @@ export class QuizService implements OnDestroy {
           options: this.data.currentOptions,
           isNavigatingToPrevious: false,
           explanationText: '',
-          formattedExplanation:
-            this.explanationTextService.formattedExplanation$.value
-        };
+          formattedExplanation: this.explanationTextService.formattedExplanation$.value,
+          isExplanationDisplayed: true
+        };        
         this.combinedQuestionDataSubject.next(combinedQuestionData);
         this.combinedQuestionData$ = combineLatest([
           this.combinedQuestionDataSubject.asObservable(),
@@ -848,7 +848,8 @@ export class QuizService implements OnDestroy {
           options: [],
           isNavigatingToPrevious: false,
           explanationText: '',
-          formattedExplanation: ''
+          formattedExplanation: '',
+          isExplanationDisplayed: false
         };
         this.combinedQuestionDataSubject.next(defaultCombinedQuestionData);
         this.combinedQuestionData$ = combineLatest([
