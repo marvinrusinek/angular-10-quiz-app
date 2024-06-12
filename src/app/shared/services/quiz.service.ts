@@ -779,7 +779,7 @@ export class QuizService implements OnDestroy {
 
   getNextQuestion(currentQuestionIndex: number): Promise<QuizQuestion | undefined> {
     return this.getCurrentQuiz().pipe(
-      map(currentQuiz => {
+      map((currentQuiz: Quiz | undefined): QuizQuestion | undefined => {
         if (
           currentQuiz &&
           currentQuiz.questions &&
@@ -797,10 +797,9 @@ export class QuizService implements OnDestroy {
           return undefined;
         }
       })
-    ).toPromise(); // Convert Observable to Promise
+    ).toPromise() as Promise<QuizQuestion | undefined>; // Convert Observable to Promise
   }
   
-
   /* getPreviousQuestion(
     questionIndex: number
   ): Promise<QuizQuestion | undefined> {
@@ -823,9 +822,9 @@ export class QuizService implements OnDestroy {
 
   getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
     return this.getCurrentQuiz().pipe(
-      map(currentQuiz => {
+      map((currentQuiz: Quiz | undefined): QuizQuestion | undefined => {
         const previousIndex = questionIndex - 1;
-  
+
         if (
           currentQuiz &&
           currentQuiz.questions &&
@@ -837,11 +836,11 @@ export class QuizService implements OnDestroy {
           return undefined;
         }
       })
-    ).toPromise(); // Convert Observable to Promise
+    ).toPromise() as Promise<QuizQuestion | undefined>; // Convert Observable to Promise
   }
   
 
-  getNextOptions(currentQuestionIndex: number): Option[] | undefined {
+  /* getNextOptions(currentQuestionIndex: number): Option[] | undefined {
     const currentQuiz = this.getCurrentQuiz();
 
     if (
@@ -865,7 +864,35 @@ export class QuizService implements OnDestroy {
     this.nextOptionsSubject.next(null);
 
     return undefined;
+  } */
+
+  getNextOptions(currentQuestionIndex: number): Promise<Option[] | undefined> {
+    return this.getCurrentQuiz().pipe(
+      map((currentQuiz: Quiz | undefined): Option[] | undefined => {
+        if (
+          currentQuiz &&
+          currentQuiz.questions &&
+          currentQuestionIndex >= 0 &&
+          currentQuestionIndex < currentQuiz.questions.length
+        ) {
+          const currentOptions = currentQuiz.questions[currentQuestionIndex].options;
+  
+          // Broadcasting the current options
+          this.nextOptionsSource.next(currentOptions);
+          this.nextOptionsSubject.next(currentOptions);
+  
+          return currentOptions;
+        }
+  
+        // Broadcasting null when index is invalid
+        this.nextOptionsSource.next(null);
+        this.nextOptionsSubject.next(null);
+  
+        return undefined;
+      })
+    ).toPromise() as Promise<Option[] | undefined>; // Convert Observable to Promise
   }
+  
 
   async getPreviousOptions(
     questionIndex: number
