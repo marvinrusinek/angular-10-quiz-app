@@ -600,6 +600,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           currentQuiz: null,
           currentQuestion: null,
           currentOptions: [],
+          options: [],
           questionText: '',
           explanationText: '',
           correctAnswersText: '',
