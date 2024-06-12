@@ -205,11 +205,14 @@ export class ExplanationTextService {
 
   getFormattedExplanation(questionIndex: number): Observable<string> {
     const explanation = this.formattedExplanations[questionIndex];
-    if (explanation) {
+    if (explanation && explanation.explanation) {
+      console.log('Fetched Explanation:::::', explanation);
       return of(explanation.explanation);
     }
+    console.warn('No explanation found for questionIndex:', questionIndex);
     return of('No explanation available.');
   }
+  
 
   toggleExplanationDisplay(shouldDisplay: boolean): void {
     this.shouldDisplayExplanationSource.next(shouldDisplay);

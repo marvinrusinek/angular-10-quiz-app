@@ -156,15 +156,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
-        console.log("MYQ", question);
         this.currentQuestion.next(question);
-        console.log("MYCQ", this.currentQuestion);
-        this.isExplanationDisplayed = false; // Reset explanation display state
 
+        this.isExplanationDisplayed = false; // Reset explanation display state
+        
         // Reset explanation state
-        this.explanationTextService.resetExplanationText();
         this.explanationTextService.resetExplanationState();
-        console.log('Explanation state reset when loading a new question.');
+        this.explanationTextService.resetExplanationText();
 
         // Ensure isExplanationTextDisplayed$ is defined before subscribing
         if (this.isExplanationTextDisplayed$) {
@@ -869,8 +867,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   }
-  
-  
     
   isCurrentQuestionMultipleAnswer(): Observable<boolean> {
     return this.currentQuestion.pipe(
