@@ -752,7 +752,7 @@ export class QuizService implements OnDestroy {
     return this.currentQuestionIndexSubject.asObservable();
   }
 
-  getNextQuestion(
+  /* getNextQuestion(
     currentQuestionIndex: number
   ): Promise<QuizQuestion | undefined> {
     return new Promise((resolve) => {
@@ -775,9 +775,33 @@ export class QuizService implements OnDestroy {
         resolve(undefined);
       }
     });
-  }
+  } */
 
-  getPreviousQuestion(
+  getNextQuestion(currentQuestionIndex: number): Promise<QuizQuestion | undefined> {
+    return this.getCurrentQuiz().pipe(
+      map(currentQuiz => {
+        if (
+          currentQuiz &&
+          currentQuiz.questions &&
+          currentQuestionIndex >= 0 &&
+          currentQuestionIndex < currentQuiz.questions.length
+        ) {
+          const nextQuestion = currentQuiz.questions[currentQuestionIndex];
+          this.nextQuestionSource.next(nextQuestion);
+          this.nextQuestionSubject.next(nextQuestion);
+          this.setCurrentQuestionAndNext(nextQuestion, '');
+          return nextQuestion;
+        } else {
+          this.nextQuestionSource.next(null);
+          this.nextQuestionSubject.next(null);
+          return undefined;
+        }
+      })
+    ).toPromise(); // Convert Observable to Promise
+  }
+  
+
+  /* getPreviousQuestion(
     questionIndex: number
   ): Promise<QuizQuestion | undefined> {
     return new Promise((resolve) => {
@@ -795,7 +819,27 @@ export class QuizService implements OnDestroy {
         resolve(undefined);
       }
     });
+  } */
+
+  getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
+    return this.getCurrentQuiz().pipe(
+      map(currentQuiz => {
+        const previousIndex = questionIndex - 1;
+  
+        if (
+          currentQuiz &&
+          currentQuiz.questions &&
+          previousIndex >= 0 &&
+          previousIndex < currentQuiz.questions.length
+        ) {
+          return currentQuiz.questions[previousIndex];
+        } else {
+          return undefined;
+        }
+      })
+    ).toPromise(); // Convert Observable to Promise
   }
+  
 
   getNextOptions(currentQuestionIndex: number): Option[] | undefined {
     const currentQuiz = this.getCurrentQuiz();
