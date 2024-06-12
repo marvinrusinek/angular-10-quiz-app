@@ -1715,12 +1715,12 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
-      const questionDetails: QuizQuestion | undefined = await this.fetchQuestionDetails(questionIndex);
+      const questionDetails = await this.fetchQuestionDetails(questionIndex);
       if (questionDetails) {
         const { questionText, options, explanation } = questionDetails;
   
-        // Ensure options are resolved
-        const resolvedOptions = await options;
+        // Resolve options if it is a promise
+        const resolvedOptions = await Promise.resolve(options);
   
         this.currentQuestion = { ...questionDetails, options: resolvedOptions };
         this.quizStateService.updateCurrentQuestion(this.currentQuestion);
@@ -1734,9 +1734,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
     }
-  }  
+  }
 
-  private fetchQuestionDetails(questionIndex: number): QuizQuestion {
+  /* private fetchQuestionDetails(questionIndex: number): QuizQuestion {
     const questionText = this.quizService.getQuestionTextForIndex(questionIndex); 
     if (!questionText) {
       console.error('No question text found for index:', questionIndex);
@@ -1759,7 +1759,51 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.setQuestionType(question);
 
     return question;
+  } */
+
+  private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
+    const questionTextObservable = this.quizService.getQuestionTextForIndex(questionIndex); 
+    const questionText = await firstValueFrom(questionTextObservable); // Resolve Observable
+  
+    if (!questionText) {
+      console.error('No question text found for index:', questionIndex);
+    }
+  
+    const optionsPromise = this.quizService.getNextOptions(questionIndex);
+    const options = await optionsPromise; // Resolve Promise
+    if (!Array.isArray(options)) {
+      console.error('Options are not an array:', options);
+    }
+  
+    if (options.length === 0) {
+      console.warn('No options found for question at index:', questionIndex);
+    }
+  
+    // Determine if explanation is a string or Observable
+    const explanationOrObservable = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+    let explanation: string;
+  
+    if (typeof explanationOrObservable === 'string') {
+      explanation = explanationOrObservable;
+    } else {
+      explanation = await firstValueFrom(explanationOrObservable); // Resolve Observable
+    }
+  
+    if (!explanation) {
+      console.warn('No explanation text found for question at index:', questionIndex);
+    }
+  
+    const type = options.length > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
+  
+    let question: QuizQuestion = { questionText, options, explanation, type };
+  
+    this.quizDataService.setQuestionType(question);
+  
+    return question;
   }
+  
+  
+  
 
   private setQuestionDetails(questionText: string, options: Option[], explanationText: string): void {
     this.questionToDisplay = questionText || 'No question text available';
