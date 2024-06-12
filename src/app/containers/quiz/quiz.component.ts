@@ -429,45 +429,42 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private async prepareQuizSession(): Promise<void> {
-    this.currentQuestionIndex = 0;
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-
-    // Ensure the quiz data (including questions) is fetched and set
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: (questions) => {
-        this.questions = questions; // Store the fetched questions in a component property
-
-        // After ensuring we have the questions, proceed to check for stored states
-        const storedStates = this.quizStateService.getStoredState(this.quizId);
-
-        if (storedStates) {
-          // Logic to restore stored states to each question
-          storedStates.forEach((state, questionId) => {
-            this.quizStateService.setQuestionState(this.quizId, questionId, state);
-
-            if (state.isAnswered && state.explanationDisplayed) {
-              const explanationTextObservable = this.explanationTextService.getFormattedExplanation(Number(questionId));
-              const explanationText = await firstValueFrom(explanationTextObservable); // Convert Observable to string
-          
-              this.storeFormattedExplanationText(Number(questionId), explanationText);
-            }
-          });
-
-          // Check and set explanation display for the first question if needed
-          const firstQuestionState = typeof storedStates.get === 'function' ? storedStates.get(0) : storedStates[0];
-          if (firstQuestionState && firstQuestionState.isAnswered) {
-            this.explanationTextService.setShouldDisplayExplanation(true);
+    try {
+      this.currentQuestionIndex = 0;
+      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+  
+      // Fetch questions for the quiz and await the result
+      const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
+      this.questions = questions; // Store the fetched questions in a component property
+  
+      // Check for stored states after ensuring we have the questions
+      const storedStates = this.quizStateService.getStoredState(this.quizId);
+  
+      if (storedStates) {
+        // Logic to restore stored states to each question
+        for (const [questionId, state] of storedStates.entries()) {
+          this.quizStateService.setQuestionState(this.quizId, questionId, state);
+  
+          if (state.isAnswered && state.explanationDisplayed) {
+            const explanationTextObservable = this.explanationTextService.getFormattedExplanation(Number(questionId));
+            const explanationText = await firstValueFrom(explanationTextObservable); // Convert Observable to string
+  
+            this.storeFormattedExplanationText(Number(questionId), explanationText);
           }
-        } else {
-          // console.log("No stored state found for quizId:", this.quizId);
-          // Apply default states to all questions as no stored state is found
-          this.quizStateService.applyDefaultStates(this.quizId, questions);
         }
-      },
-      error: (error) => {
-        console.error("Error fetching questions for quiz:", error);
+  
+        // Check and set explanation display for the first question if needed
+        const firstQuestionState = storedStates.get(0);
+        if (firstQuestionState && firstQuestionState.isAnswered) {
+          this.explanationTextService.setShouldDisplayExplanation(true);
+        }
+      } else {
+        // Apply default states to all questions as no stored state is found
+        this.quizStateService.applyDefaultStates(this.quizId, questions);
       }
-    });
+    } catch (error) {
+      console.error("Error in prepareQuizSession:", error);
+    }
   }
 
   private initializeQuizDependencies(): void {
