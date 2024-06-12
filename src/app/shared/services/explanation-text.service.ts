@@ -204,15 +204,18 @@ export class ExplanationTextService {
   }
 
   getFormattedExplanation(questionIndex: number): Observable<string> {
+    console.log('Fetching explanation for questionIndex:', questionIndex);
     const explanation = this.formattedExplanations[questionIndex];
     if (explanation && explanation.explanation) {
-      console.log('Fetched Explanation:::::', explanation);
+      console.log('Fetched Explanation:', explanation.explanation);
       return of(explanation.explanation);
+    } else if (!explanation) {
+      console.warn('No explanation object found for questionIndex:', questionIndex);
+    } else {
+      console.warn('Explanation object found but empty for questionIndex:', questionIndex, 'Explanation:', explanation);
     }
-    console.warn('No explanation found for questionIndex:', questionIndex);
     return of('No explanation available.');
-  }
-  
+  }  
 
   toggleExplanationDisplay(shouldDisplay: boolean): void {
     this.shouldDisplayExplanationSource.next(shouldDisplay);
