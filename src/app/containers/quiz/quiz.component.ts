@@ -445,11 +445,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           storedStates.forEach((state, questionId) => {
             this.quizStateService.setQuestionState(this.quizId, questionId, state);
 
-            /* if (state.isAnswered && state.explanationDisplayed) {
-              const explanationText = this.explanationTextService.getFormattedExplanation(Number(questionId));
-              this.storeFormattedExplanationText(Number(questionId), explanationText);
-            } */
-
             if (state.isAnswered && state.explanationDisplayed) {
               const explanationTextObservable = this.explanationTextService.getFormattedExplanation(Number(questionId));
               const explanationText = await firstValueFrom(explanationTextObservable); // Convert Observable to string
