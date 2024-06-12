@@ -245,21 +245,12 @@ export class QuizService implements OnDestroy {
     return this.activeQuiz;
   }
 
-  /* getCurrentQuiz(): Quiz | undefined {
-    if (Array.isArray(this.quizData)) {
-      return this.quizData.find((quiz) => quiz.quizId === this.quizId);
-    }
-    return undefined;
-  } */
-
   getCurrentQuiz(): Observable<Quiz | undefined> {
     const quiz = Array.isArray(this.quizData)
       ? this.quizData.find((quiz) => quiz.quizId === this.quizId)
       : undefined;
-    return of(quiz); // Return as an observable
+    return of(quiz);
   }
-  
-
 
   getCurrentQuizId(): string {
     return this.quizId;
@@ -414,20 +405,6 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  /* getQuestionTextForIndex(index: number): string | undefined {
-    const currentQuiz = this.getCurrentQuiz();
-    if (
-      currentQuiz &&
-      currentQuiz.questions &&
-      index >= 0 &&
-      index < currentQuiz.questions.length
-    ) {
-      const questionText = currentQuiz.questions[index].questionText;
-      return questionText;
-    }
-    return undefined;
-  } */
-
   getQuestionTextForIndex(index: number): Observable<string | undefined> {
     return this.getCurrentQuiz().pipe(
       map(currentQuiz => {
@@ -443,7 +420,6 @@ export class QuizService implements OnDestroy {
       })
     );
   }
-  
 
   async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
@@ -635,42 +611,6 @@ export class QuizService implements OnDestroy {
   }
 
   // Get the current options for the current quiz and question
-  /* getCurrentOptions(): Observable<Option[]> {
-    this.optionsLoadingSubject.next(true); // Start loading indicator
-
-    return this.getQuizData().pipe(
-      map(quizzes => quizzes.find(quiz => quiz.quizId === this.quizId)),
-      switchMap(quiz => {
-        if (!quiz) {
-          console.error('Quiz not found');
-          this.optionsLoadingSubject.next(false);
-          return of([]);
-        }
-
-        if (this.currentQuestionIndex >= quiz.questions.length) {
-          console.error('Question index out of bounds');
-          this.optionsLoadingSubject.next(false);
-          return of([]);
-        }
-
-        const question = quiz.questions[this.currentQuestionIndex];
-        if (!question || !question.options) {
-          console.error('Options not found for the current question');
-          this.optionsLoadingSubject.next(false);
-          return of([]);
-        }
-
-        this.optionsLoadingSubject.next(false);
-        return of(question.options);
-      }),
-      catchError((error: Error) => {
-        console.error('Error fetching options:', error);
-        this.optionsLoadingSubject.next(false);
-        return throwError(() => new Error('Error fetching options'));
-      })
-    );
-  } */
-
   getCurrentOptions(): Observable<Option[]> {
     const quiz = Array.isArray(this.quizData)
       ? this.quizData.find((quiz) => quiz.quizId === this.quizId)
@@ -752,31 +692,6 @@ export class QuizService implements OnDestroy {
     return this.currentQuestionIndexSubject.asObservable();
   }
 
-  /* getNextQuestion(
-    currentQuestionIndex: number
-  ): Promise<QuizQuestion | undefined> {
-    return new Promise((resolve) => {
-      const currentQuiz = this.getCurrentQuiz();
-
-      if (
-        currentQuiz &&
-        currentQuiz.questions &&
-        currentQuestionIndex >= 0 &&
-        currentQuestionIndex < currentQuiz.questions.length
-      ) {
-        const nextQuestion = currentQuiz.questions[currentQuestionIndex];
-        this.nextQuestionSource.next(nextQuestion);
-        this.nextQuestionSubject.next(nextQuestion);
-        this.setCurrentQuestionAndNext(nextQuestion, '');
-        resolve(nextQuestion);
-      } else {
-        this.nextQuestionSource.next(null);
-        this.nextQuestionSubject.next(null);
-        resolve(undefined);
-      }
-    });
-  } */
-
   getNextQuestion(currentQuestionIndex: number): Promise<QuizQuestion | undefined> {
     return this.getCurrentQuiz().pipe(
       map((currentQuiz: Quiz | undefined): QuizQuestion | undefined => {
@@ -799,26 +714,6 @@ export class QuizService implements OnDestroy {
       })
     ).toPromise() as Promise<QuizQuestion | undefined>; // Convert Observable to Promise
   }
-  
-  /* getPreviousQuestion(
-    questionIndex: number
-  ): Promise<QuizQuestion | undefined> {
-    return new Promise((resolve) => {
-      const currentQuiz = this.getCurrentQuiz();
-      const previousIndex = questionIndex - 1;
-
-      if (
-        currentQuiz &&
-        currentQuiz.questions &&
-        previousIndex >= 0 &&
-        previousIndex < currentQuiz.questions.length
-      ) {
-        resolve(currentQuiz.questions[previousIndex]);
-      } else {
-        resolve(undefined);
-      }
-    });
-  } */
 
   getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
     return this.getCurrentQuiz().pipe(
@@ -838,33 +733,6 @@ export class QuizService implements OnDestroy {
       })
     ).toPromise() as Promise<QuizQuestion | undefined>; // Convert Observable to Promise
   }
-  
-
-  /* getNextOptions(currentQuestionIndex: number): Option[] | undefined {
-    const currentQuiz = this.getCurrentQuiz();
-
-    if (
-      currentQuiz &&
-      currentQuiz.questions &&
-      currentQuestionIndex >= 0 &&
-      currentQuestionIndex < currentQuiz.questions.length
-    ) {
-      const currentOptions =
-        currentQuiz.questions[currentQuestionIndex].options;
-
-      // Broadcasting the current options
-      this.nextOptionsSource.next(currentOptions);
-      this.nextOptionsSubject.next(currentOptions);
-
-      return currentOptions;
-    }
-
-    // Broadcasting null when index is invalid
-    this.nextOptionsSource.next(null);
-    this.nextOptionsSubject.next(null);
-
-    return undefined;
-  } */
 
   getNextOptions(currentQuestionIndex: number): Promise<Option[] | undefined> {
     return this.getCurrentQuiz().pipe(
@@ -893,7 +761,6 @@ export class QuizService implements OnDestroy {
     ).toPromise() as Promise<Option[] | undefined>; // Convert Observable to Promise
   }
   
-
   async getPreviousOptions(
     questionIndex: number
   ): Promise<Option[] | undefined> {
