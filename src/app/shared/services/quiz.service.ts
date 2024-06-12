@@ -739,30 +739,32 @@ export class QuizService implements OnDestroy {
   }
 
   getNextOptions(currentQuestionIndex: number): Promise<Option[] | undefined> {
-    return this.getCurrentQuiz().pipe(
-      map((currentQuiz: Quiz | undefined): Option[] | undefined => {
-        if (
-          currentQuiz &&
-          currentQuiz.questions &&
-          currentQuestionIndex >= 0 &&
-          currentQuestionIndex < currentQuiz.questions.length
-        ) {
-          const currentOptions = currentQuiz.questions[currentQuestionIndex].options;
+    return firstValueFrom(
+      this.getCurrentQuiz().pipe(
+        map((currentQuiz: Quiz | undefined): Option[] | undefined => {
+          if (
+            currentQuiz &&
+            Array.isArray(currentQuiz.questions) &&
+            currentQuestionIndex >= 0 &&
+            currentQuestionIndex < currentQuiz.questions.length
+          ) {
+            const currentOptions = currentQuiz.questions[currentQuestionIndex].options;
   
-          // Broadcasting the current options
-          this.nextOptionsSource.next(currentOptions);
-          this.nextOptionsSubject.next(currentOptions);
+            // Broadcasting the current options
+            this.nextOptionsSource.next(currentOptions);
+            this.nextOptionsSubject.next(currentOptions);
   
-          return currentOptions;
-        }
+            return currentOptions;
+          }
   
-        // Broadcasting null when index is invalid
-        this.nextOptionsSource.next(null);
-        this.nextOptionsSubject.next(null);
+          // Broadcasting null when index is invalid
+          this.nextOptionsSource.next(null);
+          this.nextOptionsSubject.next(null);
   
-        return undefined;
-      })
-    ).toPromise() as Promise<Option[] | undefined>; // Convert Observable to Promise
+          return undefined;
+        })
+      )
+    );
   }
   
   async getPreviousOptions(
