@@ -477,8 +477,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       console.log("CQAO data", data);
     });
 
-    this.formattedExplanation$ = this.explanationTextService.formattedExplanation$; // Placeholder for your explanation service
-
+    this.explanationTextService.getFormattedExplanation(this.quizService.currentQuestionIndex).subscribe(
+      explanation => {
+        this.formattedExplanation$.next(explanation);
+      },
+      error => {
+        console.error('Error fetching formatted explanation:', error);
+        this.formattedExplanation$.next('Error fetching explanation');
+      }
+    );
+    
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.isExplanationTextDisplayed$,
@@ -486,13 +494,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ]).pipe(
       map(([currentQuizData, isExplanationDisplayed, formattedExplanation]) => {
         const currentQuiz = currentQuizData.currentQuiz;
-        const currentQuestionIndex = this.currentQuestionIndexValue;
+        const currentQuestionIndex = this.quizService.currentQuestionIndex;
 
         console.log('Current Quiz Data:', JSON.stringify(currentQuiz, null, 2));
         console.log('Questions:', currentQuiz ? currentQuiz.questions : 'No questions');
         console.log('Current Question Index:', currentQuestionIndex);
 
-        // Check if currentQuiz and questions array are valid
         if (currentQuiz && Array.isArray(currentQuiz.questions) && currentQuiz.questions.length > currentQuestionIndex) {
           const currentQuestion = currentQuiz.questions[currentQuestionIndex];
           console.log('Current Question:', currentQuestion);
