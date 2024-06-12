@@ -1655,7 +1655,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   } */
 
-  private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
+  /* private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
     try {
       this.animationState$.next('animationStarted');
   
@@ -1698,7 +1698,54 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
     }
+  } */
+
+  private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
+    try {
+      const quizData: Quiz = await firstValueFrom(this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$)));
+  
+      if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
+        console.warn('Quiz data is unavailable or has no questions.');
+        return;
+      }
+  
+      const isValidIndex = await firstValueFrom(of(this.quizService.isValidQuestionIndex(questionIndex, quizData)));
+      if (!isValidIndex) {
+        console.warn('Invalid question index. Aborting.');
+        return;
+      }
+  
+      const questionDetails: QuizQuestion | undefined = await this.fetchQuestionDetails(questionIndex);
+      if (questionDetails) {
+        const { questionText, options, explanation } = questionDetails;
+  
+        // Ensure options are resolved
+        const resolvedOptions = await options;
+  
+        this.currentQuestion = { ...questionDetails, options: resolvedOptions };
+        this.quizStateService.updateCurrentQuestion(this.currentQuestion);
+        this.setQuestionDetails(questionText, resolvedOptions, explanation);
+  
+        await this.quizService.checkIfAnsweredCorrectly();
+        await this.resetUIAndNavigate(questionIndex);
+      } else {
+        console.warn('No question details found for index:', questionIndex);
+      }
+    } catch (error) {
+      console.error('Error in fetchAndSetQuestionData:', error);
+    }
   }
+  
+  async function fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
+    const question = await this.questionService.getQuestion(questionIndex).toPromise();
+    const resolvedOptions = await question.options;
+  
+    return {
+      ...question,
+      options: resolvedOptions
+    };
+  }
+  
   
 
   private fetchQuestionDetails(questionIndex: number): QuizQuestion {

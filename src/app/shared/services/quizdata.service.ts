@@ -251,11 +251,23 @@ export class QuizDataService implements OnDestroy {
   }
 
   setQuestionType(question: QuizQuestion): void {
-    if (!question || !Array.isArray(question.options)) {
-      console.error('Invalid question or question options:', question);
+    console.log('Question object:', question);
+
+    if (!question) {
+      console.error('Question is undefined or null:', question);
       return;
     }
-    
+
+    if (!Array.isArray(question.options)) {
+      console.error('Question options is not an array:', question.options);
+      return;
+    }
+
+    if (question.options.length === 0) {
+      console.warn('Question options array is empty:', question.options);
+      return;
+    }
+
     const numCorrectAnswers = question.options.filter((option) => option.correct).length;
     question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
     this.questionType = question.type;
