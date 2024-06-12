@@ -1734,19 +1734,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
     }
-  }
-  
-  async function fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
-    const question = await this.questionService.getQuestion(questionIndex).toPromise();
-    const resolvedOptions = await question.options;
-  
-    return {
-      ...question,
-      options: resolvedOptions
-    };
-  }
-  
-  
+  }  
 
   private fetchQuestionDetails(questionIndex: number): QuizQuestion {
     const questionText = this.quizService.getQuestionTextForIndex(questionIndex); 
