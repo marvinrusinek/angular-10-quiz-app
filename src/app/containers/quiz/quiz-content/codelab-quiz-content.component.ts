@@ -159,7 +159,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.currentQuestion.next(question);
 
         this.isExplanationDisplayed = false; // Reset explanation display state
-        
+
         // Reset explanation state
         this.explanationTextService.resetExplanationState();
         this.explanationTextService.resetExplanationText();
@@ -176,7 +176,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             this.isExplanationDisplayed = isDisplayed;
             if (isDisplayed) {
               this.correctAnswersTextSource.next('');
-              console.log('Explanation displayed, resetting correctAnswersTextSource.');
             }
           });
         } else {
@@ -313,7 +312,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       });
   }
 
-  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+  /* private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
     if (!question) {
       return of(void 0);
     }
@@ -351,7 +350,33 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       }),
       map(() => void 0)
     );
+  } */
+
+  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+    if (!question) {
+      return of(void 0);
+    }
+  
+    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
+      tap(isMultipleAnswer => {
+        const explanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
+        const correctAnswers = question.options.filter(option => option.correct).length;
+  
+        let newCorrectAnswersText = '';
+        if (isMultipleAnswer && !explanationDisplayed) {
+          newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
+        }
+  
+        console.log('Current Explanation Display State:', explanationDisplayed);
+        console.log('Is Multiple Answer:', isMultipleAnswer);
+        console.log('Correct Answers Text:', newCorrectAnswersText);
+  
+        this.correctAnswersTextSource.next(newCorrectAnswersText);
+      }),
+      map(() => void 0)
+    );
   }
+  
 
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
