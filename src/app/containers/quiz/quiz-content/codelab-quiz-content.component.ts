@@ -583,12 +583,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.isExplanationTextDisplayed$,
       this.formattedExplanation$
     ]).pipe(
-      switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-        
-        // Ensure proper transformation into CombinedQuestionDataType
+      switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+  
         return this.calculateCombinedQuestionData(
-          currentQuizData, 
+          currentQuestionData, 
           numberOfCorrectAnswers, 
           isExplanationDisplayed, 
           formattedExplanation
@@ -696,11 +695,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         return { currentQuiz, currentOptions };
       }),
       catchError(error => {
-        console.error('Error combining current question and options:', error);
+        console.error('Error combining current quiz and options:', error);
         return of({ currentQuiz: null, currentOptions: [] });
       })
     );
   }
+  
  
   private calculateCombinedQuestionData(
     currentQuestionData: {
