@@ -1608,98 +1608,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.updateProgressPercentage();
   }
 
-  /* private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
-    try {
-      this.animationState$.next('animationStarted');
-      // this.explanationTextService.setShouldDisplayExplanation(false);
-
-      const quizData: Quiz = await firstValueFrom(this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$)));
-
-      if (!quizData || !quizData.questions || quizData.questions.length === 0) {
-        console.warn('Quiz data is unavailable or has no questions.');
-        return;
-      }
-
-      // Check if the question index is valid
-      const isValidIndex = await firstValueFrom(of(this.quizService.isValidQuestionIndex(questionIndex, quizData)));
-      if (!isValidIndex) {
-        console.warn('Invalid question index. Aborting.');
-        return;
-      }
-
-      if (this.currentQuestion && this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)) {
-        const newText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
-        this.quizService.updateCorrectAnswersText(newText);
-      }
-
-      // Fetch question details for the given index
-      const questionDetails = await firstValueFrom(of(this.fetchQuestionDetails(questionIndex)));
-      if (questionDetails) {
-        const { questionText, options, explanation } = questionDetails;
-
-        // Set question details
-        this.currentQuestion = questionDetails;
-        this.quizStateService.updateCurrentQuestion(questionDetails);
-        this.setQuestionDetails(questionText, options, explanation);
-
-        // Check if the user has answered the question correctly
-        await this.quizService.checkIfAnsweredCorrectly();
-
-        // Reset UI and handle any necessary navigation
-        await this.resetUIAndNavigate(questionIndex);
-      } else {
-        console.warn('No question details found for index:', questionIndex);
-      }
-    } catch (error) {
-      console.error('Error in fetchAndSetQuestionData:', error);
-    }
-  } */
-
-  /* private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
-    try {
-      this.animationState$.next('animationStarted');
-  
-      const quizData: Quiz = await firstValueFrom(
-        this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
-      );
-  
-      if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
-        console.warn('Quiz data is unavailable or has no questions.');
-        return;
-      }
-  
-      const isValidIndex = await firstValueFrom(
-        of(this.quizService.isValidQuestionIndex(questionIndex, quizData))
-      );
-      if (!isValidIndex) {
-        console.warn('Invalid question index. Aborting.');
-        return;
-      }
-  
-      if (this.currentQuestion && this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)) {
-        const newText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
-        this.quizService.updateCorrectAnswersText(newText);
-      }
-  
-      const questionDetails: QuizQuestion | undefined = await this.fetchQuestionDetails(questionIndex);
-      if (questionDetails) {
-        const { questionText, options, explanation } = questionDetails;
-  
-        this.currentQuestion = questionDetails;
-        this.quizStateService.updateCurrentQuestion(questionDetails);
-        this.setQuestionDetails(questionText, options, explanation);
-  
-        await this.quizService.checkIfAnsweredCorrectly();
-  
-        await this.resetUIAndNavigate(questionIndex);
-      } else {
-        console.warn('No question details found for index:', questionIndex);
-      }
-    } catch (error) {
-      console.error('Error in fetchAndSetQuestionData:', error);
-    }
-  } */
-
   private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
     try {
       const quizData: Quiz = await firstValueFrom(this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$)));
@@ -1735,31 +1643,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Error in fetchAndSetQuestionData:', error);
     }
   }
-
-  /* private fetchQuestionDetails(questionIndex: number): QuizQuestion {
-    const questionText = this.quizService.getQuestionTextForIndex(questionIndex); 
-    if (!questionText) {
-      console.error('No question text found for index:', questionIndex);
-    }
-
-    const options = this.quizService.getNextOptions(questionIndex) || [];
-    if (options.length === 0) {
-      console.warn('No options found for question at index:', questionIndex);
-    }
-
-    const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-    if (!explanation) {
-      console.warn('No explanation text found for question at index:', questionIndex);
-    }
-
-    const type = options.length > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
-
-    let question: QuizQuestion = { questionText, options, explanation, type };
-
-    this.quizDataService.setQuestionType(question);
-
-    return question;
-  } */
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     const questionTextObservable = this.quizService.getQuestionTextForIndex(questionIndex); 
