@@ -203,14 +203,6 @@ export class ExplanationTextService {
     this.formattedExplanation$.next(newExplanation);
   }
 
-  /* getFormattedExplanation(questionIndex: number): string {
-    const explanation = this.formattedExplanations[questionIndex];
-    if (explanation) {
-      return explanation.explanation;
-    }
-    return 'No explanation available.';
-  } */
-
   getFormattedExplanation(questionIndex: number): Observable<string> {
     const explanation = this.formattedExplanations[questionIndex];
     if (explanation) {
