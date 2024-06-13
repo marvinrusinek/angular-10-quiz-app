@@ -646,16 +646,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   
-    this.combinedText$ = this.combinedQuestionData$.pipe(
+    /* this.combinedText$ = this.combinedQuestionData$.pipe(
       map(data => {
-        /* console.log('Final Combined Question Data:', data);
+        // console.log('Final Combined Question Data:', data);
         let combinedText = data.questionText;
   
-        if (data.explanationText) {
-          combinedText += ` ${data.explanationText}`;
-        }
+        //if (data.explanationText) {
+        //  combinedText += ` ${data.explanationText}`;
+        //}
   
-        return combinedText; */
+        //return combinedText;
 
         // Directly set combinedText to explanationText
         // return data.explanationText;
@@ -673,7 +673,33 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
         return displayText;
       })
-    );
+    ); */
+
+    this.combinedText$ = this.combinedQuestionData$.pipe(
+      map(data => {
+        // Ensure all required data properties are present
+        const questionText = data.questionText || 'No question text available';
+        const explanationText = data.explanationText || '';
+        const correctAnswersText = data.correctAnswersText || '';
+    
+        let displayText = questionText;
+    
+        // Check if explanation should be displayed
+        if (this.isExplanationDisplayed && explanationText) {
+          displayText += ` ${explanationText}`;
+        } 
+        // Check if correct answers text should be displayed
+        else if (!this.isExplanationDisplayed && correctAnswersText) {
+          displayText += ` (${correctAnswersText})`;
+        }
+    
+        return displayText;
+      }),
+      catchError(error => {
+        console.error('Error processing combined text:', error);
+        return of('Error loading question data');
+      })
+    );    
   }
   
   
