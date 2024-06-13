@@ -741,7 +741,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   }
   
-  /* private combineCurrentQuestionAndOptions():
+  private combineCurrentQuestionAndOptions():
     Observable<{ currentQuestion: QuizQuestion | null,
                  currentOptions: Option[] }> {
     return this.quizStateService.currentQuestion$.pipe(
@@ -750,83 +750,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         currentQuestion, currentOptions
       }))
     );
-  } */
-
-  private combineCurrentQuestionAndOptions(): Observable<{ currentQuiz: Quiz | undefined, currentOptions: Option[] }> {
-    return combineLatest([
-      this.quizService.getCurrentQuiz(),
-      this.quizService.getCurrentOptions()
-    ]).pipe(
-      map(([currentQuiz, currentOptions]) => {
-        console.log('Current Quiz:', currentQuiz);
-        console.log('Current Options:', currentOptions);
-  
-        if (!currentQuiz) {
-          console.error('No current quiz found');
-          throw new Error('No current quiz found');
-        }
-  
-        if (!currentOptions || currentOptions.length === 0) {
-          console.error('No options found');
-          throw new Error('No options found');
-        }
-  
-        return { currentQuiz, currentOptions };
-      }),
-      catchError(error => {
-        console.error('Error combining current quiz and options:', error);
-        return of({ currentQuiz: undefined, currentOptions: [] });
-      })
-    );
-  }
-  
-
-  /* private combineCurrentQuestionAndOptions(): Observable<{ currentQuiz: Quiz | undefined, currentOptions: Option[] }> {
-    return combineLatest([
-      this.quizService.getCurrentQuiz(),
-      this.quizService.getCurrentOptions()
-    ]).pipe(
-      map(([currentQuiz, currentOptions]) => {
-        console.log('Fetched Current Quiz:', currentQuiz);
-        console.log('Fetched Current Options:', currentOptions);
-
-        if (!currentQuiz) {
-          console.error('Current Quiz is undefined or null');
-          throw new Error('No quiz found');
-        }
-
-        if (!currentOptions) {
-          console.error('Current Options is undefined or null');
-          throw new Error('No options found');
-        }
-
-        if (!Array.isArray(currentOptions)) {
-          console.error('Current Options is not an array:', currentOptions);
-          throw new Error('Invalid options format');
-        }
-
-        if (currentOptions.length === 0) {
-          console.error('Current Options array is empty');
-          throw new Error('No options available');
-        }
-
-        return { currentQuiz, currentOptions };
-      }),
-      catchError(error => {
-        console.error('Error combining current quiz and options:', error);
-        return of({ currentQuiz: undefined, currentOptions: [] });
-      })
-    );
-  } */
-  
-  
-  
-  
-  
-  
-  
-  
-  
+  }  
  
   private calculateCombinedQuestionData(
     currentQuestionData: {
