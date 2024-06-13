@@ -72,6 +72,7 @@ export class ExplanationTextService {
     if (index in this.formattedExplanations) {
       // Retrieve the formatted explanation using the index.
       const formattedExplanation = this.formattedExplanations[index];
+      console.log("FE", formattedExplanation);
 
       // Return the explanation text if available, or a default message if it's not.
       return formattedExplanation && formattedExplanation.explanation
@@ -203,7 +204,7 @@ export class ExplanationTextService {
     this.formattedExplanation$.next(newExplanation);
   }
 
-  getFormattedExplanation(questionIndex: number): Observable<string> {
+  /* getFormattedExplanation(questionIndex: number): Observable<string> {
     console.log('Fetching explanation for questionIndex:', questionIndex);
     const explanation = this.formattedExplanations[questionIndex];
     if (explanation && explanation.explanation) {
@@ -215,7 +216,14 @@ export class ExplanationTextService {
       console.warn('Explanation object found but empty for questionIndex:', questionIndex, 'Explanation:', explanation);
     }
     return of('No explanation available.');
-  }  
+  }  */
+
+  getFormattedExplanation(questionIndex: number): Observable<string> {
+    console.log('Fetching explanation for questionIndex:', questionIndex);
+    const explanationText = this.getFormattedExplanationTextForQuestion(questionIndex);
+    console.log("Formatted Explanation::::::", explanationText);
+    return of(explanationText);
+  }
 
   toggleExplanationDisplay(shouldDisplay: boolean): void {
     this.shouldDisplayExplanationSource.next(shouldDisplay);
