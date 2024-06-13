@@ -104,10 +104,49 @@ export class ExplanationTextService {
   }
 
   // Method to initialize formatted explanations
-  initializeFormattedExplanations(questions: QuizQuestion[]): void {
+  /* initializeFormattedExplanations(questions: QuizQuestion[]): void {
+    this.formattedExplanations = {}; // Clear any existing data
+  
+    questions.forEach((question, index) => {
+      if (typeof question === 'string') {
+        console.error(`Invalid question format at index ${index}:`, question);
+        return; // Skip processing this invalid question
+      }
+  
+      if (!question.options) {
+        console.error(`Question options are undefined for question index ${index}`);
+        question.options = []; // Initialize with an empty array or handle accordingly
+      }
+  
+      const correctOptionIndices = this.getCorrectOptionIndices(question);
+      const formattedExplanation = this.formatExplanation(question, correctOptionIndices);
+  
+      this.formattedExplanations[index] = {
+        questionIndex: index,
+        explanation: formattedExplanation
+      };
+      console.log(`Formatted explanation for question ${index}: ${formattedExplanation}`);
+    });
+  
+    console.log('Formatted explanations initialized:', this.formattedExplanations);
+  } */
+
+  initializeFormattedExplanations(questions: any[]): void { // Use any[] for debugging
     this.formattedExplanations = {}; // Clear any existing data
 
     questions.forEach((question, index) => {
+      console.log(`Processing question at index ${index}:`, question);
+
+      if (typeof question === 'string') {
+        console.error(`Invalid question format at index ${index}:`, question);
+        return;
+      }
+
+      if (!question.options) {
+        console.error(`Question options are undefined for question at index ${index}`);
+        question.options = []; // Initialize with an empty array or handle accordingly
+      }
+
       const correctOptionIndices = this.getCorrectOptionIndices(question);
       const formattedExplanation = this.formatExplanation(question, correctOptionIndices);
 
@@ -196,7 +235,7 @@ export class ExplanationTextService {
     console.log(`Explanation updated for index ${index}:`, this.formattedExplanations[index]);
   }
 
-  private getCorrectOptionIndices(question: QuizQuestion): number[] {
+  /* private getCorrectOptionIndices(question: QuizQuestion): number[] {
     if (!question) {
       console.error("Question is undefined");
       return [];
@@ -207,6 +246,17 @@ export class ExplanationTextService {
       return [];
     }
   
+    return question.options
+      .map((option, index) => option.correct ? index + 1 : null)
+      .filter((index): index is number => index !== null);
+  } */
+
+  private getCorrectOptionIndices(question: QuizQuestion): number[] {
+    if (!question || !Array.isArray(question.options)) {
+      console.error("Invalid question or options:", question);
+      return [];
+    }
+
     return question.options
       .map((option, index) => option.correct ? index + 1 : null)
       .filter((index): index is number => index !== null);
