@@ -622,10 +622,6 @@ export class QuizService implements OnDestroy {
   
     // Find the current quiz based on the quizId
     const quiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
-    console.log('Quiz Data:', this.quizData);
-    console.log('Quiz found:', quiz);
-  
-    // If no quiz is found, log a warning and return an empty array
     if (!quiz) {
       console.warn(`No quiz found for quizId: ${this.quizId}`);
       return of([]); // Return an empty array if no quiz is found
@@ -633,7 +629,6 @@ export class QuizService implements OnDestroy {
   
     // Get the current question index
     let currentQuestionIndex = this.getCurrentQuestionIndex();
-    console.log('Current Question Index:', currentQuestionIndex);
   
     // Validate the current question index
     const isValidIndex = currentQuestionIndex >= 0 && currentQuestionIndex < quiz.questions.length;
@@ -652,9 +647,7 @@ export class QuizService implements OnDestroy {
     // Return the options as an Observable array
     return of(options);
   }
-  
-  
-
+ 
   getFallbackQuestion(): QuizQuestion {
     // Check if quizData is available and has at least one question
     if (
@@ -720,26 +713,19 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getCurrentQuestionIndex(): Observable<number> {
-    return this.fetchQuiz(this.quizId).pipe(
-      map(selectedQuiz => {
-        if (selectedQuiz) {
-          const questions = selectedQuiz.questions;
-          if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= questions.length) {
-            console.warn(`Invalid currentQuestionIndex: ${this.currentQuestionIndex}`);
-            return 0; // Default to the first question if invalid
-          }
-          return this.currentQuestionIndex;
-        } else {
-          console.error(`Quiz with id ${this.quizId} not found`);
-          return 0; // Fallback to 0 if no quiz is found
-        }
-      })
-    );
-  }
-
-  fetchQuiz(quizId: string): Observable<Quiz | undefined> {
-    return of(this.quizData.find(quiz => quiz.quizId === quizId));
+  getCurrentQuestionIndex(): number {
+    const selectedQuiz = this.quizData.find(quiz => quiz.quizId === this.quizId);
+    if (selectedQuiz) {
+      const questions = selectedQuiz.questions;
+      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= questions.length) {
+        console.warn(`Invalid currentQuestionIndex: ${this.currentQuestionIndex}`);
+        return 0; // Default to the first question if invalid
+      }
+      return this.currentQuestionIndex;
+    } else {
+      console.error(`Quiz with id ${this.quizId} not found`);
+      return 0; // Fallback to 0 if no quiz is found
+    }
   }
 
   getCurrentQuestionIndexObservable(): Observable<number> {
