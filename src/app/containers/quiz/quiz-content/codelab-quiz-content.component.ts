@@ -646,57 +646,32 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   
-    /* this.combinedText$ = this.combinedQuestionData$.pipe(
-      map(data => {
-        // console.log('Final Combined Question Data:', data);
-        let combinedText = data.questionText;
+    this.initializeTextStream();      
+  }
   
-        //if (data.explanationText) {
-        //  combinedText += ` ${data.explanationText}`;
-        //}
-  
-        //return combinedText;
-
-        // Directly set combinedText to explanationText
-        // return data.explanationText;
-
-
-        let displayText = data.questionText;
-
-        if (this.isExplanationDisplayed && data.explanationText) {
-          displayText += ` ${data.explanationText}`;
-        }
-
-        if (!this.isExplanationDisplayed && data.correctAnswersText) {
-          displayText += ` (${data.correctAnswersText})`;
-        }
-
-        return displayText;
-      })
-    ); */
-
+  private initializeTextStream(): void {
     this.combinedText$ = this.combinedQuestionData$.pipe(
       map(data => {
         let displayText = data.questionText || '';
-    
-        if (this.isExplanationDisplayed && data.explanationText) {
+  
+        if (data.isExplanationDisplayed && data.explanationText) {
           displayText += ` ${data.explanationText}`;
-        } else if (!this.isExplanationDisplayed && data.correctAnswersText) {
+        }
+  
+        if (!data.isExplanationDisplayed && data.correctAnswersText) {
           displayText += ` (${data.correctAnswersText})`;
         }
-    
+  
         console.log('Final Display Text:', displayText);
-        return displayText.trim(); // Ensure no trailing spaces
+        return displayText.trim();
       }),
       catchError(error => {
         console.error('Error processing combined text:', error);
         return of('Error loading question data');
       })
-    );      
+    );
   }
-  
-  
-  
+
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
     this.subscribeToQuestionState();
