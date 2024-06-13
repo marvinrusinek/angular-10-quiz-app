@@ -239,6 +239,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }
 
         this.explanationTexts = explanationTexts;
+        this.explanationTextService.initializeFormattedExplanations(this.explanationTexts);
         this.initializeCurrentQuestionIndex();
         this.subscribeToCurrentQuestion();
       });
