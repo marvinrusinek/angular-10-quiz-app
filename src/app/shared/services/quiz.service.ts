@@ -262,21 +262,6 @@ export class QuizService implements OnDestroy {
     return this.quizId;
   }
 
-  getCurrentQuestionIndex(): number {
-    const selectedQuiz = this.quizData.find(quiz => quiz.quizId === this.quizId);
-    if (selectedQuiz) {
-      const questions = selectedQuiz.questions;
-      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= questions.length) {
-        console.warn(`Invalid currentQuestionIndex: ${this.currentQuestionIndex}`);
-        return 0; // Default to the first question if invalid
-      }
-      return this.currentQuestionIndex;
-    } else {
-      console.error(`Quiz with id ${this.quizId} not found`);
-      return 0; // Fallback to 0 if no quiz is found
-    }
-  }
-
   setSelectedQuiz(selectedQuiz: Quiz): void {
     this.selectedQuiz$.next(selectedQuiz);
     this.selectedQuiz = selectedQuiz;
@@ -734,6 +719,21 @@ export class QuizService implements OnDestroy {
       }
     } catch (error) {
       console.error('Error setting current question index:', error);
+    }
+  }
+
+  getCurrentQuestionIndex(): number {
+    const selectedQuiz = this.quizData.find(quiz => quiz.quizId === this.quizId);
+    if (selectedQuiz) {
+      const questions = selectedQuiz.questions;
+      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= questions.length) {
+        console.warn(`Invalid currentQuestionIndex: ${this.currentQuestionIndex}`);
+        return 0; // Default to the first question if invalid
+      }
+      return this.currentQuestionIndex;
+    } else {
+      console.error(`Quiz with id ${this.quizId} not found`);
+      return 0; // Fallback to 0 if no quiz is found
     }
   }
 
