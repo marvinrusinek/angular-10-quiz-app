@@ -722,16 +722,25 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   }
   
-  private combineCurrentQuestionAndOptions():
-    Observable<{ currentQuestion: QuizQuestion | null,
-                 currentOptions: Option[] }> {
+  private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
     return this.quizStateService.currentQuestion$.pipe(
       withLatestFrom(this.currentOptions$),
-      map(([currentQuestion, currentOptions]) => ({
-        currentQuestion, currentOptions
-      }))
+      map(([currentQuestion, currentOptions]) => {
+        if (!currentQuestion) {
+          console.error('Current question is null or undefined.');
+          return { currentQuestion: null, currentOptions: [] };
+        }
+  
+        if (!Array.isArray(currentOptions)) {
+          console.error('Current options are not an array:', currentOptions);
+          return { currentQuestion, currentOptions: [] };
+        }
+  
+        return { currentQuestion, currentOptions };
+      })
     );
-  }  
+  }
+  
  
   private calculateCombinedQuestionData(
     currentQuestionData: {
