@@ -197,7 +197,7 @@ export class ExplanationTextService {
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
     return question.options
       .map((option, index) => option.correct ? index + 1 : null)
-      .filter(index => index !== null);
+      .filter((index): index is number => index !== null);
   }
 
   private formatExplanation(
