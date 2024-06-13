@@ -255,8 +255,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       console.error('Error in initializeQuestionData:', error);
     }
   }
-  
-  
 
   private fetchQuestionsAndExplanationTexts(params: ParamMap):
     Observable<[QuizQuestion[] | null, string[]]> {
@@ -290,7 +288,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
-  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+  private processCurrentQuestion(question: QuizQuestion): void {
     // Update question details and display correct answers
     this.updateQuestionDetailsAndDisplayCorrectAnswers(question);
 
