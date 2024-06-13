@@ -303,15 +303,22 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       const formattedExplanations = await Promise.all(
         this.explanationTexts.map(async (text, index) => {
           const question = questions[index];
-          const explanation = await firstValueFrom(this.explanationTextService.formatExplanationText(question, index));
+          const explanation = await firstValueFrom(
+            this.explanationTextService.formatExplanationText(question, index)
+          );
           return { questionIndex: index, explanation };
         })
       );
   
       console.log('Formatted Explanations:', formattedExplanations);
   
-      // Initialize the formatted explanations
-      this.explanationTextService.initializeFormattedExplanations(formattedExplanations);
+      // Initialize the formatted explanations with the correct type
+      const formattedExplanationData = formattedExplanations.map(({ questionIndex, explanation }) => ({
+        questionIndex,
+        explanation: explanation as unknown as string // Ensure explanation is a string
+      }));
+  
+      this.explanationTextService.initializeFormattedExplanations(formattedExplanationData);
       this.initializeCurrentQuestionIndex();
       this.subscribeToCurrentQuestion();
   
@@ -319,6 +326,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       console.error('Error in initializeQuestionData:', error);
     }
   }
+  
   
 
   private fetchQuestionsAndExplanationTexts(params: ParamMap):
