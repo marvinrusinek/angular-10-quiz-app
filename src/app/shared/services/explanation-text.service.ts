@@ -131,35 +131,13 @@ export class ExplanationTextService {
     console.log('Formatted explanations initialized:', this.formattedExplanations);
   } */
 
-  initializeFormattedExplanations(questions: QuizQuestion[]): void {
-    this.formattedExplanations = {}; // Clear any existing data
-
-    questions.forEach((question, index) => {
-      console.log(`Processing question at index ${index}:`, question);
-
-      if (typeof question === 'string' || typeof question !== 'object') {
-        console.error(`Invalid question format at index ${index}:`, question);
-        return; // Skip processing this invalid question
-      }
-
-      if (!question.options) {
-        console.error(`Question options are undefined for question at index ${index}`);
-        question.options = []; // Initialize with an empty array or handle accordingly
-      }
-
-      const correctOptionIndices = this.getCorrectOptionIndices(question);
-      const formattedExplanation = this.formatExplanation(question, correctOptionIndices);
-
-      this.formattedExplanations[index] = {
-        questionIndex: index,
-        explanation: formattedExplanation
-      };
-      console.log(`Formatted explanation for question ${index}: ${formattedExplanation}`);
+  initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
+    this.formattedExplanations = {}; // Clear existing data
+    explanations.forEach(({ questionIndex, explanation }) => {
+      this.formattedExplanations[questionIndex] = { questionIndex, explanation };
     });
-
     console.log('Formatted explanations initialized:', this.formattedExplanations);
   }
-
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): 
     Observable<{ questionIndex: number, explanation: string }> {
