@@ -226,7 +226,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.initializeCombinedQuestionData();
   }
 
-  private async initializeQuestionData(): Promise<void> {
+  /* private async initializeQuestionData(): Promise<void> {
     try {
       const params = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
       const [questions] = await firstValueFrom(
@@ -254,20 +254,69 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error in initializeQuestionData:', error);
     }
-  }
+  } */
 
-  private fetchQuestionsAndExplanationTexts(params: ParamMap):
-    Observable<[QuizQuestion[] | null, string[]]> {
+  private async initializeQuestionData(): Promise<void> {
+    try {
+      const params = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
+      const [questions, explanationTexts] = await firstValueFrom(
+        this.fetchQuestionsAndExplanationTexts(params).pipe(takeUntil(this.destroy$))
+      );
+  
+      if (!questions || questions.length === 0) {
+        console.warn('No questions found');
+        return;
+      }
+  
+      this.explanationTexts = explanationTexts;
+      console.log("Fetched Explanation Texts:", this.explanationTexts);
+  
+      const formattedExplanations = await Promise.all(
+        questions.map(async (question, index) => {
+          const explanation = this.explanationTexts[index] || 'No explanation available';
+          return { questionIndex: index, explanation };
+        })
+      );
+  
+      console.log('Formatted Explanations:', formattedExplanations);
+  
+      this.explanationTextService.initializeFormattedExplanations(formattedExplanations);
+      this.initializeCurrentQuestionIndex();
+      this.subscribeToCurrentQuestion();
+    } catch (error) {
+      console.error('Error in initializeQuestionData:', error);
+    }
+  }
+  
+
+  private fetchQuestionsAndExplanationTexts(params: ParamMap): Observable<[QuizQuestion[], string[]]> {
     this.quizId = params.get('quizId');
+    
     if (this.quizId) {
       return forkJoin([
-        this.quizDataService.getQuestionsForQuiz(this.quizId),
-        this.quizDataService.getAllExplanationTextsForQuiz(this.quizId) // possibly remove
+        this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
+          catchError(error => {
+            console.error('Error fetching questions:', error);
+            return of([]); // Return an empty array if an error occurs
+          })
+        ),
+        this.quizDataService.getAllExplanationTextsForQuiz(this.quizId).pipe(
+          catchError(error => {
+            console.error('Error fetching explanation texts:', error);
+            return of([]); // Return an empty array if an error occurs
+          })
+        )
       ]).pipe(
-        map(([questions, explanationTexts]) => [questions, explanationTexts])
+        map(([questions, explanationTexts]) => {
+          if (!questions.length) {
+            console.warn('No questions found for the provided quizId.');
+          }
+          return [questions, explanationTexts];
+        })
       );
     } else {
-      return of([null, []]);
+      console.warn('No quizId provided in the parameters.');
+      return of([[], []]);
     }
   }
 
@@ -598,13 +647,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
     currentQuizAndOptions$.subscribe({
       next: data => {
-        console.log("CQAO data", data);
+        console.log("CQAO data:::>>", data);
       },
       error: err => console.error('Error combining current quiz and options:', err)
     });
   
     this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).subscribe({
       next: explanation => {
+        console.log('Fetched Explanation:::>>', explanation);
         this.formattedExplanation$.next(explanation);
       },
       error: err => {
@@ -740,7 +790,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   }
-  
  
   private calculateCombinedQuestionData(
     currentQuestionData: {
