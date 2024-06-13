@@ -772,6 +772,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }
 
         if (!currentQuiz || currentOptions.length === 0) {
+          console.error('No quiz or options data found');
           throw new Error('No quiz or options data found');
         }
 

@@ -249,6 +249,13 @@ export class QuizService implements OnDestroy {
     const quiz = Array.isArray(this.quizData)
       ? this.quizData.find((quiz) => quiz.quizId === this.quizId)
       : undefined;
+
+    if (!quiz) {
+      console.warn(`No quiz found for quizId: ${this.quizId}`);
+      return of(undefined); // Return undefined if no quiz is found
+    }
+
+    console.log('Emitting quiz:', quiz);
     return of(quiz);
   }
 
