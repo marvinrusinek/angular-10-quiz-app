@@ -151,7 +151,7 @@ export class ExplanationTextService {
         console.warn(`Invalid explanation type for questionIndex ${questionIndex}:`, explanation);
         this.formattedExplanations[questionIndex] = { questionIndex, explanation: '' }; // Fallback to empty string
       } else {
-        this.formattedExplanations[questionIndex] = { questionIndex, explanation: explanation.trim() }; // Trim to remove excess whitespace
+        this.formattedExplanations[questionIndex] = { questionIndex, explanation: explanation.trim() };
       }
     });
   
