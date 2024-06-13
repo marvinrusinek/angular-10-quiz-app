@@ -226,7 +226,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.initializeCombinedQuestionData();
   }
 
-  private initializeQuestionData(): void {
+  /* private initializeQuestionData(): void {
     this.activatedRoute.paramMap
       .pipe(
         switchMap((params: ParamMap) =>
@@ -251,6 +251,31 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
         this.explanationTextService.initializeFormattedExplanations(formattedExplanations);
 
+        this.initializeCurrentQuestionIndex();
+        this.subscribeToCurrentQuestion();
+      });
+  } */
+
+  private initializeQuestionData(): void {
+    this.activatedRoute.paramMap
+      .pipe(
+        switchMap((params: ParamMap) => this.fetchQuestionsAndExplanationTexts(params)),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(([questions, explanationTexts]) => {
+        if (!questions) {
+          return;
+        }
+
+        this.explanationTexts = explanationTexts;
+        console.log("MYEXPTEXTS", this.explanationTexts);
+
+        const formattedExplanations = this.explanationTexts.map((text, index) => ({
+          questionIndex: index,
+          explanation: this.explanationTextService.formatExplanationText(text, index)
+        }));
+
+        this.explanationTextService.initializeFormattedExplanations(formattedExplanations);
         this.initializeCurrentQuestionIndex();
         this.subscribeToCurrentQuestion();
       });
