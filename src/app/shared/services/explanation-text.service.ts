@@ -108,6 +108,7 @@ export class ExplanationTextService {
     this.formattedExplanations = {}; // Clear any existing data
 
     explanations.forEach((explanation, index) => {
+      console.log(`Original explanation for index ${index}: "${explanation}"`);
       const formattedExplanation = this.sanitizeExplanation(explanation);
       this.formattedExplanations[index] = {
         questionIndex: index,
