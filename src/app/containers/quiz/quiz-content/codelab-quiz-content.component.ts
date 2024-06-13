@@ -658,7 +658,20 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         return combinedText; */
 
         // Directly set combinedText to explanationText
-        return data.explanationText;
+        // return data.explanationText;
+
+
+        let displayText = data.questionText;
+
+        if (this.isExplanationDisplayed && data.explanationText) {
+          displayText += ` ${data.explanationText}`;
+        }
+
+        if (!this.isExplanationDisplayed && data.correctAnswersText) {
+          displayText += ` (${data.correctAnswersText})`;
+        }
+
+        return displayText;
       })
     );
   }
