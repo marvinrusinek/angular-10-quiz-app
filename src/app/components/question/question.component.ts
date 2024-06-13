@@ -815,6 +815,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.handleOptionSelection(option, index, currentQuestion);
       await this.processCurrentQuestion(currentQuestion);
       this.updateQuestionStateForExplanation(this.currentQuestionIndex);
+      this.formatAndLogExplanations();
       this.questionAnswered.emit();
   
       // Handle audio playback based on correctness
@@ -884,6 +885,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Save the updated state
     this.quizStateService.setQuestionState(this.quizId, index, questionState);
   }
+
+  private formatAndLogExplanations(): void {
+    const explanations = this.explanationTextService.getFormattedExplanations();
+    console.log('Formatted Explanations on click:', explanations);
+  }
+  
 
   updateExplanationText(questionIndex: number): void {
     const questionState = this.quizStateService.getQuestionState(
