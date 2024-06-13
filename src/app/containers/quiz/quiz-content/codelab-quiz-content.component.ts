@@ -256,7 +256,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       });
   } */
 
-  private async initializeQuestionData(): Promise<void> {
+  /* private async initializeQuestionData(): Promise<void> {
     this.activatedRoute.paramMap
       .pipe(
         switchMap((params: ParamMap) => this.fetchQuestionsAndExplanationTexts(params)),
@@ -282,7 +282,44 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.initializeCurrentQuestionIndex();
         this.subscribeToCurrentQuestion();
       });
+  } */
+
+  private async initializeQuestionData(): Promise<void> {
+    try {
+      const params = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
+      const [questions, explanationTexts] = await firstValueFrom(
+        this.fetchQuestionsAndExplanationTexts(params).pipe(takeUntil(this.destroy$))
+      );
+  
+      if (!questions) {
+        console.warn('No questions found');
+        return;
+      }
+  
+      this.explanationTexts = explanationTexts;
+      console.log("Fetched Explanation Texts:", this.explanationTexts);
+  
+      // Map and format the explanations asynchronously
+      const formattedExplanations = await Promise.all(
+        this.explanationTexts.map(async (text, index) => {
+          const question = questions[index];
+          const explanation = await firstValueFrom(this.explanationTextService.formatExplanationText(question, index));
+          return { questionIndex: index, explanation };
+        })
+      );
+  
+      console.log('Formatted Explanations:', formattedExplanations);
+  
+      // Initialize the formatted explanations
+      this.explanationTextService.initializeFormattedExplanations(formattedExplanations);
+      this.initializeCurrentQuestionIndex();
+      this.subscribeToCurrentQuestion();
+  
+    } catch (error) {
+      console.error('Error in initializeQuestionData:', error);
+    }
   }
+  
 
   private fetchQuestionsAndExplanationTexts(params: ParamMap):
     Observable<[QuizQuestion[] | null, string[]]> {
