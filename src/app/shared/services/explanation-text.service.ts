@@ -104,16 +104,18 @@ export class ExplanationTextService {
   }
 
   // Method to initialize formatted explanations
-  initializeFormattedExplanations(explanations: string[]): void {
+  initializeFormattedExplanations(questions: QuizQuestion[]): void {
     this.formattedExplanations = {}; // Clear any existing data
 
-    explanations.forEach((explanation, index) => {
-      console.log(`Original explanation for index ${index}: "${explanation}"`);
-      const formattedExplanation = this.sanitizeExplanation(explanation);
+    questions.forEach((question, index) => {
+      const correctOptionIndices = this.getCorrectOptionIndices(question);
+      const formattedExplanation = this.formatExplanation(question, correctOptionIndices);
+
       this.formattedExplanations[index] = {
         questionIndex: index,
         explanation: formattedExplanation
       };
+      console.log(`Formatted explanation for question ${index}: ${formattedExplanation}`);
     });
 
     console.log('Formatted explanations initialized:', this.formattedExplanations);
@@ -195,6 +197,13 @@ export class ExplanationTextService {
   }
 
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
+    console.log("Processing question:", question);
+
+    if (!question || !Array.isArray(question.options)) {
+      console.error("Invalid question or options:", question);
+      return [];
+    }
+
     return question.options
       .map((option, index) => option.correct ? index + 1 : null)
       .filter((index): index is number => index !== null);
