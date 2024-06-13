@@ -131,8 +131,9 @@ export class ExplanationTextService {
     console.log('Formatted explanations initialized:', this.formattedExplanations);
   } */
 
-  initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
+  async initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): Promise<void> {
     this.formattedExplanations = {}; // Clear existing data
+
     explanations.forEach(({ questionIndex, explanation }) => {
       this.formattedExplanations[questionIndex] = { questionIndex, explanation };
     });

@@ -256,26 +256,27 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       });
   } */
 
-  private initializeQuestionData(): void {
+  private async initializeQuestionData(): Promise<void> {
     this.activatedRoute.paramMap
       .pipe(
         switchMap((params: ParamMap) => this.fetchQuestionsAndExplanationTexts(params)),
         takeUntil(this.destroy$)
       )
-      .subscribe(([questions, explanationTexts]) => {
+      .subscribe(async ([questions, explanationTexts]) => {
         if (!questions) {
           return;
         }
 
-        const question = questions[this.currentQuestionIndexValue];
-
         this.explanationTexts = explanationTexts;
         console.log("MYEXPTEXTS", this.explanationTexts);
 
-        const formattedExplanations = this.explanationTexts.map((text, index) => ({
-          questionIndex: index,
-          explanation: this.explanationTextService.formatExplanationText(question, index)
-        })); 
+        const formattedExplanations = await Promise.all(
+          this.explanationTexts.map(async (text, index) => {
+            const question = questions[index];
+            const explanation = await firstValueFrom(this.explanationTextService.formatExplanationText(question, index));
+            return { questionIndex: index, explanation };
+          })
+        );
 
         this.explanationTextService.initializeFormattedExplanations(formattedExplanations);
         this.initializeCurrentQuestionIndex();
