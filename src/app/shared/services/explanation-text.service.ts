@@ -137,9 +137,9 @@ export class ExplanationTextService {
     questions.forEach((question, index) => {
       console.log(`Processing question at index ${index}:`, question);
 
-      if (typeof question === 'string') {
+      if (typeof question === 'string' || typeof question !== 'object') {
         console.error(`Invalid question format at index ${index}:`, question);
-        return;
+        return; // Skip processing this invalid question
       }
 
       if (!question.options) {
