@@ -131,7 +131,7 @@ export class ExplanationTextService {
     console.log('Formatted explanations initialized:', this.formattedExplanations);
   } */
 
-  initializeFormattedExplanations(questions: any[]): void { // Use any[] for debugging
+  initializeFormattedExplanations(questions: QuizQuestion[]): void {
     this.formattedExplanations = {}; // Clear any existing data
 
     questions.forEach((question, index) => {
@@ -159,6 +159,7 @@ export class ExplanationTextService {
 
     console.log('Formatted explanations initialized:', this.formattedExplanations);
   }
+
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): 
     Observable<{ questionIndex: number, explanation: string }> {
