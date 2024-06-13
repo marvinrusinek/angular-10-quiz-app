@@ -407,7 +407,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       map(() => void 0)
     );
   }
-  
 
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
@@ -824,51 +823,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       }
     });
   }
-
-  /* private setupCombinedTextObservable(): void {
-    this.combinedText$ = combineLatest([
-      this.nextQuestion$.pipe(startWith(null)),
-      this.previousQuestion$.pipe(startWith(null)),
-      this.explanationTextService.formattedExplanation$.pipe(startWith('')),
-      this.explanationTextService.shouldDisplayExplanation$,
-      this.quizStateService.getCurrentQuestionIndex$().pipe(startWith(0))
-    ]).pipe(
-      switchMap(params => this.determineTextToDisplay(params)),
-      distinctUntilChanged(),
-      startWith(''),
-      catchError((error: Error) => {
-        console.error('Error in combinedText$ observable:', error);
-        return of('');
-      })
-    );
-  }
-
-  private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
-    [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
-  ): Observable<string> {
-    const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
-  
-    // Display explanation for the first question or based on questionState's properties
-    const displayExplanation = currentIndex === 0 || (shouldDisplayExplanation && questionState?.explanationDisplayed);
-  
-    return this.isCurrentQuestionMultipleAnswer().pipe(
-      map(isMultipleAnswer => {
-        let textToDisplay = '';
-  
-        // Use the displayExplanation condition to determine when to show formattedExplanation
-        if (displayExplanation && formattedExplanation) {
-          textToDisplay = formattedExplanation;
-          this.shouldDisplayCorrectAnswers = false;
-        } else {
-          textToDisplay = this.questionToDisplay || '';
-          this.shouldDisplayCorrectAnswers = !displayExplanation && isMultipleAnswer;
-        }
-  
-        return textToDisplay;
-      })
-    );
-  } */
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
