@@ -615,10 +615,23 @@ export class QuizService implements OnDestroy {
     const quiz = Array.isArray(this.quizData)
       ? this.quizData.find((quiz) => quiz.quizId === this.quizId)
       : undefined;
+
+    if (!quiz) {
+      console.warn(`No quiz found for quizId: ${this.quizId}`);
+      return of([]); // Return an empty array if no quiz is found
+    }
+
     const currentQuestionIndex = this.getCurrentQuestionIndex();
-    const options = quiz ? quiz.questions[currentQuestionIndex]?.options : [];
+    const isValidIndex = currentQuestionIndex >= 0 && currentQuestionIndex < quiz.questions.length;
+
+    if (!isValidIndex) {
+      console.warn(`Invalid currentQuestionIndex: ${currentQuestionIndex}`);
+      return of([]); // Return an empty array if the index is invalid
+    }
+
+    const options = quiz.questions[currentQuestionIndex]?.options || [];
     console.log('Emitting options:', options);
-    return of(options);
+    return of(options); // Return the options as an Observable array
   }
 
   getFallbackQuestion(): QuizQuestion {
