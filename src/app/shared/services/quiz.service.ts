@@ -682,9 +682,7 @@ export class QuizService implements OnDestroy {
         return;
       }
 
-      const response: any = await firstValueFrom(
-        this.getQuestionsForQuiz(this.quizId)
-      );
+      const response: any = await firstValueFrom(this.getQuestionsForQuiz(this.quizId));
 
       // Check if response has 'questions' property and is an array
       if (
