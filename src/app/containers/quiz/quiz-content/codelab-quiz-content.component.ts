@@ -760,22 +760,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       map(([currentQuiz, currentOptions]) => {
         console.log('Current Quiz:', currentQuiz);
         console.log('Current Options:', currentOptions);
-
-        if (currentOptions === undefined || currentOptions === null) {
-          console.error('Current Options is undefined or null:', currentOptions);
-          currentOptions = []; // Set to empty array as fallback
+  
+        if (!currentQuiz) {
+          console.error('No current quiz found');
+          throw new Error('No current quiz found');
         }
-
-        if (!Array.isArray(currentOptions)) {
-          console.error('Current Options is not an array:', currentOptions);
-          currentOptions = []; // Set to empty array as fallback
+  
+        if (!currentOptions || currentOptions.length === 0) {
+          console.error('No options found');
+          throw new Error('No options found');
         }
-
-        if (!currentQuiz || currentOptions.length === 0) {
-          console.error('No quiz or options data found');
-          throw new Error('No quiz or options data found');
-        }
-
+  
         return { currentQuiz, currentOptions };
       }),
       catchError(error => {
@@ -784,6 +779,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   }
+  
 
   /* private combineCurrentQuestionAndOptions(): Observable<{ currentQuiz: Quiz | undefined, currentOptions: Option[] }> {
     return combineLatest([
