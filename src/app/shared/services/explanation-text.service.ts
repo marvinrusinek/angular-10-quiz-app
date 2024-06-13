@@ -131,14 +131,31 @@ export class ExplanationTextService {
     console.log('Formatted explanations initialized:', this.formattedExplanations);
   } */
 
-  async initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): Promise<void> {
+  initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
     this.formattedExplanations = {}; // Clear existing data
-
+  
+    if (!Array.isArray(explanations) || explanations.length === 0) {
+      console.warn('No explanations provided for initialization.');
+      return;
+    }
+  
     explanations.forEach(({ questionIndex, explanation }) => {
-      this.formattedExplanations[questionIndex] = { questionIndex, explanation };
+      if (typeof questionIndex !== 'number' || questionIndex < 0) {
+        console.warn(`Invalid questionIndex: ${questionIndex}. It should be a non-negative number.`);
+        return;
+      }
+  
+      if (typeof explanation !== 'string') {
+        console.warn(`Invalid explanation type for questionIndex ${questionIndex}:`, explanation);
+        this.formattedExplanations[questionIndex] = { questionIndex, explanation: '' }; // Fallback to empty string
+      } else {
+        this.formattedExplanations[questionIndex] = { questionIndex, explanation: explanation.trim() }; // Trim to remove excess whitespace
+      }
     });
+  
     console.log('Formatted explanations initialized:', this.formattedExplanations);
   }
+  
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): 
     Observable<{ questionIndex: number, explanation: string }> {
