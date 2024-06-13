@@ -103,6 +103,21 @@ export class ExplanationTextService {
     });
   }
 
+  // Method to initialize formatted explanations
+  initializeFormattedExplanations(explanations: string[]): void {
+    this.formattedExplanations = {}; // Clear any existing data
+
+    explanations.forEach((explanation, index) => {
+      const formattedExplanation = this.sanitizeExplanation(explanation);
+      this.formattedExplanations[index] = {
+        questionIndex: index,
+        explanation: formattedExplanation
+      };
+    });
+
+    console.log('Formatted explanations initialized:', this.formattedExplanations);
+  }
+
   formatExplanationText(question: QuizQuestion, questionIndex: number): 
     Observable<{ questionIndex: number, explanation: string }> {
     // Early return for invalid or non-current question
