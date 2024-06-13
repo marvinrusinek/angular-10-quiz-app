@@ -720,19 +720,26 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getCurrentQuestionIndex(): number {
-    const selectedQuiz = this.quizData.find(quiz => quiz.quizId === this.quizId);
-    if (selectedQuiz) {
-      const questions = selectedQuiz.questions;
-      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= questions.length) {
-        console.warn(`Invalid currentQuestionIndex: ${this.currentQuestionIndex}`);
-        return 0; // Default to the first question if invalid
-      }
-      return this.currentQuestionIndex;
-    } else {
-      console.error(`Quiz with id ${this.quizId} not found`);
-      return 0; // Fallback to 0 if no quiz is found
-    }
+  getCurrentQuestionIndex(): Observable<number> {
+    return this.fetchQuiz(this.quizId).pipe(
+      map(selectedQuiz => {
+        if (selectedQuiz) {
+          const questions = selectedQuiz.questions;
+          if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= questions.length) {
+            console.warn(`Invalid currentQuestionIndex: ${this.currentQuestionIndex}`);
+            return 0; // Default to the first question if invalid
+          }
+          return this.currentQuestionIndex;
+        } else {
+          console.error(`Quiz with id ${this.quizId} not found`);
+          return 0; // Fallback to 0 if no quiz is found
+        }
+      })
+    );
+  }
+
+  fetchQuiz(quizId: string): Observable<Quiz | undefined> {
+    return of(this.quizData.find(quiz => quiz.quizId === quizId));
   }
 
   getCurrentQuestionIndexObservable(): Observable<number> {
