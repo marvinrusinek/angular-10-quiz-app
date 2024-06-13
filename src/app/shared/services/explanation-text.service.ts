@@ -197,13 +197,16 @@ export class ExplanationTextService {
   }
 
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
-    console.log("Processing question:", question);
-
-    if (!question || !Array.isArray(question.options)) {
-      console.error("Invalid question or options:", question);
+    if (!question) {
+      console.error("Question is undefined");
       return [];
     }
-
+  
+    if (!question.options) {
+      console.error("Question options are undefined");
+      return [];
+    }
+  
     return question.options
       .map((option, index) => option.correct ? index + 1 : null)
       .filter((index): index is number => index !== null);
