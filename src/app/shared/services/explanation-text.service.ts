@@ -163,12 +163,12 @@ export class ExplanationTextService {
       console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
     }
-
+  
     if (!explanation || explanation.trim() === "") {
       console.error(`Invalid explanation: "${explanation}"`);
       return;
     }
-
+  
     // Process and store the formatted explanation
     const formattedExplanation = this.sanitizeExplanation(explanation);
     this.formattedExplanations[index] = {
@@ -177,7 +177,6 @@ export class ExplanationTextService {
     };
     console.log(`Explanation updated for index ${index}:`, this.formattedExplanations[index]);
   }
-
 
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
     return question.options
