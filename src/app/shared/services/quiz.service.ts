@@ -24,7 +24,7 @@ import { ExplanationTextService } from '../../shared/services/explanation-text.s
 
 @Injectable({ providedIn: 'root' })
 export class QuizService implements OnDestroy {
-  currentQuestionIndex = -1;
+  currentQuestionIndex = 0;
   activeQuiz: Quiz;
   quiz: Quiz = QUIZ_DATA[this.currentQuestionIndex];
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
@@ -263,7 +263,18 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuestionIndex(): number {
-    return this.currentQuestionIndex;
+    const selectedQuiz = this.quizData.find(quiz => quiz.quizId === this.quizId);
+    if (selectedQuiz) {
+      const questions = selectedQuiz.questions;
+      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= questions.length) {
+        console.warn(`Invalid currentQuestionIndex: ${this.currentQuestionIndex}`);
+        return 0; // Default to the first question if invalid
+      }
+      return this.currentQuestionIndex;
+    } else {
+      console.error(`Quiz with id ${this.quizId} not found`);
+      return 0; // Fallback to 0 if no quiz is found
+    }
   }
 
   setSelectedQuiz(selectedQuiz: Quiz): void {
@@ -636,17 +647,17 @@ export class QuizService implements OnDestroy {
     }
   
     // Get the current question index
-    const currentQuestionIndex = this.getCurrentQuestionIndex();
+    let currentQuestionIndex = this.getCurrentQuestionIndex();
     console.log('Current Question Index:', currentQuestionIndex);
   
     // Validate the current question index
     const isValidIndex = currentQuestionIndex >= 0 && currentQuestionIndex < quiz.questions.length;
     console.log('Is valid question index:', isValidIndex);
   
-    // If the index is invalid, log a warning and return an empty array
+    // If the index is invalid, log a warning and default to the first question
     if (!isValidIndex) {
       console.warn(`Invalid currentQuestionIndex: ${currentQuestionIndex}`);
-      return of([]); // Return an empty array if the index is invalid
+      currentQuestionIndex = 0; // Fallback to the first question
     }
   
     // Get the options for the current question, or default to an empty array
@@ -656,6 +667,7 @@ export class QuizService implements OnDestroy {
     // Return the options as an Observable array
     return of(options);
   }
+  
   
 
   getFallbackQuestion(): QuizQuestion {
