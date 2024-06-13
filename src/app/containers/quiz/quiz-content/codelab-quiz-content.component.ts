@@ -697,7 +697,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
         return this.calculateCombinedQuestionData(
           currentQuizData, 
-          numberOfCorrectAnswers, 
+          +numberOfCorrectAnswers, 
           isExplanationDisplayed, 
           formattedExplanation
         );
