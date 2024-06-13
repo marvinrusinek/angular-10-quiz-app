@@ -494,12 +494,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   private initializeCombinedQuestionData(): void {
     const currentQuizAndOptions$ = this.combineCurrentQuestionAndOptions();
   
-    currentQuizAndOptions$.subscribe({
+    /* currentQuizAndOptions$.subscribe({
       next: data => {
         console.log("CQAO data:::>>", data);
       },
       error: err => console.error('Error combining current quiz and options:', err)
-    });
+    }); */
   
     this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).subscribe({
       next: explanation => {
