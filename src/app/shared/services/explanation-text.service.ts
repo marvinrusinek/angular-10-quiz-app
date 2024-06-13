@@ -66,7 +66,7 @@ export class ExplanationTextService {
     return of(explanationObject.explanation);
   }
 
-  getFormattedExplanationTextForQuestion(index: number): string {
+  /* getFormattedExplanationTextForQuestion(index: number): string {
     console.log('Formatted explanations:', this.formattedExplanations);
     // Check if the index is a valid key in the formattedExplanations object.
     if (index in this.formattedExplanations) {
@@ -77,6 +77,18 @@ export class ExplanationTextService {
       // Return the explanation text if available, or a default message if it's not.
       return formattedExplanation && formattedExplanation.explanation
         ? formattedExplanation.explanation : 'No explanation available';
+    } else {
+      console.log(`Index ${index} is out of bounds.`);
+      return 'Question index out of bounds or no explanation available';
+    }
+  } */
+
+  getFormattedExplanationTextForQuestion(index: number): string {
+    console.log('Formatted explanations:', this.formattedExplanations);
+    if (index in this.formattedExplanations) {
+      const formattedExplanation = this.formattedExplanations[index];
+      console.log("Fetched Explanation:", formattedExplanation);
+      return formattedExplanation.explanation || 'No explanation available';
     } else {
       console.log(`Index ${index} is out of bounds.`);
       return 'Question index out of bounds or no explanation available';
@@ -119,6 +131,12 @@ export class ExplanationTextService {
     return of({ questionIndex, explanation: formattedExplanation });
   }
 
+  // Method to sanitize explanation text
+  private sanitizeExplanation(explanation: string): string {
+    // Example sanitization logic, add more as needed
+    return explanation.trim();
+  }
+
   // Function that updates and notifies explanation changes
   updateExplanation(index: number, explanation: string): void {
     if (index < 0) {
@@ -130,7 +148,10 @@ export class ExplanationTextService {
     this.explanationTexts[index] = explanation;
 
     // Store a formatted explanation
-    this.formattedExplanations[index] = { explanation, questionIndex: index };
+    this.formattedExplanations[index] = {
+      explanation: this.sanitizeExplanation(explanation),
+      questionIndex: index
+    };
 
     // Notify any subscribers that a new explanation is available
     this.explanationSource.next(explanation);
