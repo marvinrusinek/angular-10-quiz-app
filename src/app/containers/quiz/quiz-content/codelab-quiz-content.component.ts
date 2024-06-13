@@ -240,11 +240,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
         this.explanationTexts = explanationTexts;
         console.log("MYEXPTEXTS", this.explanationTexts);
+        
+        const question = questions[this.currentQuestionIndexValue];
 
         // Transform explanation texts into the expected format
         const formattedExplanations = this.explanationTexts.map((text, index) => ({
           questionIndex: index,
-          explanation: this.explanationTextService.formatExplanationText(text, index)
+          explanation: this.explanationTextService.formatExplanationText(question, index) 
         }));
 
         this.explanationTextService.initializeFormattedExplanations(formattedExplanations);
