@@ -619,27 +619,45 @@ export class QuizService implements OnDestroy {
 
   // Get the current options for the current quiz and question
   getCurrentOptions(): Observable<Option[]> {
-    const quiz = Array.isArray(this.quizData)
-      ? this.quizData.find((quiz) => quiz.quizId === this.quizId)
-      : undefined;
-
+    // Ensure quizData is initialized and available
+    if (!Array.isArray(this.quizData)) {
+      console.error('quizData is not an array or is undefined:', this.quizData);
+      return of([]); // Return an empty array as a fallback
+    }
+  
+    // Find the current quiz based on the quizId
+    const quiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
+    console.log('Quiz Data:', this.quizData);
+    console.log('Quiz found:', quiz);
+  
+    // If no quiz is found, log a warning and return an empty array
     if (!quiz) {
       console.warn(`No quiz found for quizId: ${this.quizId}`);
       return of([]); // Return an empty array if no quiz is found
     }
-
+  
+    // Get the current question index
     const currentQuestionIndex = this.getCurrentQuestionIndex();
+    console.log('Current Question Index:', currentQuestionIndex);
+  
+    // Validate the current question index
     const isValidIndex = currentQuestionIndex >= 0 && currentQuestionIndex < quiz.questions.length;
-
+    console.log('Is valid question index:', isValidIndex);
+  
+    // If the index is invalid, log a warning and return an empty array
     if (!isValidIndex) {
       console.warn(`Invalid currentQuestionIndex: ${currentQuestionIndex}`);
       return of([]); // Return an empty array if the index is invalid
     }
-
+  
+    // Get the options for the current question, or default to an empty array
     const options = quiz.questions[currentQuestionIndex]?.options || [];
     console.log('Emitting options:', options);
-    return of(options); // Return the options as an Observable array
+  
+    // Return the options as an Observable array
+    return of(options);
   }
+  
 
   getFallbackQuestion(): QuizQuestion {
     // Check if quizData is available and has at least one question
