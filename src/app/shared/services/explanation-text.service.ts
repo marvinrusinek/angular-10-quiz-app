@@ -323,6 +323,12 @@ export class ExplanationTextService {
     return of(explanationText);
   }
 
+  getFormattedExplanations(): FormattedExplanation[] {
+    const formattedExplanations = Object.values(this.formattedExplanations);
+    console.log('Formatted Explanations in Service:', formattedExplanations);
+    return formattedExplanations;
+  }
+
   toggleExplanationDisplay(shouldDisplay: boolean): void {
     this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
