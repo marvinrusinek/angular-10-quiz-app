@@ -255,7 +255,6 @@ export class QuizService implements OnDestroy {
       return of(undefined); // Return undefined if no quiz is found
     }
 
-    console.log('Emitting quiz:', quiz);
     return of(quiz);
   }
 
