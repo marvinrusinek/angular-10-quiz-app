@@ -677,29 +677,22 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     this.combinedText$ = this.combinedQuestionData$.pipe(
       map(data => {
-        // Ensure all required data properties are present
-        const questionText = data.questionText || 'No question text available';
-        const explanationText = data.explanationText || '';
-        const correctAnswersText = data.correctAnswersText || '';
+        let displayText = data.questionText || '';
     
-        let displayText = questionText;
-    
-        // Check if explanation should be displayed
-        if (this.isExplanationDisplayed && explanationText) {
-          displayText += ` ${explanationText}`;
-        } 
-        // Check if correct answers text should be displayed
-        else if (!this.isExplanationDisplayed && correctAnswersText) {
-          displayText += ` (${correctAnswersText})`;
+        if (this.isExplanationDisplayed && data.explanationText) {
+          displayText += ` ${data.explanationText}`;
+        } else if (!this.isExplanationDisplayed && data.correctAnswersText) {
+          displayText += ` (${data.correctAnswersText})`;
         }
     
-        return displayText;
+        console.log('Final Display Text:', displayText);
+        return displayText.trim(); // Ensure no trailing spaces
       }),
       catchError(error => {
         console.error('Error processing combined text:', error);
         return of('Error loading question data');
       })
-    );    
+    );      
   }
   
   
