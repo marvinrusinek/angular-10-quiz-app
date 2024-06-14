@@ -548,7 +548,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           } as CombinedQuestionDataType);
         }
   
-        const correctAnswersText = !isExplanationDisplayed ? `(${numberOfCorrectAnswers} answers are correct)` : '';
+        const correctAnswersText = !isExplanationDisplayed ? `${numberOfCorrectAnswers} answers are correct` : '';
+  
+        console.log('Constructed Correct Answers Text:', correctAnswersText);
   
         return of({
           currentQuiz,
@@ -581,8 +583,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   
     this.initializeTextStream();
-  }
-  
+  }  
   
   private initializeTextStream(): void {
     this.combinedText$ = this.combinedQuestionData$.pipe(
@@ -602,16 +603,19 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   private constructDisplayText(data: CombinedQuestionDataType): string {
     let displayText = data.questionText || '';
   
-    // Display explanation text if it's supposed to be shown
+    // Ensure explanation text and correct answers text are mutually exclusive
     if (data.isExplanationDisplayed && data.explanationText) {
       displayText += ` ${data.explanationText}`;
-    } else if (!data.isExplanationDisplayed && data.correctAnswersText) {
+    }
+  
+    if (!data.isExplanationDisplayed && data.correctAnswersText) {
       displayText += ` (${data.correctAnswersText})`;
     }
   
-    console.log('Updated Display Text:', displayText);
+    console.log('Constructed Display Text:', displayText);
     return displayText.trim();
   }
+  
 
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
