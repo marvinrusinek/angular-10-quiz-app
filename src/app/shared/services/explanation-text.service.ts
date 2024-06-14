@@ -92,7 +92,7 @@ export class ExplanationTextService {
 
   // Method to initialize formatted explanations
   // TODO: get formatted explanations to log!
-  initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
+  /* initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
     this.formattedExplanations = {}; // Clear existing data
   
     if (!Array.isArray(explanations) || explanations.length === 0) {
@@ -118,7 +118,36 @@ export class ExplanationTextService {
     });
   
     console.log('Formatted explanations initialized:', this.formattedExplanations); // logs correctly explanations 0-5
+  } */
+
+  initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
+    this.formattedExplanations = {}; // Clear existing data
+
+    if (!Array.isArray(explanations) || explanations.length === 0) {
+        console.warn('No explanations provided for initialization.');
+        return;
+    }
+
+    explanations.forEach(({ questionIndex, explanation }) => {
+        console.log(`Processing explanation for questionIndex ${questionIndex}:`, explanation); // logs correctly explanations 0-5
+
+        if (typeof questionIndex !== 'number' || questionIndex < 0) {
+            console.warn(`Invalid questionIndex: ${questionIndex}. It should be a non-negative number.`);
+            return;
+        }
+
+        if (typeof explanation !== 'string' || !explanation.trim()) {
+            console.warn(`Invalid or empty explanation for questionIndex ${questionIndex}:`, explanation);
+            this.formattedExplanations[questionIndex] = { questionIndex, explanation: 'No explanation available' };
+        } else {
+            this.formattedExplanations[questionIndex] = { questionIndex, explanation: explanation.trim() };
+            console.log("Formatted Explanation", this.formattedExplanations[questionIndex]);
+        }
+    });
+
+    console.log('Formatted explanations initialized:', this.formattedExplanations); // logs correctly explanations 0-5
   }
+
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): 
     Observable<{ questionIndex: number, explanation: string }> {
