@@ -554,13 +554,18 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
   private initializeTextStream(): void {
     this.combinedText$ = this.combinedQuestionData$.pipe(
-      map(data => this.constructDisplayText(data)),
+      map(data => {
+        console.log('Current Question Data:', data.currentQuestion);
+        console.log('Explanation Text:', data.explanationText);
+        console.log('Correct Answers Text:', data.correctAnswersText);
+        return this.constructDisplayText(data);
+      }),
       catchError(error => {
         console.error('Error processing combined text:', error);
         return of('Error loading question data');
       })
     );
-  }
+  }  
 
   private constructDisplayText(data: CombinedQuestionDataType): string {
     let displayText = data.questionText || '';
