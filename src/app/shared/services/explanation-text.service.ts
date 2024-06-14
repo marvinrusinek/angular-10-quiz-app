@@ -139,6 +139,7 @@ export class ExplanationTextService {
         this.formattedExplanations[questionIndex] = { questionIndex: questionIndex, explanation: '' }; // Fallback to empty string
       } else {
         this.formattedExplanations[questionIndex] = { questionIndex: questionIndex, explanation: explanation.trim() };
+        console.log("MYFE", this.formattedExplanations[questionIndex]); // logs correctly explanations 0-5
       }
     });
   
