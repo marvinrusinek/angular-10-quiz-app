@@ -613,9 +613,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             // Simplified logic to isolate the issue
             let displayText = data.questionText || '';
 
-            if (data.isExplanationDisplayed) {
-                displayText += ` ${data.explanationText}`;
-            } else {
+            if (data.isExplanationDisplayed && data.explanationText) {
+              displayText += ` ${data.explanationText}`;
+            } else if (!data.isExplanationDisplayed && data.correctAnswersText) {
                 displayText += ` (${data.correctAnswersText})`;
             }
 
