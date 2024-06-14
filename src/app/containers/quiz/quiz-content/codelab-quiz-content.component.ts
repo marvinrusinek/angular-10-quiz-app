@@ -500,14 +500,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
     currentQuizAndOptions$.subscribe({
       next: data => {
-        console.log("CQAO data:::>>", data); // logging wrong info for Q1
+        console.log("CQAO data:", data);
       },
       error: err => console.error('Error combining current quiz and options:', err)
     });
   
     this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).subscribe({
       next: explanation => {
-        console.log('Fetched Explanation:::>>', explanation);
+        console.log('Fetched Explanation:', explanation);
         this.formattedExplanation$.next(explanation);
       },
       error: err => {
@@ -523,14 +523,45 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.formattedExplanation$
     ]).pipe(
       switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
-  
-        return this.calculateCombinedQuestionData(
-          currentQuizData, 
-          +numberOfCorrectAnswers, 
-          isExplanationDisplayed, 
+        console.log('Combined Latest Values:', {
+          currentQuizData,
+          numberOfCorrectAnswers,
+          isExplanationDisplayed,
           formattedExplanation
-        );
+        });
+  
+        const currentQuiz = currentQuizData.currentQuiz;
+        const currentQuestion = currentQuiz ? currentQuiz.questions[this.quizService.getCurrentQuestionIndex()] : null;
+  
+        if (!currentQuiz || !currentQuestion) {
+          return of({
+            currentQuiz: null,
+            currentQuestion: null,
+            currentOptions: [],
+            options: [],
+            questionText: '',
+            explanationText: '',
+            correctAnswersText: '',
+            numberOfCorrectAnswers: 0,
+            isExplanationDisplayed: false,
+            isNavigatingToPrevious: false
+          } as CombinedQuestionDataType);
+        }
+  
+        const correctAnswersText = !isExplanationDisplayed ? `${numberOfCorrectAnswers} answers are correct` : '';
+  
+        return of({
+          currentQuiz,
+          currentQuestion,
+          currentOptions: currentQuizData.currentOptions,
+          options: currentQuizData.currentOptions,
+          questionText: currentQuestion.questionText,
+          explanationText: isExplanationDisplayed ? formattedExplanation : '',
+          correctAnswersText,
+          numberOfCorrectAnswers,
+          isExplanationDisplayed,
+          isNavigatingToPrevious: false
+        } as CombinedQuestionDataType);
       }),
       catchError((error: Error) => {
         console.error('Error combining quiz data:', error);
@@ -549,8 +580,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   
-    this.initializeTextStream();      
+    this.initializeTextStream();
   }
+  
   
   private initializeTextStream(): void {
     this.combinedText$ = this.combinedQuestionData$.pipe(
