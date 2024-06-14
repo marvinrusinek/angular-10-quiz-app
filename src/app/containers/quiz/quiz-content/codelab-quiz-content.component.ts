@@ -545,18 +545,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
                 } as CombinedQuestionDataType);
             }
 
-            const currentQuestion = currentQuizData.currentQuestion;
-
             const correctAnswersText = !isExplanationDisplayed ? `${numberOfCorrectAnswers} answers are correct` : '';
 
             console.log('Correct Answers Text:', correctAnswersText);
 
             return of({
                 currentQuiz: currentQuizData.currentQuiz,
-                currentQuestion: currentQuestion,
+                currentQuestion: currentQuizData.currentQuestion,
                 currentOptions: currentQuizData.currentOptions,
                 options: currentQuizData.currentOptions,
-                questionText: currentQuestion.questionText,
+                questionText: currentQuizData.currentQuestion.questionText,
                 explanationText: isExplanationDisplayed ? formattedExplanation : '',
                 correctAnswersText,
                 numberOfCorrectAnswers,
@@ -581,36 +579,51 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         })
     );
 
-    this.initializeTextStream();
+    this.constructDisplayTextStream();
   }
-  
-  private initializeTextStream(): void {
-    this.combinedText$ = this.combinedQuestionData$.pipe(
-      map(data => {
-        console.log('Current Question Data:', data.currentQuestion);
-        console.log('Explanation Text:', data.explanationText);
-        console.log('Correct Answers Text:', data.correctAnswersText);
-        return this.constructDisplayText(data);
-      }),
-      catchError(error => {
-        console.error('Error processing combined text:', error);
-        return of('Error loading question data');
-      })
-    );
-  }  
 
-  private constructDisplayText(data: CombinedQuestionDataType): string {
+  private constructDisplayTextStream(): void {
+    this.combinedText$ = this.combinedQuestionData$.pipe(
+        map(data => {
+            console.log('Processing data for display:', data);
+            let displayText = data.questionText || '';
+
+            if (data.isExplanationDisplayed) {
+                if (data.explanationText) {
+                    displayText += ` ${data.explanationText}`;
+                    console.log('Explanation Text added:', data.explanationText);
+                }
+                if (data.correctAnswersText) {
+                    console.log('Skipping correct answers text since explanation is displayed.');
+                }
+            } else {
+                if (data.correctAnswersText) {
+                    displayText += ` (${data.correctAnswersText})`;
+                    console.log('Correct Answers Text added:', data.correctAnswersText);
+                }
+            }
+
+            console.log('Final Display Text:', displayText);
+            return displayText.trim();
+        }),
+        catchError(error => {
+            console.error('Error processing combined text:', error);
+            return of('Error loading question data');
+        })
+    );
+  }
+
+  private assignExplanationAndAnswers(data: CombinedQuestionDataType): string {
     let displayText = data.questionText || '';
-  
-    // Ensure explanation text and correct answers text are mutually exclusive
+
     if (data.isExplanationDisplayed && data.explanationText) {
-      displayText += ` ${data.explanationText}`;
+        displayText += ` ${data.explanationText}`;
+        console.log('Explanation Text appended:', data.explanationText);
+    } else if (!data.isExplanationDisplayed && data.correctAnswersText) {
+        displayText += ` (${data.correctAnswersText})`;
+        console.log('Correct Answers Text appended:', data.correctAnswersText);
     }
-  
-    if (!data.isExplanationDisplayed && data.correctAnswersText) {
-      displayText += ` (${data.correctAnswersText})`;
-    }
-  
+
     console.log('Constructed Display Text:', displayText);
     return displayText.trim();
   }
