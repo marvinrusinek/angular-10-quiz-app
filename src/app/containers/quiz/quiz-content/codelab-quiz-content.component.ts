@@ -548,7 +548,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           } as CombinedQuestionDataType);
         }
   
-        const correctAnswersText = !isExplanationDisplayed ? `${numberOfCorrectAnswers} answers are correct` : '';
+        const correctAnswersText = !isExplanationDisplayed ? `(${numberOfCorrectAnswers} answers are correct)` : '';
   
         return of({
           currentQuiz,
