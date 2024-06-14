@@ -91,33 +91,7 @@ export class ExplanationTextService {
   }
 
   // Method to initialize formatted explanations
-  /* initializeFormattedExplanations(questions: QuizQuestion[]): void {
-    this.formattedExplanations = {}; // Clear any existing data
-  
-    questions.forEach((question, index) => {
-      if (typeof question === 'string') {
-        console.error(`Invalid question format at index ${index}:`, question);
-        return; // Skip processing this invalid question
-      }
-  
-      if (!question.options) {
-        console.error(`Question options are undefined for question index ${index}`);
-        question.options = []; // Initialize with an empty array or handle accordingly
-      }
-  
-      const correctOptionIndices = this.getCorrectOptionIndices(question);
-      const formattedExplanation = this.formatExplanation(question, correctOptionIndices);
-  
-      this.formattedExplanations[index] = {
-        questionIndex: index,
-        explanation: formattedExplanation
-      };
-      console.log(`Formatted explanation for question ${index}: ${formattedExplanation}`);
-    });
-  
-    console.log('Formatted explanations initialized:', this.formattedExplanations);
-  } */
-
+  // TODO: get formatted explanations to log!
   initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
     this.formattedExplanations = {}; // Clear existing data
   
