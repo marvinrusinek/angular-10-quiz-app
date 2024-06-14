@@ -127,7 +127,7 @@ export class ExplanationTextService {
     }
   
     explanations.forEach(({ questionIndex, explanation }) => {
-      console.log(`Processing explanation for questionIndex ${questionIndex}:`, explanation);
+      console.log(`Processing explanation for questionIndex ${questionIndex}:`, explanation); // logs correctly explanations 0-5
   
       if (typeof questionIndex !== 'number' || questionIndex < 0) {
         console.warn(`Invalid questionIndex: ${questionIndex}. It should be a non-negative number.`);
@@ -142,7 +142,7 @@ export class ExplanationTextService {
       }
     });
   
-    console.log('Formatted explanations initialized:', this.formattedExplanations);
+    console.log('Formatted explanations initialized:', this.formattedExplanations); // logs correctly explanations 0-5
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): 
