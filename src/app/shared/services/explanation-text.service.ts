@@ -136,9 +136,9 @@ export class ExplanationTextService {
   
       if (typeof explanation !== 'string') {
         console.warn(`Invalid explanation type for questionIndex ${questionIndex}:`, explanation);
-        this.formattedExplanations[questionIndex] = { questionIndex, explanation: '' }; // Fallback to empty string
+        this.formattedExplanations[questionIndex] = { questionIndex: questionIndex, explanation: '' }; // Fallback to empty string
       } else {
-        this.formattedExplanations[questionIndex] = { questionIndex, explanation: explanation.trim() };
+        this.formattedExplanations[questionIndex] = { questionIndex: questionIndex, explanation: explanation.trim() };
       }
     });
   
