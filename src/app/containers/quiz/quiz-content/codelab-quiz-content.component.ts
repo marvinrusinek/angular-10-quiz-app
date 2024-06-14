@@ -570,11 +570,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   private constructDisplayText(data: CombinedQuestionDataType): string {
     let displayText = data.questionText || '';
   
+    // Display explanation text if it's supposed to be shown
     if (data.isExplanationDisplayed && data.explanationText) {
       displayText += ` ${data.explanationText}`;
-    }
-  
-    if (!data.isExplanationDisplayed && data.correctAnswersText) {
+    } else if (!data.isExplanationDisplayed && data.correctAnswersText) {
       displayText += ` (${data.correctAnswersText})`;
     }
   
