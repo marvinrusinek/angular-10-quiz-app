@@ -179,27 +179,6 @@ export class ExplanationTextService {
     return explanation.trim();
   }
 
-  // Function that updates and notifies explanation changes
-  /* updateExplanation(index: number, explanation: string): void {
-    if (index < 0) {
-      console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
-      return;
-    }
-
-    // Store the explanation text for basic retrieval
-    this.explanationTexts[index] = explanation;
-
-    // Store a formatted explanation
-    this.formattedExplanations[index] = {
-      explanation: this.sanitizeExplanation(explanation),
-      questionIndex: index
-    };
-
-    // Notify any subscribers that a new explanation is available
-    this.explanationSource.next(explanation);
-
-    console.log(`Explanation updated for index ${index}: ${explanation}`);
-  } */
   updateExplanation(index: number, explanation: string): void {
     if (index < 0) {
       console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
@@ -218,23 +197,12 @@ export class ExplanationTextService {
       explanation: formattedExplanation
     };
     console.log(`Explanation updated for index ${index}:`, this.formattedExplanations[index]);
-  }
 
-  /* private getCorrectOptionIndices(question: QuizQuestion): number[] {
-    if (!question) {
-      console.error("Question is undefined");
-      return [];
-    }
-  
-    if (!question.options) {
-      console.error("Question options are undefined");
-      return [];
-    }
-  
-    return question.options
-      .map((option, index) => option.correct ? index + 1 : null)
-      .filter((index): index is number => index !== null);
-  } */
+    // Notify any subscribers that a new explanation is available
+    this.explanationSource.next(explanation);
+
+    console.log(`Explanation updated for index ${index}: ${explanation}`);
+  }
 
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
     if (!question || !Array.isArray(question.options)) {
