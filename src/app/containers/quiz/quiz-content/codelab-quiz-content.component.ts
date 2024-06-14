@@ -562,32 +562,32 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         })
     );
 
-    this.constructDisplayText();
+    this.constructDisplayTextSimple();
   }
 
-  private constructDisplayText(): void {
+  private constructDisplayTextSimple(): void {
     this.combinedText$ = this.combinedQuestionData$.pipe(
         map(data => {
-            console.log('Processing combined question data:', data);
+            console.log('Raw Combined Question Data:', data);
 
+            // Simplified logic to isolate the issue
             let displayText = data.questionText || '';
 
-            if (data.isExplanationDisplayed && data.explanationText) {
+            if (data.isExplanationDisplayed) {
                 displayText += ` ${data.explanationText}`;
-            } else if (!data.isExplanationDisplayed && data.correctAnswersText) {
+            } else {
                 displayText += ` (${data.correctAnswersText})`;
             }
 
-            console.log('Final Display Text:', displayText);
+            console.log('Simplified Final Display Text:', displayText);
             return displayText.trim();
         }),
         catchError(error => {
-            console.error('Error constructing display text:', error);
+            console.error('Error constructing simplified display text:', error);
             return of('Error loading question data');
         })
     );
   }
-
 
   private assignExplanationAndAnswers(data: CombinedQuestionDataType): string {
     let displayText = data.questionText || '';
