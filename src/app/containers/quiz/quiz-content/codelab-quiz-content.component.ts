@@ -579,39 +579,44 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         })
     );
 
-    this.constructDisplayTextStream();
+    this.constructDisplayText();
   }
 
-  private constructDisplayTextStream(): void {
+  private constructDisplayText(): void {
     this.combinedText$ = this.combinedQuestionData$.pipe(
         map(data => {
-            console.log('Processing data for display:', data);
+            console.log('Processing combined question data:', data);
+
+            // Initial display text is the question text
             let displayText = data.questionText || '';
 
+            // Check if the explanation text should be displayed
             if (data.isExplanationDisplayed) {
                 if (data.explanationText) {
                     displayText += ` ${data.explanationText}`;
-                    console.log('Explanation Text appended:', data.explanationText);
+                    console.log('Appended explanation text:', data.explanationText);
                 }
-                if (data.correctAnswersText) {
-                    console.log('Skipping correct answers text since explanation is displayed.');
-                }
+
+                // Ensure correct answers text is not added when explanation is displayed
+                console.log('Skipping correct answers text because explanation is displayed.');
             } else {
+                // Only add correct answers text if explanation is not displayed
                 if (data.correctAnswersText) {
                     displayText += ` (${data.correctAnswersText})`;
-                    console.log('Correct Answers Text appended:', data.correctAnswersText);
+                    console.log('Appended correct answers text:', data.correctAnswersText);
                 }
             }
 
-            console.log('Final Display Text:', displayText);
+            console.log('Final constructed display text:', displayText);
             return displayText.trim();
         }),
         catchError(error => {
-            console.error('Error processing combined text:', error);
+            console.error('Error constructing display text:', error);
             return of('Error loading question data');
         })
     );
   }
+
 
   private assignExplanationAndAnswers(data: CombinedQuestionDataType): string {
     let displayText = data.questionText || '';
