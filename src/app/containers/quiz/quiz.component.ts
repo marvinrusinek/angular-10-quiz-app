@@ -1609,6 +1609,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
     try {
+      this.animationState$.next('animationStarted');
       const quizData: Quiz = await firstValueFrom(this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$)));
   
       if (!quizData || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {

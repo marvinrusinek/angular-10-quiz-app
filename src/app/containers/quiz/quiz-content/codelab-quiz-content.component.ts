@@ -591,7 +591,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             if (data.isExplanationDisplayed) {
                 if (data.explanationText) {
                     displayText += ` ${data.explanationText}`;
-                    console.log('Explanation Text added:', data.explanationText);
+                    console.log('Explanation Text appended:', data.explanationText);
                 }
                 if (data.correctAnswersText) {
                     console.log('Skipping correct answers text since explanation is displayed.');
@@ -599,7 +599,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
             } else {
                 if (data.correctAnswersText) {
                     displayText += ` (${data.correctAnswersText})`;
-                    console.log('Correct Answers Text added:', data.correctAnswersText);
+                    console.log('Correct Answers Text appended:', data.correctAnswersText);
                 }
             }
 
