@@ -530,10 +530,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
                 formattedExplanation
             });
 
-            const currentQuiz = currentQuizData.currentQuiz;
-            const currentQuestion = currentQuiz ? currentQuiz.questions[this.quizService.getCurrentQuestionIndex()] : null;
-
-            if (!currentQuiz || !currentQuestion) {
+            if (!currentQuizData.currentQuiz || !currentQuizData.currentQuestion) {
                 return of({
                     currentQuiz: null,
                     currentQuestion: null,
@@ -548,13 +545,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
                 } as CombinedQuestionDataType);
             }
 
+            const currentQuestion = currentQuizData.currentQuestion;
+
             const correctAnswersText = !isExplanationDisplayed ? `${numberOfCorrectAnswers} answers are correct` : '';
 
-            console.log('Constructed Correct Answers Text:', correctAnswersText);
+            console.log('Correct Answers Text:', correctAnswersText);
 
             return of({
-                currentQuiz,
-                currentQuestion,
+                currentQuiz: currentQuizData.currentQuiz,
+                currentQuestion: currentQuestion,
                 currentOptions: currentQuizData.currentOptions,
                 options: currentQuizData.currentOptions,
                 questionText: currentQuestion.questionText,
@@ -805,6 +804,29 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   // Helper function to check if it's a single-answer question with an explanation
   private isSingleAnswerWithExplanation(isMultipleAnswer: boolean, isExplanationDisplayed: boolean): boolean {
     return !isMultipleAnswer && isExplanationDisplayed;
+  }
+
+  private validateDataForQuestions(questions: QuizQuestion[], index: number): void {
+    questions.forEach((question, idx) => {
+        console.log(`Question ${idx}:`, question);
+
+        if (!question.questionText) {
+            console.warn(`No question text for question ${idx}`);
+        }
+
+        if (!question.explanation) {
+            console.warn(`No explanation for question ${idx}`);
+        }
+
+        if (!question.options || question.options.length === 0) {
+            console.warn(`No options for question ${idx}`);
+        }
+
+        const correctOptions = question.options.filter(option => option.correct);
+        if (correctOptions.length === 0) {
+            console.warn(`No correct options for question ${idx}`);
+        }
+    });
   }
 }
 
