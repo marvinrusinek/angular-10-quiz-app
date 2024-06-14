@@ -144,9 +144,6 @@ export class ExplanationTextService {
   
     console.log('Formatted explanations initialized:', this.formattedExplanations);
   }
-  
-  
-  
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): 
     Observable<{ questionIndex: number, explanation: string }> {
