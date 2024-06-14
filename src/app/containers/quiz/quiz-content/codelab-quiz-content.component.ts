@@ -523,31 +523,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.formattedExplanation$
     ]).pipe(
         switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-            console.log('Combined Latest Values:', {
+            console.log('initializeCombinedQuestionData - combinedLatest values:', {
                 currentQuizData,
                 numberOfCorrectAnswers,
                 isExplanationDisplayed,
                 formattedExplanation
             });
 
-            if (!currentQuizData.currentQuiz || !currentQuizData.currentQuestion) {
-                return of({
-                    currentQuiz: null,
-                    currentQuestion: null,
-                    currentOptions: [],
-                    options: [],
-                    questionText: '',
-                    explanationText: '',
-                    correctAnswersText: '',
-                    numberOfCorrectAnswers: 0,
-                    isExplanationDisplayed: false,
-                    isNavigatingToPrevious: false
-                } as CombinedQuestionDataType);
-            }
-
             const correctAnswersText = !isExplanationDisplayed ? `${numberOfCorrectAnswers} answers are correct` : '';
-
-            console.log('Correct Answers Text:', correctAnswersText);
 
             return of({
                 currentQuiz: currentQuizData.currentQuiz,
@@ -587,27 +570,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         map(data => {
             console.log('Processing combined question data:', data);
 
-            // Initial display text is the question text
             let displayText = data.questionText || '';
 
-            // Check if the explanation text should be displayed
-            if (data.isExplanationDisplayed) {
-                if (data.explanationText) {
-                    displayText += ` ${data.explanationText}`;
-                    console.log('Appended explanation text:', data.explanationText);
-                }
-
-                // Ensure correct answers text is not added when explanation is displayed
-                console.log('Skipping correct answers text because explanation is displayed.');
-            } else {
-                // Only add correct answers text if explanation is not displayed
-                if (data.correctAnswersText) {
-                    displayText += ` (${data.correctAnswersText})`;
-                    console.log('Appended correct answers text:', data.correctAnswersText);
-                }
+            if (data.isExplanationDisplayed && data.explanationText) {
+                displayText += ` ${data.explanationText}`;
+            } else if (!data.isExplanationDisplayed && data.correctAnswersText) {
+                displayText += ` (${data.correctAnswersText})`;
             }
 
-            console.log('Final constructed display text:', displayText);
+            console.log('Final Display Text:', displayText);
             return displayText.trim();
         }),
         catchError(error => {
