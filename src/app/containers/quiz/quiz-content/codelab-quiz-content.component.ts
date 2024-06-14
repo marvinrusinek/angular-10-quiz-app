@@ -228,10 +228,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   private async initializeQuestionData(): Promise<void> {
     try {
-      const params = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
-      const [questions, explanationTexts] = await firstValueFrom(
+      const params: ParamMap = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
+  
+      // Fetch questions and explanations
+      const result: [QuizQuestion[], string[]] = await firstValueFrom(
         this.fetchQuestionsAndExplanationTexts(params).pipe(takeUntil(this.destroy$))
       );
+  
+      const [questions, explanationTexts] = result;
   
       if (!questions || questions.length === 0) {
         console.warn('No questions found');
