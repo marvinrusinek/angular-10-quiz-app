@@ -673,7 +673,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       options: currentOptions,
       questionText: currentQuestion ? currentQuestion.questionText : '',
       explanationText: isExplanationDisplayed ? formattedExplanation : '',
-      correctAnswersText: isExplanationDisplayed ? '' : correctAnswersText,
+      // correctAnswersText: isExplanationDisplayed ? '' : correctAnswersText,
+      correctAnswersText: !isExplanationDisplayed ? `(${numberOfCorrectAnswers} answers are correct)` : '',
       isNavigatingToPrevious: this.isNavigatingToPrevious,
       isExplanationDisplayed: isExplanationDisplayed
     };
