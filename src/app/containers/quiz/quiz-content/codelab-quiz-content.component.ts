@@ -611,43 +611,29 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         return of('Error loading question data');
       })
     );
+
+    this.combinedQuestionData$.subscribe(combinedData => {
+      // Call constructDisplayText with the combinedData
+      const displayText = this.constructDisplayText(combinedData);
+      console.log('Constructed Display Text:', displayText);
+  });
   }
   
-  
-  private constructDisplayText(): void {
+  private constructDisplayText(data: CombinedQuestionDataType): string {
     console.log('--- Construct Display Text ---');
-    this.combinedText$ = this.combinedQuestionData$.pipe(
-      tap(data => {
-        console.log('Constructing Display Text with Data:', data);
-      }),
-      map(data => {
-        let displayText = data.questionText || '';
-        console.log('Question Text:', displayText);
-  
-        if (data.isExplanationDisplayed && data.explanationText) {
-          console.log('isExplanationDisplayed:', data.isExplanationDisplayed);
-          console.log('Explanation Text:', data.explanationText);
-          displayText += ` ${data.explanationText}`;
-        } else if (!data.isExplanationDisplayed && data.correctAnswersText) {
-          console.log('Correct Answers Text:', data.correctAnswersText);
-          displayText += ` (${data.correctAnswersText})`;
-        }
-  
-        console.log('Final Display Text:', displayText);
-        return displayText.trim(); // Ensure no trailing spaces
-      }),
-      catchError(error => {
-        console.error('Error constructing display text:', error);
-        return of('Error loading question data');
-      })
-    );
-  
-    this.combinedText$.subscribe(text => {
-      console.log('Final Text:', text);
-    });
+    console.log('Constructing Display Text with Data:', data);
+    
+    let displayText = data.questionText || '';
+
+    if (data.isExplanationDisplayed && data.explanationText) {
+      displayText += ` ${data.explanationText}`;
+    } else if (!data.isExplanationDisplayed && data.correctAnswersText) {
+      displayText += ` (${data.correctAnswersText})`;
+    }
+
+    console.log('Final Display Text:', displayText.trim());
+    return displayText.trim();
   }
-  
-  
 
   private assignExplanationAndAnswers(data: CombinedQuestionDataType): string {
     let displayText = data.questionText || '';
