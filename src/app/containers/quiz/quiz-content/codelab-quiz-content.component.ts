@@ -536,88 +536,56 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
 
   private initializeCombinedQuestionData(): void {
-    const currentQuizAndOptions$ = this.combineCurrentQuestionAndOptions();
-  
-    currentQuizAndOptions$.subscribe({
-      next: data => {
-        console.log("CQAO data", data);
-      },
-      error: err => console.error('Error combining current quiz and options:', err)
-    });
-  
-    this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).subscribe({
-      next: explanation => {
-        this.formattedExplanation$.next(explanation);
-      },
-      error: err => {
-        console.error('Error fetching formatted explanation:', err);
-        this.formattedExplanation$.next('Error fetching explanation');
-      }
-    });
-  
     this.combinedQuestionData$ = combineLatest([
-      currentQuizAndOptions$,
-      this.isExplanationTextDisplayed$,
-      this.formattedExplanation$
+        this.currentQuizAndOptions$,
+        this.numberOfCorrectAnswers$,
+        this.isExplanationTextDisplayed$,
+        this.formattedExplanation$
     ]).pipe(
-      switchMap(([currentQuizData, isExplanationDisplayed, formattedExplanation]) => {
-        console.log('initializeCombinedQuestionData - combinedLatest values:', currentQuizData, isExplanationDisplayed, formattedExplanation);
-  
-        // Compute correct answers text if needed
-        const numberOfCorrectAnswers = currentQuizData.currentOptions.filter(option => option.correct).length;
-        const correctAnswersText = numberOfCorrectAnswers > 0 ? `${numberOfCorrectAnswers} correct answers` : '';
-  
-        return this.calculateCombinedQuestionData(
-          currentQuizData,
-          isExplanationDisplayed,
-          formattedExplanation
-        ).pipe(
-          map(combinedData => ({
-            ...combinedData,
-            correctAnswersText // Add correct answers text separately
-          }))
-        );
-      }),
-      catchError((error: Error) => {
-        console.error('Error combining quiz data:', error);
-        return of({
-          currentQuestion: null,
-          currentOptions: [],
-          options: [],
-          questionText: '',
-          explanationText: '',
-          correctAnswersText: '',
-          isExplanationDisplayed: false,
-          isNavigatingToPrevious: false
-        } as CombinedQuestionDataType);
-      })
-    );
-  
-    this.combinedText$ = this.combinedQuestionData$.pipe(
-      map(data => {
-        let displayText = data.questionText || '';
-  
-        if (data.isExplanationDisplayed && data.explanationText) {
-          displayText += ` ${data.explanationText}`;
-        } else if (!data.isExplanationDisplayed && data.correctAnswersText) {
-          displayText += ` (${data.correctAnswersText})`;
-        }
-  
-        console.log('Final Display Text:', displayText);
-        return displayText.trim(); // Ensure no trailing spaces
-      }),
-      catchError(error => {
-        console.error('Error processing combined text:', error);
-        return of('Error loading question data');
-      })
+        switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+            console.log('Combined Latest Values:', { currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation });
+
+            if (!currentQuizData || !currentQuizData.currentQuestion) {
+                return of({
+                    currentQuestion: null,
+                    currentOptions: [],
+                    options: [],
+                    questionText: '',
+                    explanationText: '',
+                    correctAnswersText: '',
+                    isExplanationDisplayed: false,
+                    isNavigatingToPrevious: false
+                });
+            }
+
+            return this.calculateCombinedQuestionData(
+                currentQuizData,
+                +numberOfCorrectAnswers,
+                isExplanationDisplayed,
+                formattedExplanation
+            );
+        }),
+        catchError(error => {
+            console.error('Error combining quiz data:', error);
+            return of({
+                currentQuestion: null,
+                currentOptions: [],
+                options: [],
+                questionText: '',
+                explanationText: '',
+                correctAnswersText: '',
+                isExplanationDisplayed: false,
+                isNavigatingToPrevious: false
+            });
+        })
     );
 
     this.combinedQuestionData$.subscribe(combinedData => {
-      // Call constructDisplayText with the combinedData
-      const displayText = this.constructDisplayText(combinedData);
-      console.log('Constructed Display Text:', displayText);
-  });
+        const displayText = this.constructDisplayText(combinedData);
+        console.log('Constructed Display Text:', displayText);
+    });
   }
+
   
   private constructDisplayText(data: CombinedQuestionDataType): string {
     console.log('--- Construct Display Text ---');
