@@ -539,20 +539,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     const currentQuizAndOptions$ = this.combineCurrentQuestionAndOptions();
   
     currentQuizAndOptions$.subscribe({
-      next: data => {
-        console.log("CQAO data:", data);
-      },
+      next: data => console.log("CQAO data:", data),
       error: err => console.error('Error combining current quiz and options:', err)
-    });
-  
-    this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).subscribe({
-      next: explanation => {
-        this.formattedExplanation$.next(explanation);
-      },
-      error: err => {
-        console.error('Error fetching formatted explanation:', err);
-        this.formattedExplanation$.next('Error fetching explanation');
-      }
     });
   
     this.combinedQuestionData$ = combineLatest([
@@ -561,8 +549,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.isExplanationTextDisplayed$,
       this.formattedExplanation$
     ]).pipe(
+      tap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+        console.log('Data Received for Combination:', {
+          currentQuizData,
+          numberOfCorrectAnswers,
+          isExplanationDisplayed,
+          formattedExplanation
+        });
+      }),
       switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-        console.log('Combined Data:', currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
+        console.log('Combined Latest Values:', currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation);
   
         return this.calculateCombinedQuestionData(
           currentQuizData, 
@@ -571,7 +567,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           formattedExplanation
         );
       }),
-      catchError((error: Error) => {
+      catchError(error => {
         console.error('Error combining quiz data:', error);
         return of({
           currentQuiz: null,
@@ -592,32 +588,38 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
   
   private constructDisplayText(): void {
+    console.log('--- Construct Display Text ---');
     this.combinedText$ = this.combinedQuestionData$.pipe(
+      tap(data => {
+        console.log('Constructing Display Text with Data:', data);
+      }),
       map(data => {
-        console.log('--- Construct Display Text ---');
-        console.log('isExplanationDisplayed:', data.isExplanationDisplayed);
-        console.log('Explanation Text:', data.explanationText);
-        console.log('Correct Answers Text:', data.correctAnswersText);
-  
         let displayText = data.questionText || '';
+        console.log('Question Text:', displayText);
   
         if (data.isExplanationDisplayed && data.explanationText) {
+          console.log('isExplanationDisplayed:', data.isExplanationDisplayed);
+          console.log('Explanation Text:', data.explanationText);
           displayText += ` ${data.explanationText}`;
-        }
-  
-        if (!data.isExplanationDisplayed && data.correctAnswersText) {
+        } else if (!data.isExplanationDisplayed && data.correctAnswersText) {
+          console.log('Correct Answers Text:', data.correctAnswersText);
           displayText += ` (${data.correctAnswersText})`;
         }
   
         console.log('Final Display Text:', displayText);
-        return displayText.trim();
+        return displayText.trim(); // Ensure no trailing spaces
       }),
       catchError(error => {
         console.error('Error constructing display text:', error);
         return of('Error loading question data');
       })
     );
+  
+    this.combinedText$.subscribe(text => {
+      console.log('Final Text:', text);
+    });
   }
+  
   
 
   private assignExplanationAndAnswers(data: CombinedQuestionDataType): string {
@@ -703,45 +705,57 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
   
- 
   private calculateCombinedQuestionData(
-    currentQuestionData: {
-        currentQuestion: QuizQuestion | null;
-        currentOptions: Option[];
-    },
-    numberOfCorrectAnswers: number | undefined,
+    currentQuizData: any,
+    numberOfCorrectAnswers: number,
     isExplanationDisplayed: boolean,
     formattedExplanation: string
-): Observable<CombinedQuestionDataType> {
-    const { currentQuestion, currentOptions } = currentQuestionData;
-
-    let correctAnswersText = '';
-    if (currentQuestion && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
-      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
-      if (questionHasMultipleAnswers && !isExplanationDisplayed) {
-        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-        console.log("Correct Answers Text set to:", correctAnswersText);
-      } else {
-        console.log("Explanation is displayed, clearing Correct Answers Text");
-        correctAnswersText = '';
-      }
+  ): Observable<CombinedQuestionDataType> {
+    console.log('Calculating Combined Question Data with:', {
+      currentQuizData,
+      numberOfCorrectAnswers,
+      isExplanationDisplayed,
+      formattedExplanation
+    });
+  
+    const { currentQuestion, currentOptions } = currentQuizData;
+  
+    if (!currentQuestion) {
+      console.error('No current question found in data:', currentQuizData);
+      return of({
+        currentQuiz: null,
+        currentQuestion: null,
+        currentOptions: [],
+        options: [],
+        questionText: '',
+        explanationText: '',
+        correctAnswersText: '',
+        numberOfCorrectAnswers: 0,
+        isExplanationDisplayed: false,
+        isNavigatingToPrevious: false
+      });
     }
-
+  
     const combinedQuestionData: CombinedQuestionDataType = {
+      currentQuiz: currentQuizData,
       currentQuestion: currentQuestion,
       currentOptions: currentOptions,
       options: currentOptions,
-      questionText: currentQuestion ? currentQuestion.questionText : '',
+      questionText: currentQuestion.questionText,
       explanationText: isExplanationDisplayed ? formattedExplanation : '',
-      // correctAnswersText: isExplanationDisplayed ? '' : correctAnswersText,
-      correctAnswersText: !isExplanationDisplayed ? `(${numberOfCorrectAnswers} answers are correct)` : '',
-      isNavigatingToPrevious: this.isNavigatingToPrevious,
-      isExplanationDisplayed: isExplanationDisplayed
+      correctAnswersText: numberOfCorrectAnswers > 0 ? `${numberOfCorrectAnswers} correct answers` : '',
+      numberOfCorrectAnswers: numberOfCorrectAnswers,
+      isExplanationDisplayed: isExplanationDisplayed,
+      isNavigatingToPrevious: false
     };
-
-    console.log("Final Combined Question Data:", combinedQuestionData);
+  
+    console.log('Combined Question Data:', combinedQuestionData);
+  
     return of(combinedQuestionData);
   }
+  
+  
+  
   
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
