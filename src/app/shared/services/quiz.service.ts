@@ -575,7 +575,7 @@ export class QuizService implements OnDestroy {
     this.currentQuestion.next(question);
   }
 
-  getCurrentQuestion(): Observable<QuizQuestion> {
+  /* getCurrentQuestion(): Observable<QuizQuestion> {
     this.questionLoadingSubject.next(true); // Set loading to true at the start
     const quizId = this.getCurrentQuizId();
 
@@ -602,6 +602,7 @@ export class QuizService implements OnDestroy {
         const currentQuestion = questions[currentQuestionIndex] ?? this.getFallbackQuestion();
         this.currentQuestionSubject.next(currentQuestion);
         this.questionLoadingSubject.next(false);
+        console.log("CQ::>>", currentQuestion);
         return of(currentQuestion);
       }),    
       catchError((error: Error) => {
@@ -610,7 +611,39 @@ export class QuizService implements OnDestroy {
         return throwError(() => new Error('Error processing quiz questions'));
       })
     );
+  } */
+
+  getCurrentQuestion(): Observable<QuizQuestion | undefined> {
+    const quizId = this.getCurrentQuizId(); // Retrieve the current quiz ID
+    return this.findQuizByQuizId(quizId).pipe(
+        map(quiz => {
+            if (!quiz || !Array.isArray(quiz[0].questions)) {
+                console.error('Invalid quiz data or no questions available');
+                return undefined;
+            }
+
+            console.log("Retrieved Quiz:", quiz); // Log to ensure correct quiz is retrieved
+
+            const questions = quiz[0].questions; // Access the questions array
+            console.log("Questions Array:", questions); // Confirm that we have an array of questions
+
+            const currentQuestionIndex = this.currentQuestionIndex >= 0 && this.currentQuestionIndex < questions.length
+                                         ? this.currentQuestionIndex
+                                         : 0;
+
+            const currentQuestion = questions[currentQuestionIndex];
+            console.log("Current Question Extracted:", currentQuestion); // Should log the individual question
+
+            return currentQuestion;
+        }),
+        catchError((error: Error) => {
+            console.error('Error fetching current question:', error);
+            return of(undefined);
+        })
+    );
   }
+
+
 
   // Get the current options for the current quiz and question
   getCurrentOptions(): Observable<Option[]> {
@@ -1538,16 +1571,17 @@ export class QuizService implements OnDestroy {
   }
 
   // Helper function to find a quiz by quizId
-  findQuizByQuizId(quizId: string): Quiz | undefined {
+  findQuizByQuizId(quizId: string): Observable<Quiz | undefined> {
     // Find the quiz by quizId within the quizData array
     const foundQuiz = this.quizData.find((quiz) => quiz.quizId === quizId);
 
-    // If a quiz is found and it's indeed a Quiz (as checked by this.isQuiz), return it
+    // If a quiz is found and it's indeed a Quiz (as checked by this.isQuiz), return it as an Observable
     if (foundQuiz && this.isQuiz(foundQuiz)) {
-      return foundQuiz as Quiz;
+      return of(foundQuiz as Quiz);
     }
 
-    return undefined;
+    // Return an Observable with undefined if the quiz is not found
+    return of(undefined);
   }
 
   // Method to find the index of a question
