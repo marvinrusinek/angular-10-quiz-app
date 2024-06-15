@@ -119,7 +119,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     this.loadQuizDataFromRoute();
     this.initializeComponent();
-    this.initializeCurrentQuizAndQuestion();
     this.initializeQuestionState();
     this.initializeSubscriptions();
     this.setupCombinedTextObservable(); 
@@ -612,23 +611,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       } else {
         this.explanationToDisplay = '';
       }
-    });
-  }
-
-  private initializeCurrentQuizAndQuestion(): void {
-    // Fetch the current question
-    this.quizService.getCurrentQuestion().subscribe(question => {
-      if (question) {
-        this.currentQuestion$.next(question);
-      } else {
-        console.error('No current question available');
-        this.currentQuestion$.next(null);
-      }
-    });
-
-    // Fetch the current options
-    this.quizService.getCurrentOptions().subscribe(options => {
-      this.currentOptions$.next(options);
     });
   }
 
