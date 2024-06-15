@@ -236,6 +236,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
       const [questions, explanationTexts] = result;
   
+      // Validate fetched questions
       if (!questions || questions.length === 0) {
         console.warn('No questions found');
         return;
@@ -244,52 +245,64 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.explanationTexts = explanationTexts;
       console.log("Fetched Explanation Texts:", this.explanationTexts);
   
-      const formattedExplanations = await Promise.all(
-        questions.map(async (question, index) => {
-          const explanation = this.explanationTexts[index] || 'No explanation available';
-          return { questionIndex: index, explanation };
-        })
-      );
+      // Map questions to formatted explanations
+      const formattedExplanations = questions.map((question, index) => {
+        const explanation = this.explanationTexts[index] || 'No explanation available';
+        return { questionIndex: index, explanation };
+      });
   
       console.log('Formatted Explanations:', formattedExplanations);
   
+      // Initialize formatted explanations
       this.explanationTextService.initializeFormattedExplanations(formattedExplanations);
       this.initializeCurrentQuestionIndex();
       this.subscribeToCurrentQuestion();
+  
     } catch (error) {
       console.error('Error in initializeQuestionData:', error);
     }
   }
+  
 
   private fetchQuestionsAndExplanationTexts(params: ParamMap): Observable<[QuizQuestion[], string[]]> {
     this.quizId = params.get('quizId');
-    
-    if (this.quizId) {
-      return forkJoin([
-        this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
-          catchError(error => {
-            console.error('Error fetching questions:', error);
-            return of([]); // Return an empty array if an error occurs
-          })
-        ),
-        this.quizDataService.getAllExplanationTextsForQuiz(this.quizId).pipe(
-          catchError(error => {
-            console.error('Error fetching explanation texts:', error);
-            return of([]); // Return an empty array if an error occurs
-          })
-        )
-      ]).pipe(
-        map(([questions, explanationTexts]) => {
-          if (!questions.length) {
-            console.warn('No questions found for the provided quizId.');
-          }
-          return [questions, explanationTexts];
-        })
-      );
-    } else {
+    if (!this.quizId) {
       console.warn('No quizId provided in the parameters.');
       return of([[], []]);
     }
+
+    console.log('Fetching data for quizId:', this.quizId);
+
+    return forkJoin([
+      this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
+        catchError(error => {
+          console.error('Error fetching questions:', error);
+          return of([]); // Return an empty array if an error occurs
+        })
+      ),
+      this.quizDataService.getAllExplanationTextsForQuiz(this.quizId).pipe(
+        catchError(error => {
+          console.error('Error fetching explanation texts:', error);
+          return of([]); // Return an empty array if an error occurs
+        })
+      )
+    ]).pipe(
+      map(([questions, explanationTexts]) => {
+        if (!questions.length) {
+          console.warn('No questions found for the provided quizId:', this.quizId);
+        } else {
+          console.log('Questions fetched successfully:', questions);
+        }
+            
+        if (!explanationTexts.length) {
+          console.warn('No explanation texts found for the provided quizId:', this.quizId);
+        } else {
+          console.log('Explanation texts fetched successfully:', explanationTexts);
+        }
+
+        return [questions, explanationTexts];
+      })
+    );
   }
 
   private initializeCurrentQuestionIndex(): void {
