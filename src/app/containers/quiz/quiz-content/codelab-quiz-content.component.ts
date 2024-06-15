@@ -611,22 +611,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     return displayText.trim(); // Ensure no trailing spaces
   }
 
-  private assignExplanationAndAnswers(data: CombinedQuestionDataType): string {
-    let displayText = data.questionText || '';
-
-    if (data.isExplanationDisplayed && data.explanationText) {
-        displayText += ` ${data.explanationText}`;
-        console.log('Explanation Text appended:', data.explanationText);
-    } else if (!data.isExplanationDisplayed && data.correctAnswersText) {
-        displayText += ` (${data.correctAnswersText})`;
-        console.log('Correct Answers Text appended:', data.correctAnswersText);
-    }
-
-    console.log('Constructed Display Text:', displayText);
-    return displayText.trim();
-  }
-  
-
   async initializeQuestionState(): Promise<void> {
     await this.restoreQuestionState();
     this.subscribeToQuestionState();
