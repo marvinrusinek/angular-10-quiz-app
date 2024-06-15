@@ -501,7 +501,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
-      next: explanation => {
+      next: (explanation: string) => {
         console.log('Fetched Explanation:', explanation);
         this.formattedExplanation$.next(explanation); 
       },
