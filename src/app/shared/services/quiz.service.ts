@@ -575,76 +575,28 @@ export class QuizService implements OnDestroy {
     this.currentQuestion.next(question);
   }
 
-  /* getCurrentQuestion(): Observable<QuizQuestion> {
-    this.questionLoadingSubject.next(true); // Set loading to true at the start
-    const quizId = this.getCurrentQuizId();
-
-    return this.getQuestionsForQuiz(quizId).pipe(
-      tap({
-        next: (data) => {
-          this.questions = data.questions;
-          this.loadingQuestions = false;
-        },
-        error: (error) => {
-          console.error('Error getting quiz questions:', error);
-          this.questionLoadingSubject.next(false);
-          this.loadingQuestions = false;
-        }
-      }),
-      map(data => data.questions),
-      switchMap((questions: QuizQuestion[]) => {
-        if (!Array.isArray(questions) || questions.length === 0) {
-          console.error('No questions available or invalid question data');
-          this.questionLoadingSubject.next(false);
-          return of(this.getFallbackQuestion());
-        }
-        const currentQuestionIndex = (this.currentQuestionIndex ?? 0) < questions.length ? (this.currentQuestionIndex ?? 0) : 0;
-        const currentQuestion = questions[currentQuestionIndex] ?? this.getFallbackQuestion();
-        this.currentQuestionSubject.next(currentQuestion);
-        this.questionLoadingSubject.next(false);
-        console.log("CQ::>>", currentQuestion);
-        return of(currentQuestion);
-      }),    
-      catchError((error: Error) => {
-        console.error('Error in switchMap or map operations:', error);
-        this.questionLoadingSubject.next(false);
-        return throwError(() => new Error('Error processing quiz questions'));
-      })
-    );
-  } */
-
   getCurrentQuestion(): Observable<QuizQuestion | undefined> {
     const quizId = this.getCurrentQuizId(); // Retrieve the current quiz ID
     return this.findQuizByQuizId(quizId).pipe(
-        map(quiz => {
-            if (!quiz || !Array.isArray(quiz.questions)) {
-                console.error('Invalid quiz data or no questions available');
-                return undefined;
-            }
+      map(quiz => {
+        if (!quiz || !Array.isArray(quiz.questions)) {
+          console.error('Invalid quiz data or no questions available');
+          return undefined;
+        }
 
-            console.log("Retrieved Quiz:", quiz); // Log to ensure correct quiz is retrieved
+        const questions = quiz.questions;
+        const currentQuestionIndex = this.currentQuestionIndex >= 0 && this.currentQuestionIndex < questions.length
+          ? this.currentQuestionIndex : 0;
 
-            const questions = quiz.questions; // Access the questions array
-            console.log("Questions Array:", questions); // Confirm that we have an array of questions
-
-            const currentQuestionIndex = this.currentQuestionIndex >= 0 && this.currentQuestionIndex < questions.length
-                                         ? this.currentQuestionIndex
-                                         : 0;
-
-            const currentQuestion = questions[currentQuestionIndex];
-            console.log("Current Question Extracted:", currentQuestion); // Should log the individual question
-
-            return currentQuestion;
-        }),
-        catchError((error: Error) => {
-            console.error('Error fetching current question:', error);
-            return of(undefined);
-        })
+        const currentQuestion = questions[currentQuestionIndex];
+        return currentQuestion;
+      }),
+      catchError((error: Error) => {
+        console.error('Error fetching current question:', error);
+        return of(undefined);
+      })
     );
   }
-
-
-
 
   // Get the current options for the current quiz and question
   getCurrentOptions(): Observable<Option[]> {
