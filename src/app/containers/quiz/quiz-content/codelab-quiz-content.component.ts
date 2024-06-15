@@ -595,22 +595,22 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
   private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
     return combineLatest([
-        this.quizService.getCurrentQuiz(),
-        this.quizService.getCurrentOptions()
+      this.quizService.getCurrentQuiz(),
+      this.quizService.getCurrentOptions()
     ]).pipe(
-        map(([currentQuiz, currentOptions]) => {
-            if (!currentQuiz || !currentQuiz.questions) {
-                console.error('No current quiz or questions found in data:', currentQuiz);
-                return { currentQuestion: null, currentOptions: [] };
-            }
-            const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
-            const currentQuestion = currentQuiz.questions[currentQuestionIndex] || null;
-            return { currentQuestion, currentOptions };
-        }),
-        catchError(error => {
-            console.error('Error combining current question and options:', error);
-            return of({ currentQuestion: null, currentOptions: [] });
-        })
+      map(([currentQuiz, currentOptions]) => {
+        if (!currentQuiz || !currentQuiz.questions) {
+          console.error('No current quiz or questions found in data:', currentQuiz);
+          return { currentQuestion: null, currentOptions: [] };
+        }
+        const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
+        const currentQuestion = currentQuiz.questions[currentQuestionIndex] || null;
+        return { currentQuestion, currentOptions };
+      }),
+      catchError(error => {
+        console.error('Error combining current question and options:', error);
+        return of({ currentQuestion: null, currentOptions: [] });
+      })
     );  
   }
   
