@@ -617,14 +617,14 @@ export class QuizService implements OnDestroy {
     const quizId = this.getCurrentQuizId(); // Retrieve the current quiz ID
     return this.findQuizByQuizId(quizId).pipe(
         map(quiz => {
-            if (!quiz || !Array.isArray(quiz[0].questions)) {
+            if (!quiz || !Array.isArray(quiz.questions)) {
                 console.error('Invalid quiz data or no questions available');
                 return undefined;
             }
 
             console.log("Retrieved Quiz:", quiz); // Log to ensure correct quiz is retrieved
 
-            const questions = quiz[0].questions; // Access the questions array
+            const questions = quiz.questions; // Access the questions array
             console.log("Questions Array:", questions); // Confirm that we have an array of questions
 
             const currentQuestionIndex = this.currentQuestionIndex >= 0 && this.currentQuestionIndex < questions.length
@@ -642,6 +642,7 @@ export class QuizService implements OnDestroy {
         })
     );
   }
+
 
 
 
