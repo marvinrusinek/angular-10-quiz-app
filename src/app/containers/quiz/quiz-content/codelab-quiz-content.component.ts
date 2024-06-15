@@ -123,7 +123,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.initializeQuestionState();
     this.initializeSubscriptions();
     this.setupCombinedTextObservable(); 
-    this.handleQuestionDisplayLogic(); // remove?
+    
+    this.handleQuestionDisplayLogic().subscribe(({ combinedData, isMultipleAnswer }) => {
+      if (this.currentQuestionType === QuestionType.SingleAnswer) {
+        this.shouldDisplayCorrectAnswers = false;
+      } else {
+        this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -973,175 +980,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
 
-
-  /* private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
-    return combineLatest([
-        this.quizService.getCurrentQuestion(),
-        this.quizService.getCurrentOptions()
-    ]).pipe(
-        map(([currentQuestion, currentOptions]) => {
-            console.log('Current Question:', currentQuestion);
-            console.log('Current Options:', currentOptions);
-
-            if (!currentQuestion) {
-                console.error('Current question is null or undefined.');
-                return { currentQuestion: null, currentOptions: [] };
-            }
-
-            if (!Array.isArray(currentOptions)) {
-                console.error('Current options are not an array:', currentOptions);
-                return { currentQuestion, currentOptions: [] };
-            }
-
-            return { currentQuestion, currentOptions };
-        }),
-        catchError(error => {
-            console.error('Error combining current question and options:', error);
-            return of({ currentQuestion: null, currentOptions: [] });
-        })
-    );
-  } */
-
-
-
-
-  
-  /* private calculateCombinedQuestionData(
-    currentQuizData: any,
-    numberOfCorrectAnswers: number,
-    isExplanationDisplayed: boolean,
-    formattedExplanation: string
-): Observable<CombinedQuestionDataType> {
-    console.log('Calculating Combined Question Data with:', {
-        currentQuizData,
-        numberOfCorrectAnswers,
-        isExplanationDisplayed,
-        formattedExplanation
-    });
-
-    const currentQuestion = currentQuizData.currentQuestion;
-    const currentOptions = currentQuizData.currentOptions;
-
-    if (!currentQuestion) {
-        console.error('No current question found in data:', currentQuizData);
-        return of({
-            currentQuestion: null,
-            currentOptions: [],
-            options: [],
-            questionText: '',
-            explanationText: '',
-            correctAnswersText: '',
-            isExplanationDisplayed: false,
-            isNavigatingToPrevious: false
-        });
-    }
-
-    const combinedQuestionData: CombinedQuestionDataType = {
-        currentQuestion: currentQuestion,
-        currentOptions: currentOptions,
-        options: currentOptions,
-        questionText: currentQuestion.questionText,
-        explanationText: isExplanationDisplayed ? formattedExplanation : '',
-        correctAnswersText: !isExplanationDisplayed && numberOfCorrectAnswers > 0 ? `${numberOfCorrectAnswers} correct answers` : '',
-        isExplanationDisplayed: isExplanationDisplayed,
-        isNavigatingToPrevious: false
-    };
-
-    console.log('Combined Question Data:', combinedQuestionData);
-
-    return of(combinedQuestionData);
-  } */
-
-  /* private calculateCombinedQuestionData(
-    currentQuizData: any,
-    numberOfCorrectAnswers: number,
-    isExplanationDisplayed: boolean,
-    formattedExplanation: string
-): Observable<CombinedQuestionDataType> {
-    console.log('Calculating Combined Question Data with:', {
-        currentQuizData,
-        numberOfCorrectAnswers,
-        isExplanationDisplayed,
-        formattedExplanation
-    });
-
-    const { currentQuestion, currentOptions } = currentQuizData;
-
-    if (!currentQuestion) {
-        console.error('No current question found in data:', currentQuizData);
-        return of({
-            currentQuestion: null,
-            currentOptions: [],
-            options: [],
-            questionText: '',
-            explanationText: '',
-            correctAnswersText: '',
-            isExplanationDisplayed: false,
-            isNavigatingToPrevious: false
-        });
-    }
-
-    const combinedQuestionData: CombinedQuestionDataType = {
-        currentQuestion: currentQuestion,
-        currentOptions: currentOptions,
-        options: currentOptions,
-        questionText: currentQuestion.questionText,
-        explanationText: isExplanationDisplayed ? formattedExplanation : '',
-        correctAnswersText: numberOfCorrectAnswers > 0 ? `${numberOfCorrectAnswers} correct answers` : '',
-        isExplanationDisplayed: isExplanationDisplayed,
-        isNavigatingToPrevious: false
-    };
-
-    console.log('Combined Question Data:', combinedQuestionData);
-
-    return of(combinedQuestionData);
-  } */
-
-  /* private calculateCombinedQuestionData(
-    currentQuizData: any,
-    numberOfCorrectAnswers: number,
-    isExplanationDisplayed: boolean,
-    formattedExplanation: string
-): Observable<CombinedQuestionDataType> {
-    console.log('Calculating Combined Question Data with:', {
-        currentQuizData,
-        numberOfCorrectAnswers,
-        isExplanationDisplayed,
-        formattedExplanation
-    });
-
-    const { currentQuestion, currentOptions } = currentQuizData;
-
-    if (!currentQuestion) {
-        console.error('No current question found in data:', currentQuizData);
-        return of({
-            currentQuestion: null,
-            currentOptions: [],
-            options: [],
-            questionText: '',
-            explanationText: '',
-            correctAnswersText: '',
-            isExplanationDisplayed: false,
-            isNavigatingToPrevious: false
-        });
-    }
-
-    const combinedQuestionData: CombinedQuestionDataType = {
-        currentQuestion: currentQuestion,
-        currentOptions: currentOptions,
-        options: currentOptions,
-        questionText: currentQuestion.questionText,
-        explanationText: isExplanationDisplayed ? formattedExplanation : '',
-        correctAnswersText: numberOfCorrectAnswers > 0 ? `${numberOfCorrectAnswers} correct answers` : '',
-        isExplanationDisplayed: isExplanationDisplayed,
-        isNavigatingToPrevious: false
-    };
-
-    console.log('Combined Question Data:', combinedQuestionData);
-
-    return of(combinedQuestionData);
-  } */
-
   private calculateCombinedQuestionData(
     currentQuizData: any,
     numberOfCorrectAnswers: number,
@@ -1149,49 +987,46 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     formattedExplanation: string
 ): Observable<CombinedQuestionDataType> {
     console.log('Calculating Combined Question Data with:', {
-        currentQuizData,
-        numberOfCorrectAnswers,
-        isExplanationDisplayed,
-        formattedExplanation
+      currentQuizData,
+      numberOfCorrectAnswers,
+      isExplanationDisplayed,
+      formattedExplanation
     });
 
     const { currentQuestion, currentOptions } = currentQuizData;
 
     if (!currentQuestion) {
-        console.error('No current question found in data:', currentQuizData);
-        return of({
-            currentQuestion: null,
-            currentOptions: [],
-            options: [],
-            questionText: '',
-            explanationText: '',
-            correctAnswersText: '',
-            isExplanationDisplayed: false,
-            isNavigatingToPrevious: false
-        });
+      console.error('No current question found in data:', currentQuizData);
+      return of({
+        currentQuestion: null,
+        currentOptions: [],
+        options: [],
+        questionText: '',
+        explanationText: '',
+        correctAnswersText: '',
+        isExplanationDisplayed: false,
+        isNavigatingToPrevious: false
+      });
     }
 
     const combinedQuestionData: CombinedQuestionDataType = {
-        currentQuestion: currentQuestion,
-        currentOptions: currentOptions,
-        options: currentOptions,
-        questionText: currentQuestion.questionText,
-        explanationText: isExplanationDisplayed ? formattedExplanation : '',
-        correctAnswersText: numberOfCorrectAnswers > 0 ? `${numberOfCorrectAnswers} correct answers` : '',
-        isExplanationDisplayed: isExplanationDisplayed,
-        isNavigatingToPrevious: false
+      currentQuestion: currentQuestion,
+      currentOptions: currentOptions,
+      options: currentOptions,
+      questionText: currentQuestion.questionText,
+      explanationText: isExplanationDisplayed ? formattedExplanation : '',
+      correctAnswersText: numberOfCorrectAnswers > 0 ? `${numberOfCorrectAnswers} correct answers` : '',
+      isExplanationDisplayed: isExplanationDisplayed,
+      isNavigatingToPrevious: false
     };
 
     console.log('Combined Question Data:', combinedQuestionData);
 
     return of(combinedQuestionData);
   }
-
-
-
   
-  handleQuestionDisplayLogic(): void {
-    this.combinedQuestionData$.pipe(
+  handleQuestionDisplayLogic(): Observable<{ combinedData: CombinedQuestionDataType; isMultipleAnswer: boolean }> {
+    return this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$),
       switchMap(combinedData => {
         if (combinedData && combinedData.currentQuestion) {
@@ -1207,14 +1042,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           return of({ combinedData, isMultipleAnswer: false });
         }
       })
-    ).subscribe(({ combinedData, isMultipleAnswer }) => {
-      if (this.currentQuestionType === QuestionType.SingleAnswer) {
-        this.shouldDisplayCorrectAnswers = false;
-      } else {
-        this.shouldDisplayCorrectAnswers = isMultipleAnswer;
-      }
-    });
-  }
+    );
+  }  
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
