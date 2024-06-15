@@ -638,9 +638,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.quizService.getCurrentOptions()
     ]).pipe(
       map(([currentQuestion, currentOptions]) => {
-        console.log('Current Question:', currentQuestion);
-        console.log('Current Options:', currentOptions);
-
         if (!currentQuestion) {
           console.error('Current question is null or undefined.');
           return { currentQuestion: null, currentOptions: [] };
