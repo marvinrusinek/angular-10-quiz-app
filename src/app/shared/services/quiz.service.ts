@@ -600,10 +600,9 @@ export class QuizService implements OnDestroy {
 
   // Get the current options for the current quiz and question
   getCurrentOptions(): Observable<Option[]> {
-    // Ensure quizData is initialized and available
     if (!Array.isArray(this.quizData)) {
       console.error('quizData is not an array or is undefined:', this.quizData);
-      return of([]); // Return an empty array as a fallback
+      return of([]);
     }
   
     // Find the current quiz based on the quizId
@@ -617,10 +616,7 @@ export class QuizService implements OnDestroy {
     let currentQuestionIndex = this.getCurrentQuestionIndex();
   
     // Validate the current question index
-    const isValidIndex = currentQuestionIndex >= 0 && currentQuestionIndex < quiz.questions.length;
-    console.log('Is valid question index:', isValidIndex);
-  
-    // If the index is invalid, log a warning and default to the first question
+    const isValidIndex = currentQuestionIndex >= 0 && currentQuestionIndex < quiz.questions.length;  
     if (!isValidIndex) {
       console.warn(`Invalid currentQuestionIndex: ${currentQuestionIndex}`);
       currentQuestionIndex = 0; // Fallback to the first question
@@ -628,7 +624,6 @@ export class QuizService implements OnDestroy {
   
     // Get the options for the current question, or default to an empty array
     const options = quiz.questions[currentQuestionIndex]?.options || [];
-    console.log('Emitting options:', options);
   
     // Return the options as an Observable array
     return of(options);
