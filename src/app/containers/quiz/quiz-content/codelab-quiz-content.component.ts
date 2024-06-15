@@ -493,7 +493,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: data => {
-        console.log("CQAO data", data);
+        console.log("Current Quiz and Options Data", data);
       },
       error: err => console.error('Error combining current quiz and options:', err)
     });
@@ -503,7 +503,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: explanation => {
         console.log('Fetched Explanation:', explanation);
-        this.formattedExplanation$.next(explanation);
+        this.formattedExplanation$.next(explanation); 
       },
       error: err => {
         console.error('Error fetching formatted explanation:', err);
