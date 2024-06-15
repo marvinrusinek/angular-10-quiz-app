@@ -411,41 +411,43 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     if (!question) {
       return of(void 0);
     }
-  
+
     return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
       tap(isMultipleAnswer => {
         const correctAnswers = question.options.filter(option => option.correct).length;
         let newCorrectAnswersText = '';
-  
+
         const explanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
         console.log('Evaluating conditions:', {
           isMultipleAnswer,
           isExplanationDisplayed: explanationDisplayed
         });
-  
+
         if (isMultipleAnswer && !explanationDisplayed) {
           newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
         } else {
           newCorrectAnswersText = ''; // Clear text if explanation is displayed
         }
-  
+
         if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
           this.correctAnswersTextSource.next(newCorrectAnswersText);
           console.log('Updated correct answers text to:', newCorrectAnswersText);
         }
-  
+
         const shouldDisplayCorrectAnswers = isMultipleAnswer && !explanationDisplayed;
         if (this.shouldDisplayCorrectAnswersSubject.getValue() !== shouldDisplayCorrectAnswers) {
           console.log('Updating shouldDisplayCorrectAnswersSubject to:', shouldDisplayCorrectAnswers);
           this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
         }
-  
+
         console.log("Correct Answers Text for Display:", newCorrectAnswersText);
         console.log("Should Display Correct Answers:", shouldDisplayCorrectAnswers);
       }),
       map(() => void 0)
     );
-  }  
+  }
+
+
 
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
@@ -581,25 +583,30 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
 
-    this.combinedQuestionData$.subscribe(data => {
-      this.constructDisplayText(data);
-    });
+    this.combinedText$ = this.combinedQuestionData$.pipe(
+      map(data => this.constructDisplayText(data)),
+      catchError(error => {
+        console.error('Error processing combined text:', error);
+        return of('Error loading question data');
+      })
+    );
   }
   
   private constructDisplayText(data: CombinedQuestionDataType): string {
-    console.log('--- Construct Display Text ---');
     console.log('Constructing Display Text with Data:', data);
-    
     let displayText = data.questionText || '';
 
     if (data.isExplanationDisplayed && data.explanationText) {
-      displayText += ` ${data.explanationText}`;
+        displayText += ` ${data.explanationText}`;
+        console.log("Explanation Displayed, no correct answers text.");
     } else if (!data.isExplanationDisplayed && data.correctAnswersText) {
-      displayText += ` (${data.correctAnswersText})`;
+        displayText += ` (${data.correctAnswersText})`;
+        console.log("Displaying correct answers text:", data.correctAnswersText);
+    } else {
+        console.log("Neither explanation nor correct answers text is displayed.");
     }
 
-    console.log('Final Display Text:', displayText.trim());
-    return displayText.trim();
+    return displayText.trim(); // Ensure no trailing spaces
   }
 
   private assignExplanationAndAnswers(data: CombinedQuestionDataType): string {
