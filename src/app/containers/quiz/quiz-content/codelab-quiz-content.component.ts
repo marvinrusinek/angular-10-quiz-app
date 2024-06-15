@@ -502,7 +502,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: (explanation: string) => {
-        console.log('Fetched Explanation:', explanation);
+        console.log('Fetched Explanation:::>>>', explanation);
         this.formattedExplanation$.next(explanation); 
       },
       error: err => {
