@@ -529,21 +529,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
   
   private constructDisplayText(data: CombinedQuestionDataType): string {
+    console.log('--- Construct Display Text ---');
     console.log('Constructing Display Text with Data:', data);
+
     let displayText = data.questionText || '';
 
-    if (data.isExplanationDisplayed && data.explanationText) {
+    if (data.isExplanationDisplayed) {
+      if (data.explanationText) {
         displayText += ` ${data.explanationText}`;
-        console.log("Explanation Displayed, no correct answers text.");
-    } else if (!data.isExplanationDisplayed && data.correctAnswersText) {
-        displayText += ` (${data.correctAnswersText})`;
-        console.log("Displaying correct answers text:", data.correctAnswersText);
-    } else {
-        console.log("Neither explanation nor correct answers text is displayed.");
+      }
+    } else if (data.correctAnswersText) {
+      // Only append the correct answers text if explanation is not displayed
+      displayText += ` ${data.correctAnswersText}`;
     }
 
+    console.log('Final Display Text:', displayText.trim());
     return displayText.trim();
   }
+
 
   async initializeQuestionState(): Promise<void> {
     this.subscribeToQuestionState();
