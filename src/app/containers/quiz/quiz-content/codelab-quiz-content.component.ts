@@ -193,7 +193,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   }
 
-
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
     this.initializeResetQuizSubscription();
@@ -269,7 +268,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       console.error('Error in initializeQuestionData:', error);
     }
   }
-  
 
   private fetchQuestionsAndExplanationTexts(params: ParamMap): Observable<[QuizQuestion[], string[]]> {
     this.quizId = params.get('quizId');
@@ -488,73 +486,70 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   }
 
-  /* private initializeCombinedQuestionData(): void {
-    // Combining current question and options
+  private initializeCombinedQuestionData(): void {
     const currentQuizAndOptions$ = this.combineCurrentQuestionAndOptions();
 
-    // Logging combined question and options
-    currentQuizAndOptions$.subscribe({
-        next: data => {
-            console.log("CQAO data", data);
-        },
-        error: err => console.error('Error combining current quiz and options:', err)
+    currentQuizAndOptions$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: data => {
+        console.log("CQAO data", data);
+      },
+      error: err => console.error('Error combining current quiz and options:', err)
     });
 
-    // Fetching formatted explanation for the current question index
-    this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).subscribe({
-        next: explanation => {
-            this.formattedExplanation$.next(explanation);
-        },
-        error: err => {
-            console.error('Error fetching formatted explanation:', err);
-            this.formattedExplanation$.next('Error fetching explanation');
-        }
+    this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: explanation => {
+        console.log('Fetched Explanation:', explanation);
+        this.formattedExplanation$.next(explanation);
+      },
+      error: err => {
+        console.error('Error fetching formatted explanation:', err);
+        this.formattedExplanation$.next('Error fetching explanation');
+      }
     });
 
-    // Combining all relevant observables to get the combined question data
     this.combinedQuestionData$ = combineLatest([
-        currentQuizAndOptions$,
-        this.numberOfCorrectAnswers$,
-        this.isExplanationTextDisplayed$,
-        this.formattedExplanation$
+      currentQuizAndOptions$,
+      this.numberOfCorrectAnswers$,
+      this.isExplanationTextDisplayed$,
+      this.formattedExplanation$
     ]).pipe(
-        switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-            console.log('Data Received for Combination:', {
-                currentQuizData,
-                numberOfCorrectAnswers,
-                isExplanationDisplayed,
-                formattedExplanation
-            });
+      switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+        console.log('Data Received for Combination:', {
+          currentQuizData,
+          numberOfCorrectAnswers,
+          isExplanationDisplayed,
+          formattedExplanation
+        });
 
-            // Processing the combined data to get the final question data
-            return this.calculateCombinedQuestionData(
-                currentQuizData, 
-                +numberOfCorrectAnswers, 
-                isExplanationDisplayed, 
-                formattedExplanation
-            );
-        }),
-        catchError((error: Error) => {
-            console.error('Error combining quiz data:', error);
-            return of({
-                currentQuestion: null,
-                currentOptions: [],
-                options: [],
-                questionText: '',
-                explanationText: '',
-                correctAnswersText: '',
-                isExplanationDisplayed: false,
-                isNavigatingToPrevious: false
-            } as CombinedQuestionDataType);
-        })
+        return this.calculateCombinedQuestionData(
+          currentQuizData,
+          +numberOfCorrectAnswers,
+          isExplanationDisplayed,
+          formattedExplanation
+        );
+      }),
+      catchError((error: Error) => {
+        console.error('Error combining quiz data:', error);
+        return of({
+          currentQuestion: null,
+          currentOptions: [],
+          options: [],
+          questionText: '',
+          explanationText: '',
+          correctAnswersText: '',
+          isExplanationDisplayed: false,
+          isNavigatingToPrevious: false
+        } as CombinedQuestionDataType);
+      })
     );
 
-    // Setting up the combined text for display
     this.combinedText$ = this.combinedQuestionData$.pipe(
       map(data => {
-        console.log('Final Combined Question Data:', data);
-
-        // Constructing display text based on the combined data
+        console.log('Final Combined Question Data (Map):', data);
         return this.constructDisplayText(data);
       }),
       catchError(error => {
@@ -562,239 +557,18 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         return of('Error loading question data');
       })
     );
-  } */
-
-  /* private initializeCombinedQuestionData(): void {
-    const currentQuizAndOptions$ = this.combineCurrentQuestionAndOptions();
-
-    // Log data combined from current question and options
-    currentQuizAndOptions$.subscribe({
-        next: data => {
-            console.log("CQAO data", data);
-        },
-        error: err => console.error('Error combining current quiz and options:', err)
-    });
-
-    this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).subscribe({
-        next: explanation => {
-            this.formattedExplanation$.next(explanation);
-        },
-        error: err => {
-            console.error('Error fetching formatted explanation:', err);
-            this.formattedExplanation$.next('Error fetching explanation');
-        }
-    });
-
-    this.combinedQuestionData$ = combineLatest([
-        currentQuizAndOptions$,
-        this.numberOfCorrectAnswers$,
-        this.isExplanationTextDisplayed$,
-        this.formattedExplanation$
-    ]).pipe(
-        switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-            console.log('Data Received for Combination:', {
-                currentQuizData,
-                numberOfCorrectAnswers,
-                isExplanationDisplayed,
-                formattedExplanation
-            });
-
-            // Ensure combined question data is processed correctly
-            return this.calculateCombinedQuestionData(
-                currentQuizData, 
-                +numberOfCorrectAnswers, 
-                isExplanationDisplayed, 
-                formattedExplanation
-            );
-        }),
-        catchError((error: Error) => {
-            console.error('Error combining quiz data:', error);
-            return of({
-                currentQuestion: null,
-                currentOptions: [],
-                options: [],
-                questionText: '',
-                explanationText: '',
-                correctAnswersText: '',
-                isExplanationDisplayed: false,
-                isNavigatingToPrevious: false
-            } as CombinedQuestionDataType);
-        })
-    );
-
-    // Process combined question data for display text
-    this.combinedText$ = this.combinedQuestionData$.pipe(
-        map(data => {
-            console.log('Final Combined Question Data:', data);
-
-            // Construct display text based on combined data
-            return this.constructDisplayText(data);
-        }),
-        catchError(error => {
-            console.error('Error processing combined text:', error);
-            return of('Error loading question data');
-        })
-    );
-  } */
-
-  /* private initializeCombinedQuestionData(): void {
-    const currentQuizAndOptions$ = this.combineCurrentQuestionAndOptions();
-
-    currentQuizAndOptions$.subscribe({
-        next: data => {
-            console.log("CQAO data", data);
-        },
-        error: err => console.error('Error combining current quiz and options:', err)
-    });
-
-    this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).subscribe({
-        next: explanation => {
-            console.log('Fetched Explanation:', explanation);
-            this.formattedExplanation$.next(explanation);
-        },
-        error: err => {
-            console.error('Error fetching formatted explanation:', err);
-            this.formattedExplanation$.next('Error fetching explanation');
-        }
-    });
-
-    this.combinedQuestionData$ = combineLatest([
-        currentQuizAndOptions$,
-        this.numberOfCorrectAnswers$,
-        this.isExplanationTextDisplayed$,
-        this.formattedExplanation$
-    ]).pipe(
-        switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-            console.log('Data Received for Combination:', {
-                currentQuizData,
-                numberOfCorrectAnswers,
-                isExplanationDisplayed,
-                formattedExplanation
-            });
-
-            return this.calculateCombinedQuestionData(
-                currentQuizData,
-                +numberOfCorrectAnswers,
-                isExplanationDisplayed,
-                formattedExplanation
-            );
-        }),
-        catchError((error: Error) => {
-            console.error('Error combining quiz data:', error);
-            return of({
-                currentQuestion: null,
-                currentOptions: [],
-                options: [],
-                questionText: '',
-                explanationText: '',
-                correctAnswersText: '',
-                isExplanationDisplayed: false,
-                isNavigatingToPrevious: false
-            } as CombinedQuestionDataType);
-        })
-    );
-
-    this.combinedText$ = this.combinedQuestionData$.pipe(
-        map(data => {
-            console.log('Final Combined Question Data:', data);
-            return this.constructDisplayText(data);
-        }),
-        catchError(error => {
-            console.error('Error processing combined text:', error);
-            return of('Error loading question data');
-        })
-    );
-  } */
-
-  private initializeCombinedQuestionData(): void {
-    const currentQuizAndOptions$ = this.combineCurrentQuestionAndOptions();
-
-    currentQuizAndOptions$.pipe(
-        takeUntil(this.destroy$)
-    ).subscribe({
-        next: data => {
-            console.log("CQAO data", data);
-        },
-        error: err => console.error('Error combining current quiz and options:', err)
-    });
-
-    this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).pipe(
-        takeUntil(this.destroy$)
-    ).subscribe({
-        next: explanation => {
-            console.log('Fetched Explanation:', explanation);
-            this.formattedExplanation$.next(explanation);
-        },
-        error: err => {
-            console.error('Error fetching formatted explanation:', err);
-            this.formattedExplanation$.next('Error fetching explanation');
-        }
-    });
-
-    this.combinedQuestionData$ = combineLatest([
-        currentQuizAndOptions$,
-        this.numberOfCorrectAnswers$,
-        this.isExplanationTextDisplayed$,
-        this.formattedExplanation$
-    ]).pipe(
-        switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-            console.log('Data Received for Combination:', {
-                currentQuizData,
-                numberOfCorrectAnswers,
-                isExplanationDisplayed,
-                formattedExplanation
-            });
-
-            return this.calculateCombinedQuestionData(
-                currentQuizData,
-                +numberOfCorrectAnswers,
-                isExplanationDisplayed,
-                formattedExplanation
-            );
-        }),
-        catchError((error: Error) => {
-            console.error('Error combining quiz data:', error);
-            return of({
-                currentQuestion: null,
-                currentOptions: [],
-                options: [],
-                questionText: '',
-                explanationText: '',
-                correctAnswersText: '',
-                isExplanationDisplayed: false,
-                isNavigatingToPrevious: false
-            } as CombinedQuestionDataType);
-        })
-    );
-
-    this.combinedText$ = this.combinedQuestionData$.pipe(
-        map(data => {
-            console.log('Final Combined Question Data (Map):', data);
-            return this.constructDisplayText(data);
-        }),
-        catchError(error => {
-            console.error('Error processing combined text:', error);
-            return of('Error loading question data');
-        })
-    );
 
     this.combinedText$.pipe(
-        takeUntil(this.destroy$)
+      takeUntil(this.destroy$)
     ).subscribe({
-        next: text => {
-            console.log('Combined Text for Display:', text);
-        },
-        error: err => console.error('Error in combinedText$ subscription:', err)
+      next: text => {
+        console.log('Combined Text for Display:', text);
+      },
+      error: err => console.error('Error in combinedText$ subscription:', err)
     });
   }
 
-
-
-  
   private constructDisplayText(data: CombinedQuestionDataType): string {
-    console.log('--- Construct Display Text ---');
-    console.log('Constructing Display Text with Data:', data);
-
     let displayText = data.questionText || '';
 
     if (data.isExplanationDisplayed) {
@@ -809,7 +583,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     console.log('Final Display Text:', displayText.trim());
     return displayText.trim();
   }
-
 
   async initializeQuestionState(): Promise<void> {
     this.subscribeToQuestionState();
@@ -858,125 +631,32 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.currentOptions$.next(options);
     });
   }
-  
-  /* private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
+
+  private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
     return combineLatest([
-      this.quizService.getCurrentQuiz(),
+      this.quizService.getCurrentQuestion(),
       this.quizService.getCurrentOptions()
     ]).pipe(
-      map(([currentQuiz, currentOptions]) => {
-        if (!currentQuiz || !currentQuiz.questions) {
-          console.error('No current quiz or questions found in data:', currentQuiz);
+      map(([currentQuestion, currentOptions]) => {
+        console.log('Current Question:', currentQuestion);
+        console.log('Current Options:', currentOptions);
+
+        if (!currentQuestion) {
+          console.error('Current question is null or undefined.');
           return { currentQuestion: null, currentOptions: [] };
         }
-        const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
-        const currentQuestion = currentQuiz.questions[currentQuestionIndex] || null;
+
+        if (!Array.isArray(currentOptions)) {
+          console.error('Current options are not an array:', currentOptions);
+          return { currentQuestion, currentOptions: [] };
+        }
+
         return { currentQuestion, currentOptions };
       }),
       catchError(error => {
         console.error('Error combining current question and options:', error);
         return of({ currentQuestion: null, currentOptions: [] });
       })
-    );  
-  } */
-
-  /* private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
-    return combineLatest([
-        this.quizStateService.currentQuestion$,
-        this.currentOptions$
-    ]).pipe(
-        map(([currentQuestion, currentOptions]) => {
-            console.log('Current Question:', currentQuestion);
-            console.log('Current Options:', currentOptions);
-
-            if (!currentQuestion) {
-                console.error('Current question is null or undefined.');
-                return { currentQuestion: null, currentOptions: [] };
-            }
-
-            if (!Array.isArray(currentOptions)) {
-                console.error('Current options are not an array:', currentOptions);
-                return { currentQuestion, currentOptions: [] };
-            }
-
-            return { currentQuestion, currentOptions };
-        }),
-        catchError(error => {
-            console.error('Error combining current question and options:', error);
-            return of({ currentQuestion: null, currentOptions: [] });
-        })
-    );
-  } */
-
-  /* private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
-    return this.quizStateService.currentQuestion$.pipe(
-        withLatestFrom(this.currentOptions$),
-        map(([currentQuestion, currentOptions]) => {
-            console.log('Current Question:', currentQuestion);
-            console.log('Current Options:', currentOptions);
-
-            if (!currentQuestion) {
-                console.error('Current question is null or undefined.');
-                return { currentQuestion: null, currentOptions: [] };
-            }
-
-            if (!Array.isArray(currentOptions)) {
-                console.error('Current options are not an array:', currentOptions);
-                return { currentQuestion, currentOptions: [] };
-            }
-
-            return { currentQuestion, currentOptions };
-        })
-    );
-  } */
-
-  /* private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
-    return this.quizStateService.currentQuestion$.pipe(
-        withLatestFrom(this.currentOptions$),
-        map(([currentQuestion, currentOptions]) => {
-            console.log('Current Question:::>>>', currentQuestion);
-            console.log('Current Options:', currentOptions);
-
-            if (!currentQuestion) {
-                console.error('Current question is null or undefined.');
-                return { currentQuestion: null, currentOptions: [] };
-            }
-
-            if (!Array.isArray(currentOptions)) {
-                console.error('Current options are not an array:', currentOptions);
-                return { currentQuestion, currentOptions: [] };
-            }
-
-            return { currentQuestion, currentOptions };
-        })
-    );
-  } */
-
-  private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
-    return combineLatest([
-        this.quizService.getCurrentQuestion(),
-        this.quizService.getCurrentOptions()
-    ]).pipe(
-        map(([currentQuestion, currentOptions]) => {
-            console.log('Current Question:', currentQuestion);
-            console.log('Current Options:', currentOptions);
-
-            if (!currentQuestion) {
-                console.error('Current question is null or undefined.');
-                return { currentQuestion: null, currentOptions: [] };
-            }
-
-            if (!Array.isArray(currentOptions)) {
-                console.error('Current options are not an array:', currentOptions);
-                return { currentQuestion, currentOptions: [] };
-            }
-
-            return { currentQuestion, currentOptions };
-        }),
-        catchError(error => {
-            console.error('Error combining current question and options:', error);
-            return of({ currentQuestion: null, currentOptions: [] });
-        })
     );
   }
 
