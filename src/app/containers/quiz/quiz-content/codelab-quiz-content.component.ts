@@ -225,36 +225,40 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.initializeQuestionData();
     this.initializeCombinedQuestionData();
   }
-
+  
   private async initializeQuestionData(): Promise<void> {
     try {
-        const params = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
-        const [questions, explanationTexts] = await firstValueFrom(
-            this.fetchQuestionsAndExplanationTexts(params).pipe(takeUntil(this.destroy$))
-        );
-
-        if (!questions || questions.length === 0) {
-            console.warn('No questions found');
-            return;
-        }
-
-        this.explanationTexts = explanationTexts || [];
-        console.log("Fetched Explanation Texts:", this.explanationTexts);
-
-        const formattedExplanations = await Promise.all(
-            questions.map(async (question, index) => {
-                const explanation = this.explanationTexts[index] || 'No explanation available';
-                return { questionIndex: index, explanation };
-            })
-        );
-
-        console.log('Formatted Explanations:', formattedExplanations);
-
-        this.explanationTextService.initializeFormattedExplanations(formattedExplanations);
-        this.initializeCurrentQuestionIndex();
-        this.subscribeToCurrentQuestion();
+      const params: ParamMap = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
+  
+      // Fetch questions and explanations
+      const result: [QuizQuestion[], string[]] = await firstValueFrom(
+        this.fetchQuestionsAndExplanationTexts(params).pipe(takeUntil(this.destroy$))
+      );
+  
+      const [questions, explanationTexts] = result;
+  
+      if (!questions || questions.length === 0) {
+        console.warn('No questions found');
+        return;
+      }
+  
+      this.explanationTexts = explanationTexts;
+      console.log("Fetched Explanation Texts:", this.explanationTexts);
+  
+      const formattedExplanations = await Promise.all(
+        questions.map(async (question, index) => {
+          const explanation = this.explanationTexts[index] || 'No explanation available';
+          return { questionIndex: index, explanation };
+        })
+      );
+  
+      console.log('Formatted Explanations:', formattedExplanations);
+  
+      this.explanationTextService.initializeFormattedExplanations(formattedExplanations);
+      this.initializeCurrentQuestionIndex();
+      this.subscribeToCurrentQuestion();
     } catch (error) {
-        console.error('Error in initializeQuestionData:', error);
+      console.error('Error in initializeQuestionData:', error);
     }
   }
 
