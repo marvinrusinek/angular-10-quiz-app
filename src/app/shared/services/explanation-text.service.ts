@@ -93,36 +93,6 @@ export class ExplanationTextService {
     });
   }
 
-  // Method to initialize formatted explanations
-  // TODO: get formatted explanations to log!
-  /* initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
-    this.formattedExplanations = {}; // Clear existing data
-  
-    if (!Array.isArray(explanations) || explanations.length === 0) {
-      console.warn('No explanations provided for initialization.');
-      return;
-    }
-  
-    explanations.forEach(({ questionIndex, explanation }) => {
-      console.log(`Processing explanation for questionIndex ${questionIndex}:`, explanation); // logs correctly explanations 0-5
-  
-      if (typeof questionIndex !== 'number' || questionIndex < 0) {
-        console.warn(`Invalid questionIndex: ${questionIndex}. It should be a non-negative number.`);
-        return;
-      }
-  
-      if (typeof explanation !== 'string') {
-        console.warn(`Invalid explanation type for questionIndex ${questionIndex}:`, explanation);
-        this.formattedExplanations[questionIndex] = { questionIndex: questionIndex, explanation: '' }; // Fallback to empty string
-      } else {
-        this.formattedExplanations[questionIndex] = { questionIndex: questionIndex, explanation: explanation.trim() };
-        console.log("MYFE", this.formattedExplanations[questionIndex]); // logs correctly explanations 0-5
-      }
-    });
-  
-    console.log('Formatted explanations initialized:', this.formattedExplanations); // logs correctly explanations 0-5
-  } */
-
   initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
     this.formattedExplanations = {}; // Clear existing data
 
