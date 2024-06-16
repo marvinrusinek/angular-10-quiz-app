@@ -1044,17 +1044,13 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.options = question.options || []; // Ensure options are initialized
           this.currentQuestionType = question.type;
 
-          // Call updateCorrectAnswersDisplay after setting the question and options
-          this.updateCorrectAnswersText(question, this.options).subscribe({
-            next: () => {
-              console.log('Correct answers text updated.');
-            },
-            error: error => {
+          // Call updateCorrectAnswersText and handle the promise
+          try {
+            await this.updateCorrectAnswersText(question, this.options);
+            console.log('Correct answers text updated.');
+          } catch (error) {
               console.error('Error updating correct answers text:', error);
-            }
-          });
-        } else {
-          this.resetCurrentQuestionState();
+          }
         }
       },
       error: (error) => {
@@ -1074,12 +1070,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private async updateCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
-    const multipleAnswers = await firstValueFrom(this.quizService.isMultipleAnswerQuestion(question));
-    const isExplanationDisplayed = await firstValueFrom(this.isExplanationDisplayed$);
+    const multipleAnswers = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(question));
+    const isExplanationDisplayed = await firstValueFrom(this.explanationTextService.isExplanationDisplayed$);
 
     if (multipleAnswers && !isExplanationDisplayed) {
-      const numCorrectAnswers = this.quizService.calculateNumberOfCorrectAnswers(options);
-      const correctAnswersText = this.quizService.getNumberOfCorrectAnswersText(numCorrectAnswers);
+      const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
+      const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
       this.correctAnswersTextSource.next(correctAnswersText);
       console.log('Correct answers text:', correctAnswersText);
     } else {
