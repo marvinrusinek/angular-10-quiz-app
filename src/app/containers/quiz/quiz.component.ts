@@ -970,6 +970,35 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
+  /* private subscribeToCurrentQuestion(): void {
+    const combinedQuestionObservable = merge(
+      this.quizService.getCurrentQuestionObservable().pipe( 
+        retry(2),
+        catchError((error: Error) => {
+          console.error('Error when subscribing to current question from quizService:', error);
+          return of(null);
+        })
+      ),
+      this.quizStateService.currentQuestion$
+    );
+
+    combinedQuestionObservable.pipe(
+      filter((question: QuizQuestion | null) => question !== null) // filter out null values to ensure only valid questions are processed
+    ).subscribe({
+      next: (question: QuizQuestion) => {
+        this.currentQuestion = question;
+        this.options = question.options;
+        this.currentQuestionType = question.type;
+      },
+      error: (error) => {
+        console.error('Error when processing the question streams:', error);
+        this.currentQuestion = null;
+        this.options = [];
+        this.currentQuestionType = null; // Reset on error
+      }
+    });
+  } */
+
   private subscribeToCurrentQuestion(): void {
     const combinedQuestionObservable = merge(
       this.quizService.getCurrentQuestionObservable().pipe( 
@@ -989,6 +1018,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestion = question;
         this.options = question.options;
         this.currentQuestionType = question.type;
+
+        // Call manageExplanationAndCorrectAnswers after setting the question and options
+        this.manageExplanationAndCorrectAnswers(this.currentQuestion, this.options);
       },
       error: (error) => {
         console.error('Error when processing the question streams:', error);
@@ -1750,33 +1782,41 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   } */
 
-  async calculateAndSetCorrectAnswersText(
+  /* async calculateAndSetCorrectAnswersText(
     question: QuizQuestion,
     options: Option[]
   ): Promise<void> {
-    // Check if the current question has multiple answers
     const multipleAnswers = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(question));
+    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
+    console.log('Is explanation displayed:', isExplanationDisplayed);
     
-    if (multipleAnswers) {
-      // Calculate the number of correct answers
+    if (multipleAnswers && !isExplanationDisplayed) {
       const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
-      
-      // Get the text for the number of correct answers
-      const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
-      
-      // Check if the explanation is displayed
-      const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
-      console.log('Is explanation displayed:', isExplanationDisplayed);
-      
-      // Set the correct answers text only if the explanation is not displayed
-      this.correctAnswersText = isExplanationDisplayed ? '' : correctAnswersText;
-      
-      // Log the result
-      console.log('Set correct answers text:', this.correctAnswersText);
+      this.correctAnswersText = `(${numCorrectAnswers} answers are correct)`;
+      console.log('Correct answers text set to:', this.correctAnswersText);
     } else {
-      // Clear the correct answers text if not multiple answers
+      this.correctAnswersText = '';
+      console.log('Correct answers text cleared.');
+    }
+  } */
+
+  private manageExplanationAndCorrectAnswers(
+    question: QuizQuestion,
+    options: Option[]
+  ): void {
+    const explanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
+    const multipleAnswers = this.quizStateService.isMultipleAnswerQuestion(question);
+  
+    if (explanationDisplayed) {
+      this.correctAnswersText = '';
+    } else if (multipleAnswers) {
+      const correctAnswersCount = options.filter(option => option.correct).length;
+      this.correctAnswersText = `${correctAnswersCount} answers are correct`;
+    } else {
       this.correctAnswersText = '';
     }
+  
+    this.correctAnswersTextSource.next(this.correctAnswersText);
   }
   
 
