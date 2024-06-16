@@ -1013,20 +1013,25 @@ export class QuizComponent implements OnInit, OnDestroy {
             console.error('Error managing explanation and correct answers:', error);
           }
         } else {
-          this.currentQuestion = null;
-          this.options = [];
-          this.currentQuestionType = null; // Reset on error
-          console.warn('Received a null question.');
+          this.resetCurrentQuestionState();
         }
       },
       error: (error) => {
         console.error('Error when processing the question streams:', error);
-        this.currentQuestion = null;
-        this.options = [];
-        this.currentQuestionType = null; // Reset on error
+        this.resetCurrentQuestionState();
       }
     });
-  }
+}
+
+// Helper method to reset the current question state
+private resetCurrentQuestionState(): void {
+  this.currentQuestion = null;
+  this.options = [];
+  this.currentQuestionType = null; // Reset on error
+  this.correctAnswersTextSource.next(''); // Clear the correct answers text
+  console.warn('Resetting the current question state.');
+}
+
 
   private async updateCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
     const multipleAnswers = await firstValueFrom(this.quizService.isMultipleAnswerQuestion(question));
