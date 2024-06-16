@@ -160,32 +160,31 @@ export class ExplanationTextService {
 
   storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
     if (index < 0) {
-      console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
-      return;
+        console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
+        return;
     }
-  
+
     if (!explanation || explanation.trim() === "") {
-      console.error(`Invalid explanation: "${explanation}"`);
-      return;
+        console.error(`Invalid explanation: "${explanation}"`);
+        return;
     }
-  
-    // Get the correct options for the question
-    const correctOptionIndices = this.getCorrectOptionIndices(question);
-  
-    // Format the explanation with correct option details
-    const formattedExplanation = this.formatExplanation(explanation, correctOptionIndices);
-  
-    this.formattedExplanations[index] = {
-      questionIndex: index,
-      explanation: formattedExplanation
+
+    // Ensure explanation is sanitized and properly handled
+    const sanitizedExplanation = this.sanitizeExplanation(explanation);
+
+    // Properly handle the formatted explanation, associating it with the question
+    const formattedExplanation: FormattedExplanation = {
+        questionIndex: index,
+        explanation: this.formatExplanation(question, sanitizedExplanation)
     };
-    console.log(`Explanation updated for index ${index}:`, this.formattedExplanations[index]);
-  
-    // Notify subscribers with the updated explanations
+
+    this.formattedExplanations[index] = formattedExplanation;
+
+    // Update the observable with the new explanations
     this.explanationsUpdated.next(this.formattedExplanations);
+
     console.log(`Explanations updated notification sent for index ${index}: ${this.formattedExplanations[index].explanation}`);
   }
-  
 
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
     if (!question || !Array.isArray(question.options)) {
@@ -198,7 +197,7 @@ export class ExplanationTextService {
       .filter((index): index is number => index !== null);
   }
 
-  private formatExplanation(
+  /* private formatExplanation(
     question: QuizQuestion, correctOptionIndices: number[]): string {
     if (correctOptionIndices.length > 1) {
       question.type = QuestionType.MultipleAnswer;
@@ -215,7 +214,24 @@ export class ExplanationTextService {
     } else {
       return 'No correct option selected...';
     }
-  }  
+  } */
+
+  formatExplanation(question: QuizQuestion, explanation: string): string {
+    const correctOptionIndices = this.getCorrectOptionIndices(question);
+    let formattedExplanation = explanation;
+
+    if (correctOptionIndices.length > 1) {
+      question.type = QuestionType.MultipleAnswer;
+      formattedExplanation = `Options ${correctOptionIndices.join(', ')} are correct because ${explanation}`;
+    } else if (correctOptionIndices.length === 1) {
+      question.type = QuestionType.SingleAnswer;
+      formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${explanation}`;
+    } else {
+      formattedExplanation = 'No correct options available.';
+    }
+
+    return formattedExplanation;
+  }
 
   private syncFormattedExplanationState(
     questionIndex: number, formattedExplanation: string): void {
