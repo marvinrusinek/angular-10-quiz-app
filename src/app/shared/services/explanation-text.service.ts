@@ -118,10 +118,9 @@ export class ExplanationTextService {
       }
     });
 
-    console.log('Formatted explanations initialized:', this.formattedExplanations);
-
     // Notify subscribers about the updated explanations
     this.explanationsUpdated.next(this.formattedExplanations);
+    console.log('Formatted explanations initialized:', this.formattedExplanations);
     console.log('Explanations updated notification sent.');
   }
 
