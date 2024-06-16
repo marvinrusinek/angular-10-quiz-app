@@ -1005,7 +1005,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.manageExplanationAndCorrectAnswers(question, this.options).then(() => {
           console.log('Correct answers text updated.');
         }).catch(error => {
-            console.error('Error managing explanation and correct answers:', error);
+          console.error('Error managing explanation and correct answers:', error);
         });
       },
       error: (error) => {
