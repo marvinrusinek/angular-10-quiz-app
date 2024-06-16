@@ -156,8 +156,8 @@ export class ExplanationTextService {
 
   // Method to sanitize explanation text
   private sanitizeExplanation(explanation: string): string {
-    // Example sanitization logic, add more as needed
-    return explanation.trim();
+    // Trim and remove unwanted characters
+    return explanation.trim().replace(/<[^>]*>/g, '');
   }
 
   storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
