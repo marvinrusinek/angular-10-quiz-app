@@ -356,7 +356,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       });
   }
 
-  /* private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
     if (!question) {
       return of(void 0);
     }
@@ -394,9 +394,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       }),
       map(() => void 0)
     );
-  } */
+  }
 
-  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+  /* private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
     if (!question) {
         return of(void 0);
     }
@@ -428,7 +428,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }),
         map(() => void 0)
     );
-  }
+  } */
 
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
