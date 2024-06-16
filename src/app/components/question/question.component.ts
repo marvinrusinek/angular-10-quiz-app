@@ -820,9 +820,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
       if (isCorrect) {
-        this.timerService.stopTimer((elapsedTime: number) => {
-          console.log('Timer stopped. Elapsed time:', elapsedTime);
-        });
+        this.timerService.stopTimer(); // Stop the timer
       }
 
       // Handle audio playback based on correctness
