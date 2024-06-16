@@ -71,19 +71,24 @@ export class ExplanationTextService {
 
   getFormattedExplanationTextForQuestion(index: number): string {
     console.log('Formatted explanations:', this.formattedExplanations);
-    // Check if the index is a valid key in the formattedExplanations object.
+    
     if (index in this.formattedExplanations) {
-      // Retrieve the formatted explanation using the index.
       const formattedExplanation = this.formattedExplanations[index];
-      console.log("Formatted Explanation:", formattedExplanation);
-      // Return the explanation text if available, or a default message if it's not.
-      return formattedExplanation && formattedExplanation.explanation
-        ? formattedExplanation.explanation : 'No explanation available';
+      console.log("Retrieved explanation for index", index, ":", formattedExplanation);
+      
+      if (formattedExplanation && formattedExplanation.explanation) {
+        console.log("Formatted Explanation Text:", formattedExplanation.explanation);
+        return formattedExplanation.explanation;
+      } else {
+        console.log("No explanation text found for index", index);
+        return 'No explanation available';
+      }
     } else {
-      console.log(`Index ${index} is out of bounds.`);
+      console.log(`Index ${index} is out of bounds or no explanation stored.`);
       return 'Question index out of bounds or no explanation available';
     }
   }
+  
 
   initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = {};
@@ -156,25 +161,32 @@ export class ExplanationTextService {
   }
 
   storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
+    // Ensure valid index
     if (index < 0) {
       console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
     }
 
+    // Ensure valid explanation
     if (!explanation || explanation.trim() === "") {
       console.error(`Invalid explanation: "${explanation}"`);
       return;
     }
 
+    // Sanitize and format the explanation
     const sanitizedExplanation = this.sanitizeExplanation(explanation);
     const correctOptionIndices = this.getCorrectOptionIndices(question);
+
+    // Combine sanitized explanation with correct option indices
     const formattedExplanation = this.formatExplanation(question, correctOptionIndices, sanitizedExplanation);
 
+    // Store the formatted explanation
     this.formattedExplanations[index] = {
       questionIndex: index,
       explanation: formattedExplanation
     };
 
+    // Notify subscribers of updated explanations
     this.explanationsUpdated.next(this.formattedExplanations);
     console.log(`Explanations updated notification sent for index ${index}: ${this.formattedExplanations[index].explanation}`);
   }
@@ -265,9 +277,16 @@ export class ExplanationTextService {
   getFormattedExplanation(questionIndex: number): Observable<string> {
     console.log('Fetching explanation for questionIndex:', questionIndex);
     const explanationText = this.getFormattedExplanationTextForQuestion(questionIndex);
-    console.log("Formatted Explanation::::::", explanationText);
-    return of(explanationText);
+  
+    if (explanationText) {
+      console.log("Formatted Explanation::::::", explanationText);
+      return of(explanationText);
+    } else {
+      console.log(`No formatted explanation found for questionIndex: ${questionIndex}`);
+      return of('No explanation available');
+    }
   }
+  
 
   getFormattedExplanations(): FormattedExplanation[] {
     const formattedExplanations = Object.values(this.formattedExplanations).map(explanationObj => {
