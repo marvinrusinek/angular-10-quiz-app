@@ -17,6 +17,9 @@ export class QuizStateService {
   currentOptionsSubject = new BehaviorSubject<Option[]>([]);
   currentOptions$: Observable<Option[]> = this.currentOptionsSubject.asObservable();
 
+  private explanationDisplayedSubject = new BehaviorSubject<boolean>(false);
+  explanationDisplayed$ = this.explanationDisplayedSubject.asObservable();
+
   private resetQuizSubject = new Subject<void>();
   resetQuiz$ = this.resetQuizSubject.asObservable();
 
@@ -177,6 +180,10 @@ export class QuizStateService {
 
   updateCurrentQuestion(newQuestion: QuizQuestion): void {
     this.currentQuestionSubject.next(newQuestion);
+  }
+
+  setExplanationDisplayed(isDisplayed: boolean): void {
+    this.explanationDisplayedSubject.next(isDisplayed);
   }
 
   isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
