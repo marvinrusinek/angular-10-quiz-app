@@ -189,7 +189,6 @@ export class ExplanationTextService {
 
     const sanitizedExplanation = this.sanitizeExplanation(explanation);
     const correctOptionIndices = this.getCorrectOptionIndices(question);
-
     const formattedExplanation = this.formatExplanation(question, correctOptionIndices, sanitizedExplanation);
 
     this.formattedExplanations[index] = {

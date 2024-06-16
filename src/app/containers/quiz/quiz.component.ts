@@ -998,7 +998,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (question: QuizQuestion) => {
         this.currentQuestion = question;
-        this.options = question.options;
+        this.options = question.options || []; // Ensure options are initialized
         this.currentQuestionType = question.type;
 
         // Call manageExplanationAndCorrectAnswers after setting the question and options
@@ -1753,7 +1753,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.resetExplanationState();
   }
 
-  async manageExplanationAndCorrectAnswers(question: QuizQuestion, options: Option[]): Promise<void> {
+  private async manageExplanationAndCorrectAnswers(question: QuizQuestion, options: Option[]): Promise<void> {
     const multipleAnswers = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(question));
     console.log('Question type:', multipleAnswers ? 'Multiple Answers' : 'Single Answer');
 
