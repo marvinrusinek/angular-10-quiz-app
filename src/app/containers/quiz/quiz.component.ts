@@ -983,30 +983,37 @@ export class QuizComponent implements OnInit, OnDestroy {
   // Function to subscribe to changes in the current question and update the currentQuestionType
   private subscribeToCurrentQuestion(): void {
     const combinedQuestionObservable = merge(
-      this.quizService.getCurrentQuestionObservable().pipe( 
+      this.quizService.getCurrentQuestionObservable().pipe(
         retry(2),
         catchError((error: Error) => {
           console.error('Error when subscribing to current question from quizService:', error);
-          return of(null);
+          return of(null); // Return null if an error occurs
         })
       ),
       this.quizStateService.currentQuestion$
     );
 
     combinedQuestionObservable.pipe(
-      filter((question: QuizQuestion | null) => question !== null) // filter out null values to ensure only valid questions are processed
+      filter((question: QuizQuestion | null) => question !== null) // Filter out null values to ensure only valid questions are processed
     ).subscribe({
-      next: (question: QuizQuestion) => {
-        this.currentQuestion = question;
-        this.options = question.options || []; // Ensure options are initialized
-        this.currentQuestionType = question.type;
+      next: async (question: QuizQuestion | null) => {
+        if (question) {
+          this.currentQuestion = question;
+          this.options = question.options || []; // Ensure options are initialized
+          this.currentQuestionType = question.type;
 
-        // Call manageExplanationAndCorrectAnswers after setting the question and options
-        this.manageExplanationAndCorrectAnswers(question, this.options).then(() => {
-          console.log('Correct answers text updated.');
-        }).catch(error => {
-          console.error('Error managing explanation and correct answers:', error);
-        });
+          try {
+            await this.manageExplanationAndCorrectAnswers(question, this.options);
+            console.log('Correct answers text updated.');
+          } catch (error) {
+            console.error('Error managing explanation and correct answers:', error);
+          }
+        } else {
+          this.currentQuestion = null;
+          this.options = [];
+          this.currentQuestionType = null; // Reset on error
+          console.warn('Received a null question.');
+        }
       },
       error: (error) => {
         console.error('Error when processing the question streams:', error);
