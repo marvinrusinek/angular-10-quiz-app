@@ -981,7 +981,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
-  private subscribeToCurrentQuestion(): void {
+  /* private subscribeToCurrentQuestion(): void {
     const combinedQuestionObservable = merge(
       this.quizService.getCurrentQuestionObservable().pipe(
         retry(2),
@@ -1021,17 +1021,57 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.resetCurrentQuestionState();
       }
     });
-}
+} */
 
-// Helper method to reset the current question state
-private resetCurrentQuestionState(): void {
-  this.currentQuestion = null;
-  this.options = [];
-  this.currentQuestionType = null; // Reset on error
-  this.correctAnswersTextSource.next(''); // Clear the correct answers text
-  console.warn('Resetting the current question state.');
-}
+  private subscribeToCurrentQuestion(): void {
+    const combinedQuestionObservable = merge(
+      this.quizService.getCurrentQuestionObservable().pipe(
+        retry(2),
+        catchError((error: Error) => {
+          console.error('Error when subscribing to current question from quizService:', error);
+          return of(null); // Return null if an error occurs
+        })
+      ),
+      this.quizStateService.currentQuestion$
+    );
 
+    combinedQuestionObservable.pipe(
+      filter((question: QuizQuestion | null) => question !== null) // Filter out null values to ensure only valid questions are processed
+    ).subscribe({
+      next: async (question: QuizQuestion | null) => {
+        if (question) {
+          this.currentQuestion = question;
+          this.options = question.options || []; // Ensure options are initialized
+          this.currentQuestionType = question.type;
+
+          // Call updateCorrectAnswersDisplay after setting the question and options
+          this.updateCorrectAnswersDisplay(question).subscribe({
+            next: () => {
+              console.log('Correct answers text updated.');
+            },
+            error: error => {
+              console.error('Error updating correct answers text:', error);
+            }
+          });
+        } else {
+          this.resetCurrentQuestionState();
+        }
+      },
+      error: (error) => {
+        console.error('Error when processing the question streams:', error);
+        this.resetCurrentQuestionState();
+      }
+    });
+  }
+
+  // Helper method to reset the current question state
+  private resetCurrentQuestionState(): void {
+    this.currentQuestion = null;
+    this.options = [];
+    this.currentQuestionType = null; // Reset on error
+    this.correctAnswersTextSource.next(''); // Clear the correct answers text
+    console.warn('Resetting the current question state.');
+  }
 
   private async updateCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
     const multipleAnswers = await firstValueFrom(this.quizService.isMultipleAnswerQuestion(question));
