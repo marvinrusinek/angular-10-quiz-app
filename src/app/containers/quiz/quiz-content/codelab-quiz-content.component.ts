@@ -230,7 +230,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.initializeCombinedQuestionData();
   }
   
-  private async initializeQuestionData(): Promise<void> {
+  /* private async initializeQuestionData(): Promise<void> {
     try {
       const params: ParamMap = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
 
@@ -265,7 +265,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error in initializeQuestionData:', error);
     }
-  }
+  } */
 
   private fetchQuestionsAndExplanationTexts(params: ParamMap): Observable<[QuizQuestion[], string[]]> {
     this.quizId = params.get('quizId');
