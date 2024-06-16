@@ -121,7 +121,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       filter((question: QuizQuestion) => question !== null)
     ).subscribe((question: QuizQuestion) => {
       this.updateCorrectAnswersDisplay(question).subscribe();
-    });)
+    });
 
     // Or use QuizStateService to react to changes
     this.quizStateService.currentQuestion$.pipe(
