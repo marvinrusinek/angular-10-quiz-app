@@ -203,7 +203,7 @@ export class ExplanationTextService {
     console.log(`Explanations updated notification sent for index ${index}: ${this.formattedExplanations[index].explanation}`);
   }
 
-  private getCorrectOptionIndices(question: QuizQuestion): number[] {
+  getCorrectOptionIndices(question: QuizQuestion): number[] {
     if (!question || !Array.isArray(question.options)) {
       console.error("Invalid question or options:", question);
       return [];
