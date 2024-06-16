@@ -168,7 +168,7 @@ export class ExplanationTextService {
     console.log('Formatted explanation for question index:', questionIndex, ':', formattedExplanation);
     
     // Store the formatted explanation
-    this.updateExplanation(questionIndex, formattedExplanation);
+    this.storeExplanation(questionIndex, formattedExplanation);
 
     this.syncFormattedExplanationState(questionIndex, formattedExplanation);
     this.setFormattedExplanation(formattedExplanation);
@@ -186,17 +186,17 @@ export class ExplanationTextService {
     return explanation.trim();
   }
 
-  updateExplanation(index: number, explanation: string): void {
+  storeExplanation(index: number, explanation: string): void {
     if (index < 0) {
       console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
     }
-  
+
     if (!explanation || explanation.trim() === "") {
       console.error(`Invalid explanation: "${explanation}"`);
       return;
     }
-  
+
     // Process and store the formatted explanation
     const formattedExplanation = this.sanitizeExplanation(explanation);
     this.formattedExplanations[index] = {
@@ -205,10 +205,9 @@ export class ExplanationTextService {
     };
     console.log(`Explanation updated for index ${index}:`, this.formattedExplanations[index]);
 
-    // Notify any subscribers that a new explanation is available
-    this.explanationSource.next(explanation);
-
-    console.log(`Explanation updated for index ${index}: ${explanation}`);
+    // Notify subscribers with the updated explanations
+    this.explanationsUpdated.next(this.formattedExplanations);
+    console.log(`Explanations updated notification sent for index ${index}: ${this.formattedExplanations[index].explanation}`);
   }
 
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
