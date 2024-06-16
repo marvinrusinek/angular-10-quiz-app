@@ -1006,12 +1006,18 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
           this.quizStateService.setExplanationDisplayed(false);
 
-          try {
+          this.updateCorrectAnswersText(question, this.options).then(() => {
+            console.log('Correct answers text updated.');
+          }).catch(error => {
+            console.error('Error managing explanation and correct answers:', error);
+          });
+
+          /* try {
             await this.manageExplanationAndCorrectAnswers(question, this.options);
             console.log('Correct answers text updated.');
           } catch (error) {
             console.error('Error managing explanation and correct answers:', error);
-          }
+          } */
         } else {
           this.currentQuestion = null;
           this.options = [];
@@ -1026,6 +1032,23 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestionType = null; // Reset on error
       }
     });
+  }
+
+  private async updateCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
+    const multipleAnswers = await firstValueFrom(this.quizService.isMultipleAnswerQuestion(question));
+    const isExplanationDisplayed = await firstValueFrom(this.isExplanationDisplayed$);
+
+    if (multipleAnswers && !isExplanationDisplayed) {
+      const numCorrectAnswers = this.quizService.calculateNumberOfCorrectAnswers(options);
+      const correctAnswersText = this.quizService.getNumberOfCorrectAnswersText(numCorrectAnswers);
+      this.correctAnswersTextSource.next(correctAnswersText);
+      console.log('Correct answers text:', correctAnswersText);
+    } else {
+      this.correctAnswersTextSource.next('');
+      console.log('Clearing correct answers text.');
+    }
+
+    this.cdRef.detectChanges();
   }
 
   private subscribeToSelectionMessage(): void {
