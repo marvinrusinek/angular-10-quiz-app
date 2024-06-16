@@ -232,38 +232,38 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
   private async initializeQuestionData(): Promise<void> {
     try {
-        const params: ParamMap = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
+      const params: ParamMap = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
 
-        // Fetch questions and explanations
-        const [questions, explanationTexts] = await firstValueFrom(
-            this.fetchQuestionsAndExplanationTexts(params).pipe(takeUntil(this.destroy$))
-        );
+      // Fetch questions and explanations
+      const [questions, explanationTexts]: [QuizQuestion[], string[]] = await firstValueFrom(
+        this.fetchQuestionsAndExplanationTexts(params).pipe(takeUntil(this.destroy$))
+      );
 
-        if (!questions || questions.length === 0) {
-            console.warn('No questions found');
-            return;
-        }
+      if (!questions || questions.length === 0) {
+        console.warn('No questions found');
+        return;
+      }
 
-        this.explanationTexts = explanationTexts;
-        console.log("Fetched Explanation Texts:", this.explanationTexts);
+      this.explanationTexts = explanationTexts;
+      console.log("Fetched Explanation Texts:", this.explanationTexts);
 
-        // Process and store formatted explanations
-        await Promise.all(
-            questions.map(async (question, index) => {
-                const explanation = this.explanationTexts[index] || 'No explanation available';
-                const correctOptionIndices = this.explanationTextService.getCorrectOptionIndices(question);
-                const formattedExplanation = this.explanationTextService.formatExplanation(question, correctOptionIndices, explanation);
-                console.log('Storing Formatted Explanation:', formattedExplanation);
-                this.explanationTextService.storeFormattedExplanation(index, formattedExplanation, question);
-            })
-        );
+      // Process and store formatted explanations
+      await Promise.all(
+        questions.map(async (question, index) => {
+          const explanation = this.explanationTexts[index] || 'No explanation available';
+          const correctOptionIndices = this.explanationTextService.getCorrectOptionIndices(question);
+          const formattedExplanation = this.explanationTextService.formatExplanation(question, correctOptionIndices, explanation);
+          console.log('Storing Formatted Explanation:', formattedExplanation);
+          this.explanationTextService.storeFormattedExplanation(index, formattedExplanation, question);
+        })
+      );
 
-        console.log('Formatted explanations stored.');
+      console.log('Formatted explanations stored.');
 
-        this.initializeCurrentQuestionIndex();
-        this.subscribeToCurrentQuestion();
+      this.initializeCurrentQuestionIndex();
+      this.subscribeToCurrentQuestion();
     } catch (error) {
-        console.error('Error in initializeQuestionData:', error);
+      console.error('Error in initializeQuestionData:', error);
     }
   }
 
