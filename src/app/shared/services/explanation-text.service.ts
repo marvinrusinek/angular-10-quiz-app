@@ -127,30 +127,33 @@ export class ExplanationTextService {
     this.formattedExplanations = {}; // Clear existing data
 
     if (!Array.isArray(explanations) || explanations.length === 0) {
-        console.warn('No explanations provided for initialization.');
-        return;
+      console.warn('No explanations provided for initialization.');
+      return;
     }
 
     explanations.forEach(({ questionIndex, explanation }) => {
-        console.log(`Processing explanation for questionIndex ${questionIndex}:`, explanation); // logs correctly explanations 0-5
+      console.log(`Processing explanation for questionIndex ${questionIndex}:`, explanation);
 
-        if (typeof questionIndex !== 'number' || questionIndex < 0) {
-            console.warn(`Invalid questionIndex: ${questionIndex}. It should be a non-negative number.`);
-            return;
-        }
+      if (typeof questionIndex !== 'number' || questionIndex < 0) {
+        console.warn(`Invalid questionIndex: ${questionIndex}. It should be a non-negative number.`);
+        return;
+      }
 
-        if (typeof explanation !== 'string' || !explanation.trim()) {
-            console.warn(`Invalid or empty explanation for questionIndex ${questionIndex}:`, explanation);
-            this.formattedExplanations[questionIndex] = { questionIndex, explanation: 'No explanation available' };
-        } else {
-            this.formattedExplanations[questionIndex] = { questionIndex, explanation: explanation.trim() };
-            console.log("Formatted Explanation", this.formattedExplanations[questionIndex]);
-        }
+      if (typeof explanation !== 'string' || !explanation.trim()) {
+        console.warn(`Invalid or empty explanation for questionIndex ${questionIndex}:`, explanation);
+        this.formattedExplanations[questionIndex] = { questionIndex, explanation: 'No explanation available' };
+      } else {
+        this.formattedExplanations[questionIndex] = { questionIndex, explanation: explanation.trim() };
+        console.log("Formatted Explanation", this.formattedExplanations[questionIndex]);
+      }
     });
 
-    console.log('Formatted explanations initialized:', this.formattedExplanations); // logs correctly explanations 0-5
-  }
+    console.log('Formatted explanations initialized:', this.formattedExplanations);
 
+    // Notify subscribers about the updated explanations
+    this.explanationsUpdated.next(this.formattedExplanations);
+    console.log('Explanations updated notification sent.');
+  }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): 
     Observable<{ questionIndex: number, explanation: string }> {
