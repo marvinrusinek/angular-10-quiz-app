@@ -43,7 +43,7 @@ export class TimerService {
     this.timerSubscription?.unsubscribe();
   }
 
-  stopTimer(callback?: (elapsedTime: number) => void): void {
+  /* stopTimer(callback?: (elapsedTime: number) => void): void {
     if (!this.isTimerRunning) {
       console.log('Timer is not running, returning.');
       return;
@@ -56,6 +56,24 @@ export class TimerService {
       callback(this.elapsedTime);
     }
   
+    console.log('After stopping timer, isTimerRunning:', this.isTimerRunning);
+  } */
+
+  stopTimer(callback?: (elapsedTime: number) => void): void {
+    if (!this.isTimerRunning) {
+      console.log('Timer is not running, returning.');
+      return;
+    }
+
+    this.isTimerRunning = false;
+    clearInterval(this.timer);
+    this.timer = null;
+    this.isStop.next(1);
+
+    if (callback) {
+      callback(this.elapsedTime);
+    }
+
     console.log('After stopping timer, isTimerRunning:', this.isTimerRunning);
   }
 
