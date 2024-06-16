@@ -251,12 +251,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       await Promise.all(
         questions.map(async (question, index) => {
           const explanation = this.explanationTexts[index] || 'No explanation available';
-          console.log('Processing explanation:', explanation);
 
           const correctOptionIndices = this.explanationTextService.getCorrectOptionIndices(question);
           const formattedExplanation = this.explanationTextService.formatExplanation(question, correctOptionIndices, explanation);
-          
-          console.log('Storing Formatted Explanation:', formattedExplanation);
           this.explanationTextService.storeFormattedExplanation(index, formattedExplanation, question);
         })
       );
