@@ -69,9 +69,7 @@ export class ExplanationTextService {
     return of(explanationObject.explanation);
   }
 
-  getFormattedExplanationTextForQuestion(index: number): string {
-    console.log('Formatted explanations:', this.formattedExplanations);
-    
+  /* getFormattedExplanationTextForQuestion(index: number): string { 
     if (index in this.formattedExplanations) {
       const formattedExplanation = this.formattedExplanations[index];
       console.log("Retrieved explanation for index", index, ":", formattedExplanation);
@@ -87,8 +85,26 @@ export class ExplanationTextService {
       console.log(`Index ${index} is out of bounds or no explanation stored.`);
       return 'Question index out of bounds or no explanation available';
     }
+  } */
+
+  getFormattedExplanationTextForQuestion(index: number): string {
+    console.log('Checking formatted explanations for index:', index);
+    if (index in this.formattedExplanations) {
+        const formattedExplanation = this.formattedExplanations[index];
+        console.log("Retrieved explanation for index", index, ":", formattedExplanation);
+
+        if (formattedExplanation && formattedExplanation.explanation) {
+            console.log("Formatted Explanation Text:", formattedExplanation.explanation);
+            return formattedExplanation.explanation;
+        } else {
+            console.log("No explanation text found for index", index);
+            return 'No explanation available';
+        }
+    } else {
+        console.log(`Index ${index} is out of bounds or no explanation stored.`);
+        return 'Question index out of bounds or no explanation available';
+    }
   }
-  
 
   initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = {};
@@ -161,32 +177,28 @@ export class ExplanationTextService {
   }
 
   storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
-    // Ensure valid index
     if (index < 0) {
       console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
     }
 
-    // Ensure valid explanation
     if (!explanation || explanation.trim() === "") {
       console.error(`Invalid explanation: "${explanation}"`);
       return;
     }
 
-    // Sanitize and format the explanation
     const sanitizedExplanation = this.sanitizeExplanation(explanation);
     const correctOptionIndices = this.getCorrectOptionIndices(question);
 
-    // Combine sanitized explanation with correct option indices
     const formattedExplanation = this.formatExplanation(question, correctOptionIndices, sanitizedExplanation);
 
-    // Store the formatted explanation
     this.formattedExplanations[index] = {
       questionIndex: index,
       explanation: formattedExplanation
     };
 
-    // Notify subscribers of updated explanations
+    console.log(`Stored formatted explanation for index ${index}:`, this.formattedExplanations[index]);
+
     this.explanationsUpdated.next(this.formattedExplanations);
     console.log(`Explanations updated notification sent for index ${index}: ${this.formattedExplanations[index].explanation}`);
   }
