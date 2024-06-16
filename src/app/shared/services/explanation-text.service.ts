@@ -160,13 +160,13 @@ export class ExplanationTextService {
 
   storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
     if (index < 0) {
-        console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
-        return;
+      console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
+      return;
     }
 
     if (!explanation || explanation.trim() === "") {
-        console.error(`Invalid explanation: "${explanation}"`);
-        return;
+      console.error(`Invalid explanation: "${explanation}"`);
+      return;
     }
 
     // Ensure explanation is sanitized and properly handled
@@ -174,8 +174,8 @@ export class ExplanationTextService {
 
     // Properly handle the formatted explanation, associating it with the question
     const formattedExplanation: FormattedExplanation = {
-        questionIndex: index,
-        explanation: this.formatExplanation(question, sanitizedExplanation)
+      questionIndex: index,
+      explanation: this.formatExplanation(question, sanitizedExplanation)
     };
 
     this.formattedExplanations[index] = formattedExplanation;
