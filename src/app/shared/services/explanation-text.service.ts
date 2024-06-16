@@ -171,7 +171,7 @@ export class ExplanationTextService {
     console.log('Formatted explanation for question index:', questionIndex, ':', formattedExplanation);
     
     // Store the formatted explanation
-    this.storeExplanation(questionIndex, formattedExplanation);
+    this.storeFormattedExplanation(questionIndex, formattedExplanation);
 
     this.syncFormattedExplanationState(questionIndex, formattedExplanation);
     this.setFormattedExplanation(formattedExplanation);
@@ -189,7 +189,7 @@ export class ExplanationTextService {
     return explanation.trim();
   }
 
-  storeExplanation(index: number, explanation: string): void {
+  storeFormattedExplanation(index: number, explanation: string): void {
     if (index < 0) {
       console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;

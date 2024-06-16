@@ -234,6 +234,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     try {
       const params: ParamMap = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
 
+      // Fetch questions and explanations
       const [questions, explanationTexts] = await firstValueFrom(
         this.fetchQuestionsAndExplanationTexts(params).pipe(takeUntil(this.destroy$))
       );
@@ -246,16 +247,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.explanationTexts = explanationTexts;
       console.log("Fetched Explanation Texts:", this.explanationTexts);
 
-      const formattedExplanations = await Promise.all(
+      // Process and store formatted explanations
+      await Promise.all(
         questions.map(async (question, index) => {
           const explanation = this.explanationTexts[index] || 'No explanation available';
-          return { questionIndex: index, explanation };
+          this.explanationTextService.storeFormattedExplanation(index, explanation);
         })
       );
 
-      console.log('Formatted Explanations:', formattedExplanations);
+      console.log('Formatted explanations stored.');
 
-      this.explanationTextService.initializeFormattedExplanations(formattedExplanations);
       this.initializeCurrentQuestionIndex();
       this.subscribeToCurrentQuestion();
     } catch (error) {
