@@ -124,31 +124,28 @@ export class ExplanationTextService {
     console.log('Explanations updated notification sent.');
   }
 
-  formatExplanationText(question: QuizQuestion, questionIndex: number): 
-    Observable<{ questionIndex: number, explanation: string }> {
+  formatExplanationText(question: QuizQuestion, questionIndex: number): Observable<{ questionIndex: number, explanation: string }> {
     // Early return for invalid or non-current question
     if (!this.isQuestionValid(question) || !this.isCurrentQuestion(question)) {
-      /* console.log('Skipping question:', questionIndex, 
-        'Reason:', !this.isQuestionValid(question) ? 'Invalid' : 'Not Current'); */
       return of({ questionIndex, explanation: '' });
     }
-
-    const correctOptionIndices = this.getCorrectOptionIndices(question);
-    const formattedExplanation = this.formatExplanation(question, correctOptionIndices);
-
+  
+    const correctOptionIndices = this.getCorrectOptionIndices(question); // Get correct option indices
+    const formattedExplanation = this.formatExplanation(question, correctOptionIndices, question.explanation); // Pass the explanation as a parameter
+  
     // Log formatted explanation
     console.log('Formatted explanation for question index:', questionIndex, ':', formattedExplanation);
     
     // Store the formatted explanation
     this.storeFormattedExplanation(questionIndex, formattedExplanation, question);
-
+  
     this.syncFormattedExplanationState(questionIndex, formattedExplanation);
     this.setFormattedExplanation(formattedExplanation);
-
+  
     // Processing valid and current question
     const questionKey = JSON.stringify(question);
     this.processedQuestions.add(questionKey);
-
+  
     return of({ questionIndex, explanation: formattedExplanation });
   }
 
@@ -158,7 +155,7 @@ export class ExplanationTextService {
     return explanation.trim();
   }
 
-  storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
+  /* storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
     if (index < 0) {
       console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
@@ -184,6 +181,30 @@ export class ExplanationTextService {
     this.explanationsUpdated.next(this.formattedExplanations);
 
     console.log(`Explanations updated notification sent for index ${index}: ${this.formattedExplanations[index].explanation}`);
+  } */
+
+  storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
+    if (index < 0) {
+      console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
+      return;
+    }
+
+    if (!explanation || explanation.trim() === "") {
+      console.error(`Invalid explanation: "${explanation}"`);
+      return;
+    }
+
+    const sanitizedExplanation = this.sanitizeExplanation(explanation);
+    const correctOptionIndices = this.getCorrectOptionIndices(question);
+    const formattedExplanation = this.formatExplanation(question, correctOptionIndices, sanitizedExplanation);
+
+    this.formattedExplanations[index] = {
+      questionIndex: index,
+      explanation: formattedExplanation
+    };
+
+    this.explanationsUpdated.next(this.formattedExplanations);
+    console.log(`Explanations updated notification sent for index ${index}: ${this.formattedExplanations[index].explanation}`);
   }
 
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
@@ -197,7 +218,7 @@ export class ExplanationTextService {
       .filter((index): index is number => index !== null);
   }
 
-  formatExplanation(question: QuizQuestion, explanation: string): string {
+  /* formatExplanation(question: QuizQuestion, explanation: string): string {
     const correctOptionIndices = this.getCorrectOptionIndices(question);
     let formattedExplanation = explanation;
 
@@ -212,6 +233,23 @@ export class ExplanationTextService {
     }
 
     return formattedExplanation;
+  } */
+
+  formatExplanation(question: QuizQuestion, correctOptionIndices: number[], explanation: string): string {
+    if (correctOptionIndices.length > 1) {
+      question.type = QuestionType.MultipleAnswer;
+
+      const optionsText = correctOptionIndices.length > 2 
+        ? `${correctOptionIndices.slice(0, -1).join(', ')} and ${correctOptionIndices.slice(-1)}` 
+        : correctOptionIndices.join(' and ');
+
+      return `Options ${optionsText} are correct because ${explanation}`;
+    } else if (correctOptionIndices.length === 1) {
+      question.type = QuestionType.SingleAnswer;
+      return `Option ${correctOptionIndices[0]} is correct because ${explanation}`;
+    } else {
+      return 'No correct option selected...';
+    }
   }
 
   private syncFormattedExplanationState(
