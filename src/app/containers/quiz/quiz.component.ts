@@ -1730,7 +1730,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.resetExplanationState();
   }
 
-  async calculateAndSetCorrectAnswersText(
+  /* async calculateAndSetCorrectAnswersText(
     question: QuizQuestion,
     options: Option[]
   ): Promise<void> {
@@ -1748,7 +1748,37 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
       this.correctAnswersText = '';
     }
+  } */
+
+  async calculateAndSetCorrectAnswersText(
+    question: QuizQuestion,
+    options: Option[]
+  ): Promise<void> {
+    // Check if the current question has multiple answers
+    const multipleAnswers = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(question));
+    
+    if (multipleAnswers) {
+      // Calculate the number of correct answers
+      const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
+      
+      // Get the text for the number of correct answers
+      const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
+      
+      // Check if the explanation is displayed
+      const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
+      console.log('Is explanation displayed:', isExplanationDisplayed);
+      
+      // Set the correct answers text only if the explanation is not displayed
+      this.correctAnswersText = isExplanationDisplayed ? '' : correctAnswersText;
+      
+      // Log the result
+      console.log('Set correct answers text:', this.correctAnswersText);
+    } else {
+      // Clear the correct answers text if not multiple answers
+      this.correctAnswersText = '';
+    }
   }
+  
 
   private resetQuestionDisplayState(): void {
     this.optionsToDisplay = [];
