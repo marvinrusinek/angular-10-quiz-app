@@ -356,7 +356,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       });
   }
 
-  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+  /* private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
     if (!question) {
       return of(void 0);
     }
@@ -394,7 +394,41 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       }),
       map(() => void 0)
     );
-  }  
+  } */
+
+  private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
+    if (!question) {
+        return of(void 0);
+    }
+
+    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
+        tap(isMultipleAnswer => {
+            const correctAnswers = question.options.filter(option => option.correct).length;
+            let newCorrectAnswersText = '';
+
+            const explanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
+            console.log('Evaluating conditions:', {
+                isMultipleAnswer,
+                isExplanationDisplayed: explanationDisplayed
+            });
+
+            if (isMultipleAnswer && !explanationDisplayed) {
+                newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
+            } else {
+                newCorrectAnswersText = ''; // Clear text if explanation is displayed
+            }
+
+            if (this.correctAnswersText !== newCorrectAnswersText) {
+                this.correctAnswersText = newCorrectAnswersText;
+                console.log('Updated correct answers text to:', newCorrectAnswersText);
+            }
+
+            const shouldDisplayCorrectAnswers = isMultipleAnswer && !explanationDisplayed;
+            console.log("Should Display Correct Answers:", shouldDisplayCorrectAnswers);
+        }),
+        map(() => void 0)
+    );
+  }
 
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
