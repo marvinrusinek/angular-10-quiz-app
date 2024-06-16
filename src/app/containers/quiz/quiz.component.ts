@@ -1006,18 +1006,12 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
           this.quizStateService.setExplanationDisplayed(false);
 
-          this.updateCorrectAnswersText(question, this.options).then(() => {
-            console.log('Correct answers text updated.');
-          }).catch(error => {
-            console.error('Error managing explanation and correct answers:', error);
-          });
-
-          /* try {
+          try {
             await this.manageExplanationAndCorrectAnswers(question, this.options);
             console.log('Correct answers text updated.');
           } catch (error) {
             console.error('Error managing explanation and correct answers:', error);
-          } */
+          }
         } else {
           this.currentQuestion = null;
           this.options = [];
