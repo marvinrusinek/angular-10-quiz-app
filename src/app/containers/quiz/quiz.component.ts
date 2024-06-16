@@ -974,35 +974,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
-  /* private subscribeToCurrentQuestion(): void {
-    const combinedQuestionObservable = merge(
-      this.quizService.getCurrentQuestionObservable().pipe( 
-        retry(2),
-        catchError((error: Error) => {
-          console.error('Error when subscribing to current question from quizService:', error);
-          return of(null);
-        })
-      ),
-      this.quizStateService.currentQuestion$
-    );
-
-    combinedQuestionObservable.pipe(
-      filter((question: QuizQuestion | null) => question !== null) // filter out null values to ensure only valid questions are processed
-    ).subscribe({
-      next: (question: QuizQuestion) => {
-        this.currentQuestion = question;
-        this.options = question.options;
-        this.currentQuestionType = question.type;
-      },
-      error: (error) => {
-        console.error('Error when processing the question streams:', error);
-        this.currentQuestion = null;
-        this.options = [];
-        this.currentQuestionType = null; // Reset on error
-      }
-    });
-  } */
-
   private subscribeToCurrentQuestion(): void {
     const combinedQuestionObservable = merge(
       this.quizService.getCurrentQuestionObservable().pipe( 
