@@ -266,6 +266,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.loadQuizQuestionsForCurrentQuiz();
     this.createQuestionData();
     this.getQuestion();
+
+    this.correctAnswersTextSource.subscribe(text => {
+      this.correctAnswersText = text;
+      console.log('Updated correct answers text:', this.correctAnswersText);
+      this.cdRef.detectChanges(); // Ensure view updates
+    });
+
     this.subscribeToCurrentQuestion();
     this.subscribeToSelectionMessage();
   }
@@ -1748,13 +1755,16 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async manageExplanationAndCorrectAnswers(question: QuizQuestion, options: Option[]): Promise<void> {
     const multipleAnswers = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(question));
+    console.log('Question type:', multipleAnswers ? 'Multiple Answers' : 'Single Answer');
 
     if (multipleAnswers) {
       const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
       const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
       this.correctAnswersTextSource.next(correctAnswersText); // Emit the correct answers text
+      console.log('Correct answers text:', correctAnswersText);
     } else {
       this.correctAnswersTextSource.next(''); // Clear the text for single-answer questions
+      console.log('Single answer question, clearing correct answers text.');
     }
   }
 
