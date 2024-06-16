@@ -1771,44 +1771,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.resetExplanationState();
   }
 
-  /* async calculateAndSetCorrectAnswersText(
-    question: QuizQuestion,
-    options: Option[]
-  ): Promise<void> {
-    const multipleAnswers = this.quizStateService.isMultipleAnswerQuestion(question);
-    if (multipleAnswers) {
-      const numCorrectAnswers =
-        this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
-          options
-        );
-      const correctAnswersText =
-        this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-          numCorrectAnswers
-        );
-      this.correctAnswersText = correctAnswersText;
-    } else {
-      this.correctAnswersText = '';
-    }
-  } */
-
-  /* async calculateAndSetCorrectAnswersText(
-    question: QuizQuestion,
-    options: Option[]
-  ): Promise<void> {
-    const multipleAnswers = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(question));
-    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
-    console.log('Is explanation displayed:', isExplanationDisplayed);
-    
-    if (multipleAnswers && !isExplanationDisplayed) {
-      const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
-      this.correctAnswersText = `(${numCorrectAnswers} answers are correct)`;
-      console.log('Correct answers text set to:', this.correctAnswersText);
-    } else {
-      this.correctAnswersText = '';
-      console.log('Correct answers text cleared.');
-    }
-  } */
-
   async manageExplanationAndCorrectAnswers(question: QuizQuestion, options: Option[]): Promise<void> {
     const multipleAnswers = this.quizStateService.isMultipleAnswerQuestion(question);
   
