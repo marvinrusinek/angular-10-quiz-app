@@ -1003,7 +1003,8 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.currentQuestionType = question.type;
 
           // Signal to the content component that the current question has changed
-          // this.quizStateService.setCurrentQuestionIndex(this.currentQuestionIndex);
+          this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
+          this.quizStateService.setExplanationDisplayed(false);
 
           try {
             await this.manageExplanationAndCorrectAnswers(question, this.options);
