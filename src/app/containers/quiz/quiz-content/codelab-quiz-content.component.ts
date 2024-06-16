@@ -110,7 +110,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.correctAnswersText$ = this.quizStateService.correctAnswersText$;
     this.shouldDisplayCorrectAnswers$ = this.quizStateService.explanationDisplayed$.pipe(
       map(isDisplayed => !isDisplayed)
     );
