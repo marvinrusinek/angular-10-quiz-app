@@ -140,7 +140,7 @@ export class ExplanationTextService {
     console.log('Formatted explanation for question index:', questionIndex, ':', formattedExplanation);
     
     // Store the formatted explanation
-    this.storeFormattedExplanation(questionIndex, formattedExplanation);
+    this.storeFormattedExplanation(questionIndex, formattedExplanation, question);
 
     this.syncFormattedExplanationState(questionIndex, formattedExplanation);
     this.setFormattedExplanation(formattedExplanation);
@@ -158,29 +158,34 @@ export class ExplanationTextService {
     return explanation.trim();
   }
 
-  storeFormattedExplanation(index: number, explanation: string): void {
+  storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
     if (index < 0) {
       console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
     }
-
+  
     if (!explanation || explanation.trim() === "") {
       console.error(`Invalid explanation: "${explanation}"`);
       return;
     }
-
-    // Process and store the formatted explanation
-    const formattedExplanation = this.sanitizeExplanation(explanation);
+  
+    // Get the correct options for the question
+    const correctOptionIndices = this.getCorrectOptionIndices(question);
+  
+    // Format the explanation with correct option details
+    const formattedExplanation = this.formatExplanation(explanation, correctOptionIndices);
+  
     this.formattedExplanations[index] = {
       questionIndex: index,
       explanation: formattedExplanation
     };
     console.log(`Explanation updated for index ${index}:`, this.formattedExplanations[index]);
-
+  
     // Notify subscribers with the updated explanations
     this.explanationsUpdated.next(this.formattedExplanations);
     console.log(`Explanations updated notification sent for index ${index}: ${this.formattedExplanations[index].explanation}`);
   }
+  
 
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
     if (!question || !Array.isArray(question.options)) {
