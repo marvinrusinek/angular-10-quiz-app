@@ -645,7 +645,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getCurrentQuestionObservable(): Observable<QuizQuestion> {
+  getCurrentQuestionObservable(): Observable<QuizQuestion | null> {
     return this.currentQuestion.asObservable();
   }
 
@@ -656,38 +656,41 @@ export class QuizService implements OnDestroy {
         return;
       }
 
+      // Fetch the questions for the quiz using the quiz ID
       const response: any = await firstValueFrom(this.getQuestionsForQuiz(this.quizId));
 
-      // Check if response has 'questions' property and is an array
-      if (
-        !response ||
-        !response.questions ||
-        !Array.isArray(response.questions)
-      ) {
+      // Validate the response structure
+      if (!response || !response.questions || !Array.isArray(response.questions)) {
         console.error('Invalid format of questions response:', response);
         return;
       }
 
-      // Check if 'questions' property is defined and is an array
+      // Access the questions array from the response
       const questions = response.questions[0]?.questions;
       if (!questions || !Array.isArray(questions)) {
         console.error('Invalid format of questions array:', questions);
         return;
       }
 
+      // Adjust the question index to zero-based
       const zeroBasedQuestionIndex = Math.max(0, index - 1);
 
-      // Validate the index
-      if (
-        zeroBasedQuestionIndex >= 0 &&
-        zeroBasedQuestionIndex <= questions.length - 1
-      ) {
+      // Check if the index is within valid bounds
+      if (zeroBasedQuestionIndex >= 0 && zeroBasedQuestionIndex < questions.length) {
+        // Set the current question index
         this.currentQuestionIndex = zeroBasedQuestionIndex;
         this.currentQuestionIndexSource.next(zeroBasedQuestionIndex);
+
+        // Set the current question
+        const currentQuestion = questions[zeroBasedQuestionIndex];
+        if (currentQuestion) {
+          this.currentQuestion.next(currentQuestion);
+        } else {
+          console.error(`Question at index ${zeroBasedQuestionIndex} is undefined.`);
+          this.currentQuestion.next(null);
+        }
       } else {
-        console.error(
-          `Invalid question index: ${index}. Total questions available: ${questions.length}`
-        );
+        console.error(`Invalid question index: ${index}. Total questions available: ${questions.length}`);
       }
     } catch (error) {
       console.error('Error setting current question index:', error);
