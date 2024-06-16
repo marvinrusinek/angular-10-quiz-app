@@ -247,7 +247,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     try {
       const params: ParamMap = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
 
-      const [questions, explanationTexts] = await firstValueFrom(
+      const [questions, explanationTexts]: [QuizQuestion[], string[]] = await firstValueFrom(
         this.fetchQuestionsAndExplanationTexts(params).pipe(takeUntil(this.destroy$))
       );
 
