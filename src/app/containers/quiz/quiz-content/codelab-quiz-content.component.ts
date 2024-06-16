@@ -229,13 +229,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.initializeQuestionData();
     this.initializeCombinedQuestionData();
   }
-  
-  /* private async initializeQuestionData(): Promise<void> {
+
+  private async initializeQuestionData(): Promise<void> {
     try {
       const params: ParamMap = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
 
-      // Fetch questions and explanations
-      const [questions, explanationTexts]: [QuizQuestion[], string[]] = await firstValueFrom(
+      const [questions, explanationTexts] = await firstValueFrom(
         this.fetchQuestionsAndExplanationTexts(params).pipe(takeUntil(this.destroy$))
       );
 
@@ -247,14 +246,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.explanationTexts = explanationTexts;
       console.log("Fetched Explanation Texts:", this.explanationTexts);
 
-      // Process and store formatted explanations
       await Promise.all(
         questions.map(async (question, index) => {
           const explanation = this.explanationTexts[index] || 'No explanation available';
-
-          const correctOptionIndices = this.explanationTextService.getCorrectOptionIndices(question);
-          const formattedExplanation = this.explanationTextService.formatExplanation(question, correctOptionIndices, explanation);
-          this.explanationTextService.storeFormattedExplanation(index, formattedExplanation, question);
+          this.explanationTextService.storeFormattedExplanation(index, explanation, question);
         })
       );
 
@@ -265,7 +260,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error in initializeQuestionData:', error);
     }
-  } */
+  }
 
   private fetchQuestionsAndExplanationTexts(params: ParamMap): Observable<[QuizQuestion[], string[]]> {
     this.quizId = params.get('quizId');
