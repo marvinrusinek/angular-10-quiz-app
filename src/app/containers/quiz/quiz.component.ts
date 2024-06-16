@@ -1766,6 +1766,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.correctAnswersTextSource.next(''); // Clear the text for single-answer questions
       console.log('Single answer question, clearing correct answers text.');
     }
+
+    this.cdRef.detectChanges();
   }
 
   private resetQuestionDisplayState(): void {
