@@ -818,8 +818,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.formatAndLogExplanations();
       this.questionAnswered.emit();
   
-      // Handle audio playback based on correctness
       const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
+      if (isCorrect) {
+        this.timerService.stopTimer((elapsedTime: number) => {
+          console.log('Timer stopped. Elapsed time:', elapsedTime);
+        });
+      }
+
+      // Handle audio playback based on correctness
       this.handleAudioPlayback(isCorrect);
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
