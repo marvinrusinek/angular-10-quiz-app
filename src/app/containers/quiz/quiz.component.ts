@@ -1755,9 +1755,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private async manageExplanationAndCorrectAnswers(question: QuizQuestion, options: Option[]): Promise<void> {
     const multipleAnswers = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(question));
-    console.log('Question type:', multipleAnswers ? 'Multiple Answers' : 'Single Answer');
+    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
 
-    if (multipleAnswers) {
+    if (multipleAnswers && !isExplanationDisplayed) {
       const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
       const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
       this.correctAnswersTextSource.next(correctAnswersText); // Emit the correct answers text
