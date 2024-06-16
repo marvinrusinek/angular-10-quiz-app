@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, mergeMap, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -116,6 +116,19 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
     console.log('Initialization: isExplanationDisplayed set to false');
+
+    this.quizService.getCurrentQuestionObservable().pipe(
+      filter((question: QuizQuestion) => question !== null)
+    ).subscribe((question: QuizQuestion) => {
+      this.updateCorrectAnswersDisplay(question).subscribe();
+    });)
+
+    // Or use QuizStateService to react to changes
+    this.quizStateService.currentQuestion$.pipe(
+      filter((question: QuizQuestion) => question !== null)
+    ).subscribe((question: QuizQuestion) => {
+      this.updateCorrectAnswersDisplay(question).subscribe();
+    });
 
     this.loadQuizDataFromRoute();
     this.initializeComponent();

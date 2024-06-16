@@ -1002,9 +1002,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.options = question.options || []; // Ensure options are initialized
           this.currentQuestionType = question.type;
 
-          // Emit the current question and options for other components to react
-          this.quizService.setCurrentQuestion(question);
-
           try {
             await this.manageExplanationAndCorrectAnswers(question, this.options);
             console.log('Correct answers text updated.');
