@@ -232,49 +232,35 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
   private async initializeQuestionData(): Promise<void> {
     try {
-      // Fetch the route parameters (quizId in this case)
       const params: ParamMap = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
-      
-      // Fetch questions and explanation texts based on the parameters
-      const [questions, explanationTexts] = await firstValueFrom(
+
+      // Fetch questions and explanations
+      const [questions, explanationTexts]: [QuizQuestion[], string[]] = await firstValueFrom(
         this.fetchQuestionsAndExplanationTexts(params).pipe(takeUntil(this.destroy$))
       );
-  
-      // Check if questions are available
+
       if (!questions || questions.length === 0) {
         console.warn('No questions found');
         return;
       }
-  
-      // Store the fetched explanation texts
+
       this.explanationTexts = explanationTexts;
       console.log("Fetched Explanation Texts:", this.explanationTexts);
-  
-      // Process and store each explanation
-      await Promise.all(
-        questions.map(async (question, index) => {
-          // Get the explanation for the current question or provide a default
-          const explanation = this.explanationTexts[index] || 'No explanation available';
-          
-          // Format and store the explanation
-          this.explanationTextService.storeFormattedExplanation(index, explanation, question);
-        })
-      );
-  
-      // Log that explanations have been stored successfully
+
+      // Process and store formatted explanations
+      questions.forEach((question, index) => {
+        const explanation = this.explanationTexts[index] || 'No explanation available';
+        this.explanationTextService.storeFormattedExplanation(index, explanation, question);
+      });
+
       console.log('Formatted explanations stored.');
-  
-      // Initialize the current question index
+
       this.initializeCurrentQuestionIndex();
-      
-      // Subscribe to changes in the current question
       this.subscribeToCurrentQuestion();
     } catch (error) {
-      // Log any errors that occur during the process
       console.error('Error in initializeQuestionData:', error);
     }
   }
-  
 
   private fetchQuestionsAndExplanationTexts(params: ParamMap): Observable<[QuizQuestion[], string[]]> {
     this.quizId = params.get('quizId');
