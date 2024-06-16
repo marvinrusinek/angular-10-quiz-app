@@ -4,7 +4,7 @@ import { takeUntil, tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class TimerService {
-  timePerQuestion = 20;
+  timePerQuestion = 30;
   elapsedTime = 0;
   elapsedTimes: number[] = [];
   completionTime: number;
@@ -64,15 +64,15 @@ export class TimerService {
       console.log('Timer is not running, returning.');
       return;
     }
-  
+
     this.isTimerRunning = false;
     if (this.timer !== null) {
-      clearInterval(this.timer);  // Clear the timer using the interval ID
-      this.timer = null;  // Reset the timer variable
+      clearInterval(this.timePerQuestion);
+      this.timer = null;
     }
-  
+
     this.isStop.next(1);
-  
+
     if (callback) {
       callback(this.elapsedTime);
     }
