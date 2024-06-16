@@ -1049,8 +1049,10 @@ export class QuizComponent implements OnInit, OnDestroy {
             await this.updateCorrectAnswersText(question, this.options);
             console.log('Correct answers text updated.');
           } catch (error) {
-              console.error('Error updating correct answers text:', error);
+            console.error('Error updating correct answers text:', error);
           }
+
+          this.timerService.startTimer(60); // Start the timer for the new question
         }
       },
       error: (error) => {
