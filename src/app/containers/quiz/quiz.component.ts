@@ -103,6 +103,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private currentQuizSubject = new BehaviorSubject<Quiz | null>(null);
 
+  private correctAnswersTextSource = new BehaviorSubject<string>('');
+  correctAnswersText$ = this.correctAnswersTextSource.asObservable();
+
   questionIndex: number;
   currentQuestionIndex = 0;
   totalQuestions = 0;
@@ -1800,25 +1803,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   } */
 
-  private manageExplanationAndCorrectAnswers(
-    question: QuizQuestion,
-    options: Option[]
-  ): void {
-    const explanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
+  async manageExplanationAndCorrectAnswers(question: QuizQuestion, options: Option[]): Promise<void> {
     const multipleAnswers = this.quizStateService.isMultipleAnswerQuestion(question);
   
-    if (explanationDisplayed) {
-      this.correctAnswersText = '';
-    } else if (multipleAnswers) {
-      const correctAnswersCount = options.filter(option => option.correct).length;
-      this.correctAnswersText = `${correctAnswersCount} answers are correct`;
+    if (multipleAnswers) {
+      const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
+      const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
+      this.correctAnswersTextSource.next(correctAnswersText); // Use correctAnswersTextSource to emit the text
     } else {
-      this.correctAnswersText = '';
+      this.correctAnswersTextSource.next(''); // Clear the text for single-answer questions
     }
-  
-    this.correctAnswersTextSource.next(this.correctAnswersText);
   }
-  
 
   private resetQuestionDisplayState(): void {
     this.optionsToDisplay = [];
