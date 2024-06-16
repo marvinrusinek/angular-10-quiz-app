@@ -23,7 +23,7 @@ export class QuizStateService {
   private resetQuizSubject = new Subject<void>();
   resetQuiz$ = this.resetQuizSubject.asObservable();
 
-  private correctAnswersTextSource = new BehaviorSubject<string>('Default Text');
+  private correctAnswersTextSource = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
 
   questionStates: Map<number, QuestionState> = new Map();

@@ -109,6 +109,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.log('Explanation is not displayed, current correct answers text:', this.correctAnswersTextSource.getValue());
       }
     });
+
+    this.correctAnswersText$ = this.quizStateService.correctAnswersText$;
+    this.shouldDisplayCorrectAnswers$ = this.quizStateService.explanationDisplayed$.pipe(
+      map(isDisplayed => !isDisplayed)
+    );
   }
 
   ngOnInit(): void {
