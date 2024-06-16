@@ -155,34 +155,6 @@ export class ExplanationTextService {
     return explanation.trim();
   }
 
-  /* storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
-    if (index < 0) {
-      console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
-      return;
-    }
-
-    if (!explanation || explanation.trim() === "") {
-      console.error(`Invalid explanation: "${explanation}"`);
-      return;
-    }
-
-    // Ensure explanation is sanitized and properly handled
-    const sanitizedExplanation = this.sanitizeExplanation(explanation);
-
-    // Properly handle the formatted explanation, associating it with the question
-    const formattedExplanation: FormattedExplanation = {
-      questionIndex: index,
-      explanation: this.formatExplanation(question, sanitizedExplanation)
-    };
-
-    this.formattedExplanations[index] = formattedExplanation;
-
-    // Update the observable with the new explanations
-    this.explanationsUpdated.next(this.formattedExplanations);
-
-    console.log(`Explanations updated notification sent for index ${index}: ${this.formattedExplanations[index].explanation}`);
-  } */
-
   storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
     if (index < 0) {
       console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
@@ -217,23 +189,6 @@ export class ExplanationTextService {
       .map((option, index) => option.correct ? index + 1 : null)
       .filter((index): index is number => index !== null);
   }
-
-  /* formatExplanation(question: QuizQuestion, explanation: string): string {
-    const correctOptionIndices = this.getCorrectOptionIndices(question);
-    let formattedExplanation = explanation;
-
-    if (correctOptionIndices.length > 1) {
-      question.type = QuestionType.MultipleAnswer;
-      formattedExplanation = `Options ${correctOptionIndices.join(', ')} are correct because ${explanation}`;
-    } else if (correctOptionIndices.length === 1) {
-      question.type = QuestionType.SingleAnswer;
-      formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${explanation}`;
-    } else {
-      formattedExplanation = 'No correct options available.';
-    }
-
-    return formattedExplanation;
-  } */
 
   formatExplanation(question: QuizQuestion, correctOptionIndices: number[], explanation: string): string {
     if (correctOptionIndices.length > 1) {
