@@ -64,12 +64,15 @@ export class TimerService {
       console.log('Timer is not running, returning.');
       return;
     }
-
+  
     this.isTimerRunning = false;
-    clearInterval(this.timer);
-    this.timer = null;
+    if (this.timer !== null) {
+      clearInterval(this.timer);  // Clear the timer using the interval ID
+      this.timer = null;  // Reset the timer variable
+    }
+  
     this.isStop.next(1);
-
+  
     if (callback) {
       callback(this.elapsedTime);
     }
