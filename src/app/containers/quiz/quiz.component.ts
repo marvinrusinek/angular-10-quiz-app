@@ -1045,7 +1045,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.currentQuestionType = question.type;
 
           // Call updateCorrectAnswersDisplay after setting the question and options
-          this.updateCorrectAnswersDisplay(question).subscribe({
+          this.updateCorrectAnswersText(question, this.options).subscribe({
             next: () => {
               console.log('Correct answers text updated.');
             },
