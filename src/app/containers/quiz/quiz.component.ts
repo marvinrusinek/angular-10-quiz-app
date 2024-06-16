@@ -995,7 +995,11 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestionType = question.type;
 
         // Call manageExplanationAndCorrectAnswers after setting the question and options
-        this.manageExplanationAndCorrectAnswers(question, question.options);
+        this.manageExplanationAndCorrectAnswers(question, this.options).then(() => {
+          console.log('Correct answers text updated.');
+        }).catch(error => {
+            console.error('Error managing explanation and correct answers:', error);
+        });
       },
       error: (error) => {
         console.error('Error when processing the question streams:', error);
@@ -1743,12 +1747,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async manageExplanationAndCorrectAnswers(question: QuizQuestion, options: Option[]): Promise<void> {
-    const multipleAnswers = this.quizStateService.isMultipleAnswerQuestion(question);
-  
+    const multipleAnswers = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(question));
+
     if (multipleAnswers) {
       const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
       const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
-      this.correctAnswersTextSource.next(correctAnswersText); // Use correctAnswersTextSource to emit the text
+      this.correctAnswersTextSource.next(correctAnswersText); // Emit the correct answers text
     } else {
       this.correctAnswersTextSource.next(''); // Clear the text for single-answer questions
     }
