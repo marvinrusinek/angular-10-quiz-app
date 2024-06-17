@@ -955,7 +955,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleOptionClicked(currentQuestion, index);
 
     // Check if the clicked option is selected
-    const isOptionSelected = this.isSelectedOption(option);
+    const isOptionSelected = this.quizQuestionManagerService.isSelectedOption(option);
 
     // Set shouldDisplayExplanation to true when an option is selected, otherwise set it to false
     this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
@@ -1231,10 +1231,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       correctAnswersText: this.quizService.getCorrectAnswersAsString(), 
       currentOptions: this.currentOptions,
     });
-  }
-
-  isSelectedOption(option: Option): boolean {
-    return this.selectedOption === option;
   }
 
   async onSubmit(): Promise<void> {
