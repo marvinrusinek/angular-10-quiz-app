@@ -798,16 +798,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
       // Toggle the selection of the option
-      const selectedOption: SelectedOption = { 
+      const selectedOption: SelectedOption = {
         optionId: option.optionId,
         questionIndex: this.currentQuestionIndex,
         text: option.text
       };
-      this.quizService.toggleSelectedOption(selectedOption); 
-
+      this.quizService.toggleSelectedOption(selectedOption);
+  
       // Check if the current question is answered after an option is selected
       await this.checkIfAnswerSelected(this.isFirstQuestion);
-      this.isFirstQuestion = false;  // Reset after the first option click
+      this.isFirstQuestion = false; // Reset after the first option click
   
       // Process the current question
       const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion());
@@ -815,7 +815,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Could not retrieve the current question.');
         return;
       }
-
+  
+      // Determine if the question is answered and update the message
       const isAnswered = selectedOption !== null;
       const message = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
@@ -825,23 +826,30 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectionMessageService.updateSelectionMessage(message);
       this.selectionMessageService.setOptionSelected(isAnswered);
   
+      // Handle additional option selection logic
       this.handleOptionSelection(option, index, currentQuestion);
       await this.processCurrentQuestion(currentQuestion);
+  
+      // Update state for explanations and log them
       this.updateQuestionStateForExplanation(this.currentQuestionIndex);
       this.formatAndLogExplanations();
+  
+      // Emit the event that the question has been answered
       this.questionAnswered.emit();
   
+      // Check if the answer is correct and stop the timer if it is
       const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
       if (isCorrect) {
         this.timerService.stopTimer(); // Stop the timer
       }
-
-      // Handle audio playback based on correctness
+  
+      // Handle audio playback based on whether the answer is correct
       this.handleAudioPlayback(isCorrect);
+  
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
-  }
+  }  
 
   private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
     if (isFirstQuestion) {
