@@ -269,18 +269,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.getCorrectAnswers();
   }
 
-  public get shouldDisplayTextContent(): boolean {
-    return !!this.data?.questionText || !!this.data?.correctAnswersText;
-  }
-
-  public get shouldDisplayOptions(): boolean {
-    return this.data?.options && this.data.options.length > 0;
-  }
-
-  public shouldHideOptions(): boolean {
-    return !this.data?.options || this.data.options.length === 0;
-  }
-
   private async initializeQuiz(): Promise<void> {
     this.initialized = true;
     this.initializeSelectedQuiz();
