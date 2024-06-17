@@ -1060,11 +1060,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToSelectionMessage(): void {
-    this.selectionMessageService.selectionMessageSubject.subscribe(
-      (message: string) => {
+    this.selectionMessageService.selectionMessage$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((message: string) => {
         this.selectionMessage = message;
-      }
-    );
+      });
   }
   
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
