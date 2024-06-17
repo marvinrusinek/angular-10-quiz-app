@@ -810,11 +810,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.isFirstQuestion = false; // Reset after the first option click
   
       // Process the current question
-      const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion());
-      if (!currentQuestion) {
-        console.error('Could not retrieve the current question.');
-        return;
-      }
+      this.fetchCurrentQuestion();
   
       // Determine if the question is answered and update the message
       const isAnswered = selectedOption !== null;
@@ -837,19 +833,30 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Emit the event that the question has been answered
       this.questionAnswered.emit();
   
-      // Check if the answer is correct and stop the timer if it is
-      const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
-      if (isCorrect) {
-        this.timerService.stopTimer(); // Stop the timer
-      }
-  
-      // Handle audio playback based on whether the answer is correct
-      this.handleAudioPlayback(isCorrect);
+      this.handleCorrectnessAndTimer();
   
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
-  }  
+  }
+
+  private async fetchCurrentQuestion(): void {
+    const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion());
+    if (!currentQuestion) {
+      console.error('Could not retrieve the current question.');
+    }
+    return currentQuestion;
+  }
+
+  private async handleCorrectnessAndTimer(): Promise<void> {
+    // Check if the answer is correct and stop the timer if it is
+    const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
+    if (isCorrect) {
+      this.timerService.stopTimer();
+    }
+    // Handle audio playback based on whether the answer is correct
+    this.handleAudioPlayback(isCorrect);
+  }
 
   private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
     if (isFirstQuestion) {
