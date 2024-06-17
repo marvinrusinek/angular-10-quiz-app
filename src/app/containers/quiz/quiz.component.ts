@@ -1102,26 +1102,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.currentQuizSubject.next(quiz);
   }
 
-  setCurrentQuizForQuizId(quizId: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.quizDataService.quizzes$
-        .pipe(
-          filter((quizzes: Quiz[]) => quizzes.length > 0),
-          first()
-        )
-        .subscribe((quizzes: Quiz[]) => {
-          const currentQuiz = quizzes.find(quiz => quiz.quizId === quizId);
-          if (currentQuiz) {
-            this.quizDataService.setCurrentQuiz(currentQuiz);
-            this.currentQuiz = currentQuiz;
-            resolve();
-          } else {
-            reject(`Quiz with ID ${quizId} not found`);
-          }
-        });
-    });
-  }
-
   private initializeQuizState(): void {
     // Call findQuizByQuizId and subscribe to the observable to get the quiz data
     this.quizService.findQuizByQuizId(this.quizId).subscribe({
