@@ -15,10 +15,12 @@ export class SelectionMessageService {
   }
 
   determineSelectionMessage(currentQuestionIndex: number, totalQuestions: number, isAnswered: boolean): string {
-    if (currentQuestionIndex === totalQuestions - 1) {
-      return isAnswered ? 'Please click the Show Results button' : 'Please select an option to continue...';
+    if (currentQuestionIndex === 0) {
+      return isAnswered ? 'Please click the next button to continue.' : 'Please start the quiz by selecting an option.';
+    } else if (currentQuestionIndex === totalQuestions - 1) {
+      return isAnswered ? 'Please click the Show Results button.' : 'Please select an option to continue...';
     } else {
-      return isAnswered ? 'Please click the next button to continue...' : 'Please select an option to continue...';
+      return isAnswered ? 'Please click the next button to continue.' : 'Please select an option to continue...';
     }
   }
 
