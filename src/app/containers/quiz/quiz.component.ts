@@ -447,6 +447,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
       this.questions = questions; // Store the fetched questions in a component property
   
+      const question = questions[this.currentQuestionIndex];
+
       // Check for stored states after ensuring we have the questions
       const storedStates = this.quizStateService.getStoredState(this.quizId);
   
@@ -459,7 +461,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             const explanationTextObservable = this.explanationTextService.getFormattedExplanation(+questionId);
             const explanationText = await firstValueFrom(explanationTextObservable);
   
-            this.storeFormattedExplanationText(Number(questionId), explanationText);
+            this.explanationTextService.storeFormattedExplanation(+questionId, explanationText, question);
           }
         }
   
@@ -1065,9 +1067,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   }
 
-  storeFormattedExplanationText(questionId: number, explanationText: string): void {
+  /* storeFormattedExplanationText(questionId: number, explanationText: string): void {
     this.explanationTextService.explanationTexts[questionId] = explanationText;
-  }
+  } */
 
   
   
