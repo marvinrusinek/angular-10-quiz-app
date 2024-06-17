@@ -1526,6 +1526,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestionIndex++;
         this.checkIfAnswerSelected(false);
 
+        this.selectionMessageService.setOptionSelected(false);
         const message = this.selectionMessageService.determineSelectionMessage(
           this.currentQuestionIndex,
           this.totalQuestions,
