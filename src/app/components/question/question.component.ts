@@ -812,6 +812,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Process the current question
       const currentQuestion = await this.fetchCurrentQuestion();
       if (!currentQuestion) {
+        console.error('Could not retrieve the current question.');
         return;
       }
   
@@ -836,20 +837,27 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Emit the event that the question has been answered
       this.questionAnswered.emit();
   
-      this.handleCorrectnessAndTimer();
-  
+      // Handle correctness check and timer
+      await this.handleCorrectnessAndTimer();
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
   }
-
+  
   private async fetchCurrentQuestion() {
-    const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion());
-    if (!currentQuestion) {
-      console.error('Could not retrieve the current question.');
+    try {
+      const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion());
+      if (!currentQuestion) {
+        console.error('Could not retrieve the current question.');
+        return null;
+      }
+      return currentQuestion;
+    } catch (error) {
+      console.error('Error fetching the current question:', error);
+      return null;
     }
-    return currentQuestion;
   }
+  
 
   private async handleCorrectnessAndTimer(): Promise<void> {
     // Check if the answer is correct and stop the timer if it is
@@ -863,9 +871,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
     if (isFirstQuestion) {
-      // Logic specific to the first question
-      console.log('This is the first question');
-
       this.selectionMessageService.updateSelectionMessage('Please start the quiz by selecting an option.');
       return;
     }
@@ -896,23 +901,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     if (isLastQuestion) {
       newMessage = isAnswered ? 'Please click the Show Results button.' : 'Please select an option to continue...';
+    } else if (this.isFirstQuestion) {
+      newMessage = isAnswered ? 'Please click the next button to continue.' : 'Please start the quiz by selecting an option.';
     } else {
-      newMessage = isAnswered 
-        ? 'Please click the next button to continue.' 
-        : 'Please select an option to continue...';
+      newMessage = isAnswered ? 'Please click the next button to continue.' : 'Please select an option to continue...';
     }
   
-    console.log(`Current message: ${this.selectionMessage}, New message: ${newMessage}`);
-  
     if (this.lastMessage !== newMessage) {
-      console.log('Updating message:', newMessage);
       this.selectionMessageService.updateSelectionMessage(newMessage);
       this.selectionMessage = newMessage;
       this.lastMessage = newMessage;
-      this.cdRef.markForCheck(); // Manually mark for check
+      this.cdRef.markForCheck();
     }
   }
-  
   
   private async processCurrentQuestion(
     currentQuestion: QuizQuestion
