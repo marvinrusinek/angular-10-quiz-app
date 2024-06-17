@@ -1066,12 +1066,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     );
   }
-
-  /* storeFormattedExplanationText(questionId: number, explanationText: string): void {
-    this.explanationTextService.explanationTexts[questionId] = explanationText;
-  } */
-
-  
   
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
