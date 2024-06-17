@@ -810,7 +810,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.isFirstQuestion = false; // Reset after the first option click
   
       // Process the current question
-      this.fetchCurrentQuestion();
+      const currentQuestion = await this.fetchCurrentQuestion();
+      if (!currentQuestion) {
+        return;
+      }
   
       // Determine if the question is answered and update the message
       const isAnswered = selectedOption !== null;
@@ -840,7 +843,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private async fetchCurrentQuestion(): void {
+  private async fetchCurrentQuestion() {
     const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion());
     if (!currentQuestion) {
       console.error('Could not retrieve the current question.');
