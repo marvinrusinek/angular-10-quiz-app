@@ -844,7 +844,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private updateSelectionMessage(isAnswered: boolean): void {
     const isLastQuestion = this.currentQuestionIndex === this.totalQuestions - 1;
     let newMessage: string;
-
+  
     if (isLastQuestion) {
       newMessage = 'Please click the Show Results button';
     } else {
@@ -852,12 +852,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         ? 'Please click the next button to continue...' 
         : 'Please select an option to continue...';
     }
-
-    if (this.selectionMessage !== newMessage) {
+  
+    console.log(`Current message: ${this.selectionMessage}, New message: ${newMessage}`);
+  
+    if (this.lastMessage !== newMessage) {
+      console.log('Updating message:', newMessage);
       this.selectionMessageService.updateSelectionMessage(newMessage);
       this.selectionMessage = newMessage;
+      this.lastMessage = newMessage;
+      this.cdr.markForCheck(); // Manually mark for check
     }
   }
+  
   
   private async processCurrentQuestion(
     currentQuestion: QuizQuestion
