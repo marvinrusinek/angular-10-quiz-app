@@ -33,7 +33,7 @@ export class SelectionMessageService {
   }
 
   resetMessage(): void {
-    this.selectionMessageSubject.next('Please select an option to continue...');
+    this.selectionMessageSubject.next('Please start the quiz by selecting an option.');
     this.optionSelectedSubject.next(false);
   }
 }
