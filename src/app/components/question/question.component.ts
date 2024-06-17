@@ -1145,15 +1145,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const questionData = await this.quizService.getNextQuestion(
       this.currentQuestionIndex
     );
-    if (this.isValidQuestionData(questionData)) {
+    if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
       await this.processExplanationText(questionData, questionIndex);
     } else {
       console.error('Error: questionData or explanation is undefined');
     }
-  }
-
-  private isValidQuestionData(questionData: QuizQuestion): boolean {
-    return !!questionData && !!questionData.explanation;
   }
 
   private async processExplanationText(
