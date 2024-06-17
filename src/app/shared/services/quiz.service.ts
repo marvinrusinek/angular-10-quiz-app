@@ -1276,18 +1276,6 @@ export class QuizService implements OnDestroy {
     return this.shouldDisplayExplanation;
   }
 
-  public get shouldDisplayTextContent(): boolean {
-    return !!this.data?.questionText || !!this.data?.correctAnswersText;
-  }
-
-  public get shouldDisplayOptions(): boolean {
-    return this.data?.options && this.data.options.length > 0;
-  }
-
-  public shouldHideOptions(): boolean {
-    return !this.data?.options || this.data.options.length === 0;
-  }
-
   saveHighScores(): void {
     this.quizScore = {
       quizId: this.quizId,
