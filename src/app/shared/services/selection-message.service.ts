@@ -4,9 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
   selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
-
   private optionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-
 
   get selectionMessage$(): Observable<string> {
     return this.selectionMessageSubject.asObservable();
@@ -30,5 +28,10 @@ export class SelectionMessageService {
 
   setOptionSelected(isSelected: boolean): void {
     this.optionSelectedSubject.next(isSelected);
+  }
+
+  resetMessage(): void {
+    this.selectionMessageSubject.next('Please select an option to continue...');
+    this.optionSelectedSubject.next(false);
   }
 }
