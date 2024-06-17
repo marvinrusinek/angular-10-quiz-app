@@ -192,6 +192,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } */
 
     this.selectionMessageService.resetMessage();
+    this.checkIfAnswerSelected(true);
 
     // Initialize the selection message
     /* const initialMessage = this.selectionMessageService.determineSelectionMessage(
