@@ -261,6 +261,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
+  public get shouldDisplayTextContent(): boolean {
+    return !!this.data?.questionText || !!this.data?.correctAnswersText;
+  }
+
+  public get shouldDisplayOptions(): boolean {
+    return this.data?.options && this.data.options.length > 0;
+  }
+
+  public shouldHideOptions(): boolean {
+    return !this.data?.options || this.data.options.length === 0;
+  }
+
   handleQuestionUpdate(newQuestion: QuizQuestion): void {
     if (!newQuestion.selectedOptions) {
       newQuestion.selectedOptions = [];

@@ -1,7 +1,7 @@
 <!--<form [formGroup]="questionForm" [ngSwitch]="multipleAnswer">
-  <ng-container *ngIf="quizService.shouldDisplayTextContent()">
+  <ng-container *ngIf="shouldDisplayTextContent()">
     <codelab-question-generic
-      *ngIf="quizService.shouldDisplayOptions(); else noOptions"
+      *ngIf="shouldDisplayOptions(); else noOptions"
       [form]="questionForm"
       [questionType]="multipleAnswer ? 'multiple' : 'single'" 
       [data]="data"
@@ -29,7 +29,7 @@
 <!--<ang-music-player [audioList]="audioList"></ang-music-player>-->
 
 <form [formGroup]="questionForm" [ngSwitch]="multipleAnswer" (ngSubmit)="onSubmit()">
-  <ng-container *ngIf="quizService.shouldDisplayTextContent">
+  <ng-container *ngIf="shouldDisplayTextContent">
     <ng-container *ngSwitchCase="multipleAnswer">
       <ng-container *ngTemplateOutlet="questionTemplate; context: {$implicit: 'multiple'}"></ng-container>
     </ng-container>
@@ -39,7 +39,7 @@
     </ng-container>
 
     <ng-template #questionTemplate let-type>
-      <ng-container *ngIf="quizService.shouldDisplayOptions; else noOptions">
+      <ng-container *ngIf="shouldDisplayOptions; else noOptions">
         <ng-container [ngSwitch]="type">
           <codelab-question-multiple-answer *ngSwitchCase="'multiple'"
             [form]="questionForm"
