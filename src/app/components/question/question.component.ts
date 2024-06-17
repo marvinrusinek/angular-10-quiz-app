@@ -818,13 +818,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       // Determine if the question is answered and update the message
       const isAnswered = selectedOption !== null;
-      const message = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        isAnswered
-      );
-      this.selectionMessageService.updateSelectionMessage(message);
-      this.selectionMessageService.setOptionSelected(isAnswered);
+      this.updateAnswerStateAndMessage(isAnswered);
   
       // Handle additional option selection logic
       this.handleOptionSelection(option, index, currentQuestion);
@@ -857,7 +851,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return null;
     }
   }
-  
+
+  private updateAnswerStateAndMessage(isAnswered: boolean): void {
+    const isLastQuestion = this.currentQuestionIndex === this.totalQuestions - 1;
+    const message = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered
+    );
+    this.selectionMessageService.updateSelectionMessage(message);
+    this.selectionMessageService.setOptionSelected(isAnswered);
+  }
 
   private async handleCorrectnessAndTimer(): Promise<void> {
     // Check if the answer is correct and stop the timer if it is
