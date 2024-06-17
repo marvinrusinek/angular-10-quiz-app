@@ -784,7 +784,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.isFirstQuestion = false;  // Reset after the first option click
   
       // Process the current question
-      const currentQuestion = await this.getCurrentQuestion();
+      const currentQuestion = await this.quizService.getCurrentQuestion();
       if (!currentQuestion) {
         console.error('Could not retrieve the current question.');
         return;
@@ -904,21 +904,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     setTimeout(() => {
         this.audioList = [];
     }, 1000);  // Ensure audio has time to play before clearing
-  }
-
-  async getCurrentQuestion(): Promise<QuizQuestion | null> {
-    try {
-      const currentQuestion = await firstValueFrom(
-        this.quizStateService.currentQuestion$.pipe(
-          skipWhile(question => question === null || !this.quizService.isQuizQuestion(question)), // Skip null and malformed data
-          take(1)
-        )
-      ) as QuizQuestion | null;
-      return currentQuestion;
-    } catch (error) {
-      console.error('Error fetching current question:', error);
-      return null;
-    }
   }
 
   async handleOptionSelection(
