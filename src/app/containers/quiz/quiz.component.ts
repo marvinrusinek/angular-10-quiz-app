@@ -1038,19 +1038,19 @@ export class QuizComponent implements OnInit, OnDestroy {
     
     // If the question allows multiple answers and the explanation is not displayed
     if (multipleAnswers && !isExplanationDisplayed) {
-        // Calculate the number of correct answers
-        const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
+      // Calculate the number of correct answers
+      const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
         
-        // Get the text to display the number of correct answers
-        const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
+      // Get the text to display the number of correct answers
+      const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
         
-        // Emit the correct answers text to subscribers
-        this.correctAnswersTextSource.next(correctAnswersText);
-        console.log('Correct answers text:', correctAnswersText);
+      // Emit the correct answers text to subscribers
+      this.correctAnswersTextSource.next(correctAnswersText);
+      console.log('Correct answers text:', correctAnswersText);
     } else {
-        // Clear the text if it's a single-answer question or the explanation is displayed
-        this.correctAnswersTextSource.next('');
-        console.log('Clearing correct answers text.');
+      // Clear the text if it's a single-answer question or the explanation is displayed
+      this.correctAnswersTextSource.next('');
+      console.log('Clearing correct answers text.');
     }
 
     // Trigger change detection to update the UI
