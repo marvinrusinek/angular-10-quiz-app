@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, lastValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, filter, map, take, tap } from 'rxjs/operators';
+import { catchError, debounceTime, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
@@ -92,6 +92,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   currentQuestionSubscription: Subscription;
   questionForm: FormGroup = new FormGroup({});
   selectedQuiz = new ReplaySubject<Quiz>(1);
+  totalQuestions: number;
   currentOptions: Option[] | undefined;
   correctAnswers: number[] | undefined;
   correctMessage: string;
@@ -113,6 +114,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private initialized = false;
   private isNextMessage = false;
   private isFirstQuestion = true;
+  private selectionUpdate$ = new Subject<boolean>();
 
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -167,6 +169,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe(
         (isNavigating) => (this.isNavigatingToPrevious = isNavigating)
       );
+
+      this.quizService.getTotalQuestions()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(totalQuestions => {
+        this.totalQuestions = totalQuestions;
+      });
+
+      this.selectionUpdate$
+      .pipe(debounceTime(300), takeUntil(this.destroy$))
+      .subscribe(isAnswered => {
+        this.updateSelectionMessage(this.isAnswered);
+      });
   }
 
   async ngOnInit(): Promise<void> {
@@ -814,7 +828,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.updateSelectionMessage(isAnswered);
   }
 
-  private updateSelectionMessage(isAnswered: boolean): void {
+  /* private updateSelectionMessage(isAnswered: boolean): void {
     this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
       const isLastQuestion = this.currentQuestionIndex === totalQuestions - 1;
       const message = isLastQuestion 
@@ -825,6 +839,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       
       this.selectionMessageService.updateSelectionMessage(message);
     });
+  } */
+
+  private updateSelectionMessage(isAnswered: boolean): void {
+    const isLastQuestion = this.currentQuestionIndex === this.totalQuestions - 1;
+    let newMessage: string;
+
+    if (isLastQuestion) {
+      newMessage = 'Please click the Show Results button';
+    } else {
+      newMessage = isAnswered 
+        ? 'Please click the next button to continue...' 
+        : 'Please select an option to continue...';
+    }
+
+    if (this.selectionMessage !== newMessage) {
+      this.selectionMessageService.updateSelectionMessage(newMessage);
+      this.selectionMessage = newMessage;
+    }
   }
   
   private async processCurrentQuestion(
