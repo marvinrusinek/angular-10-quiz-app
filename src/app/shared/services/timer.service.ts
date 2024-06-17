@@ -22,6 +22,9 @@ export class TimerService {
   isStop = new BehaviorSubject<number>(1);
   isReset = new BehaviorSubject<number>(1);
 
+  timeUpSubject = new Subject<boolean>();
+  timeRemainingSubject = new BehaviorSubject<number>(0);
+
   constructor() {
     this.start$ = this.isStart.asObservable();
     this.reset$ = this.isReset.asObservable();
@@ -68,17 +71,21 @@ export class TimerService {
     this.stopTimer(); // Ensure any existing timer is stopped
     this.isTimerRunning = true;
     this.elapsedTime = 0;
-    this.timer = setInterval(() => {
-        if (!this.isTimerRunning) {
-            clearInterval(this.timer);
-            return;
-        }
-        this.elapsedTime++;
-        if (this.elapsedTime >= duration) {
-            this.stopTimer();
-            this.timeUpSubject.next(true); // Notify that time is up
-        }
-        this.timeRemainingSubject.next(duration - this.elapsedTime);
+    this.timeRemainingSubject.next(duration); // Initialize time remaining
+
+    this.timePerQuestion = setInterval(() => {
+      if (!this.isTimerRunning) {
+        clearInterval(this.timePerQuestion);
+        return;
+      }
+      this.elapsedTime++;
+      const timeRemaining = duration - this.elapsedTime;
+      this.timeRemainingSubject.next(timeRemaining); // Emit time remaining
+
+      if (timeRemaining <= 0) {
+        this.stopTimer();
+        this.timeUpSubject.next(true); // Notify that time is up
+      }
     }, 1000);
   }
 
