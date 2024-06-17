@@ -981,48 +981,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
-  /* private subscribeToCurrentQuestion(): void {
-    const combinedQuestionObservable = merge(
-      this.quizService.getCurrentQuestionObservable().pipe(
-        retry(2),
-        catchError((error: Error) => {
-          console.error('Error when subscribing to current question from quizService:', error);
-          return of(null); // Return null if an error occurs
-        })
-      ),
-      this.quizStateService.currentQuestion$
-    );
-
-    combinedQuestionObservable.pipe(
-      filter((question: QuizQuestion | null) => question !== null) // Filter out null values to ensure only valid questions are processed
-    ).subscribe({
-      next: async (question: QuizQuestion | null) => {
-        if (question) {
-          this.currentQuestion = question;
-          this.options = question.options || []; // Ensure options are initialized
-          this.currentQuestionType = question.type;
-
-          // Signal to the content component that the current question has changed
-          this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
-          this.quizStateService.setExplanationDisplayed(false);
-
-          try {
-            await this.manageExplanationAndCorrectAnswers(question, this.options);
-            console.log('Correct answers text updated.');
-          } catch (error) {
-            console.error('Error managing explanation and correct answers:', error);
-          }
-        } else {
-          this.resetCurrentQuestionState();
-        }
-      },
-      error: (error) => {
-        console.error('Error when processing the question streams:', error);
-        this.resetCurrentQuestionState();
-      }
-    });
-} */
-
   private subscribeToCurrentQuestion(): void {
     const combinedQuestionObservable = merge(
       this.quizService.getCurrentQuestionObservable().pipe(
@@ -1052,7 +1010,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             console.error('Error updating correct answers text:', error);
           }
 
-          this.timerService.startTimer(60); // Start the timer for the new question
+          this.timerService.resetTimer(); // Start the timer for the new question
         }
       },
       error: (error) => {
