@@ -804,10 +804,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         return;
       }
 
+      const isAnswered = this.selectedOption !== null;
       const message = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
         this.totalQuestions,
-        this.isAnswered
+        isAnswered
       );
       this.selectionMessageService.updateSelectionMessage(message);
   
