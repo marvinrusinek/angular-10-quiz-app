@@ -885,10 +885,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     let newMessage: string;
   
     if (isLastQuestion) {
-      newMessage = 'Please click the Show Results button';
+      newMessage = isAnswered ? 'Please click the Show Results button.' : 'Please select an option to continue...';
     } else {
       newMessage = isAnswered 
-        ? 'Please click the next button to continue...' 
+        ? 'Please click the next button to continue.' 
         : 'Please select an option to continue...';
     }
   
