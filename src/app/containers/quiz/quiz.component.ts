@@ -1701,9 +1701,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     return question;
   }
   
-  
-  
-
   private setQuestionDetails(questionText: string, options: Option[], explanationText: string): void {
     this.questionToDisplay = questionText || 'No question text available';
     this.optionsToDisplay = options || [];
