@@ -1098,10 +1098,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  setCurrentQuiz(quiz: Quiz): void {
-    this.currentQuizSubject.next(quiz);
-  }
-
   private initializeQuizState(): void {
     // Call findQuizByQuizId and subscribe to the observable to get the quiz data
     this.quizService.findQuizByQuizId(this.quizId).subscribe({
