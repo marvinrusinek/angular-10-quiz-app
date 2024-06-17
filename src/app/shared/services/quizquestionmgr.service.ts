@@ -77,7 +77,7 @@ export class QuizQuestionManagerService {
     return this.selectedOption === option;
   }
 
-  private isValidQuestionData(questionData: QuizQuestion): boolean {
+  isValidQuestionData(questionData: QuizQuestion): boolean {
     return !!questionData && !!questionData.explanation;
   }
 }
