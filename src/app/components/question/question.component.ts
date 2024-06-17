@@ -803,6 +803,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Could not retrieve the current question.');
         return;
       }
+
+      const message = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        this.isAnswered
+      );
+      this.selectionMessageService.updateSelectionMessage(message);
   
       this.handleOptionSelection(option, index, currentQuestion);
       await this.processCurrentQuestion(currentQuestion);
