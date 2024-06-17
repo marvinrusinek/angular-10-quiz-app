@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, combineLatest, firstValueFrom,  Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, map, shareReplay, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, map, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
 
