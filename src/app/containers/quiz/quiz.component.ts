@@ -1030,19 +1030,30 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private async updateCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
+    // Check if the question has multiple answers
     const multipleAnswers = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(question));
-    const isExplanationDisplayed = await firstValueFrom(this.explanationTextService.isExplanationDisplayed$);
-
+    
+    // Check if the explanation is currently displayed
+    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
+    
+    // If the question allows multiple answers and the explanation is not displayed
     if (multipleAnswers && !isExplanationDisplayed) {
-      const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
-      const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
-      this.correctAnswersTextSource.next(correctAnswersText);
-      console.log('Correct answers text:', correctAnswersText);
+        // Calculate the number of correct answers
+        const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
+        
+        // Get the text to display the number of correct answers
+        const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
+        
+        // Emit the correct answers text to subscribers
+        this.correctAnswersTextSource.next(correctAnswersText);
+        console.log('Correct answers text:', correctAnswersText);
     } else {
-      this.correctAnswersTextSource.next('');
-      console.log('Clearing correct answers text.');
+        // Clear the text if it's a single-answer question or the explanation is displayed
+        this.correctAnswersTextSource.next('');
+        console.log('Clearing correct answers text.');
     }
 
+    // Trigger change detection to update the UI
     this.cdRef.detectChanges();
   }
 
@@ -1781,23 +1792,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.timerService.startTimer(30);
     this.resetBackgroundService.setShouldResetBackground(true);
     this.explanationTextService.resetExplanationState();
-  }
-
-  private async manageExplanationAndCorrectAnswers(question: QuizQuestion, options: Option[]): Promise<void> {
-    const multipleAnswers = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(question));
-    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
-
-    if (multipleAnswers && !isExplanationDisplayed) {
-      const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
-      const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
-      this.correctAnswersTextSource.next(correctAnswersText); // Emit the correct answers text
-      console.log('Correct answers text:', correctAnswersText);
-    } else {
-      this.correctAnswersTextSource.next(''); // Clear the text for single-answer questions
-      console.log('Single answer question, clearing correct answers text.');
-    }
-
-    this.cdRef.detectChanges();
   }
 
   private resetQuestionDisplayState(): void {
