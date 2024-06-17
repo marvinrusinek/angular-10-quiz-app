@@ -72,4 +72,8 @@ export class QuizQuestionManagerService {
     const isMultiple = numberOfCorrectAnswers > 1;  
     return isMultiple;
   }
+
+  isSelectedOption(option: Option): boolean {
+    return this.selectedOption === option;
+  }
 }
