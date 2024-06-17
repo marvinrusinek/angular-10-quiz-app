@@ -115,6 +115,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private isNextMessage = false;
   private isFirstQuestion = true;
   private selectionUpdate$ = new Subject<boolean>();
+  private lastMessage = '';
 
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -889,7 +890,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectionMessageService.updateSelectionMessage(newMessage);
       this.selectionMessage = newMessage;
       this.lastMessage = newMessage;
-      this.cdr.markForCheck(); // Manually mark for check
+      this.cdRef.markForCheck(); // Manually mark for check
     }
   }
   
