@@ -1605,7 +1605,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   // combined method for preparing question data and UI
   async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
-    this.timerService.startTimer(30);
     await this.fetchAndSetQuestionData(questionIndex);
     this.initializeQuestionForDisplay(questionIndex);
     this.updateQuestionDisplay(questionIndex);
@@ -1779,6 +1778,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   // Reset UI immediately before navigating
   private resetUI(): void {
     this.highlightDirective.reset();
+    this.timerService.startTimer(30);
     this.resetBackgroundService.setShouldResetBackground(true);
     this.explanationTextService.resetExplanationState();
   }
