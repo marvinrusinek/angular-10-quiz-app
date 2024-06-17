@@ -1032,8 +1032,11 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  getTotalCorrectAnswers(currentQuestion: QuizQuestion): number {
-    return currentQuestion.options.filter((option) => option.correct).length;
+  getTotalCorrectAnswers(currentQuestion: QuizQuestion) {
+    if (currentQuestion && currentQuestion.options) {
+      return currentQuestion.options.filter((option) => option.correct).length;
+    }
+    return 0;
   }
 
   validateAndSetCurrentQuestion(
