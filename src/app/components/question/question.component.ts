@@ -784,7 +784,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.isFirstQuestion = false;  // Reset after the first option click
   
       // Process the current question
-      const currentQuestion = await this.quizService.getCurrentQuestion();
+      const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion());
       if (!currentQuestion) {
         console.error('Could not retrieve the current question.');
         return;
