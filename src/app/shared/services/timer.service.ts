@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subscription, timer } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription, timer } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
