@@ -218,13 +218,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.cdRef.detectChanges();
     }
   
-    // Handling changes to quizId or questionIndex
-    if (changes.quizId || changes.questionIndex) {
-      if (this.quizId && this.questionIndex != null) {
-        this.loadQuiz(this.quizId, this.questionIndex);
-      }
-    }
-  
     // Handling changes to the question
     if (isSubsequentChange(changes.currentQuestion)) {
       // console.log('QuizQuestionComponent - ngOnChanges - Question changed:', this.question);
@@ -294,21 +287,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     await this.initializeQuizQuestionsAndAnswers();
   }
   
-  private loadQuiz(quizId: string, questionIndex: number): void {
-    this.quizDataService.getQuiz(quizId).subscribe({
-      next: (quiz) => {
-        if (quiz && quiz.questions && quiz.questions.length > questionIndex) {
-          this.currentQuestion = quiz.questions[questionIndex];
-        } else {
-          console.error('No valid question or options found for index:', questionIndex);
-        }
-      },
-      error: (error) => {
-        console.error('Error loading quiz data:', error);
-      }
-    });
-  }
-
   // might need later
   private subscribeToAnswers(): void {
     this.quizService.answers$.subscribe((answers) => {
