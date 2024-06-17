@@ -853,7 +853,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateAnswerStateAndMessage(isAnswered: boolean): void {
-    const isLastQuestion = this.currentQuestionIndex === this.totalQuestions - 1;
     const message = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
