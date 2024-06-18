@@ -915,6 +915,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.updateMessageIfNeeded(newMessage);
   } */
 
+  // Determine and set the selection message based on the current question
   private updateSelectionMessageForCurrentQuestion(): void {
     console.log(`[handleMessageUpdate] Updating message for question index: ${this.currentQuestionIndex}`);
     let newMessage = '';
