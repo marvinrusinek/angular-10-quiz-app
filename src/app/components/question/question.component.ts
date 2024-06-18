@@ -194,10 +194,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.resetMessages();
     this.checkIfAnswerSelected(true);
+    
+    this.isInitialized = true;
     this.setInitialMessage();
     this.handleMessageUpdate();
-    this.isInitialized = true;
-
+    
     this.logInitialData();
 
     if (!this.initialized) {
