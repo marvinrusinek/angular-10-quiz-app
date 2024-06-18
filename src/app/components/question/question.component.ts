@@ -877,7 +877,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleAudioPlayback(isCorrect);
   }
 
-  private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
+  /* private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
     if (isFirstQuestion) {
       const initialMessage = 'Please start the quiz by selecting an option.';
       if (this.lastMessage !== initialMessage) {
@@ -889,9 +889,30 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
     this.updateAnswerStateAndMessage(isAnswered);
+  } */
+
+  private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
+    if (isFirstQuestion) {
+      const initialMessage = 'Please start the quiz by selecting an option.';
+      if (this.lastMessage !== initialMessage) {
+        this.selectionMessageService.updateSelectionMessage(initialMessage);
+        this.lastMessage = initialMessage;
+      }
+      return;
+    }
+
+    // Logic for subsequent questions before selecting an option
+    const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+    if (!isAnswered) {
+      const preSelectMessage = 'Please select an option to continue...';
+      if (this.lastMessage !== preSelectMessage) {
+        this.selectionMessageService.updateSelectionMessage(preSelectMessage);
+        this.lastMessage = preSelectMessage;
+      }
+    } else {
+      this.updateAnswerStateAndMessage(isAnswered);
+    }
   }
-  
-  
 
   /* private updateSelectionMessage(isAnswered: boolean): void {
     this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
