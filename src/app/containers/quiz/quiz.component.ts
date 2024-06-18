@@ -1757,6 +1757,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizStateService.clearSelectedOptions();  // Clear selected options for all questions
 
     // Step 1: Reset quiz-specific states and services
+    this.resetUI();
     this.quizService.resetAll();
     this.currentQuestionIndex = 0;  // Reset to the first question's index
     this.progressPercentage = 0; // Reset the progressPercentage to 0
