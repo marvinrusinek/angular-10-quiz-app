@@ -10,10 +10,6 @@ export class SelectionMessageService {
     return this.selectionMessageSubject.asObservable();
   }
 
-  get isOptionSelected$(): Observable<boolean> {
-    return this.optionSelectedSubject.asObservable();
-  }
-
   determineSelectionMessage(currentQuestionIndex: number, totalQuestions: number, isAnswered: boolean): string {
     if (currentQuestionIndex === 0) {
       return isAnswered ? 'Please click the next button to continue.' : 'Please start the quiz by selecting an option.';
@@ -28,13 +24,6 @@ export class SelectionMessageService {
     console.log('[updateSelectionMessage] Updating selection message:', message);
     if (this.selectionMessageSubject.value !== message) {
       this.selectionMessageSubject.next(message);
-    }
-  }
-
-  setOptionSelected(isSelected: boolean): void {
-    console.log('[setOptionSelected] Updating option selected state:', isSelected);
-    if (this.optionSelectedSubject.value !== isSelected) {
-      this.optionSelectedSubject.next(isSelected);
     }
   }
 
