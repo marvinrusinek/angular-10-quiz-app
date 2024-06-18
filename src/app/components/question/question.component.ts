@@ -194,14 +194,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectionMessageService.resetMessage();
     this.checkIfAnswerSelected(true);
 
-    // Initialize the selection message
-    /* const initialMessage = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      false
-    );
-    this.selectionMessageService.updateSelectionMessage(initialMessage); */
-
     this.logInitialData();
 
     if (!this.initialized) {
@@ -877,20 +869,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleAudioPlayback(isCorrect);
   }
 
-  /* private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
-    if (isFirstQuestion) {
-      const initialMessage = 'Please start the quiz by selecting an option.';
-      if (this.lastMessage !== initialMessage) {
-        this.selectionMessageService.updateSelectionMessage(initialMessage);
-        this.lastMessage = initialMessage;
-      }
-      return;
-    }
-  
-    const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
-    this.updateAnswerStateAndMessage(isAnswered);
-  } */
-
   private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
     if (this.lastMessage !== initialMessage) {
@@ -916,19 +894,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.updateAnswerStateAndMessage(isAnswered);
     }
   }
-
-  /* private updateSelectionMessage(isAnswered: boolean): void {
-    this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
-      const isLastQuestion = this.currentQuestionIndex === totalQuestions - 1;
-      const message = isLastQuestion 
-        ? 'Please click the Show Results button' 
-        : isAnswered 
-          ? 'Please click the next button to continue...' 
-          : 'Please select an option to continue...';
-      
-      this.selectionMessageService.updateSelectionMessage(message);
-    });
-  } */
 
   private updateSelectionMessage(isAnswered: boolean): void {
     const isLastQuestion = this.currentQuestionIndex === this.totalQuestions - 1;
