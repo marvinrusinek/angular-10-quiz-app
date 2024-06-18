@@ -880,7 +880,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     // Common logic for subsequent questions
     const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
-    this.quizService.setAnsweredState(isAnswered);
     this.updateSelectionMessage(isAnswered);
   }
   
