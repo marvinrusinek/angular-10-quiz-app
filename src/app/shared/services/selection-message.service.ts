@@ -25,11 +25,15 @@ export class SelectionMessageService {
   }
 
   updateSelectionMessage(message: string): void {
-    this.selectionMessageSubject.next(message);
+    if (this.selectionMessageSubject.value !== message) {
+      this.selectionMessageSubject.next(message);
+    }
   }
 
   setOptionSelected(isSelected: boolean): void {
-    this.optionSelectedSubject.next(isSelected);
+    if (this.optionSelectedSubject.value !== isSelected) {
+      this.optionSelectedSubject.next(isSelected);
+    }
   }
 
   resetMessage(): void {
