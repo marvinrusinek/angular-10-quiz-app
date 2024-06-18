@@ -173,7 +173,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
       this.quizService.getTotalQuestions()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(totalQuestions => {
+      .subscribe((totalQuestions: number) => {
         this.totalQuestions = totalQuestions;
       });
 
@@ -193,6 +193,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.selectionMessageService.resetMessage();
     this.checkIfAnswerSelected(true);
+    this.setInitialMessage();
 
     this.logInitialData();
 
@@ -850,12 +851,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.totalQuestions,
       isAnswered
     );
-    
-    // Update the message only if it has actually changed
-    if (this.lastMessage !== message) {
-      this.selectionMessageService.updateSelectionMessage(message);
-      this.selectionMessageService.setOptionSelected(isAnswered);
-      this.lastMessage = message;
+    this.updateMessageIfNeeded(message);
+  }
+
+  private updateMessageIfNeeded(newMessage: string): void {
+    if (this.lastMessage !== newMessage) {
+      this.selectionMessageService.updateSelectionMessage(newMessage);
+      this.lastMessage = newMessage;
     }
   }
 
@@ -886,10 +888,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
     if (!isAnswered) {
       const preSelectMessage = 'Please select an option to continue...';
-      if (this.lastMessage !== preSelectMessage) {
-        this.selectionMessageService.updateSelectionMessage(preSelectMessage);
-        this.lastMessage = preSelectMessage;
-      }
+      this.updateMessageIfNeeded(preSelectMessage);
     } else {
       this.updateAnswerStateAndMessage(isAnswered);
     }
