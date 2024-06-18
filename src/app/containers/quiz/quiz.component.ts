@@ -1174,7 +1174,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   updateExplanationText(questionIndex: number): void {
     // Get the state of the question at the given index
-    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    const questionState: QuestionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
 
     // Check if the question has been answered
     if (questionState.isAnswered) {
