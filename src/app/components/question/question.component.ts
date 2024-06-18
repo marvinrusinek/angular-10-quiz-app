@@ -891,7 +891,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleAudioPlayback(isCorrect);
   }
 
-  /* private handleMessageUpdate(): void {
+  /* private updateSelectionMessageForCurrentQuestion(): void {
     console.log(`[handleMessageUpdate] Handling message update for question index: ${this.currentQuestionIndex}`);
     let newMessage = '';
     if (this.currentQuestionIndex === 0) {
