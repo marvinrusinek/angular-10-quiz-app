@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, In
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, first, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, first, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
@@ -1061,12 +1061,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private subscribeToSelectionMessage(): void {
     this.selectionMessageService.selectionMessage$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((message: string) => {
-        console.log('[subscribeToSelectionMessage] New selection message:', message);
-        this.selectionMessage = message;
-        this.cdRef.markForCheck();
-      });
+    .pipe(debounceTime(300), takeUntil(this.destroy$))
+    .subscribe((message: string) => {
+      console.log('[subscribeToSelectionMessage] New selection message:', message);
+      this.selectionMessage = message;
+      this.cdRef.markForCheck(); // Ensure change detection
+    });
   }
   
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
