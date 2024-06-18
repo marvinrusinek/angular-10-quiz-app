@@ -877,7 +877,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log(`[setSelectionMessageIfChanged] Current message: '${this.lastMessage}', New message: '${newMessage}'`);
     if (this.lastMessage !== newMessage) {
       console.log(`[setSelectionMessageIfChanged] Updating message from '${this.lastMessage}' to '${newMessage}'`);
-      this.updateSelectionMessage(newMessage); // Call the method to update the message in the service
+      this.setSelectionMessage(newMessage); // Call the method to update the message in the service
       this.lastMessage = newMessage;
       this.safeDetectChanges();
     } else {
