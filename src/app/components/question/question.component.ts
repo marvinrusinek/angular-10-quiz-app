@@ -886,18 +886,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private handleMessageUpdate(): void {
+    console.log(`[handleMessageUpdate] Handling message update for question index: ${this.currentQuestionIndex}`);
+    let newMessage = '';
     if (this.currentQuestionIndex === 0) {
-      this.setInitialMessage();
+      newMessage = 'Please start the quiz by selecting an option.';
     } else if (this.currentQuestionIndex === this.totalQuestions - 1) {
-      this.updateMessageIfNeeded('Please click the Show Results button.');
+      newMessage = 'Please click the Show Results button.';
     } else {
       const isAnswered = this.quizService.isAnswered(this.currentQuestionIndex);
-      if (isAnswered) {
-        this.updateMessageIfNeeded('Please click the next button to continue...');
-      } else {
-        this.updateMessageIfNeeded('Please select an option to continue...');
-      }
+      newMessage = isAnswered ? 'Please click the next button to continue...' : 'Please select an option to continue...';
     }
+    this.updateMessageIfNeeded(newMessage);
   }
 
   private setInitialMessage(): void {
