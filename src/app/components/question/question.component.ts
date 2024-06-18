@@ -220,6 +220,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // this.subscribeToAnswers(); // might need for correct answers text
     this.subscriptionToOptions();
+    this.subscribetoOptionSelection();
     // this.quizService.initializeSounds();
     this.logFinalData();
   }
@@ -530,6 +531,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.options = options;
       }
     });
+  }
+
+  // Subscribe to option selection changes
+  private subscribeToOptionSelection(): void {
+    this.selectedOptionService.isOptionSelected$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isSelected: boolean) => {
+        console.log('[subscribeToOptionSelection] Option selected state:', isSelected);
+        this.updateSelectionMessageForCurrentQuestion(); // Update message based on selection
+      });
   }
 
   updateCorrectMessageText(message: string): void {
