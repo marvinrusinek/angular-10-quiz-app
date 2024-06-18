@@ -873,12 +873,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateMessageIfNeeded(newMessage: string): void {
-    console.log('[updateMessageIfNeeded] Current message:', this.lastMessage, 'New message:', newMessage);
+    console.log(`[updateMessageIfNeeded] Current message: '${this.lastMessage}', New message: '${newMessage}'`);
     if (this.lastMessage !== newMessage) {
-      console.log(`Updating message from '${this.lastMessage}' to '${newMessage}'`);
+      console.log(`[updateMessageIfNeeded] Updating message from '${this.lastMessage}' to '${newMessage}'`);
       this.selectionMessageService.updateSelectionMessage(newMessage);
       this.lastMessage = newMessage;
       this.safeDetectChanges();
+    } else {
+      console.log('[updateMessageIfNeeded] No change in message. Skipping update.');
     }
   }
 
