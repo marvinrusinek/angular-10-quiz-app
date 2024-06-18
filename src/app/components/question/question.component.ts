@@ -112,6 +112,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isLoadingQuestions = false;
   isPaused = false;
   isInitialized = false;
+  isComponentDestroyed = false;
   private initialized = false;
   private isNextMessage = false;
   private isFirstQuestion = true;
@@ -267,6 +268,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   ngOnDestroy(): void {
+    
     this.destroy$.next();
     this.destroy$.complete();
     this.questionsObservableSubscription?.unsubscribe();
@@ -275,7 +277,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private safeDetectChanges(): void {
-    if (!this.destroy$.isStopped) {
+    if (!this.isComponentDestroyed) {
       this.cdRef.detectChanges();
     } else {
       console.warn('Attempted to call detectChanges on a destroyed view.');
@@ -839,7 +841,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Handle correctness check and timer
       await this.handleCorrectnessAndTimer();
 
-      this.handleMessageUpdate();
+      this.updateSelectionMessageForCurrentQuestion();
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
@@ -903,7 +905,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.updateMessageIfNeeded(newMessage);
   } */
 
-  private handleMessageUpdate(): void {
+  private updateSelectionMessageForCurrentQuestion(): void {
     console.log(`[handleMessageUpdate] Updating message for question index: ${this.currentQuestionIndex}`);
     let newMessage = '';
     if (this.currentQuestionIndex === 0) {
