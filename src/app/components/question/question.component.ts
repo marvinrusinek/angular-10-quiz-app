@@ -936,10 +936,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       newMessage = 'Please start the quiz by selecting an option.';
     } else if (this.currentQuestionIndex === this.totalQuestions - 1) {
       newMessage = 'Please click the Show Results button.';
-    } else if (this.selectedOptionService.getCurrentOptionSelectedState()) {
-      newMessage = 'Please click the next button to continue...';
     } else {
-      newMessage = 'Please select an option to continue...';
+      const isOptionSelected = this.selectedOptionService.getCurrentOptionSelectedState();
+      newMessage = isOptionSelected
+        ? 'Please click the next button to continue...'
+        : 'Please select an option to continue...';
     }
   
     this.setSelectionMessageIfChanged(newMessage);
