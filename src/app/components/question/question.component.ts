@@ -879,14 +879,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
     if (isFirstQuestion) {
-      this.selectionMessageService.updateSelectionMessage('Please start the quiz by selecting an option.');
+      const initialMessage = 'Please start the quiz by selecting an option.';
+      if (this.lastMessage !== initialMessage) {
+        this.selectionMessageService.updateSelectionMessage(initialMessage);
+        this.lastMessage = initialMessage;
+      }
       return;
     }
   
-    // Common logic for subsequent questions
     const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
-    this.updateSelectionMessage(isAnswered);
+    this.updateAnswerStateAndMessage(isAnswered);
   }
+  
   
 
   /* private updateSelectionMessage(isAnswered: boolean): void {
