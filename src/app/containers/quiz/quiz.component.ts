@@ -1063,6 +1063,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectionMessageService.selectionMessage$
       .pipe(takeUntil(this.destroy$))
       .subscribe((message: string) => {
+        console.log('[subscribeToSelectionMessage] New selection message:', message);
         this.selectionMessage = message;
         this.cdRef.markForCheck();
       });

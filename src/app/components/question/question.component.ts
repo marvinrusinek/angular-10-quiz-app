@@ -851,10 +851,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.totalQuestions,
       isAnswered
     );
+    console.log('[updateAnswerStateAndMessage] Determined message:', message);
     this.updateMessageIfNeeded(message);
   }
 
   private updateMessageIfNeeded(newMessage: string): void {
+    console.log('[updateMessageIfNeeded] Current message:', this.lastMessage, 'New message:', newMessage);
     if (this.lastMessage !== newMessage) {
       console.log(`Updating message from '${this.lastMessage}' to '${newMessage}'`);
       this.selectionMessageService.updateSelectionMessage(newMessage);
@@ -874,28 +876,32 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
-    console.log('Setting initial message:', initialMessage);
+    console.log('[setInitialMessage] Setting initial message:', initialMessage);
     this.selectionMessageService.updateSelectionMessage(initialMessage);
     this.lastMessage = initialMessage;
   }
 
   private resetMessages(): void {
-    this.selectionMessageService.resetMessage(); // Set the initial message
+    this.selectionMessageService.resetMessage();
     this.lastMessage = 'Please start the quiz by selecting an option.';
+    console.log('[resetMessages] Messages reset to initial state');
   }
 
   private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
     if (isFirstQuestion) {
-      this.resetMessages(); // Reset to initial message
+      this.setInitialMessage();
+      console.log('[checkIfAnswerSelected] Initial message set for the first question');
       return;
     }
   
     const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
-    console.log(`Question ${this.currentQuestionIndex} is answered:`, isAnswered);
+    console.log(`[checkIfAnswerSelected] Question ${this.currentQuestionIndex} is answered:`, isAnswered);
     if (!isAnswered) {
       const preSelectMessage = 'Please select an option to continue...';
+      console.log('[checkIfAnswerSelected] Setting pre-selection message:', preSelectMessage);
       this.updateMessageIfNeeded(preSelectMessage);
     } else {
+      console.log('[checkIfAnswerSelected] Updating answer state and message');
       this.updateAnswerStateAndMessage(isAnswered);
     }
   }
