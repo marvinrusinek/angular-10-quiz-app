@@ -195,6 +195,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.checkIfAnswerSelected(true);
     this.setInitialMessage();
     this.handleMessageUpdate();
+    this.isInitialized = true;
 
     this.logInitialData();
 
