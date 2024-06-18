@@ -220,7 +220,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // this.subscribeToAnswers(); // might need for correct answers text
     this.subscriptionToOptions();
-    this.subscribetoOptionSelection();
+    this.subscribeToOptionSelection();
     // this.quizService.initializeSounds();
     this.logFinalData();
   }
