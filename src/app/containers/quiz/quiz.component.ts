@@ -1072,6 +1072,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.cdRef.markForCheck();
       });
   }
+
+  isLastQuestion(): boolean {
+    return this.currentQuestionIndex === this.totalQuestions - 1;
+  }
   
   
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
