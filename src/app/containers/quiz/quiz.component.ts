@@ -1061,13 +1061,18 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private subscribeToSelectionMessage(): void {
     this.selectionMessageService.selectionMessage$
-    .pipe(debounceTime(300), takeUntil(this.destroy$))
-    .subscribe((message: string) => {
-      console.log('[subscribeToSelectionMessage] New selection message:', message);
-      this.selectionMessage = message;
-      this.cdRef.markForCheck(); // Ensure change detection
-    });
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(), // Added distinctUntilChanged to prevent redundant updates
+        takeUntil(this.destroy$)
+      )
+      .subscribe((message: string) => {
+        console.log('[subscribeToSelectionMessage] New selection message:', message);
+        this.selectionMessage = message;
+        this.cdRef.markForCheck();
+      });
   }
+  
   
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (!selectedQuiz || !Array.isArray(selectedQuiz.questions) || selectedQuiz.questions.length === 0) {
