@@ -840,8 +840,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.updateAnswerStateAndMessage(isAnswered);
   
       // Handle additional option selection logic
-      this.handleOptionSelection(option, index, currentQuestion);
       await this.processCurrentQuestion(currentQuestion);
+      this.handleOptionSelection(option, index, currentQuestion);
+      this.selectedOptionService.setOptionSelected(true);
   
       // Update state for explanations and log them
       this.updateQuestionStateForExplanation(this.currentQuestionIndex);
