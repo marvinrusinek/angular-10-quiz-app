@@ -111,6 +111,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isLoading = true;
   isLoadingQuestions = false;
   isPaused = false;
+  isInitialized = false;
   private initialized = false;
   private isNextMessage = false;
   private isFirstQuestion = true;
