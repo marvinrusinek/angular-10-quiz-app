@@ -193,8 +193,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.resetMessages();
     this.checkIfAnswerSelected(true);
-
     this.setInitialMessage();
+    this.handleMessageUpdate();
 
     this.logInitialData();
 
@@ -831,6 +831,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       // Handle correctness check and timer
       await this.handleCorrectnessAndTimer();
+
+      this.handleMessageUpdate();
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
@@ -879,11 +881,27 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleAudioPlayback(isCorrect);
   }
 
+  private handleMessageUpdate(): void {
+    if (this.currentQuestionIndex === 0) {
+      this.setInitialMessage();
+    } else if (this.currentQuestionIndex === this.totalQuestions - 1) {
+      this.updateMessageIfNeeded('Please click the Show Results button.');
+    } else {
+      const isAnswered = this.quizService.isAnswered(this.currentQuestionIndex);
+      if (isAnswered) {
+        this.updateMessageIfNeeded('Please click the next button to continue...');
+      } else {
+        this.updateMessageIfNeeded('Please select an option to continue...');
+      }
+    }
+  }
+
   private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
     console.log('[setInitialMessage] Setting initial message:', initialMessage);
     this.selectionMessageService.updateSelectionMessage(initialMessage);
     this.lastMessage = initialMessage;
+    this.cdRef.markForCheck(); // Ensure change detection
   }
 
   private resetMessages(): void {
