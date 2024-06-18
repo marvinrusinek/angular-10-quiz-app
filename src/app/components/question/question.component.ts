@@ -891,6 +891,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   
     const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+    console.log(`Question ${this.currentQuestionIndex} is answered:`, isAnswered);
     if (!isAnswered) {
       const preSelectMessage = 'Please select an option to continue...';
       this.updateMessageIfNeeded(preSelectMessage);
