@@ -943,6 +943,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         : 'Please select an option to continue...';
     }
   
+    // Update message only if it has changed
     this.setSelectionMessageIfChanged(newMessage);
   }
   
