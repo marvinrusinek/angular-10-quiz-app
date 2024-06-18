@@ -118,6 +118,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private isFirstQuestion = true;
   private selectionUpdate$ = new Subject<boolean>();
   private lastMessage = '';
+  private selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Please start the quiz by selecting an option.');
 
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -198,7 +199,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     
     this.isInitialized = true;
     this.setInitialMessage();
-    this.handleMessageUpdate();
+    this.updateSelectionMessageForCurrentQuestion();
     
     this.logInitialData();
 
@@ -268,7 +269,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   ngOnDestroy(): void {
-    
+    this.isComponentDestroyed = true;
     this.destroy$.next();
     this.destroy$.complete();
     this.questionsObservableSubscription?.unsubscribe();
