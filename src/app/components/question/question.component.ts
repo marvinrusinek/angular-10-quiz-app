@@ -869,19 +869,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       isAnswered
     );
     console.log('[updateAnswerStateAndMessage] Determined message:', message);
-    this.updateMessageIfNeeded(message);
+    this.setSelectionMessageIfChanged(message);
   }
 
-  private updateMessageIfNeeded(newMessage: string): void {
-    console.log(`[updateMessageIfNeeded] Current message: '${this.lastMessage}', New message: '${newMessage}'`);
+  // Sets the selection message if it has changed
+  private setSelectionMessageIfChanged(newMessage: string): void {
+    console.log(`[setSelectionMessageIfChanged] Current message: '${this.lastMessage}', New message: '${newMessage}'`);
     if (this.lastMessage !== newMessage) {
-      console.log(`[updateMessageIfNeeded] Updating message from '${this.lastMessage}' to '${newMessage}'`);
-      this.selectionMessageService.updateSelectionMessage(newMessage);
-      this.setSelectionMessage(newMessage);
+      console.log(`[setSelectionMessageIfChanged] Updating message from '${this.lastMessage}' to '${newMessage}'`);
+      this.updateSelectionMessage(newMessage); // Call the method to update the message in the service
       this.lastMessage = newMessage;
       this.safeDetectChanges();
     } else {
-      console.log('[updateMessageIfNeeded] No change in message. Skipping update.');
+      console.log('[setSelectionMessageIfChanged] No change in message. Skipping update.');
     }
   }
 
@@ -925,7 +925,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       newMessage = 'Please select an option to continue...';
     }
-    this.updateMessageIfNeeded(newMessage);
+    this.setSelectionMessageIfChanged(newMessage);
   }
 
   private setInitialMessage(): void {
@@ -954,7 +954,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (!isAnswered) {
       const preSelectMessage = 'Please select an option to continue...';
       console.log('[checkIfAnswerSelected] Setting pre-selection message:', preSelectMessage);
-      this.updateMessageIfNeeded(preSelectMessage);
+      this.setSelectionMessageIfChanged(preSelectMessage);
     } else {
       console.log('[checkIfAnswerSelected] Updating answer state and message');
       this.updateAnswerStateAndMessage(isAnswered);
@@ -977,7 +977,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectionMessageService.updateSelectionMessage(newMessage);
       this.selectionMessage = newMessage;
       this.lastMessage = newMessage;
-      this.cdRef.markForCheck();
+      this.safeDetectChanges();
     }
   }
   
