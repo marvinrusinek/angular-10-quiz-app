@@ -858,8 +858,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.totalQuestions,
       isAnswered
     );
-    this.selectionMessageService.updateSelectionMessage(message);
-    this.selectionMessageService.setOptionSelected(isAnswered);
+    
+    // Update the message only if it has actually changed
+    if (this.lastMessage !== message) {
+      this.selectionMessageService.updateSelectionMessage(message);
+      this.selectionMessageService.setOptionSelected(isAnswered);
+      this.lastMessage = message;
+    }
   }
 
   private async handleCorrectnessAndTimer(): Promise<void> {
