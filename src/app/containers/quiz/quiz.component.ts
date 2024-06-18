@@ -1064,6 +1064,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((message: string) => {
         this.selectionMessage = message;
+        this.cdRef.markForCheck();
       });
   }
   
