@@ -20,4 +20,8 @@ export class SelectedOptionService {
       this.optionSelectedSubject.next(isSelected);
     }
   }
+
+  getCurrentOptionSelectedState(): boolean {
+    return this.optionSelectedSubject.value;
+  }
 }
