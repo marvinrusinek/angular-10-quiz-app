@@ -881,7 +881,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleAudioPlayback(isCorrect);
   }
 
-  private handleMessageUpdate(): void {
+  /* private handleMessageUpdate(): void {
     console.log(`[handleMessageUpdate] Handling message update for question index: ${this.currentQuestionIndex}`);
     let newMessage = '';
     if (this.currentQuestionIndex === 0) {
@@ -891,6 +891,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       const isAnswered = this.quizService.isAnswered(this.currentQuestionIndex);
       newMessage = isAnswered ? 'Please click the next button to continue...' : 'Please select an option to continue...';
+    }
+    this.updateMessageIfNeeded(newMessage);
+  } */
+
+  private handleMessageUpdate(): void {
+    console.log(`[handleMessageUpdate] Updating message for question index: ${this.currentQuestionIndex}`);
+    let newMessage = '';
+    if (this.currentQuestionIndex === 0) {
+      newMessage = 'Please start the quiz by selecting an option.';
+    } else if (this.currentQuestionIndex === this.totalQuestions - 1) {
+      newMessage = 'Please click the Show Results button.';
+    } else {
+      newMessage = 'Please select an option to continue...';
     }
     this.updateMessageIfNeeded(newMessage);
   }
