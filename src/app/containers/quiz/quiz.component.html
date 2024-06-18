@@ -54,7 +54,7 @@
   
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
-      <h5 class="selection-message" *ngIf="selectionMessage !== ''">
+      <h5 class="selection-message" *ngIf="selectionMessage && selectionMessage !== ''">
         {{ selectionMessage }}
       </h5>
 
