@@ -274,6 +274,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.sharedVisibilitySubscription?.unsubscribe();
   }
 
+  private safeDetectChanges(): void {
+    if (!this.destroy$.isStopped) {
+      this.cdRef.detectChanges();
+    } else {
+      console.warn('Attempted to call detectChanges on a destroyed view.');
+    }
+  }
+
   trackByOption(option: Option): number {
     return option.optionId;
   }
