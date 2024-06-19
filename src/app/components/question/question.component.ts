@@ -209,6 +209,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         });
       }
     });
+
+    this.initializeSelectionMessage();
   
     // Subscribe to option selection state changes
     this.subscribeToOptionSelection();
@@ -878,6 +880,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('[updateAnswerStateAndMessage] Determined message:', message);
     this.setSelectionMessageIfChanged(message);
   }
+
+  private initializeSelectionMessage(): void {
+    // Set the initial message for the first question
+    if (this.currentQuestionIndex === 0) {
+      this.selectionMessage = 'Please start the quiz by selecting an option.';
+      this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
+      console.log('[initializeSelectionMessage] Initial message set: ', this.selectionMessage);
+    }
+  }  
 
   // Sets the selection message if it has changed
   private setSelectionMessageIfChanged(newMessage: string): void {
