@@ -584,8 +584,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   getOptionsForQuestion(): Option[] {
     return this.currentQuestionIndex === this.previousQuestionIndex
-      ? this.optionsToDisplay
-      : this.data?.options;
+      ? this.optionsToDisplay : this.data?.options;
   }
 
   updateQuestionForm(): void {
