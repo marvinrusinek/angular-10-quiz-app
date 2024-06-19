@@ -279,12 +279,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private updateLocalState(): void {
-    this.localState.currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
-    this.localState.isOptionSelected = this.selectedOptionService.getCurrentOptionSelectedState();
-    console.log('Updated Local State:', this.localState);
-  }
-
   trackByOption(option: Option): number {
     return option.optionId;
   }
