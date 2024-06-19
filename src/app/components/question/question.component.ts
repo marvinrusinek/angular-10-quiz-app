@@ -120,16 +120,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private lastMessage = '';
   private selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Please start the quiz by selecting an option.');
 
-  private localState: {
-    isInitial: boolean;
-    currentQuestionIndex: number;
-    isOptionSelected: boolean;
-  } = {
-    isInitial: false,
-    currentQuestionIndex: 0,
-    isOptionSelected: false,
-  };
-
   // Define audio list array
   audioList: AudioItem[] = [];
 
@@ -930,9 +920,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleAudioPlayback(isCorrect);
   }
 
-  /* private setSelectionMessageBasedOnState(isInitial: boolean = false): void {
-    this.updateLocalState();
-
+  private setSelectionMessageBasedOnState(isInitial: boolean = false): void {
     let newMessage = '';
   
     if (isInitial && this.currentQuestionIndex === 0) {
@@ -951,24 +939,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     // Update message only if it has changed to avoid redundant updates
     console.log(`[setSelectionMessageBasedOnState] Determined new message: '${newMessage}'`);
-    this.setSelectionMessageIfChanged(newMessage);
-  } */
-
-  private setSelectionMessageBasedOnLocalState(): void {
-    this.updateLocalState();
-  
-    let newMessage = '';
-  
-    if (this.localState.isInitial && this.localState.currentQuestionIndex === 0) {
-      newMessage = 'Please start the quiz by selecting an option.';
-    } else if (this.localState.currentQuestionIndex === this.totalQuestions - 1) {
-      newMessage = 'Please click the Show Results button.';
-    } else {
-      newMessage = this.localState.isOptionSelected
-        ? 'Please click the next button to continue...'
-        : 'Please select an option to continue...';
-    }
-  
     this.setSelectionMessageIfChanged(newMessage);
   }
   
