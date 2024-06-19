@@ -190,7 +190,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     console.log('QuizQuestionComponent - ngOnInit - Initializing');
   
-    // Consolidate and simplify message-related calls
+    // Selection message-related calls
     this.resetMessages();
     this.setInitialMessage();
     this.updateSelectionMessageForCurrentQuestion(true); // Pass 'true' to handle initial state
