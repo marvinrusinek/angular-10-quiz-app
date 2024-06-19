@@ -538,7 +538,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe((isSelected: boolean) => {
-        this.updateSelectionMessageForCurrentQuestion();
+        this.setSelectionMessageBasedOnState();
       });
   }
   
@@ -854,7 +854,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Handle correctness check and timer
       await this.handleCorrectnessAndTimer();
 
-      this.updateSelectionMessageForCurrentQuestion();
+      this.setSelectionMessageBasedOnState();
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
