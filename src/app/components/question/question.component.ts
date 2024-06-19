@@ -839,6 +839,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.processCurrentQuestion(currentQuestion);
       this.handleOptionSelection(option, index, currentQuestion);
       this.selectedOptionService.setOptionSelected(true);
+
+      // Update the message state based on the selection
+      this.setSelectionMessageBasedOnState();
   
       // Update state for explanations and log them
       this.updateQuestionStateForExplanation(this.currentQuestionIndex);
@@ -849,8 +852,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       // Handle correctness check and timer
       await this.handleCorrectnessAndTimer();
-
-      this.setSelectionMessageBasedOnState();
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
