@@ -193,7 +193,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Selection message-related calls
     this.resetMessages();
     this.setInitialMessage();
-    this.updateSelectionMessageForCurrentQuestion(true); // Pass 'true' to handle initial state
+    this.setSelectionMessageBasedOnState(true); // Initial call with 'true' for initial state
   
     // Ensure the quiz is initialized only once
     if (!this.initialized) {
@@ -913,12 +913,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleAudioPlayback(isCorrect);
   }
 
-  // Determine and set the selection message based on the current question
-  private updateSelectionMessageForCurrentQuestion(isInitial: boolean = false): void {
+  private setSelectionMessageBasedOnState(isInitial: boolean = false): void {
     let newMessage = '';
   
     if (isInitial && this.currentQuestionIndex === 0) {
-      // Display initial message for the first question
       newMessage = 'Please start the quiz by selecting an option.';
     } else if (this.currentQuestionIndex === this.totalQuestions - 1) {
       newMessage = 'Please click the Show Results button.';
@@ -929,7 +927,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         : 'Please select an option to continue...';
     }
   
-    // Update message only if it has changed
     this.setSelectionMessageIfChanged(newMessage);
   }
   
@@ -940,16 +937,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectionMessageService.updateSelectionMessage(initialMessage);
     this.lastMessage = initialMessage;
     this.safeDetectChanges();
-  }
-
-  private initializeSelectionMessage(): void {
-    if (this.currentQuestionIndex === 0) {
-      // For the first question
-      this.setSelectionMessage('Please start the quiz by selecting an option.');
-    } else {
-      // For subsequent questions
-      this.setSelectionMessage('Please select an option to continue...');
-    }
   }
 
   private resetMessages(): void {
