@@ -540,10 +540,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   private async checkAsynchronousStateChanges(): Promise<void> {
-    const isAnswered = await this.quizService.isAnswered(this.currentQuestionIndex);
+    const isAnswered: boolean = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
     console.log('Asynchronous State Check - Is Answered:', isAnswered);
   
-    const currentSelectionState = this.selectedOptionService.getCurrentOptionSelectedState();
+    const currentSelectionState: boolean = this.selectedOptionService.getCurrentOptionSelectedState();
     console.log('Current Option Selected State:', currentSelectionState);
   
     if (isAnswered !== currentSelectionState) {
@@ -551,7 +551,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.setSelectionMessageBasedOnState();
     }
   }
-  
 
   updateCorrectMessageText(message: string): void {
     this.quizService.updateCorrectMessageText(message); 
