@@ -935,6 +935,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   
     // Update message only if it has changed to avoid redundant updates
+    console.log(`[setSelectionMessageBasedOnState] Determined new message: '${newMessage}'`);
     this.setSelectionMessageIfChanged(newMessage);
   }
   
