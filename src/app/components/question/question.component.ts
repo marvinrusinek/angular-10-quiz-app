@@ -526,7 +526,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
-      .subscribe((isSelected: boolean) => {
+      .subscribe(async (isSelected: boolean) => {
         // Only update if there is an actual state change
         if (isSelected !== this.selectedOptionService.getCurrentOptionSelectedState()) {
           console.log(`[subscribeToOptionSelection] Option selection changed: ${isSelected}`);
