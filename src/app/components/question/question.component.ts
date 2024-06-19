@@ -516,14 +516,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('Error in subscribeToCorrectAnswersAndData:', error);
     }
-  }  
-
-  private subscriptionToOptions(): void {
-    this.quizService.currentOptions$.subscribe((options) => {
-      if (options) {
-        this.options = options;
-      }
-    });
   }
 
   // Subscribe to option selection changes
