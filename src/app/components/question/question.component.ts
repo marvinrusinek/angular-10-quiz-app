@@ -908,6 +908,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleAudioPlayback(isCorrect);
   }
 
+      
+  
+  private resetMessages(): void {
+    this.selectionMessageService.resetMessage();
+    this.lastMessage = 'Please start the quiz by selecting an option.';
+    console.log('[resetMessages] Messages reset to initial state');
+  }
+
   private updateSelectionMessageBasedOnState(isInitial: boolean = false, isAnswered: boolean = false): void {
     let newMessage: string;
   
@@ -930,15 +938,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.log('No update required');
     }
-  }    
-  
-  private resetMessages(): void {
-    this.selectionMessageService.resetMessage();
-    this.lastMessage = 'Please start the quiz by selecting an option.';
-    console.log('[resetMessages] Messages reset to initial state');
   }
+  
 
-  private updateSelectionMessage(isAnswered: boolean): void {
+  /*** private updateSelectionMessage(isAnswered: boolean): void {
     const isLastQuestion = this.currentQuestionIndex === this.totalQuestions - 1;
     let newMessage: string;
   
@@ -967,7 +970,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.log(`[updateSelectionMessage] No change needed. Current message: '${this.selectionMessage}'`);
     }
-  }
+  } ***/
   
   
   private async processCurrentQuestion(
