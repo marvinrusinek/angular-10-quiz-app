@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, lastValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, filter, map, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
@@ -536,12 +536,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   // Subscribe to option selection changes
   private subscribeToOptionSelection(): void {
     this.selectedOptionService.isOptionSelected$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        debounceTime(300), // Adjust debounce time as necessary
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
       .subscribe((isSelected: boolean) => {
         console.log('[subscribeToOptionSelection] Option selected state:', isSelected);
-        this.updateSelectionMessageForCurrentQuestion(); // Update message based on selection
+        this.updateSelectionMessageForCurrentQuestion(); // Update the message based on current state
       });
   }
+  
 
   updateCorrectMessageText(message: string): void {
     this.quizService.updateCorrectMessageText(message); 
