@@ -850,7 +850,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
       // Update the message state based on the selection
       if (!wasSelected) {
+        console.log('[onOptionClicked] Option selection state changed');
         this.setSelectionMessageBasedOnState();
+      } else {
+        console.log('[onOptionClicked] No change in option selection state');
       }
   
       // Update state for explanations and log them
