@@ -201,7 +201,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     // Initialize the current quiz question
     this.initializeQuizQuestion();
-    this.checkIfAnswerSelected(true); // Pass 'true' to handle initial check
   
     // Set up event listener for visibility change
     document.addEventListener('visibilitychange', () => {
@@ -822,9 +821,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         text: option.text
       };
       this.quizService.toggleSelectedOption(selectedOption);
-  
-      // Check if the current question is answered after an option is selected
-      await this.checkIfAnswerSelected(this.isFirstQuestion);
+
       this.isFirstQuestion = false; // Reset after the first option click
   
       // Process the current question
@@ -933,24 +930,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectionMessageService.resetMessage();
     this.lastMessage = 'Please start the quiz by selecting an option.';
     console.log('[resetMessages] Messages reset to initial state');
-  }
-
-  private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
-    if (isFirstQuestion) {
-      console.log('[checkIfAnswerSelected] Initial message set for the first question');
-      return;
-    }
-  
-    const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
-    console.log(`[checkIfAnswerSelected] Question ${this.currentQuestionIndex} is answered:`, isAnswered);
-    if (!isAnswered) {
-      const preSelectMessage = 'Please select an option to continue...';
-      console.log('[checkIfAnswerSelected] Setting pre-selection message:', preSelectMessage);
-      this.setSelectionMessageIfChanged(preSelectMessage);
-    } else {
-      console.log('[checkIfAnswerSelected] Updating answer state and message');
-      this.updateAnswerStateAndMessage(isAnswered);
-    }
   }
 
   private updateSelectionMessage(isAnswered: boolean): void {
