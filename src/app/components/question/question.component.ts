@@ -910,7 +910,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleAudioPlayback(isCorrect);
   }
 
-  private setSelectionMessageBasedOnState(isInitial: boolean = false): void {
+  /* private setSelectionMessageBasedOnState(isInitial: boolean = false): void {
     let newMessage = '';
   
     if (isInitial && this.currentQuestionIndex === 0) {
@@ -929,7 +929,32 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     // Update message only if it has changed to avoid redundant updates
     this.setSelectionMessageIfChanged(newMessage);
+  } */
+
+  private setSelectionMessageBasedOnState(isInitial: boolean = false): void {
+    let newMessage = '';
+  
+    if (isInitial && this.currentQuestionIndex === 0) {
+      newMessage = 'Please start the quiz by selecting an option.';
+    } else if (this.currentQuestionIndex === this.totalQuestions - 1) {
+      newMessage = 'Please click the Show Results button.';
+    } else {
+      const isOptionSelected = this.selectedOptionService.getCurrentOptionSelectedState();
+      newMessage = isOptionSelected
+        ? 'Please click the next button to continue...'
+        : 'Please select an option to continue...';
+    }
+  
+    if (this.lastMessage !== newMessage) {
+      console.log(`[setSelectionMessageBasedOnState] New message: ${newMessage}`);
+      this.setSelectionMessage(newMessage);
+      this.lastMessage = newMessage;
+      this.safeDetectChanges();
+    } else {
+      console.log('[setSelectionMessageBasedOnState] No change in message, skipping update.');
+    }
   }
+  
   
   private resetMessages(): void {
     this.selectionMessageService.resetMessage();
