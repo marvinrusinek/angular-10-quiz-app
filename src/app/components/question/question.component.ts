@@ -175,16 +175,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
 
       this.quizService.getTotalQuestions()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((totalQuestions: number) => {
-        this.totalQuestions = totalQuestions;
-      });
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((totalQuestions: number) => {
+          this.totalQuestions = totalQuestions;
+        });
 
       this.selectionUpdate$
-      .pipe(debounceTime(300), takeUntil(this.destroy$))
-      .subscribe(isAnswered => {
-        this.updateSelectionMessage(this.isAnswered);
-      });
+        .pipe(
+          debounceTime(300),
+          takeUntil(this.destroy$)
+        )
+        .subscribe(isAnswered => {
+          console.log(`[selectionUpdate$] isAnswered: ${isAnswered}`);
+          this.updateSelectionMessageBasedOnState(false, isAnswered);
+        });
   }
 
   async ngOnInit(): Promise<void> {
