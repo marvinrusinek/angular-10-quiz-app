@@ -192,7 +192,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     // Selection message-related calls
     this.resetMessages();
-    this.setInitialMessage();
     this.setSelectionMessageBasedOnState(true); // Initial call with 'true' for initial state
   
     // Ensure the quiz is initialized only once
@@ -930,15 +929,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.setSelectionMessageIfChanged(newMessage);
   }
   
-
-  private setInitialMessage(): void {
-    const initialMessage = 'Please start the quiz by selecting an option.';
-    console.log('[setInitialMessage] Setting initial message:', initialMessage);
-    this.selectionMessageService.updateSelectionMessage(initialMessage);
-    this.lastMessage = initialMessage;
-    this.safeDetectChanges();
-  }
-
   private resetMessages(): void {
     this.selectionMessageService.resetMessage();
     this.lastMessage = 'Please start the quiz by selecting an option.';
@@ -947,7 +937,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async checkIfAnswerSelected(isFirstQuestion: boolean = false): Promise<void> {
     if (isFirstQuestion) {
-      this.setInitialMessage();
       console.log('[checkIfAnswerSelected] Initial message set for the first question');
       return;
     }
