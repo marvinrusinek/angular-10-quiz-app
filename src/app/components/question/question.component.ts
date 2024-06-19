@@ -531,8 +531,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         if (isSelected !== this.selectedOptionService.getCurrentOptionSelectedState()) {
           console.log(`[subscribeToOptionSelection] Option selection changed: ${isSelected}`);
           this.setSelectionMessageBasedOnState();
+
+          // Check for asynchronous state changes
+          await this.checkAsynchronousStateChanges();
         };
       });
+  }
+  
+  private async checkAsynchronousStateChanges(): Promise<void> {
+    const isAnswered = await this.quizService.isAnswered(this.currentQuestionIndex);
+    console.log('Asynchronous State Check - Is Answered:', isAnswered);
+  
+    const currentSelectionState = this.selectedOptionService.getCurrentOptionSelectedState();
+    console.log('Current Option Selected State:', currentSelectionState);
+  
+    if (isAnswered !== currentSelectionState) {
+      console.log('Detected asynchronous state change. Updating message.');
+      this.setSelectionMessageBasedOnState();
+    }
   }
   
 
@@ -795,7 +811,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  private async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
       // Toggle the selection of the option
       const selectedOption: SelectedOption = {
