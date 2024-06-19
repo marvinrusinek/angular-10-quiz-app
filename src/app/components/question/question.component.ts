@@ -600,13 +600,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.resetForm();
   }
 
-  private subscribeToCorrectMessage(): void {
-    this.quizService.correctMessage$.subscribe((message) => {
-      console.log('Correct Message Updated:', message);
-      this.correctMessage = message;
-    });
-  }
-
   isOption(option: Option | string): option is Option {
     return (option as Option).optionId !== undefined;
   }
