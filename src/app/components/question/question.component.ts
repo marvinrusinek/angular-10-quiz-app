@@ -200,6 +200,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isInitialized = true;
     this.setInitialMessage();
     this.updateSelectionMessageForCurrentQuestion(true);
+    this.initializeSelectionMessage();
     
     this.logInitialData();
 
@@ -537,13 +538,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private subscribeToOptionSelection(): void {
     this.selectedOptionService.isOptionSelected$
       .pipe(
-        debounceTime(300), // Adjust debounce time as necessary
+        debounceTime(300), // Debounce to prevent rapid changes
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
       .subscribe((isSelected: boolean) => {
-        console.log('[subscribeToOptionSelection] Option selected state:', isSelected);
-        this.updateSelectionMessageForCurrentQuestion(); // Update the message based on current state
+        this.updateSelectionMessageForCurrentQuestion();
       });
   }
   
@@ -933,25 +933,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   // Determine and set the selection message based on the current question
-  private updateSelectionMessageForCurrentQuestion(isInitial: boolean = false): void {
+  private updateSelectionMessageForCurrentQuestion(): void {
     let newMessage = '';
   
-    if (isInitial && this.currentQuestionIndex === 0) {
-      // Display initial message for the first question
+    if (this.currentQuestionIndex === 0) {
+      // Initial message for the first question
       newMessage = 'Please start the quiz by selecting an option.';
     } else if (this.currentQuestionIndex === this.totalQuestions - 1) {
       newMessage = 'Please click the Show Results button.';
+    } else if (this.selectedOptionService.getCurrentOptionSelectedState()) {
+      // If an option is selected
+      newMessage = 'Please click the next button to continue...';
     } else {
-      const isOptionSelected = this.selectedOptionService.getCurrentOptionSelectedState();
-      newMessage = isOptionSelected
-        ? 'Please click the next button to continue...'
-        : 'Please select an option to continue...';
+      // Default message for other questions
+      newMessage = 'Please select an option to continue...';
     }
   
     // Update message only if it has changed
     this.setSelectionMessageIfChanged(newMessage);
   }
-  
 
   private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
@@ -959,6 +959,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectionMessageService.updateSelectionMessage(initialMessage);
     this.lastMessage = initialMessage;
     this.safeDetectChanges();
+  }
+
+  private initializeSelectionMessage(): void {
+    if (this.currentQuestionIndex === 0) {
+      // For the first question
+      this.setSelectionMessage('Please start the quiz by selecting an option.');
+    } else {
+      // For subsequent questions
+      this.setSelectionMessage('Please select an option to continue...');
+    }
   }
 
   private resetMessages(): void {
