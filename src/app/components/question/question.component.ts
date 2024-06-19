@@ -197,6 +197,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Ensure the quiz is initialized only once
     if (!this.initialized) {
       await this.initializeQuiz();
+      this.initialized = true;
     }
   
     // Initialize the current quiz question
