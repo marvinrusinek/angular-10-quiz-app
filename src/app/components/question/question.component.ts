@@ -918,41 +918,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleAudioPlayback(isCorrect);
   }
 
-  /* private updateSelectionMessageForCurrentQuestion(): void {
-    console.log(`[handleMessageUpdate] Handling message update for question index: ${this.currentQuestionIndex}`);
-    let newMessage = '';
-    if (this.currentQuestionIndex === 0) {
-      newMessage = 'Please start the quiz by selecting an option.';
-    } else if (this.currentQuestionIndex === this.totalQuestions - 1) {
-      newMessage = 'Please click the Show Results button.';
-    } else {
-      const isAnswered = this.quizService.isAnswered(this.currentQuestionIndex);
-      newMessage = isAnswered ? 'Please click the next button to continue...' : 'Please select an option to continue...';
-    }
-    this.updateMessageIfNeeded(newMessage);
-  } */
-
   // Determine and set the selection message based on the current question
-  /* private updateSelectionMessageForCurrentQuestion(): void {
-    let newMessage = '';
-  
-    if (this.currentQuestionIndex === 0) {
-      // Initial message for the first question
-      newMessage = 'Please start the quiz by selecting an option.';
-    } else if (this.currentQuestionIndex === this.totalQuestions - 1) {
-      newMessage = 'Please click the Show Results button.';
-    } else if (this.selectedOptionService.getCurrentOptionSelectedState()) {
-      // If an option is selected
-      newMessage = 'Please click the next button to continue...';
-    } else {
-      // Default message for other questions
-      newMessage = 'Please select an option to continue...';
-    }
-  
-    // Update message only if it has changed
-    this.setSelectionMessageIfChanged(newMessage);
-  } */
-
   private updateSelectionMessageForCurrentQuestion(isInitial: boolean = false): void {
     let newMessage = '';
   
