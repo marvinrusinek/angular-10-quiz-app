@@ -911,7 +911,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private updateSelectionMessageBasedOnState(isInitial: boolean = false, isAnswered: boolean = false): void {
     let newMessage: string;
   
-    // Determine the new message based on the state of the current question
     if (isInitial && this.currentQuestionIndex === 0) {
       newMessage = 'Please start the quiz by selecting an option.';
     } else if (this.currentQuestionIndex === this.totalQuestions - 1) {
@@ -920,49 +919,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       newMessage = isAnswered ? 'Please click the next button to continue.' : 'Please select an option to continue...';
     }
   
-    // Update message only if it has changed to avoid redundant updates
+    console.log(`Current Message: ${this.selectionMessage}, New Message: ${newMessage}`);
+  
     if (this.selectionMessage !== newMessage) {
-      console.log(`[updateSelectionMessageBasedOnState] Changing message from '${this.selectionMessage}' to '${newMessage}'`);
-      
-      // Update the selectionMessage property
+      console.log(`Updating message to: ${newMessage}`);
       this.selectionMessage = newMessage;
       this.selectionMessageService.updateSelectionMessage(newMessage);
-  
-      // Save the new message as the lastMessage
       this.lastMessage = newMessage;
-  
-      // Trigger change detection
       this.safeDetectChanges();
     } else {
-      console.log(`[updateSelectionMessageBasedOnState] No change needed. Current message: '${this.selectionMessage}'`);
+      console.log('No update required');
     }
-  }  
+  }    
   
   private resetMessages(): void {
     this.selectionMessageService.resetMessage();
     this.lastMessage = 'Please start the quiz by selecting an option.';
     console.log('[resetMessages] Messages reset to initial state');
   }
-
-  /* private updateSelectionMessage(isAnswered: boolean): void {
-    const isLastQuestion = this.currentQuestionIndex === this.totalQuestions - 1;
-    let newMessage: string;
-  
-    if (isLastQuestion) {
-      newMessage = isAnswered ? 'Please click the Show Results button.' : 'Please select an option to continue...';
-    } else if (this.isFirstQuestion) {
-      newMessage = isAnswered ? 'Please click the next button to continue.' : 'Please start the quiz by selecting an option.';
-    } else {
-      newMessage = isAnswered ? 'Please click the next button to continue.' : 'Please select an option to continue...';
-    }
-  
-    if (this.lastMessage !== newMessage) {
-      this.selectionMessageService.updateSelectionMessage(newMessage);
-      this.selectionMessage = newMessage;
-      this.lastMessage = newMessage;
-      this.safeDetectChanges();
-    }
-  } */
 
   private updateSelectionMessage(isAnswered: boolean): void {
     const isLastQuestion = this.currentQuestionIndex === this.totalQuestions - 1;
