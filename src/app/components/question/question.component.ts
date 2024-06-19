@@ -200,7 +200,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isInitialized = true;
     this.setInitialMessage();
     this.updateSelectionMessageForCurrentQuestion();
-    this.initializeSelectionMessage();
+    // this.initializeSelectionMessage();
     
     this.logInitialData();
 
@@ -933,7 +933,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   // Determine and set the selection message based on the current question
-  private updateSelectionMessageForCurrentQuestion(): void {
+  /* private updateSelectionMessageForCurrentQuestion(): void {
     let newMessage = '';
   
     if (this.currentQuestionIndex === 0) {
@@ -947,6 +947,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       // Default message for other questions
       newMessage = 'Please select an option to continue...';
+    }
+  
+    // Update message only if it has changed
+    this.setSelectionMessageIfChanged(newMessage);
+  } */
+
+  private updateSelectionMessageForCurrentQuestion(isInitial: boolean = false): void {
+    let newMessage = '';
+  
+    if (isInitial && this.currentQuestionIndex === 0) {
+      // Display initial message for the first question
+      newMessage = 'Please start the quiz by selecting an option.';
+    } else if (this.currentQuestionIndex === this.totalQuestions - 1) {
+      newMessage = 'Please click the Show Results button.';
+    } else {
+      const isOptionSelected = this.selectedOptionService.getCurrentOptionSelectedState();
+      newMessage = isOptionSelected
+        ? 'Please click the next button to continue...'
+        : 'Please select an option to continue...';
     }
   
     // Update message only if it has changed
