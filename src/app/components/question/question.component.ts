@@ -188,29 +188,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    /* if (!this.quizService.isValidQuizQuestion(this.currentQuestion)) {
-      console.warn('QuizQuestionComponent - ngOnInit - Question is not properly initialized:', this.currentQuestion);
-    } else {
-      console.log('QuizQuestionComponent - ngOnInit - Initial options:', this.currentQuestion.options);
-    } */
-
+    console.log('QuizQuestionComponent - ngOnInit - Initializing');
+  
+    // Consolidate and simplify message-related calls
     this.resetMessages();
-    this.checkIfAnswerSelected(true);
-    
-    this.isInitialized = true;
     this.setInitialMessage();
-    this.updateSelectionMessageForCurrentQuestion();
-    this.initializeSelectionMessage();
-    
-    this.logInitialData();
-
+    this.updateSelectionMessageForCurrentQuestion(true); // Pass 'true' to handle initial state
+  
+    // Ensure the quiz is initialized only once
     if (!this.initialized) {
       await this.initializeQuiz();
     }
-
+  
+    // Initialize the current quiz question
     this.initializeQuizQuestion();
-    this.checkIfAnswerSelected(true);
-
+    this.checkIfAnswerSelected(true); // Pass 'true' to handle initial check
+  
+    // Set up event listener for visibility change
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
         this.ngZone.run(() => {
@@ -218,11 +212,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         });
       }
     });
-
-    // this.subscribeToAnswers(); // might need for correct answers text
-    this.subscriptionToOptions();
+  
+    // Subscribe to option selection state changes
     this.subscribeToOptionSelection();
-    // this.quizService.initializeSounds();
+  
+    // Log initial and final data for debugging
+    this.logInitialData();
     this.logFinalData();
   }
 
