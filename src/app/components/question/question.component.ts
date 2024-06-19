@@ -535,12 +535,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   private async checkAsynchronousStateChanges(): Promise<void> {
-    // Resolve the Observable to a boolean
     const isAnswered: boolean = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
     const currentSelectionState: boolean = this.selectedOptionService.getCurrentOptionSelectedState();
   
     if (isAnswered !== currentSelectionState) {
-      this.setSelectionMessageBasedOnState();
+      console.log(`[checkAsynchronousStateChanges] State changed. isAnswered: ${isAnswered}, currentSelectionState: ${currentSelectionState}`);
+      this.updateSelectionMessageBasedOnState(false, isAnswered);
     }
   }
 
