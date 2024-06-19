@@ -523,31 +523,35 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private subscribeToOptionSelection(): void {
     this.selectedOptionService.isOptionSelected$
       .pipe(
-        debounceTime(300), // Debounce to prevent rapid changes
+        debounceTime(300), // Prevent rapid changes
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
       .subscribe(async (isSelected: boolean) => {
         // Only update if there is an actual state change
-        if (isSelected !== this.selectedOptionService.getCurrentOptionSelectedState()) {
-          console.log(`[subscribeToOptionSelection] Option selection changed: ${isSelected}`);
-          this.setSelectionMessageBasedOnState();
 
+        // Log the current and new selection state
+        const currentSelectionState = this.selectedOptionService.getCurrentOptionSelectedState();
+        console.log(`[subscribeToOptionSelection] Previous: ${currentSelectionState}, New: ${isSelected}`);
+  
+        if (isSelected !== currentSelectionState) {
+          console.log(`[subscribeToOptionSelection] Option selection changed: ${isSelected}`);
+          
+          // Update message based on the new selection state
+          this.setSelectionMessageBasedOnState();
+  
           // Check for asynchronous state changes
           await this.checkAsynchronousStateChanges();
-        };
+        }
       });
   }
   
   private async checkAsynchronousStateChanges(): Promise<void> {
+    // Resolve the Observable to a boolean
     const isAnswered: boolean = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
-    console.log('Asynchronous State Check - Is Answered:', isAnswered);
-  
     const currentSelectionState: boolean = this.selectedOptionService.getCurrentOptionSelectedState();
-    console.log('Current Option Selected State:', currentSelectionState);
   
     if (isAnswered !== currentSelectionState) {
-      console.log('Detected asynchronous state change. Updating message.');
       this.setSelectionMessageBasedOnState();
     }
   }
@@ -897,7 +901,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.lastMessage = newMessage;
       this.safeDetectChanges();
     } else {
-      console.log('[setSelectionMessageIfChanged] No change in message. Skipping update.');
+      console.log(`[setSelectionMessageIfChanged] No change needed. Current message: '${this.lastMessage}'`);
     }
   }
 
