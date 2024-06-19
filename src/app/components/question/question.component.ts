@@ -824,9 +824,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         text: option.text
       };
       this.quizService.toggleSelectedOption(selectedOption);
-
-      this.isFirstQuestion = false; // Reset after the first option click
   
+      // Ensure this is updated once after the first option click
+      if (this.isFirstQuestion) {
+        this.isFirstQuestion = false;
+      }
+    
       // Process the current question
       const currentQuestion = await this.fetchCurrentQuestion();
       if (!currentQuestion) {
@@ -834,39 +837,33 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         return;
       }
   
-      // Only update the message after an option has been clicked
-      const isAnswered = true;
-      this.updateAnswerStateAndMessage(isAnswered);
-  
       // Handle additional option selection logic
       await this.processCurrentQuestion(currentQuestion);
       this.handleOptionSelection(option, index, currentQuestion);
-      this.selectedOptionService.setOptionSelected(true);
-
+  
+      // Update the selected state
       const wasSelected = this.selectedOptionService.getCurrentOptionSelectedState();
       this.selectedOptionService.setOptionSelected(true);
-
+  
       // Update the message state based on the selection
       if (!wasSelected) {
         console.log('[onOptionClicked] Option selection state changed');
         this.setSelectionMessageBasedOnState();
-      } else {
-        console.log('[onOptionClicked] No change in option selection state');
       }
   
       // Update state for explanations and log them
       this.updateQuestionStateForExplanation(this.currentQuestionIndex);
       this.formatAndLogExplanations();
-  
+    
       // Emit the event that the question has been answered
       this.questionAnswered.emit();
-  
+    
       // Handle correctness check and timer
       await this.handleCorrectnessAndTimer();
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
-  }
+  }  
   
   private async fetchCurrentQuestion() {
     try {
