@@ -599,10 +599,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.resetForm();
   }
 
-  isOption(option: Option | string): option is Option {
-    return (option as Option).optionId !== undefined;
-  }
-
   subscriptionToQuestion(): void {
     this.currentQuestionSubscription = this.quizStateService.currentQuestion$
       .pipe(
