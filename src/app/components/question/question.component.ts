@@ -120,6 +120,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private lastMessage = '';
   private selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Please start the quiz by selecting an option.');
 
+  private localState: {
+    isInitial: boolean;
+    currentQuestionIndex: number;
+    isOptionSelected: boolean;
+  } = {
+    isInitial: false,
+    currentQuestionIndex: 0,
+    isOptionSelected: false,
+  };
+
   // Define audio list array
   audioList: AudioItem[] = [];
 
@@ -277,6 +287,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.warn('Attempted to call detectChanges on a destroyed view.');
     }
+  }
+
+  private updateLocalState(): void {
+    this.localState.currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
+    this.localState.isOptionSelected = this.selectedOptionService.getCurrentOptionSelectedState();
+    console.log('Updated Local State:', this.localState);
   }
 
   trackByOption(option: Option): number {
@@ -915,6 +931,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private setSelectionMessageBasedOnState(isInitial: boolean = false): void {
+    this.updateLocalState();
+    
     let newMessage = '';
   
     if (isInitial && this.currentQuestionIndex === 0) {
