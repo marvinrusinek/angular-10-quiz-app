@@ -821,45 +821,67 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
-      // Toggle the selection of the option
-      const selectedOption: SelectedOption = {
-        optionId: option.optionId,
-        questionIndex: this.currentQuestionIndex,
-        text: option.text
-      };
-      this.quizService.toggleSelectedOption(selectedOption);
+      // Update the selected option state
+      this.updateSelectedOption(option);
   
-      this.isFirstQuestion = false; // Reset after the first option click
-  
-      // Process the current question
-      const currentQuestion = await this.fetchCurrentQuestion();
+      // Fetch and process the current question
+      const currentQuestion = await this.fetchAndProcessCurrentQuestion();
       if (!currentQuestion) {
         console.error('Could not retrieve the current question.');
         return;
       }
   
-      // Only update the message after an option has been clicked
-      const isAnswered = true;
-      this.updateSelectionMessageBasedOnState(false, isAnswered);
+      // Update the selection message
+      this.updateSelectionMessageForOption();
   
-      // Handle additional option selection logic
-      await this.processCurrentQuestion(currentQuestion);
-      this.handleOptionSelection(option, index, currentQuestion);
-      this.selectedOptionService.setOptionSelected(true);
+      // Process the current question state
+      this.processCurrentQuestionState(currentQuestion, option, index);
   
-      // Update state for explanations and log them
-      this.updateQuestionStateForExplanation(this.currentQuestionIndex);
-      this.formatAndLogExplanations();
-  
-      // Emit the event that the question has been answered
-      this.questionAnswered.emit();
-  
-      // Handle correctness check and timer
-      await this.handleCorrectnessAndTimer();
+      // Ensure change detection
+      this.safeDetectChanges();
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
   }
+  
+  private updateSelectedOption(option: SelectedOption): void {
+    const selectedOption: SelectedOption = {
+      optionId: option.optionId,
+      questionIndex: this.currentQuestionIndex,
+      text: option.text
+    };
+    this.quizService.toggleSelectedOption(selectedOption);
+    this.selectedOptionService.setOptionSelected(true);
+    this.isFirstQuestion = false; // Reset after the first option click
+    console.log('[updateSelectedOption] Option selected and state updated:', selectedOption);
+  }
+  
+  private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
+    const currentQuestion = await this.fetchCurrentQuestion();
+    if (currentQuestion) {
+      console.log('[fetchAndProcessCurrentQuestion] Current question fetched:', currentQuestion);
+      return currentQuestion;
+    } else {
+      console.error('[fetchAndProcessCurrentQuestion] Could not retrieve the current question.');
+      return null;
+    }
+  }
+  
+  private updateSelectionMessageForOption(): void {
+    const isAnswered = true; // Assuming the question is answered after an option click
+    this.updateSelectionMessageBasedOnState(false, isAnswered);
+    console.log('[updateSelectionMessageForOption] Selection message updated based on option selection.');
+  }
+  
+  private processCurrentQuestionState(currentQuestion: QuizQuestion, option: SelectedOption, index: number): void {
+    this.processCurrentQuestion(currentQuestion);
+    this.handleOptionSelection(option, index, currentQuestion);
+    this.updateQuestionStateForExplanation(this.currentQuestionIndex);
+    this.formatAndLogExplanations();
+    this.questionAnswered.emit();
+    console.log('[processCurrentQuestionState] Question state processed and updated.');
+  }
+  
   
   
   private async fetchCurrentQuestion() {
