@@ -819,7 +819,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  private async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
       // Toggle the selection of the option
       const selectedOption: SelectedOption = {
@@ -829,8 +829,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       };
       this.quizService.toggleSelectedOption(selectedOption);
   
-      // Check if the current question is answered after an option is selected
-      // await this.checkIfAnswerSelected(this.isFirstQuestion);
       this.isFirstQuestion = false; // Reset after the first option click
   
       // Process the current question
@@ -948,39 +946,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('No update required');
     }
   }
-  
-
-  /*** private updateSelectionMessage(isAnswered: boolean): void {
-    const isLastQuestion = this.currentQuestionIndex === this.totalQuestions - 1;
-    let newMessage: string;
-  
-    // Determine the new message based on the state of the current question
-    if (isLastQuestion) {
-      newMessage = isAnswered ? 'Please click the Show Results button.' : 'Please select an option to continue...';
-    } else if (this.isFirstQuestion) {
-      newMessage = isAnswered ? 'Please click the next button to continue.' : 'Please start the quiz by selecting an option.';
-    } else {
-      newMessage = isAnswered ? 'Please click the next button to continue.' : 'Please select an option to continue...';
-    }
-  
-    // Update the message only if it has changed to avoid redundant updates
-    if (this.selectionMessage !== newMessage) {
-      console.log(`[updateSelectionMessage] Updating message from '${this.selectionMessage}' to '${newMessage}'`);
-  
-      // Update the selectionMessage property
-      this.selectionMessage = newMessage;
-      this.selectionMessageService.updateSelectionMessage(newMessage);
-  
-      // Save the new message as the lastMessage
-      this.lastMessage = newMessage;
-  
-      // Trigger change detection
-      this.safeDetectChanges();
-    } else {
-      console.log(`[updateSelectionMessage] No change needed. Current message: '${this.selectionMessage}'`);
-    }
-  } ***/
-  
   
   private async processCurrentQuestion(
     currentQuestion: QuizQuestion
