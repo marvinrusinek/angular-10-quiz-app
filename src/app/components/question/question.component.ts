@@ -841,7 +841,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
       // Use determineSelectionMessage to get the message
       this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-  
+
       // Update the selection message
       this.updateSelectionMessageForOption();
   
@@ -871,13 +871,27 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): void {
+    // Determine the appropriate message
     const message = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       isAnswered
     );
-    this.setSelectionMessageIfChanged(message);
+  
+    // Log the current and new messages for debugging
+    console.log(`[updateSelectionMessageBasedOnCurrentState] Current message: ${this.selectionMessage}, New message: ${message}`);
+  
+    // Update the message only if it has changed
+    if (this.selectionMessage !== message) {
+      console.log(`[updateSelectionMessageBasedOnCurrentState] Updating message to: ${message}`);
+      this.selectionMessage = message;
+      this.selectionMessageService.updateSelectionMessage(message);
+      this.safeDetectChanges();
+    } else {
+      console.log('[updateSelectionMessageBasedOnCurrentState] No message update required');
+    }
   }
+  
   
   private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
