@@ -819,55 +819,30 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
-      // Toggle the selection of the option
-      const selectedOption: SelectedOption = {
-        optionId: option.optionId,
-        questionIndex: this.currentQuestionIndex,
-        text: option.text
-      };
-      this.quizService.toggleSelectedOption(selectedOption);
+      this.selectedOptionService.setOptionSelected(true);
   
-      // Ensure this is updated once after the first option click
-      if (this.isFirstQuestion) {
-        this.isFirstQuestion = false;
-      }
-    
-      // Process the current question
       const currentQuestion = await this.fetchCurrentQuestion();
       if (!currentQuestion) {
         console.error('Could not retrieve the current question.');
         return;
       }
   
-      // Handle additional option selection logic
       await this.processCurrentQuestion(currentQuestion);
       this.handleOptionSelection(option, index, currentQuestion);
   
-      // Update the selected state
-      const wasSelected = this.selectedOptionService.getCurrentOptionSelectedState();
-      this.selectedOptionService.setOptionSelected(true);
-
-      // Determine if the current question is answered
       const isAnswered = true;
-
-      // Update the selection message based on the current state
-      if (!wasSelected) {
-        this.updateSelectionMessageBasedOnState(false, isAnswered);
-      }
+      console.log(`[onOptionClicked] isAnswered: ${isAnswered}`);
+      this.updateSelectionMessageBasedOnState(false, isAnswered);
   
-      // Update state for explanations and log them
       this.updateQuestionStateForExplanation(this.currentQuestionIndex);
       this.formatAndLogExplanations();
-    
-      // Emit the event that the question has been answered
       this.questionAnswered.emit();
-    
-      // Handle correctness check and timer
       await this.handleCorrectnessAndTimer();
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
-  }  
+  }
+  
   
   private async fetchCurrentQuestion() {
     try {
