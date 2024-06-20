@@ -209,7 +209,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const initialMessage = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
         this.totalQuestions,
-        false
+        false // no option selected initially
       );
       this.setSelectionMessageIfChanged(initialMessage);
     }
@@ -881,19 +881,30 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): void {
-    const message = this.selectionMessageService.determineSelectionMessage(
+    let newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       isAnswered
     );
-  
-    if (this.selectionMessage !== message) {
-      console.log(`[updateSelectionMessageBasedOnCurrentState] Updating message to: ${message}`);
-      this.selectionMessage = message;
-      this.selectionMessageService.updateSelectionMessage(message);
-      this.safeDetectChanges();
+
+    if (this.currentQuestionIndex === 0 && !isAnswered) {
+      newMessage = 'Please start the quiz by selecting an option.';
     }
-  }  
+  
+    // Log the current and new messages for debugging
+    console.log(`[updateSelectionMessageBasedOnCurrentState] Current message: ${this.selectionMessage}, New message: ${newMessage}`);
+  
+    // Update the message only if it has changed
+    if (this.selectionMessage !== newMessage) {
+      console.log(`[updateSelectionMessageBasedOnCurrentState] Updating message to: ${newMessage}`);
+      this.selectionMessage = newMessage;
+      this.selectionMessageService.updateSelectionMessage(newMessage);
+      this.safeDetectChanges();
+    } else {
+      console.log('[updateSelectionMessageBasedOnCurrentState] No message update required');
+    }
+  }
+  
   
   private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
@@ -1201,7 +1212,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const isAnswered = updatedSelectedOptions.length > 0;
   
     // Use the new update method
-    this.updateSelectionMessageBasedOnState(false, isAnswered);
+    this.updateSelectionMessageBasedOnCurrentState(isAnswered);
     
     // Ensure Angular change detection picks up state changes
     this.cdRef.markForCheck(); 
@@ -1262,7 +1273,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     // Update the selection message based on the new state
     const isAnswered = true; // Since an option has been selected, it is answered
-    this.updateSelectionMessageBasedOnState(false, isAnswered);
+    this.updateSelectionMessageBasedOnCurrentState(isAnswered);
   
     const explanationText =
       this.explanationTextService.getFormattedExplanationTextForQuestion(
