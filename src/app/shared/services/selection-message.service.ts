@@ -3,9 +3,10 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
-  selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
+  private selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to start the quiz.');
   private optionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
+  // Method to get the current message as an observable
   get selectionMessage$(): Observable<string> {
     return this.selectionMessageSubject.asObservable();
   }
@@ -30,10 +31,13 @@ export class SelectionMessageService {
     }
   }  
 
-  updateSelectionMessage(message: string): void {
-    console.log('[updateSelectionMessage] Updating selection message:', message);
-    if (this.selectionMessageSubject.value !== message) {
-      this.selectionMessageSubject.next(message);
+  // Method to update the message
+  updateSelectionMessage(newMessage: string): void {
+    if (this.selectionMessageSubject.value !== newMessage) {
+      console.log(`[updateSelectionMessage] Updating message to: ${newMessage}`);
+      this.selectionMessageSubject.next(newMessage);
+    } else {
+      console.log('[updateSelectionMessage] No update required, message unchanged');
     }
   }
 
