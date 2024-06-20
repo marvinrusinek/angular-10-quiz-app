@@ -857,9 +857,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
   private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
-      const currentQuestion = await this.fetchCurrentQuestion();
+      const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion());
       if (currentQuestion) {
         console.log('[fetchAndProcessCurrentQuestion] Current question fetched:', currentQuestion);
+
+        // Determine if the question is answered
+        const isAnswered = this.quizService.isAnswered(this.currentQuestionIndex);
+        this.updateAnswerStateAndMessage(isAnswered);
+
         return currentQuestion;
       } else {
         console.error('[fetchAndProcessCurrentQuestion] Could not retrieve the current question.');
@@ -884,20 +889,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.formatAndLogExplanations();
     this.questionAnswered.emit();
     console.log('[processCurrentQuestionState] Question state processed and updated.');
-  }
-  
-  private async fetchCurrentQuestion() {
-    try {
-      const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion());
-      if (!currentQuestion) {
-        console.error('Could not retrieve the current question.');
-        return null;
-      }
-      return currentQuestion;
-    } catch (error) {
-      console.error('Error fetching the current question:', error);
-      return null;
-    }
   }
 
   private updateAnswerStateAndMessage(isAnswered: boolean): void {
