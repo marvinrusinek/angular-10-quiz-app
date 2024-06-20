@@ -213,6 +213,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         });
       }
     });
+
+    this.initializeSelectionMessage();
   
     // Subscribe to option selection state changes
     this.subscribeToOptionSelection();
@@ -281,6 +283,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.cdRef.detectChanges();
     } else {
       console.warn('Attempted to call detectChanges on a destroyed view.');
+    }
+  }
+
+  private initializeSelectionMessage(): void {
+    if (this.currentQuestionIndex === 0) {
+      this.selectionMessage = 'Please start the quiz by selecting an option.';
+      this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
+      console.log('[initializeSelectionMessage] Initial message set: ', this.selectionMessage);
     }
   }
 
