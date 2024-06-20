@@ -9,7 +9,7 @@ export class SelectedOptionService {
   private optionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   // Observable to get the current option selected state
-  get isOptionSelected$(): Observable<boolean> {
+  isOptionSelected$(): Observable<boolean> {
     return this.optionSelectedSubject.asObservable();
   }
 
