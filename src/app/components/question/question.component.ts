@@ -864,8 +864,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       if (currentQuestion) {
         console.log('[fetchAndProcessCurrentQuestion] Current question fetched:', currentQuestion);
 
-        // Determine if the question is answered
-        const isAnswered: boolean = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+        // Determine if the question is answered and determine the selection message
+        const isAnswered = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+        const message = this.selectionMessageService.determineSelectionMessage(
+          this.currentQuestionIndex,
+          this.totalQuestions,
+          isAnswered
+        );
+        this.setSelectionMessageIfChanged(message);
         this.updateAnswerStateAndMessage(isAnswered);
 
         return currentQuestion;
@@ -941,7 +947,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('[resetMessages] Messages reset to initial state');
   }
 
-  private updateSelectionMessageBasedOnState(isInitial: boolean = false, isAnswered: boolean = false): void {
+  /* private updateSelectionMessageBasedOnState(isInitial: boolean = false, isAnswered: boolean = false): void {
     let newMessage: string;
   
     if (isInitial && this.currentQuestionIndex === 0) {
@@ -963,7 +969,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.log('No update required');
     }
-  }
+  } */
   
   private async processCurrentQuestion(
     currentQuestion: QuizQuestion
