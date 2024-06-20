@@ -867,7 +867,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   private updateSelectionMessageForOption(): void {
-    const isAnswered = true; // Assuming the question is answered after an option click
+    const isAnswered = true;
     this.updateSelectionMessageBasedOnState(false, isAnswered);
     console.log('[updateSelectionMessageForOption] Selection message updated based on option selection.');
   }
@@ -880,8 +880,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.questionAnswered.emit();
     console.log('[processCurrentQuestionState] Question state processed and updated.');
   }
-  
-  
   
   private async fetchCurrentQuestion() {
     try {
