@@ -186,7 +186,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           takeUntil(this.destroy$)
         )
         .subscribe((isAnswered: boolean) => {
-          this.updateSelectionMessageBasedOnState(false, isAnswered);
+          this.updateSelectionMessageBasedOnCurrentState(isAnswered);
         });
   }
 
@@ -836,15 +836,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       // Determine if the question is answered
-      const isAnswered = this.selectedOptionService.isOptionSelected$();
+      const isAnswered: boolean = await firstValueFrom(this.selectedOptionService.isOptionSelected$());
 
       // Use determineSelectionMessage to get the message
-      const message = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        isAnswered
-      );
-      this.setSelectionMessageIfChanged(message);
+      this.updateSelectionMessageBasedOnCurrentState(isAnswered);
   
       // Update the selection message
       this.updateSelectionMessageForOption();
@@ -873,6 +868,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isFirstQuestion = false; // Reset after the first option click
     console.log('[updateSelectedOption] Option selected and state updated:', selectedOption);
   }
+
+  private updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): void {
+    const message = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered
+    );
+    this.setSelectionMessageIfChanged(message);
+  }
   
   private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
@@ -882,12 +886,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
         // Determine if the question is answered and determine the selection message
         const isAnswered = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
-        const message = this.selectionMessageService.determineSelectionMessage(
-          this.currentQuestionIndex,
-          this.totalQuestions,
-          isAnswered
-        );
-        this.setSelectionMessageIfChanged(message);
+        this.updateSelectionMessageBasedOnCurrentState(isAnswered);
         this.updateAnswerStateAndMessage(isAnswered);
 
         return currentQuestion;
@@ -903,7 +902,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
   private updateSelectionMessageForOption(): void {
     const isAnswered = true;
-    this.updateSelectionMessageBasedOnState(false, isAnswered);
+    this.updateSelectionMessageBasedOnCurrentState(isAnswered);
     console.log('[updateSelectionMessageForOption] Selection message updated based on option selection.');
   }
   
