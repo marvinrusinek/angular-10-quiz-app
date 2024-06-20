@@ -279,7 +279,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private safeDetectChanges(): void {
     if (!this.isComponentDestroyed) {
-      console.log('Calling detectChanges');
+      console.log('Triggering detectChanges');
       this.cdRef.detectChanges();
     } else {
       console.warn('Attempted to call detectChanges on a destroyed view.');
