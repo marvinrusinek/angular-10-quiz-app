@@ -835,6 +835,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       // Process the current question state
       this.processCurrentQuestionState(currentQuestion, option, index);
+
+      // Handle correctness and timer
+      await this.handleCorrectnessAndTimer();
   
       // Ensure change detection
       this.safeDetectChanges();
