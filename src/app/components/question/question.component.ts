@@ -291,6 +291,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectionMessage = 'Please start the quiz by selecting an option.';
       this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
       console.log('[initializeSelectionMessage] Initial message set: ', this.selectionMessage);
+    } else {
+      this.updateSelectionMessageBasedOnState(false, false);
     }
   }
 
@@ -817,26 +819,44 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  private async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
-      this.selectedOptionService.setOptionSelected(true);
+      // Toggle the selection of the option
+      const selectedOption: SelectedOption = {
+        optionId: option.optionId,
+        questionIndex: this.currentQuestionIndex,
+        text: option.text
+      };
+      this.quizService.toggleSelectedOption(selectedOption);
   
+      // Check if the current question is answered after an option is selected
+      // await this.checkIfAnswerSelected(this.isFirstQuestion);
+      this.isFirstQuestion = false; // Reset after the first option click
+  
+      // Process the current question
       const currentQuestion = await this.fetchCurrentQuestion();
       if (!currentQuestion) {
         console.error('Could not retrieve the current question.');
         return;
       }
   
-      await this.processCurrentQuestion(currentQuestion);
-      this.handleOptionSelection(option, index, currentQuestion);
-  
+      // Only update the message after an option has been clicked
       const isAnswered = true;
-      console.log(`[onOptionClicked] isAnswered: ${isAnswered}`);
       this.updateSelectionMessageBasedOnState(false, isAnswered);
   
+      // Handle additional option selection logic
+      await this.processCurrentQuestion(currentQuestion);
+      this.handleOptionSelection(option, index, currentQuestion);
+      this.selectedOptionService.setOptionSelected(true);
+  
+      // Update state for explanations and log them
       this.updateQuestionStateForExplanation(this.currentQuestionIndex);
       this.formatAndLogExplanations();
+  
+      // Emit the event that the question has been answered
       this.questionAnswered.emit();
+  
+      // Handle correctness check and timer
       await this.handleCorrectnessAndTimer();
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
