@@ -865,7 +865,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.log('[fetchAndProcessCurrentQuestion] Current question fetched:', currentQuestion);
 
         // Determine if the question is answered
-        const isAnswered = this.quizService.isAnswered(this.currentQuestionIndex);
+        const isAnswered: boolean = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
         this.updateAnswerStateAndMessage(isAnswered);
 
         return currentQuestion;
