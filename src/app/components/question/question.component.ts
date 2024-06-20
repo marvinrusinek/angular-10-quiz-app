@@ -185,7 +185,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           debounceTime(300),
           takeUntil(this.destroy$)
         )
-        .subscribe(isAnswered => {
+        .subscribe((isAnswered: boolean) => {
           console.log(`[selectionUpdate$] isAnswered: ${isAnswered}`);
           this.updateSelectionMessageBasedOnState(false, isAnswered);
         });
