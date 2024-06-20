@@ -174,26 +174,26 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         (isNavigating) => (this.isNavigatingToPrevious = isNavigating)
       );
 
-      this.quizService.getTotalQuestions()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((totalQuestions: number) => {
-          this.totalQuestions = totalQuestions;
-        });
+    this.quizService.getTotalQuestions()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((totalQuestions: number) => {
+        this.totalQuestions = totalQuestions;
+      });
 
-      this.selectionUpdate$
-        .pipe(
-          debounceTime(300),
-          takeUntil(this.destroy$)
-        )
-        .subscribe((isAnswered: boolean) => {
-          this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-        });
+    this.selectionUpdate$
+      .pipe(
+        debounceTime(300),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((isAnswered: boolean) => {
+        this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      });
   }
 
   async ngOnInit(): Promise<void> {
     // Selection message-related calls
     this.resetMessages();
-    this.updateSelectionMessageBasedOnState(true, false); // Initial state
+    this.updateSelectionMessageBasedOnCurrentState(false);
   
     // Ensure the quiz is initialized only once
     if (!this.initialized) {
@@ -541,7 +541,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   // Subscribe to option selection changes
   private subscribeToOptionSelection(): void {
-    this.selectedOptionService.isOptionSelected$
+    // Call the function to get the observable
+    this.selectedOptionService.isOptionSelected$()
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
@@ -549,7 +550,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       )
       .subscribe((isSelected: boolean) => {
         console.log(`[subscribeToOptionSelection] Option selected state: ${isSelected}`);
-        this.updateSelectionMessageBasedOnState(false, isSelected);
+        this.updateSelectionMessageBasedOnCurrentState(isSelected);
         this.checkAsynchronousStateChanges();
       });
   }
@@ -560,7 +561,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     if (isAnswered !== currentSelectionState) {
       console.log(`[checkAsynchronousStateChanges] State changed. isAnswered: ${isAnswered}, currentSelectionState: ${currentSelectionState}`);
-      this.updateSelectionMessageBasedOnState(false, isAnswered);
+      this.updateSelectionMessageBasedOnCurrentState(isAnswered);
     }
   }
 
