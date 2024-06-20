@@ -289,9 +289,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (this.currentQuestionIndex === 0) {
       this.selectionMessage = 'Please start the quiz by selecting an option.';
       this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
-      console.log('[initializeSelectionMessage] Initial message set: ', this.selectionMessage);
+      console.log('[initializeSelectionMessage] Initial message set for Q1:', this.selectionMessage);
     } else {
-      this.updateSelectionMessageBasedOnState(true, false);
+      const message = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        false
+      );
+      this.setSelectionMessageIfChanged(message);
     }
   }
 
@@ -829,6 +834,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Could not retrieve the current question.');
         return;
       }
+
+      // Determine if the question is answered
+      const isAnswered = this.selectedOptionService.isOptionSelected$();
+
+      // Use determineSelectionMessage to get the message
+      const message = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        isAnswered
+      );
+      this.setSelectionMessageIfChanged(message);
   
       // Update the selection message
       this.updateSelectionMessageForOption();
@@ -912,16 +928,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   // Sets the selection message if it has changed
   private setSelectionMessageIfChanged(newMessage: string): void {
-    console.log(`[setSelectionMessageIfChanged] Current message: '${this.lastMessage}', New message: '${newMessage}'`);
-    if (this.lastMessage !== newMessage) {
-      console.log(`[setSelectionMessageIfChanged] Updating message from '${this.lastMessage}' to '${newMessage}'`);
-      this.setSelectionMessage(newMessage); // Call the method to update the message in the service
-      this.lastMessage = newMessage;
+    if (this.selectionMessage !== newMessage) {
+      console.log(`[setSelectionMessageIfChanged] Updating message to: ${newMessage}`);
+      this.selectionMessage = newMessage;
+      this.selectionMessageService.updateSelectionMessage(newMessage);
       this.safeDetectChanges();
     } else {
-      console.log(`[setSelectionMessageIfChanged] No change needed. Current message: '${this.lastMessage}'`);
+      console.log('[setSelectionMessageIfChanged] No message update required');
     }
   }
+  
 
   private setSelectionMessage(message: string): void {
     console.log(`[setSelectionMessage] Updating selection message to: ${message}`);
