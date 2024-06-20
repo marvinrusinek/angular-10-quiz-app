@@ -203,6 +203,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     // Initialize the current quiz question
     this.initializeQuizQuestion();
+
+    // Set the initial selection message for the first question
+    if (this.currentQuestionIndex === 0) {
+      const initialMessage = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        false
+      );
+      this.setSelectionMessageIfChanged(initialMessage);
+    }
   
     // Set up event listener for visibility change
     document.addEventListener('visibilitychange', () => {
@@ -871,27 +881,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): void {
-    // Determine the appropriate message
     const message = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       isAnswered
     );
   
-    // Log the current and new messages for debugging
-    console.log(`[updateSelectionMessageBasedOnCurrentState] Current message: ${this.selectionMessage}, New message: ${message}`);
-  
-    // Update the message only if it has changed
     if (this.selectionMessage !== message) {
       console.log(`[updateSelectionMessageBasedOnCurrentState] Updating message to: ${message}`);
       this.selectionMessage = message;
       this.selectionMessageService.updateSelectionMessage(message);
       this.safeDetectChanges();
-    } else {
-      console.log('[updateSelectionMessageBasedOnCurrentState] No message update required');
     }
-  }
-  
+  }  
   
   private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
@@ -1585,4 +1587,3 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   } */
 }
-
