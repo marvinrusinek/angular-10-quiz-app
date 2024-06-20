@@ -292,7 +292,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
       console.log('[initializeSelectionMessage] Initial message set: ', this.selectionMessage);
     } else {
-      this.updateSelectionMessageBasedOnState(false, false);
+      this.updateSelectionMessageBasedOnState(true, false);
     }
   }
 
