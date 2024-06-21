@@ -9,7 +9,7 @@ export class SelectionMessageService {
   // Method to get the current message as an observable
   get selectionMessage$(): Observable<string> {
     return this.selectionMessageSubject.asObservable();
-  }
+  } // not being called, potentially remove
 
   determineSelectionMessage(
     currentQuestionIndex: number,
