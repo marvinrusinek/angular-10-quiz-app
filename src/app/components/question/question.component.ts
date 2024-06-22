@@ -887,7 +887,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       // Determine if the question is answered
-      const isAnswered = await firstValueFrom(this.selectedOptionService.isOptionSelected$());
+      // const isAnswered = await firstValueFrom(this.selectedOptionService.isOptionSelected$());
+      const isAnswered = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
       if (this.currentQuestionIndex !== 0 || isAnswered) {
         // Only update the message if it’s not the first question or the question is answered
         console.log('[onOptionClicked] Updating message based on state.');
