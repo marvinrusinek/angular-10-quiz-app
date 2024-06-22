@@ -136,7 +136,7 @@ export class QuizDataService implements OnDestroy {
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
     return this.getQuiz(quizId).pipe(
       map(quiz => {
-        if (!quiz || questionIndex < 0 || questionIndex >= quiz.questions.length) {
+        if (!quiz || questionIndex < 0 || questionIndex > quiz.questions.length) {
           console.error(`Question index ${questionIndex} out of bounds`);
           return null;
         }
