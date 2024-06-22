@@ -897,6 +897,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     try {
       // Update the selected option state
       this.updateSelectedOption(option);
+      // Set the option selected state immediately
+      this.selectedOptionService.setOptionSelected(true);
   
       // Fetch and process the current question
       const currentQuestion = await this.fetchAndProcessCurrentQuestion();
