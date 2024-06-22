@@ -923,9 +923,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Update the message based on the current state
       await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
   
-      // Update the selection message for the option clicked
-      this.updateSelectionMessageForOption();
-  
       // Process the current question state
       this.processCurrentQuestionState(currentQuestion, option, index);
   
@@ -1018,12 +1015,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('[fetchAndProcessCurrentQuestion] An error occurred while fetching the current question:', error);
       return null;
     }
-  }
-  
-  private updateSelectionMessageForOption(): void {
-    const isAnswered = true;
-    // this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-    console.log('[updateSelectionMessageForOption] Selection message updated based on option selection.');
   }
   
   private processCurrentQuestionState(currentQuestion: QuizQuestion, option: SelectedOption, index: number): void {
