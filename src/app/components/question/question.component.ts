@@ -922,10 +922,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       isAnswered
     );
 
-    if (this.currentQuestionIndex === 0 && !isAnswered) {
+    /* if (this.currentQuestionIndex === 0 && !isAnswered) {
       newMessage = 'Please start the quiz by selecting an option.';
       this.selectionMessage = 'Please start the quiz by selecting an option.';
-    }
+    } */
   
     // Log the current and new messages for debugging
     console.log(`[updateSelectionMessageBasedOnCurrentState] Current message: ${this.selectionMessage}, New message: ${newMessage}`);
