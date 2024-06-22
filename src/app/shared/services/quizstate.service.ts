@@ -131,6 +131,27 @@ export class QuizStateService {
     this.setQuestionState(quizId, questionIndex, newState);
   }
 
+  updateQuestionStateForExplanation(quizId: string, index: number): void {
+    let questionState = this.getQuestionState(
+      quizId,
+      index
+    );
+
+    if (!questionState) {
+      questionState = {
+        isAnswered: false,
+        explanationDisplayed: false,
+        selectedOptions: []
+      };
+    }
+
+    questionState.explanationDisplayed = true;
+    questionState.isAnswered = true;
+
+    // Save the updated state
+    this.setQuestionState(quizId, index, questionState);
+  }
+
   createDefaultQuestionState(): QuestionState {
     return {
       isAnswered: false,
