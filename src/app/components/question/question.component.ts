@@ -199,7 +199,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       if (this.currentQuestionIndex === 0) {
         this.updateSelectionMessageBasedOnCurrentState(false);
       } else {
-        const isAnswered = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+        const isAnswered = await this.isQuestionAnswered();
         this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       }
     } catch (error) {
