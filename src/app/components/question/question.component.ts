@@ -193,7 +193,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     // Selection message-related calls
     this.resetMessages();
-    this.updateSelectionMessageBasedOnCurrentState(false);
+
+    // Set the initial message if it’s the first question
+    if (this.currentQuestionIndex === 0) {
+      this.updateSelectionMessageBasedOnCurrentState(false);
+    }
   
     // Ensure the quiz is initialized only once
     if (!this.initialized) {
