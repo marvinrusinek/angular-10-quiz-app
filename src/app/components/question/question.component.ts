@@ -573,18 +573,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private async updateSelectionBasedOnState(isSelected: boolean): Promise<void> {
     try {
       // Use the isSelected value directly to avoid unnecessary calls
-      if (this.currentQuestionIndex !== 0 || isSelected) {
-        console.log(`[updateSelectionBasedOnState] Current question index: ${this.currentQuestionIndex}, Is selected: ${isSelected}`);
-        this.updateSelectionMessageBasedOnCurrentState(isSelected);
-      } else if (this.currentQuestionIndex === 0) {
+      if (this.currentQuestionIndex === 0 && !isSelected) {
         // Specifically handle the first question
         console.log('[updateSelectionBasedOnState] Setting initial message for the first question.');
         this.setInitialSelectionMessageForFirstQuestion();
+      } else {
+        // Handle non-first questions or when an option is selected
+        const isAnswered = isSelected || await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+        console.log(`[updateSelectionBasedOnState] Current question index: ${this.currentQuestionIndex}, Is answered: ${isAnswered}`);
+        this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       }
     } catch (error) {
       console.error('Error updating selection based on state:', error);
     }
-  }
+  }  
 
   private setInitialSelectionMessageForFirstQuestion(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
