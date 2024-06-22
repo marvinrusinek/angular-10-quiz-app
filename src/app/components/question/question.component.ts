@@ -575,10 +575,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           // Update the selection message based on the state
           if (this.currentQuestionIndex !== 0 || isSelected) {
             await this.updateSelectionBasedOnState(isSelected);
+
+            // Check for asynchronous state changes
+            await this.checkAsynchronousStateChanges();
           }
-  
-          // Check for asynchronous state changes
-          await this.checkAsynchronousStateChanges();
         } catch (error) {
           console.error('[subscribeToOptionSelection] Error processing option selection:', error);
         }
