@@ -621,14 +621,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   private async checkAsynchronousStateChanges(): Promise<void> {
-    const isAnswered: boolean = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
-    const currentSelectionState: boolean = this.selectedOptionService.getCurrentOptionSelectedState();
-  
-    if (isAnswered !== currentSelectionState) {
-      console.log(`[checkAsynchronousStateChanges] State changed. isAnswered: ${isAnswered}, currentSelectionState: ${currentSelectionState}`);
-      // this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+    try {
+      const isAnswered = await this.isQuestionAnswered();
+      const currentSelectionState = this.selectedOptionService.getCurrentOptionSelectedState();
+    
+      if (isAnswered !== currentSelectionState) {
+        console.log(`[checkAsynchronousStateChanges] State changed. isAnswered: ${isAnswered}, currentSelectionState: ${currentSelectionState}`);
+        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      }
+    } catch (error) {
+      console.error('[checkAsynchronousStateChanges] Error checking asynchronous state changes:', error);
     }
-  }
+  }  
 
   updateCorrectMessageText(message: string): void {
     this.quizService.updateCorrectMessageText(message); 
