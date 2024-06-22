@@ -1072,30 +1072,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.lastMessage = 'Please start the quiz by selecting an option.';
     console.log('[resetMessages] Messages reset to initial state');
   }
-
-  /* private updateSelectionMessageBasedOnState(isInitial: boolean = false, isAnswered: boolean = false): void {
-    let newMessage: string;
-  
-    if (isInitial && this.currentQuestionIndex === 0) {
-      newMessage = 'Please start the quiz by selecting an option.';
-    } else if (this.currentQuestionIndex === this.totalQuestions - 1) {
-      newMessage = isAnswered ? 'Please click the Show Results button.' : 'Please select an option to continue...';
-    } else {
-      newMessage = isAnswered ? 'Please click the next button to continue.' : 'Please select an option to continue...';
-    }
-  
-    console.log(`Current Message: ${this.selectionMessage}, New Message: ${newMessage}`);
-  
-    if (this.selectionMessage !== newMessage) {
-      console.log(`Updating message to: ${newMessage}`);
-      this.selectionMessage = newMessage;
-      this.selectionMessageService.updateSelectionMessage(newMessage);
-      this.lastMessage = newMessage;
-      this.safeDetectChanges();
-    } else {
-      console.log('No update required');
-    }
-  } */
   
   private async processCurrentQuestion(
     currentQuestion: QuizQuestion
