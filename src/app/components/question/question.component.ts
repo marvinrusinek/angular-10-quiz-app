@@ -554,8 +554,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   // Subscribe to option selection changes
-  private async subscribeToOptionSelection(): Promise<void> {
-    // Call the function to get the observable
+  private subscribeToOptionSelection(): void {
     this.selectedOptionService.isOptionSelected$()
       .pipe(
         debounceTime(300),
@@ -564,12 +563,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       )
       .subscribe(async (isSelected: boolean) => {
         console.log(`[subscribeToOptionSelection] Option selected state: ${isSelected}`);
-        
-        const isAnswered = await firstValueFrom(this.selectedOptionService.isOptionSelected$());
-        if (this.currentQuestionIndex !== 0 || isAnswered) {
-          this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-        }
+        await this.updateSelectionBasedOnState(isSelected);
       });
+  }
+
+  private async updateSelectionBasedOnState(isSelected: boolean): Promise<void> {
+    const isAnswered = await firstValueFrom(this.selectedOptionService.isOptionSelected$());
+    if (this.currentQuestionIndex !== 0 || isAnswered) {
+      this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+    }
   }
   
   private async checkAsynchronousStateChanges(): Promise<void> {
