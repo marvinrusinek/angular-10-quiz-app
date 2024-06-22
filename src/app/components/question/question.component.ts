@@ -563,7 +563,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       )
       .subscribe(async (isSelected: boolean) => {
         console.log(`[subscribeToOptionSelection] Option selected state: ${isSelected}`);
-        await this.updateSelectionBasedOnState(isSelected);
+        if (this.currentQuestionIndex !== 0 || isSelected) {
+          await this.updateSelectionBasedOnState(isSelected);
+        }
       });
   }
 
