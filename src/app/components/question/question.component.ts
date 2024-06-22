@@ -193,6 +193,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     // Selection message-related calls
     this.resetMessages();
+    // Reset state for the new question
+    this.resetStateForNewQuestion();
 
     // Set the initial message if it’s the first question
     try {
@@ -608,6 +610,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }  
   
   private async isQuestionAnswered(): Promise<boolean> {
+    this.resetStateForNewQuestion();
     try {
       return await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
     } catch (error) {
@@ -615,7 +618,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return false;
     }
   }
-    
 
   private setInitialSelectionMessageForFirstQuestion(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
@@ -938,13 +940,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
 
-  /* private resetStateForNewQuestion(): void {
+  private resetStateForNewQuestion(): void {
     this.selectedOptionService.setOptionSelected(false);
     this.selectionMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
     this.isOptionSelected = false;
     this.safeDetectChanges();
-  } */
+  }
   
   private updateSelectedOption(option: SelectedOption): void {
     const selectedOption: SelectedOption = {
