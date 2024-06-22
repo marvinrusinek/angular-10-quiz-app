@@ -906,6 +906,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.updateSelectedOption(option);
       // Set the option selected state immediately
       this.selectedOptionService.setOptionSelected(true);
+
+      // Since an option is clicked, it is considered answered
+      const isAnswered = true;
+
+      // Update the selection message
+      this.updateSelectionMessageForOption();
+
+      // Update the message based on the current state
+      await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
   
       // Fetch and process the current question
       const currentQuestion = await this.fetchAndProcessCurrentQuestion();
@@ -913,23 +922,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Could not retrieve the current question.');
         return;
       }
-
-      // Since an option is clicked, it is considered answered
-      const isAnswered = true;
-
-      // Update the message based on the current state
-      /* if (this.currentQuestionIndex !== 0 || isAnswered) {
-        console.log('[onOptionClicked] Updating message based on state.');
-        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-      } else {
-        // Specifically handle the first question to set the initial message
-        this.setInitialSelectionMessageForFirstQuestion();
-      } */
-
-      await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-
-      // Update the selection message
-      this.updateSelectionMessageForOption();
   
       // Process the current question state
       this.processCurrentQuestionState(currentQuestion, option, index);
@@ -965,23 +957,33 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private async updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): Promise<void> {
-    let newMessage = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      isAnswered
-    );
+    try {
+      let newMessage = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        isAnswered
+      );
   
-    if (this.currentQuestionIndex === 0 && !isAnswered) {
-      newMessage = 'Please start the quiz by selecting an option.';
-    }
+      // Specific check for the first question
+      if (this.currentQuestionIndex === 0 && !isAnswered) {
+        newMessage = 'Please start the quiz by selecting an option.';
+      }
   
-    if (this.selectionMessage !== newMessage) {
-      console.log(`Updating message to: ${newMessage}`);
-      this.selectionMessage = newMessage;
-      this.selectionMessageService.updateSelectionMessage(newMessage);
-      this.safeDetectChanges();
+      console.log(`[updateSelectionMessageBasedOnCurrentState] Current message: ${this.selectionMessage}, New message: ${newMessage}, Is Answered: ${isAnswered}, Current Question Index: ${this.currentQuestionIndex}`);
+  
+      if (this.selectionMessage !== newMessage) {
+        console.log(`[updateSelectionMessageBasedOnCurrentState] Updating message to: ${newMessage}`);
+        this.selectionMessage = newMessage;
+        this.selectionMessageService.updateSelectionMessage(newMessage);
+        this.safeDetectChanges();
+      } else {
+        console.log('[updateSelectionMessageBasedOnCurrentState] No message update required');
+      }
+    } catch (error) {
+      console.error('[updateSelectionMessageBasedOnCurrentState] Error updating selection message:', error);
     }
   }
+  
 
   private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
