@@ -17,14 +17,17 @@ export class SelectionMessageService {
     isAnswered: boolean
   ): string {
     if (currentQuestionIndex === 0) {
+      // Handle the first question
       return isAnswered
         ? 'Please click the next button to continue...'
         : 'Please start the quiz by selecting an option.';
     } else if (currentQuestionIndex === totalQuestions - 1) {
+      // Handle the last question
       return isAnswered
         ? 'Please click the Show Results button.'
         : 'Please select an option to continue...';
     } else {
+      // Handle intermediate questions
       return isAnswered
         ? 'Please click the next button to continue...'
         : 'Please select an option to continue...';
