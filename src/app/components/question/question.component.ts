@@ -1020,7 +1020,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private processCurrentQuestionState(currentQuestion: QuizQuestion, option: SelectedOption, index: number): void {
     this.processCurrentQuestion(currentQuestion);
     this.handleOptionSelection(option, index, currentQuestion);
-    this.updateQuestionStateForExplanation(this.currentQuestionIndex);
+    this.quizStateService.updateQuestionStateForExplanation(this.quizId, this.currentQuestionIndex);
     this.formatAndLogExplanations();
     this.questionAnswered.emit();
     console.log('[processCurrentQuestionState] Question state processed and updated.');
@@ -1091,27 +1091,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       { isAnswered: true },
       totalCorrectAnswers
     );
-  }
-
-  updateQuestionStateForExplanation(index: number): void {
-    let questionState = this.quizStateService.getQuestionState(
-      this.quizId,
-      index
-    );
-
-    if (!questionState) {
-      questionState = {
-        isAnswered: false,
-        explanationDisplayed: false,
-        selectedOptions: []
-      };
-    }
-
-    questionState.explanationDisplayed = true;
-    questionState.isAnswered = true;
-
-    // Save the updated state
-    this.quizStateService.setQuestionState(this.quizId, index, questionState);
   }
 
   private formatAndLogExplanations(): void {
