@@ -914,18 +914,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         return;
       }
 
-      // Determine if the question is answered
-      // Check if the question is answered
-      const isAnswered = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+      // Since an option is clicked, it is considered answered
+      const isAnswered = true;
 
       // Update the message based on the current state
-      if (this.currentQuestionIndex !== 0 || isAnswered) {
+      /* if (this.currentQuestionIndex !== 0 || isAnswered) {
         console.log('[onOptionClicked] Updating message based on state.');
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       } else {
         // Specifically handle the first question to set the initial message
         this.setInitialSelectionMessageForFirstQuestion();
-      }
+      } */
+
+      await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
 
       // Update the selection message
       this.updateSelectionMessageForOption();
@@ -942,6 +943,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('An error occurred while processing the option click:', error);
     }
   }
+
+  /* private resetStateForNewQuestion(): void {
+    this.selectedOptionService.setOptionSelected(false);
+    this.selectionMessage = 'Please select an option to continue...';
+    this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
+    this.isOptionSelected = false;
+    this.safeDetectChanges();
+  } */
   
   private updateSelectedOption(option: SelectedOption): void {
     const selectedOption: SelectedOption = {
