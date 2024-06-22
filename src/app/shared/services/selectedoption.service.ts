@@ -6,22 +6,22 @@ export class SelectedOptionService {
   private selectedOptionExplanationSource = new BehaviorSubject<string>(null);
   selectedOptionExplanation$ = this.selectedOptionExplanationSource.asObservable();
 
-  private optionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private isOptionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   // Observable to get the current option selected state
   isOptionSelected$(): Observable<boolean> {
-    return this.optionSelectedSubject.asObservable();
+    return this.isOptionSelectedSubject.asObservable();
   }
 
   // Method to set the option selected state
   setOptionSelected(isSelected: boolean): void {
     console.log('[setOptionSelected] Updating option selected state:', isSelected);
-    if (this.optionSelectedSubject.value !== isSelected) {
-      this.optionSelectedSubject.next(isSelected);
+    if (this.isOptionSelectedSubject.value !== isSelected) {
+      this.isOptionSelectedSubject.next(isSelected);
     }
   }
 
   getCurrentOptionSelectedState(): boolean {
-    return this.optionSelectedSubject.value;
+    return this.isOptionSelectedSubject.value;
   }
 }
