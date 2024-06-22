@@ -564,36 +564,51 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private subscribeToOptionSelection(): void {
     this.selectedOptionService.isOptionSelected$()
       .pipe(
-        debounceTime(300),
+        debounceTime(300), // Debounce to prevent rapid changes
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
       .subscribe(async (isSelected: boolean) => {
-        console.log(`[subscribeToOptionSelection] Option selected state: ${isSelected}`);
-        if (this.currentQuestionIndex !== 0 || isSelected) {
-          await this.updateSelectionBasedOnState(isSelected);
+        try {
+          console.log(`[subscribeToOptionSelection] Option selected state: ${isSelected}`);
+          
+          // Update the selection message based on the state
+          if (this.currentQuestionIndex !== 0 || isSelected) {
+            await this.updateSelectionBasedOnState(isSelected);
+          }
+  
+          // Check for asynchronous state changes
           await this.checkAsynchronousStateChanges();
+        } catch (error) {
+          console.error('[subscribeToOptionSelection] Error processing option selection:', error);
         }
       });
   }
-
+  
   private async updateSelectionBasedOnState(isSelected: boolean): Promise<void> {
     try {
-      // Use the isSelected value directly to avoid unnecessary calls
       if (this.currentQuestionIndex === 0 && !isSelected) {
-        // Specifically handle the first question
         console.log('[updateSelectionBasedOnState] Setting initial message for the first question.');
         this.setInitialSelectionMessageForFirstQuestion();
       } else {
-        // Handle non-first questions or when an option is selected
-        const isAnswered = isSelected || await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+        const isAnswered = isSelected || await this.isQuestionAnswered();
         console.log(`[updateSelectionBasedOnState] Current question index: ${this.currentQuestionIndex}, Is answered: ${isAnswered}`);
-        this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       }
     } catch (error) {
-      console.error('Error updating selection based on state:', error);
+      console.error('[updateSelectionBasedOnState] Error updating selection based on state:', error);
     }
-  }  
+  }
+  
+  private async isQuestionAnswered(): Promise<boolean> {
+    try {
+      return await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+    } catch (error) {
+      console.error('[isQuestionAnswered] Error checking if question is answered:', error);
+      return false;
+    }
+  }
+    
 
   private setInitialSelectionMessageForFirstQuestion(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
@@ -924,34 +939,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private async updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): Promise<void> {
-    try {
-      let newMessage = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        isAnswered
-      );
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered
+    );
   
-      // If the first question is not answered, set the initial message
-      if (this.currentQuestionIndex === 0 && !isAnswered) {
-        newMessage = 'Please start the quiz by selecting an option.';
-      }
+    if (this.currentQuestionIndex === 0 && !isAnswered) {
+      newMessage = 'Please start the quiz by selecting an option.';
+    }
   
-      // Log the current and new messages for debugging
-      console.log(`[updateSelectionMessageBasedOnCurrentState] Current message: ${this.selectionMessage}, New message: ${newMessage}, Is Answered: ${isAnswered}, Current Question Index: ${this.currentQuestionIndex}`);
-  
-      if (this.selectionMessage !== newMessage) {
-        console.log(`[updateSelectionMessageBasedOnCurrentState] Updating message to: ${newMessage}`);
-        this.selectionMessage = newMessage;
-        this.selectionMessageService.updateSelectionMessage(newMessage);
-        this.safeDetectChanges();
-      } else {
-        console.log('[updateSelectionMessageBasedOnCurrentState] No message update required');
-      }
-    } catch (error) {
-      console.error('Error updating selection message:', error);
+    if (this.selectionMessage !== newMessage) {
+      console.log(`Updating message to: ${newMessage}`);
+      this.selectionMessage = newMessage;
+      this.selectionMessageService.updateSelectionMessage(newMessage);
+      this.safeDetectChanges();
     }
   }
-  
+    
   private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
       const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion());
