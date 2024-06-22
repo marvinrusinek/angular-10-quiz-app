@@ -973,24 +973,33 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.safeDetectChanges();
     }
   }
-    
+
   private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
+      // Attempt to fetch the current question
       const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion());
-      if (currentQuestion) {
-        console.log('[fetchAndProcessCurrentQuestion] Current question fetched:', currentQuestion);
-
-        // Determine if the question is answered and determine the selection message
-        const isAnswered = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
-        // this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-        this.updateAnswerStateAndMessage(isAnswered);
-
-        return currentQuestion;
-      } else {
+  
+      if (!currentQuestion) {
+        // Log error and return null if the current question could not be retrieved
         console.error('[fetchAndProcessCurrentQuestion] Could not retrieve the current question.');
         return null;
       }
+  
+      // Log the fetched current question for debugging
+      console.log('[fetchAndProcessCurrentQuestion] Current question fetched:', currentQuestion);
+  
+      // Determine if the current question is answered
+      const isAnswered = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+  
+      // Update the selection message based on the current state
+      await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      this.updateAnswerStateAndMessage(isAnswered);
+  
+      // Return the fetched current question
+      return currentQuestion;
+  
     } catch (error) {
+      // Log any errors that occur during the fetch process
       console.error('[fetchAndProcessCurrentQuestion] An error occurred while fetching the current question:', error);
       return null;
     }
