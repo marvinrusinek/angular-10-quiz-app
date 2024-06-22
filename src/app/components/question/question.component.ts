@@ -197,6 +197,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Set the initial message if it’s the first question
     if (this.currentQuestionIndex === 0) {
       this.updateSelectionMessageBasedOnCurrentState(false);
+    } else {
+      const isAnswered: boolean = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+      this.updateSelectionMessageBasedOnCurrentState(isAnswered);
     }
   
     // Ensure the quiz is initialized only once
@@ -922,10 +925,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       isAnswered
     );
 
-    /* if (this.currentQuestionIndex === 0 && !isAnswered) {
+    if (this.currentQuestionIndex === 0 && !isAnswered) {
       newMessage = 'Please start the quiz by selecting an option.';
       this.selectionMessage = 'Please start the quiz by selecting an option.';
-    } */
+    }
   
     // Log the current and new messages for debugging
     console.log(`[updateSelectionMessageBasedOnCurrentState] Current message: ${this.selectionMessage}, New message: ${newMessage}`);
