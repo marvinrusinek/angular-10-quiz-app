@@ -906,6 +906,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.updateSelectedOption(option);
       // Set the option selected state immediately
       this.selectedOptionService.setOptionSelected(true);
+  
+      // Fetch and process the current question
+      const currentQuestion = await this.fetchAndProcessCurrentQuestion();
+      if (!currentQuestion) {
+        console.error('Could not retrieve the current question.');
+        return;
+      }
 
       // Since an option is clicked, it is considered answered
       const isAnswered = true;
@@ -915,13 +922,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
       // Update the message based on the current state
       await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-  
-      // Fetch and process the current question
-      const currentQuestion = await this.fetchAndProcessCurrentQuestion();
-      if (!currentQuestion) {
-        console.error('Could not retrieve the current question.');
-        return;
-      }
   
       // Process the current question state
       this.processCurrentQuestionState(currentQuestion, option, index);
