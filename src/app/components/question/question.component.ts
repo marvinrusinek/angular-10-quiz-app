@@ -947,7 +947,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private async updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): Promise<void> {
-    const newMessage = this.selectionMessageService.determineSelectionMessage(
+    let newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       isAnswered
