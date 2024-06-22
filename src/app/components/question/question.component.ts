@@ -554,7 +554,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   // Subscribe to option selection changes
-  private subscribeToOptionSelection(): void {
+  private async subscribeToOptionSelection(): Promise<void> {
     // Call the function to get the observable
     this.selectedOptionService.isOptionSelected$()
       .pipe(
@@ -562,10 +562,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
-      .subscribe((isSelected: boolean) => {
+      .subscribe(async (isSelected: boolean) => {
         console.log(`[subscribeToOptionSelection] Option selected state: ${isSelected}`);
-        this.updateSelectionMessageBasedOnCurrentState(isSelected);
-        this.checkAsynchronousStateChanges();
+        
+        const isAnswered = await firstValueFrom(this.selectedOptionService.isOptionSelected$());
+        if (this.currentQuestionIndex !== 0 || isAnswered) {
+          this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+        }
       });
   }
   
@@ -851,10 +854,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       // Determine if the question is answered
-      const isAnswered: boolean = await firstValueFrom(this.selectedOptionService.isOptionSelected$());
-
-      // Use determineSelectionMessage to get the message
-      this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      const isAnswered = await firstValueFrom(this.selectedOptionService.isOptionSelected$());
+      if (this.currentQuestionIndex !== 0 || isAnswered) {
+        // Only update the message if it’s not the first question or the question is answered
+        console.log('[onOptionClicked] Updating message based on state.');
+        this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      }
 
       // Update the selection message
       this.updateSelectionMessageForOption();
