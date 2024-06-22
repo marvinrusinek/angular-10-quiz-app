@@ -21,6 +21,7 @@ export class SelectedOptionService {
     }
   }
 
+  // Method to get the current option selected state
   getCurrentOptionSelectedState(): boolean {
     return this.isOptionSelectedSubject.value;
   }
