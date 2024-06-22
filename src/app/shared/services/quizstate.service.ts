@@ -132,10 +132,7 @@ export class QuizStateService {
   }
 
   updateQuestionStateForExplanation(quizId: string, index: number): void {
-    let questionState = this.getQuestionState(
-      quizId,
-      index
-    );
+    let questionState = this.getQuestionState(quizId, index);
 
     if (!questionState) {
       questionState = {
