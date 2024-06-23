@@ -45,7 +45,7 @@ export class SelectionMessageService {
   }
 
   resetMessage(): void {
-    const initialMessage = 'Please start the quiz by selecting an option.';
+    const initialMessage = 'Please select an option to continue...';
     this.selectionMessageSubject.next(initialMessage);
     this.optionSelectedSubject.next(false);
   }
