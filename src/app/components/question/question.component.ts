@@ -1029,9 +1029,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private resetMessages(): void {
-    this.selectionMessageService.resetMessage();
-    this.lastMessage = 'Please start the quiz by selecting an option.';
-  }
+    const initialMessage = 'Please start the quiz by selecting an option.';
+    if (this.selectionMessage !== initialMessage) {
+      this.selectionMessage = initialMessage;
+      this.selectionMessageService.updateSelectionMessage(initialMessage);
+    }
+    this.lastMessage = initialMessage;
+    this.selectedOptionService.setOptionSelected(false);
+  }  
   
   private async processCurrentQuestion(
     currentQuestion: QuizQuestion
