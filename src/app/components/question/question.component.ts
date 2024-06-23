@@ -561,6 +561,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
+  private shouldUpdateMessageOnSelection(isSelected: boolean): boolean {
+    // Check if the current question is not the first one or if an option is selected
+    return this.currentQuestionIndex !== 0 || isSelected;
+  }
+
   private shouldUpdateMessageOnAnswer(isAnswered: boolean): boolean {
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
@@ -568,11 +573,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       isAnswered
     );
     return this.selectionMessage !== newMessage;
-  }
-
-  private shouldUpdateMessageOnSelection(isSelected: boolean): boolean {
-    // Check if the current question is not the first one or if an option is selected
-    return this.currentQuestionIndex !== 0 || isSelected;
   }
   
   private async updateSelectionBasedOnState(isSelected: boolean): Promise<void> {
