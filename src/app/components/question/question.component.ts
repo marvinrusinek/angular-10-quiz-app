@@ -1179,20 +1179,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.quizService.removeSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
     }
-  
-    const updatedSelectedOptions = this.quizService.getSelectedOptionIndices(this.currentQuestionIndex);
-    
+
     this.handleMultipleAnswer(currentQuestion);
-    
-    const isAnswered = updatedSelectedOptions.length > 0;
-  
-    // Use the new update method
-    // this.updateSelectionMessageBasedOnCurrentState(isAnswered);
     
     // Ensure Angular change detection picks up state changes
     this.cdRef.markForCheck(); 
   }
-  
 
   private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
     this.quizStateService.isMultipleAnswerQuestion(currentQuestion).subscribe({
