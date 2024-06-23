@@ -428,9 +428,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.setInitialSelectionMessageForFirstQuestion();
     } else {
       const isAnswered = await this.isQuestionAnswered();
-      await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+  
+      // Check if the message should be updated
+      if (this.shouldUpdateMessage(isAnswered)) {
+        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      } else {
+        console.log('[handleQuestionState] No message update required');
+      }
     }
   }  
+
+  private shouldUpdateMessage(isAnswered: boolean): boolean {
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered
+    );
+    return this.selectionMessage !== newMessage;
+  }
+  
 
   /* private initializeCorrectAnswerOptions(): void {
     this.quizService.setCorrectAnswerOptions(this.correctAnswers);
@@ -890,7 +906,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const isAnswered = true;
   
       // Update the message based on the current state
-      await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      if (this.shouldUpdateMessage(isAnswered)) {
+        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      }
   
       // Process the current question state
       this.processCurrentQuestionState(currentQuestion, option, index);
@@ -960,7 +978,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const isAnswered = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
   
       // Update the selection message based on the current state
-      await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      if (this.shouldUpdateMessage(isAnswered)) {
+        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      }
       this.updateAnswerStateAndMessage(isAnswered);
   
       // Return the fetched current question
