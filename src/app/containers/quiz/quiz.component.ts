@@ -179,8 +179,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.subscribeToSelectionMessage();
-
     // Initialize route parameters and subscribe to updates
     this.initializeRouteParameters();
 
