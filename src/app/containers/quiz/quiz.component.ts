@@ -179,6 +179,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    this.subscribeToSelectionMessage();
+
     // Initialize route parameters and subscribe to updates
     this.initializeRouteParameters();
 
@@ -280,7 +282,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     this.subscribeToCurrentQuestion();
-    this.subscribeToSelectionMessage();
   }
 
   /***************** Initialize route parameters and subscribe to updates ****************/
@@ -1073,8 +1074,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe((message: string) => {
-        this.selectionMessage = message;
-        this.safeDetectChanges();
+        if (this.selectionMessage !== message) {
+          this.selectionMessage = message;
+          this.safeDetectChanges();
+        } 
       });
   }
 
