@@ -423,7 +423,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async handleQuestionState(): Promise<void> {
     if (this.currentQuestionIndex === 0) {
-      this.setInitialSelectionMessageForFirstQuestion();
+      await this.setInitialSelectionMessageForFirstQuestion();
     } else {
       const isAnswered = await this.isQuestionAnswered();
       await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
@@ -573,13 +573,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async updateSelectionBasedOnState(isSelected: boolean): Promise<void> {
     try {
-      const isAnswered = isSelected || await this.isQuestionAnswered();
-      await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      if (this.currentQuestionIndex === 0 && !isSelected) {
+        await this.setInitialSelectionMessageForFirstQuestion();
+      } else {
+        const isAnswered = isSelected || await this.isQuestionAnswered();
+        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      }
     } catch (error) {
       console.error('[updateSelectionBasedOnState] Error updating selection based on state:', error);
     }
-  }
-  
+  }  
   
   private async isQuestionAnswered(): Promise<boolean> {
     this.resetStateForNewQuestion();
@@ -614,14 +617,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private async setInitialSelectionMessageForFirstQuestion(): Promise<void> {
     try {
       const initialMessage = 'Please start the quiz by selecting an option.';
-      console.log('[setInitialSelectionMessageForFirstQuestion] Setting initial message:', initialMessage);
-      this.selectionMessage = initialMessage;
-      this.selectionMessageService.updateSelectionMessage(initialMessage);
-      this.safeDetectChanges();
+      if (this.selectionMessage !== initialMessage) {
+        console.log('[setInitialSelectionMessageForFirstQuestion] Setting initial message:', initialMessage);
+        this.selectionMessage = initialMessage;
+        this.selectionMessageService.updateSelectionMessage(initialMessage);
+        this.safeDetectChanges();
+      }
     } catch (error) {
       console.error('Error setting initial selection message for the first question:', error);
     }
   }
+  
   
   
   
