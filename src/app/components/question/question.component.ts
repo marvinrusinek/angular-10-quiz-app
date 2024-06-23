@@ -191,60 +191,49 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    // Selection message-related calls
-    this.resetMessages();
-    // Reset state for the new question
-    this.resetStateForNewQuestion();
-
-    // Set the initial message if it’s the first question
     try {
-      if (this.currentQuestionIndex === 0) {
-        this.updateSelectionMessageBasedOnCurrentState(false);
-      } else {
-        const isAnswered = await this.isQuestionAnswered();
-        this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      // Reset state for the new question and selection message-related calls
+      this.resetMessages();
+      this.resetStateForNewQuestion();
+  
+      // Ensure the quiz is initialized only once
+      if (!this.initialized) {
+        await this.initializeQuiz();
+        this.initialized = true;
       }
+  
+      // Initialize the current quiz question
+      this.initializeQuizQuestion();
+  
+      // Determine the initial selection message
+      if (this.currentQuestionIndex === 0) {
+        console.log('[ngOnInit] Initial message for the first question.');
+        this.setInitialSelectionMessageForFirstQuestion();
+      } else {
+        console.log('[ngOnInit] Determine if the question is answered.');
+        const isAnswered = await this.isQuestionAnswered();
+        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      }
+  
+      // Set up event listener for visibility change
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          this.ngZone.run(() => {
+            this.fetchAndProcessQuizQuestions();
+          });
+        }
+      });
+  
+      // Subscribe to option selection state changes
+      this.subscribeToOptionSelection();
+  
+      // Log initial and final data for debugging
+      this.logInitialData();
+      this.logFinalData();
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
-  
-    // Ensure the quiz is initialized only once
-    if (!this.initialized) {
-      await this.initializeQuiz();
-      this.initialized = true;
-    }
-  
-    // Initialize the current quiz question
-    this.initializeQuizQuestion();
-
-    // Set the initial selection message for the first question
-    if (this.currentQuestionIndex === 0) {
-      const initialMessage = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        false // no option selected initially
-      );
-      this.setSelectionMessageIfChanged(initialMessage);
-    }
-  
-    // Set up event listener for visibility change
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
-        this.ngZone.run(() => {
-          this.fetchAndProcessQuizQuestions();
-        });
-      }
-    });
-
-    this.initializeSelectionMessage();
-  
-    // Subscribe to option selection state changes
-    this.subscribeToOptionSelection();
-  
-    // Log initial and final data for debugging
-    this.logInitialData();
-    this.logFinalData();
-  }
+  }  
 
   ngOnChanges(changes: SimpleChanges): void {
     // Improved check for property changes that are not the first change
@@ -968,8 +957,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Specific check for the first question
       if (this.currentQuestionIndex === 0 && !isAnswered) {
         newMessage = 'Please start the quiz by selecting an option.';
-      } else {
-        this.selectionMessage = newMessage;
       }
   
       console.log(`[updateSelectionMessageBasedOnCurrentState] Current message: ${this.selectionMessage}, New message: ${newMessage}, Is Answered: ${isAnswered}, Current Question Index: ${this.currentQuestionIndex}`);
