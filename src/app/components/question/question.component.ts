@@ -114,9 +114,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isInitialized = false;
   isComponentDestroyed = false;
   private initialized = false;
-  private isNextMessage = false;
   private isFirstQuestion = true;
-  private selectionUpdate$ = new Subject<boolean>();
   private lastMessage = '';
   private selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Please start the quiz by selecting an option.');
 
@@ -179,15 +177,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe((totalQuestions: number) => {
         this.totalQuestions = totalQuestions;
       });
-
-    /* this.selectionUpdate$
-      .pipe(
-        debounceTime(300),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((isAnswered: boolean) => {
-        this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-      }); */
   }
 
   async ngOnInit(): Promise<void> {
