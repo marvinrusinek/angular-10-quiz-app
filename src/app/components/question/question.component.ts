@@ -204,8 +204,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       // Initialize the current quiz question
       this.initializeQuizQuestion();
-
-      this.handleQuestionState();
+      await this.handleQuestionState();
   
       // Set up event listener for visibility change
       document.addEventListener('visibilitychange', () => {
