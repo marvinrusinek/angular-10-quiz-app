@@ -11,6 +11,7 @@ export class SelectionMessageService {
     return this.selectionMessageSubject.asObservable();
   } // not being called, potentially remove
 
+  // Message Determination Function
   determineSelectionMessage(
     currentQuestionIndex: number,
     totalQuestions: number,
