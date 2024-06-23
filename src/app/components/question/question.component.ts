@@ -188,7 +188,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       if (!this.initialized) {
         this.initialized = true;
         await this.initializeQuiz();
-        this.subscribeToOptionSelection();
       }
   
       // Initialize the current quiz question and handle its state
@@ -411,6 +410,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
           }
         });
+
+        // Subscribe to option selection changes to ensure the state is up-to-date
+        this.subscribeToOptionSelection();
       } else {
         console.error('No questions were loaded');
       }
