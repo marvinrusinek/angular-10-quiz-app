@@ -904,6 +904,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOptionService.setOptionSelected(false);
     this.selectionMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
+    this.selectionMessageService.resetMessage();
     this.isOptionSelected = false;
     this.safeDetectChanges();
   }
