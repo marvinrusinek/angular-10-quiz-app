@@ -554,23 +554,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return this.currentQuestionIndex !== 0 || isSelected;
   }
   
-  /* private async updateSelectionBasedOnState(isSelected: boolean): Promise<void> {
-    try {
-      // If it's the first question and no option is selected, set the initial message.
-      if (this.currentQuestionIndex === 0 && !isSelected) {
-        this.setInitialSelectionMessageForFirstQuestion();
-      } else {
-        // Determine if the current question is answered.
-        const isAnswered = isSelected || await this.isQuestionAnswered();
-        
-        // Update the selection message based on the current state.
-        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-      }
-    } catch (error) {
-      console.error('[updateSelectionBasedOnState] Error updating selection based on state:', error);
-    }
-  } */
-
   private async updateSelectionBasedOnState(isSelected: boolean): Promise<void> {
     try {
       if (this.currentQuestionIndex === 0 && !isSelected) {
@@ -595,25 +578,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* private async setInitialSelectionMessageForFirstQuestion(): Promise<void> {
-    try {
-      const initialMessage = 'Please start the quiz by selecting an option.';
-      // Set the initial message only if it differs from the current message
-      if (this.selectionMessage !== initialMessage) {
-        console.log('[setInitialSelectionMessageForFirstQuestion] Setting initial message:', initialMessage);
-        this.selectionMessage = initialMessage;
-        this.selectionMessageService.updateSelectionMessage(initialMessage);
-        this.safeDetectChanges();
-      } else {
-        // Ensure the current question's answered state is accurate
-        const isAnswered = await this.isQuestionAnswered();
-        this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-      }
-    } catch (error) {
-      console.error('Error setting initial selection message for the first question:', error);
-    }
-  } */
-
   private async setInitialSelectionMessageForFirstQuestion(): Promise<void> {
     try {
       const initialMessage = 'Please start the quiz by selecting an option.';
@@ -627,9 +591,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Error setting initial selection message for the first question:', error);
     }
   }
-  
-  
-  
   
   private async checkAsynchronousStateChanges(): Promise<void> {
     try {
