@@ -436,17 +436,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.log('[handleQuestionState] No message update required');
       }
     }
-  }  
-
-  private shouldUpdateMessageOnAnswer(isAnswered: boolean): boolean {
-    const newMessage = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      isAnswered
-    );
-    return this.selectionMessage !== newMessage;
-  }
-  
+  } 
 
   /* private initializeCorrectAnswerOptions(): void {
     this.quizService.setCorrectAnswerOptions(this.correctAnswers);
@@ -569,6 +559,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           console.error('[subscribeToOptionSelection] Error processing option selection:', error);
         }
       });
+  }
+
+  private shouldUpdateMessageOnAnswer(isAnswered: boolean): boolean {
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered
+    );
+    return this.selectionMessage !== newMessage;
   }
 
   private shouldUpdateMessageOnSelection(isSelected: boolean): boolean {
@@ -962,7 +961,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('[updateSelectionMessageBasedOnCurrentState] Error updating selection message:', error);
     }
   }
-  
 
   private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
