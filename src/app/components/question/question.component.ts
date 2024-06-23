@@ -592,7 +592,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private async setInitialSelectionMessageForFirstQuestion(): Promise<void> {
+  /* private async setInitialSelectionMessageForFirstQuestion(): Promise<void> {
     try {
       const initialMessage = 'Please start the quiz by selecting an option.';
       // Set the initial message only if it differs from the current message
@@ -609,7 +609,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('Error setting initial selection message for the first question:', error);
     }
+  } */
+
+  private async setInitialSelectionMessageForFirstQuestion(): Promise<void> {
+    try {
+      const initialMessage = 'Please start the quiz by selecting an option.';
+      console.log('[setInitialSelectionMessageForFirstQuestion] Setting initial message:', initialMessage);
+      this.selectionMessage = initialMessage;
+      this.selectionMessageService.updateSelectionMessage(initialMessage);
+      this.safeDetectChanges();
+    } catch (error) {
+      console.error('Error setting initial selection message for the first question:', error);
+    }
   }
+  
   
   
   private async checkAsynchronousStateChanges(): Promise<void> {
