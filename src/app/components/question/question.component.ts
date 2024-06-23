@@ -947,7 +947,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.toggleSelectedOption(selectedOption);
     this.selectedOptionService.setOptionSelected(true);
     this.isFirstQuestion = false; // Reset after the first option click
-    console.log('[updateSelectedOption] Option selected and state updated:', selectedOption);
   }
 
   private async updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): Promise<void> {
@@ -963,10 +962,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         newMessage = 'Please start the quiz by selecting an option.';
       }
   
-      console.log(`[updateSelectionMessageBasedOnCurrentState] Current message: ${this.selectionMessage}, New message: ${newMessage}, Is Answered: ${isAnswered}, Current Question Index: ${this.currentQuestionIndex}`);
-  
       if (this.selectionMessage !== newMessage) {
-        console.log(`[updateSelectionMessageBasedOnCurrentState] Updating message to: ${newMessage}`);
         this.selectionMessage = newMessage;
         this.selectionMessageService.updateSelectionMessage(newMessage);
         this.safeDetectChanges();
@@ -985,13 +981,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion());
   
       if (!currentQuestion) {
-        // Log error and return null if the current question could not be retrieved
         console.error('[fetchAndProcessCurrentQuestion] Could not retrieve the current question.');
         return null;
       }
-  
-      // Log the fetched current question for debugging
-      console.log('[fetchAndProcessCurrentQuestion] Current question fetched:', currentQuestion);
   
       // Determine if the current question is answered
       const isAnswered = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
@@ -1004,7 +996,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return currentQuestion;
   
     } catch (error) {
-      // Log any errors that occur during the fetch process
       console.error('[fetchAndProcessCurrentQuestion] An error occurred while fetching the current question:', error);
       return null;
     }
@@ -1025,14 +1016,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.totalQuestions,
       isAnswered
     );
-    console.log('[updateAnswerStateAndMessage] Determined message:', message);
     this.setSelectionMessageIfChanged(message);
   }
 
   // Sets the selection message if it has changed
   private setSelectionMessageIfChanged(newMessage: string): void {
     if (this.selectionMessage !== newMessage) {
-      console.log(`[setSelectionMessageIfChanged] Updating message to: ${newMessage}`);
       this.selectionMessage = newMessage;
       this.selectionMessageService.updateSelectionMessage(newMessage);
       this.safeDetectChanges();
@@ -1040,13 +1029,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('[setSelectionMessageIfChanged] No message update required');
     }
   }
-  
-
-  private setSelectionMessage(message: string): void {
-    console.log(`[setSelectionMessage] Updating selection message to: ${message}`);
-    this.selectionMessageService.updateSelectionMessage(message);
-  }
-  
 
   private async handleCorrectnessAndTimer(): Promise<void> {
     // Check if the answer is correct and stop the timer if it is
@@ -1058,12 +1040,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleAudioPlayback(isCorrect);
   }
 
-      
-  
   private resetMessages(): void {
     this.selectionMessageService.resetMessage();
     this.lastMessage = 'Please start the quiz by selecting an option.';
-    console.log('[resetMessages] Messages reset to initial state');
   }
   
   private async processCurrentQuestion(
