@@ -15,7 +15,6 @@ export class SelectedOptionService {
 
   // Method to set the option selected state
   setOptionSelected(isSelected: boolean): void {
-    console.log('[setOptionSelected] Updating option selected state:', isSelected);
     if (this.isOptionSelectedSubject.value !== isSelected) {
       this.isOptionSelectedSubject.next(isSelected);
     }

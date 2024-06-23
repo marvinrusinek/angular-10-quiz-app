@@ -435,11 +435,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async handleQuestionState(): Promise<void> {
     if (this.currentQuestionIndex === 0) {
-      console.log('[handleQuestionState] Handling state for the first question.');
       this.setInitialSelectionMessageForFirstQuestion();
     } else {
       const isAnswered = await this.isQuestionAnswered();
-      console.log(`[handleQuestionState] Handling state for question index: ${this.currentQuestionIndex}, isAnswered: ${isAnswered}`);
       await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
     }
   }  
@@ -986,7 +984,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizStateService.updateQuestionStateForExplanation(this.quizId, this.currentQuestionIndex);
     this.formatAndLogExplanations();
     this.questionAnswered.emit();
-    console.log('[processCurrentQuestionState] Question state processed and updated.');
   }
 
   private updateAnswerStateAndMessage(isAnswered: boolean): void {

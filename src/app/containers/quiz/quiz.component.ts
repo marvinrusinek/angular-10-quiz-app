@@ -1075,7 +1075,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe((message: string) => {
-        console.log('[subscribeToSelectionMessage] New selection message:', message);
         this.selectionMessage = message;
         this.safeDetectChanges();
       });
