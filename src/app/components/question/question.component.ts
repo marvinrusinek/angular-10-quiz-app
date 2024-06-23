@@ -554,7 +554,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return this.currentQuestionIndex !== 0 || isSelected;
   }
   
-  private async updateSelectionBasedOnState(isSelected: boolean): Promise<void> {
+  /* private async updateSelectionBasedOnState(isSelected: boolean): Promise<void> {
     try {
       // If it's the first question and no option is selected, set the initial message.
       if (this.currentQuestionIndex === 0 && !isSelected) {
@@ -569,7 +569,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('[updateSelectionBasedOnState] Error updating selection based on state:', error);
     }
-  }  
+  } */
+
+  private async updateSelectionBasedOnState(isSelected: boolean): Promise<void> {
+    try {
+      const isAnswered = isSelected || await this.isQuestionAnswered();
+      await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+    } catch (error) {
+      console.error('[updateSelectionBasedOnState] Error updating selection based on state:', error);
+    }
+  }
+  
   
   private async isQuestionAnswered(): Promise<boolean> {
     this.resetStateForNewQuestion();
