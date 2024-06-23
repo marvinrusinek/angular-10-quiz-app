@@ -550,6 +550,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private shouldUpdateMessage(isSelected: boolean): boolean {
+    // Check if the current question is not the first one or if an option is selected
     return this.currentQuestionIndex !== 0 || isSelected;
   }
   
@@ -573,6 +574,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private async isQuestionAnswered(): Promise<boolean> {
     this.resetStateForNewQuestion();
     try {
+      // Fetch the answered state from the quiz service
       return await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
     } catch (error) {
       console.error('[isQuestionAnswered] Error checking if question is answered:', error);
