@@ -116,7 +116,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private initialized = false;
   private isFirstQuestion = true;
   private lastMessage = '';
-  private selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Please start the quiz by selecting an option.');
 
   // Define audio list array
   audioList: AudioItem[] = [];
