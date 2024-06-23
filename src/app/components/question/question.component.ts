@@ -204,16 +204,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       // Initialize the current quiz question
       this.initializeQuizQuestion();
-  
-      // Determine the initial selection message
-      if (this.currentQuestionIndex === 0) {
-        console.log('[ngOnInit] Initial message for the first question.');
-        this.setInitialSelectionMessageForFirstQuestion();
-      } else {
-        console.log('[ngOnInit] Determine if the question is answered.');
-        const isAnswered = await this.isQuestionAnswered();
-        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-      }
+
+      this.handleQuestionState();
   
       // Set up event listener for visibility change
       document.addEventListener('visibilitychange', () => {
@@ -456,6 +448,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     this.cdRef.detectChanges();
   }
+
+  private async handleQuestionState(): Promise<void> {
+    if (this.currentQuestionIndex === 0) {
+      console.log('[handleQuestionState] Handling state for the first question.');
+      this.setInitialSelectionMessageForFirstQuestion();
+    } else {
+      const isAnswered = await this.isQuestionAnswered();
+      console.log(`[handleQuestionState] Handling state for question index: ${this.currentQuestionIndex}, isAnswered: ${isAnswered}`);
+      await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+    }
+  }  
 
   /* private initializeCorrectAnswerOptions(): void {
     this.quizService.setCorrectAnswerOptions(this.correctAnswers);
