@@ -192,39 +192,31 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     try {
-      // Reset state for the new question and selection message-related calls
+      // Reset state and messages for the new question
       this.resetMessages();
       this.resetStateForNewQuestion();
   
-      // Ensure the quiz is initialized only once
+      // Initialize the quiz and subscribe to selection changes if not already initialized
       if (!this.initialized) {
-        await this.initializeQuiz();
         this.initialized = true;
+        await this.initializeQuiz();
+        this.subscribeToOptionSelection();
       }
   
-      // Initialize the current quiz question
+      // Initialize the current quiz question and handle its state
       this.initializeQuizQuestion();
       await this.handleQuestionState();
   
-      // Set up event listener for visibility change
-      document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) {
-          this.ngZone.run(() => {
-            this.fetchAndProcessQuizQuestions();
-          });
-        }
-      });
+      // Set up an event listener for visibility change to refresh data if needed
+      document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
   
-      // Subscribe to option selection state changes
-      this.subscribeToOptionSelection();
-  
-      // Log initial and final data for debugging
+      // Log data for debugging
       this.logInitialData();
       this.logFinalData();
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
-  }  
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     // Improved check for property changes that are not the first change
@@ -271,12 +263,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   ngOnDestroy(): void {
+    document.removeEventListener('visibilitychange', this.onVisibilityChange.bind(this));
     this.isComponentDestroyed = true;
     this.destroy$.next();
     this.destroy$.complete();
     this.questionsObservableSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
     this.sharedVisibilitySubscription?.unsubscribe();
+  }
+  
+  // Function to handle visibility changes
+  private onVisibilityChange(): void {
+    if (!document.hidden) {
+      this.ngZone.run(() => {
+        this.fetchAndProcessQuizQuestions();
+      });
+    }
   }
 
   private safeDetectChanges(): void {
@@ -908,7 +910,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
   
-
   private resetStateForNewQuestion(): void {
     this.selectedOptionService.setOptionSelected(false);
     this.selectionMessage = 'Please select an option to continue...';
