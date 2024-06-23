@@ -626,6 +626,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       if (isAnswered !== currentSelectionState) {
         console.log(`[checkAsynchronousStateChanges] State changed. isAnswered: ${isAnswered}, currentSelectionState: ${currentSelectionState}`);
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      } else {
+        console.log('[checkAsynchronousStateChanges] No state change detected');
       }
     } catch (error) {
       console.error('[checkAsynchronousStateChanges] Error checking asynchronous state changes:', error);
