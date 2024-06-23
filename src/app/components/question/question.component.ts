@@ -545,7 +545,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       )
       .subscribe(async (isSelected: boolean) => {
         try {
-          // Update the component state
           this.isOptionSelected = isSelected;
           
           // Update the selection message based on the state
