@@ -587,16 +587,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const initialMessage = 'Please start the quiz by selecting an option.';
       // Set the initial message only if it differs from the current message
       if (this.selectionMessage !== initialMessage) {
+        console.log('[setInitialSelectionMessageForFirstQuestion] Setting initial message:', initialMessage);
         this.selectionMessage = initialMessage;
         this.selectionMessageService.updateSelectionMessage(initialMessage);
         this.safeDetectChanges();
-        console.log('Initial message for the first question has been set.');
-      }
-  
-      // Check if the question is answered
-      const isAnswered = await this.isQuestionAnswered();
-      if (isAnswered) {
-        // Update the message based on the current state if the question is already answered
+      } else {
+        // Ensure the current question's answered state is accurate
+        const isAnswered = await this.isQuestionAnswered();
         this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       }
     } catch (error) {
@@ -604,7 +601,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
   
-  /* private async checkAsynchronousStateChanges(): Promise<void> {
+  
+  private async checkAsynchronousStateChanges(): Promise<void> {
     try {
       const isAnswered = await this.isQuestionAnswered();
       const currentSelectionState = this.selectedOptionService.getCurrentOptionSelectedState();
@@ -617,22 +615,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('[checkAsynchronousStateChanges] Error checking asynchronous state changes:', error);
     }
-  } */
-
-  private async checkAsynchronousStateChanges(): Promise<void> {
-    try {
-      const isAnswered: boolean = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
-      const currentSelectionState: boolean = this.selectedOptionService.getCurrentOptionSelectedState();
-  
-      if (isAnswered !== currentSelectionState) {
-        console.log(`[checkAsynchronousStateChanges] State mismatch. isAnswered: ${isAnswered}, currentSelectionState: ${currentSelectionState}`);
-        this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-      }
-    } catch (error) {
-      console.error('Error checking asynchronous state changes:', error);
-    }
   }
-  
 
   updateCorrectMessageText(message: string): void {
     this.quizService.updateCorrectMessageText(message); 
