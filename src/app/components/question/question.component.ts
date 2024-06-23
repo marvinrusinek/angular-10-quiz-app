@@ -602,9 +602,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('Error setting initial selection message for the first question:', error);
     }
-  }  
+  }
   
-  private async checkAsynchronousStateChanges(): Promise<void> {
+  /* private async checkAsynchronousStateChanges(): Promise<void> {
     try {
       const isAnswered = await this.isQuestionAnswered();
       const currentSelectionState = this.selectedOptionService.getCurrentOptionSelectedState();
@@ -617,7 +617,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('[checkAsynchronousStateChanges] Error checking asynchronous state changes:', error);
     }
-  }  
+  } */
+
+  private async checkAsynchronousStateChanges(): Promise<void> {
+    try {
+      const isAnswered: boolean = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+      const currentSelectionState: boolean = this.selectedOptionService.getCurrentOptionSelectedState();
+  
+      if (isAnswered !== currentSelectionState) {
+        console.log(`[checkAsynchronousStateChanges] State mismatch. isAnswered: ${isAnswered}, currentSelectionState: ${currentSelectionState}`);
+        this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      }
+    } catch (error) {
+      console.error('Error checking asynchronous state changes:', error);
+    }
+  }
+  
 
   updateCorrectMessageText(message: string): void {
     this.quizService.updateCorrectMessageText(message); 
