@@ -574,11 +574,26 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
             // Check for asynchronous state changes
             await this.checkAsynchronousStateChanges();
+          } else {
+            // Add logic for when it is the first question and no option is selected
+            console.log('[subscribeToOptionSelection] Handling state for the first question with no option selected.');
+            await this.handleFirstQuestionNoSelection();
           }
         } catch (error) {
           console.error('[subscribeToOptionSelection] Error processing option selection:', error);
         }
       });
+  }
+
+  // Function to handle the case for the first question with no option selected
+  private async handleFirstQuestionNoSelection(): Promise<void> {
+    try {
+      this.setInitialSelectionMessageForFirstQuestion();
+      this.resetStateForNewQuestion();
+      console.log('[handleFirstQuestionNoSelection] State reset for the first question with no selection.');
+    } catch (error) {
+      console.error('[handleFirstQuestionNoSelection] Error handling first question with no selection:', error);
+    }
   }
   
   private async updateSelectionBasedOnState(isSelected: boolean): Promise<void> {
