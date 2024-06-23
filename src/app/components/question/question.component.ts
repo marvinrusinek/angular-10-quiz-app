@@ -588,7 +588,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     try {
       const initialMessage = 'Please start the quiz by selecting an option.';
       if (this.selectionMessage !== initialMessage) {
-        console.log('[setInitialSelectionMessageForFirstQuestion] Setting initial message:', initialMessage);
         this.selectionMessage = initialMessage;
         this.selectionMessageService.updateSelectionMessage(initialMessage);
         this.safeDetectChanges();
