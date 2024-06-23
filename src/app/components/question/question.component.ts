@@ -901,7 +901,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         return;
       }
   
-      // Since an option is clicked, it is considered answered
+      // The question is considered answered once an option is clicked
       const isAnswered = true;
   
       // Update the message based on the current state
