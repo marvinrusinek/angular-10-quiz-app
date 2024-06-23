@@ -1788,6 +1788,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetExplanationText();  // Clears any existing explanation text
 
+    this.selectionMessageService.resetMessage();
+
     // Update the badge text for badge question ID 1 with the total number of questions
     this.quizService.updateBadgeText(1, this.totalQuestions);
 
