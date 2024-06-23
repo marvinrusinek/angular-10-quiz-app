@@ -36,9 +36,9 @@ export class SelectionMessageService {
   }  
 
   // Method to update the message
-  updateSelectionMessage(newMessage: string): void {
-    if (this.selectionMessageSubject.value !== newMessage) {
-      this.selectionMessageSubject.next(newMessage);
+  updateSelectionMessage(message: string): void {
+    if (this.selectionMessageSubject.value !== message) {
+      this.selectionMessageSubject.next(message);
     } else {
       console.log('[updateSelectionMessage] No update required, message unchanged');
     }
