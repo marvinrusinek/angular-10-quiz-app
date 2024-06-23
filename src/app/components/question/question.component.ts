@@ -106,6 +106,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   correctAnswersLoaded = false;
   sharedVisibilitySubscription: Subscription;
+  optionSelectionSubscription: Subscription;
   isExplanationTextDisplayed = false;
   isNavigatingToPrevious = false;
   isLoading = true;
@@ -256,6 +257,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.destroy$.complete();
     this.questionsObservableSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
+    this.optionSelectionSubscription?.unsubscribe();
     this.sharedVisibilitySubscription?.unsubscribe();
   }
   
@@ -526,7 +528,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   // Subscribe to option selection changes
   private subscribeToOptionSelection(): void {
-    this.selectedOptionService.isOptionSelected$()
+    if (this.optionSelectionSubscription) {
+      this.optionSelectionSubscription.unsubscribe();
+    }
+
+    this.optionSelectionSubscription = this.selectedOptionService.isOptionSelected$()
       .pipe(
         debounceTime(300), // Debounce to prevent rapid changes
         distinctUntilChanged(),
