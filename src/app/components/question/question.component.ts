@@ -549,7 +549,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.isOptionSelected = isSelected;
           
           // Update the selection message based on the state
-          if (this.currentQuestionIndex !== 0 || isSelected) {
+          if (this.shouldUpdateMessage(isSelected)) {
             await this.updateSelectionBasedOnState(isSelected);
 
             // Check for asynchronous state changes
@@ -559,6 +559,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           console.error('[subscribeToOptionSelection] Error processing option selection:', error);
         }
       });
+  }
+
+  private shouldUpdateMessage(isSelected: boolean): boolean {
+    return this.currentQuestionIndex !== 0 || isSelected;
   }
   
   private async updateSelectionBasedOnState(isSelected: boolean): Promise<void> {
