@@ -1835,9 +1835,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private async updateTooltipText(): Promise<void> {
     const isAnswered = await this.isQuestionAnswered();
-    const tooltipText = this.determineTooltipText(isAnswered);
-    console.log(`Updating tooltip text to: ${tooltipText}`); // Debug log
-    this.nextButtonTooltip = tooltipText;
+    this.nextButtonTooltip = this.determineTooltipText(isAnswered);
   }
 
   private async isQuestionAnswered(): Promise<boolean> {
