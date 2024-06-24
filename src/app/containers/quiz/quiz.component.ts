@@ -134,6 +134,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
   private isDestroyed = false;
+  nextButtonTooltip: string;
   audioAvailable = true;
 
   constructor(
@@ -194,6 +195,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
+
+    await this.updateTooltipText();
   }
 
   ngOnDestroy(): void {
@@ -1822,5 +1825,19 @@ export class QuizComponent implements OnInit, OnDestroy {
         reject('No explanation available');
       }
     });
+  }
+
+  private determineTooltipText(isAnswered: boolean): string {
+    return isAnswered ? 'Please click to continue.' : 'Please select an option to continue...';
+  }
+
+  private async updateTooltipText(): Promise<void> {
+    const isAnswered = await this.isQuestionAnswered();
+    const tooltipText = this.determineTooltipText(isAnswered);
+    this.nextButtonTooltip = tooltipText;
+  }
+
+  private async isQuestionAnswered(): Promise<boolean> {
+    return await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
   }
 }
