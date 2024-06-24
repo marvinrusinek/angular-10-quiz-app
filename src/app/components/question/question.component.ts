@@ -117,8 +117,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private isFirstQuestion = true;
   private lastMessage = '';
 
-  nextButtonTooltip: string;
-
   // Define audio list array
   audioList: AudioItem[] = [];
 
@@ -201,8 +199,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       // Set up an event listener for visibility change to refresh data if needed
       document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
-
-      await this.updateTooltipText();
   
       // Log data for debugging
       this.logInitialData();
@@ -1485,16 +1481,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.submitQuizScore(this.answers).subscribe(() => {
       this.router.navigate(['quiz', 'result']);
     });
-  } 
-
-  private determineTooltipText(isAnswered: boolean): string {
-    return isAnswered ? 'Please click to continue.' : 'Please select an option to continue...';
-  }
-
-  private async updateTooltipText(): Promise<void> {
-    const isAnswered = await this.isQuestionAnswered();
-    const tooltipText = this.determineTooltipText(isAnswered);
-    this.nextButtonTooltip = tooltipText;
   }
 
   /* playSound(selectedOption: Option): void {
