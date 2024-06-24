@@ -1483,6 +1483,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   } 
 
+  private determineTooltipText(isAnswered: boolean): string {
+    return isAnswered ? 'Please click to continue.' : 'Please select an option to continue...';
+  }
+
+  private async updateTooltipText(): Promise<void> {
+    const isAnswered = await this.isQuestionAnswered();
+    const tooltipText = this.determineTooltipText(isAnswered);
+    this.nextButtonTooltip = tooltipText;
+  }
+
   /* playSound(selectedOption: Option): void {
     if (!selectedOption) {
       console.log('Selected option is undefined or null.');
