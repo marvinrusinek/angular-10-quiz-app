@@ -369,6 +369,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {
+    // Subscribe to option selection changes to ensure the state is up-to-date
+    this.subscribeToOptionSelection();
+    
     try {
       await this.fetchAndProcessQuizQuestions();
       this.subscribeToCorrectAnswersAndData();
@@ -410,9 +413,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
           }
         });
-
-        // Subscribe to option selection changes to ensure the state is up-to-date
-        this.subscribeToOptionSelection();
       } else {
         console.error('No questions were loaded');
       }
