@@ -309,6 +309,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async initializeQuiz(): Promise<void> {
     this.initialized = true;
+
+    // Subscribe to option selection changes to ensure the state is up-to-date
+    this.subscribeToOptionSelection();
+
     this.initializeSelectedQuiz();
     await this.initializeQuizQuestionsAndAnswers();
   }
@@ -368,10 +372,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private async initializeQuizQuestionsAndAnswers(): Promise<void> {
-    // Subscribe to option selection changes to ensure the state is up-to-date
-    this.subscribeToOptionSelection();
-    
+  private async initializeQuizQuestionsAndAnswers(): Promise<void> {    
     try {
       await this.fetchAndProcessQuizQuestions();
       this.subscribeToCorrectAnswersAndData();
