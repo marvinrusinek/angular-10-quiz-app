@@ -543,7 +543,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.optionSelectionSubscription = this.selectedOptionService.isOptionSelected$()
       .pipe(
-        debounceTime(300), // Debounce to prevent rapid changes
+        debounceTime(500), // Debounce to prevent rapid changes
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
