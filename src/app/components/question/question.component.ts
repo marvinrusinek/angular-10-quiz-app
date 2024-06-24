@@ -556,7 +556,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             await this.updateSelectionBasedOnState(isSelected);
 
             // Check for asynchronous state changes
-            // await this.checkAsynchronousStateChanges();
+            await this.checkAsynchronousStateChanges();
           }
         } catch (error) {
           console.error('[subscribeToOptionSelection] Error processing option selection:', error);
@@ -609,6 +609,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.selectionMessage = initialMessage;
         this.selectionMessageService.updateSelectionMessage(initialMessage);
         this.safeDetectChanges();
+      } else {
+        const isAnswered = await this.isQuestionAnswered();
+        this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       }
     } catch (error) {
       console.error('Error setting initial selection message for the first question:', error);
@@ -926,11 +929,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   private resetStateForNewQuestion(): void {
+    this.isOptionSelected = false;
     this.selectedOptionService.setOptionSelected(false);
     this.selectionMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
     this.selectionMessageService.resetMessage();
-    this.isOptionSelected = false;
     this.safeDetectChanges();
   }
   
