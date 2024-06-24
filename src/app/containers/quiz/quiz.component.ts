@@ -134,7 +134,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
   private isDestroyed = false;
-  nextButtonTooltip: string;
+  nextButtonTooltip = 'Please select an option to continue...';
   audioAvailable = true;
 
   constructor(
@@ -1550,6 +1550,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         // Combine fetching data and initializing question state into a single method
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+
+        this.updateTooltipText();
 
         this.resetUI();
       } else {
