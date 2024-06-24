@@ -117,6 +117,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private isFirstQuestion = true;
   private lastMessage = '';
 
+  nextButtonTooltip: string;
+
   // Define audio list array
   audioList: AudioItem[] = [];
 
@@ -199,6 +201,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       // Set up an event listener for visibility change to refresh data if needed
       document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
+
+      await this.updateTooltipText();
   
       // Log data for debugging
       this.logInitialData();
