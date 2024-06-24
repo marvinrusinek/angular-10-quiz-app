@@ -136,12 +136,19 @@ export class QuizDataService implements OnDestroy {
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
     return this.getQuiz(quizId).pipe(
       map(quiz => {
-        if (!quiz || questionIndex < 0 || questionIndex > quiz.questions.length) {
+        if (!quiz || questionIndex < 0 || questionIndex >= quiz.questions.length) {
           console.error(`Question index ${questionIndex} out of bounds`);
           return null;
         }
         const question = quiz.questions[questionIndex];
-        return [question, question.options] as [QuizQuestion, Option[]];
+  
+        // Check for undefined options and handle accordingly
+        const options = question.options || [];
+        if (options.length === 0) {
+          console.warn(`No options found for question at index ${questionIndex}`);
+        }
+  
+        return [question, options] as [QuizQuestion, Option[]];
       }),
       catchError(error => {
         console.error('Error fetching question and options:', error);
