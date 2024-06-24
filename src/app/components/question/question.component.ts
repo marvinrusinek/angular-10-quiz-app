@@ -183,6 +183,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Reset state and messages for the new question
       this.resetMessages();
       this.resetStateForNewQuestion();
+
+      // Subscribe to option selection changes to ensure the state is up-to-date
+      this.subscribeToOptionSelection();
   
       // Initialize the quiz and subscribe to selection changes if not already initialized
       if (!this.initialized) {
@@ -309,9 +312,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async initializeQuiz(): Promise<void> {
     this.initialized = true;
-
-    // Subscribe to option selection changes to ensure the state is up-to-date
-    this.subscribeToOptionSelection();
 
     this.initializeSelectedQuiz();
     await this.initializeQuizQuestionsAndAnswers();
