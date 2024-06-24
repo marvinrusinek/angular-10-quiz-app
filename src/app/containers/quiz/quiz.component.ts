@@ -127,6 +127,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   isQuestionIndexChanged = false;
   private isNavigatedByUrl = false;
   isAnswered$: Observable<boolean>;
+  nextButtonTooltip$: Observable<string>;
 
   shouldDisplayCorrectAnswers = false;
 
@@ -196,6 +197,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.checkIfAnswerSelected(true);
 
+    this.setupObservables();
     await this.updateTooltipText();
   }
 
@@ -1551,6 +1553,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Combine fetching data and initializing question state into a single method
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
+        this.setupObservables();
         this.updateTooltipText();
 
         this.resetUI();
@@ -1827,6 +1830,17 @@ export class QuizComponent implements OnInit, OnDestroy {
         reject('No explanation available');
       }
     });
+  }
+
+  private setupObservables(): void {
+    this.isAnswered$ = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
+      tap(isAnswered => console.log(`Question ${this.currentQuestionIndex} answered: ${isAnswered}`))
+    );
+
+    this.nextButtonTooltip$ = this.isAnswered$.pipe(
+      map(isAnswered => this.determineTooltipText(isAnswered)),
+      tap(tooltipText => console.log(`Tooltip for question ${this.currentQuestionIndex}: ${tooltipText}`))
+    );
   }
 
   private determineTooltipText(isAnswered: boolean): string {
