@@ -35,7 +35,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     question: QuizQuestion;
     selectedOptions: Option[];
   }> = new EventEmitter();
-  @Output() toggleVisibility: EventEmitter<void> = new EventEmitter<void>();
   @Output() optionClicked: EventEmitter<void> = new EventEmitter<void>();
   @Output() optionSelected: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() questionAnswered = new EventEmitter<boolean>();
@@ -1390,12 +1389,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.questions[questionIndex],
       explanationText
     );
-    this.emitUIUpdateEvents();
-  }
-
-  private emitUIUpdateEvents(): void {
     this.isAnswerSelectedChange.emit(true);
-    this.toggleVisibility.emit();
   }
 
   updateCombinedQuestionData(
