@@ -1550,9 +1550,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Combine fetching data and initializing question state into a single method
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
-        this.setupObservables();
-        this.updateTooltipText();
-
         this.resetUI();
       } else {
         console.log('End of quiz reached.');
