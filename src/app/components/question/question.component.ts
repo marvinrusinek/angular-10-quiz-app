@@ -1140,7 +1140,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Set shouldDisplayExplanation to true when an option is selected, otherwise set it to false
     this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
-    this.explanationTextService.toggleExplanationDisplay(isOptionSelected);
   }
 
   private logDebugInformation(): void {

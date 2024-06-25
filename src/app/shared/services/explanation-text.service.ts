@@ -260,10 +260,6 @@ export class ExplanationTextService {
     return formattedExplanations;
   }
 
-  toggleExplanationDisplay(shouldDisplay: boolean): void {
-    this.shouldDisplayExplanationSource.next(shouldDisplay);
-  }
-
   setIsExplanationTextDisplayed(isDisplayed: boolean): void {
     this.isExplanationTextDisplayedSource.next(isDisplayed);
   }
