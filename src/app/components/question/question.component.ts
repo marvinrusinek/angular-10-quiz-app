@@ -111,11 +111,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isNavigatingToPrevious = false;
   isLoading = true;
   isLoadingQuestions = false;
+  isFirstQuestion = true;
   isPaused = false;
   isComponentDestroyed = false;
+  lastMessage = '';
   private initialized = false;
-  private isFirstQuestion = true;
-  private lastMessage = '';
 
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -146,7 +146,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef,
     protected router: Router,
-    protected ngZone: NgZone
+    protected ngZone: NgZone 
   ) {
     this.quizService = quizService;
     this.quizDataService = quizDataService;
