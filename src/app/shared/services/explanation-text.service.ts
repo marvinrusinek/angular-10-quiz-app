@@ -24,11 +24,11 @@ export class ExplanationTextService {
   isExplanationTextDisplayedSource = new BehaviorSubject<boolean>(false);
   isExplanationTextDisplayed$ = this.isExplanationTextDisplayedSource.asObservable();
 
-  shouldDisplayExplanationSource = new BehaviorSubject<boolean>(false);
-  shouldDisplayExplanation$ = this.shouldDisplayExplanationSource.asObservable();
-
   private isExplanationDisplayedSource = new BehaviorSubject<boolean>(false);
   isExplanationDisplayed$ = this.isExplanationDisplayedSource.asObservable();
+
+  shouldDisplayExplanationSource = new BehaviorSubject<boolean>(false);
+  shouldDisplayExplanation$ = this.shouldDisplayExplanationSource.asObservable();
 
   constructor() {}
 
