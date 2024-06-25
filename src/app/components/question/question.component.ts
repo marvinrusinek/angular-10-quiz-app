@@ -1230,7 +1230,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
     this.quizStateService.isMultipleAnswerQuestion(currentQuestion).subscribe({
       next: () => {
-        if (this.quizService.selectedOptions.length > 0) {
+        const selectedOptions = this.quizService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
+        if (selectedOptions.length > 0) {
           this.fetchQuestionsArray(currentQuestion);
         } else {
           this.explanationText$.next('');
@@ -1240,7 +1241,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Error in isMultipleAnswer subscription:', error);
       },
     });
-  }
+  }  
 
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
     this.isLoadingQuestions = true;
