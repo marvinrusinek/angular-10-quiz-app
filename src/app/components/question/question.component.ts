@@ -900,10 +900,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       // Fetch and process the current question
       const currentQuestion = await this.fetchAndProcessCurrentQuestion();
-      if (!currentQuestion) {
-        console.error('Could not retrieve the current question.');
-        return;
-      }
+      if (!currentQuestion) return;
   
       // The question is considered answered once an option is clicked
       const isAnswered = true;
