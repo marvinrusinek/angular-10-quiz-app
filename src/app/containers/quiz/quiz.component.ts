@@ -196,9 +196,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
-
-    this.setupObservables();
-    await this.updateTooltipText();
   }
 
   ngOnDestroy(): void {
@@ -1830,29 +1827,5 @@ export class QuizComponent implements OnInit, OnDestroy {
         reject('No explanation available');
       }
     });
-  }
-
-  private setupObservables(): void {
-    this.isAnswered$ = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
-      tap(isAnswered => console.log(`Question ${this.currentQuestionIndex} answered: ${isAnswered}`))
-    );
-
-    this.nextButtonTooltip$ = this.isAnswered$.pipe(
-      map(isAnswered => this.determineTooltipText(isAnswered)),
-      tap(tooltipText => console.log(`Tooltip for question ${this.currentQuestionIndex}: ${tooltipText}`))
-    );
-  }
-
-  private determineTooltipText(isAnswered: boolean): string {
-    return isAnswered ? 'Please click to continue.' : 'Please select an option to continue...';
-  }
-
-  private async updateTooltipText(): Promise<void> {
-    const isAnswered = await this.isQuestionAnswered();
-    this.nextButtonTooltip = this.determineTooltipText(isAnswered);
-  }
-
-  private async isQuestionAnswered(): Promise<boolean> {
-    return await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
   }
 }
