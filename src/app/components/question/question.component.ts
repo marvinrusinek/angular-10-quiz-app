@@ -35,7 +35,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     question: QuizQuestion;
     selectedOptions: Option[];
   }> = new EventEmitter();
-  @Output() optionClicked: EventEmitter<void> = new EventEmitter<void>();
   @Output() optionSelected: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() questionAnswered = new EventEmitter<boolean>();
   @Output() isAnswerSelectedChange: EventEmitter<boolean> =
@@ -1298,7 +1297,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Emit events and update states after the option is selected
     this.isOptionSelected = true;
     this.isAnswered = this.selectedOptions.length > 0;
-    this.optionClicked.emit();
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
   
