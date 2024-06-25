@@ -199,7 +199,6 @@ export class ExplanationTextService {
     console.log(`Stored formatted explanation for index ${index}:`, this.formattedExplanations[index]);
 
     this.explanationsUpdated.next(this.formattedExplanations);
-    console.log(`Explanations updated notification sent for index ${index}: ${this.formattedExplanations[index].explanation}`);
   }
 
   getCorrectOptionIndices(question: QuizQuestion): number[] {
