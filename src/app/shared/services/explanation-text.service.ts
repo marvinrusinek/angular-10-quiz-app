@@ -234,20 +234,6 @@ export class ExplanationTextService {
     }
   }
 
-  private isQuestionValid(question: QuizQuestion): boolean {
-    return question && 
-           question.questionText && 
-           !this.processedQuestions.has(question.questionText);
-  }
-
-  setCurrentQuestionExplanation(explanation: string): void {
-    this.currentQuestionExplanation = explanation;
-  }
-
-  private isCurrentQuestion(question: QuizQuestion): boolean {
-    return this.currentQuestionExplanation === question.explanation;
-  }
-    
   setFormattedExplanation(newExplanation: string): void {
     this.formattedExplanation$.next(newExplanation);
   }
@@ -287,6 +273,20 @@ export class ExplanationTextService {
 
   setShouldDisplayExplanation(shouldDisplay: boolean): void {
     this.shouldDisplayExplanationSource.next(shouldDisplay);
+  }
+
+  private isQuestionValid(question: QuizQuestion): boolean {
+    return question && 
+           question.questionText && 
+           !this.processedQuestions.has(question.questionText);
+  }
+
+  setCurrentQuestionExplanation(explanation: string): void {
+    this.currentQuestionExplanation = explanation;
+  }
+
+  private isCurrentQuestion(question: QuizQuestion): boolean {
+    return this.currentQuestionExplanation === question.explanation;
   }
 
   resetExplanationText(): void {
