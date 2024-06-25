@@ -715,10 +715,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe();
   }
 
-  public incrementScore(): void {
-    this.quizService.score++;
-  }
-
   public getCorrectAnswers(): number[] {
     // Check if the current question index has changed to decide whether to fetch new answers
     if (this.currentQuestionIndex !== this.previousQuestionIndex) {
