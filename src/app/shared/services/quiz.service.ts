@@ -58,6 +58,7 @@ export class QuizService implements OnDestroy {
   currentOptions: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   selectedOptions: SelectedOption[] = [];
   private selectedOptionIndices: { [key: number]: number[] } = {};
+  private answeredState: { [key: number]: BehaviorSubject<boolean> } = {};
   private isAnsweredSubject = new BehaviorSubject<boolean>(false);
 
   resources: Resource[];
@@ -997,10 +998,26 @@ export class QuizService implements OnDestroy {
     this.answerStatus.next(status);
   }
 
+  private updateAnsweredState(questionIndex: number): void {
+    if (!this.answeredState[questionIndex]) {
+      this.answeredState[questionIndex] = new BehaviorSubject<boolean>(false);
+    }
+    const isAnswered = this.selectedOptionIndices[questionIndex].length > 0;
+    console.log(`Question ${questionIndex} answered: ${isAnswered}`);
+    this.answeredState[questionIndex].next(isAnswered);
+  }
+
   // Method to check if the current question is answered
-  isAnswered(questionIndex: number): Observable<boolean> {
+  /* isAnswered(questionIndex: number): Observable<boolean> {
     const isAnswered = this.getSelectedOptionIndices(questionIndex).length > 0;
     return of(isAnswered);
+  } */
+
+  isAnswered(questionIndex: number): Observable<boolean> {
+    if (!this.answeredState[questionIndex]) {
+      this.answeredState[questionIndex] = new BehaviorSubject<boolean>(false);
+    }
+    return this.answeredState[questionIndex].asObservable();
   }
 
   // Expose the isAnswered observable
