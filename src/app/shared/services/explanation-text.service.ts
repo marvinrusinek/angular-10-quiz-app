@@ -69,11 +69,12 @@ export class ExplanationTextService {
     return of(explanationObject.explanation);
   }
 
-  /* getFormattedExplanationTextForQuestion(index: number): string { 
+  getFormattedExplanationTextForQuestion(index: number): string {
+    console.log('Checking formatted explanations for index:', index);
     if (index in this.formattedExplanations) {
       const formattedExplanation = this.formattedExplanations[index];
       console.log("Retrieved explanation for index", index, ":", formattedExplanation);
-      
+
       if (formattedExplanation && formattedExplanation.explanation) {
         console.log("Formatted Explanation Text:", formattedExplanation.explanation);
         return formattedExplanation.explanation;
@@ -84,25 +85,6 @@ export class ExplanationTextService {
     } else {
       console.log(`Index ${index} is out of bounds or no explanation stored.`);
       return 'Question index out of bounds or no explanation available';
-    }
-  } */
-
-  getFormattedExplanationTextForQuestion(index: number): string {
-    console.log('Checking formatted explanations for index:', index);
-    if (index in this.formattedExplanations) {
-        const formattedExplanation = this.formattedExplanations[index];
-        console.log("Retrieved explanation for index", index, ":", formattedExplanation);
-
-        if (formattedExplanation && formattedExplanation.explanation) {
-            console.log("Formatted Explanation Text:", formattedExplanation.explanation);
-            return formattedExplanation.explanation;
-        } else {
-            console.log("No explanation text found for index", index);
-            return 'No explanation available';
-        }
-    } else {
-        console.log(`Index ${index} is out of bounds or no explanation stored.`);
-        return 'Question index out of bounds or no explanation available';
     }
   }
 
