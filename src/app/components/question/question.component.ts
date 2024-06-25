@@ -925,6 +925,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('An error occurred while processing the option click:', error);
     }
   }
+
+  private resetMessages(): void {
+    const initialMessage = 'Please start the quiz by selecting an option.';
+    if (this.selectionMessage !== initialMessage) {
+      this.selectionMessage = initialMessage;
+      this.selectionMessageService.updateSelectionMessage(initialMessage);
+    }
+    this.lastMessage = initialMessage;
+    this.selectedOptionService.setOptionSelected(false);
+  }  
   
   private resetStateForNewQuestion(): void {
     this.isOptionSelected = false;
@@ -1032,16 +1042,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleAudioPlayback(isCorrect);
   }
 
-  private resetMessages(): void {
-    const initialMessage = 'Please start the quiz by selecting an option.';
-    if (this.selectionMessage !== initialMessage) {
-      this.selectionMessage = initialMessage;
-      this.selectionMessageService.updateSelectionMessage(initialMessage);
-    }
-    this.lastMessage = initialMessage;
-    this.selectedOptionService.setOptionSelected(false);
-  }  
-  
   private async processCurrentQuestion(
     currentQuestion: QuizQuestion
   ): Promise<void> {
