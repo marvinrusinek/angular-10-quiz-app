@@ -21,9 +21,6 @@ export class ExplanationTextService {
   private explanationsUpdated = new BehaviorSubject<Record<number, FormattedExplanation>>(this.formattedExplanations);
   explanationsUpdated$ = this.explanationsUpdated.asObservable();
 
-  private explanationSource = new BehaviorSubject<string>('');
-  explanation$ = this.explanationSource.asObservable();
-
   isExplanationTextDisplayedSource = new BehaviorSubject<boolean>(false);
   isExplanationTextDisplayed$ = this.isExplanationTextDisplayedSource.asObservable();
 
