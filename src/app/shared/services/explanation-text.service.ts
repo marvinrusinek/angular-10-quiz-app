@@ -281,14 +281,6 @@ export class ExplanationTextService {
     this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
 
-  setNextExplanationText(explanationText: string): void {
-    try {
-      this.nextExplanationTextSource.next(explanationText);
-    } catch (error) {
-      console.error('Error updating explanation text:', error);
-    }
-  }
-
   setIsExplanationTextDisplayed(isDisplayed: boolean): void {
     this.isExplanationTextDisplayedSource.next(isDisplayed);
   }

@@ -1104,19 +1104,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Initialize the quiz state for the current question
     this.quizStateService.createDefaultQuestionState();
 
-    // Set the explanation text for the current question
-    this.setExplanationTextForCurrentQuestion(currentQuestion);
-
     // Reset the selection message to prompt user to select an option
     this.selectionMessageService.selectionMessageSubject.next('Please select an option to continue...');
-  }
-
-  private setExplanationTextForCurrentQuestion(question: QuizQuestion): void {
-    if (this.quizService.isQuizQuestion(question)) { 
-      this.explanationTextService.setNextExplanationText(question.explanation);
-    } else {
-      console.error('Invalid question:', question);
-    }
   }
 
   private initializeQuizState(): void {
