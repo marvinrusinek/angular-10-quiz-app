@@ -584,7 +584,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         await this.setInitialSelectionMessageForFirstQuestion();
       } else {
         const isAnswered = isSelected || await this.isQuestionAnswered();
-        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+        if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
+          await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+        }
       }
     } catch (error) {
       console.error('[updateSelectionBasedOnState] Error updating selection based on state:', error);
