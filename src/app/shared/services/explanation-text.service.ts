@@ -24,9 +24,6 @@ export class ExplanationTextService {
   private explanationSource = new BehaviorSubject<string>('');
   explanation$ = this.explanationSource.asObservable();
 
-  nextExplanationTextSource = new BehaviorSubject<string>(null);
-  nextExplanationText$ = this.nextExplanationTextSource.asObservable();
-
   isExplanationTextDisplayedSource = new BehaviorSubject<boolean>(false);
   isExplanationTextDisplayed$ = this.isExplanationTextDisplayedSource.asObservable();
 
@@ -302,17 +299,14 @@ export class ExplanationTextService {
 
   clearExplanationText(): void {
     this.explanationText$.next('');
-    this.nextExplanationTextSource.next('');
   }
 
   resetExplanationState(): void {
     this.formattedExplanation$.next('');
     this.explanationTexts = {};
-    this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
     this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
     this.isExplanationTextDisplayedSource.next(false);
     this.shouldDisplayExplanationSource.next(false);
-    this.nextExplanationTextSource.next('');
   }
 
   resetProcessedQuestionsState(): void {
