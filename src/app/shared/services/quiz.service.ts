@@ -56,7 +56,8 @@ export class QuizService implements OnDestroy {
   currentQuestionIndex$ = this.currentQuestionIndexSource.asObservable();
 
   currentOptions: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
-  selectedOptions: SelectedOption[] = [];
+  // selectedOptions: SelectedOption[] = [];
+  selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
   private selectedOptionIndices: { [key: number]: number[] } = {};
   private answeredState: { [key: number]: BehaviorSubject<boolean> } = {};
   private isAnsweredSubject = new BehaviorSubject<boolean>(false);
@@ -1005,7 +1006,7 @@ export class QuizService implements OnDestroy {
   } */
 
   isAnswered(questionIndex: number): Observable<boolean> {
-    const isAnswered = this.selectedOptions.some(option => option.questionIndex === questionIndex);
+    const isAnswered = this.selectedOptionsMap.has(questionIndex) && this.selectedOptionsMap.get(questionIndex).length > 0;
     return of(isAnswered);
   }
 
@@ -1209,16 +1210,24 @@ export class QuizService implements OnDestroy {
 
   // Method to add or remove a selected option for a question
   toggleSelectedOption(option: SelectedOption): void {
-    const index = this.selectedOptions.findIndex(
-      selectedOption => selectedOption.optionId === option.optionId && selectedOption.questionIndex === option.questionIndex
+    const questionIndex = option.questionIndex;
+    if (!this.selectedOptionsMap.has(questionIndex)) {
+      this.selectedOptionsMap.set(questionIndex, []);
+    }
+    
+    const options = this.selectedOptionsMap.get(questionIndex);
+    const index = options.findIndex(
+      selectedOption => selectedOption.optionId === option.optionId
     );
 
     if (index > -1) {
-      this.selectedOptions.splice(index, 1);
+      options.splice(index, 1);
     } else {
-      this.selectedOptions.push(option);
+      options.push(option);
     }
-    this.updateAnsweredState(option.questionIndex);
+
+    this.selectedOptionsMap.set(questionIndex, options);
+    this.updateAnsweredState(questionIndex);
   }
 
   updateSelectedOptions(
