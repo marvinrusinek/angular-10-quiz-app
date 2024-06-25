@@ -1003,11 +1003,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const isAnswered = await this.isQuestionAnswered();
   
       // Update the selection message based on the current state
-      await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
+        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      }
+      this.updateAnswerStateAndMessage(isAnswered);
   
       // Return the fetched current question
       return currentQuestion;
-  
     } catch (error) {
       console.error('[fetchAndProcessCurrentQuestion] An error occurred while fetching the current question:', error);
       return null;
