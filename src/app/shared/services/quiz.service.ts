@@ -1183,8 +1183,13 @@ export class QuizService implements OnDestroy {
     return correctAnswersString;
   }
 
-  getSelectedOptionIndices(questionIndex: number): number[] {
+  /* getSelectedOptionIndices(questionIndex: number): number[] {
     return this.selectedOptionIndices[questionIndex] || [];
+  } */
+
+  getSelectedOptionIndices(questionIndex: number): number[] {
+    const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
+    return selectedOptions.map(option => option.optionId);
   }
 
   addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
@@ -1240,28 +1245,55 @@ export class QuizService implements OnDestroy {
       console.error('Quiz data is not initialized.');
       return;
     }
-
+  
     const question = quiz.questions[questionIndex];
     if (question) {
       // Find the Option object that matches the selectedOptionId
-      const selectedOption = question.options.find(
+      const option = question.options.find(
         (option) => option.optionId === selectedOptionId
       );
-
-      if (selectedOption) {
-        question.selectedOptions = [selectedOption];
+  
+      if (option) {
+        const selectedOption: SelectedOption = {
+          ...option,
+          questionIndex: questionIndex
+        };
+  
+        // Use selectedOptionsMap to track the selected option
+        if (!this.selectedOptionsMap.has(questionIndex)) {
+          this.selectedOptionsMap.set(questionIndex, []);
+        }
+  
+        const options = this.selectedOptionsMap.get(questionIndex);
+        const existingOptionIndex = options.findIndex(
+          (opt) => opt.optionId === selectedOption.optionId
+        );
+  
+        if (existingOptionIndex > -1) {
+          options[existingOptionIndex] = selectedOption;
+        } else {
+          options.push(selectedOption);
+        }
+  
+        this.selectedOptionsMap.set(questionIndex, options);
+        this.updateAnsweredState(questionIndex);
       } else {
         console.error(
           'Selected option ID does not match any option in the question.'
         );
       }
     }
-  }
+  }  
 
-  private updateAnsweredState(questionIndex: number): void {
+  /* private updateAnsweredState(questionIndex: number): void {
     const isAnswered = this.getSelectedOptionIndices(questionIndex).length > 0;
     this.setAnsweredState(isAnswered);
-  }
+  } */
+
+  private updateAnsweredState(questionIndex: number): void {
+    const isAnswered = this.selectedOptionsMap.has(questionIndex) && this.selectedOptionsMap.get(questionIndex).length > 0;
+    this.setAnsweredState(isAnswered);
+  }  
 
   updateAnswersForOption(selectedOption: Option): void {
     const isOptionSelected = this.answers.some(
