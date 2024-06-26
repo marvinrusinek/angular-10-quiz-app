@@ -597,14 +597,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('[updateSelectionBasedOnState] Error updating selection based on state:', error);
     }
-  }  
+  }
 
-  async isQuestionAnswered(questionIndex: number): Promise<boolean> {
-    this.resetStateForNewQuestion();
+  private async isQuestionAnswered(questionIndex: number): Promise<boolean> {
     try {
-      const isAnswered = await firstValueFrom(this.quizService.isAnswered(questionIndex));
-      this.isAnswered = isAnswered;
-      return isAnswered;
+      return await firstValueFrom(this.quizService.isAnswered(questionIndex));
     } catch (error) {
       console.error('Failed to determine if question is answered:', error);
       return false;
