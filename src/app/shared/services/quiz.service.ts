@@ -1196,6 +1196,9 @@ export class QuizService implements OnDestroy {
     if (!this.selectedOptionIndices[questionIndex].includes(optionIndex)) {
       this.selectedOptionIndices[questionIndex].push(optionIndex);
       this.updateAnsweredState(questionIndex);
+
+      // Sync with selectedOptionsMap
+      this.syncSelectedOptionsMap(questionIndex, optionIndex, 'add');
     }
   }
 
@@ -1205,17 +1208,19 @@ export class QuizService implements OnDestroy {
       if (optionPos > -1) {
         this.selectedOptionIndices[questionIndex].splice(optionPos, 1);
         this.updateAnsweredState(questionIndex);
+
+        // Sync with selectedOptionsMap
+        this.syncSelectedOptionsMap(questionIndex, optionIndex, 'add');
       }
     }
   }
 
   // Method to add or remove a selected option for a question
-  toggleSelectedOption(option: SelectedOption): void {
-    const questionIndex = option.questionIndex;
+  toggleSelectedOption(questionIndex: number, option: SelectedOption): void {
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
-    
+
     const options = this.selectedOptionsMap.get(questionIndex);
     const index = options.findIndex(
       selectedOption => selectedOption.optionId === option.optionId
@@ -1279,12 +1284,50 @@ export class QuizService implements OnDestroy {
         );
       }
     }
-  }  
+  }
+  
+  private syncSelectedOptionsMap(
+    questionIndex: number,
+    optionIndex: number,
+    action: 'add' | 'remove'
+  ): void {
+    const quiz = this.quizData.find(q => q.quizId.trim() === quizId.trim());
+    if (!quiz) {
+      console.error('Quiz data is not initialized.');
+      return;
+    }
 
-  /* private updateAnsweredState(questionIndex: number): void {
-    const isAnswered = this.getSelectedOptionIndices(questionIndex).length > 0;
-    this.setAnsweredState(isAnswered);
-  } */
+    const question = quiz.questions[questionIndex];
+    if (!question) {
+      console.error('Question data is not found.');
+      return;
+    }
+
+    const option = question.options.find(
+      opt => opt.optionId === optionIndex
+    );
+    if (!option) {
+      console.error('Option data is not found.');
+      return;
+    }
+
+    if (!this.selectedOptionsMap.has(questionIndex)) {
+      this.selectedOptionsMap.set(questionIndex, []);
+    }
+
+    const options = this.selectedOptionsMap.get(questionIndex);
+    const existingOptionIndex = options.findIndex(
+      opt => opt.optionId === optionIndex
+    );
+
+    if (action === 'add' && existingOptionIndex === -1) {
+      options.push({ ...option, questionIndex });
+    } else if (action === 'remove' && existingOptionIndex !== -1) {
+      options.splice(existingOptionIndex, 1);
+    }
+
+    this.selectedOptionsMap.set(questionIndex, options);
+  }
 
   private updateAnsweredState(questionIndex: number): void {
     const isAnswered = this.selectedOptionsMap.has(questionIndex) && this.selectedOptionsMap.get(questionIndex).length > 0;
