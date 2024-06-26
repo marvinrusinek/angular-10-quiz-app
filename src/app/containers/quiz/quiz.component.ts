@@ -175,7 +175,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
-    if (!this.isQuestionAnswered(this.currentQuestionIndex)) {
+    if (!this.isQuestionAnswered()) {
       this.checkAndDisplayCorrectAnswers();
     }
   }
@@ -947,9 +947,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  async isQuestionAnswered(questionIndex: number): Promise<boolean> {
+  async isQuestionAnswered(): Promise<boolean> {
     try {
-      const isAnswered = await firstValueFrom(this.quizService.isAnswered(questionIndex));
+      const isAnswered = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
       this.isAnswered = isAnswered;
       return isAnswered;
     } catch (error) {
@@ -974,7 +974,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           }
   
           // Check if the current question is answered
-          this.isQuestionAnswered(this.currentQuestionIndex);
+          this.isQuestionAnswered();
         } else {
           console.error('Question not found for index:', index);
         }
@@ -1536,7 +1536,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
-        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+        const isAnswered = await this.isQuestionAnswered();
         this.quizService.setAnsweredState(isAnswered);
   
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
