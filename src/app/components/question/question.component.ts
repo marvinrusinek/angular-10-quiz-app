@@ -879,8 +879,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.alreadyAnswered = false;
   }
 
-  // not being used
-  /* private clearSelection(): void {
+  private clearSelection(): void {
     if (this.correctAnswers && this.correctAnswers.length === 1) {
       if (this.currentQuestion && this.currentQuestion.options) {
         this.currentQuestion.options.forEach((option) => {
@@ -889,7 +888,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         });
       }
     }
-  } */
+  }
 
   private async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
