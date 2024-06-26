@@ -175,7 +175,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
-    if (!this.quizService.isAnswered(this.currentQuestionIndex)) {
+    if (!this.isQuestionAnswered()) {
       this.checkAndDisplayCorrectAnswers();
     }
   }
@@ -948,12 +948,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   isAnswerSelected(): void {
-    this.quizService.isAnswered(this.currentQuestionIndex).subscribe({
+    this.isQuestionAnswered().subscribe({
       next: (isAnswered) => {
         this.isAnswered = isAnswered;
       },
       error: (error) => console.error('Failed to determine if question is answered:', error)
     });
+  }
+
+  private async isQuestionAnswered(): Promise<boolean> {
+    return await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
   }
 
   private loadAndSetupQuestion(index: number, resetMessage: boolean): void {
