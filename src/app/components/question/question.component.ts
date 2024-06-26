@@ -945,7 +945,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       questionIndex: this.currentQuestionIndex,
       text: option.text
     };
-    this.quizService.toggleSelectedOption(selectedOption);
+    this.selectedOptionService.toggleSelectedOption(selectedOption);
     this.selectedOptionService.setOptionSelected(true);
     this.isFirstQuestion = false; // Reset after the first option click
   }
@@ -1195,13 +1195,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   handleOptionClicked(currentQuestion: QuizQuestion, optionIndex: number): void {
-    const selectedOptions = this.quizService.getSelectedOptionIndices(this.currentQuestionIndex);
+    const selectedOptions = this.selectedOptionService.getSelectedOptionIndices(this.currentQuestionIndex);
     const isOptionSelected = selectedOptions.includes(optionIndex);
   
     if (!isOptionSelected) {
-      this.quizService.addSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
+      this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
     } else {
-      this.quizService.removeSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
+      this.selectedOptionService.removeSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
     }
 
     this.handleMultipleAnswer(currentQuestion);
@@ -1257,7 +1257,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOption = option;
   
     // Update the selected option in the quiz service and mark the question as answered
-    this.quizService.updateSelectedOptions(
+    this.selectedOptionService.updateSelectedOptions(
       this.quizService.quizId,
       this.currentQuestionIndex,
       option.optionId
