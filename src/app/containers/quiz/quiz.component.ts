@@ -947,9 +947,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  async isQuestionAnswered(): Promise<boolean> {
+  async isQuestionAnswered(questionIndex: number): Promise<boolean> {
     try {
-      const isAnswered = await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+      const isAnswered = await firstValueFrom(this.quizService.isAnswered(questionIndex));
       this.isAnswered = isAnswered;
       return isAnswered;
     } catch (error) {
