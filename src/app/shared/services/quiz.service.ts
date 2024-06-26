@@ -1000,13 +1000,9 @@ export class QuizService implements OnDestroy {
   }
 
   // Method to check if the current question is answered
-  /* isAnswered(questionIndex: number): Observable<boolean> {
-    const isAnswered = this.getSelectedOptionIndices(questionIndex).length > 0;
-    return of(isAnswered);
-  } */
-
   isAnswered(questionIndex: number): Observable<boolean> {
-    const isAnswered = this.selectedOptionsMap.has(questionIndex) && this.selectedOptionsMap.get(questionIndex).length > 0;
+    const isAnswered = this.selectedOptionsMap.has(questionIndex) && 
+                       this.selectedOptionsMap.get(questionIndex).length > 0;
     return of(isAnswered);
   }
 
