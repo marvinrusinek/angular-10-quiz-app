@@ -13,6 +13,8 @@ export class SelectedOptionService {
   selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
   private selectedOptionIndices: { [key: number]: number[] } = {};
 
+  private isAnsweredSubject = new BehaviorSubject<boolean>(false);
+
   // Observable to get the current option selected state
   isOptionSelected$(): Observable<boolean> {
     return this.isOptionSelectedSubject.asObservable();
@@ -181,4 +183,15 @@ export class SelectedOptionService {
     const isAnswered = this.selectedOptionsMap.has(questionIndex) && this.selectedOptionsMap.get(questionIndex).length > 0;
     this.setAnsweredState(isAnswered);
   }
+
+  setAnsweredState(isAnswered: boolean): void {
+    this.isAnsweredSubject.next(isAnswered);
+  }
+
+  // Expose the isAnswered observable
+  get isAnswered$(): Observable<boolean> {
+    return this.isAnsweredSubject.asObservable();
+  }
+
+  
 }

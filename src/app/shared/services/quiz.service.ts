@@ -18,6 +18,7 @@ import { QuizResource } from '../../shared/models/QuizResource.model';
 import { QuizScore } from '../../shared/models/QuizScore.model';
 import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
 import { Resource } from '../../shared/models/Resource.model';
+import { SelectedOption } from '../../shared/models/SelectedOption.model';
 
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 
@@ -55,9 +56,7 @@ export class QuizService implements OnDestroy {
   currentQuestionIndex$ = this.currentQuestionIndexSource.asObservable();
 
   currentOptions: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
-  // selectedOptions: SelectedOption[] = [];
-  private answeredState: { [key: number]: BehaviorSubject<boolean> } = {};
-  private isAnsweredSubject = new BehaviorSubject<boolean>(false);
+  selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
 
   resources: Resource[];
 
@@ -1003,18 +1002,8 @@ export class QuizService implements OnDestroy {
     return of(isAnswered);
   }
 
-  // Expose the isAnswered observable
-  get isAnswered$(): Observable<boolean> {
-    return this.isAnsweredSubject.asObservable();
-  }
-
   get totalQuestions$(): Observable<number> {
     return this.totalQuestionsSubject.asObservable();
-  }
-
-  // Method to update the isAnswered state
-  setAnsweredState(isAnswered: boolean): void {
-    this.isAnsweredSubject.next(isAnswered);
   }
 
   setTotalQuestions(total: number): void {
