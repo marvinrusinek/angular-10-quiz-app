@@ -947,14 +947,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async isQuestionAnswered(questionIndex: number): Promise<boolean> {
+  async isQuestionAnswered(questionIndex: number): Promise<boolean> {
+    this.resetStateForNewQuestion();
     try {
-      return await firstValueFrom(this.quizService.isAnswered(questionIndex));
+      const isAnswered = await firstValueFrom(this.quizService.isAnswered(questionIndex));
+      this.isAnswered = isAnswered;
+      return isAnswered;
     } catch (error) {
       console.error('Failed to determine if question is answered:', error);
       return false;
     }
-  }
+  } 
 
   private loadAndSetupQuestion(index: number, resetMessage: boolean): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
