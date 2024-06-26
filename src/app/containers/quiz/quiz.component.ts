@@ -1527,22 +1527,29 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
-
+  
     this.isNavigating = true;
-    this.quizService.setIsNavigatingToPrevious(false); 
-
+    this.quizService.setIsNavigatingToPrevious(false);
+  
     try {
-      if (this.currentQuestionIndex < this.totalQuestions - 1) {
-        this.currentQuestionIndex++;
-        this.checkIfAnswerSelected(false);
-
-        // Combine fetching data and initializing question state into a single method
-        await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-
-        this.resetUI();
+      // Check if the current question is answered
+      const isAnswered = await firstValueFrom(this.quizService.isAnswered$);
+  
+      if (isAnswered) {
+        if (this.currentQuestionIndex < this.totalQuestions - 1) {
+          this.currentQuestionIndex++;
+          this.checkIfAnswerSelected(false);
+  
+          // Combine fetching data and initializing question state into a single method
+          await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+  
+          this.resetUI();
+        } else {
+          console.log('End of quiz reached.');
+          this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+        }
       } else {
-        console.log('End of quiz reached.');
-        this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+        console.warn('Current question is not answered. Cannot advance to the next question.');
       }
     } catch (error) {
       console.error('Error occurred while advancing to the next question:', error);

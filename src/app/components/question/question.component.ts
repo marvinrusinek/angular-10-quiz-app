@@ -552,6 +552,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         try {
           this.isOptionSelected = isSelected;
           
+          const isAnswered = isSelected || this.quizService.isAnswered(this.currentQuestionIndex);
+          this.quizService.isAnswered$.next(isAnswered);
+          
           // Update the selection message based on the state
           if (this.shouldUpdateMessageOnSelection(isSelected)) {
             await this.updateSelectionBasedOnState(isSelected);
