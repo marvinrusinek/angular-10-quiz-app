@@ -945,7 +945,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       questionIndex: this.currentQuestionIndex,
       text: option.text
     };
-    this.selectedOptionService.toggleSelectedOption(selectedOption);
+    this.selectedOptionService.toggleSelectedOption(this.currentQuestionIndex, selectedOption);
     this.selectedOptionService.setOptionSelected(true);
     this.isFirstQuestion = false; // Reset after the first option click
   }
