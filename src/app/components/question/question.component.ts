@@ -429,6 +429,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.setInitialSelectionMessageForFirstQuestion();
     } else {
       const isAnswered = await this.isQuestionAnswered();
+
+      // Clear the selection state when handling a new question
+      this.clearSelection();
   
       // Check if the message should be updated
       if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
