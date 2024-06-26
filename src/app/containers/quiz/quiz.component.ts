@@ -175,7 +175,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
-    if (!this.isQuestionAnswered()) {
+    if (!this.isQuestionAnswered(this.currentQuestionIndex)) {
       this.checkAndDisplayCorrectAnswers();
     }
   }
