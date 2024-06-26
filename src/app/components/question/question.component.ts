@@ -602,8 +602,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private async isQuestionAnswered(questionIndex: number): Promise<boolean> {
     this.resetStateForNewQuestion();
     try {
-      this.isAnswered = await firstValueFrom(this.quizService.isAnswered(questionIndex));
-      return isAnswered;
+      return await firstValueFrom(this.quizService.isAnswered(questionIndex));
     } catch (error) {
       console.error('Failed to determine if question is answered:', error);
       return false;

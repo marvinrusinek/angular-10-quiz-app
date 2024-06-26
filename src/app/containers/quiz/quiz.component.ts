@@ -949,8 +949,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private async isQuestionAnswered(questionIndex: number): Promise<boolean> {
     try {
-      this.isAnswered = await firstValueFrom(this.quizService.isAnswered(questionIndex));
-      return isAnswered;
+      return await firstValueFrom(this.quizService.isAnswered(questionIndex));
     } catch (error) {
       console.error('Failed to determine if question is answered:', error);
       return false;
