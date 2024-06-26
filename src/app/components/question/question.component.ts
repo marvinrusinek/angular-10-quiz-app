@@ -946,7 +946,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isFirstQuestion = false; // Reset after the first option click
   }
 
-  /* private async updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): Promise<void> {
+  private async updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): Promise<void> {
     try {
       let newMessage = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
@@ -964,9 +964,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('[updateSelectionMessageBasedOnCurrentState] Error updating selection message:', error);
     }
-  } */
+  }
 
-  private async updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): Promise<void> {
+  /* private async updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): Promise<void> {
     try {
       let newMessage = isAnswered 
         ? "Please click the next button to continue..." 
@@ -980,7 +980,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('[updateSelectionMessageBasedOnCurrentState] Error updating selection message:', error);
     }
-  }
+  } */
   
 
   private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
