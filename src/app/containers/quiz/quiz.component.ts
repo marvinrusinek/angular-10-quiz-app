@@ -974,7 +974,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           }
   
           // Check if the current question is answered
-          this.isQuestionAnswered();
+          this.isQuestionAnswered(index);
         } else {
           console.error('Question not found for index:', index);
         }
@@ -1536,7 +1536,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
-        const isAnswered = await this.isQuestionAnswered();
+        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         this.quizService.setAnsweredState(isAnswered);
   
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
