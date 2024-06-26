@@ -1536,7 +1536,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
-        const isAnswered = await this.isAnswerSelected(this.currentQuestionIndex);
+        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         this.quizService.setAnsweredState(isAnswered);
   
         // Combine fetching data and initializing question state into a single method
