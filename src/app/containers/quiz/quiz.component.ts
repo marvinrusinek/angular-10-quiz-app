@@ -947,17 +947,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  isAnswerSelected(): void {
-    this.isQuestionAnswered().subscribe({
-      next: (isAnswered) => {
-        this.isAnswered = isAnswered;
-      },
-      error: (error) => console.error('Failed to determine if question is answered:', error)
-    });
-  }
-
-  private async isQuestionAnswered(): Promise<boolean> {
-    return await firstValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
+  async isQuestionAnswered(questionIndex: number): Promise<boolean> {
+    try {
+      const isAnswered = await firstValueFrom(this.quizService.isAnswered(questionIndex));
+      this.isAnswered = isAnswered;
+      return isAnswered;
+    } catch (error) {
+      console.error('Failed to determine if question is answered:', error);
+      return false;
+    }
   }
 
   private loadAndSetupQuestion(index: number, resetMessage: boolean): void {
@@ -1538,7 +1536,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
-        const isAnswered = await this.isQuestionAnswered();
+        const isAnswered = await this.isAnswerSelected(this.currentQuestionIndex);
         this.quizService.setAnsweredState(isAnswered);
   
         // Combine fetching data and initializing question state into a single method
