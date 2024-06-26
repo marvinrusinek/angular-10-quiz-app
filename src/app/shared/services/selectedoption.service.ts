@@ -184,6 +184,7 @@ export class SelectedOptionService {
     this.setAnsweredState(isAnswered);
   }
 
+  // Method to update the isAnswered state
   setAnsweredState(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
   }
@@ -192,6 +193,4 @@ export class SelectedOptionService {
   get isAnswered$(): Observable<boolean> {
     return this.isAnsweredSubject.asObservable();
   }
-
-  
 }
