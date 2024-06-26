@@ -264,8 +264,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   // Function to handle visibility changes
   private onVisibilityChange(): void {
     if (!document.hidden) {
-      this.ngZone.run(() => {
-        this.fetchAndProcessQuizQuestions();
+      this.ngZone.run(async () => {
+        await this.fetchAndProcessQuizQuestions();
+        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+        this.safeDetectChanges();
       });
     }
   }
