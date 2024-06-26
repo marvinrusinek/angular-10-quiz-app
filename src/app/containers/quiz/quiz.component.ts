@@ -1539,9 +1539,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         this.quizService.setAnsweredState(isAnswered);
   
-        // Combine fetching data and initializing question state into a single method
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-  
         this.resetUI();
       } else {
         console.log('End of quiz reached.');
@@ -1570,7 +1568,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       // Combine fetching data and initializing question state into a single method
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-
       this.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
