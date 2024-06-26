@@ -6,6 +6,7 @@ import { Observable, Subject } from 'rxjs';
 import { QuizQuestionComponent } from '../../question.component';
 import { Option } from '../../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
+import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../../shared/services/quizdata.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
@@ -33,7 +34,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   @Input() correctMessage: string;
   @Input() correctAnswers: number[];
   form: FormGroup;
-  selectedOptions: Option[] = [];
+  selectedOptions: SelectedOption[] = [];
   optionChecked: { [optionId: number]: boolean } = {};
   options$: Observable<Option[]>;
   showFeedback = false;
@@ -123,7 +124,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     }
   }
 
-  onOptionClick(option: Option, index: number, event?: MouseEvent): void {
+  onOptionClick(option: SelectedOption, index: number, event?: MouseEvent): void {
     if (event) {
       event.stopPropagation();
     }
