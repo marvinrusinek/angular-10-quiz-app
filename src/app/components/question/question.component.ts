@@ -1094,12 +1094,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async handleOptionSelection(option: SelectedOption, index: number, currentQuestion: QuizQuestion): Promise<void> {
+    const questionIndex = this.currentQuestionIndex;
     this.processOptionSelection(currentQuestion, option, index);
     this.quizService.updateAnswersForOption(option);
     this.checkAndHandleCorrectAnswer();
     this.logDebugInformation();
 
-    this.selectedOptionService.syncSelectedOptionsMap(index, option.optionId, 'add');
+    this.selectedOptionService.syncSelectedOptionsMap(questionIndex, option.optionId, 'add');
     this.showFeedback = true;
 
     const totalCorrectAnswers = this.quizService.getTotalCorrectAnswers(currentQuestion);
