@@ -1112,6 +1112,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Sync selected options map
     this.selectedOptionService.syncSelectedOptionsMap(questionIndex, optionIndex, 'add');
+    this.selectedOptionService.setSelectedOption(option);
 
     this.selectedOption = { ...option, correct: option.correct };
     this.showFeedback = true;

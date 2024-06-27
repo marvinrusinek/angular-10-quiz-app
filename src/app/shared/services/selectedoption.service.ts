@@ -163,7 +163,7 @@ export class SelectedOptionService {
   
   syncSelectedOptionsMap(
     questionIndex: number,
-    optionIndex: number, // Use optionIndex as the position in the array
+    optionIndex: number,
     action: 'add' | 'remove'
   ): void {
     const quiz = this.quizService.quizData.find(q => q.quizId.trim() === this.quizService.quizId.trim());
