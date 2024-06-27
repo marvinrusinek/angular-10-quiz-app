@@ -21,6 +21,7 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
+import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
 import { ResetBackgroundService } from '../../shared/services/reset-background.service';
@@ -146,6 +147,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private timerService: TimerService,
     private explanationTextService: ExplanationTextService,
     private selectionMessageService: SelectionMessageService,
+    private selectedOptionService: SelectedOptionService,
     private resetBackgroundService: ResetBackgroundService,
     private sharedVisibilityService: SharedVisibilityService,
     private highlightDirective: HighlightDirective,
