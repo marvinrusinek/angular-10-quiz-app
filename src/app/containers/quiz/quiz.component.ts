@@ -162,7 +162,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.isAnswered$ = this.quizService.isAnswered$;
+    this.isAnswered$ = this.selectedOptionService.isAnswered$;
 
     this.quizService.getTotalQuestions().subscribe(total => {
       this.totalQuestions = total;
