@@ -139,7 +139,11 @@ export class SelectedOptionService {
     }
   }
   
-  syncSelectedOptionsMap(questionIndex: number, optionId: number, action: 'add' | 'remove'): void {
+  syncSelectedOptionsMap(
+    questionIndex: number,
+    optionIndex: number, // Use optionIndex as the position in the array
+    action: 'add' | 'remove'
+  ): void {
     const quiz = this.quizService.quizData.find(q => q.quizId.trim() === this.quizService.quizId.trim());
     if (!quiz) {
       console.error('Quiz data is not initialized.');
@@ -152,18 +156,20 @@ export class SelectedOptionService {
       return;
     }
 
-    const option = question.options.find(opt => opt.optionId === optionId);
+    const option = question.options[optionIndex]; // Use optionIndex to get the option
     if (!option) {
-      console.error(`Option data is not found for optionId ${optionId}. Available options:`, question.options);
+      console.error(`Option data is not found for optionIndex ${optionIndex}. Available options:`, question.options);
       return;
     }
+
+    console.log('Selected option:', option);
 
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
 
     const options = this.selectedOptionsMap.get(questionIndex);
-    const existingOptionIndex = options.findIndex(opt => opt.optionId === optionId);
+    const existingOptionIndex = options.findIndex(opt => opt === option);
 
     if (action === 'add' && existingOptionIndex === -1) {
       options.push({ ...option, questionIndex });
@@ -172,6 +178,7 @@ export class SelectedOptionService {
     }
 
     this.selectedOptionsMap.set(questionIndex, options);
+    console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
   }
 
   private updateAnsweredState(questionIndex: number): void {
