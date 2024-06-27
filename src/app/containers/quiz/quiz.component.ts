@@ -1519,7 +1519,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
     const isAnswered = await lastValueFrom(this.quizService.isAnswered(this.currentQuestionIndex));
-    this.quizService.setAnsweredState(isAnswered);
+    this.selectedOptionService.setAnsweredState(isAnswered);
     this.updateSelectionMessage(isAnswered, isFirstQuestion);
   }
 
