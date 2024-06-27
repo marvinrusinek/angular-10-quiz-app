@@ -1138,6 +1138,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Decide whether to show the explanation based on the current question index
     await firstValueFrom(of(this.conditionallyShowExplanation(this.currentQuestionIndex)));
+
+    // Ensure showFeedback remains true
+    this.showFeedback = true;
   }
 
   private processOptionSelection(
