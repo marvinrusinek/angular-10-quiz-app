@@ -32,7 +32,7 @@
       <codelab-quiz-feedback
         *ngIf="showFeedback && selectedOption === option"
         [question]="question"
-        [selectedOption]="selectedOption?.text"
+        [selectedOption]="selectedOption"
         [correctMessage]="correctMessage"
         [showFeedback]="showFeedback"
         [options]="data?.options"
