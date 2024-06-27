@@ -1093,15 +1093,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }, 1000);  // Ensure audio has time to play before clearing
   }
 
-  async handleOptionSelection(
-    option: SelectedOption,
-    index: number,
-    currentQuestion: QuizQuestion
-  ): Promise<void> {
+  async handleOptionSelection(option: SelectedOption, index: number, currentQuestion: QuizQuestion): Promise<void> {
     this.processOptionSelection(currentQuestion, option, index);
     this.quizService.updateAnswersForOption(option);
     this.checkAndHandleCorrectAnswer();
     this.logDebugInformation();
+
+    this.selectedOptionService.syncSelectedOptionsMap(index, option.optionId, 'add');
+    this.showFeedback = true;
 
     const totalCorrectAnswers = this.quizService.getTotalCorrectAnswers(currentQuestion);
     // Update the state to reflect the selected option

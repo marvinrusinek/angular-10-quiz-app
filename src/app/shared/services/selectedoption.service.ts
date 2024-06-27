@@ -139,11 +139,7 @@ export class SelectedOptionService {
     }
   }
   
-  private syncSelectedOptionsMap(
-    questionIndex: number,
-    optionId: number,
-    action: 'add' | 'remove'
-  ): void {
+  syncSelectedOptionsMap(questionIndex: number, optionId: number, action: 'add' | 'remove'): void {
     const quiz = this.quizService.quizData.find(q => q.quizId.trim() === this.quizService.quizId.trim());
     if (!quiz) {
       console.error('Quiz data is not initialized.');
