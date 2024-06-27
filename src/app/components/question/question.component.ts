@@ -1095,7 +1095,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }, 1000);  // Ensure audio has time to play before clearing
   }
 
-  async handleOptionSelection(option: SelectedOption, optionIndex: number, currentQuestion: QuizQuestion): Promise<void> {
+  public async handleOptionSelection(option: SelectedOption, optionIndex: number, currentQuestion: QuizQuestion): Promise<void> {
     const questionIndex = this.currentQuestionIndex;
 
     // Ensure that optionIndex is being received correctly
@@ -1143,6 +1143,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Ensure showFeedback remains true
     this.showFeedback = true;
+    console.log('handleOptionSelection completed.');
   }
 
   private processOptionSelection(
