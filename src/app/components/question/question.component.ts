@@ -194,6 +194,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Initialize the current quiz question and handle its state
       this.initializeQuizQuestion();
       await this.handleQuestionState();
+
+      this.setCorrectMessage([]);
   
       // Set up an event listener for visibility change to refresh data if needed
       document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
@@ -1093,7 +1095,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }, 1000);  // Ensure audio has time to play before clearing
   }
 
-  async handleOptionSelection(option: SelectedOption, optionIndex: number, currentQuestion: any): Promise<void> {
+  async handleOptionSelection(option: SelectedOption, optionIndex: number, currentQuestion: QuizQuestion): Promise<void> {
     const questionIndex = this.currentQuestionIndex;
 
     // Ensure that optionIndex is being received correctly
