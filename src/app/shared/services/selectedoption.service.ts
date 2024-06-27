@@ -25,14 +25,14 @@ export class SelectedOptionService {
     console.log('Selected option set:', this.selectedOption);
   }
 
+  getSelectedOption(): Option {
+    return this.selectedOption;
+  }
+
   isSelectedOption(option: Option): boolean {
     const isSelected = this.selectedOption === option;
     console.log('Is selected option:', isSelected);
     return isSelected;
-  }
-
-  getSelectedOption(): Option {
-    return this.selectedOption;
   }
 
   clearSelectedOption(): void {
