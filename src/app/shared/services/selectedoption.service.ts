@@ -63,7 +63,7 @@ export class SelectedOptionService {
         this.updateAnsweredState(questionIndex);
 
         // Sync with selectedOptionsMap
-        this.syncSelectedOptionsMap(questionIndex, optionIndex, 'add');
+        this.syncSelectedOptionsMap(questionIndex, optionIndex, 'remove');
       }
     }
   }
