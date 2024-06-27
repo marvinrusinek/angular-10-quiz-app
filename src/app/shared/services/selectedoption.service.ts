@@ -1,22 +1,44 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
+import { Option } from '../../shared/models/Option.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { QuizService } from '../../shared/services/quiz.service';
 
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
+  private selectedOption: Option;
+  selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
+  private selectedOptionIndices: { [key: number]: number[] } = {};
+
   private selectedOptionExplanationSource = new BehaviorSubject<string>(null);
   selectedOptionExplanation$ = this.selectedOptionExplanationSource.asObservable();
 
   private isOptionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
-  private selectedOptionIndices: { [key: number]: number[] } = {};
-
   private isAnsweredSubject = new BehaviorSubject<boolean>(false);
 
   constructor(private quizService: QuizService) {}
+
+  setSelectedOption(option: Option): void {
+    this.selectedOption = option;
+    console.log('Selected option set:', this.selectedOption);
+  }
+
+  isSelectedOption(option: Option): boolean {
+    const isSelected = this.selectedOption === option;
+    console.log('Is selected option:', isSelected);
+    return isSelected;
+  }
+
+  getSelectedOption(): Option {
+    return this.selectedOption;
+  }
+
+  clearSelectedOption(): void {
+    this.selectedOption = null;
+    console.log('Selected option cleared');
+  }
 
   // Observable to get the current option selected state
   isOptionSelected$(): Observable<boolean> {
