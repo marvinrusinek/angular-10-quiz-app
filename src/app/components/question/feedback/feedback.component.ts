@@ -19,6 +19,12 @@ export class FeedbackComponent implements OnChanges {
     if (changes.selectedOption) {
       this.feedbackMessageClass = this.determineFeedbackMessageClass();
       this.feedback = this.displayFeedbackMessage();
+      console.log('FeedbackComponent changes:', {
+        selectedOption: this.selectedOption,
+        feedback: this.feedback,
+        feedbackMessageClass: this.feedbackMessageClass,
+        correctMessage: this.correctMessage
+      });
     }
   }
 
