@@ -1166,6 +1166,10 @@ export class QuizService implements OnDestroy {
   }
 
   updateAnswersForOption(selectedOption: Option): void {
+    if (!this.answers) {
+      this.answers = [];
+    }
+    
     const isOptionSelected = this.answers.some(
       (answer: Option) => answer.optionId === selectedOption.optionId
     );
