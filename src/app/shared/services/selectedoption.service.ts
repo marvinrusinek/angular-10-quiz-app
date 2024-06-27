@@ -144,7 +144,7 @@ export class SelectedOptionService {
     optionIndex: number,
     action: 'add' | 'remove'
   ): void {
-    const quiz = this.quizService.quizData.find(q => q.quizId.trim() === quizId.trim());
+    const quiz = this.quizService.quizData.find(q => q.quizId.trim() === this.quizService.quizId.trim());
     if (!quiz) {
       console.error('Quiz data is not initialized.');
       return;
