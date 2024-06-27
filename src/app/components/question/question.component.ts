@@ -1153,7 +1153,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleOptionClicked(currentQuestion, index);
 
     // Check if the clicked option is selected
-    const isOptionSelected = this.quizQuestionManagerService.isSelectedOption(option);
+    const isOptionSelected = this.selectedOptionService.isSelectedOption(option);
 
     // Set shouldDisplayExplanation to true when an option is selected, otherwise set it to false
     this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
