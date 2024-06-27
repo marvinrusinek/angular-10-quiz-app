@@ -1141,7 +1141,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Ensure showFeedback remains true
     this.showFeedback = true;
-    this.cdRef.detectChanges();
   }
 
   private processOptionSelection(
