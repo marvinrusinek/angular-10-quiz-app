@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
+import { QuizService } from '../../shared/services/quiz.service';
 
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
@@ -14,6 +15,8 @@ export class SelectedOptionService {
   private selectedOptionIndices: { [key: number]: number[] } = {};
 
   private isAnsweredSubject = new BehaviorSubject<boolean>(false);
+
+  constructor(private quizService: QuizService) {}
 
   // Observable to get the current option selected state
   isOptionSelected$(): Observable<boolean> {
@@ -91,7 +94,7 @@ export class SelectedOptionService {
     questionIndex: number,
     selectedOptionId: number
   ): void {
-    const quiz = this.quizData.find((q) => q.quizId.trim() === quizId.trim());
+    const quiz = this.quizService.quizData.find((q) => q.quizId.trim() === quizId.trim());
     if (!quiz) {
       console.error('Quiz data is not initialized.');
       return;
@@ -141,7 +144,7 @@ export class SelectedOptionService {
     optionIndex: number,
     action: 'add' | 'remove'
   ): void {
-    const quiz = this.quizData.find(q => q.quizId.trim() === quizId.trim());
+    const quiz = this.quizService.quizData.find(q => q.quizId.trim() === quizId.trim());
     if (!quiz) {
       console.error('Quiz data is not initialized.');
       return;
