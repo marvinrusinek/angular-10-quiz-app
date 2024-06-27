@@ -149,36 +149,40 @@ export class SelectedOptionService {
       console.error('Quiz data is not initialized.');
       return;
     }
-
+  
     const question = quiz.questions[questionIndex];
     if (!question) {
-      console.error('Question data is not found.');
+      console.error(`Question data is not found at index ${questionIndex}.`);
       return;
     }
-
+  
+    console.log('Question data:', question);
+  
     const option = question.options.find(
       opt => opt.optionId === optionIndex
     );
     if (!option) {
-      console.error('Option data is not found.');
+      console.error(`Option data is not found for optionIndex ${optionIndex}. Available options:`, question.options);
       return;
     }
-
+  
+    console.log('Option data:', option);
+  
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
-
+  
     const options = this.selectedOptionsMap.get(questionIndex);
     const existingOptionIndex = options.findIndex(
       opt => opt.optionId === optionIndex
     );
-
+  
     if (action === 'add' && existingOptionIndex === -1) {
       options.push({ ...option, questionIndex });
     } else if (action === 'remove' && existingOptionIndex !== -1) {
       options.splice(existingOptionIndex, 1);
     }
-
+  
     this.selectedOptionsMap.set(questionIndex, options);
   }
 
