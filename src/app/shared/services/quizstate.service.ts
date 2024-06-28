@@ -20,9 +20,6 @@ export class QuizStateService {
   private explanationDisplayedSubject = new BehaviorSubject<boolean>(false);
   explanationDisplayed$ = this.explanationDisplayedSubject.asObservable();
 
-  private isAnsweredSubject = new BehaviorSubject<boolean>(false);
-  isAnswered$ = this.isAnsweredSubject.asObservable();
-
   private resetQuizSubject = new Subject<void>();
   resetQuiz$ = this.resetQuizSubject.asObservable();
 
@@ -220,14 +217,6 @@ export class QuizStateService {
       console.error('Error determining if it is a multiple-answer question:', error);
       return of(false);
     }
-  }
-
-  setAnsweredState(state: boolean): void {
-    this.isAnsweredSubject.next(state);
-  }
-
-  resetAnsweredState(): void {
-    this.isAnsweredSubject.next(false);
   }
 
   clearSelectedOptions(): void {

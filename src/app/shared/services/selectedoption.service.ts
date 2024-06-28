@@ -17,6 +17,7 @@ export class SelectedOptionService {
   private isOptionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   private isAnsweredSubject = new BehaviorSubject<boolean>(false);
+  isAnswered$ = this.isAnsweredSubject.asObservable();
 
   constructor(private quizService: QuizService) {}
 
@@ -216,5 +217,13 @@ export class SelectedOptionService {
   // Expose the isAnswered observable
   get isAnswered$(): Observable<boolean> {
     return this.isAnsweredSubject.asObservable();
+  }
+
+  setAnsweredState(state: boolean): void {
+    this.isAnsweredSubject.next(state);
+  }
+
+  resetAnsweredState(): void {
+    this.isAnsweredSubject.next(false);
   }
 }
