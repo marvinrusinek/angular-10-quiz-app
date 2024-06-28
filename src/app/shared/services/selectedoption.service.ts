@@ -22,7 +22,6 @@ export class SelectedOptionService {
 
   setSelectedOption(option: Option): void {
     this.selectedOption = option;
-    console.log('Selected option set:', this.selectedOption);
     this.updateAnsweredState();
   }
 
@@ -32,13 +31,11 @@ export class SelectedOptionService {
 
   isSelectedOption(option: Option): boolean {
     const isSelected = this.selectedOption === option;
-    console.log('Is selected option:', isSelected);
     return isSelected;
   }
 
   clearSelectedOption(): void {
     this.selectedOption = null;
-    console.log('Selected option cleared');
     this.resetAnsweredState();
   }
 
@@ -115,7 +112,7 @@ export class SelectedOptionService {
   updateSelectedOptions(
     questionIndex: number,
     optionId: number,
-    action: 'select' | 'add' | 'remove'
+    action: 'add' | 'remove'
   ): void {
     const quiz = this.quizService.quizData.find((q) => q.quizId.trim() === this.quizService.quizId.trim());
     if (!quiz) {
@@ -146,19 +143,7 @@ export class SelectedOptionService {
     const options = this.selectedOptionsMap.get(questionIndex);
     const existingOptionIndex = options.findIndex((opt) => opt.optionId === optionId);
   
-    if (action === 'select') {
-      const selectedOption: SelectedOption = {
-        ...option,
-        questionIndex: questionIndex
-      };
-  
-      if (existingOptionIndex > -1) {
-        options[existingOptionIndex] = selectedOption;
-      } else {
-        options.push(selectedOption);
-      }
-  
-    } else if (action === 'add' && existingOptionIndex === -1) {
+    if (action === 'add' && existingOptionIndex === -1) {
       options.push({ ...option, questionIndex });
     } else if (action === 'remove' && existingOptionIndex !== -1) {
       options.splice(existingOptionIndex, 1);
@@ -171,7 +156,6 @@ export class SelectedOptionService {
   
   private updateAnsweredState(): void {
     const hasSelectedOptions = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
-
     hasSelectedOptions ? this.setAnsweredState(true) : this.setAnsweredState(false);
   }
 
