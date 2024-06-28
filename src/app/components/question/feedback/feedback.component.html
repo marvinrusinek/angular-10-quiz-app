@@ -2,7 +2,7 @@
   <div class="feedback-message" 
     [ngClass]="feedbackMessageClass">
     <i class="material-icons" 
-       *ngIf="selectedOption.correct; else wrongIcon">
+       *ngIf="selectedOption?.correct; else wrongIcon">
       sentiment_very_satisfied
     </i>
     <ng-template #wrongIcon>
