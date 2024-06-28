@@ -1179,7 +1179,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     await firstValueFrom(of(this.conditionallyShowExplanation(this.currentQuestionIndex)));
 
     // Fetch and store the explanation text using the ExplanationTextService
-    const explanationText = this.quizService.getExplanationText(this.currentQuestionIndex);
+    const explanationText = this.quizService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
     this.explanationTextService.setExplanationText(explanationText);
     this.explanationText = explanationText;
     console.log('Explanation text for question', this.currentQuestionIndex, ':', this.explanationText);
