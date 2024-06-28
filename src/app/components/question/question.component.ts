@@ -1334,11 +1334,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOption = option;
   
     // Update the selected option in the quiz service and mark the question as answered
-    this.selectedOptionService.updateSelectedOptions(
-      this.currentQuestionIndex,
-      option.optionId,
-      'add'
-    );
+    this.selectedOptionService.updateSelectedOptions(this.currentQuestionIndex, option.optionId, 'add');
   
     // Update the selection message based on the new state
     // const isAnswered = true; // Since an option has been selected, it is answered
