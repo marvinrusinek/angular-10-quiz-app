@@ -1118,7 +1118,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.cdRef.detectChanges();
 
     // Mark the question as answered
-    this.quizService.isAnswered$.next(true);
+    this.quizStateService.setAnsweredState(true);
 
     // Update answers for option
     this.quizService.updateAnswersForOption(option);
