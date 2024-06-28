@@ -1178,6 +1178,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Decide whether to show the explanation based on the current question index
     await firstValueFrom(of(this.conditionallyShowExplanation(this.currentQuestionIndex)));
 
+    // Fetch and store the explanation text using the ExplanationTextService
+    const explanationText = this.quizService.getExplanationText(this.currentQuestionIndex);
+    this.explanationTextService.setExplanationText(explanationText);
+    this.explanationText = explanationText;
+    console.log('Explanation text for question', this.currentQuestionIndex, ':', this.explanationText);
+
     // Ensure showFeedback remains true
     this.showFeedback = true;
     this.cdRef.detectChanges();
