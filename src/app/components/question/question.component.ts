@@ -406,7 +406,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         });
     }
   }
-  
+
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {    
     try {
