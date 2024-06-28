@@ -20,10 +20,10 @@ export class SelectedOptionService {
 
   constructor(private quizService: QuizService) {}
 
-  setSelectedOption(option: Option): void {
+  setSelectedOption(option: Option, questionIndex: number): void {
     this.selectedOption = option;
     console.log('Selected option set:', this.selectedOption);
-    this.updateAnsweredState();
+    this.updateAnsweredState(questionIndex);
   }
 
   getSelectedOption(): Option {

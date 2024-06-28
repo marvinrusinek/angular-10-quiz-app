@@ -1111,7 +1111,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.processOptionSelection(currentQuestion, option, optionIndex);
 
     this.selectedOptionService.setAnsweredState(true);
-    this.selectedOptionService.setSelectedOption(option);
+    this.selectedOptionService.setSelectedOption(option, questionIndex);
     this.selectedOptionService.syncSelectedOptionsMap(questionIndex, optionIndex, 'add');
 
     this.selectedOption = { ...option, correct: option.correct };
