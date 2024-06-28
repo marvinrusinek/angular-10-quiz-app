@@ -1758,6 +1758,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
     this.selectedOptionService.clearSelectedOption();
+    this.selectedOptionService.resetAnsweredState();
   }
 
   restartQuiz(): void {
