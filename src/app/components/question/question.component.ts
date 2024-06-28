@@ -1115,6 +1115,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.selectedOption = { ...option, correct: option.correct };
     this.showFeedback = true;
+    this.cdRef.detectChanges();
 
     // Update answers for option
     this.quizService.updateAnswersForOption(option);
@@ -1143,7 +1144,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Ensure showFeedback remains true
     this.showFeedback = true;
-    console.log('handleOptionSelection completed.');
+    this.cdRef.detectChanges();
   }
 
   private processOptionSelection(
