@@ -1177,29 +1177,33 @@ export class QuizComponent implements OnInit, OnDestroy {
       const selectedQuestion = this.questions[questionIndex];
       this.questionToDisplay = selectedQuestion.questionText;
       this.optionsToDisplay = selectedQuestion.options;
-      this.updateExplanationText(questionIndex);
+      this.updateQuestionStateAndExplanation(questionIndex);
     } else {
       console.warn(`Invalid question index: ${questionIndex}. Unable to update the question display.`);
     }
   }
 
-  updateExplanationText(questionIndex: number): void {
-    // Get the state of the question at the given index
-    const questionState: QuestionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+  updateQuestionStateAndExplanation(questionIndex: number): void {
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    console.log('Question state:', questionState);
 
-    // Check if the question has been answered
+    if (!questionState.selectedOptions) {
+      questionState.selectedOptions = [];
+    }
+
     if (questionState.isAnswered) {
-      // If answered, fetch and set the formatted explanation text for the question
       this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
       this.explanationTextService.setExplanationText(this.explanationToDisplay);
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.showExplanation = true;
     } else {
-      // If not answered, clear the explanation text and set the display flag to false
       this.explanationToDisplay = '';
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.showExplanation = false;
     }
+
+    console.log(`Explanation for question ${questionIndex}:`, this.explanationToDisplay);
+    this.cdRef.detectChanges();
   }
 
   initializeFirstQuestion(): void {
@@ -1217,14 +1221,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   
           // Initialize or update the state for all questions
           for (let index = 0; index < questions.length; index++) {
-            await this.initializeOrUpdateQuestionState(index);
+            await this.updateQuestionStateAndExplanation(index);
           }
   
           // Check if the first question is answered and update the message
           await this.checkIfAnswerSelected(true); // Pass true to indicate it's the first question
-
-          // Update the explanation text for the first question
-          this.updateExplanationText(this.currentQuestionIndex);
 
           // Explicitly set the answered state for the first question
           const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
@@ -1258,28 +1259,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectionMessageService.updateSelectionMessage(message);
   }
 
-  initializeOrUpdateQuestionState(questionIndex: number): void {
-    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
-
-    // Ensure selectedOptions is initialized
-    if (!questionState.selectedOptions) {
-      questionState.selectedOptions = [];
-    }
-
-    // Update the explanation text based on the question state
-    if (questionState.isAnswered) {
-      this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-      this.showExplanation = true;
-    } else {
-      this.explanationToDisplay = '';
-      this.explanationTextService.setShouldDisplayExplanation(false);
-      this.showExplanation = false;
-    }
-
-    this.cdRef.detectChanges(); // Manually trigger change detection
-  }
-
   handleNoQuestionsAvailable(): void {
     this.questions = [];
     this.currentQuestion = null;
@@ -1293,9 +1272,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.optionsToDisplay = [];
     this.explanationToDisplay = 'Error loading explanation.';
   }
-
-
-
 
   handleOptions(options: Option[]): void {
     if (!options || options.length === 0) {
@@ -1592,7 +1568,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     await this.fetchAndSetQuestionData(questionIndex);
     this.initializeQuestionForDisplay(questionIndex);
     this.updateQuestionDisplay(questionIndex);
-    this.updateExplanationText(questionIndex);
+    this.updateQuestionStateAndExplanation(questionIndex);
     this.updateNavigationAndExplanationState();
   }
 
@@ -1635,9 +1611,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
 
     // Update the explanation text based on the current question state
-    this.updateExplanationText(this.currentQuestionIndex);
-
-    this.initializeOrUpdateQuestionState(this.currentQuestionIndex);
+    this.updateQuestionStateAndExplanation(this.currentQuestionIndex);
 
     // Update the progress percentage based on the new current question index
     this.updateProgressPercentage();
