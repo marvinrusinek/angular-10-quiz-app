@@ -1114,6 +1114,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.selectedOptionService.setAnsweredState(true);
     this.selectedOptionService.setSelectedOption(option);
+    this.selectedOptionService.toggleSelectedOption(questionIndex, option);
     this.selectedOptionService.syncSelectedOptionsMap(questionIndex, optionIndex, 'add');
 
     this.selectedOption = { ...option, correct: option.correct };

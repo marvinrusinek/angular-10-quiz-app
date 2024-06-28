@@ -212,9 +212,13 @@ export class SelectedOptionService {
   } */
 
   private updateAnsweredState(): void {
-    const isAnswered = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
-    console.log('Updating answered state:', isAnswered);
-    this.setAnsweredState(isAnswered);
+    const hasSelectedOptions = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
+    console.log('Updating answered state:', hasSelectedOptions);
+    if (hasSelectedOptions) {
+      this.setAnsweredState(true);
+    } else {
+      this.setAnsweredState(false); // Remove this line if you do not want to reset to false
+    }
   }
 
   // Method to update the isAnswered state
