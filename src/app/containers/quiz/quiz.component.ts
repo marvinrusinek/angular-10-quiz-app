@@ -1196,6 +1196,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (questionState.isAnswered) {
       // If answered, fetch and set the formatted explanation text for the question
       this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      this.explanationTextService.setExplanationText(this.explanationToDisplay);
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.showExplanation = true;
     } else {
