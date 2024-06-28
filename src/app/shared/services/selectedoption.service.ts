@@ -23,6 +23,7 @@ export class SelectedOptionService {
   setSelectedOption(option: Option): void {
     this.selectedOption = option;
     console.log('Selected option set:', this.selectedOption);
+    this.updateAnsweredState();
   }
 
   getSelectedOption(): Option {
