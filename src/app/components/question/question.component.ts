@@ -375,7 +375,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  /* private initializeQuizQuestion(): void {
+  private initializeQuizQuestion(): void {
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
 
@@ -405,8 +405,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           }
         });
     }
-  } */
-
+  }
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {    
     try {
