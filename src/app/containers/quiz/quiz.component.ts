@@ -1766,6 +1766,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private resetQuestionDisplayState(): void {
+    this.questionToDisplay = '';
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
   }
