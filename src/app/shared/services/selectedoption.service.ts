@@ -204,8 +204,14 @@ export class SelectedOptionService {
     console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
   }
 
-  private updateAnsweredState(questionIndex: number): void {
+  /* private updateAnsweredState(questionIndex: number): void {
     const isAnswered = this.selectedOptionsMap.has(questionIndex) && this.selectedOptionsMap.get(questionIndex).length > 0;
+    this.setAnsweredState(isAnswered);
+  } */
+
+  private updateAnsweredState(): void {
+    const isAnswered = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
+    console.log('Updating answered state:', isAnswered);
     this.setAnsweredState(isAnswered);
   }
 
