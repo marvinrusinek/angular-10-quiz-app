@@ -19,10 +19,6 @@ export class QuizQuestionManagerService {
   private explanationTextSubject: BehaviorSubject<string | null> =
     new BehaviorSubject<string | null>(null);
 
-  setSelectedOption(option: Option): void {
-    this.selectedOption = option;
-  }
-
   setExplanationText(explanation: string): void {
     this.explanationTextSubject.next(explanation);
     this.shouldDisplayExplanation = !!explanation;
