@@ -71,7 +71,7 @@ export class SelectedOptionService {
 
     if (!this.selectedOptionIndices[questionIndex].includes(optionIndex)) {
       this.selectedOptionIndices[questionIndex].push(optionIndex);
-      this.updateAnsweredState(questionIndex);
+      this.updateAnsweredState();
 
       // Sync with selectedOptionsMap
       this.syncSelectedOptionsMap(questionIndex, optionIndex, 'add');
@@ -83,7 +83,7 @@ export class SelectedOptionService {
       const optionPos = this.selectedOptionIndices[questionIndex].indexOf(optionIndex);
       if (optionPos > -1) {
         this.selectedOptionIndices[questionIndex].splice(optionPos, 1);
-        this.updateAnsweredState(questionIndex);
+        this.updateAnsweredState();
 
         // Sync with selectedOptionsMap
         this.syncSelectedOptionsMap(questionIndex, optionIndex, 'remove');
@@ -109,7 +109,7 @@ export class SelectedOptionService {
     }
 
     this.selectedOptionsMap.set(questionIndex, options);
-    this.updateAnsweredState(questionIndex);
+    this.updateAnsweredState();
   }
 
   updateSelectedOptions(
@@ -153,7 +153,7 @@ export class SelectedOptionService {
         }
   
         this.selectedOptionsMap.set(questionIndex, options);
-        this.updateAnsweredState(questionIndex);
+        this.updateAnsweredState();
       } else {
         console.error(
           'Selected option ID does not match any option in the question.'
