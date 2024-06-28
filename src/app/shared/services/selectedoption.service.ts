@@ -116,7 +116,8 @@ export class SelectedOptionService {
   updateSelectedOptions(
     quizId: string,
     questionIndex: number,
-    selectedOptionId: number
+    optionId: number,
+    action: 'select' | 'add' | 'remove'
   ): void {
     const quiz = this.quizService.quizData.find((q) => q.quizId.trim() === quizId.trim());
     if (!quiz) {
@@ -125,87 +126,51 @@ export class SelectedOptionService {
     }
   
     const question = quiz.questions[questionIndex];
-    if (question) {
-      // Find the Option object that matches the selectedOptionId
-      const option = question.options.find(
-        (option) => option.optionId === selectedOptionId
-      );
-  
-      if (option) {
-        const selectedOption: SelectedOption = {
-          ...option,
-          questionIndex: questionIndex
-        };
-  
-        // Use selectedOptionsMap to track the selected option
-        if (!this.selectedOptionsMap.has(questionIndex)) {
-          this.selectedOptionsMap.set(questionIndex, []);
-        }
-  
-        const options = this.selectedOptionsMap.get(questionIndex);
-        const existingOptionIndex = options.findIndex(
-          (opt) => opt.optionId === selectedOption.optionId
-        );
-  
-        if (existingOptionIndex > -1) {
-          options[existingOptionIndex] = selectedOption;
-        } else {
-          options.push(selectedOption);
-        }
-  
-        this.selectedOptionsMap.set(questionIndex, options);
-        this.updateAnsweredState();
-      } else {
-        console.error(
-          'Selected option ID does not match any option in the question.'
-        );
-      }
-    }
-  }
-  
-  syncSelectedOptionsMap(
-    questionIndex: number,
-    optionIndex: number,
-    action: 'add' | 'remove'
-  ): void {
-    const quiz = this.quizService.quizData.find(q => q.quizId.trim() === this.quizService.quizId.trim());
-    if (!quiz) {
-      console.error('Quiz data is not initialized.');
-      return;
-    }
-
-    const question = quiz.questions[questionIndex];
     if (!question) {
       console.error(`Question data is not found at index ${questionIndex}.`);
       return;
     }
-
-    const option = question.options[optionIndex]; // Use optionIndex to get the option
+  
+    const option = question.options.find(
+      (option) => option.optionId === optionId
+    );
     if (!option) {
-      console.error(`Option data is not found for optionIndex ${optionIndex}. Available options:`, question.options);
+      console.error(`Option data is not found for optionId ${optionId}. Available options:`, question.options);
       return;
     }
-
+  
     console.log('Selected option:', option);
-
+  
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
-
+  
     const options = this.selectedOptionsMap.get(questionIndex);
-    const existingOptionIndex = options.findIndex(opt => opt === option);
-
-    if (action === 'add' && existingOptionIndex === -1) {
+    const existingOptionIndex = options.findIndex((opt) => opt.optionId === optionId);
+  
+    if (action === 'select') {
+      const selectedOption: SelectedOption = {
+        ...option,
+        questionIndex: questionIndex
+      };
+  
+      if (existingOptionIndex > -1) {
+        options[existingOptionIndex] = selectedOption;
+      } else {
+        options.push(selectedOption);
+      }
+  
+    } else if (action === 'add' && existingOptionIndex === -1) {
       options.push({ ...option, questionIndex });
     } else if (action === 'remove' && existingOptionIndex !== -1) {
       options.splice(existingOptionIndex, 1);
     }
-
+  
     this.selectedOptionsMap.set(questionIndex, options);
     console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
     this.updateAnsweredState();
   }
-
+  
   private updateAnsweredState(): void {
     const hasSelectedOptions = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
 
