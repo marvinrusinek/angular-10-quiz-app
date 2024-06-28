@@ -202,6 +202,7 @@ export class SelectedOptionService {
 
     this.selectedOptionsMap.set(questionIndex, options);
     console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
+    this.updateAnsweredState();
   }
 
   /* private updateAnsweredState(questionIndex: number): void {
