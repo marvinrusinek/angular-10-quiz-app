@@ -39,6 +39,7 @@ export class SelectedOptionService {
   clearSelectedOption(): void {
     this.selectedOption = null;
     console.log('Selected option cleared');
+    this.resetAnsweredState();
   }
 
   // Observable to get the current option selected state
