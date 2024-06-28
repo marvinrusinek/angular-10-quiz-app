@@ -357,7 +357,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private initializeQuizQuestion(): void {
+  /* private initializeQuizQuestion(): void {
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
 
@@ -372,6 +372,38 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           })
         )
         .subscribe();
+    }
+  } */
+
+  private initializeQuizQuestion(): void {
+    if (!this.quizStateService.getQuizQuestionCreated()) {
+      this.quizStateService.setQuizQuestionCreated();
+
+      this.questionsObservableSubscription = this.quizService
+        .getAllQuestions()
+        .pipe(
+          map((questions: QuizQuestion[]) => {
+            questions.forEach((quizQuestion: QuizQuestion) => {
+              quizQuestion.selectedOptions = null;
+            });
+            return questions;
+          })
+        )
+        .subscribe({
+          next: (questions) => {
+            // Initialize the first question
+            if (questions && questions.length > 0) {
+              this.selectedOptionService.resetAnsweredState();
+              const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
+              this.selectedOptionService.setAnsweredState(hasAnswered);
+              console.log('Initial answered state for the first question:', hasAnswered);
+              this.cdRef.markForCheck(); // Trigger change detection
+            }
+          },
+          error: (err) => {
+            console.error('Error fetching questions:', err);
+          }
+        });
     }
   }
 
