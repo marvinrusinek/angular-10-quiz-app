@@ -1226,6 +1226,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   
           // Check if the first question is answered and update the message
           await this.checkIfAnswerSelected(true); // Pass true to indicate it's the first question
+
+          // Explicitly set the answered state for the first question
+          const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
+          this.selectedOptionService.setAnsweredState(hasAnswered);
+          console.log('Initial answered state for the first question:', hasAnswered);
   
           this.cdRef.markForCheck(); // Trigger change detection
         } else {
