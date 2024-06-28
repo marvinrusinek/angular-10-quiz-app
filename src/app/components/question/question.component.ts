@@ -1251,15 +1251,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizId,
       questionIndex
     );
-    // console.log('Question State:', questionState);
+  
+    // Check if the question has been answered
     if (questionState && questionState.isAnswered) {
-      const explanationText =
-        this.explanationTextService.getFormattedExplanationTextForQuestion(
-          questionIndex
-        );
+      // If answered, fetch and set the formatted explanation text for the question
+      const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(
+        questionIndex
+      );
       this.explanationTextService.setExplanationText(explanationText);
+      //this.explanationToDisplay = explanationText;
       this.explanationTextService.setShouldDisplayExplanation(true);
+      //this.showExplanation = true;
     } else {
+      // If not answered, clear the explanation text and set the display flag to false
+      //this.explanationToDisplay = '';
+      this.explanationTextService.setShouldDisplayExplanation(false);
+      //this.showExplanation = false;
       console.log(`Conditions for showing explanation not met.`);
     }
   }
