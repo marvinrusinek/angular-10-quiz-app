@@ -74,8 +74,7 @@ export class SelectedOptionService {
       this.selectedOptionIndices[questionIndex].push(optionIndex);
       this.updateAnsweredState();
 
-      // Sync with selectedOptionsMap
-      this.syncSelectedOptionsMap(questionIndex, optionIndex, 'add');
+      this.updateSelectedOptions(questionIndex, optionIndex, 'add');
     }
   }
 
@@ -87,7 +86,7 @@ export class SelectedOptionService {
         this.updateAnsweredState();
 
         // Sync with selectedOptionsMap
-        this.syncSelectedOptionsMap(questionIndex, optionIndex, 'remove');
+        this.updateSelectedOptions(questionIndex, optionIndex, 'remove');
       }
     }
   }
@@ -114,12 +113,11 @@ export class SelectedOptionService {
   }
 
   updateSelectedOptions(
-    quizId: string,
     questionIndex: number,
     optionId: number,
     action: 'select' | 'add' | 'remove'
   ): void {
-    const quiz = this.quizService.quizData.find((q) => q.quizId.trim() === quizId.trim());
+    const quiz = this.quizService.quizData.find((q) => q.quizId.trim() === this.quizService.quizId.trim());
     if (!quiz) {
       console.error('Quiz data is not initialized.');
       return;
