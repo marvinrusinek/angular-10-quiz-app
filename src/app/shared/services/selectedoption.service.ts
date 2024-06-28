@@ -111,7 +111,7 @@ export class SelectedOptionService {
 
   updateSelectedOptions(
     questionIndex: number,
-    optionId: number,
+    optionIndex: number,
     action: 'add' | 'remove'
   ): void {
     const quiz = this.quizService.quizData.find((q) => q.quizId.trim() === this.quizService.quizId.trim());
@@ -126,11 +126,9 @@ export class SelectedOptionService {
       return;
     }
   
-    const option = question.options.find(
-      (option) => option.optionId === optionId
-    );
+    const option = question.options[optionIndex];
     if (!option) {
-      console.error(`Option data is not found for optionId ${optionId}. Available options:`, question.options);
+      console.error(`Option data is not found for optionIndex ${optionIndex}. Available options:`, question.options);
       return;
     }
   
@@ -141,7 +139,7 @@ export class SelectedOptionService {
     }
   
     const options = this.selectedOptionsMap.get(questionIndex);
-    const existingOptionIndex = options.findIndex((opt) => opt.optionId === optionId);
+    const existingOptionIndex = options.findIndex((opt) => opt.text === option.text);
   
     if (action === 'add' && existingOptionIndex === -1) {
       options.push({ ...option, questionIndex });
