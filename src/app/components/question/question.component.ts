@@ -390,7 +390,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           })
         )
         .subscribe({
-          next: (questions) => {
+          next: (questions: QuizQuestion[]) => {
             // Initialize the first question
             if (questions && questions.length > 0) {
               this.selectedOptionService.resetAnsweredState();
