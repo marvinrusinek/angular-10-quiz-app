@@ -208,12 +208,8 @@ export class SelectedOptionService {
 
   private updateAnsweredState(): void {
     const hasSelectedOptions = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
-    console.log('Updating answered state:', hasSelectedOptions);
-    if (hasSelectedOptions) {
-      this.setAnsweredState(true);
-    } else {
-      this.setAnsweredState(false);
-    }
+
+    hasSelectedOptions ? this.setAnsweredState(true) : this.setAnsweredState(false);
   }
 
   // Method to update the isAnswered state
