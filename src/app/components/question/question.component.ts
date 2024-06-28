@@ -935,6 +935,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private resetStateForNewQuestion(): void {
     this.isOptionSelected = false;
     this.selectedOptionService.setOptionSelected(false);
+    this.selectedOptionService.clearSelectedOption();
+    this.selectedOptionService.resetAnsweredState();
     this.selectionMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
     this.selectionMessageService.resetMessage();
