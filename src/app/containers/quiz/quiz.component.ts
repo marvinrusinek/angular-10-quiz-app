@@ -184,6 +184,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+
     this.subscribeToSelectionMessage();
 
     // Initialize route parameters and subscribe to updates
