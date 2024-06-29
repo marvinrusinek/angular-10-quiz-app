@@ -404,7 +404,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
 
-  private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
+  /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
       console.error('Question is undefined or missing questionText');
       return;
@@ -456,6 +456,42 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       } else {
         console.error("Current question is not valid");
       }
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+    }
+  } */
+
+  private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
+    if (!question || !question.questionText) {
+      console.error('Question is undefined or missing questionText');
+      return;
+    }
+
+    try {
+      const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
+      const questions: QuizQuestion[] = data;
+
+      if (questions.length === 0) {
+        console.error('No questions received from service.');
+        return;
+      }
+
+      const questionIndex = questions.findIndex((q) =>
+        q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
+      );
+
+      if (questionIndex < 0) {
+        console.error('Current question not found in the questions array.');
+        return;
+      }
+
+      this.currentQuestion.next(question);
+      this.cdRef.detectChanges();
+
+      setTimeout(() => {
+        this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+        this.subscribeToExplanationText();
+      }, 0);
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
