@@ -208,17 +208,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         const question = questions[zeroBasedIndex];
         this.currentQuestion.next(question);
         this.isExplanationDisplayed = false; // Reset explanation display state
-
+  
         // Reset explanation state
         this.explanationTextService.resetExplanationState();
         this.explanationTextService.resetExplanationText();
-
+  
         // Ensure the question text is fully rendered
         this.cdRef.detectChanges();
-
-        // Fetch and display explanation text
-        this.fetchAndDisplayExplanationText(question);
-
+  
+        // No need to fetch and display explanation text here
         // Subscribe to isExplanationTextDisplayed$
         if (this.isExplanationTextDisplayed$) {
           this.isExplanationTextDisplayed$.pipe(distinctUntilChanged()).subscribe((isDisplayed: boolean) => {
@@ -234,7 +232,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Invalid question index:', zeroBasedIndex);
       }
     });
-  }
+  }  
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
