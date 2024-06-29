@@ -164,7 +164,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
       if (quizId) {
         this.quizId = quizId;
-        this.loadQuestion(quizId, questionIndex); // Load the question by default
+        this.loadQuestion(quizId, zeroBasedIndex); // Load the question by default
       } else {
         console.error('Quiz ID is missing from route parameters');
       }
