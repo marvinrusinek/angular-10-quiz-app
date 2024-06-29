@@ -121,9 +121,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.explanationTextService.setIsExplanationTextDisplayed(false);
     console.log('Initialization: isExplanationDisplayed set to false');
 
-    // this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndexValue);
-    //     console.log("ETD:::>>>", this.explanationToDisplay);
-
     this.explanationTextService.formattedExplanation$.subscribe(explanation => {
       this.explanationToDisplay = explanation;
     });
@@ -433,9 +430,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       const currentQuestion = questions[questionIndex];
       if (this.quizService.isValidQuizQuestion(currentQuestion)) {
         this.currentQuestion.next(currentQuestion);
-
-        // Fetch explanation text based on question index
-        this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
 
         // Check if next question exists to fetch its explanation
         if (questionIndex < questions.length - 1) {
