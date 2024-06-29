@@ -236,28 +236,30 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   private async initializeQuestionData(): Promise<void> {
     try {
       const params: ParamMap = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
-
-      const [questions, explanationTexts] = await firstValueFrom(
+  
+      const data = await firstValueFrom(
         this.fetchQuestionsAndExplanationTexts(params).pipe(takeUntil(this.destroy$))
       );
-
+      
+      const [questions, explanationTexts] = data;
+  
       if (!questions || questions.length === 0) {
         console.warn('No questions found');
         return;
       }
-
+  
       this.explanationTexts = explanationTexts;
       console.log("Fetched Explanation Texts:", this.explanationTexts);
-
+  
       await Promise.all(
         questions.map(async (question, index) => {
           const explanation = this.explanationTexts[index] || 'No explanation available';
           this.explanationTextService.storeFormattedExplanation(index, explanation, question);
         })
       );
-
+  
       console.log('Formatted explanations stored.');
-
+  
       this.initializeCurrentQuestionIndex();
       this.subscribeToCurrentQuestion();
     } catch (error) {
@@ -304,7 +306,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         return [questions, explanationTexts] as [QuizQuestion[], string[]];
       })
     );
-  }  
+  }    
 
   private initializeCurrentQuestionIndex(): void {
     this.quizService.currentQuestionIndex = 0;
