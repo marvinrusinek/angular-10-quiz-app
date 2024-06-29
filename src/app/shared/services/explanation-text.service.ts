@@ -246,16 +246,9 @@ export class ExplanationTextService {
     }
   }
 
-  getFormattedExplanations(): FormattedExplanation[] {
-    const formattedExplanations = Object.values(this.formattedExplanations).map(explanationObj => {
-      if (typeof explanationObj.explanation !== 'string') {
-        console.warn(`Invalid explanation format for questionIndex ${explanationObj.questionIndex}:`, explanationObj.explanation);
-        explanationObj.explanation = ''; // Fallback to empty string if explanation is invalid
-      }
-      return explanationObj;
-    });
-    console.log('Formatted Explanations in Service:', formattedExplanations);
-    return formattedExplanations;
+  getFormattedExplanations(): Observable<FormattedExplanation[]> {
+    const explanations = Object.values(this.formattedExplanations);
+    return of(explanations);
   }
 
   setIsExplanationTextDisplayed(isDisplayed: boolean): void {
