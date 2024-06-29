@@ -437,6 +437,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         // Fetch explanation text based on question index
         this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
 
+        // Check if next question exists to fetch its explanation
         if (questionIndex < questions.length - 1) {
           const nextQuestion = questions[questionIndex + 1];
           if (nextQuestion) {
