@@ -7,6 +7,9 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({ providedIn: 'root' })
 export class ExplanationTextService {
+  private explanationSubject = new BehaviorSubject<QuizQuestion | null>(null);
+  explanation$ = this.explanationSubject.asObservable();
+
   explanationText$: BehaviorSubject<string | null> = 
     new BehaviorSubject<string | null>('');
   explanationTexts: Record<number, string> = {};
@@ -31,6 +34,10 @@ export class ExplanationTextService {
   shouldDisplayExplanation$ = this.shouldDisplayExplanationSource.asObservable();
 
   constructor() {}
+
+  updateExplanation(question: QuizQuestion): void {
+    this.explanationSubject.next(question);
+  }
 
   getExplanationText$(): Observable<string | null> {
     return this.explanationText$.asObservable();

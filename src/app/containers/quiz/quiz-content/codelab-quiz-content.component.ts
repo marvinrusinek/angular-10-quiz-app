@@ -403,7 +403,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
 
-  private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
+  /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
       console.error('Question is undefined or missing questionText');
       return;
@@ -455,6 +455,44 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       } else {
         console.error("Current question is not valid");
       }
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+    }
+  } */
+
+  private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
+    if (!question || !question.questionText) {
+      console.error('Question is undefined or missing questionText');
+      return;
+    }
+
+    try {
+      const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
+      const questions: QuizQuestion[] = data;
+
+      if (questions.length === 0) {
+        console.error('No questions received from service.');
+        return;
+      }
+
+      const questionIndex = questions.findIndex((q) =>
+        q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
+      );
+      if (questionIndex < 0) {
+        console.error('Current question not found in the questions array.');
+        return;
+      }
+
+      // Ensure the question text is fully rendered
+      this.cdRef.detectChanges();
+
+      // Fetch explanation text after rendering the question text
+      setTimeout(() => {
+        const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+        this.explanationToDisplay = explanation;
+        this.isExplanationDisplayed = true;
+        this.cdRef.detectChanges(); // Ensure explanation text is rendered
+      }, 0);
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
