@@ -116,6 +116,11 @@ export class QuizDataService implements OnDestroy {
   }
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
+    if (!quizId) {
+      console.error('Quiz ID is null or undefined');
+      return of([]); // Return an empty array if quizId is invalid
+    }
+
     return this.getQuiz(quizId).pipe(
       map(quiz => {
         if (!quiz) {
