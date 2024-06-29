@@ -413,16 +413,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       console.error('Question is undefined or missing questionText');
       return;
     }
-  
+
     try {
       const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
       const questions: QuizQuestion[] = data;
-  
+
       if (questions.length === 0) {
         console.error('No questions received from service.');
         return;
       }
-  
+
       const questionIndex = questions.findIndex((q) =>
         q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
       );
@@ -430,27 +430,33 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Current question not found in the questions array.');
         return;
       }
-  
+
       const currentQuestion = questions[questionIndex];
       if (this.quizService.isValidQuizQuestion(currentQuestion)) {
         this.currentQuestion.next(currentQuestion);
-  
-        // Ensure the question text is fully rendered
-        this.cdRef.detectChanges();
-  
-        // Fetch explanation text after rendering the question text
-        setTimeout(() => {
-          this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-  
-          // Subscribe to the formatted explanation text
-          this.explanationTextService.formattedExplanation$
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(explanation => {
-              this.explanationToDisplay = explanation;
-              this.isExplanationDisplayed = true;
-              this.cdRef.detectChanges(); // Ensure explanation text is rendered
-            });
-        }, 0);
+
+        // Check if next question exists to fetch its explanation
+        if (questionIndex < questions.length - 1) {
+          const nextQuestion = questions[questionIndex + 1];
+          if (nextQuestion) {
+            this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
+            this.updateExplanationForQuestion(nextQuestion);
+
+            // Set explanation display state
+            this.isExplanationDisplayed = true;
+            this.explanationTextService.setIsExplanationTextDisplayed(true);
+            this.correctAnswersTextSource.next(''); // Clear correct answers text
+          } else {
+            console.warn('Next question not found in the questions array.');
+          }
+        } else {
+          console.warn('Current question is the last question in the array.');
+        }
+
+        // Set explanation display state
+        this.isExplanationDisplayed = true;
+        this.explanationTextService.setIsExplanationTextDisplayed(true);
+        this.correctAnswersTextSource.next(''); // Clear correct answers text
       } else {
         console.error("Current question is not valid");
       }
