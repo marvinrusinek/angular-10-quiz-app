@@ -163,7 +163,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
-  private loadQuestion(quizId: string, zeroBasedIndex: number): void {
+  /* private loadQuestion(quizId: string, zeroBasedIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
@@ -187,6 +187,37 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           });
   
           // Subscribe to isExplanationTextDisplayed$
+          this.isExplanationTextDisplayed$.pipe(distinctUntilChanged()).subscribe((isDisplayed: boolean) => {
+            this.isExplanationDisplayed = isDisplayed;
+            if (isDisplayed) {
+              this.correctAnswersTextSource.next('');
+            }
+          });
+        } else {
+          console.error('isExplanationTextDisplayed$ is not initialized.');
+        }
+      } else {
+        console.error('Invalid question index:', zeroBasedIndex);
+      }
+    });
+  } */
+
+  private loadQuestion(quizId: string, zeroBasedIndex: number): void {
+    this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
+      if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
+        const question = questions[zeroBasedIndex];
+        this.currentQuestion.next(question);
+        this.isExplanationDisplayed = false; // Reset explanation display state
+
+        // Reset explanation state
+        this.explanationTextService.resetExplanationState();
+        this.explanationTextService.resetExplanationText();
+
+        // Ensure the question text is fully rendered
+        this.cdRef.detectChanges();
+
+        // Subscribe to isExplanationTextDisplayed$
+        if (this.isExplanationTextDisplayed$) {
           this.isExplanationTextDisplayed$.pipe(distinctUntilChanged()).subscribe((isDisplayed: boolean) => {
             this.isExplanationDisplayed = isDisplayed;
             if (isDisplayed) {
