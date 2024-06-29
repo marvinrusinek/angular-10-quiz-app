@@ -128,7 +128,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.loadQuestion(this.quizId, this.currentQuestionIndexValue);
+    this.loadQuestion(this.quizService.quizId, this.currentQuestionIndexValue);
     this.loadQuizDataFromRoute();
     this.initializeComponent();
     this.initializeQuestionState();
