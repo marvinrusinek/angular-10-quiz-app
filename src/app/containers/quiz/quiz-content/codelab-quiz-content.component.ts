@@ -471,15 +471,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     )
     .subscribe(([explanation, question]) => {
       if (question) {
-        this.cdRef.detectChanges(); // Ensure question text is fully rendered
-        setTimeout(() => {
-          this.explanationToDisplay = explanation;
-          this.cdRef.detectChanges();
-        }, 100); // Small delay to ensure the question is displayed first
+        // Ensure question text is fully rendered
+        this.cdRef.detectChanges();
+        this.explanationToDisplay = explanation;
+        this.isExplanationDisplayed = true;
+        this.cdRef.detectChanges();
       }
     });
   }
-
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
