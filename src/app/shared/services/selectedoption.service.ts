@@ -114,9 +114,15 @@ export class SelectedOptionService {
     optionIndex: number,
     action: 'add' | 'remove'
   ): void {
-    const quiz = this.quizService.quizData.find((q) => q.quizId.trim() === this.quizService.quizId.trim());
+    const quizId = this.quizService.quizId;
+    if (!quizId) {
+      console.error('Quiz ID is null or undefined');
+      return;
+    }
+  
+    const quiz = this.quizService.quizData.find((q) => q.quizId?.trim() === quizId.trim());
     if (!quiz) {
-      console.error('Quiz data is not initialized.');
+      console.error(`Quiz with ID ${quizId} not found`);
       return;
     }
   
@@ -150,7 +156,7 @@ export class SelectedOptionService {
     this.selectedOptionsMap.set(questionIndex, options);
     console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
     this.updateAnsweredState();
-  }
+  }  
   
   private updateAnsweredState(): void {
     const hasSelectedOptions = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
