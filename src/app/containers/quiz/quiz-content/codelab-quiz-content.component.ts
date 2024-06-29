@@ -69,6 +69,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   explanationText$ = this.explanationTextSource.asObservable();
   explanationText: string | null = null;
   explanationTexts: string[] = [];
+  explanationSubscription: Subscription;
 
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
@@ -126,6 +127,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.initializeQuestionState();
     this.initializeSubscriptions();
     this.setupCombinedTextObservable(); 
+
+    this.explanationSubscription = this.explanationTextService.explanation$.subscribe(question => {
+      if (question) {
+        this.fetchAndDisplayExplanationText(question);
+      }
+    });
     
     this.handleQuestionDisplayLogic().subscribe(({ combinedData, isMultipleAnswer }) => {
       if (this.currentQuestionType === QuestionType.SingleAnswer) {
@@ -144,6 +151,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.correctAnswersTextSource.complete();
     this.correctAnswersDisplaySubject.complete();
     this.currentQuestionSubscription?.unsubscribe();
+    this.explanationSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
@@ -176,8 +184,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
         // Ensure the question text is fully rendered
         this.cdRef.detectChanges();
-
-        this.fetchAndDisplayExplanationText(question);
   
         // No need to fetch and display explanation text here
         // Subscribe to isExplanationTextDisplayed$
@@ -402,63 +408,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       map(() => void 0)
     );
   }
-
-  /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
-    if (!question || !question.questionText) {
-      console.error('Question is undefined or missing questionText');
-      return;
-    }
-
-    try {
-      const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
-      const questions: QuizQuestion[] = data;
-
-      if (questions.length === 0) {
-        console.error('No questions received from service.');
-        return;
-      }
-
-      const questionIndex = questions.findIndex((q) =>
-        q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
-      );
-      if (questionIndex < 0) {
-        console.error('Current question not found in the questions array.');
-        return;
-      }
-
-      const currentQuestion = questions[questionIndex];
-      if (this.quizService.isValidQuizQuestion(currentQuestion)) {
-        this.currentQuestion.next(currentQuestion);
-
-        // Check if next question exists to fetch its explanation
-        if (questionIndex < questions.length - 1) {
-          const nextQuestion = questions[questionIndex + 1];
-          if (nextQuestion) {
-            this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
-            this.updateExplanationForQuestion(nextQuestion);
-
-            // Set explanation display state
-            this.isExplanationDisplayed = true;
-            this.explanationTextService.setIsExplanationTextDisplayed(true);
-            this.correctAnswersTextSource.next(''); // Clear correct answers text
-          } else {
-            console.warn('Next question not found in the questions array.');
-          }
-        } else {
-          console.warn('Current question is the last question in the array.');
-        }
-
-        // Set explanation display state
-        this.isExplanationDisplayed = true;
-        this.explanationTextService.setIsExplanationTextDisplayed(true);
-        this.correctAnswersTextSource.next(''); // Clear correct answers text
-      } else {
-        console.error("Current question is not valid");
-      }
-    } catch (error) {
-      console.error('Error fetching questions:', error);
-    }
-  } */
 
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
