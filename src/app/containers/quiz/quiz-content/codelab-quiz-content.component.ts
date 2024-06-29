@@ -216,6 +216,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         // Ensure the question text is fully rendered
         this.cdRef.detectChanges();
 
+        // Fetch and display explanation text
+        this.fetchAndDisplayExplanationText(question);
+
         // Subscribe to isExplanationTextDisplayed$
         if (this.isExplanationTextDisplayed$) {
           this.isExplanationTextDisplayed$.pipe(distinctUntilChanged()).subscribe((isDisplayed: boolean) => {
