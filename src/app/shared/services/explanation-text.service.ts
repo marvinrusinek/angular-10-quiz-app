@@ -71,8 +71,10 @@ export class ExplanationTextService {
 
       if (formattedExplanation && formattedExplanation.explanation) {
         console.log("Formatted Explanation Text:", formattedExplanation.explanation);
+        this.formattedExplanation$.next(formattedExplanation.explanation);
         return formattedExplanation.explanation;
       } else {
+        console.log("No explanation text found for index", index);
         console.log("No explanation text found for index", index);
         return 'No explanation available';
       }
