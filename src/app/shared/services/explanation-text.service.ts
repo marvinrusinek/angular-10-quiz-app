@@ -238,7 +238,7 @@ export class ExplanationTextService {
     const explanationText = this.getFormattedExplanationTextForQuestion(questionIndex);
   
     if (explanationText) {
-      console.log("Formatted Explanation::::::", explanationText);
+      console.log("Formatted Explanation:", explanationText);
       return of(explanationText);
     } else {
       console.log(`No formatted explanation found for questionIndex: ${questionIndex}`);
