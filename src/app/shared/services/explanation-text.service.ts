@@ -75,7 +75,6 @@ export class ExplanationTextService {
         return formattedExplanation.explanation;
       } else {
         console.log("No explanation text found for index", index);
-        console.log("No explanation text found for index", index);
         return 'No explanation available';
       }
     } else {
