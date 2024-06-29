@@ -1567,7 +1567,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
     await this.fetchAndSetQuestionData(questionIndex);
     this.initializeQuestionForDisplay(questionIndex);
-    this.updateQuestionDisplay(questionIndex);
+    // this.updateQuestionDisplay(questionIndex);
     this.updateQuestionStateAndExplanation(questionIndex);
     this.updateNavigationAndExplanationState();
   }
