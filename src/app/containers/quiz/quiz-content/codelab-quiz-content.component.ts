@@ -427,6 +427,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       if (this.quizService.isValidQuizQuestion(currentQuestion)) {
         this.currentQuestion.next(currentQuestion);
 
+        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+        console.log("ETD:::>>>", this.explanationToDisplay);
+
         if (questionIndex < questions.length - 1) {
           const nextQuestion = questions[questionIndex + 1];
           if (nextQuestion) {
