@@ -118,6 +118,21 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.activatedRoute.paramMap.subscribe(params => {
+      const quizId = params.get('quizId');
+      const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 0;
+      console.log('Retrieved quizId from route:', quizId);
+      console.log('Retrieved questionIndex from route:', questionIndex);
+  
+      if (quizId) {
+        this.quizService.quizId = quizId; // Set quizId in quizService
+        this.currentQuestionIndexValue = questionIndex; // Set the current question index
+        this.loadQuestion(quizId, this.currentQuestionIndexValue); // Load the question
+      } else {
+        console.error('Quiz ID is missing from route parameters');
+      }
+    });
+    
     // Initialize isExplanationDisplayed to false initially
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
