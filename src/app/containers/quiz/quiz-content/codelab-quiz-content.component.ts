@@ -121,10 +121,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.explanationTextService.setIsExplanationTextDisplayed(false);
     console.log('Initialization: isExplanationDisplayed set to false');
 
-    this.explanationTextService.formattedExplanation$.subscribe(explanation => {
-      this.explanationToDisplay = explanation;
-    });
-
     this.loadQuizDataFromRoute();
     this.initializeComponent();
     this.initializeQuestionState();
