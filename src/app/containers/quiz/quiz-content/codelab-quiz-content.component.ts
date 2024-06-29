@@ -497,7 +497,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
-  }
+  } 
 
   private subscribeToExplanationText(): void {
     combineLatest([
