@@ -269,22 +269,22 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.quizId = params.get('quizId');
     if (!this.quizId) {
       console.warn('No quizId provided in the parameters.');
-      return of([[], []]);
+      return of([[], []] as [QuizQuestion[], string[]]);
     }
-
+  
     console.log('Fetching data for quizId:', this.quizId);
-
+  
     return forkJoin([
       this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
         catchError(error => {
           console.error('Error fetching questions:', error);
-          return of([]); // Return an empty array if an error occurs
+          return of([] as QuizQuestion[]);
         })
       ),
       this.quizDataService.getAllExplanationTextsForQuiz(this.quizId).pipe(
         catchError(error => {
           console.error('Error fetching explanation texts:', error);
-          return of([]); // Return an empty array if an error occurs
+          return of([] as string[]);
         })
       )
     ]).pipe(
@@ -300,11 +300,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         } else {
           console.log('Explanation texts fetched successfully:', explanationTexts);
         }
-
-        return [questions, explanationTexts];
+  
+        return [questions, explanationTexts] as [QuizQuestion[], string[]];
       })
     );
-  }
+  }  
 
   private initializeCurrentQuestionIndex(): void {
     this.quizService.currentQuestionIndex = 0;
