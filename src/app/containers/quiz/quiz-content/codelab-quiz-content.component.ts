@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -87,7 +87,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private cdRef: ChangeDetectorRef
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
@@ -456,6 +457,20 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
+  }
+
+  private subscribeToExplanationText(): void {
+    this.explanationTextService.formattedExplanation$
+      .pipe(
+        withLatestFrom(this.currentQuestion),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(([explanation, question]) => {
+        if (question) {
+          this.explanationToDisplay = explanation;
+          this.cdRef.detectChanges();
+        }
+      });
   }
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
