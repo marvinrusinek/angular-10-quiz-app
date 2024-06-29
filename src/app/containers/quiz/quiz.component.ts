@@ -1177,7 +1177,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const selectedQuestion = this.questions[questionIndex];
       this.questionToDisplay = selectedQuestion.questionText;
       this.optionsToDisplay = selectedQuestion.options;
-      this.updateQuestionStateAndExplanation(questionIndex);
+      // this.updateQuestionStateAndExplanation(questionIndex);
     } else {
       console.warn(`Invalid question index: ${questionIndex}. Unable to update the question display.`);
     }
@@ -1580,6 +1580,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Retrieve the state for the current question
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    
 
     // Set explanation display based on whether the question has been answered
     if (questionState?.isAnswered) {
