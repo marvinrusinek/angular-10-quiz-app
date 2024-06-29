@@ -163,45 +163,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
-  /* private loadQuestion(quizId: string, zeroBasedIndex: number): void {
-    this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
-      if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
-        const question = questions[zeroBasedIndex];
-        this.currentQuestion.next(question);
-        this.isExplanationDisplayed = false; // Reset explanation display state
-  
-        // Reset explanation state
-        this.explanationTextService.resetExplanationState();
-        this.explanationTextService.resetExplanationText();
-  
-        // Ensure the question text is fully rendered
-        this.cdRef.detectChanges();
-  
-        // Ensure isExplanationTextDisplayed$ is defined before subscribing
-        if (this.isExplanationTextDisplayed$) {
-          this.updateCorrectAnswersDisplay(question).subscribe(() => {
-            this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
-
-            // Fetch and display explanation text
-            this.fetchAndDisplayExplanationText(question);
-          });
-  
-          // Subscribe to isExplanationTextDisplayed$
-          this.isExplanationTextDisplayed$.pipe(distinctUntilChanged()).subscribe((isDisplayed: boolean) => {
-            this.isExplanationDisplayed = isDisplayed;
-            if (isDisplayed) {
-              this.correctAnswersTextSource.next('');
-            }
-          });
-        } else {
-          console.error('isExplanationTextDisplayed$ is not initialized.');
-        }
-      } else {
-        console.error('Invalid question index:', zeroBasedIndex);
-      }
-    });
-  } */
-
   private loadQuestion(quizId: string, zeroBasedIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
@@ -215,6 +176,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
         // Ensure the question text is fully rendered
         this.cdRef.detectChanges();
+
+        this.fetchAndDisplayExplanationText(question);
   
         // No need to fetch and display explanation text here
         // Subscribe to isExplanationTextDisplayed$
