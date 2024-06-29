@@ -134,6 +134,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.shouldDisplayCorrectAnswers = isMultipleAnswer;
       }
     });
+
+    this.subscribeToExplanationText();
   }
 
   ngOnDestroy(): void {
@@ -460,18 +462,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToExplanationText(): void {
-    this.explanationTextService.formattedExplanation$
-      .pipe(
-        withLatestFrom(this.currentQuestion),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(([explanation, question]) => {
-        if (question) {
+    combineLatest([
+      this.explanationTextService.formattedExplanation$,
+      this.currentQuestion
+    ])
+    .pipe(
+      takeUntil(this.destroy$)
+    )
+    .subscribe(([explanation, question]) => {
+      if (question) {
+        this.cdRef.detectChanges(); // Ensure question text is fully rendered
+        setTimeout(() => {
           this.explanationToDisplay = explanation;
           this.cdRef.detectChanges();
-        }
-      });
+        }, 100); // Small delay to ensure the question is displayed first
+      }
+    });
   }
+
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
