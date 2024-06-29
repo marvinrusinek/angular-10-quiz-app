@@ -184,7 +184,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+    this.explanationTextService.formattedExplanation$.subscribe(explanation => {
+      this.explanationToDisplay = explanation;
+      this.cdRef.detectChanges();
+    });
 
     this.subscribeToSelectionMessage();
 
@@ -312,6 +315,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quiz = quiz;
         if (quiz.questions && quiz.questions.length > 0) {
           this.currentQuestion = quiz.questions[this.questionIndex - 1];
+
+          // Ensure we use the correct question index
+          this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(this.questionIndex - 1);
+          console.log("Explanation to Display::::", this.explanationToDisplay);
 
           if (!this.isDestroyed) {
             this.cdRef.detectChanges();
