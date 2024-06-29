@@ -310,10 +310,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         if (quiz.questions && quiz.questions.length > 0) {
           this.currentQuestion = quiz.questions[this.questionIndex - 1];
 
-          // Ensure we use the correct question index
-          this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(this.questionIndex - 1);
-          console.log("Explanation to Display::::", this.explanationToDisplay);
-
           if (!this.isDestroyed) {
             this.cdRef.detectChanges();
           }
