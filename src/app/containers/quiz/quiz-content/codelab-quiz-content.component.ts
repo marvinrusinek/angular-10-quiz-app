@@ -179,6 +179,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
 
   private loadQuestion(quizId: string, zeroBasedIndex: number): void {
+    if (zeroBasedIndex == null) {
+      console.error('Question index is null or undefined');
+      return;
+    }
+
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
