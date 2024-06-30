@@ -248,9 +248,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.cdRef.detectChanges();
 
         // Update the explanation after a slight delay to ensure the question text is fully rendered
-        setTimeout(() => {
+        // setTimeout(() => {
           this.explanationTextService.updateExplanation(question);
-        }, 100); // Adjust the delay time as needed
+        // }, 100); // Adjust the delay time as needed
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
       }
