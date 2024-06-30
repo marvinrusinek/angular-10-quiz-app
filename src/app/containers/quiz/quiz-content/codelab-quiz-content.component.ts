@@ -239,7 +239,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.cdRef.detectChanges();
 
         // Update the flag to indicate the question is rendered
-        this.isQuestionRendered.next(true);
+        setTimeout(() => this.isQuestionRendered.next(true), 0);
 
         // Update the explanation after a slight delay to ensure the question text is fully rendered
         // setTimeout(() => {
