@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, debounceTime, delay, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -480,7 +480,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.currentQuestion
     ])
     .pipe(
-      takeUntil(this.destroy$)
+      takeUntil(this.destroy$),
+      switchMap(([explanation, question]) => {
+        this.isExplanationDisplayed = false;
+        this.cdRef.detectChanges(); // Ensure the question text is fully rendered
+  
+        return of([explanation, question]).pipe(delay(0)); // Delay to ensure rendering order
+      })
     )
     .subscribe(([explanation, question]) => {
       if (question) {
