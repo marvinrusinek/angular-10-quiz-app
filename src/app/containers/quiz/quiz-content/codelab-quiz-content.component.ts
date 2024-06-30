@@ -155,88 +155,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
-  /* private loadQuizDataFromRoute(): void {
-    this.activatedRoute.paramMap.subscribe(params => {
-      const quizId = params.get('quizId');
-      const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 0;
-      const zeroBasedIndex = questionIndex - 1;
-
-      if (quizId) {
-        this.quizId = quizId;
-        this.quizService.quizId = quizId;
-        this.currentQuestionIndexValue = zeroBasedIndex;
-        this.loadQuestion(quizId, zeroBasedIndex); // Load the question by default
-      } else {
-        console.error('Quiz ID is missing from route parameters');
-      }
-    });
-
-    this.currentQuestion.pipe(
-      debounceTime(200),
-      tap((question: QuizQuestion | null) => {
-        if (question) {
-          this.updateCorrectAnswersDisplay(question).subscribe();
-        }
-      })
-    ).subscribe();
-  } */
-
-  /* private loadQuizDataFromRoute(): void {
-    this.activatedRoute.paramMap.subscribe(params => {
-      const quizId = params.get('quizId');
-      const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 1;
-      const zeroBasedIndex = questionIndex - 1;
-
-      if (quizId) {
-        this.quizId = quizId;
-        this.quizService.quizId = quizId;
-        this.currentQuestionIndexValue = zeroBasedIndex;
-
-        console.log(`Quiz ID: ${quizId}, Question Index: ${questionIndex}, Zero-based Index: ${zeroBasedIndex}`);
-        
-        this.loadQuestion(quizId, zeroBasedIndex);
-      } else {
-        console.error('Quiz ID is missing from route parameters');
-      }
-    });
-
-    this.currentQuestion.pipe(
-      tap((question: QuizQuestion | null) => {
-        if (question) {
-          this.updateCorrectAnswersDisplay(question).subscribe();
-        }
-      })
-    ).subscribe();
-  } */
-
-  /* private async loadQuizDataFromRoute(): Promise<void> {
-    this.activatedRoute.paramMap.subscribe(async params => {
-      const quizId = params.get('quizId');
-      const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 1;
-      const zeroBasedIndex = questionIndex - 1;
-
-      if (quizId) {
-        this.quizId = quizId;
-        this.quizService.quizId = quizId;
-        this.currentQuestionIndexValue = zeroBasedIndex;
-
-        console.log(`Quiz ID: ${quizId}, Question Index: ${questionIndex}, Zero-based Index: ${zeroBasedIndex}`);
-        
-        await this.loadQuestion(quizId, zeroBasedIndex);
-      } else {
-        console.error('Quiz ID is missing from route parameters');
-      }
-    });
-
-    this.currentQuestion.pipe(
-      tap((question: QuizQuestion | null) => {
-        if (question) {
-          this.updateCorrectAnswersDisplay(question).subscribe();
-        }
-      })
-    ).subscribe();
-  } */
-
   private loadQuizDataFromRoute(): void {
     this.activatedRoute.paramMap.subscribe(async params => {
       const quizId = params.get('quizId');
@@ -257,42 +175,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Quiz ID is missing from route parameters');
       }
     });
-  }  
-
-  /* private loadQuestion(quizId: string, zeroBasedIndex: number): void {
-    console.log('Loading questions for quizId:', quizId, 'with index:', zeroBasedIndex);
-  
-    if (zeroBasedIndex == null) {
-      console.error('Question index is null or undefined');
-      return;
-    }
-  
-    this.quizDataService.getQuestionsForQuiz(quizId).subscribe({
-      next: questions => {
-        if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
-          const question = questions[zeroBasedIndex];
-          console.log('Loaded question:', question);
-          this.currentQuestion.next(question);
-          this.isExplanationDisplayed = false; // Reset explanation display state
-  
-          // Reset explanation state
-          this.explanationTextService.resetExplanationState();
-          this.explanationTextService.resetExplanationText();
-  
-          // Ensure the question text is fully rendered
-          this.cdRef.detectChanges();
-
-          // Notify explanation service to update after question is rendered
-          this.explanationTextService.updateExplanation(question);
-        } else {
-          console.error('Invalid question index:', zeroBasedIndex);
-        }
-      },
-      error: err => {
-        console.error('Error fetching questions for quiz:', err);
-      }
-    });
-  } */
+  }
 
   private async loadQuestion(quizId: string, zeroBasedIndex: number): Promise<void> {
     console.log('Loading questions for quizId:', quizId, 'with index:', zeroBasedIndex);
@@ -571,46 +454,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
 
-  /* private subscribeToExplanationText(): void {
-    this.explanationTextService.explanation$
-      .pipe(
-        takeUntil(this.destroy$),
-        switchMap((question: QuizQuestion | null) => {
-          if (!question || !question.questionText) {
-            console.error('Received invalid question:', question);
-            return of('No explanation available');
-          }
-          return this.fetchExplanationText(question).pipe(delay(0)); // Delay to ensure rendering order
-        })
-      )
-      .subscribe((explanation: string) => {
-        this.explanationToDisplay = explanation;
-        this.isExplanationDisplayed = true;
-        this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
-      });
-  } */
-
-  /* private subscribeToExplanationText(): void {
-    this.explanationTextService.explanation$
-      .pipe(
-        takeUntil(this.destroy$),
-        switchMap((question: QuizQuestion | null) => {
-          if (!question || !question.questionText) {
-            console.error('Received invalid question:', question); // Debug log to ensure valid question
-            return of('No explanation available');
-          }
-          return this.fetchExplanationText(question).pipe(delay(0)); // Delay to ensure rendering order
-        })
-      )
-      .subscribe((explanation: string) => {
-        setTimeout(() => {
-          this.explanationToDisplay = explanation;
-          this.isExplanationDisplayed = true;
-          this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
-        }, 100);
-      });
-  } */
-
   private subscribeToExplanationText(): void {
     combineLatest([this.currentQuestion, this.isExplanationTextDisplayed$, this.isQuestionRendered]).pipe(
       takeUntil(this.destroy$),
@@ -817,7 +660,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     numberOfCorrectAnswers: number,
     isExplanationDisplayed: boolean,
     formattedExplanation: string
-): Observable<CombinedQuestionDataType> {
+  ): Observable<CombinedQuestionDataType> {
     console.log('Calculating Combined Question Data with:', {
       currentQuizData,
       numberOfCorrectAnswers,
