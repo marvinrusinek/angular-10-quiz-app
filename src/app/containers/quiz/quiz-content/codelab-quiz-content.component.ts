@@ -623,7 +623,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           this.isExplanationDisplayed = false;
           this.cdRef.detectChanges(); // Ensure the question text is fully rendered
         }),
-        switchMap((question: QuizQuestion) => {
+        switchMap((question: QuizQuestion | null) => {
           if (!question || !question.questionText) {
             console.error('Received invalid question:', question); // Debug log to ensure valid question
             return of('No explanation available');
