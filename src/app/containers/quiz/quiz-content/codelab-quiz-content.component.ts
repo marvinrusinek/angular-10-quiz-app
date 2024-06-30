@@ -123,6 +123,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     // Initialize isExplanationDisplayed to false initially
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
+
+    // Initialize quizId
+    this.initializeQuizId();
   
     // Load quiz data from the route first
     this.loadQuizDataFromRoute();
@@ -166,6 +169,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       if (quizId) {
         this.quizId = quizId;
         this.quizService.quizId = quizId;
+        localStorage.setItem('quizId', quizId); // Store quizId in localStorage
         this.currentQuestionIndexValue = zeroBasedIndex;
   
         console.log(`Setting quiz ID and loading question for index: ${zeroBasedIndex}`);
@@ -776,5 +780,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   // Helper function to check if it's a single-answer question with an explanation
   private isSingleAnswerWithExplanation(isMultipleAnswer: boolean, isExplanationDisplayed: boolean): boolean {
     return !isMultipleAnswer && isExplanationDisplayed;
+  }
+
+  private initializeQuizId(): void {
+    const quizId = this.quizService.quizId || localStorage.getItem('quizId');
+    if (!quizId) {
+      console.error('Quiz ID is null or undefined');
+      return;
+    }
+    this.quizId = quizId;
+    this.quizService.quizId = quizId;
   }
 }
