@@ -201,6 +201,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.explanationTextService.resetExplanationState();
         this.explanationTextService.resetExplanationText();
 
+        this.quizStateService.setCurrentQuestion(question);
+
         // Ensure the question text is fully rendered
         this.cdRef.detectChanges();
 
