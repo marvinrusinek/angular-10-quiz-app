@@ -219,8 +219,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           // Ensure the question text is fully rendered
           this.cdRef.detectChanges();
 
-          // Notify the explanation service with the new question
-          // this.explanationTextService.updateExplanation(question);
+          // Notify explanation service to update after question is rendered
+          this.explanationTextService.updateExplanation(question);
         } else {
           console.error('Invalid question index:', zeroBasedIndex);
         }
@@ -506,7 +506,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           this.explanationToDisplay = explanation;
           this.isExplanationDisplayed = true;
           this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
-        }, 0);
+        }, 100);
       });
   }
 
