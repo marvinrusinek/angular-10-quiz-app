@@ -357,24 +357,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* private initializeQuizQuestion(): void {
-    if (!this.quizStateService.getQuizQuestionCreated()) {
-      this.quizStateService.setQuizQuestionCreated();
-
-      this.questionsObservableSubscription = this.quizService
-        .getAllQuestions()
-        .pipe(
-          map((questions: QuizQuestion[]) => {
-            questions.forEach((quizQuestion: QuizQuestion) => {
-              quizQuestion.selectedOptions = null;
-            });
-            return questions;
-          })
-        )
-        .subscribe();
-    }
-  } */
-
   private initializeQuizQuestion(): void {
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
