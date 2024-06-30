@@ -178,7 +178,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }
       })
     ).subscribe();
-  }
+  } 
 
   /* private loadQuestion(quizId: string, zeroBasedIndex: number): void {
     console.log('Loading questions for quizId:', quizId, 'with index:', zeroBasedIndex);
