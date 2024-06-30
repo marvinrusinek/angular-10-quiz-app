@@ -236,7 +236,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   private updateExplanationAfterQuestionRender(question: QuizQuestion): void {
     this.cdRef.detectChanges();
     setTimeout(() => {
-      this.explanationService.updateExplanation(question);
+      this.explanationTextService.updateExplanation(question);
     }, 0);
   }
 
