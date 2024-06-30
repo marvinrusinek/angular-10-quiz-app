@@ -221,7 +221,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
           // Notify the explanation service with the new question
           setTimeout(() => {
-            this.explanationTextService.updateExplanation(question);
+            this.updateExplanationAfterQuestionRender(question);
           }, 0);
         } else {
           console.error('Invalid question index:', zeroBasedIndex);
@@ -231,7 +231,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions for quiz:', err);
       }
     });
-  }  
+  }
+
+  private updateExplanationAfterQuestionRender(question: QuizQuestion): void {
+    this.cdRef.detectChanges();
+    setTimeout(() => {
+      this.explanationService.updateExplanation(question);
+    }, 0);
+  }
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
