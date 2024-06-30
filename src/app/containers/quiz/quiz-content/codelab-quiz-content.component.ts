@@ -463,12 +463,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.cdRef.detectChanges();
 
       // Fetch explanation text after rendering the question text
-      setTimeout(() => {
+      //setTimeout(() => {
         const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-        this.explanationToDisplay = explanation;
-        this.isExplanationDisplayed = true;
-        this.cdRef.detectChanges(); // Ensure explanation text is rendered
-      }, 0);
+        this.explanationTextService.formattedExplanation$.next(explanation);
+      //  this.explanationToDisplay = explanation;
+      //  this.isExplanationDisplayed = true;
+      //  this.cdRef.detectChanges(); // Ensure explanation text is rendered
+      //}, 0);
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
