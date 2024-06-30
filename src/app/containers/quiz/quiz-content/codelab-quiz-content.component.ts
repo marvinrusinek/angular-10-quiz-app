@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, delay, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, debounceTime, delay, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -463,7 +463,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
 
-  private subscribeToExplanationText(): void {
+  /* private subscribeToExplanationText(): void {
     this.explanationTextService.explanation$
       .pipe(
         takeUntil(this.destroy$),
@@ -479,6 +479,27 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.explanationToDisplay = explanation;
         this.isExplanationDisplayed = true;
         this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
+      });
+  } */
+
+  private subscribeToExplanationText(): void {
+    this.explanationTextService.explanation$
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((question: QuizQuestion | null) => {
+          if (!question || !question.questionText) {
+            console.error('Received invalid question:', question); // Debug log to ensure valid question
+            return of('No explanation available');
+          }
+          return this.fetchExplanationText(question).pipe(delay(0)); // Delay to ensure rendering order
+        })
+      )
+      .subscribe((explanation: string) => {
+        setTimeout(() => {
+          this.explanationToDisplay = explanation;
+          this.isExplanationDisplayed = true;
+          this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
+        }, 0);
       });
   }
 
