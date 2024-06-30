@@ -114,7 +114,7 @@ export class SelectedOptionService {
     optionIndex: number,
     action: 'add' | 'remove'
   ): void {
-    const quizId = this.quizService.quizId;
+    const quizId = this.quizService.quizId || localStorage.getItem('quizId');
     if (!quizId) {
       console.error('Quiz ID is null or undefined');
       return;
