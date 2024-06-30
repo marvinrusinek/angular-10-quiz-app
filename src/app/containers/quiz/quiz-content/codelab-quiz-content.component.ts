@@ -123,6 +123,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 0;
   
       if (quizId) {
+        this.quizId = quizId;
         this.quizService.quizId = quizId; // set quizId in quizService
         this.currentQuestionIndexValue = questionIndex - 1; // set the current question index
         this.loadQuestion(quizId, this.currentQuestionIndexValue);
