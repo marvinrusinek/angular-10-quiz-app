@@ -167,10 +167,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.correctAnswersTextSource.complete();
     this.correctAnswersDisplaySubject.complete();
     this.currentQuestionSubscription?.unsubscribe();
-    // this.explanationSubscription?.unsubscribe();
-    if (this.explanationSubscription) {
-      this.explanationSubscription.unsubscribe();
-    }
+    this.explanationSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
