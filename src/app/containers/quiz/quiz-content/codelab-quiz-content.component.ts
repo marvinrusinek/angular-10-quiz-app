@@ -242,7 +242,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       next: questions => {
         if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
           const question = questions[zeroBasedIndex];
-          this.currentQuestion.next(question);
+          console.log('Loaded question:', question); // Debug log to ensure question is loaded
+          this.currentQuestion.next(question); // Use next to update BehaviorSubject
           this.isExplanationDisplayed = false; // Reset explanation display state
   
           // Reset explanation state
@@ -259,7 +260,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions for quiz:', err);
       }
     });
-  }
+  }  
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
@@ -615,12 +616,18 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   } */
 
   private subscribeToExplanationText(): void {
-    this.explanationTextService.explanation$
+    this.explanationService.explanation$
       .pipe(
         takeUntil(this.destroy$),
-        switchMap(question => {
+        tap(() => {
           this.isExplanationDisplayed = false;
           this.cdRef.detectChanges(); // Ensure the question text is fully rendered
+        }),
+        switchMap(question => {
+          if (!question || !question.questionText) {
+            console.error('Received invalid question:', question); // Debug log to ensure valid question
+            return of('No explanation available');
+          }
           return this.fetchExplanationText(question).pipe(delay(0)); // Delay to ensure rendering order
         })
       )
@@ -630,6 +637,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
       });
   }
+  
   
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
