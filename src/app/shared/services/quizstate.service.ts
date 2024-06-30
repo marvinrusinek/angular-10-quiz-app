@@ -40,6 +40,10 @@ export class QuizStateService {
     return this.currentQuestionIndex.asObservable(); // Return the observable for subscribers
   }
 
+  setCurrentQuestion(question: QuizQuestion): void {
+    this.currentQuestionSubject.next(question);
+  }
+
   getStoredState(quizId: string): Map<number, QuestionState> | null {
     const stateJSON = localStorage.getItem(`quizState_${quizId}`);
     if (stateJSON) {
