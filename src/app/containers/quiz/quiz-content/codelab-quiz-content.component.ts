@@ -136,6 +136,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.initializeSubscriptions();
     this.setupCombinedTextObservable();
     this.configureDisplayLogic();
+
+    // Subscribe to explanation display state
+    this.quizStateService.currentQuestion$.subscribe((question) => {
+      if (question) {
+        this.fetchExplanationText(question).subscribe((explanation: string) => {
+          this.explanationToDisplay = explanation;
+          this.isExplanationDisplayed = true;
+          this.cdRef.detectChanges();
+        });
+      }
+    });
   }
 
   configureDisplayLogic(): void {
