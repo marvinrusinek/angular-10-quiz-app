@@ -245,7 +245,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         this.questionRendered = true; // Mark question as rendered
 
         // Update the flag to indicate the question is rendered
-        setTimeout(() => this.isQuestionRendered.next(true), 0);
+        // setTimeout(() => this.isQuestionRendered.next(true), 0);
+        setTimeout(() => this.questionRendered = true, 0); // Ensure this runs after the current rendering cycle
 
         // Update the explanation after a slight delay to ensure the question text is fully rendered
         // setTimeout(() => {
