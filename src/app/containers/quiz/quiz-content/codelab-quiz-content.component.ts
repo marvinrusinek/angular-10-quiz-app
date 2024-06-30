@@ -193,7 +193,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
-  /* private loadQuestion(quizId: string, zeroBasedIndex: number): void {
+  private loadQuestion(quizId: string, zeroBasedIndex: number): void {
     if (zeroBasedIndex == null) {
       console.error('Question index is null or undefined');
       return;
@@ -228,38 +228,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Invalid question index:', zeroBasedIndex);
       }
     });
-  } */
-
-  private loadQuestion(quizId: string, zeroBasedIndex: number): void {
-    console.log('Loading questions for quizId:', quizId, 'with index:', zeroBasedIndex);
-  
-    if (zeroBasedIndex == null) {
-      console.error('Question index is null or undefined');
-      return;
-    }
-  
-    this.quizDataService.getQuestionsForQuiz(quizId).subscribe({
-      next: questions => {
-        if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
-          const question = questions[zeroBasedIndex];
-          this.currentQuestion = question;
-          this.isExplanationDisplayed = false; // Reset explanation display state
-  
-          // Reset explanation state
-          this.explanationTextService.resetExplanationState();
-          this.explanationTextService.resetExplanationText();
-  
-          // Ensure the question text is fully rendered
-          this.cdRef.detectChanges();
-        } else {
-          console.error('Invalid question index:', zeroBasedIndex);
-        }
-      },
-      error: err => {
-        console.error('Error fetching questions for quiz:', err);
-      }
-    });
-  }  
+  }
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
