@@ -138,7 +138,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.configureDisplayLogic();
 
     // Subscribe to explanation display state
-    this.quizStateService.currentQuestion$.subscribe((question) => {
+    /* this.quizStateService.currentQuestion$.subscribe((question) => {
       if (question) {
         this.fetchExplanationText(question).subscribe((explanation: string) => {
           this.explanationToDisplay = explanation;
@@ -146,7 +146,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           this.cdRef.detectChanges();
         });
       }
-    });
+    }); */
   }
 
   configureDisplayLogic(): void {
