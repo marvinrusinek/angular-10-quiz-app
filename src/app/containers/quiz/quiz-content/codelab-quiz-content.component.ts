@@ -217,6 +217,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   
           // Ensure the question text is fully rendered
           this.cdRef.detectChanges();
+
+          // Notify the explanation service with the new question
+          this.explanationTextService.updateExplanation(question);
         } else {
           console.error('Invalid question index:', zeroBasedIndex);
         }
@@ -440,7 +443,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     }
   
     return this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
-      switchMap(questions => {
+      switchMap((questions: QuizQuestion[]) => {
         if (questions.length === 0) {
           console.error('No questions received from service.');
           return of('No explanation available');
