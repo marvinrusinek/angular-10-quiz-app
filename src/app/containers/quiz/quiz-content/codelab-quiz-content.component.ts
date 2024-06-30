@@ -134,7 +134,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.initializeSubscriptions();
     this.setupCombinedTextObservable();
     this.configureDisplayLogic();
+  }
 
+  ngAfterViewInit(): void {
     // Subscribe to explanation display state
     combineLatest([
       this.quizStateService.currentQuestion$,
@@ -144,6 +146,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.fetchExplanationTextAfterRendering(question);
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.correctAnswersTextSource.complete();
+    this.correctAnswersDisplaySubject.complete();
+    this.currentQuestionSubscription?.unsubscribe();
+    this.explanationSubscription?.unsubscribe();
+    this.formattedExplanationSubscription?.unsubscribe();
   }
 
   private fetchExplanationTextAfterRendering(question: QuizQuestion): void {
@@ -164,16 +176,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.shouldDisplayCorrectAnswers = isMultipleAnswer;
       }
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-    this.correctAnswersTextSource.complete();
-    this.correctAnswersDisplaySubject.complete();
-    this.currentQuestionSubscription?.unsubscribe();
-    this.explanationSubscription?.unsubscribe();
-    this.formattedExplanationSubscription?.unsubscribe();
   }
 
   private loadQuizDataFromRoute(): void {
