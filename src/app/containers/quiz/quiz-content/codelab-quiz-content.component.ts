@@ -621,13 +621,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.explanationTextService.explanation$
       .pipe(
         takeUntil(this.destroy$),
-        tap(() => {
-          this.isExplanationDisplayed = false;
-          this.cdRef.detectChanges(); // Ensure the question text is fully rendered
-        }),
         switchMap((question: QuizQuestion | null) => {
           if (!question || !question.questionText) {
-            console.error('Received invalid question:', question); // Debug log to ensure valid question
+            console.error('Received invalid question:', question);
             return of('No explanation available');
           }
           return this.fetchExplanationText(question).pipe(delay(0)); // Delay to ensure rendering order
@@ -639,8 +635,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
       });
   }
-  
-  
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
