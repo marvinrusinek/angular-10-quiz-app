@@ -79,8 +79,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   combinedText$: Observable<string>;
   textToDisplay = '';
 
-  previousIndex: number | null = null; // to track if the index has changed, not being used, might remove...
-
   private destroy$ = new Subject<void>();
 
   constructor(
