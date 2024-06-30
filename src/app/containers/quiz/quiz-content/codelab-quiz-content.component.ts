@@ -630,7 +630,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.isExplanationDisplayed = true;
       this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
     });
-  }  
+  }
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
