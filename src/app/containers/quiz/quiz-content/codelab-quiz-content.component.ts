@@ -208,8 +208,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       next: questions => {
         if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
           const question = questions[zeroBasedIndex];
-          console.log('Loaded question:', question); // Debug log to ensure question is loaded
-          this.currentQuestion.next(question); // Use next to update BehaviorSubject
+          console.log('Loaded question:', question);
+          this.currentQuestion.next(question);
           this.isExplanationDisplayed = false; // Reset explanation display state
   
           // Reset explanation state
