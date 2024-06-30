@@ -195,43 +195,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
-  /* private loadQuestion(quizId: string, zeroBasedIndex: number): void {
-    if (zeroBasedIndex == null) {
-      console.error('Question index is null or undefined');
-      return;
-    }
-
-    this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
-      if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
-        const question = questions[zeroBasedIndex];
-        this.currentQuestion.next(question);
-        this.isExplanationDisplayed = false; // Reset explanation display state
-  
-        // Reset explanation state
-        this.explanationTextService.resetExplanationState();
-        this.explanationTextService.resetExplanationText();
-  
-        // Ensure the question text is fully rendered
-        this.cdRef.detectChanges();
-  
-        // No need to fetch and display explanation text here
-        // Subscribe to isExplanationTextDisplayed$
-        if (this.isExplanationTextDisplayed$) {
-          this.isExplanationTextDisplayed$.pipe(distinctUntilChanged()).subscribe((isDisplayed: boolean) => {
-            this.isExplanationDisplayed = isDisplayed;
-            if (isDisplayed) {
-              this.correctAnswersTextSource.next('');
-            }
-          });
-        } else {
-          console.error('isExplanationTextDisplayed$ is not initialized.');
-        }
-      } else {
-        console.error('Invalid question index:', zeroBasedIndex);
-      }
-    });
-  } */
-
   private loadQuestion(quizId: string, zeroBasedIndex: number): void {
     console.log('Loading questions for quizId:', quizId, 'with index:', zeroBasedIndex);
   
@@ -470,72 +433,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
 
-  /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
-    if (!question || !question.questionText) {
-      console.error('Question is undefined or missing questionText');
-      return;
-    }
-
-    try {
-      const data = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
-      const questions: QuizQuestion[] = data;
-
-      if (questions.length === 0) {
-        console.error('No questions received from service.');
-        return;
-      }
-
-      const questionIndex = questions.findIndex((q) =>
-        q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
-      );
-      if (questionIndex < 0) {
-        console.error('Current question not found in the questions array.');
-        return;
-      }
-
-      // Ensure the question text is fully rendered
-      this.cdRef.detectChanges();
-
-      // Fetch explanation text after rendering the question text
-      //setTimeout(() => {
-        const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-        this.explanationTextService.formattedExplanation$.next(explanation);
-      //  this.explanationToDisplay = explanation;
-      //  this.isExplanationDisplayed = true;
-      //  this.cdRef.detectChanges(); // Ensure explanation text is rendered
-      //}, 0);
-    } catch (error) {
-      console.error('Error fetching questions:', error);
-    }
-  } */
-
-  /* private fetchExplanationText(question: QuizQuestion): Observable<string> {
-    if (!question || !question.questionText) {
-      console.error('Question is undefined or missing questionText');
-      return of('No explanation available');
-    }
-  
-    return this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
-      switchMap(questions => {
-        if (questions.length === 0) {
-          console.error('No questions received from service.');
-          return of('No explanation available');
-        }
-  
-        const questionIndex = questions.findIndex(q =>
-          q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
-        );
-        if (questionIndex < 0) {
-          console.error('Current question not found in the questions array.');
-          return of('No explanation available');
-        }
-  
-        const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-        return of(explanation);
-      })
-    );
-  } */
-
   private fetchExplanationText(question: QuizQuestion): Observable<string> {
     if (!question || !question.questionText) {
       console.error('Question is undefined or missing questionText');
@@ -562,60 +459,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       })
     );
   }
-  
-  
-
-  /* private subscribeToExplanationText(): void {
-    combineLatest([
-      this.explanationTextService.formattedExplanation$,
-      this.currentQuestion
-    ])
-    .pipe(
-      takeUntil(this.destroy$),
-      switchMap(([explanation, question]) => {
-        this.isExplanationDisplayed = false;
-        this.cdRef.detectChanges(); // Ensure the question text is fully rendered
-  
-        return of([explanation, question]).pipe(delay(0)); // Delay to ensure rendering order
-      })
-    )
-    .subscribe(([explanation, question]) => {
-      if (question) {
-        if (typeof explanation === 'string') {
-          this.explanationToDisplay = explanation;
-        } else {
-          this.explanationToDisplay = ''; // Handle unexpected case
-          console.error('Expected explanation to be a string, got:', explanation);
-        }
-        this.isExplanationDisplayed = true;
-        this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
-      }
-    });
-  } */
-
-  /* private subscribeToExplanationText(): void {
-    this.explanationTextService.explanation$
-      .pipe(
-        takeUntil(this.destroy$),
-        tap(() => {
-          this.isExplanationDisplayed = false;
-          this.cdRef.detectChanges(); // Ensure the question text is fully rendered
-        }),
-        switchMap(question => {
-          if (question) {
-            return this.fetchExplanationText(question).pipe(
-              delay(0) // Ensure the question text is rendered first
-            );
-          }
-          return of('');
-        })
-      )
-      .subscribe((explanation: string) => {
-        this.explanationToDisplay = explanation;
-        this.isExplanationDisplayed = true;
-        this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
-      });
-  } */
 
   private subscribeToExplanationText(): void {
     this.explanationTextService.explanation$
