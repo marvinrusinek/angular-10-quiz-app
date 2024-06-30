@@ -1318,7 +1318,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
     setTimeout(() => {
-      this.quizStateService.setCurrentQuestion(question);
+      this.quizStateService.setCurrentQuestion(currentQuestion);
     }, 0);
   
     // Update the selected option in the quiz service and mark the question as answered
