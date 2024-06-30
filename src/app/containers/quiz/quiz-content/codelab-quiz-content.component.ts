@@ -183,7 +183,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   private loadQuizDataFromRoute(): void {
     this.activatedRoute.paramMap.subscribe(params => {
       const quizId = params.get('quizId');
-      const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 0;
+      const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 1;
       const zeroBasedIndex = questionIndex - 1;
 
       if (quizId) {
@@ -191,7 +191,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.quizService.quizId = quizId;
         this.currentQuestionIndexValue = zeroBasedIndex;
 
-        // Log for debugging
         console.log(`Quiz ID: ${quizId}, Question Index: ${questionIndex}, Zero-based Index: ${zeroBasedIndex}`);
         
         this.loadQuestion(quizId, zeroBasedIndex);
