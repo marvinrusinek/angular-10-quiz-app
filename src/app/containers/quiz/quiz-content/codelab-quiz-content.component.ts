@@ -615,7 +615,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   } */
 
   private subscribeToExplanationText(): void {
-    this.explanationService.explanation$
+    this.explanationTextService.explanation$
       .pipe(
         takeUntil(this.destroy$),
         switchMap(question => {
