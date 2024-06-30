@@ -119,25 +119,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
 
-  ngOnInit(): void {
-    this.activatedRoute.paramMap.subscribe(params => {
-      const quizId = params.get('quizId');
-      const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 0;
-  
-      if (quizId) {
-        this.quizId = quizId;
-        this.quizService.quizId = quizId; // set quizId in quizService
-        this.currentQuestionIndexValue = questionIndex - 1; // set the current question index
-        this.loadQuestion(quizId, this.currentQuestionIndexValue);
-      } else {
-        console.error('Quiz ID is missing from route parameters');
-      }
-    });
-    
+  ngOnInit(): void {    
     // Initialize isExplanationDisplayed to false initially
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
+    this.retrieveRouteParams();
     this.loadQuestion(this.quizService.quizId, this.currentQuestionIndexValue);
     this.loadQuizDataFromRoute();
     this.initializeComponent();
@@ -164,6 +151,20 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.currentQuestionSubscription?.unsubscribe();
     this.explanationSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
+  }
+
+  private retrieveRouteParams(params: ParamMap): void {
+    const quizId = params.get('quizId');
+    const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 0;
+
+    if (quizId) {
+      this.quizId = quizId;
+      this.quizService.quizId = quizId; // Set quizId in quizService
+      this.currentQuestionIndexValue = questionIndex - 1; // Set the current question index
+      this.loadQuestion(quizId, this.currentQuestionIndexValue);
+    } else {
+      console.error('Quiz ID is missing from route parameters');
+    }
   }
 
   loadQuizDataFromRoute(): void {
