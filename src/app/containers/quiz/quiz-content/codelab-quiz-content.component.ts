@@ -188,7 +188,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.currentQuestion.pipe(
       debounceTime(200),
       tap((question: QuizQuestion | null) => {
-        this.updateCorrectAnswersDisplay(question).subscribe();
+        if (question) {
+          this.updateCorrectAnswersDisplay(question).subscribe();
+        }
       })
     ).subscribe();
   }
