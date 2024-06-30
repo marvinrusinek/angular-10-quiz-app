@@ -74,6 +74,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
 
+  private isQuestionRendered = new BehaviorSubject<boolean>(false);
+
   combinedText$: Observable<string>;
   textToDisplay = '';
 
@@ -247,9 +249,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         // Ensure the question text is fully rendered
         this.cdRef.detectChanges();
 
+        // Update the flag to indicate the question is rendered
+        this.isQuestionRendered.next(true);
+
         // Update the explanation after a slight delay to ensure the question text is fully rendered
         // setTimeout(() => {
-          this.explanationTextService.updateExplanation(question);
+        //  this.explanationTextService.updateExplanation(question);
         // }, 100); // Adjust the delay time as needed
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
