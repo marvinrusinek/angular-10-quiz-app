@@ -261,6 +261,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     });
   }
   
+  
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
@@ -535,7 +536,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
   
 
-  private subscribeToExplanationText(): void {
+  /* private subscribeToExplanationText(): void {
     combineLatest([
       this.explanationTextService.formattedExplanation$,
       this.currentQuestion
@@ -561,7 +562,31 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
       }
     });
-  }  
+  } */
+
+  private subscribeToExplanationText(): void {
+    this.explanationTextService.explanation$
+      .pipe(
+        takeUntil(this.destroy$),
+        tap(() => {
+          this.isExplanationDisplayed = false;
+          this.cdRef.detectChanges(); // Ensure the question text is fully rendered
+        }),
+        switchMap(question => {
+          if (question) {
+            return this.fetchExplanationText(question).pipe(
+              delay(0) // Ensure the question text is rendered first
+            );
+          }
+          return of('');
+        })
+      )
+      .subscribe((explanation: string) => {
+        this.explanationToDisplay = explanation;
+        this.isExplanationDisplayed = true;
+        this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
+      });
+  }
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
