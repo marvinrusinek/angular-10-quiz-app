@@ -511,7 +511,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       });
   } */
 
-  private subscribeToExplanationText(): void {
+  /* private subscribeToExplanationText(): void {
     this.explanationTextService.explanation$
       .pipe(
         takeUntil(this.destroy$),
@@ -530,6 +530,23 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
         }, 100);
       });
+  } */
+
+  private subscribeToExplanationText(): void {
+    combineLatest([this.currentQuestion, this.isExplanationTextDisplayed$, this.isQuestionRendered]).pipe(
+      takeUntil(this.destroy$),
+      switchMap(([question, isDisplayed, isRendered]) => {
+        if (!question || !question.questionText || !isDisplayed || !isRendered) {
+          console.error('Received invalid question, explanation not to be displayed, or question not rendered:', question); // Debug log to ensure valid question
+          return of('No explanation available');
+        }
+        return this.fetchExplanationText(question).pipe(delay(0)); // Delay to ensure rendering order
+      })
+    ).subscribe((explanation: string) => {
+      this.explanationToDisplay = explanation;
+      this.isExplanationDisplayed = true;
+      this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
+    });
   }
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
