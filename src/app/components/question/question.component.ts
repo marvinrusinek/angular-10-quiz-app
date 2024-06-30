@@ -1329,7 +1329,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.explanationTextService.setExplanationText(explanationText);
 
     // Notify the service to update the explanation text
-    this.explanationTextService.updateExplanation(this.currentQuestion);
+    if (this.currentQuestion) {
+      this.explanationService.updateExplanation(this.currentQuestion);
+    } else {
+      console.error('Current question is not set.');
+    }
   
     // Set the explanation text in the quiz question manager service (if needed)
     this.quizQuestionManagerService.setExplanationText(
