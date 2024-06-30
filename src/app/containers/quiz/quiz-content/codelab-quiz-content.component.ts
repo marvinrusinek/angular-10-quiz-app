@@ -75,6 +75,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
 
   private isQuestionRendered = new BehaviorSubject<boolean>(false);
+  questionRendered = false; // Flag to track if the question is rendered
 
   combinedText$: Observable<string>;
   textToDisplay = '';
@@ -136,16 +137,20 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.configureDisplayLogic();
   }
 
-  ngAfterViewInit(): void {
-    // Subscribe to explanation display state
-    combineLatest([
-      this.quizStateService.currentQuestion$,
-      this.explanationTextService.isExplanationTextDisplayed$
-    ]).subscribe(([question, isDisplayed]) => {
-      if (question && isDisplayed) {
-        this.fetchExplanationTextAfterRendering(question);
-      }
-    });
+  ngAfterViewChecked(): void {
+    if (this.questionRendered) {
+      this.questionRendered = false;
+      combineLatest([
+        this.quizStateService.currentQuestion$,
+        this.explanationTextService.isExplanationTextDisplayed$
+      ]).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe(([question, isDisplayed]) => {
+        if (question && isDisplayed) {
+          this.fetchExplanationTextAfterRendering(question);
+        }
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -230,6 +235,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
         // Ensure the question text is fully rendered
         this.cdRef.detectChanges();
+
+        this.questionRendered = true; // Mark question as rendered
 
         // Update the flag to indicate the question is rendered
         setTimeout(() => this.isQuestionRendered.next(true), 0);
