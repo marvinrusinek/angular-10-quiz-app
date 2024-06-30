@@ -174,17 +174,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       const quizId = params.get('quizId');
       const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 1;
       const zeroBasedIndex = questionIndex - 1;
-  
-      console.log(`Retrieved route params - Quiz ID: ${quizId}, Question Index: ${questionIndex}, Zero-based Index: ${zeroBasedIndex}`);
       
       if (quizId) {
         this.quizId = quizId;
         this.quizService.quizId = quizId;
         localStorage.setItem('quizId', quizId); // Store quizId in localStorage
         this.currentQuestionIndexValue = zeroBasedIndex;
-  
-        console.log(`Setting quiz ID and loading question for index: ${zeroBasedIndex}`);
-        
         await this.loadQuestion(quizId, zeroBasedIndex);
       } else {
         console.error('Quiz ID is missing from route parameters');
