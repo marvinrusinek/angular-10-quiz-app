@@ -152,16 +152,20 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.quizStateService.currentQuestion$,
       this.explanationTextService.isExplanationTextDisplayed$
     ]).subscribe(([question, isDisplayed]) => {
-        if (question && isDisplayed) {
-          setTimeout(() => {
-            this.fetchExplanationText(question).subscribe((explanation: string) => {
-              this.explanationToDisplay = explanation;
-              this.isExplanationDisplayed = true;
-              this.cdRef.detectChanges();
-            });
-          }, 0); // Delay to ensure rendering order
-        }
+      if (question && isDisplayed) {
+        this.fetchExplanationTextAfterRendering(question);
+      }
     });
+  }
+
+  private fetchExplanationTextAfterRendering(question: QuizQuestion): void {
+    setTimeout(() => {
+      this.fetchExplanationText(question).subscribe((explanation: string) => {
+        this.explanationToDisplay = explanation;
+        this.isExplanationDisplayed = true;
+        this.cdRef.detectChanges();
+      });
+    }, 0); // Delay to ensure rendering order
   }
 
   configureDisplayLogic(): void {
