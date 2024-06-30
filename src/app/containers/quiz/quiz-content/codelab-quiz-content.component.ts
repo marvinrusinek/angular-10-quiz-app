@@ -220,7 +220,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           this.cdRef.detectChanges();
 
           // Notify the explanation service with the new question
-          this.explanationTextService.updateExplanation(question);
+          setTimeout(() => {
+            this.explanationTextService.updateExplanation(question);
+          }, 0);
         } else {
           console.error('Invalid question index:', zeroBasedIndex);
         }
