@@ -139,7 +139,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
     this.explanationSubscription = this.explanationTextService.explanation$.subscribe(question => {
       if (question) {
-        this.fetchAndDisplayExplanationText(question);
+        this.fetchExplanationText(question);
       }
     });
 
@@ -193,7 +193,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
-  private loadQuestion(quizId: string, zeroBasedIndex: number): void {
+  /* private loadQuestion(quizId: string, zeroBasedIndex: number): void {
     if (zeroBasedIndex == null) {
       console.error('Question index is null or undefined');
       return;
@@ -228,7 +228,39 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Invalid question index:', zeroBasedIndex);
       }
     });
+  } */
+
+  private loadQuestion(quizId: string, zeroBasedIndex: number): void {
+    console.log('Loading questions for quizId:', quizId, 'with index:', zeroBasedIndex);
+  
+    if (zeroBasedIndex == null) {
+      console.error('Question index is null or undefined');
+      return;
+    }
+  
+    this.quizDataService.getQuestionsForQuiz(quizId).subscribe({
+      next: questions => {
+        if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
+          const question = questions[zeroBasedIndex];
+          this.currentQuestion = question;
+          this.isExplanationDisplayed = false; // Reset explanation display state
+  
+          // Reset explanation state
+          this.explanationTextService.resetExplanationState();
+          this.explanationTextService.resetExplanationText();
+  
+          // Ensure the question text is fully rendered
+          this.cdRef.detectChanges();
+        } else {
+          console.error('Invalid question index:', zeroBasedIndex);
+        }
+      },
+      error: err => {
+        console.error('Error fetching questions for quiz:', err);
+      }
+    });
   }
+  
 
   initializeSubscriptions(): void {
     this.initializeQuestionIndexSubscription();
@@ -436,7 +468,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
 
-  private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
+  /* private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
       console.error('Question is undefined or missing questionText');
       return;
@@ -473,7 +505,35 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
+  } */
+
+  private fetchExplanationText(question: QuizQuestion): Observable<string> {
+    if (!question || !question.questionText) {
+      console.error('Question is undefined or missing questionText');
+      return of('No explanation available');
+    }
+  
+    return this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
+      switchMap(questions => {
+        if (questions.length === 0) {
+          console.error('No questions received from service.');
+          return of('No explanation available');
+        }
+  
+        const questionIndex = questions.findIndex(q =>
+          q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
+        );
+        if (questionIndex < 0) {
+          console.error('Current question not found in the questions array.');
+          return of('No explanation available');
+        }
+  
+        const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+        return of(explanation);
+      })
+    );
   }
+  
 
   private subscribeToExplanationText(): void {
     combineLatest([
