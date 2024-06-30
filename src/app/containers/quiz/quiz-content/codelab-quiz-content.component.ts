@@ -490,12 +490,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     )
     .subscribe(([explanation, question]) => {
       if (question) {
-        this.explanationToDisplay = explanation;
+        if (typeof explanation === 'string') {
+          this.explanationToDisplay = explanation;
+        } else {
+          this.explanationToDisplay = ''; // Handle unexpected case
+          console.error('Expected explanation to be a string, got:', explanation);
+        }
         this.isExplanationDisplayed = true;
         this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
       }
     });
-  }
+  }  
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
