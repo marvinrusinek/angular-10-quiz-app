@@ -142,16 +142,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   ngAfterViewChecked(): void {
     if (this.questionRendered) {
       this.questionRendered = false;
-      combineLatest([
-        this.quizStateService.currentQuestion$,
-        this.explanationTextService.isExplanationTextDisplayed$
-      ]).pipe(
-        takeUntil(this.destroy$)
-      ).subscribe(([question, isDisplayed]) => {
-        if (question && isDisplayed) {
-          this.fetchExplanationTextAfterRendering(question);
-        }
-      });
+      this.checkAndFetchExplanationText();
     }
   }
 
@@ -163,6 +154,19 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.currentQuestionSubscription?.unsubscribe();
     this.explanationSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
+  }
+
+  private checkAndFetchExplanationText(): void {
+    combineLatest([
+      this.quizStateService.currentQuestion$,
+      this.explanationTextService.isExplanationTextDisplayed$
+    ]).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(([question, isDisplayed]) => {
+      if (question && isDisplayed) {
+        this.fetchExplanationTextAfterRendering(question);
+      }
+    });
   }
 
   private fetchExplanationTextAfterRendering(question: QuizQuestion): void {
