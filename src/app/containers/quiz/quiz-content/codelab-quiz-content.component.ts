@@ -119,17 +119,18 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     );
   }
 
-  ngOnInit(): void {    
+  ngOnInit(): void {
     // Initialize isExplanationDisplayed to false initially
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
-
-    this.loadQuestion(this.quizService.quizId, this.currentQuestionIndexValue);
+  
+    // Load quiz data from the route first
     this.loadQuizDataFromRoute();
+    
+    // Initialize other component states and subscriptions
     this.initializeComponent();
     this.initializeQuestionState();
     this.initializeSubscriptions();
-    this.subscribeToExplanationText();
     this.setupCombinedTextObservable();
     this.configureDisplayLogic();
   }
@@ -241,14 +242,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       const quizId = params.get('quizId');
       const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 1;
       const zeroBasedIndex = questionIndex - 1;
-
+  
       console.log(`Retrieved route params - Quiz ID: ${quizId}, Question Index: ${questionIndex}, Zero-based Index: ${zeroBasedIndex}`);
       
       if (quizId) {
         this.quizId = quizId;
         this.quizService.quizId = quizId;
         this.currentQuestionIndexValue = zeroBasedIndex;
-
+  
         console.log(`Setting quiz ID and loading question for index: ${zeroBasedIndex}`);
         
         await this.loadQuestion(quizId, zeroBasedIndex);
@@ -256,7 +257,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Quiz ID is missing from route parameters');
       }
     });
-  }
+  }  
 
   /* private loadQuestion(quizId: string, zeroBasedIndex: number): void {
     console.log('Loading questions for quizId:', quizId, 'with index:', zeroBasedIndex);
