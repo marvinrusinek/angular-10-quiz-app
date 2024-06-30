@@ -535,9 +535,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   private subscribeToExplanationText(): void {
     combineLatest([this.currentQuestion, this.isExplanationTextDisplayed$, this.isQuestionRendered]).pipe(
       takeUntil(this.destroy$),
+      tap(([question, isDisplayed, isRendered]) => {
+        console.log('Question:', question);
+        console.log('isDisplayed:', isDisplayed);
+        console.log('isRendered:', isRendered);
+      }),
       switchMap(([question, isDisplayed, isRendered]) => {
         if (!question || !question.questionText || !isDisplayed || !isRendered) {
-          console.error('Received invalid question, explanation not to be displayed, or question not rendered:', question); // Debug log to ensure valid question
+          console.error('Received invalid question, explanation not to be displayed, or question not rendered:', question);
           return of('No explanation available');
         }
         return this.fetchExplanationText(question).pipe(delay(0)); // Delay to ensure rendering order
@@ -548,6 +553,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
     });
   }
+  
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
