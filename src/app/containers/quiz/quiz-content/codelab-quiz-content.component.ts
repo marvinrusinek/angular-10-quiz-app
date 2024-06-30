@@ -218,7 +218,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   private async loadQuestion(quizId: string, zeroBasedIndex: number): Promise<void> {
     console.log('Loading questions for quizId:', quizId, 'with index:', zeroBasedIndex);
 
-    if (zeroBasedIndex == null) {
+    if (zeroBasedIndex == null || isNaN(zeroBasedIndex)) {
       console.error('Question index is null or undefined');
       return;
     }
