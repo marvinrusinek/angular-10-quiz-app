@@ -154,7 +154,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
-  private loadQuizDataFromRoute(): void {
+  /* private loadQuizDataFromRoute(): void {
     this.activatedRoute.paramMap.subscribe(params => {
       const quizId = params.get('quizId');
       const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 0;
@@ -178,7 +178,36 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }
       })
     ).subscribe();
-  } 
+  } */
+
+  private loadQuizDataFromRoute(): void {
+    this.activatedRoute.paramMap.subscribe(params => {
+      const quizId = params.get('quizId');
+      const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 0;
+      const zeroBasedIndex = questionIndex - 1;
+
+      if (quizId) {
+        this.quizId = quizId;
+        this.quizService.quizId = quizId;
+        this.currentQuestionIndexValue = zeroBasedIndex;
+
+        // Log for debugging
+        console.log(`Quiz ID: ${quizId}, Question Index: ${questionIndex}, Zero-based Index: ${zeroBasedIndex}`);
+        
+        this.loadQuestion(quizId, zeroBasedIndex);
+      } else {
+        console.error('Quiz ID is missing from route parameters');
+      }
+    });
+
+    this.currentQuestion.pipe(
+      tap((question: QuizQuestion | null) => {
+        if (question) {
+          this.updateCorrectAnswersDisplay(question).subscribe();
+        }
+      })
+    ).subscribe();
+  }
 
   /* private loadQuestion(quizId: string, zeroBasedIndex: number): void {
     console.log('Loading questions for quizId:', quizId, 'with index:', zeroBasedIndex);
