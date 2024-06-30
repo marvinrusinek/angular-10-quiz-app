@@ -612,27 +612,25 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
 
   private subscribeToExplanationText(): void {
     combineLatest([this.currentQuestion, this.isExplanationTextDisplayed$, this.isQuestionRendered]).pipe(
-      takeUntil(this.destroy$),
-      tap(([question, isDisplayed, isRendered]) => {
-        console.log('Combined Latest - Question:', question);
-        console.log('Combined Latest - isDisplayed:', isDisplayed);
-        console.log('Combined Latest - isRendered:', isRendered);
-      }),
-      switchMap(([question, isDisplayed, isRendered]) => {
-        if (!question || !question.questionText || !isDisplayed || !isRendered) {
-          console.error('Received invalid question, explanation not to be displayed, or question not rendered:', question);
-          return of('No explanation available');
-        }
-        return this.fetchExplanationText(question).pipe(delay(0)); // Delay to ensure rendering order
-      })
+        takeUntil(this.destroy$),
+        tap(([question, isDisplayed, isRendered]) => {
+            console.log('Combined Latest - Question:', question);
+            console.log('Combined Latest - isDisplayed:', isDisplayed);
+            console.log('Combined Latest - isRendered:', isRendered);
+        }),
+        switchMap(([question, isDisplayed, isRendered]) => {
+            if (!question || !question.questionText || !isDisplayed || !isRendered) {
+                console.error('Received invalid question, explanation not to be displayed, or question not rendered:', question);
+                return of('No explanation available');
+            }
+            return this.fetchExplanationText(question).pipe(delay(0)); // Delay to ensure rendering order
+        })
     ).subscribe((explanation: string) => {
-      this.explanationToDisplay = explanation;
-      this.isExplanationDisplayed = true;
-      this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
+        this.explanationToDisplay = explanation;
+        this.isExplanationDisplayed = true;
+        this.cdRef.detectChanges(); // Ensure explanation text is rendered after question text
     });
   }
-  
-  
 
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
