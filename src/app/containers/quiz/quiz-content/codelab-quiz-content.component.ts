@@ -220,8 +220,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           this.cdRef.detectChanges();
 
           // Notify the explanation service with the new question
-          // Update explanation after question is rendered
-          this.updateExplanationAfterQuestionRender(question);
+          this.explanationTextService.updateExplanation(question);
         } else {
           console.error('Invalid question index:', zeroBasedIndex);
         }
@@ -235,7 +234,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   private updateExplanationAfterQuestionRender(question: QuizQuestion): void {
     setTimeout(() => {
       this.explanationTextService.updateExplanation(question);
-    }, 100); // Slight delay to ensure the question text is rendered first
+    }, 100);
   }
 
   initializeSubscriptions(): void {
