@@ -189,7 +189,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
-  private loadQuestion(quizId: string, zeroBasedIndex: number): void {
+  /* private loadQuestion(quizId: string, zeroBasedIndex: number): void {
     console.log('Loading questions for quizId:', quizId, 'with index:', zeroBasedIndex);
   
     if (zeroBasedIndex == null) {
@@ -222,6 +222,41 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Error fetching questions for quiz:', err);
       }
     });
+  } */
+
+  private async loadQuestion(quizId: string, zeroBasedIndex: number): Promise<void> {
+    console.log('Loading questions for quizId:', quizId, 'with index:', zeroBasedIndex);
+
+    if (zeroBasedIndex == null) {
+      console.error('Question index is null or undefined');
+      return;
+    }
+
+    try {
+      const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(quizId));
+      if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
+        const question = questions[zeroBasedIndex];
+        console.log('Loaded question:', question); // Debug log to ensure question is loaded
+        this.currentQuestion.next(question); // Use next to update BehaviorSubject
+        this.isExplanationDisplayed = false; // Reset explanation display state
+
+        // Reset explanation state
+        this.explanationTextService.resetExplanationState();
+        this.explanationTextService.resetExplanationText();
+
+        // Ensure the question text is fully rendered
+        this.cdRef.detectChanges();
+
+        // Update the explanation after a slight delay to ensure the question text is fully rendered
+        setTimeout(() => {
+          this.explanationTextService.updateExplanation(question);
+        }, 100); // Adjust the delay time as needed
+      } else {
+        console.error('Invalid question index:', zeroBasedIndex);
+      }
+    } catch (error) {
+      console.error('Error fetching questions for quiz:', error);
+    }
   }
 
   private updateExplanationAfterQuestionRender(question: QuizQuestion): void {
