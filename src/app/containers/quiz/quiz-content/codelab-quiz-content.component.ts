@@ -124,14 +124,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
-    this.retrieveRouteParams();
     this.loadQuestion(this.quizService.quizId, this.currentQuestionIndexValue);
     this.loadQuizDataFromRoute();
     this.initializeComponent();
     this.initializeQuestionState();
     this.initializeSubscriptions();
+    this.subscribeToExplanationText();
     this.setupCombinedTextObservable();
-    
+    this.configureDisplayLogic();
+  }
+
+  configureDisplayLogic(): void {
     this.handleQuestionDisplayLogic().subscribe(({ combinedData, isMultipleAnswer }) => {
       if (this.currentQuestionType === QuestionType.SingleAnswer) {
         this.shouldDisplayCorrectAnswers = false;
@@ -139,8 +142,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         this.shouldDisplayCorrectAnswers = isMultipleAnswer;
       }
     });
-
-    this.subscribeToExplanationText();
   }
 
   ngOnDestroy(): void {
@@ -153,21 +154,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
-  private retrieveRouteParams(params: ParamMap): void {
-    const quizId = params.get('quizId');
-    const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 0;
-
-    if (quizId) {
-      this.quizId = quizId;
-      this.quizService.quizId = quizId; // Set quizId in quizService
-      this.currentQuestionIndexValue = questionIndex - 1; // Set the current question index
-      this.loadQuestion(quizId, this.currentQuestionIndexValue);
-    } else {
-      console.error('Quiz ID is missing from route parameters');
-    }
-  }
-
-  loadQuizDataFromRoute(): void {
+  private loadQuizDataFromRoute(): void {
     this.activatedRoute.paramMap.subscribe(params => {
       const quizId = params.get('quizId');
       const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 0;
@@ -176,6 +163,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       if (quizId) {
         this.quizId = quizId;
         this.quizService.quizId = quizId;
+        this.currentQuestionIndexValue = zeroBasedIndex;
         this.loadQuestion(quizId, zeroBasedIndex); // Load the question by default
       } else {
         console.error('Quiz ID is missing from route parameters');
