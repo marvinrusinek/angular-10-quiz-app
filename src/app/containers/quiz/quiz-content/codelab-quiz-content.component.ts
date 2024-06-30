@@ -190,6 +190,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         console.error('Quiz ID is missing from route parameters');
       }
     });
+
+    this.currentQuestion.pipe(
+      debounceTime(200),
+      tap((question: QuizQuestion | null) => {
+        if (question) {
+          this.updateCorrectAnswersDisplay(question).subscribe();
+        }
+      })
+    ).subscribe();
   }
 
   private async loadQuestion(quizId: string, zeroBasedIndex: number): Promise<void> {
