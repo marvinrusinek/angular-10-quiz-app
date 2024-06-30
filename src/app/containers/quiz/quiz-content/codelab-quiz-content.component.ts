@@ -125,8 +125,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
     this.loadQuestion(this.quizService.quizId, this.currentQuestionIndexValue);
-    // this.loadQuizDataFromRoute();
-    this.handleRouteParams();
+    this.loadQuizDataFromRoute();
     this.initializeComponent();
     this.initializeQuestionState();
     this.initializeSubscriptions();
@@ -237,25 +236,27 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     ).subscribe();
   } */
 
-  private handleRouteParams(): void {
+  private loadQuizDataFromRoute(): void {
     this.activatedRoute.paramMap.subscribe(async params => {
       const quizId = params.get('quizId');
       const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 1;
       const zeroBasedIndex = questionIndex - 1;
 
+      console.log(`Retrieved route params - Quiz ID: ${quizId}, Question Index: ${questionIndex}, Zero-based Index: ${zeroBasedIndex}`);
+      
       if (quizId) {
         this.quizId = quizId;
         this.quizService.quizId = quizId;
         this.currentQuestionIndexValue = zeroBasedIndex;
 
-        console.log(`Quiz ID: ${quizId}, Question Index: ${questionIndex}, Zero-based Index: ${zeroBasedIndex}`);
+        console.log(`Setting quiz ID and loading question for index: ${zeroBasedIndex}`);
         
         await this.loadQuestion(quizId, zeroBasedIndex);
       } else {
         console.error('Quiz ID is missing from route parameters');
       }
     });
-}
+  }
 
   /* private loadQuestion(quizId: string, zeroBasedIndex: number): void {
     console.log('Loading questions for quizId:', quizId, 'with index:', zeroBasedIndex);
@@ -613,9 +614,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
     combineLatest([this.currentQuestion, this.isExplanationTextDisplayed$, this.isQuestionRendered]).pipe(
       takeUntil(this.destroy$),
       tap(([question, isDisplayed, isRendered]) => {
-        console.log('Question:', question);
-        console.log('isDisplayed:', isDisplayed);
-        console.log('isRendered:', isRendered);
+        console.log('Combined Latest - Question:', question);
+        console.log('Combined Latest - isDisplayed:', isDisplayed);
+        console.log('Combined Latest - isRendered:', isRendered);
       }),
       switchMap(([question, isDisplayed, isRendered]) => {
         if (!question || !question.questionText || !isDisplayed || !isRendered) {
