@@ -134,16 +134,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.initializeSubscriptions();
     this.setupCombinedTextObservable();
     this.configureDisplayLogic();
+    this.initializeExplanationTextObservable();
   }
 
-  ngAfterViewInit(): void {}
+  /* ngAfterViewInit(): void {}
 
   ngAfterViewChecked(): void {
     if (this.questionRendered.getValue()) {
       this.questionRendered.next(false);
       this.initializeExplanationTextObservable();
     }
-  }
+  } */
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -154,6 +155,27 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.explanationSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
   }
+
+  /* private initializeExplanationTextObservable(): void {
+    combineLatest([
+      this.quizStateService.currentQuestion$,
+      this.explanationTextService.isExplanationTextDisplayed$
+    ]).pipe(
+      takeUntil(this.destroy$),
+      withLatestFrom(this.questionRendered), // Ensure questionRendered is true
+      switchMap(([[question, isDisplayed], rendered]) => {
+        if (question && isDisplayed && rendered) {
+          return this.fetchExplanationTextAfterRendering(question);
+        } else {
+          return of('');
+        }
+      })
+    ).subscribe((explanation: string) => {
+      this.explanationToDisplay = explanation;
+      this.isExplanationDisplayed = !!explanation;
+      this.cdRef.detectChanges();
+    });
+  } */
 
   private initializeExplanationTextObservable(): void {
     combineLatest([
@@ -176,16 +198,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     });
   }
 
-  /* private fetchExplanationTextAfterRendering(question: QuizQuestion): void {
-    setTimeout(() => {
-      this.fetchExplanationText(question).subscribe((explanation: string) => {
-        this.explanationToDisplay = explanation;
-        this.isExplanationDisplayed = true;
-        this.cdRef.detectChanges();
-      });
-    }, 100); // Increased delay to ensure rendering order
-  } */
-
   private fetchExplanationTextAfterRendering(question: QuizQuestion): Observable<string> {
     return new Observable<string>((observer) => {
       setTimeout(() => {
@@ -193,7 +205,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           observer.next(explanation);
           observer.complete();
         });
-      }, 200); // Increased delay to ensure rendering order
+      }, 200); // Delay to ensure rendering order
     });
   }
 
