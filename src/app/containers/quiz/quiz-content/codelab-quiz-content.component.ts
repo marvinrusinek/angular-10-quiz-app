@@ -158,11 +158,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   private initializeExplanationTextObservable(): void {
     combineLatest([
       this.quizStateService.currentQuestion$,
-      this.questionRendered.asObservable()
+      this.explanationTextService.isExplanationTextDisplayed$
     ]).pipe(
       takeUntil(this.destroy$),
-      switchMap(([question, rendered]) => {
-        if (question && rendered) {
+      withLatestFrom(this.questionRendered), // Ensure questionRendered is true
+      switchMap(([[question, isDisplayed], rendered]) => {
+        if (question && isDisplayed && rendered) {
           return this.fetchExplanationTextAfterRendering(question);
         } else {
           return of('');
@@ -174,6 +175,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.cdRef.detectChanges();
     });
   }
+
+  /* private fetchExplanationTextAfterRendering(question: QuizQuestion): void {
+    setTimeout(() => {
+      this.fetchExplanationText(question).subscribe((explanation: string) => {
+        this.explanationToDisplay = explanation;
+        this.isExplanationDisplayed = true;
+        this.cdRef.detectChanges();
+      });
+    }, 100); // Increased delay to ensure rendering order
+  } */
 
   private fetchExplanationTextAfterRendering(question: QuizQuestion): Observable<string> {
     return new Observable<string>((observer) => {
