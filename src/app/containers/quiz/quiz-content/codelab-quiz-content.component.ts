@@ -249,6 +249,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.log('Loaded question:', question); // Debug log to ensure question is loaded
         this.currentQuestion.next(question); // Use next to update BehaviorSubject
         this.isExplanationDisplayed = false; // Reset explanation display state
+        this.explanationToDisplay = '';
 
         // Reset explanation state
         this.explanationTextService.resetExplanationState();
