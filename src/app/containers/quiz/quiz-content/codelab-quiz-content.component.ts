@@ -157,13 +157,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
   }
 
   private initializeExplanationTextObservable(): void {
+    console.log('initializeExplanationTextObservable called');
     combineLatest([
       this.quizStateService.currentQuestion$,
       this.explanationTextService.isExplanationTextDisplayed$
     ]).pipe(
       takeUntil(this.destroy$),
-      withLatestFrom(this.questionRendered), // Ensure questionRendered is true
+      withLatestFrom(this.questionRendered),
       switchMap(([[question, isDisplayed], rendered]) => {
+        console.log('Combined Latest - Question:', question, 'isDisplayed:', isDisplayed, 'Rendered:', rendered);
         if (question && isDisplayed && rendered) {
           return this.fetchExplanationTextAfterRendering(question);
         } else {
@@ -171,6 +173,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         }
       })
     ).subscribe((explanation: string) => {
+      console.log('Explanation fetched:', explanation);
       this.explanationToDisplay = explanation;
       this.isExplanationDisplayed = !!explanation;
       this.cdRef.detectChanges();
@@ -184,7 +187,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
           observer.next(explanation);
           observer.complete();
         });
-      }, 200); // Delay to ensure rendering order
+      }, 400); // Delay to ensure rendering order
     });
   }
 
@@ -254,7 +257,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
         setTimeout(() => {
           this.questionRendered.next(true); // Use BehaviorSubject
           this.cdRef.detectChanges(); // Ensure the question text is fully rendered before proceeding
-        }, 100); // Ensure this runs after the current rendering cycle
+        }, 300); // Ensure this runs after the current rendering cycle
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
       }
