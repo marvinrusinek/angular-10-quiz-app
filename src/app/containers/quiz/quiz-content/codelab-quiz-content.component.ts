@@ -1,7 +1,7 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, delay, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, delay, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -156,23 +156,23 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private checkAndFetchExplanationText(): void {
-    combineLatest([
-      this.quizStateService.currentQuestion$,
-      this.explanationTextService.isExplanationTextDisplayed$
-    ]).pipe(
-      takeUntil(this.destroy$),
-      switchMap(([question, isDisplayed]) => {
-        if (question && isDisplayed) {
-          return this.fetchExplanationText(question).pipe(delay(100)); // Delay to ensure rendering order
-        } else {
-          return of('');
-        }
-      })
-    ).subscribe((explanation: string) => {
-      this.explanationToDisplay = explanation;
-      this.isExplanationDisplayed = !!explanation;
-      this.cdRef.detectChanges();
-    });
+    this.quizStateService.currentQuestion$
+      .pipe(
+        withLatestFrom(this.explanationTextService.isExplanationTextDisplayed$),
+        takeUntil(this.destroy$),
+        switchMap(([question, isDisplayed]) => {
+          if (question && isDisplayed) {
+            return this.fetchExplanationText(question).pipe(delay(100)); // Delay to ensure rendering order
+          } else {
+            return of('');
+          }
+        })
+      )
+      .subscribe((explanation: string) => {
+        this.explanationToDisplay = explanation;
+        this.isExplanationDisplayed = !!explanation;
+        this.cdRef.detectChanges();
+      });
   }
 
   private fetchExplanationTextAfterRendering(question: QuizQuestion): void {
