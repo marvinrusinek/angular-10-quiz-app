@@ -156,23 +156,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private checkAndFetchExplanationText(): void {
-    this.quizStateService.currentQuestion$
-      .pipe(
-        withLatestFrom(this.explanationTextService.isExplanationTextDisplayed$),
-        takeUntil(this.destroy$),
-        switchMap(([question, isDisplayed]) => {
-          if (question && isDisplayed) {
-            return this.fetchExplanationText(question).pipe(delay(100)); // Delay to ensure rendering order
-          } else {
-            return of('');
-          }
-        })
-      )
-      .subscribe((explanation: string) => {
-        this.explanationToDisplay = explanation;
-        this.isExplanationDisplayed = !!explanation;
-        this.cdRef.detectChanges();
-      });
+    combineLatest([
+      this.quizStateService.currentQuestion$,
+      this.explanationTextService.isExplanationTextDisplayed$
+    ]).pipe(
+      takeUntil(this.destroy$),
+      withLatestFrom(this.questionRendered), // Ensure questionRendered is true
+      switchMap(([[question, isDisplayed], rendered]) => {
+        if (question && isDisplayed && rendered) {
+          return this.fetchExplanationText(question).pipe(delay(100)); // Delay to ensure rendering order
+        } else {
+          return of('');
+        }
+      })
+    ).subscribe((explanation: string) => {
+      this.explanationToDisplay = explanation;
+      this.isExplanationDisplayed = !!explanation;
+      this.cdRef.detectChanges();
+    });
   }
 
   private fetchExplanationTextAfterRendering(question: QuizQuestion): void {
