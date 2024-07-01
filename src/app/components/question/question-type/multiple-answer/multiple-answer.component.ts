@@ -161,10 +161,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   }
 
   isSelectedOption(option: Option): boolean {
-    return (
-      this.selectedOptions.some(selectedOption => selectedOption.text === option.text) &&
-      this.showFeedbackForOption[option.optionId]
-    );
+    return this.selectedOptionService.isSelectedOption(option, this.selectedOptions, this.showFeedbackForOption);
   }
   
   shouldDisplayFeedback(option: Option): boolean {

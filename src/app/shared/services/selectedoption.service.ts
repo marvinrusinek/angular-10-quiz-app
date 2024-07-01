@@ -29,9 +29,12 @@ export class SelectedOptionService {
     return this.selectedOption;
   }
 
-  isSelectedOption(option: Option): boolean {
+  isSelectedOption(option: Option, selectedOptions: SelectedOption[], showFeedbackForOption: { [key: number]: boolean }): boolean {
     const isSelected = this.selectedOption === option;
-    return isSelected;
+    const isOptionSelected = selectedOptions.some(selectedOption => selectedOption.text === option.text);
+    const isFeedbackVisible = showFeedbackForOption[option.optionId];
+  
+    return isSelected || (isOptionSelected && isFeedbackVisible);
   }
 
   clearSelectedOption(): void {
@@ -156,7 +159,7 @@ export class SelectedOptionService {
     this.selectedOptionsMap.set(questionIndex, options);
     console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
     this.updateAnsweredState();
-  }  
+  }
   
   private updateAnsweredState(): void {
     const hasSelectedOptions = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
