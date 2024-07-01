@@ -142,7 +142,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   ngAfterViewChecked(): void {
     if (this.questionRendered) {
       this.questionRendered = false;
-      setTimeout(() => this.checkAndFetchExplanationText(), 0); // Ensure this runs after the current rendering cycle
+      this.checkAndFetchExplanationText();
     }
   }
 
@@ -161,11 +161,18 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.quizStateService.currentQuestion$,
       this.explanationTextService.isExplanationTextDisplayed$
     ]).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(([question, isDisplayed]) => {
-      if (question && isDisplayed) {
-        this.fetchExplanationTextAfterRendering(question);
-      }
+      takeUntil(this.destroy$),
+      switchMap(([question, isDisplayed]) => {
+        if (question && isDisplayed) {
+          return this.fetchExplanationText(question).pipe(delay(100)); // Delay to ensure rendering order
+        } else {
+          return of('');
+        }
+      })
+    ).subscribe((explanation: string) => {
+      this.explanationToDisplay = explanation;
+      this.isExplanationDisplayed = !!explanation;
+      this.cdRef.detectChanges();
     });
   }
 
@@ -249,7 +256,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           this.questionRendered = true;
           this.cdRef.detectChanges(); // Ensure the question text is fully rendered before proceeding
         }, 50); // Ensure this runs after the current rendering cycle
-        
+
         // Update the explanation after a slight delay to ensure the question text is fully rendered
         // setTimeout(() => {
         //  this.explanationTextService.updateExplanation(question);
