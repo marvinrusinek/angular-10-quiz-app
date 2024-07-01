@@ -139,7 +139,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   ngAfterViewInit(): void {}
 
   ngAfterViewChecked(): void {
-    if (this.questionRendered) {
+    if (this.questionRendered.getValue()) {
       this.questionRendered.next(false);
       this.checkAndFetchExplanationText();
     }
@@ -164,7 +164,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       withLatestFrom(this.questionRendered), // Ensure questionRendered is true
       switchMap(([[question, isDisplayed], rendered]) => {
         if (question && isDisplayed && rendered) {
-          return this.fetchExplanationText(question).pipe(delay(100)); // Delay to ensure rendering order
+          return this.fetchExplanationTextAfterRendering(question);
         } else {
           return of('');
         }
@@ -176,7 +176,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     });
   }
 
-  private fetchExplanationTextAfterRendering(question: QuizQuestion): void {
+  /* private fetchExplanationTextAfterRendering(question: QuizQuestion): void {
     setTimeout(() => {
       this.fetchExplanationText(question).subscribe((explanation: string) => {
         this.explanationToDisplay = explanation;
@@ -184,6 +184,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         this.cdRef.detectChanges();
       });
     }, 100); // Increased delay to ensure rendering order
+  } */
+
+  private fetchExplanationTextAfterRendering(question: QuizQuestion): Observable<string> {
+    return new Observable<string>((observer) => {
+      setTimeout(() => {
+        this.fetchExplanationText(question).subscribe((explanation: string) => {
+          observer.next(explanation);
+          observer.complete();
+        });
+      }, 100); // Increased delay to ensure rendering order
+    });
   }
 
   configureDisplayLogic(): void {
