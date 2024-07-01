@@ -142,7 +142,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   ngAfterViewChecked(): void {
     if (this.questionRendered) {
       this.questionRendered = false;
-      this.checkAndFetchExplanationText();
+      setTimeout(() => this.checkAndFetchExplanationText(), 0); // Ensure this runs after the current rendering cycle
     }
   }
 
@@ -245,7 +245,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
         // Update the flag to indicate the question is rendered
         // setTimeout(() => this.isQuestionRendered.next(true), 0);
-        setTimeout(() => this.questionRendered = true, 50); // Ensure this runs after the current rendering cycle
+        setTimeout(() => this.questionRendered = true, 0); // Ensure this runs after the current rendering cycle
 
         // Update the explanation after a slight delay to ensure the question text is fully rendered
         // setTimeout(() => {
