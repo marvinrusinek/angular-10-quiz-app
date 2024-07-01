@@ -17,7 +17,8 @@ export class FeedbackComponent implements OnChanges {
   feedbackMessageClass: string;
 
   constructor(private selectedOptionService: SelectedOptionService) {
-    this.selectedOption = this.selectedOptionService.selectedOption;
+    const option = this.selectedOptionService.selectedOption;
+    this.selectedOption = option ? { ...option, correct: !!option.correct } : { text: '', correct: false, optionId: -1 };
   }
 
   ngOnChanges(changes: SimpleChanges): void {
