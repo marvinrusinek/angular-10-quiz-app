@@ -74,8 +74,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
 
-  private isQuestionRendered = new BehaviorSubject<boolean>(false);
-  questionRendered = false; // Flag to track if the question is rendered
+  questionRendered: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false); // Use BehaviorSubject
 
   combinedText$: Observable<string>;
   textToDisplay = '';
@@ -141,7 +140,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   ngAfterViewChecked(): void {
     if (this.questionRendered) {
-      this.questionRendered = false;
+      this.questionRendered.next(false);
       this.checkAndFetchExplanationText();
     }
   }
@@ -248,19 +247,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         // Ensure the question text is fully rendered
         this.cdRef.detectChanges();
 
-        this.questionRendered = true; // Mark question as rendered
-
-        // Update the flag to indicate the question is rendered
-        // setTimeout(() => this.isQuestionRendered.next(true), 0);
         setTimeout(() => {
-          this.questionRendered = true;
+          this.questionRendered.next(true); // Use BehaviorSubject
           this.cdRef.detectChanges(); // Ensure the question text is fully rendered before proceeding
         }, 50); // Ensure this runs after the current rendering cycle
-
-        // Update the explanation after a slight delay to ensure the question text is fully rendered
-        // setTimeout(() => {
-        //  this.explanationTextService.updateExplanation(question);
-        // }, 100); // Adjust the delay time as needed
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
       }
