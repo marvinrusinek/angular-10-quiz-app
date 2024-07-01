@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -20,7 +20,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
   styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewInit {
+export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewInit, AfterViewChecked {
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() explanationToDisplay: string;
@@ -127,6 +127,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   
     // Load quiz data from the route first
     this.loadQuizDataFromRoute();
+    this.initializeExplanationTextObservable();
     
     // Initialize other component states and subscriptions
     this.initializeComponent();
@@ -134,7 +135,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.initializeSubscriptions();
     this.setupCombinedTextObservable();
     this.configureDisplayLogic();
-    // this.initializeExplanationTextObservable();
   }
 
   /* ngAfterViewInit(): void {}
@@ -148,6 +148,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   ngAfterViewInit(): void {
     this.initializeExplanationTextObservable();
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.currentQuestion && !this.questionRendered.getValue()) {
+      this.questionRendered.next(true);
+      this.cdRef.detectChanges(); // Ensure the question text is fully rendered before proceeding
+    }
   }
 
   ngOnDestroy(): void {
@@ -261,6 +268,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         setTimeout(() => {
           this.questionRendered.next(true); // Use BehaviorSubject
           this.cdRef.detectChanges(); // Ensure the question text is fully rendered before proceeding
+          this.fetchExplanationTextAfterRendering(question);
         }, 300); // Ensure this runs after the current rendering cycle
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
