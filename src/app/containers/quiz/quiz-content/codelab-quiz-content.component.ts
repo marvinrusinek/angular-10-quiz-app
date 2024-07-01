@@ -161,7 +161,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.explanationTextService.isExplanationTextDisplayed$
     ]).pipe(
       takeUntil(this.destroy$),
-      withLatestFrom(this.questionRendered),
+      withLatestFrom(this.questionRendered), // Ensure questionRendered is true
       switchMap(([[question, isDisplayed], rendered]) => {
         if (question && isDisplayed && rendered) {
           return this.fetchExplanationTextAfterRendering(question);
@@ -193,7 +193,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           observer.next(explanation);
           observer.complete();
         });
-      }, 100); // Increased delay to ensure rendering order
+      }, 200); // Increased delay to ensure rendering order
     });
   }
 
@@ -262,7 +262,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         setTimeout(() => {
           this.questionRendered.next(true); // Use BehaviorSubject
           this.cdRef.detectChanges(); // Ensure the question text is fully rendered before proceeding
-        }, 50); // Ensure this runs after the current rendering cycle
+        }, 100); // Ensure this runs after the current rendering cycle
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
       }
