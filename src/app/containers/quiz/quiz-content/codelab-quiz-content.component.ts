@@ -127,7 +127,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   
     // Load quiz data from the route first
     this.loadQuizDataFromRoute();
-    this.initializeExplanationTextObservable();
     
     // Initialize other component states and subscriptions
     this.initializeComponent();
@@ -135,6 +134,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.initializeSubscriptions();
     this.setupCombinedTextObservable();
     this.configureDisplayLogic();
+    // this.initializeExplanationTextObservable();
   }
 
   /* ngAfterViewInit(): void {}
@@ -146,10 +146,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     }
   } */
 
-  ngAfterViewChecked(): void {
-    if (this.currentQuestion && !this.questionRendered.getValue()) {
-      this.questionRendered.next(true);
-    }
+  ngAfterViewInit(): void {
+    this.initializeExplanationTextObservable();
   }
 
   ngOnDestroy(): void {
@@ -186,7 +184,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     });
   }
 
-  /* private fetchExplanationTextAfterRendering(question: QuizQuestion): Observable<string> {
+  private fetchExplanationTextAfterRendering(question: QuizQuestion): Observable<string> {
     return new Observable<string>((observer) => {
       setTimeout(() => {
         this.fetchExplanationText(question).subscribe((explanation: string) => {
@@ -195,16 +193,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         });
       }, 400); // Delay to ensure rendering order
     });
-  } */
-
-  private fetchExplanationTextAfterRendering(question: QuizQuestion): void {
-    if (this.questionRendered.getValue()) {
-      this.fetchExplanationText(question).subscribe((explanation: string) => {
-        this.explanationToDisplay = explanation;
-        this.isExplanationDisplayed = !!explanation;
-        this.cdRef.detectChanges();
-      });
-    }
   }
 
   configureDisplayLogic(): void {
@@ -273,7 +261,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         setTimeout(() => {
           this.questionRendered.next(true); // Use BehaviorSubject
           this.cdRef.detectChanges(); // Ensure the question text is fully rendered before proceeding
-          this.fetchExplanationTextAfterRendering(question); // Fetch explanation after rendering
         }, 300); // Ensure this runs after the current rendering cycle
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
