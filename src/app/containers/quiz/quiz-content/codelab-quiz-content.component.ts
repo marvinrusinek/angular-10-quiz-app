@@ -127,7 +127,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   
     // Load quiz data from the route first
     this.loadQuizDataFromRoute();
-    this.initializeExplanationTextObservable();
     
     // Initialize other component states and subscriptions
     this.initializeComponent();
@@ -285,6 +284,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         setTimeout(() => {
           this.questionRendered.next(true); // Use BehaviorSubject
           this.cdRef.detectChanges(); // Ensure the question text is fully rendered before proceeding
+          this.initializeExplanationTextObservable();
           // this.fetchExplanationTextAfterRendering(question);
         }, 300); // Ensure this runs after the current rendering cycle
       } else {
