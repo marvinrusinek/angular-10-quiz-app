@@ -146,8 +146,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     }
   } */
 
-  ngAfterViewInit(): void {
-    this.initializeExplanationTextObservable();
+  ngAfterViewChecked(): void {
+    if (this.currentQuestion && !this.questionRendered.getValue()) {
+      this.questionRendered.next(true);
+    }
   }
 
   ngOnDestroy(): void {
@@ -184,7 +186,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     });
   }
 
-  private fetchExplanationTextAfterRendering(question: QuizQuestion): Observable<string> {
+  /* private fetchExplanationTextAfterRendering(question: QuizQuestion): Observable<string> {
     return new Observable<string>((observer) => {
       setTimeout(() => {
         this.fetchExplanationText(question).subscribe((explanation: string) => {
@@ -193,6 +195,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         });
       }, 400); // Delay to ensure rendering order
     });
+  } */
+
+  private fetchExplanationTextAfterRendering(question: QuizQuestion): void {
+    if (this.questionRendered.getValue()) {
+      this.fetchExplanationText(question).subscribe((explanation: string) => {
+        this.explanationToDisplay = explanation;
+        this.isExplanationDisplayed = !!explanation;
+        this.cdRef.detectChanges();
+      });
+    }
   }
 
   configureDisplayLogic(): void {
@@ -261,6 +273,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         setTimeout(() => {
           this.questionRendered.next(true); // Use BehaviorSubject
           this.cdRef.detectChanges(); // Ensure the question text is fully rendered before proceeding
+          this.fetchExplanationTextAfterRendering(question); // Fetch explanation after rendering
         }, 300); // Ensure this runs after the current rendering cycle
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
