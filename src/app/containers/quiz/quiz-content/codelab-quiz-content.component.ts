@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -20,7 +20,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
   styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CodelabQuizContentComponent implements OnInit, OnDestroy {
+export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() explanationToDisplay: string;
@@ -145,6 +145,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy {
       this.initializeExplanationTextObservable();
     }
   } */
+
+  ngAfterViewInit(): void {
+    this.initializeExplanationTextObservable();
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
