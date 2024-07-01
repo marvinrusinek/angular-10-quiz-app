@@ -170,14 +170,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private fetchExplanationTextAfterRendering(question: QuizQuestion): void {
-    this.cdRef.detectChanges();
     setTimeout(() => {
       this.fetchExplanationText(question).subscribe((explanation: string) => {
         this.explanationToDisplay = explanation;
         this.isExplanationDisplayed = true;
         this.cdRef.detectChanges();
       });
-    }, 0); // Delay to ensure rendering order
+    }, 100); // Increased delay to ensure rendering order
   }
 
   configureDisplayLogic(): void {
