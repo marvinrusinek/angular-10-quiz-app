@@ -1,7 +1,7 @@
 import { AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -167,7 +167,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
-  private initializeExplanationTextObservable(): void {
+  /* private initializeExplanationTextObservable(): void {
     console.log('initializeExplanationTextObservable called');
     combineLatest([
       this.quizStateService.currentQuestion$,
@@ -187,6 +187,27 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       console.log('Explanation fetched:', explanation);
       this.explanationToDisplay = explanation;
       this.isExplanationDisplayed = !!explanation;
+      this.cdRef.detectChanges();
+    });
+  } */
+
+  private initializeExplanationTextObservable(): void {
+    combineLatest([
+      this.quizStateService.currentQuestion$,
+      this.explanationTextService.isExplanationTextDisplayed$
+    ]).pipe(
+      takeUntil(this.destroy$),
+      withLatestFrom(this.questionRendered),
+      filter(([[question, isDisplayed], rendered]) => question !== null && isDisplayed && rendered),
+      switchMap(([[question]]) => {
+        return this.fetchExplanationTextAfterRendering(question);
+      }),
+      tap(() => {
+        this.isExplanationDisplayed = true;
+        this.cdRef.detectChanges();
+      })
+    ).subscribe((explanation: string) => {
+      this.explanationToDisplay = explanation;
       this.cdRef.detectChanges();
     });
   }
@@ -268,7 +289,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         setTimeout(() => {
           this.questionRendered.next(true); // Use BehaviorSubject
           this.cdRef.detectChanges(); // Ensure the question text is fully rendered before proceeding
-          this.fetchExplanationTextAfterRendering(question);
+          // this.fetchExplanationTextAfterRendering(question);
         }, 300); // Ensure this runs after the current rendering cycle
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
