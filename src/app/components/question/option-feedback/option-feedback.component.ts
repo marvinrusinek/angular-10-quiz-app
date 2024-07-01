@@ -12,7 +12,7 @@ export class OptionFeedbackComponent implements OnChanges {
   statusIcon: string;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.correct) {
+    if (changes.correct || changes.selected) {
       this.updateFeedbackStatusIcon();
     }
   }
