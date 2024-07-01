@@ -7,7 +7,7 @@ import { QuizService } from '../../shared/services/quiz.service';
 
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
-  private selectedOption: Option;
+  selectedOption: Option;
   selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
   private selectedOptionIndices: { [key: number]: number[] } = {};
 
