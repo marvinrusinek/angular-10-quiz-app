@@ -176,7 +176,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         this.isExplanationDisplayed = true;
         this.cdRef.detectChanges();
       });
-    }, 300); // Increased delay to ensure rendering order
+    }, 100); // Increased delay to ensure rendering order
   }
 
   configureDisplayLogic(): void {
