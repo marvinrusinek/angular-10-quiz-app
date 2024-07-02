@@ -875,6 +875,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestionIndex = 0;
       }
     });
+
+    const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex); 
+    const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
   }
 
   // Function to load all questions for the current quiz
