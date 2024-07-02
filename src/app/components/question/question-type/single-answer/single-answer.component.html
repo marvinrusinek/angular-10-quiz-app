@@ -27,7 +27,7 @@
       </mat-radio-button>
       
       <codelab-quiz-feedback
-        *ngIf="feedbackVisible"
+        *ngIf="showFeedback && selectedOption === option"
         [question]="currentQuestion"
         [selectedOption]="selectedOption"
         [correctMessage]="correctMessage"
