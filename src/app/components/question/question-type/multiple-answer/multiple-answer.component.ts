@@ -124,6 +124,13 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     }
   }
 
+  getFeedbackIcon(option: Option): string {
+    if (this.selectedOptionService.isSelectedOption(option)) {
+      return option.correct ? 'check_circle' : 'cancel';
+    }
+    return '';
+  }
+
   onOptionClick(option: SelectedOption, index: number, event?: MouseEvent): void {
     if (event) {
       event.stopPropagation();
