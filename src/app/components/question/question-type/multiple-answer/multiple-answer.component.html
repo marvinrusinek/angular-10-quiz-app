@@ -21,7 +21,10 @@
       >
         <span>{{ idx + 1 }}.  {{ option?.text }}</span>
 
-        <mat-icon *ngIf="isSelectedOption(option)">{{ getFeedbackIcon(option) }}</mat-icon>
+        <mat-icon 
+          *ngIf="isSelectedOption(option)">
+          {{ getFeedbackIcon(option) }}
+        </mat-icon>
       </mat-checkbox>
 
       <!--<codelab-quiz-option-feedback
