@@ -102,6 +102,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   shuffledOptions: Option[];
   explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   showFeedbackForOption: { [optionId: number]: boolean } = {};
+  feedbackIcon: string;
   correctAnswersLoaded = false;
   sharedVisibilitySubscription: Subscription;
   optionSelectionSubscription: Subscription;
@@ -926,6 +927,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
+      this.feedbackIcon = this.getFeedbackIcon(option);
       this.updateSelectedOption(option);
       this.selectedOptionService.setOptionSelected(true);
 
