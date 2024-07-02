@@ -22,12 +22,14 @@
         <span>{{ idx + 1 }}.  {{ option?.text }}</span>
       </mat-checkbox>
 
-      <codelab-quiz-option-feedback
+      <!--<codelab-quiz-option-feedback
         *ngIf="isSelectedOption(option)"
         [correct]="option?.correct"
         [selected]="isSelectedOption(option)"
         [options]="data?.options"
-      ></codelab-quiz-option-feedback>
+      ></codelab-quiz-option-feedback>-->
+
+      <mat-icon *ngIf="isSelectedOption(option)">{{ getFeedbackIcon(option) }}</mat-icon>
 
       <codelab-quiz-feedback
         *ngIf="showFeedback && selectedOption === option"
