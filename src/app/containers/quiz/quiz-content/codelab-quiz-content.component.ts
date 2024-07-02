@@ -136,14 +136,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.configureDisplayLogic();
   }
 
-  /* ngAfterViewInit(): void {}
-
-  ngAfterViewChecked(): void {
-    if (this.questionRendered.getValue()) {
-      this.questionRendered.next(false);
-      this.initializeExplanationTextObservable();
-    }
-  } */
+  ngAfterViewInit(): void {}
 
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
