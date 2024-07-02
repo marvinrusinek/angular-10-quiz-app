@@ -27,13 +27,6 @@
         </mat-icon>
       </mat-checkbox>
 
-      <!--<codelab-quiz-option-feedback
-        *ngIf="isSelectedOption(option)"
-        [correct]="option?.correct"
-        [selected]="isSelectedOption(option)"
-        [options]="data?.options"
-      ></codelab-quiz-option-feedback>-->
-
       <codelab-quiz-feedback
         *ngIf="showFeedback && selectedOption === option"
         [question]="currentQuestion"
