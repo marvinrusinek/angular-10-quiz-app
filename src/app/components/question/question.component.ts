@@ -104,6 +104,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   feedbackIcon: string;
   feedbackVisible = false;
+  displayOptions: Option[] = [];
   correctAnswersLoaded = false;
   sharedVisibilitySubscription: Subscription;
   optionSelectionSubscription: Subscription;
@@ -197,6 +198,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.initializeQuizQuestion();
       await this.handleQuestionState();
 
+      this.loadOptions();
+
       this.setCorrectMessage([]);
   
       // Set up an event listener for visibility change to refresh data if needed
@@ -275,6 +278,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.safeDetectChanges();
       });
     }
+  }
+
+  // Load options and set displayOptions
+  loadOptions(): void {
+    this.displayOptions = this.getDisplayOptions();
   }
 
   isSelectedOption(option: Option): boolean {
