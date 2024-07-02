@@ -1353,9 +1353,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   
     // Set the explanation text in the quiz question manager service (if needed)
-    this.quizQuestionManagerService.setExplanationText(
-      currentQuestion.explanation || ''
-    );
+    this.quizQuestionManagerService.setExplanationText(currentQuestion.explanation || '');
   
     // Emit events and update states after the option is selected
     this.isOptionSelected = true;
