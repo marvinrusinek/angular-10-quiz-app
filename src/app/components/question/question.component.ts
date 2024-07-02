@@ -369,10 +369,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       ? this.optionsToDisplay : this.data?.options;
   }
 
-  public getQuizFeedback(): boolean {
-    return this.showFeedback && this.selectedOption === this.option;
-  }
-
   // logging undefined...
   private logInitialData(): void {
     console.log('this.questionData:', this.questionData);
