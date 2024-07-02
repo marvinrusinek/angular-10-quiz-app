@@ -64,7 +64,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     new BehaviorSubject<boolean>(false);
   @Input() explanationText: string | null;
   @Input() isOptionSelected = false;
-  @Input() showFeedback = false;
+  @Input() showFeedback = true;
 
   @Input() selectionMessage: string;
   @Output() selectionMessageChange = new EventEmitter<string>();
