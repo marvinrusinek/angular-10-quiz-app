@@ -29,7 +29,7 @@
         [options]="data?.options"
       ></codelab-quiz-option-feedback>-->
 
-      <mat-icon >{{ getFeedbackIcon(option) }}</mat-icon>
+      <mat-icon *ngIf="isSelectedOption(option)">{{ getFeedbackIcon(option) }}</mat-icon>
 
       <codelab-quiz-feedback
         *ngIf="showFeedback && selectedOption === option"
