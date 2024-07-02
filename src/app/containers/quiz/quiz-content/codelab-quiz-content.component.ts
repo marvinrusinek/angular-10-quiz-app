@@ -118,7 +118,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   ngOnInit(): void {
-    // Initialize isExplanationDisplayed to false initially
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
@@ -154,30 +153,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.explanationSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
   }
-
-  /* private initializeExplanationTextObservable(): void {
-    console.log('initializeExplanationTextObservable called');
-    combineLatest([
-      this.quizStateService.currentQuestion$,
-      this.explanationTextService.isExplanationTextDisplayed$
-    ]).pipe(
-      takeUntil(this.destroy$),
-      withLatestFrom(this.questionRendered),
-      switchMap(([[question, isDisplayed], rendered]) => {
-        console.log('Combined Latest - Question:', question, 'isDisplayed:', isDisplayed, 'Rendered:', rendered);
-        if (question && isDisplayed && rendered) {
-          return this.fetchExplanationTextAfterRendering(question);
-        } else {
-          return of('');
-        }
-      })
-    ).subscribe((explanation: string) => {
-      console.log('Explanation fetched:', explanation);
-      this.explanationToDisplay = explanation;
-      this.isExplanationDisplayed = !!explanation;
-      this.cdRef.detectChanges();
-    });
-  } */
 
   private initializeExplanationTextObservable(): void {
     combineLatest([
@@ -360,8 +335,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           this.explanationTextService.storeFormattedExplanation(index, explanation, question);
         })
       );
-  
-      console.log('Formatted explanations stored.');
   
       this.initializeCurrentQuestionIndex();
       this.subscribeToCurrentQuestion();
