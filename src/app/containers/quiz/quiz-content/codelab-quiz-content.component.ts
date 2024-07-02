@@ -281,12 +281,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         // Ensure the question text is fully rendered
         this.cdRef.detectChanges();
 
-        setTimeout(() => {
+        /* setTimeout(() => {
           this.questionRendered.next(true); // Use BehaviorSubject
           this.cdRef.detectChanges(); // Ensure the question text is fully rendered before proceeding
           this.initializeExplanationTextObservable();
           // this.fetchExplanationTextAfterRendering(question);
         }, 300); // Ensure this runs after the current rendering cycle
+        */
+        setTimeout(() => {
+          this.fetchExplanationTextAfterRendering(question);
+        }, 300); // Adjust delay as necessary
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
       }
