@@ -113,7 +113,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     });
 
     this.shouldDisplayCorrectAnswers$ = this.quizStateService.explanationDisplayed$.pipe(
-      map(isDisplayed => !isDisplayed)
+      map((isDisplayed: boolean) => !isDisplayed)
     );
   }
 
