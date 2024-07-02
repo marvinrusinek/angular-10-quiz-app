@@ -1319,6 +1319,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   selectOption(currentQuestion: QuizQuestion, option: Option, optionIndex: number): void {
     const selectedOption: SelectedOption = { ...option, questionIndex: this.currentQuestionIndex };
 
+    this.selectedOptionService.updateSelectedOptions(this.currentQuestionIndex, optionIndex, 'add');
+
     this.selectedOptions = [selectedOption];
     this.showFeedbackForOption = { [option.optionId]: true };
     this.showFeedback = true;
@@ -1330,7 +1332,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizStateService.setCurrentQuestion(currentQuestion);
     }, 0);
 
-    this.selectedOptionService.updateSelectedOptions(this.currentQuestionIndex, optionIndex, 'add');
+    console.log('Option index:', optionIndex); // Debugging log
+    console.log('Option:', option); // Debugging log
 
     const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex) || 'No explanation available';
     this.explanationTextService.setExplanationText(explanationText);
