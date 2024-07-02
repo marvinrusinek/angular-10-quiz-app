@@ -14,7 +14,8 @@
         </div>
       </ng-template>
 
-      <span class="number-correct" *ngIf="(shouldDisplayCorrectAnswers$ | async) && !(isExplanationDisplayed$ | async) && correctAnswersText$ | async">
+      <span class="number-correct" 
+        *ngIf="(shouldDisplayCorrectAnswers$ | async) && !(isExplanationDisplayed$ | async) && correctAnswersText$ | async">
         {{ correctAnswersText$ | async }}
       </span>
     </h3>
