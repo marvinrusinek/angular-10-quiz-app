@@ -1,7 +1,7 @@
 <ng-container *ngIf="optionsToDisplay">
   <div
     *ngFor="
-      let option of displayOptions;
+      let option of getDisplayOptions();
       let idx = index;
       trackBy: trackByOption
     "
