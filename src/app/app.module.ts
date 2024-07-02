@@ -28,7 +28,6 @@ import { QuizQuestionComponent } from './components/question/question.component'
 import { MultipleAnswerComponent } from './components/question/question-type/multiple-answer/multiple-answer.component';
 import { SingleAnswerComponent } from './components/question/question-type/single-answer/single-answer.component';
 import { FeedbackComponent } from './components/question/feedback/feedback.component';
-import { OptionFeedbackComponent } from './components/question/option-feedback/option-feedback.component';
 import { QuizSelectionComponent } from './containers/quiz-selection/quiz-selection.component';
 import { ResultsComponent } from './containers/results/results.component';
 import { ScoreboardComponent } from './containers/scoreboard/scoreboard.component';
@@ -71,7 +70,6 @@ import { QuizGuard } from './router/guards/quiz.guard';
     MultipleAnswerComponent,
     SingleAnswerComponent,
     FeedbackComponent,
-    OptionFeedbackComponent,
     QuizSelectionComponent,
     ResultsComponent,
     ScoreboardComponent,
