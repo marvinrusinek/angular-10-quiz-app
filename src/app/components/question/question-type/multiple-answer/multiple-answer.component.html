@@ -1,10 +1,10 @@
 <ng-container *ngIf="optionsToDisplay">
-  <div [ngClass]="getOptionClass(option)"
-      *ngFor="
-        let option of getDisplayOptions();
-        let idx = index;
-        trackBy: trackByOption
-      "
+  <div
+    *ngFor="
+      let option of getDisplayOptions();
+      let idx = index;
+      trackBy: trackByOption
+    "
   >
     <label class="options">
       <mat-checkbox
