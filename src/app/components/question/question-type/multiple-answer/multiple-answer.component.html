@@ -27,7 +27,7 @@
       </mat-checkbox>
 
       <codelab-quiz-feedback
-        *ngIf="showFeedback && selectedOption === option"
+        *ngIf="getQuizFeedback()"
         [question]="currentQuestion"
         [selectedOption]="selectedOption"
         [correctMessage]="correctMessage"
