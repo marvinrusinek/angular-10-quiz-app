@@ -277,7 +277,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   getFeedbackIcon(option: Option): string {
     if (this.selectedOptionService.isSelectedOption(option)) {
-      return option.correct ? 'check_circle' : 'cancel';
+      return option.correct ? 'done' : 'clear';
     }
     return '';
   }
