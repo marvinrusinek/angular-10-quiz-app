@@ -298,7 +298,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const isOptionSelected = this.selectedOptionService.isSelectedOption(
       option, this.selectedOptions, this.showFeedbackForOption
     );
-    return isOptionSelected ? (option.correct ? 'done' : 'clear') : '';
+    const feedbackIcon = isOptionSelected ? (option.correct ? 'done' : 'clear') : '';
+    console.log('Feedback icon for option:', option, feedbackIcon);
+    return feedbackIcon;
   }
 
   private safeDetectChanges(): void {
