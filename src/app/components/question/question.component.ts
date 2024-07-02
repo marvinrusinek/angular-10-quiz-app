@@ -369,7 +369,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       ? this.optionsToDisplay : this.data?.options;
   }
 
-  public getQuizFeedback(): boolean {
+  public shouldDisplayFeedback(): boolean {
     return this.showFeedback && this.selectedOption === this.option;
   }
 
