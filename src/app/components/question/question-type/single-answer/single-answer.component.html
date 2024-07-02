@@ -15,7 +15,7 @@
         [shouldResetBackground]="shouldResetBackground"
         #highlightDirective
         [checked]="isSelectedOption(option)"
-        (click)="onOptionClick(option, idx, $event)"
+        (click)="selectOption(currentQuestion, option)"
         [isCorrect]="option.correct"
         [disabled]="option.selected"
       >
@@ -29,7 +29,7 @@
       
       <codelab-quiz-feedback
         *ngIf="showFeedback && selectedOption === option"
-        [question]="question"
+        [question]="currentQuestion"
         [selectedOption]="selectedOption"
         [correctMessage]="correctMessage"
         [showFeedback]="showFeedback"
