@@ -293,6 +293,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return isOptionSelected;
   }
 
+  // Function to get the feedback icon based on the option
   getFeedbackIcon(option: Option): string {
     const isOptionSelected = this.selectedOptionService.isSelectedOption(
       option, this.selectedOptions, this.showFeedbackForOption
@@ -935,6 +936,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  // Call this method when an option is selected
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
       this.feedbackIcon = this.getFeedbackIcon(option);
