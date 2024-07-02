@@ -1354,7 +1354,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     // Retrieve correct answers and set correct message
-    const correctAnswers = this.quizService.correctAnswerOptions;
+    const correctAnswers = this.data.options
+      .filter((opt: Option) => opt.correct)
+      .map((opt: Option) => opt.optionId);
     this.setCorrectMessage(correctAnswers);
   }
 
