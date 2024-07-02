@@ -81,7 +81,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   questionIndex: number;
   questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
   selectedOption: Option | null;
-  selectedOptions: Option[] = [];
+  selectedOptions: SelectedOption[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
   options$: Observable<Option[]>;
   quiz: Quiz;
@@ -276,7 +276,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   getFeedbackIcon(option: Option): string {
-    if (this.selectedOptionService.isSelectedOption(option)) {
+    if (this.selectedOptionService.isSelectedOption(option, this.selectedOptions, this.showFeedbackForOption)) {
       return option.correct ? 'done' : 'clear';
     }
     return '';
@@ -1366,50 +1366,42 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   selectOption(currentQuestion: QuizQuestion, option: Option): void {
-    // Create a SelectedOption from Option
     const selectedOption: SelectedOption = { ...option, questionIndex: this.currentQuestionIndex };
-  
-    // Assign the SelectedOption to selectedOptions
+
     this.selectedOptions = [selectedOption];
     this.showFeedbackForOption = { [option.optionId]: true };
     this.showFeedback = true;
     this.selectedOption = option;
-  
+
     this.explanationTextService.setIsExplanationTextDisplayed(true);
-  
+
     setTimeout(() => {
       this.quizStateService.setCurrentQuestion(currentQuestion);
     }, 0);
-  
-    // Update the selected option in the quiz service and mark the question as answered
+
     this.selectedOptionService.updateSelectedOptions(this.currentQuestionIndex, option.optionId, 'add');
-  
+
     const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex) || 'No explanation available';
     this.explanationTextService.setExplanationText(explanationText);
-  
-    // Notify the service to update the explanation text
+
     if (this.currentQuestion) {
       this.explanationTextService.updateExplanation(this.currentQuestion);
     } else {
       console.error('Current question is not set.');
     }
-  
-    // Set the explanation text in the quiz question manager service (if needed)
+
     this.quizQuestionManagerService.setExplanationText(currentQuestion.explanation || '');
-  
-    // Emit events and update states after the option is selected
+
     this.isOptionSelected = true;
     this.isAnswered = this.selectedOptions.length > 0;
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
-  
+
     this.selectionChanged.emit({
       question: currentQuestion,
       selectedOptions: this.selectedOptions
     });
   }
-  
-
   unselectOption(): void {
     this.selectedOptions = [];
     this.optionChecked = {};
