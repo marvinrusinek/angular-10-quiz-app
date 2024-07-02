@@ -16,7 +16,7 @@
         #highlightDirective
         [checked]="isSelectedOption(option)"
         (click)="selectOption(currentQuestion, option, idx)"
-        [isCorrect]="option?.correct"
+        [isCorrect]="option.correct"
         [disabled]="option.selected"
       >
         <span>{{ idx + 1 }}.  {{ option?.text }}</span>
