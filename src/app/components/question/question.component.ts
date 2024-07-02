@@ -938,8 +938,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
       this.feedbackIcon = this.getFeedbackIcon(option);
-      this.feedbackVisible = this.showFeedback && this.selectedOption === option;
+      this.feedbackVisible.fill(false); // Reset all feedbacks
+      this.feedbackVisible[index] = this.showFeedback && this.selectedOption === option // Set feedback for the selected option
 
+      this.selectedOption = option;
       this.updateSelectedOption(option);
       this.selectedOptionService.setOptionSelected(true);
 
