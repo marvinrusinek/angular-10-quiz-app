@@ -868,16 +868,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (questions) {
         // Reset and set initial state for each question
         questions.forEach((question, index) => {
-          const defaultState = this.quizStateService.createDefaultQuestionState();
+          const defaultState: QuestionState = this.quizStateService.createDefaultQuestionState();
           this.quizStateService.setQuestionState(this.quizId, index, defaultState);
         });
 
         this.currentQuestionIndex = 0;
       }
     });
-
-    const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex); 
-    const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
   }
 
   // Function to load all questions for the current quiz
