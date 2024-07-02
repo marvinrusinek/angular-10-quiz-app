@@ -1316,55 +1316,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  /* selectOption(currentQuestion: QuizQuestion, option: Option): void {
-    this.selectedOptions = [option];
-    this.showFeedbackForOption = { [option.optionId]: true };
-    this.showFeedback = true;
-    this.selectedOption = option;
-
-    this.explanationTextService.setIsExplanationTextDisplayed(true);
-
-    setTimeout(() => {
-      this.quizStateService.setCurrentQuestion(currentQuestion);
-    }, 0);
-  
-    // Update the selected option in the quiz service and mark the question as answered
-    this.selectedOptionService.updateSelectedOptions(this.currentQuestionIndex, option.optionId, 'add');
-  
-    // Update the selection message based on the new state
-    // const isAnswered = true; // Since an option has been selected, it is answered
-    // this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-  
-    const explanationText =
-      this.explanationTextService.getFormattedExplanationTextForQuestion(
-        this.currentQuestionIndex
-      ) || 'No explanation available';
-    this.explanationTextService.setExplanationText(explanationText);
-
-    // Notify the service to update the explanation text
-    if (this.currentQuestion) {
-      this.explanationTextService.updateExplanation(this.currentQuestion);
-    } else {
-      console.error('Current question is not set.');
-    }
-  
-    // Set the explanation text in the quiz question manager service (if needed)
-    this.quizQuestionManagerService.setExplanationText(
-      currentQuestion.explanation || ''
-    );
-  
-    // Emit events and update states after the option is selected
-    this.isOptionSelected = true;
-    this.isAnswered = this.selectedOptions.length > 0;
-    this.isAnswerSelectedChange.emit(this.isAnswered);
-    this.optionSelected.emit(this.isOptionSelected);
-  
-    this.selectionChanged.emit({
-      question: currentQuestion,
-      selectedOptions: this.selectedOptions
-    });
-  } */
-
   selectOption(currentQuestion: QuizQuestion, option: Option): void {
     const selectedOption: SelectedOption = { ...option, questionIndex: this.currentQuestionIndex };
 
@@ -1402,6 +1353,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOptions: this.selectedOptions
     });
   }
+
   unselectOption(): void {
     this.selectedOptions = [];
     this.optionChecked = {};
