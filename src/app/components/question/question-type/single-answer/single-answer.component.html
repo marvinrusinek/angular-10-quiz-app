@@ -56,7 +56,7 @@
         [shouldResetBackground]="shouldResetBackground"
         #highlightDirective
         [checked]="isSelectedOption(option)"
-        (click)="onOptionClick(option, idx, $event)"
+        (click)="selectOption(currentQuestion, option, idx)"
         [isCorrect]="option.correct"
         [disabled]="option.selected"
       >
@@ -79,4 +79,5 @@
     </label>
   </div>
 </ng-container>
+
 
