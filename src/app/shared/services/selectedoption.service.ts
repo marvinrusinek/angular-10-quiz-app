@@ -31,9 +31,9 @@ export class SelectedOptionService {
 
   isSelectedOption(option: Option, selectedOptions: SelectedOption[], showFeedbackForOption: { [key: number]: boolean }): boolean {
     const isSelected = this.selectedOption === option;
-    const isOptionSelected = selectedOptions.some(selectedOption => selectedOption.text === option.text);
+    const isOptionSelected = Array.isArray(selectedOptions) && selectedOptions.some(selectedOption => selectedOption.text === option.text);
     const isFeedbackVisible = showFeedbackForOption[option.optionId];
-  
+
     return isSelected || (isOptionSelected && isFeedbackVisible);
   }
 
