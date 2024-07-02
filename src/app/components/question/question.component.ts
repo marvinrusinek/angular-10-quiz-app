@@ -103,7 +103,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   feedbackIcon: string;
-  feedbackVisible = false;
+  feedbackVisible: boolean[] = [];
   displayOptions: Option[] = [];
   correctAnswersLoaded = false;
   sharedVisibilitySubscription: Subscription;
