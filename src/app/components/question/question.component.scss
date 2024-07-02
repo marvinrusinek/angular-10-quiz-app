@@ -27,6 +27,10 @@
     &:first-child {
       margin-top: -25px;
     }
+
+    mat-icon {
+      float: right;
+    }
   }
 
   .correct {
