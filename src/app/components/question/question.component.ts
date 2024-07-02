@@ -1356,10 +1356,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOptions: this.selectedOptions
     });
 
-    // Set feedback and feedbackMessageClass for the FeedbackComponent
-    this.correctMessage = selectedOption.correct ? "Correct!" : "Incorrect!";
-    this.feedbackMessageClass = selectedOption.correct ? 'correct-feedback' : 'incorrect-feedback';
-
     // Retrieve correct answers and set correct message
     const correctAnswers = this.data.options
       .filter((opt: Option) => opt.correct)
