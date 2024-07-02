@@ -147,8 +147,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
-      this.questionRendered.next(true);
-      this.cdRef.detectChanges(); // Ensure the question text is fully rendered before proceeding
+      this.questionRendered.next(false);
+      this.initializeExplanationTextObservable();
     }
   }
 
@@ -192,17 +192,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.explanationTextService.isExplanationTextDisplayed$
     ]).pipe(
       takeUntil(this.destroy$),
-      withLatestFrom(this.questionRendered),
-      filter(([[question, isDisplayed], rendered]) => question !== null && isDisplayed && rendered),
-      switchMap(([[question]]) => {
-        return this.fetchExplanationTextAfterRendering(question);
-      }),
-      tap(() => {
-        this.isExplanationDisplayed = true;
-        this.cdRef.detectChanges();
+      withLatestFrom(this.questionRendered), // Ensure questionRendered is true
+      switchMap(([[question, isDisplayed], rendered]) => {
+        if (question && isDisplayed && rendered) {
+          return this.fetchExplanationTextAfterRendering(question);
+        } else {
+          return of('');
+        }
       })
     ).subscribe((explanation: string) => {
       this.explanationToDisplay = explanation;
+      this.isExplanationDisplayed = !!explanation;
       this.cdRef.detectChanges();
     });
   }
@@ -214,7 +214,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           observer.next(explanation);
           observer.complete();
         });
-      }, 400); // Delay to ensure rendering order
+      }, 100); // Delay to ensure rendering order
     });
   }
 
