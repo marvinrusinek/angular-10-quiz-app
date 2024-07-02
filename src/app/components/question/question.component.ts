@@ -945,9 +945,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   // Call this method when an option is selected
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
+      console.log('Option clicked:', option);
       this.feedbackIcon = this.getFeedbackIcon(option);
-      Object.keys(this.showFeedbackForOption).forEach(key => this.showFeedbackForOption[+key] = false); // reset all feedbacks
-      this.showFeedbackForOption[option.optionId] = this.showFeedback && this.selectedOption === option; // set feedback for the selected option
+      console.log('Feedback icon set:', this.feedbackIcon);
+
+      // Reset all feedbacks
+      Object.keys(this.showFeedbackForOption).forEach(key => this.showFeedbackForOption[+key] = false);
+      this.showFeedbackForOption[index] = this.showFeedback && this.selectedOption === option;
+      console.log('Updated showFeedbackForOption:', this.showFeedbackForOption);
 
       this.selectedOption = option;
       this.updateSelectedOption(option);
