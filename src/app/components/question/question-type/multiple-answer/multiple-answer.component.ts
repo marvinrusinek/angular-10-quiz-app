@@ -134,25 +134,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.showFeedback = true;
   }
 
-  getOptionClass(option: Option): string {
-    const isOptionSelected = Array.isArray(this.selectedOptions) &&
-      this.selectedOptions.some(selectedOption => selectedOption.text === option.text);
-  
-    if (isOptionSelected && option.correct) {
-      return 'correct';
-    } else if (isOptionSelected && !option.correct) {
-      return 'incorrect';
-    } else if (
-      this.currentQuestion &&
-      Array.isArray(this.currentQuestion.selectedOptions) &&
-      this.currentQuestion.selectedOptions.some(selectedOption => selectedOption.text === option.text)
-    ) {
-      return 'selected';
-    } else {
-      return '';
-    }
-  }
-
   isSelectedOption(option: Option): boolean {
     return this.selectedOptionService.isSelectedOption(option, this.selectedOptions, this.showFeedbackForOption);
   }
