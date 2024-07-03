@@ -302,7 +302,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   // Function to get the feedback icon based on the option
-  getFeedbackIcon(option: Option): string {
+  getFeedbackIcon(option: SelectedOption): string {
     const isOptionSelected = this.selectedOptionService.isSelectedOption(
       option, this.selectedOptions, this.showFeedbackForOption
     );
@@ -1337,7 +1337,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  selectOption(currentQuestion: QuizQuestion, option: Option, optionIndex: number): void {
+  selectOption(currentQuestion: QuizQuestion, option: SelectedOption, optionIndex: number): void {
     this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
     this.showFeedbackForOption = { [option.optionId]: true };
     this.showFeedback = true;
@@ -1510,11 +1510,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return true; // Form is valid and option is selected
   }
 
-  private async processAnswer(selectedOption: any): Promise<boolean> {
+  private async processAnswer(selectedOption: SelectedOption): Promise<boolean> {
     if (
       !selectedOption ||
       !this.currentQuestion.options.find(
-        (opt) => opt.optionId === selectedOption.id
+        (opt) => opt.optionId === selectedOption.optionId
       )
     ) {
       console.error('Invalid or unselected option.');
