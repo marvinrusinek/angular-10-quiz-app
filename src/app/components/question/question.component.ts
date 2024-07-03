@@ -300,7 +300,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   // Function to get the feedback icon based on the option
   getFeedbackIcon(option: Option): string {
     const isOptionSelected = this.selectedOptionService.isSelectedOption(
-      option, this.selectedOptions, this.showFeedbackForOption
+      option, this.selectedOptions, this.showFeedbackForOption[option.text]
     );
     const feedbackIcon = isOptionSelected ? (option.correct ? 'done' : 'clear') : '';
     console.log('Feedback icon for option:', option, feedbackIcon);
