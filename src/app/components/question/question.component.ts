@@ -101,9 +101,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   shuffleOptions = true;
   shuffledOptions: Option[];
   explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  showFeedbackForOption: { [optionId: number]: boolean } = {};
   feedbackIcon: string;
   feedbackVisible: { [optionId: number]: boolean } = {};
+  showFeedbackForOption: { [optionId: number]: boolean } = {};
   displayOptions: Option[] = [];
   correctAnswersLoaded = false;
   sharedVisibilitySubscription: Subscription;
