@@ -20,7 +20,7 @@
         [disabled]="option.selected"
       >
         <span>{{ idx + 1 }}  {{ option?.text }}</span>
-        <mat-icon *ngIf="showFeedbackForOption[option.optionId]">
+        <mat-icon *ngIf="true">
           {{ getFeedbackIcon(option) }}
         </mat-icon>
 

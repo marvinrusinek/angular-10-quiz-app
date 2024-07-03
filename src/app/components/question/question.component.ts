@@ -306,9 +306,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const isOptionSelected = this.selectedOptionService.isSelectedOption(
       option, this.selectedOptions, this.showFeedbackForOption[option.text]
     );
-    const feedbackIcon = isOptionSelected ? (option.correct ? 'done' : 'clear') : '';
-    console.log('Feedback icon for option:', option, feedbackIcon);
-    return feedbackIcon;
+    const icon = isOptionSelected ? (option.correct ? 'done' : 'clear') : '';
+    console.log('Feedback icon for option:', option, icon);
+    return icon;
   }
 
   trackByOption(option: Option): number {
