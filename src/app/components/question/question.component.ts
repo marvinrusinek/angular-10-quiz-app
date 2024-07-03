@@ -281,7 +281,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   // Load options and set displayOptions
   loadOptions(): void {
     this.currentQuestion = this.quiz.questions[0]; // Example: Load the first question
-    this.displayOptions = this.currentQuestion.options;
+    this.displayOptions = this.getDisplayOptions();
     this.showFeedbackForOption = this.displayOptions.reduce((acc, option, idx) => {
       acc[idx] = false;
       return acc;
