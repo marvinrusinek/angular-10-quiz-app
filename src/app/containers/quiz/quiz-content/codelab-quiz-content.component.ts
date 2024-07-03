@@ -171,7 +171,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ).subscribe((explanation: string) => {
       this.explanationToDisplay = explanation;
       this.isExplanationDisplayed = !!explanation;
-      this.cdRef.detectChanges();
     });
   }
 
@@ -246,12 +245,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
         this.quizStateService.setCurrentQuestion(question);
 
-        // Ensure the question text is fully rendered
-        this.cdRef.detectChanges();
-
         /* setTimeout(() => {
           this.questionRendered.next(true); // Use BehaviorSubject
-          this.cdRef.detectChanges(); // Ensure the question text is fully rendered before proceeding
           this.initializeExplanationTextObservable();
           // this.fetchExplanationTextAfterRendering(question);
         }, 300); // Ensure this runs after the current rendering cycle
