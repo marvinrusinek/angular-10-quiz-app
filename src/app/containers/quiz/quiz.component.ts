@@ -212,14 +212,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.timerService.stopTimer(null);
   }
 
-  private safeDetectChanges(): void {
-    if (!this.destroy$.isStopped) {
-      this.cdRef.detectChanges();
-    } else {
-      console.warn('Attempted to call detectChanges on a destroyed view.');
-    }
-  }
-
   // Public getter methods for determining UI state based on current quiz and question data.
   public get isContentAvailable(): boolean {
     return !!this.data?.questionText || !!this.data?.correctAnswersText;
@@ -282,7 +274,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.correctAnswersTextSource.subscribe(text => {
       this.correctAnswersText = text;
       console.log('Updated correct answers text:', this.correctAnswersText);
-      this.cdRef.detectChanges(); // Ensure view updates
     });
 
     this.subscribeToCurrentQuestion();
@@ -309,10 +300,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quiz = quiz;
         if (quiz.questions && quiz.questions.length > 0) {
           this.currentQuestion = quiz.questions[this.questionIndex - 1];
-
-          if (!this.isDestroyed) {
-            this.cdRef.detectChanges();
-          }
         } else {
           console.error('Quiz has no questions.');
         }
@@ -659,8 +646,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.explanationToDisplay = "No explanation available for this question.";
       console.error("Missing formatted explanation for index:", index);
     }
-
-    this.cdRef.detectChanges();
   }
   /****** End of functions responsible for handling navigation to a particular question using the URL. ******/
 
@@ -1065,9 +1050,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.correctAnswersTextSource.next('');
       console.log('Clearing correct answers text.');
     }
-
-    // Trigger change detection to update the UI
-    this.cdRef.detectChanges();
   }
 
   private subscribeToSelectionMessage(): void {
@@ -1080,7 +1062,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       .subscribe((message: string) => {
         if (this.selectionMessage !== message) {
           this.selectionMessage = message;
-          this.safeDetectChanges();
         } 
       });
   }
@@ -1167,7 +1148,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectionMessageService.updateSelectionMessage('');
     this.selectedOption$.next(null);
     this.explanationTextService.explanationText$.next('');
-    this.cdRef.detectChanges();
   }
 
   updateQuestionDisplay(questionIndex: number): void {
@@ -1202,7 +1182,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     console.log(`Explanation for question ${questionIndex}:`, this.explanationToDisplay);
-    this.cdRef.detectChanges();
   }
 
   initializeFirstQuestion(): void {
