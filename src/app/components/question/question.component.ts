@@ -80,7 +80,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   questionIndex: number;
   questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
-  selectedOption: Option | null = null;
+  selectedOption: SelectedOption | null = null;
   selectedOptions: SelectedOption[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
   options$: Observable<Option[]>;

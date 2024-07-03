@@ -7,7 +7,7 @@ import { QuizService } from '../../shared/services/quiz.service';
 
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
-  selectedOption: Option | null = null;
+  selectedOption: SelectedOption | null = null;
   selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
   private selectedOptionIndices: { [key: number]: number[] } = {};
 
@@ -20,7 +20,7 @@ export class SelectedOptionService {
 
   constructor(private quizService: QuizService) {}
 
-  setSelectedOption(option: Option): void {
+  setSelectedOption(option: SelectedOption): void {
     this.selectedOption = option;
     this.updateAnsweredState();
   }
@@ -29,7 +29,7 @@ export class SelectedOptionService {
     return this.selectedOption;
   }
 
-  isSelectedOption(option: Option, selectedOptions: Option[], showFeedbackForOption: { [key: number]: boolean }): boolean {
+  isSelectedOption(option: Option, selectedOptions: SelectedOption[], showFeedbackForOption: { [key: number]: boolean }): boolean {
     const isSelected = this.selectedOption === option;
     const isOptionSelected = Array.isArray(selectedOptions) && selectedOptions.some(selectedOption => selectedOption.text === option.text);
     const isFeedbackVisible = showFeedbackForOption && option.optionId !== undefined && showFeedbackForOption[option.optionId];
