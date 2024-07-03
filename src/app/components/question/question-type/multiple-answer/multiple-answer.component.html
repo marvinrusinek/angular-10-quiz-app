@@ -21,8 +21,8 @@
       >
         <span>{{ idx + 1 }}.  {{ option?.text }}</span>
 
-        <mat-icon>
-          {{ feedbackIcon }}
+        <mat-icon *ngIf="showFeedbackForOption[idx]">
+          {{ getFeedbackIcon(option) }}
         </mat-icon>
       </mat-checkbox>
 

@@ -20,13 +20,11 @@
         [disabled]="option.selected"
       >
         <span>{{ idx + 1 }}  {{ option?.text }}</span>
-        <mat-icon>
-          {{ feedbackIcon }}
-        </mat-icon>
 
-        <!--<mat-icon *ngIf="showFeedbackForOption[idx]">
+
+        <mat-icon *ngIf="showFeedbackForOption[idx]">
           {{ getFeedbackIcon(option) }}
-        </mat-icon>-->
+        </mat-icon>
       </mat-radio-button>
       
       <codelab-quiz-feedback
