@@ -229,7 +229,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       } else {
         console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined when trying to get correct answers.');
       }
-      this.cdRef.detectChanges();
     }
   
     // Handling changes to the question
@@ -275,7 +274,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         await this.fetchAndProcessQuizQuestions();
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-        this.safeDetectChanges();
       });
     }
   }
@@ -307,14 +305,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const feedbackIcon = isOptionSelected ? (option.correct ? 'done' : 'clear') : '';
     console.log('Feedback icon for option:', option, feedbackIcon);
     return feedbackIcon;
-  }
-
-  private safeDetectChanges(): void {
-    if (!this.isComponentDestroyed) {
-      this.cdRef.detectChanges();
-    } else {
-      console.warn('Attempted to call detectChanges on a destroyed view.');
-    }
   }
 
   trackByOption(option: Option): number {
@@ -473,8 +463,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } finally {
       this.isLoading = false;
     }
-  
-    this.cdRef.detectChanges();
   }
 
   private async handleQuestionState(): Promise<void> {
@@ -665,7 +653,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       if (this.selectionMessage !== initialMessage) {
         this.selectionMessage = initialMessage;
         this.selectionMessageService.updateSelectionMessage(initialMessage);
-        this.safeDetectChanges();
       } else {
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         this.updateSelectionMessageBasedOnCurrentState(isAnswered);
@@ -973,8 +960,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
       this.processCurrentQuestionState(currentQuestion, option, index);
       await this.handleCorrectnessAndTimer();
-
-      this.safeDetectChanges();
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
@@ -999,7 +984,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectionMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
     this.selectionMessageService.resetMessage();
-    this.safeDetectChanges();
   }
   
   private updateSelectedOption(option: SelectedOption): void {
@@ -1024,7 +1008,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       if (this.selectionMessage !== newMessage) {
         this.selectionMessage = newMessage;
         this.selectionMessageService.updateSelectionMessage(newMessage);
-        this.safeDetectChanges();
       } else {
         console.log('[updateSelectionMessageBasedOnCurrentState] No message update required');
       }
@@ -1082,7 +1065,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (this.selectionMessage !== newMessage) {
       this.selectionMessage = newMessage;
       this.selectionMessageService.updateSelectionMessage(newMessage);
-      this.safeDetectChanges();
     } else {
       console.log('[setSelectionMessageIfChanged] No message update required');
     }
@@ -1178,7 +1160,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.selectedOption = { ...option, correct: option.correct };
     this.showFeedback = true;
-    this.cdRef.detectChanges();
 
     // Update answers for option
     this.quizService.updateAnswersForOption(option);
@@ -1213,7 +1194,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Ensure showFeedback remains true
     this.showFeedback = true;
-    this.cdRef.detectChanges();
   }
 
   private processOptionSelection(
