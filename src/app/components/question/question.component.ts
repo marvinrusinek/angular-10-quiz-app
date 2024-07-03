@@ -181,7 +181,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     try {
-      this.optionsToDisplay.forEach((option, idx) => {
+      this.optionsToDisplay.forEach((option) => {
         this.showFeedbackForOption[option.optionId] = false; // Initially set to false
       });
 
@@ -302,12 +302,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   // Function to get the feedback icon based on the option
-  getFeedbackIcon(option: Option): string {
-    const isOptionSelected = this.selectedOptionService.isSelectedOption(
-      option, this.selectedOptions, this.showFeedbackForOption[option.text]
-    );
+  getFeedbackIcon(option: SelectedOption): string {
+    const isOptionSelected = this.selectedOptions.includes(option);
     const icon = isOptionSelected ? (option.correct ? 'done' : 'clear') : '';
-    console.log('Feedback icon for option:', option, icon);
+    console.log('Option:', option, 'Selected:', isOptionSelected, 'Icon:', icon);
     return icon;
   }
 
