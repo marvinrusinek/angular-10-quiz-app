@@ -19,8 +19,8 @@
         [isCorrect]="option.correct"
         [disabled]="option.selected"
       >
-        <span>{{ idx + 1 }}.  {{ option?.text }}</span>
-        <mat-icon>done</mat-icon>
+        <span>{{ idx + 1 }}  {{ option?.text }}</span>
+        <mat-icon style="color: black">done</mat-icon>
 
         <!--<mat-icon *ngIf="showFeedbackForOption[idx]">
           {{ getFeedbackIcon(option) }}
