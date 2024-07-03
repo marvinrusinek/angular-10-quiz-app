@@ -181,6 +181,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     try {
+      this.optionsToDisplay.forEach((option, idx) => {
+        this.showFeedbackForOption[option.optionId] = false; // Initially set to false
+      });
+
       // Reset state and messages for the new question
       this.resetMessages();
       this.resetStateForNewQuestion();
