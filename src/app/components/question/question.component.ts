@@ -1364,7 +1364,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.showFeedbackForOption = { [option.optionId]: true };
     this.showFeedback = true;
     this.selectedOption = option;
-    this.selectedOptionService.setSelectedOption(option);
+    this.selectedOptionService.setSelectedOption(option as SelectedOption);
   
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
