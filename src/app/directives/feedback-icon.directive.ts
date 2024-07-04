@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, Renderer2, OnChanges, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, Input, Renderer2, OnChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 import { SelectedOption } from '../shared/models/SelectedOption.model';
@@ -19,7 +19,7 @@ export class FeedbackIconDirective implements OnChanges {
     private selectedOptionService: SelectedOptionService
   ) {}
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(): void {
     this.updateIcon();
   }
 
