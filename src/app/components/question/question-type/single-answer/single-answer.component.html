@@ -23,6 +23,7 @@
 
         <span
           class="icon"
+          *ngIf="shouldShowIcon(option)"
           appFeedbackIcon
           [option]="option"
           [selectedOption]="selectedOptionService.getSelectedOption()"
