@@ -11,6 +11,9 @@ export class SelectedOptionService {
   selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
   private selectedOptionIndices: { [key: number]: number[] } = {};
 
+  private selectedOptionSubject = new BehaviorSubject<SelectedOption | null>(null);
+  selectedOption$ = this.selectedOptionSubject.asObservable();
+
   private selectedOptionExplanationSource = new BehaviorSubject<string>(null);
   selectedOptionExplanation$ = this.selectedOptionExplanationSource.asObservable();
 
@@ -18,15 +21,27 @@ export class SelectedOptionService {
 
   private isAnsweredSubject = new BehaviorSubject<boolean>(false);
 
+  private showFeedbackForOptionSubject = new BehaviorSubject<{ [optionId: number]: boolean }>({});
+  showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
+
   constructor(private quizService: QuizService) {}
+
+  getShowFeedbackForOption(): { [optionId: number]: boolean } {
+    return this.showFeedbackForOptionSubject.value;
+  }
 
   setSelectedOption(option: SelectedOption): void {
     this.selectedOption = option;
     this.updateAnsweredState();
+    this.selectedOptionSubject.next(option);
+    const currentFeedback = this.showFeedbackForOptionSubject.value;
+    currentFeedback[option.optionId] = true;
+    this.showFeedbackForOptionSubject.next(currentFeedback);
   }
 
   getSelectedOption(): Option {
-    return this.selectedOption;
+    return this.selectedOptionSubject.value;
+    // return this.selectedOption;
   }
 
   isSelectedOption(option: Option, selectedOptions: SelectedOption[], showFeedbackForOption: { [key: number]: boolean }): boolean {
