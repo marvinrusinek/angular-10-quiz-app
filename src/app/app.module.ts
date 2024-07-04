@@ -115,6 +115,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     IonicModule.forRoot()
   ],
   exports: [
+    FeedbackIconDirective,
     HighlightDirective,
     MatExpansionModule
   ],
