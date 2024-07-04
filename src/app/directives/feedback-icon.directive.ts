@@ -1,12 +1,15 @@
 import { Directive, ElementRef, Input, Renderer2, OnChanges, SimpleChanges } from '@angular/core';
 
+import { Option } from '../shared/models/Option.model';
+import { SelectedOption } from '../shared/models/SelectedOption.model';
 import { SelectedOptionService } from '../shared/services/selectedoption.service';
 
 @Directive({
   selector: '[appFeedbackIcon]'
 })
 export class FeedbackIconDirective implements OnChanges {
-  @Input() option: any;
+  @Input() option: Option;
+  @Input() selectedOptions: SelectedOption[];
   @Input() selectedOption: any;
   @Input() showFeedbackForOption: { [optionId: number]: boolean };
 
@@ -21,8 +24,10 @@ export class FeedbackIconDirective implements OnChanges {
   }
 
   private updateIcon(): void {
-    const isSelected = this.selectedOption && this.selectedOption.optionId === this.option.optionId;
-    const showFeedback = this.showFeedbackForOption && this.showFeedbackForOption[this.option.optionId];
+    // const isSelected = this.selectedOption && this.selectedOption.optionId === this.option.optionId;
+    // const showFeedback = this.showFeedbackForOption && this.showFeedbackForOption[this.option.optionId];
+
+    const isSelected = this.selectedOptionService.isSelectedOption(this.option, this.selectedOptions, this.showFeedbackForOption);
 
     if (isSelected) {
       const icon = this.option.correct ? '✔️' : '❌';
