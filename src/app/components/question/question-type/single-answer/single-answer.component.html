@@ -26,8 +26,8 @@
           *ngIf="shouldShowIcon(option)"
           appFeedbackIcon
           [option]="option"
-          [selectedOption]="selectedOptionService.getSelectedOption()"
-          [showFeedbackForOption]="selectedOptionService.getShowFeedbackForOption()">
+          [selectedOption]="selectedOption"
+          [showFeedbackForOption]="showFeedbackForOption">
         </span>
       </mat-radio-button>
       
