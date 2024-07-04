@@ -23,16 +23,16 @@ export class FeedbackIconDirective implements OnChanges {
     this.updateIcon();
   }
 
-  private updateIcon(): void {
+  private updateIcon() {
     const isSelected = this.selectedOptionService.isSelectedOption(this.option);
 
     if (isSelected) {
       const icon = this.option.correct ? '✔️' : '❌';
       this.renderer.setProperty(this.el.nativeElement, 'innerText', icon);
-      console.log('Icon set to', icon);
+      console.log('Icon set to', icon, 'for option', this.option.optionId);
     } else {
       this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
-      console.log('Icon cleared');
+      console.log('Icon cleared for option', this.option.optionId);
     }
   }
 }
