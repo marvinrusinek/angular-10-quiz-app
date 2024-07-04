@@ -25,7 +25,7 @@ export class FeedbackIconDirective implements OnChanges {
 
   private updateIcon(): void {
     if (!this.option?.optionId) {
-      console.log('Option ID is undefined'); // Debug log
+      console.log('Option ID is undefined');
       return;
     }
 
