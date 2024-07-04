@@ -10,7 +10,7 @@ import { SelectedOptionService } from '../shared/services/selectedoption.service
 export class FeedbackIconDirective implements OnChanges {
   @Input() option: Option;
   @Input() selectedOptions: SelectedOption[];
-  @Input() selectedOption: SelectedOption;
+  @Input() selectedOption: Option | null;
   @Input() showFeedbackForOption: { [optionId: number]: boolean };
 
   constructor(
