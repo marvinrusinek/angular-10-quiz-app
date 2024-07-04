@@ -21,8 +21,7 @@
       >
         <span>{{ idx + 1 }}.  {{ option?.text }}</span>
 
-        <span
-          class="icon"
+        <span class="icon"
           *ngIf="shouldShowIcon(option)"
           appFeedbackIcon
           [option]="option"
