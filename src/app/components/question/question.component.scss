@@ -30,6 +30,8 @@
 
     .icon {
       float: right;
+      position: relative;
+      top: calc(50% - 10px) !important;
     }
   }
 
