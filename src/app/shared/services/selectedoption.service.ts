@@ -44,10 +44,6 @@ export class SelectedOptionService {
     // return this.selectedOption;
   } */
 
-  clearOptions() {
-    this.showFeedbackForOptionSubject.next({});
-  }
-
   setSelectedOption(option: SelectedOption): void {
     this.selectedOptionSubject.next(option);
     const currentFeedback = { ...this.showFeedbackForOptionSubject.value };
@@ -77,6 +73,11 @@ export class SelectedOptionService {
     this.selectedOptionSubject.next(null);
     this.showFeedbackForOptionSubject.next({});
     this.resetAnsweredState();
+  }
+
+  clearOptions(): void {
+    this.selectedOptionSubject.next(null);
+    this.showFeedbackForOptionSubject.next({});
   }
 
   // Observable to get the current option selected state
