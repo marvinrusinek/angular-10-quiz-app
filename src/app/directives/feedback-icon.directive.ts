@@ -9,6 +9,7 @@ import { SelectedOptionService } from '../shared/services/selectedoption.service
 })
 export class FeedbackIconDirective implements OnChanges {
   @Input() option: Option;
+  @Input() optionId: number;
   @Input() selectedOptions: SelectedOption[];
   @Input() selectedOption: Option | null;
   @Input() showFeedbackForOption: { [optionId: number]: boolean };
@@ -24,12 +25,12 @@ export class FeedbackIconDirective implements OnChanges {
   }
 
   private updateIcon(): void {
-    if (!this.option?.optionId) {
-      console.log('Option ID is undefined');
+    if (this.optionId === undefined) {
+      console.log('Option ID is undefined for option:', this.option); // Debug log
       return;
     }
 
-    const isSelected = this.selectedOptionService.isSelectedOption(this.option);
+    const isSelected = this.selectedOptionService.isSelectedOption({ ...this.option, optionId: this.optionId });
 
     if (isSelected) {
       const icon = this.option.correct ? '✔️' : '❌';
