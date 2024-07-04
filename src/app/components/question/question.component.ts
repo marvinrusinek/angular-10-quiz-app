@@ -1342,6 +1342,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
+  shouldShowIcon(option: SelectedOption): boolean {
+    const selectedOption = this.selectedOptionService.getSelectedOption();
+    const showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
+    return selectedOption && selectedOption.optionId === option.optionId && showFeedbackForOption[option.optionId];
+  }
+
   selectOption(currentQuestion: QuizQuestion, option: SelectedOption, optionIndex: number): void {
     this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
     this.showFeedbackForOption = { [option.optionId]: true };
