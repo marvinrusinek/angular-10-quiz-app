@@ -24,10 +24,10 @@ export class FeedbackIconDirective implements OnChanges {
   }
 
   private updateIcon(): void {
-    if (!this.option?.optionId) {
+    /* if (!this.option?.optionId) {
       console.log('Option ID is undefined');
       return;
-    }
+    } */
 
     const isSelected = this.selectedOptionService.isSelectedOption(this.option);
 
