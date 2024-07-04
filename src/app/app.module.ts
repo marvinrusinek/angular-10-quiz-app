@@ -44,7 +44,7 @@ import { CodelabQuizContentComponent } from './containers/quiz/quiz-content/code
 import { CodelabQuizHeaderComponent } from './containers/quiz/quiz-header/quiz-header.component';
 import { CodelabQuestionGenericComponent } from './components/question/generic/codelab-question-generic.component';
 import { FeedbackIconDirective } from './directives/feedback-icon.directive';
-import { HighlightDirective } from './directives/highlight.directive';
+import { HighlightOptionDirective } from './directives/highlight-option.directive';
 import { ResetBackgroundDirective } from './directives/reset-background.directive';
 import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
@@ -87,7 +87,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     CodelabQuizHeaderComponent,
     CodelabQuestionGenericComponent,
     FeedbackIconDirective,
-    HighlightDirective,
+    HighlightOptionDirective,
     ResetBackgroundDirective,
     JoinPipe
   ],
@@ -116,7 +116,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
   ],
   exports: [
     FeedbackIconDirective,
-    HighlightDirective,
+    HighlightOptionDirective,
     MatExpansionModule
   ],
   bootstrap: [AppComponent],
