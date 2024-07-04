@@ -21,9 +21,6 @@ export class FeedbackIconDirective implements OnChanges {
   }
 
   private updateIcon(): void {
-    const selectedOption = this.selectedOptionService.getSelectedOption();
-    const showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
-
     const isSelected = selectedOption && selectedOption.optionId === this.option.optionId;
     const showFeedback = showFeedbackForOption && showFeedbackForOption[this.option.optionId];
 
