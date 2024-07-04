@@ -44,6 +44,10 @@ export class SelectedOptionService {
     // return this.selectedOption;
   } */
 
+  clearOptions() {
+    this.showFeedbackForOptionSubject.next({});
+  }
+
   setSelectedOption(option: SelectedOption): void {
     this.selectedOptionSubject.next(option);
     const currentFeedback = { ...this.showFeedbackForOptionSubject.value };
