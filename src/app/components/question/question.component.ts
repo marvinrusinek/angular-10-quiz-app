@@ -307,16 +307,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   isSelectedOption(option: Option): boolean {
-    const isOptionSelected = this.selectedOptionService.isSelectedOption(
-      option, this.selectedOptions, this.showFeedbackForOption
-    );
+    const isOptionSelected = this.selectedOptionService.isSelectedOption(option);
     return isOptionSelected;
   }
 
   // Function to get the feedback icon based on the option
   getFeedbackIcon(option: SelectedOption): string {
     const isOptionSelected = this.selectedOptionService.isSelectedOption(
-      option, this.selectedOptions, this.showFeedbackForOption
+      option
     );
     const icon = isOptionSelected ? (option.correct ? 'done' : 'clear') : '';
     console.log('Option:', option, 'Selected:', isOptionSelected, 'Icon:', icon);
@@ -1224,7 +1222,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleOptionClicked(currentQuestion, index);
 
     // Check if the clicked option is selected
-    const isOptionSelected = this.selectedOptionService.isSelectedOption(option, this.selectedOptions, this.showFeedbackForOption);
+    const isOptionSelected = this.selectedOptionService.isSelectedOption(option);
 
     // Set shouldDisplayExplanation to true when an option is selected, otherwise set it to false
     this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
