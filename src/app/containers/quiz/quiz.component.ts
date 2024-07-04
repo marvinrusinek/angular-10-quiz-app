@@ -1709,17 +1709,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private clearOptions(): void {
-    this.selectedOptionService.clearSelectedOption();
-  }
-
   // Reset UI immediately before navigating
   private resetUI(): void {
     this.highlightDirective.reset();
     this.timerService.startTimer(30);
     this.resetBackgroundService.setShouldResetBackground(true);
     this.explanationTextService.resetExplanationState();
-    this.clearOptions();
+    this.selectedOptionService.clearOptions();
   }
 
   private resetQuestionDisplayState(): void {
