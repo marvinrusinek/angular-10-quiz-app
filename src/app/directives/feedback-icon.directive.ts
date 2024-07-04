@@ -7,6 +7,8 @@ import { SelectedOptionService } from '../shared/services/selectedoption.service
 })
 export class FeedbackIconDirective implements OnChanges {
   @Input() option: any;
+  @Input() selectedOption: any;
+  @Input() showFeedbackForOption: { [optionId: number]: boolean };
 
   constructor(
     private el: ElementRef,
