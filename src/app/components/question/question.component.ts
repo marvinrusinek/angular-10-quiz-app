@@ -942,6 +942,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.feedbackIcon = this.getFeedbackIcon(option);
       console.log('Feedback icon set:', this.feedbackIcon);
 
+      this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
+      this.showFeedbackForOption = { [option.optionId]: true };
+      this.showFeedback = true;
+      this.selectedOption = option;
+
       Object.keys(this.showFeedbackForOption).forEach(key => this.showFeedbackForOption[+key] = false);
       this.showFeedbackForOption[index] = this.showFeedback && this.selectedOption === option;
       console.log('Updated showFeedbackForOption:', this.showFeedbackForOption);
