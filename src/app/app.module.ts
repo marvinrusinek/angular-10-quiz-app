@@ -43,6 +43,7 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
 import { CodelabQuizContentComponent } from './containers/quiz/quiz-content/codelab-quiz-content.component';
 import { CodelabQuizHeaderComponent } from './containers/quiz/quiz-header/quiz-header.component';
 import { CodelabQuestionGenericComponent } from './components/question/generic/codelab-question-generic.component';
+import { FeedbackIconDirective } from './directives/feedback-icon.directive';
 import { HighlightDirective } from './directives/highlight.directive';
 import { ResetBackgroundDirective } from './directives/reset-background.directive';
 import { QuizService } from './shared/services/quiz.service';
