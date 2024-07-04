@@ -23,7 +23,7 @@ export class FeedbackIconDirective implements OnChanges {
     this.updateIcon();
   }
 
-  private updateIcon() {
+  private updateIcon(): void {
     const isSelected = this.selectedOptionService.isSelectedOption(this.selectedOption);
 
     if (isSelected) {
