@@ -1715,6 +1715,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.timerService.startTimer(30);
     this.resetBackgroundService.setShouldResetBackground(true);
     this.explanationTextService.resetExplanationState();
+    this.selectedOptionService.clearSelectedOption();
   }
 
   private resetQuestionDisplayState(): void {
