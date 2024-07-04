@@ -86,6 +86,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     CodelabQuizContentComponent,
     CodelabQuizHeaderComponent,
     CodelabQuestionGenericComponent,
+    FeedbackIconDirective,
     HighlightDirective,
     ResetBackgroundDirective,
     JoinPipe
