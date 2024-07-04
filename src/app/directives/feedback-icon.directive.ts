@@ -21,14 +21,10 @@ export class FeedbackIconDirective implements OnChanges {
   }
 
   private updateIcon(): void {
-    // const isSelected = this.selectedOption && this.selectedOption.optionId === this.option.optionId;
-    // const showFeedback = this.showFeedbackForOption && this.showFeedbackForOption[this.option.optionId];
+    const isSelected = this.selectedOption && this.selectedOption.optionId === this.option.optionId;
+    const showFeedback = this.showFeedbackForOption && this.showFeedbackForOption[this.option.optionId];
 
-    const isSelected = this.selectedOptionService.isSelectedOption(this.option);
-
-    console.log('isSelected:', isSelected, 'showFeedback:', showFeedback);
-
-    if (isSelected && showFeedback) {
+    if (isSelected) {
       const icon = this.option.correct ? '✔️' : '❌';
       this.renderer.setProperty(this.el.nativeElement, 'innerText', icon);
       console.log('Icon set to', icon);
