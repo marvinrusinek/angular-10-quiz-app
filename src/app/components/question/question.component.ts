@@ -1355,7 +1355,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   shouldShowIcon(option: Option): boolean {
     const selectedOption = this.selectedOptionService.getSelectedOption();
     const showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
-    return selectedOption && selectedOption.optionId === option.optionId && showFeedbackForOption[option.optionId];
+    const shouldShow = selectedOption && selectedOption.optionId === option.optionId && showFeedbackForOption[option.optionId];
+    console.log('Should show icon for option', option.optionId, ':', shouldShow);
+    return shouldShow;
   }
 
   selectOption(currentQuestion: QuizQuestion, option: SelectedOption, optionIndex: number): void {
