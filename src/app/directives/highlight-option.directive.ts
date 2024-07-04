@@ -1,9 +1,9 @@
 import { Directive, ElementRef, EventEmitter, HostListener, Input, Output, Renderer2 } from '@angular/core';
 
 @Directive({
-  selector: '[appHighlight]'
+  selector: '[appHighlightOption]'
 })
-export class HighlightDirective {
+export class HighlightOptionDirective {
   @Output() resetBackground = new EventEmitter<boolean>();
   @Input() isCorrect: boolean;
   private isAnswered = false;
