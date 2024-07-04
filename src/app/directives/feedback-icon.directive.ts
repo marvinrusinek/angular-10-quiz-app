@@ -7,7 +7,7 @@ import { SelectedOption } from '../shared/models/SelectedOption.model';
 })
 export class FeedbackIconDirective implements OnChanges {
   @Input() option: SelectedOption;
-  @Input() selectedOptions: SelectedOption[];
+  @Input() selectedOption: SelectedOption | null;
   @Input() showFeedbackForOption: { [optionId: number]: boolean };
 
   constructor(private el: ElementRef, private renderer: Renderer2) {}
@@ -17,7 +17,7 @@ export class FeedbackIconDirective implements OnChanges {
   }
 
   private updateIcon() {
-    const isSelected = this.selectedOptions.some(selectedOption => selectedOption.optionId === this.option.optionId);
+    const isSelected = this.selectedOption && this.selectedOption.optionId === this.option.optionId;
     const showFeedback = this.showFeedbackForOption && this.showFeedbackForOption[this.option.optionId];
 
     if (isSelected && showFeedback) {
@@ -28,4 +28,3 @@ export class FeedbackIconDirective implements OnChanges {
     }
   }
 }
-
