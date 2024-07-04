@@ -1,5 +1,7 @@
 import { Directive, ElementRef, Input, Renderer2, OnChanges } from '@angular/core';
-import { SelectedOption } from '../models/SelectedOption.model';
+
+import { SelectedOption } from '../shared/models/SelectedOption.model';
+
 
 @Directive({
   selector: '[appFeedbackIcon]'
