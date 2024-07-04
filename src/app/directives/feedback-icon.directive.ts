@@ -12,19 +12,24 @@ export class FeedbackIconDirective implements OnChanges {
 
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges) {
     this.updateIcon();
   }
 
-  private updateIcon(): void {
+  private updateIcon() {
+    console.log('Directive: updating icon for option', this.option);
     const isSelected = this.selectedOption && this.selectedOption.optionId === this.option.optionId;
     const showFeedback = this.showFeedbackForOption && this.showFeedbackForOption[this.option.optionId];
+
+    console.log('isSelected:', isSelected, 'showFeedback:', showFeedback);
 
     if (isSelected && showFeedback) {
       const icon = this.option.correct ? 'done' : 'clear';
       this.renderer.setProperty(this.el.nativeElement, 'innerText', icon);
+      console.log('Icon set to', icon);
     } else {
       this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
+      console.log('Icon cleared');
     }
   }
 }
