@@ -6,8 +6,8 @@ import { SelectedOption } from '../shared/models/SelectedOption.model';
   selector: '[appFeedbackIcon]'
 })
 export class FeedbackIconDirective implements OnChanges {
-  @Input() option: SelectedOption;
-  @Input() selectedOption: SelectedOption | null;
+  @Input() option: any;
+  @Input() selectedOption: any;
   @Input() showFeedbackForOption: { [optionId: number]: boolean };
 
   constructor(private el: ElementRef, private renderer: Renderer2) {}
