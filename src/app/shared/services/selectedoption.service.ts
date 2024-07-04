@@ -69,6 +69,8 @@ export class SelectedOptionService {
 
   clearSelectedOption(): void {
     this.selectedOption = null;
+    this.selectedOptionSubject.next(null);
+    this.showFeedbackForOptionSubject.next({});
     this.resetAnsweredState();
   }
 
