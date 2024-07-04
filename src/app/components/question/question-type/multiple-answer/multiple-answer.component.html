@@ -25,6 +25,7 @@
           *ngIf="selectedOption && shouldShowIcon(option)"
           appFeedbackIcon
           [option]="option"
+          [optionId]="idx"
           [selectedOption]="selectedOption"
           [showFeedbackForOption]="showFeedbackForOption">
         </span>
