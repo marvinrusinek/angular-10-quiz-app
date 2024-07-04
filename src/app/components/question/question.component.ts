@@ -186,10 +186,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
       this.selectedOption = selectedOption;
       this.selectedOptions = selectedOption ? [selectedOption] : [];
+      console.log('Selected option updated to', selectedOption);
     });
 
     this.selectedOptionService.showFeedbackForOption$.subscribe(showFeedbackForOption => {
       this.showFeedbackForOption = showFeedbackForOption;
+      console.log('Show feedback for option updated to', showFeedbackForOption);
     });
     
     try {
