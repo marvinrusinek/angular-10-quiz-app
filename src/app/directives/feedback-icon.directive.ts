@@ -16,11 +16,11 @@ export class FeedbackIconDirective implements OnChanges {
     private selectedOptionService: SelectedOptionService
   ) {}
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     this.updateIcon();
   }
 
-  private updateIcon() {
+  private updateIcon(): void {
     const selectedOption = this.selectedOptionService.getSelectedOption();
     const showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
 
