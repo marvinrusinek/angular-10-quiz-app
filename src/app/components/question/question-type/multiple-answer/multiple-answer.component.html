@@ -21,12 +21,12 @@
       >
         <span>{{ idx + 1 }}.  {{ option?.text }}</span>
 
-        <mat-icon
+        <span class="icon"
           appFeedbackIcon 
           [option]="option" 
-          [selectedOptions]="selectedOptions" 
+          [selectedOption]="selectedOption" 
           [showFeedbackForOption]="showFeedbackForOption">
-        </mat-icon>
+        </span>
       </mat-checkbox>
 
       <codelab-quiz-feedback
