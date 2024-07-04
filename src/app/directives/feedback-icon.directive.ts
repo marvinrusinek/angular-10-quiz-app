@@ -1,7 +1,6 @@
-import { Directive, ElementRef, Input, Renderer2, OnChanges } from '@angular/core';
+import { Directive, ElementRef, Input, Renderer2, OnChanges, SimpleChanges } from '@angular/core';
 
 import { SelectedOption } from '../shared/models/SelectedOption.model';
-
 
 @Directive({
   selector: '[appFeedbackIcon]'
@@ -13,19 +12,20 @@ export class FeedbackIconDirective implements OnChanges {
 
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
-  ngOnChanges() {
+  ngOnChanges(changes: SimpleChanges) {
     this.updateIcon();
   }
 
   private updateIcon() {
-    const isSelected = this.selectedOptions.includes(this.option);
+    const isSelected = this.selectedOptions.some(selectedOption => selectedOption.optionId === this.option.optionId);
     const showFeedback = this.showFeedbackForOption && this.showFeedbackForOption[this.option.optionId];
 
     if (isSelected && showFeedback) {
       const icon = this.option.correct ? 'done' : 'clear';
-      this.renderer.setProperty(this.el.nativeElement, 'innerHTML', icon);
+      this.renderer.setProperty(this.el.nativeElement, 'innerText', icon);
     } else {
-      this.renderer.setProperty(this.el.nativeElement, 'innerHTML', '');
+      this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
     }
   }
 }
+
