@@ -44,7 +44,7 @@ export class SelectedOptionService {
     // return this.selectedOption;
   } */
 
-  setSelectedOption(option: SelectedOption) {
+  setSelectedOption(option: SelectedOption): void {
     this.selectedOptionSubject.next(option);
     const currentFeedback = { ...this.showFeedbackForOptionSubject.value };
     Object.keys(currentFeedback).forEach(key => currentFeedback[key] = false); // Clear previous feedback
