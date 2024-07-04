@@ -26,7 +26,7 @@ export class SelectedOptionService {
 
   constructor(private quizService: QuizService) {}
 
-  getShowFeedbackForOption(): { [optionId: number]: boolean } {
+  /* getShowFeedbackForOption(): { [optionId: number]: boolean } {
     return this.showFeedbackForOptionSubject.value;
   }
 
@@ -42,6 +42,21 @@ export class SelectedOptionService {
   getSelectedOption(): Option {
     return this.selectedOptionSubject.value;
     // return this.selectedOption;
+  } */
+
+  setSelectedOption(option: SelectedOption) {
+    this.selectedOptionSubject.next(option);
+    const currentFeedback = this.showFeedbackForOptionSubject.value;
+    currentFeedback[option.optionId] = true;
+    this.showFeedbackForOptionSubject.next(currentFeedback);
+  }
+
+  getSelectedOption(): SelectedOption | null {
+    return this.selectedOptionSubject.value;
+  }
+
+  getShowFeedbackForOption(): { [optionId: number]: boolean } {
+    return this.showFeedbackForOptionSubject.value;
   }
 
   isSelectedOption(option: Option, selectedOptions: SelectedOption[], showFeedbackForOption: { [key: number]: boolean }): boolean {
