@@ -21,11 +21,12 @@
       >
         <span>{{ idx + 1 }}  {{ option?.text }}</span>
 
-        <span class="icon"
-          appFeedbackIcon 
-          [option]="option" 
-          [selectedOption]="selectedOption" 
-          [showFeedbackForOption]="showFeedbackForOption">
+        <span 
+          class="icon"  
+          appFeedbackIcon
+          [option]="option"
+          [selectedOption]="selectedOptionService.getSelectedOption()"
+          [showFeedbackForOption]="selectedOptionService.getShowFeedbackForOption()">
         </span>
       </mat-radio-button>
       
