@@ -60,12 +60,18 @@ export class SelectedOptionService {
     return this.showFeedbackForOptionSubject.value;
   }
 
-  isSelectedOption(option: Option, selectedOptions: SelectedOption[], showFeedbackForOption: { [key: number]: boolean }): boolean {
+  /* isSelectedOption(option: Option, selectedOptions: SelectedOption[], showFeedbackForOption: { [key: number]: boolean }): boolean {
     const isSelected = this.selectedOption === option;
     const isOptionSelected = Array.isArray(selectedOptions) && selectedOptions.some(selectedOption => selectedOption.optionId === option.optionId);
     const isFeedbackVisible = showFeedbackForOption && option.optionId !== undefined && showFeedbackForOption[option.optionId];
 
     return isSelected || (isOptionSelected && isFeedbackVisible);
+  } */
+
+  isSelectedOption(option: Option): boolean {
+    const selectedOption = this.getSelectedOption();
+    const showFeedbackForOption = this.getShowFeedbackForOption();
+    return selectedOption?.optionId === option.optionId && !!showFeedbackForOption[option.optionId];
   }
 
   clearSelectedOption(): void {
