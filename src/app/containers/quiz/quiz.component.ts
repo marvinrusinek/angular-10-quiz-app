@@ -1714,8 +1714,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.highlightDirective.reset();
     this.timerService.startTimer(30);
     this.resetBackgroundService.setShouldResetBackground(true);
-    this.explanationTextService.resetExplanationState();
     this.selectedOptionService.clearOptions();
+    this.explanationTextService.resetExplanationState();
   }
 
   private resetQuestionDisplayState(): void {
