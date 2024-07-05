@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, Renderer2, OnChanges } from '@angular/core';
+import { Directive, ElementRef, Input, Renderer2, OnChanges, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 import { SelectedOption } from '../shared/models/SelectedOption.model';
@@ -20,8 +20,13 @@ export class FeedbackIconDirective implements OnChanges {
     private selectedOptionService: SelectedOptionService
   ) {}
 
-  ngOnChanges(): void {
+  /* ngOnChanges(): void {
     // this.optionId = this.optionId ?? this.option?.optionId; // Set this.optionId if it's not already set
+    this.updateIcon();
+  } */
+
+  ngOnChanges(changes: SimpleChanges) {
+    console.log('ngOnChanges called in FeedbackIconDirective', changes);
     this.updateIcon();
   }
 
