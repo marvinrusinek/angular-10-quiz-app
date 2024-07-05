@@ -50,6 +50,8 @@ export class SelectedOptionService {
     // Object.keys(currentFeedback).forEach(key => currentFeedback[key] = false); // Clear previous feedback
     currentFeedback[option.optionId] = true;
     this.showFeedbackForOptionSubject.next(currentFeedback);
+    this.selectedOption = option;
+    this.updateAnsweredState();
   }
 
   getSelectedOption(): SelectedOption | null {
