@@ -38,7 +38,9 @@ export class FeedbackIconDirective implements OnChanges {
 
     const isSelected = this.selectedOptionService.isSelectedOption({ ...this.option, optionId: this.optionId }); */
 
-    const isSelected = this.selectedOptionService.isSelectedOption(this.option);
+    // const isSelected = this.selectedOptionService.isSelectedOption(this.option);
+
+    const isSelected = this.selectedOption && this.selectedOption.optionId === this.optionId;
 
     if (isSelected) {
       const icon = this.option.correct ? '✔️' : '❌';
