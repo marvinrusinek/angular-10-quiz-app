@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, Renderer2, OnChanges, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, Input, Renderer2, OnChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 import { SelectedOption } from '../shared/models/SelectedOption.model';
@@ -9,9 +9,8 @@ import { SelectedOptionService } from '../shared/services/selectedoption.service
 })
 export class FeedbackIconDirective implements OnChanges {
   @Input() option: Option;
-  @Input() optionId: number;
   @Input() selectedOptions: SelectedOption[];
-  @Input() selectedOption: Option | null;
+  @Input() selectedOption: any;
   @Input() showFeedbackForOption: { [optionId: number]: boolean };
 
   constructor(
@@ -20,27 +19,12 @@ export class FeedbackIconDirective implements OnChanges {
     private selectedOptionService: SelectedOptionService
   ) {}
 
-  /* ngOnChanges(): void {
-    // this.optionId = this.optionId ?? this.option?.optionId; // Set this.optionId if it's not already set
-    this.updateIcon();
-  } */
-
-  ngOnChanges(changes: SimpleChanges) {
-    console.log('ngOnChanges called in FeedbackIconDirective', changes);
+  ngOnChanges(): void {
     this.updateIcon();
   }
 
-  private updateIcon(): void {
-    /* if (this.optionId === undefined) {
-      console.log('Option ID is undefined for option:', this.option); // Debug log
-      return;
-    }
-
-    const isSelected = this.selectedOptionService.isSelectedOption({ ...this.option, optionId: this.optionId }); */
-
+  private updateIcon() {
     const isSelected = this.selectedOptionService.isSelectedOption(this.option);
-
-    // const isSelected = this.selectedOption && this.selectedOption.optionId === this.optionId;
 
     if (isSelected) {
       const icon = this.option.correct ? '✔️' : '❌';
