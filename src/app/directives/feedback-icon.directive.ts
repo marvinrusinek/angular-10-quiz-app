@@ -21,17 +21,19 @@ export class FeedbackIconDirective implements OnChanges {
   ) {}
 
   ngOnChanges(): void {
-    this.optionId = this.optionId ?? this.option?.optionId; // Set this.optionId if it's not already set
+    // this.optionId = this.optionId ?? this.option?.optionId; // Set this.optionId if it's not already set
     this.updateIcon();
   }
 
   private updateIcon(): void {
-    if (this.optionId === undefined) {
+    /* if (this.optionId === undefined) {
       console.log('Option ID is undefined for option:', this.option); // Debug log
       return;
     }
 
-    const isSelected = this.selectedOptionService.isSelectedOption({ ...this.option, optionId: this.optionId });
+    const isSelected = this.selectedOptionService.isSelectedOption({ ...this.option, optionId: this.optionId }); */
+
+    const isSelected = this.selectedOptionService.isSelectedOption(this.option);
 
     if (isSelected) {
       const icon = this.option.correct ? '✔️' : '❌';
