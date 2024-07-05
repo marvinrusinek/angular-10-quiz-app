@@ -33,15 +33,17 @@ export class FeedbackIconDirective implements OnChanges {
     
     // const isSelected = this.selectedOptionService.isSelectedOption({ ...this.option, optionId: this.index });
 
+    // const isSelected = this.selectedOption && this.selectedOption.optionId === this.index;
+
     const isSelected = this.selectedOptionService.isSelectedOption(this.option);
 
     if (isSelected) {
       const icon = this.option.correct ? '✔️' : '❌';
       this.renderer.setProperty(this.el.nativeElement, 'innerText', icon);
-      console.log('Icon set to', icon, 'for option', this.option.optionId);
+      console.log('Icon set to', icon, 'for option', this.index);
     } else {
       this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
-      console.log('Icon cleared for option', this.option.optionId);
+      console.log('Icon cleared for option', this.index);
     }
   }
 }
