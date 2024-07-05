@@ -30,10 +30,6 @@ export class FeedbackIconDirective implements OnChanges {
       console.log('Index is undefined for option:', this.option); // Debug log
       return;
     }
-    
-    // const isSelected = this.selectedOptionService.isSelectedOption({ ...this.option, optionId: this.index });
-
-    // const isSelected = this.selectedOption && this.selectedOption.optionId === this.index;
 
     const isSelected = this.selectedOptionService.isSelectedOption(this.option);
 
