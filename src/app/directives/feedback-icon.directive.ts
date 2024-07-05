@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, Renderer2, OnChanges } from '@angular/core';
+import { Directive, ElementRef, Input, Renderer2, OnChanges, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 import { SelectedOption } from '../shared/models/SelectedOption.model';
@@ -12,6 +12,7 @@ export class FeedbackIconDirective implements OnChanges {
   @Input() selectedOptions: SelectedOption[];
   @Input() selectedOption: any;
   @Input() showFeedbackForOption: { [optionId: number]: boolean };
+  @Input() index: number;
 
   constructor(
     private el: ElementRef,
@@ -19,11 +20,17 @@ export class FeedbackIconDirective implements OnChanges {
     private selectedOptionService: SelectedOptionService
   ) {}
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('ngOnChanges called in FeedbackIconDirective', changes);
     this.updateIcon();
   }
 
-  private updateIcon() {
+  private updateIcon(): void {
+    if (this.index === undefined) {
+      console.log('Index is undefined for option:', this.option); // Debug log
+      return;
+    }
+    
     const isSelected = this.selectedOptionService.isSelectedOption(this.option);
 
     if (isSelected) {
