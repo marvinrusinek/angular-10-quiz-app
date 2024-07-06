@@ -1,8 +1,6 @@
 import { Directive, ElementRef, EventEmitter, HostListener, Input, Output, Renderer2 } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
-import { SelectedOption } from '../shared/models/SelectedOption.model';
-import { SelectedOptionService } from '../shared/services/selectedoption.service';
 
 @Directive({
   selector: '[appHighlightOption]'
@@ -15,8 +13,7 @@ export class HighlightOptionDirective {
 
   constructor(
     private el: ElementRef, 
-    private renderer: Renderer2, 
-    private selectedOptionService: SelectedOptionService) {
+    private renderer: Renderer2) {
   }
 
   @HostListener('click') onClick() {
