@@ -247,11 +247,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   loadQuestion() {
-    if (!this.questions || this.questions.length === 0) {
+    if (!this.questionsArray || this.questionsArray.length === 0) {
       console.error('Questions are not available yet');
       return;
     }
-    const currentQuestion = this.questions[this.currentQuestionIndex];
+    const currentQuestion = this.questionsArray[this.currentQuestionIndex];
     console.log("CQ:::", currentQuestion);
     if (!currentQuestion) {
       console.error('Current question is undefined');
@@ -303,6 +303,30 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         changes.selectedOptions.currentValue,
         this.options
       );
+    }
+
+    if (changes.questions && changes.questions.currentValue) {
+      this.questions.subscribe({
+        next: (questions: QuizQuestion[]) => {
+          this.questionsArray = questions;
+          console.log('Questions:', this.questionsArray);
+          console.log('Current Question Index:', this.currentQuestionIndex);
+
+          if (this.questionsArray.length === 0) {
+            console.error('Questions are not initialized');
+            return;
+          }
+
+          this.loadQuestion();
+          this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
+            this.selectedOption = selectedOption;
+            console.log('Selected option updated', selectedOption);
+          });
+        },
+        error: (err) => {
+          console.error('Error fetching questions', err);
+        }
+      });
     }
   }
   
