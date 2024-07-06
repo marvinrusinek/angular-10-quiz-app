@@ -1,4 +1,5 @@
 import { Directive, ElementRef, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
+
 import { Option } from '../shared/models/Option.model';
 import { SelectedOptionService } from '../shared/services/selectedoption.service';
 
@@ -10,6 +11,8 @@ export class FeedbackIconDirective implements OnChanges {
   @Input() index: number;
   @Input() selectedOption: Option | null;
   @Input() showFeedbackForOption: { [optionId: number]: boolean };
+
+  private isAnswered = false;
 
   constructor(
     private el: ElementRef,
@@ -25,6 +28,7 @@ export class FeedbackIconDirective implements OnChanges {
   }
 
   private updateIcon(): void {
+    this.isAnswered = true;
     console.log('updateIcon called for option', this.option);
 
     if (!this.option || this.option.optionId === undefined) {
@@ -35,7 +39,7 @@ export class FeedbackIconDirective implements OnChanges {
     const isSelected = this.selectedOptionService.isSelectedOption(this.option);
     console.log('isSelected:', isSelected);
 
-    if (isSelected) {
+    if (this.isAnswered && isSelected) {
       const icon = this.option.correct ? '✔️' : '❌';
       console.log('Setting icon to', icon);
       this.renderer.setProperty(this.el.nativeElement, 'innerText', icon);
