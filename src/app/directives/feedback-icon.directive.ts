@@ -1,5 +1,4 @@
-import { Directive, ElementRef, HostListener, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
-
+import { Directive, ElementRef, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
 import { Option } from '../shared/models/Option.model';
 import { SelectedOptionService } from '../shared/services/selectedoption.service';
 
@@ -12,8 +11,6 @@ export class FeedbackIconDirective implements OnChanges {
   @Input() selectedOption: Option | null;
   @Input() showFeedbackForOption: { [optionId: number]: boolean };
 
-  private isAnswered = false;
-
   constructor(
     private el: ElementRef,
     private renderer: Renderer2,
@@ -23,17 +20,12 @@ export class FeedbackIconDirective implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log("TEST");
+    console.log('ngOnChanges called', changes);
     this.updateIcon();
   }
 
-  @HostListener('click') onClick() {
-    this.isAnswered = true;
-    // this.updateIcon();
-  }
-
   private updateIcon(): void {
-    console.log('updateIcon called for option', this.option, 'isAnswered:', this.isAnswered);
+    console.log('updateIcon called for option', this.option);
 
     if (!this.option || this.option.optionId === undefined) {
       console.log('Option or optionId is undefined');
@@ -43,7 +35,7 @@ export class FeedbackIconDirective implements OnChanges {
     const isSelected = this.selectedOptionService.isSelectedOption(this.option);
     console.log('isSelected:', isSelected);
 
-    if (this.isAnswered && isSelected) {
+    if (isSelected) {
       const icon = this.option.correct ? '✔️' : '❌';
       console.log('Setting icon to', icon);
       this.renderer.setProperty(this.el.nativeElement, 'innerText', icon);
@@ -51,10 +43,5 @@ export class FeedbackIconDirective implements OnChanges {
       console.log('Clearing icon');
       this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
     }
-  }
-
-  public reset(): void {
-    this.isAnswered = false;
-    this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
   }
 }
