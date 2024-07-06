@@ -183,25 +183,26 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.quizService.questions$.subscribe((questions: QuizQuestion[]) => {
-      this.questions = questions;
-      console.log('Questions:', this.questions);
-      console.log('Current Question Index:', this.currentQuestionIndex);
+    this.quizService.questions$.subscribe({
+      next: (questions: QuizQuestion[]) => {
+        this.questions = questions;
+        console.log('Questions:', this.questions);
+        console.log('Current Question Index:', this.currentQuestionIndex);
 
-      if (this.questions.length === 0) {
-        console.error('Questions are not initialized');
-        return;
+        if (this.questions.length === 0) {
+          console.error('Questions are not initialized');
+          return;
+        }
+
+        this.loadQuestion();
+        this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
+          this.selectedOption = selectedOption;
+          console.log('Selected option updated', selectedOption);
+        });
+      },
+      error: (err) => {
+        console.error('Error fetching questions', err);
       }
-
-      this.loadQuestion();
-      this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
-        this.selectedOption = selectedOption;
-        console.log('Selected option updated', selectedOption);
-      });
-      this.selectedOptionService.showFeedbackForOption$.subscribe(showFeedbackForOption => {
-        this.showFeedbackForOption = showFeedbackForOption;
-        console.log('Show feedback for option updated to', showFeedbackForOption);
-      });
     });
 
     try {
