@@ -20,7 +20,7 @@ export class FeedbackIconDirective implements OnChanges {
     private selectedOptionService: SelectedOptionService
   ) {}
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     this.updateIcon();
   }
 
@@ -29,7 +29,7 @@ export class FeedbackIconDirective implements OnChanges {
     this.updateIcon();
   }
 
-  private updateIcon() {
+  private updateIcon(): void {
     console.log('updateIcon called for option', this.option, 'isAnswered:', this.isAnswered);
 
     if (!this.option || this.option.optionId === undefined) {
