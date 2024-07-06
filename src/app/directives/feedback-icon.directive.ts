@@ -18,7 +18,9 @@ export class FeedbackIconDirective implements OnChanges {
     private el: ElementRef,
     private renderer: Renderer2,
     private selectedOptionService: SelectedOptionService
-  ) {}
+  ) {
+    console.log('FeedbackIconDirective initialized');
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log("TEST");
