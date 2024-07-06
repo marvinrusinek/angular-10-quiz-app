@@ -27,7 +27,7 @@ export class FeedbackIconDirective implements OnChanges {
 
   @HostListener('click') onClick() {
     this.isAnswered = true;
-    this.updateIcon();
+    // this.updateIcon();
   }
 
   private updateIcon(): void {
