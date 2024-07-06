@@ -243,7 +243,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   loadQuestion() {
-    const currentQuestion = this.quizService.questions[this.currentQuestionIndex];
+    if (!this.questions || this.questions.length === 0) {
+      console.error('Questions are not available yet');
+      return;
+    }
+    const currentQuestion = this.questions[this.currentQuestionIndex];
     console.log("CQ:::", currentQuestion);
     if (!currentQuestion) {
       console.error('Current question is undefined');
