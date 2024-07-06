@@ -183,6 +183,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    if (!this.quizService.questions || this.quizService.questions.length === 0) {
+      console.error('Questions are not initialized');
+      return;
+    }
     this.loadQuestion();
 
     this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
@@ -1727,7 +1731,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   /* playSound(): void {
-    const audioUrl = 'http://www.marvinrusinek.com/sound-correct.mp3';  // Ensure this URL is absolutely correct
+    const audioUrl = 'http://www.marvinrusinek.com/sound-correct.mp3';  // Ensure this URL is absolutely correctf
     const audio = new Audio(audioUrl);
     audio.play().then(() => {
       console.log('Playback succeeded!');
