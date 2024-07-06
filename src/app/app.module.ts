@@ -43,6 +43,7 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
 import { CodelabQuizContentComponent } from './containers/quiz/quiz-content/codelab-quiz-content.component';
 import { CodelabQuizHeaderComponent } from './containers/quiz/quiz-header/quiz-header.component';
 import { CodelabQuestionGenericComponent } from './components/question/generic/codelab-question-generic.component';
+import { SimpleDebugDirective } from './directives/simple-debug.directive';
 import { FeedbackIconDirective } from './directives/feedback-icon.directive';
 import { HighlightOptionDirective } from './directives/highlight-option.directive';
 import { ResetBackgroundDirective } from './directives/reset-background.directive';
@@ -86,6 +87,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     CodelabQuizContentComponent,
     CodelabQuizHeaderComponent,
     CodelabQuestionGenericComponent,
+    SimpleDebugDirective,
     FeedbackIconDirective,
     HighlightOptionDirective,
     ResetBackgroundDirective,
@@ -115,6 +117,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     IonicModule.forRoot()
   ],
   exports: [
+    SimpleDebugDirective,
     FeedbackIconDirective,
     HighlightOptionDirective,
     MatExpansionModule
