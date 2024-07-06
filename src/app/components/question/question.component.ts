@@ -183,6 +183,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    this.loadQuestion();
+
     this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
       this.selectedOption = selectedOption;
       this.selectedOptions = selectedOption ? [selectedOption] : [];
@@ -229,6 +231,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
+  }
+
+  loadQuestion() {
+    const currentQuestion = this.questions[this.currentQuestionIndex];
+    this.options = currentQuestion.options.map((option, index) => ({
+      ...option,
+      optionId: index
+    }));
   }
 
   ngOnChanges(changes: SimpleChanges): void {
