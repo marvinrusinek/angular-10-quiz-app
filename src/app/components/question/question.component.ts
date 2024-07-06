@@ -252,7 +252,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
     const currentQuestion = this.questionsArray[this.currentQuestionIndex];
-    console.log("CQ:::", currentQuestion);
+
     if (!currentQuestion) {
       console.error('Current question is undefined');
       return;
