@@ -235,11 +235,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   loadQuestion() {
     const currentQuestion = this.questions[this.currentQuestionIndex];
-    this.options = currentQuestion.options.map((option, index) => ({
-      ...option,
-      optionId: index
-    }));
-    console.log('Loaded question', this.options);
+    this.options = currentQuestion.options;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
