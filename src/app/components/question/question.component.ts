@@ -239,6 +239,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       ...option,
       optionId: index
     }));
+    console.log('Loaded question', this.options);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
