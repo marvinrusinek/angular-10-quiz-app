@@ -45,7 +45,7 @@ export class QuizService implements OnDestroy {
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
-  questions$ = new BehaviorSubject<QuizQuestion[]>([]);
+  questions$: BehaviorSubject<QuizQuestion[]> = new BehaviorSubject<QuizQuestion[]>([]);
   nextQuestion: QuizQuestion;
   isNavigating = false;
 
