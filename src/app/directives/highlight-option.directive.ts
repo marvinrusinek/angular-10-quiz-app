@@ -11,12 +11,18 @@ export class HighlightOptionDirective {
   @Output() resetBackground = new EventEmitter<boolean>();
   @Input() option: Option;
   @Input() isCorrect: boolean;
+
   private isAnswered = false;
+  private iconElement: HTMLElement;
 
   constructor(
     private el: ElementRef, 
     private renderer: Renderer2, 
-    private selectedOptionService: SelectedOptionService) {}
+    private selectedOptionService: SelectedOptionService) {
+      // Create the icon element
+      this.iconElement = this.renderer.createElement('span');
+      this.renderer.appendChild(this.el.nativeElement, this.iconElement);
+  }
 
   @HostListener('click') onClick() {
     this.isAnswered = true;
