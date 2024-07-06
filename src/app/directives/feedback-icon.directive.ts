@@ -1,6 +1,7 @@
 import { Directive, ElementRef, HostListener, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
-import { SelectedOptionService } from '../shared/services/selectedoption.service';
+
 import { Option } from '../shared/models/Option.model';
+import { SelectedOptionService } from '../shared/services/selectedoption.service';
 
 @Directive({
   selector: '[appFeedbackIcon]'
