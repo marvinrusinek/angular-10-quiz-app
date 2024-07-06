@@ -32,8 +32,8 @@ export class FeedbackIconDirective implements OnChanges {
   private updateIcon() {
     console.log('updateIcon called for option', this.option, 'isAnswered:', this.isAnswered);
 
-    if (this.index === undefined) {
-      console.log('Index is undefined');
+    if (!this.option || this.option.optionId === undefined) {
+      console.log('Option or optionId is undefined');
       return;
     }
 
