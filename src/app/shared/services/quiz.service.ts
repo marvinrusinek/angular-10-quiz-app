@@ -45,10 +45,11 @@ export class QuizService implements OnDestroy {
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
-  private questionsSubject = new BehaviorSubject<QuizQuestion[]>([]);
-  questions$ = this.questionsSubject.asObservable();
   nextQuestion: QuizQuestion;
   isNavigating = false;
+
+  private questionsSubject = new BehaviorSubject<QuizQuestion[]>([]);
+  questions$ = this.questionsSubject.asObservable();
 
   private answerStatus = new BehaviorSubject<boolean>(false);
   answerStatus$ = this.answerStatus.asObservable();
