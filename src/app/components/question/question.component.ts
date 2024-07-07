@@ -369,16 +369,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return isOptionSelected;
   }
 
-  // Function to get the feedback icon based on the option
-  /* getFeedbackIcon(option: SelectedOption): string {
-    const isOptionSelected = this.selectedOptionService.isSelectedOption(
-      option
-    );
-    const icon = isOptionSelected ? (option.correct ? 'done' : 'clear') : '';
-    console.log('Option:', option, 'Selected:', isOptionSelected, 'Icon:', icon);
-    return icon;
-  } */
-
   trackByOption(option: Option): number {
     return option.optionId;
   }
@@ -1011,8 +1001,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
       console.log('Option clicked:', option);
-      // this.feedbackIcon = this.getFeedbackIcon(option);
-      console.log('Feedback icon set:', this.feedbackIcon);
 
       this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
       this.showFeedbackForOption = { [option.optionId]: true };
