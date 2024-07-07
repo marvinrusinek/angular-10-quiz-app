@@ -255,9 +255,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
     const currentQuestion = this.questionsList[this.currentQuestionIndex];
-    console.log("Loading Current Question:", currentQuestion);
-    if (!currentQuestion) {
-      console.error('Current question is undefined');
+    console.log("Loading Current Question:::>>>", currentQuestion);
+    if (!currentQuestion || !currentQuestion.options) {
+      console.error('Current question is undefined or has no options');
       return;
     }
     this.options = currentQuestion.options.map((option, index) => ({
