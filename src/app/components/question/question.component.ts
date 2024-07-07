@@ -71,8 +71,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() isAnsweredChange = new EventEmitter<boolean>();
   @Output() isAnswered = false;
 
-  private questionsList: QuizQuestion[] = [];
-
   combinedQuestionData$: Subject<{
     questionText: string;
     explanationText?: string;
@@ -189,18 +187,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     /* this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (quiz) => {
-        this.questionsList = quiz.questions.map((question, qIndex) => ({
+        this.quizService.questionsList = quiz.questions.map((question, qIndex) => ({
           ...question,
           options: question.options.map((option, oIndex) => ({
             ...option,
             optionId: oIndex
           }))
         }));
-        this.quizService.setQuestions(this.questionsList);
-        console.log('Questions:', this.questionsList);
+        this.quizService.setQuestions(this.quizService.questionsList);
+        console.log('Questions:', this.quizService.questionsList);
         console.log('Current Question Index:', this.currentQuestionIndex);
 
-        if (this.questionsList.length === 0) {
+        if (this.quizService.questionsList.length === 0) {
           console.error('Questions are not initialized');
           return;
         }
@@ -268,11 +266,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   loadQuestion() {
-    if (!this.questionsList || this.questionsList.length === 0) {
+    if (!this.quizService.questionsList || this.quizService.questionsList.length === 0) {
       console.error('Questions are not available yet');
       return;
     }
-    const currentQuestion = this.questionsList[this.currentQuestionIndex];
+    const currentQuestion = this.quizService.questionsList[this.currentQuestionIndex];
     console.log("Loading Current Question:::>>>", currentQuestion);
     if (!currentQuestion || !currentQuestion.options) {
       console.error('Current question is undefined or has no options');
