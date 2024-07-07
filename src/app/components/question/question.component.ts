@@ -52,6 +52,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() questionData: QuizQuestion;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
+  // @Input() questions: Observable<QuizQuestion[]>;
   @Input() questions: Observable<QuizQuestion[]>;
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[];
@@ -70,6 +71,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() selectionMessageChange = new EventEmitter<string>();
   @Output() isAnsweredChange = new EventEmitter<boolean>();
   @Output() isAnswered = false;
+
+  private questionsList: QuizQuestion[] = [];
 
   combinedQuestionData$: Subject<{
     questionText: string;
@@ -185,11 +188,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.quizService.questions$.subscribe({
       next: (questions: QuizQuestion[]) => {
-        this.questions = questions;
+        this.questionsList = questions;
         console.log('Questions:', this.questions);
         console.log('Current Question Index:', this.currentQuestionIndex);
   
-        if (this.questions.length === 0) {
+        if (this.questionsList.length === 0) {
           console.error('Questions are not initialized');
           return;
         }
@@ -247,8 +250,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   loadQuestion() {
-    const currentQuestion = this.quizService.questions[this.currentQuestionIndex];
-    console.log("CQ:::", currentQuestion);
+    if (!this.questionsList || this.questionsList.length === 0) {
+      console.error('Questions are not available yet');
+      return;
+    }
+    const currentQuestion = this.questionsList[this.currentQuestionIndex];
+    console.log("Loading Current Question:", currentQuestion);
     if (!currentQuestion) {
       console.error('Current question is undefined');
       return;
