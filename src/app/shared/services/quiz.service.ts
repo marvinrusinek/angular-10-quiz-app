@@ -45,6 +45,7 @@ export class QuizService implements OnDestroy {
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
+  questionsList: QuizQuestion[] = [];
   nextQuestion: QuizQuestion;
   isNavigating = false;
 

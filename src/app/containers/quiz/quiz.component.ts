@@ -843,30 +843,21 @@ export class QuizComponent implements OnInit, OnDestroy {
           })
         );
       }),
-      switchMap(quiz => {
-        if (!quiz || !quiz.questions || quiz.questions.length === 0) {
-          console.error('Quiz data is invalid or no questions available');
-          return EMPTY;
-        }
-
-        this.quizService.setActiveQuiz(quiz);
-        this.questionsList = quiz.questions;
-        return this.quizService.getQuestionByIndex(this.currentQuestionIndex);
-      }),
       catchError((error: Error) => {
         console.error('Error fetching questions for quiz:', error);
         return EMPTY;
       })
     ).subscribe({
-      next: (question: QuizQuestion | null) => {
-        if (question) {
-          console.log('Loaded question:', question);
+      next: (quiz) => {
+        if (quiz) {
+          this.quizService.questionsList = quiz.questions;
+          console.log('Loaded questions:', this.quizService.questionsList);
         } else {
-          console.error('No question data available after fetch.');
+          console.error('No quiz data available after fetch.');
         }
       },
       error: error => console.error('Error during subscription:', error),
-      complete: () => console.log('Route parameters processed and question loaded successfully.')
+      complete: () => console.log('Route parameters processed and questions loaded successfully.')
     });
   }
 
