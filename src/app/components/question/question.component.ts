@@ -388,25 +388,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('this.questionData:', this.questionData);
   }
 
-  private initializeSelectedQuiz(): void {
-    if (this.quizDataService.selectedQuiz$) {
-      this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
-        this.selectedQuiz.next(quiz);
-        this.setQuestionOptions();
-      });
-    }
-  }
-
   private initializeQuizQuestion(): void {
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
-
+  
       this.questionsObservableSubscription = this.quizService
         .getAllQuestions()
         .pipe(
           map((questions: QuizQuestion[]) => {
             questions.forEach((quizQuestion: QuizQuestion) => {
               quizQuestion.selectedOptions = null;
+              quizQuestion.options = quizQuestion.options.map((option, index) => ({
+                ...option,
+                optionId: index
+              }));
             });
             return questions;
           })
@@ -428,6 +423,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         });
     }
   }
+  
+  
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {    
     try {
@@ -1363,11 +1360,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   selectOption(currentQuestion: QuizQuestion, option: SelectedOption, optionIndex: number): void {
-    this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
+    const selectedOption = { ...option, optionId: optionIndex, questionIndex: this.currentQuestionIndex } as SelectedOption;
+    this.showFeedbackForOption = { [selectedOption.optionId]: true };
+    this.selectedOptionService.setSelectedOption(selectedOption);
+    this.selectedOption = option;
+
+    /* this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
     this.showFeedbackForOption = { [option.optionId]: true };
     this.showFeedback = true;
     this.selectedOption = option;
-    this.selectedOptionService.setSelectedOption(option as SelectedOption);
+    this.selectedOptionService.setSelectedOption(option as SelectedOption); */
+
+    /* const selectedOption = { ...option, optionId: optionIndex, questionIndex: this.currentQuestionIndex };
+    this.selectedOptionService.setSelectedOption(selectedOption);
+    this.selectedOption = selectedOption;
+    console.log('Option selected:', selectedOption); */
   
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
