@@ -187,7 +187,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
+    /* this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (quiz) => {
         this.questionsList = quiz.questions.map((question, qIndex) => ({
           ...question,
@@ -218,6 +218,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       error: (err) => {
         console.error('Error fetching questions', err);
       }
+    }); */
+
+    this.loadQuestion();
+    this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
+      this.selectedOption = selectedOption;
+      console.log('Selected option updated', selectedOption);
+    });
+    this.selectedOptionService.showFeedbackForOption$.subscribe(showFeedbackForOption => {
+      this.showFeedbackForOption = showFeedbackForOption;
+      console.log('Show feedback for option updated to', showFeedbackForOption);
     });
 
     try {

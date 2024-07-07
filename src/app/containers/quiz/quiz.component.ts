@@ -773,7 +773,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  private initializeQuizBasedOnRouteParams(): void {
+  /* private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
         const questionIndex = +params.get('questionIndex');
@@ -827,7 +827,48 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: error => console.error('Error during subscription:', error),
       complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
-  }
+  } */
+
+  private initializeQuizBasedOnRouteParams(): void {
+    this.activatedRoute.paramMap.pipe(
+      switchMap((params: ParamMap) => {
+        const quizId = params.get('quizId') || this.quizId;
+        const questionIndex = +params.get('questionIndex') || 0;
+        this.currentQuestionIndex = questionIndex;
+
+        return this.quizService.getQuizDataById(quizId).pipe(
+          catchError((error: Error) => {
+            console.error('Error fetching quiz:', error);
+            return EMPTY;
+          })
+        );
+      }),
+      switchMap(quiz => {
+        if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+          console.error('Quiz data is invalid or no questions available');
+          return EMPTY;
+        }
+
+        this.quizService.setActiveQuiz(quiz);
+        return this.quizService.getQuestionByIndex(this.currentQuestionIndex);
+      }),
+      catchError((error: Error) => {
+        console.error('Error fetching questions for quiz:', error);
+        return EMPTY;
+      })
+    ).subscribe({
+      next: (question: QuizQuestion | null) => {
+        if (question) {
+          // You can pass the data to a child component or handle it here
+          console.log('Loaded question:', question);
+        } else {
+          console.error('No question data available after fetch.');
+        }
+      },
+      error: error => console.error('Error during subscription:', error),
+      complete: () => console.log('Route parameters processed and question loaded successfully.')
+    });
+  }  
 
   initializeQuizFromRoute(): void {
     this.activatedRoute.data.subscribe(data => {
