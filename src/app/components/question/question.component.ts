@@ -183,61 +183,66 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.quizService.questions$.subscribe((questions: QuizQuestion[]) => {
-        this.questionsArray = questions;
-        console.log('Questions:', this.questionsArray);
+    this.quizService.questions$.subscribe({
+      next: (questions: QuizQuestion[]) => {
+        this.questions = questions;
+        console.log('Questions:', this.questions);
         console.log('Current Question Index:', this.currentQuestionIndex);
-
-        if (this.questionsArray.length === 0) {
-            console.error('Questions are not initialized');
-            return;
+  
+        if (this.questions.length === 0) {
+          console.error('Questions are not initialized');
+          return;
         }
-
+  
         this.loadQuestion();
         this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
-            this.selectedOption = selectedOption;
-            console.log('Selected option updated', selectedOption);
+          this.selectedOption = selectedOption;
+          console.log('Selected option updated', selectedOption);
         });
         this.selectedOptionService.showFeedbackForOption$.subscribe(showFeedbackForOption => {
-            this.showFeedbackForOption = showFeedbackForOption;
-            console.log('Show feedback for option updated to', showFeedbackForOption);
+          this.showFeedbackForOption = showFeedbackForOption;
+          console.log('Show feedback for option updated to', showFeedbackForOption);
         });
+      },
+      error: (err) => {
+        console.error('Error fetching questions', err);
+      }
     });
 
     try {
-        this.optionsToDisplay.forEach((option) => {
-          this.showFeedbackForOption[option.optionId] = false; // Initially set to false
-        });
+      this.optionsToDisplay.forEach((option) => {
+        this.showFeedbackForOption[option.optionId] = false; // Initially set to false
+      });
 
-        // Reset state and messages for the new question
-        this.resetMessages();
-        this.resetStateForNewQuestion();
+      // Reset state and messages for the new question
+      this.resetMessages();
+      this.resetStateForNewQuestion();
 
-        // Subscribe to option selection changes to ensure the state is up-to-date
-        this.subscribeToOptionSelection();
+      // Subscribe to option selection changes to ensure the state is up-to-date
+      this.subscribeToOptionSelection();
+  
+      // Initialize the quiz and subscribe to selection changes if not already initialized
+      if (!this.initialized) {
+        this.initialized = true;
+        await this.initializeQuiz();
+      }
+  
+      // Initialize the current quiz question and handle its state
+      this.initializeQuizQuestion();
+      await this.handleQuestionState();
 
-        // Initialize the quiz and subscribe to selection changes if not already initialized
-        if (!this.initialized) {
-          this.initialized = true;
-          await this.initializeQuiz();
-        }
+      this.loadOptions();
 
-        // Initialize the current quiz question and handle its state
-        this.initializeQuizQuestion();
-        await this.handleQuestionState();
-
-        this.loadOptions();
-
-        this.setCorrectMessage([]);
-
-        // Set up an event listener for visibility change to refresh data if needed
-        document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
-
-        // Log data for debugging
-        this.logInitialData();
-        this.logFinalData();
+      this.setCorrectMessage([]);
+  
+      // Set up an event listener for visibility change to refresh data if needed
+      document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
+  
+      // Log data for debugging
+      this.logInitialData();
+      this.logFinalData();
     } catch (error) {
-        console.error('Error in ngOnInit:', error);
+      console.error('Error in ngOnInit:', error);
     }
   }
 

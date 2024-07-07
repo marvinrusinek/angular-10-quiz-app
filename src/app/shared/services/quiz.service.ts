@@ -45,7 +45,9 @@ export class QuizService implements OnDestroy {
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
-  questions$: BehaviorSubject<QuizQuestion[]> = new BehaviorSubject<QuizQuestion[]>([]);
+  // questions$: BehaviorSubject<QuizQuestion[]> = new BehaviorSubject<QuizQuestion[]>([]);
+  private questionsSubject = new BehaviorSubject<QuizQuestion[]>([]);
+  questions$: Observable<QuizQuestion[]> = this.questionsSubject.asObservable();
   nextQuestion: QuizQuestion;
   isNavigating = false;
 
@@ -236,7 +238,7 @@ export class QuizService implements OnDestroy {
 
   setActiveQuiz(quiz: Quiz): void {
     this.activeQuiz = quiz;
-    this.questions$.next(quiz.questions);
+    this.questionsSubject.next(quiz.questions);
   }
 
   getActiveQuiz(): Quiz | null {
