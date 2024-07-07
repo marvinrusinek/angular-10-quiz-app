@@ -467,11 +467,11 @@ export class QuizService implements OnDestroy {
   }
 
   getAllQuestions(): Observable<QuizQuestion[]> {
-    if (this.questions$.getValue().length === 0) {
+    if (this.questionsSubject.getValue().length === 0) {
       this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
         tap((questions: QuizQuestion[]) => {
           const processedQuestions = this.checkedShuffle ? this.shuffleQuestions([...questions]) : questions;
-          this.questions$.next(processedQuestions); // Update BehaviorSubject with new data
+          this.questionsSubject.next(processedQuestions); // Update BehaviorSubject with new data
         }),
         catchError((error: Error) => {
           console.error('Error fetching questions:', error);
@@ -480,7 +480,7 @@ export class QuizService implements OnDestroy {
         shareReplay({ bufferSize: 1, refCount: true }) // Ensure the latest fetched data is replayed to new subscribers
       ).subscribe();  // Start the Observable chain
     }
-    return this.questions$.asObservable();
+    return this.questions$;
   }
 
   getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
