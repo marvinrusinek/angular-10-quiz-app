@@ -196,7 +196,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             optionId: oIndex
           }))
         }));
-        this.quizService.setQuizQuestions(this.questionsList);
+        this.quizService.setQuestions(this.questionsList);
         console.log('Questions:', this.questionsList);
         console.log('Current Question Index:', this.currentQuestionIndex);
 
