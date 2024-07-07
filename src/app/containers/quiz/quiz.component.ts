@@ -836,7 +836,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         const questionIndex = +params.get('questionIndex') || 0;
         this.currentQuestionIndex = questionIndex;
 
-        return this.quizService.getQuizDataById(quizId).pipe(
+        return this.quizService.getQuestionsForQuiz(quizId).pipe(
           catchError((error: Error) => {
             console.error('Error fetching quiz:', error);
             return EMPTY;
