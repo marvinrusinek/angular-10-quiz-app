@@ -178,56 +178,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.totalQuestions = totalQuestions;
       });
     
-    this.questions$ = this.quizService.getAllQuestions();
-    
     this.selectedOption = this.selectedOptionService.getSelectedOption();
     this.showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
   }
 
   async ngOnInit(): Promise<void> {
-    /* this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: (quiz) => {
-        this.quizService.questionsList = quiz.questions.map((question, qIndex) => ({
-          ...question,
-          options: question.options.map((option, oIndex) => ({
-            ...option,
-            optionId: oIndex
-          }))
-        }));
-        this.quizService.setQuestions(this.quizService.questionsList);
-        console.log('Questions:', this.quizService.questionsList);
-        console.log('Current Question Index:', this.currentQuestionIndex);
-
-        if (this.quizService.questionsList.length === 0) {
-          console.error('Questions are not initialized');
-          return;
-        }
-
-        this.loadQuestion();
-        this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
-          this.selectedOption = selectedOption;
-          console.log('Selected option updated', selectedOption);
-        });
-        this.selectedOptionService.showFeedbackForOption$.subscribe(showFeedbackForOption => {
-          this.showFeedbackForOption = showFeedbackForOption;
-          console.log('Show feedback for option updated to', showFeedbackForOption);
-        });
-      },
-      error: (err) => {
-        console.error('Error fetching questions', err);
-      }
-    }); */
-
-    this.loadQuestion();
     this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
       this.selectedOption = selectedOption;
-      console.log('Selected option updated', selectedOption);
+      this.selectedOptions = selectedOption ? [selectedOption] : [];
+      console.log('Selected option updated to', selectedOption);
     });
+
     this.selectedOptionService.showFeedbackForOption$.subscribe(showFeedbackForOption => {
       this.showFeedbackForOption = showFeedbackForOption;
       console.log('Show feedback for option updated to', showFeedbackForOption);
     });
-
+    
     try {
       this.optionsToDisplay.forEach((option) => {
         this.showFeedbackForOption[option.optionId] = false; // Initially set to false
@@ -263,23 +229,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
-  }
-
-  loadQuestion() {
-    if (!this.quizService.questionsList || this.quizService.questionsList.length === 0) {
-      console.error('Questions are not available yet');
-      return;
-    }
-    const currentQuestion = this.quizService.questionsList[this.currentQuestionIndex];
-    console.log("Loading Current Question:::>>>", currentQuestion);
-    if (!currentQuestion || !currentQuestion.options) {
-      console.error('Current question is undefined or has no options');
-      return;
-    }
-    this.options = currentQuestion.options.map((option, index) => ({
-      ...option,
-      optionId: index
-    }));
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -451,17 +400,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private initializeQuizQuestion(): void {
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
-  
+
       this.questionsObservableSubscription = this.quizService
         .getAllQuestions()
         .pipe(
           map((questions: QuizQuestion[]) => {
             questions.forEach((quizQuestion: QuizQuestion) => {
               quizQuestion.selectedOptions = null;
-              quizQuestion.options = quizQuestion.options.map((option, index) => ({
-                ...option,
-                optionId: index
-              }));
             });
             return questions;
           })
@@ -483,7 +428,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         });
     }
   }
-  
+
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {    
     try {
       await this.fetchAndProcessQuizQuestions();
@@ -1418,21 +1363,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   selectOption(currentQuestion: QuizQuestion, option: SelectedOption, optionIndex: number): void {
-    const selectedOption = { ...option, optionId: optionIndex, questionIndex: this.currentQuestionIndex } as SelectedOption;
-    this.showFeedbackForOption = { [selectedOption.optionId]: true };
-    this.selectedOptionService.setSelectedOption(selectedOption);
-    this.selectedOption = option;
-
-    /* this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
+    this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
     this.showFeedbackForOption = { [option.optionId]: true };
     this.showFeedback = true;
     this.selectedOption = option;
-    this.selectedOptionService.setSelectedOption(option as SelectedOption); */
-
-    /* const selectedOption = { ...option, optionId: optionIndex, questionIndex: this.currentQuestionIndex };
-    this.selectedOptionService.setSelectedOption(selectedOption);
-    this.selectedOption = selectedOption;
-    console.log('Option selected:', selectedOption); */
+    this.selectedOptionService.setSelectedOption(option as SelectedOption);
   
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
@@ -1763,7 +1698,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   /* playSound(): void {
-    const audioUrl = 'http://www.marvinrusinek.com/sound-correct.mp3';  // Ensure this URL is absolutely correctf
+    const audioUrl = 'http://www.marvinrusinek.com/sound-correct.mp3';  // Ensure this URL is absolutely correct
     const audio = new Audio(audioUrl);
     audio.play().then(() => {
       console.log('Playback succeeded!');

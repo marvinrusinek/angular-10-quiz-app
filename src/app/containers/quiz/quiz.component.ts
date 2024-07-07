@@ -773,7 +773,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  /* private initializeQuizBasedOnRouteParams(): void {
+  private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
         const questionIndex = +params.get('questionIndex');
@@ -827,9 +827,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: error => console.error('Error during subscription:', error),
       complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
-  } */
+  }
 
-  private initializeQuizBasedOnRouteParams(): void {
+  /* private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
         const quizId = params.get('quizId') || this.quizId;
@@ -859,7 +859,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: error => console.error('Error during subscription:', error),
       complete: () => console.log('Route parameters processed and questions loaded successfully.')
     });
-  }
+  } */
 
   initializeQuizFromRoute(): void {
     this.activatedRoute.data.subscribe(data => {
