@@ -187,7 +187,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.questions$.subscribe({
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (questions: QuizQuestion[]) => {
         this.questionsList = questions;
         console.log('Questions:', this.questions);
