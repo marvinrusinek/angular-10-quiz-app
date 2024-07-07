@@ -183,76 +183,67 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    if (this.questions) {
-      this.questions.subscribe({
-        next: (questions: QuizQuestion[]) => {
-          this.questionsArray = questions;
-          console.log('Questions:', this.questionsArray);
-          console.log('Current Question Index:', this.currentQuestionIndex);
+    this.quizService.questions$.subscribe((questions: QuizQuestion[]) => {
+        this.questionsArray = questions;
+        console.log('Questions:', this.questionsArray);
+        console.log('Current Question Index:', this.currentQuestionIndex);
 
-          if (this.questionsArray.length === 0) {
+        if (this.questionsArray.length === 0) {
             console.error('Questions are not initialized');
             return;
-          }
+        }
 
-          this.loadQuestion();
-          this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
+        this.loadQuestion();
+        this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
             this.selectedOption = selectedOption;
             console.log('Selected option updated', selectedOption);
-          });
-        },
-        error: (err) => {
-          console.error('Error fetching questions', err);
-        }
-      });
-    } else {
-      console.error('Questions input is not provided');
-    }
+        });
+        this.selectedOptionService.showFeedbackForOption$.subscribe(showFeedbackForOption => {
+            this.showFeedbackForOption = showFeedbackForOption;
+            console.log('Show feedback for option updated to', showFeedbackForOption);
+        });
+    });
 
     try {
-      this.optionsToDisplay.forEach((option) => {
-        this.showFeedbackForOption[option.optionId] = false; // Initially set to false
-      });
+        this.optionsToDisplay.forEach((option) => {
+          this.showFeedbackForOption[option.optionId] = false; // Initially set to false
+        });
 
-      // Reset state and messages for the new question
-      this.resetMessages();
-      this.resetStateForNewQuestion();
+        // Reset state and messages for the new question
+        this.resetMessages();
+        this.resetStateForNewQuestion();
 
-      // Subscribe to option selection changes to ensure the state is up-to-date
-      this.subscribeToOptionSelection();
-  
-      // Initialize the quiz and subscribe to selection changes if not already initialized
-      if (!this.initialized) {
-        this.initialized = true;
-        await this.initializeQuiz();
-      }
-  
-      // Initialize the current quiz question and handle its state
-      this.initializeQuizQuestion();
-      await this.handleQuestionState();
+        // Subscribe to option selection changes to ensure the state is up-to-date
+        this.subscribeToOptionSelection();
 
-      this.loadOptions();
+        // Initialize the quiz and subscribe to selection changes if not already initialized
+        if (!this.initialized) {
+          this.initialized = true;
+          await this.initializeQuiz();
+        }
 
-      this.setCorrectMessage([]);
-  
-      // Set up an event listener for visibility change to refresh data if needed
-      document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
-  
-      // Log data for debugging
-      this.logInitialData();
-      this.logFinalData();
+        // Initialize the current quiz question and handle its state
+        this.initializeQuizQuestion();
+        await this.handleQuestionState();
+
+        this.loadOptions();
+
+        this.setCorrectMessage([]);
+
+        // Set up an event listener for visibility change to refresh data if needed
+        document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
+
+        // Log data for debugging
+        this.logInitialData();
+        this.logFinalData();
     } catch (error) {
-      console.error('Error in ngOnInit:', error);
+        console.error('Error in ngOnInit:', error);
     }
   }
 
   loadQuestion() {
-    if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.error('Questions are not available yet');
-      return;
-    }
-    const currentQuestion = this.questionsArray[this.currentQuestionIndex];
-
+    const currentQuestion = this.quizService.questions[this.currentQuestionIndex];
+    console.log("CQ:::", currentQuestion);
     if (!currentQuestion) {
       console.error('Current question is undefined');
       return;
@@ -304,30 +295,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.options
       );
     }
-
-    if (changes.questions && changes.questions.currentValue) {
-      this.questions.subscribe({
-        next: (questions: QuizQuestion[]) => {
-          this.questionsArray = questions;
-          console.log('Questions:', this.questionsArray);
-          console.log('Current Question Index:', this.currentQuestionIndex);
-
-          if (this.questionsArray.length === 0) {
-            console.error('Questions are not initialized');
-            return;
-          }
-
-          this.loadQuestion();
-          this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
-            this.selectedOption = selectedOption;
-            console.log('Selected option updated', selectedOption);
-          });
-        },
-        error: (err) => {
-          console.error('Error fetching questions', err);
-        }
-      });
-    }
   }
   
   ngOnDestroy(): void {
@@ -368,6 +335,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const isOptionSelected = this.selectedOptionService.isSelectedOption(option);
     return isOptionSelected;
   }
+
+  // Function to get the feedback icon based on the option
+  /* getFeedbackIcon(option: SelectedOption): string {
+    const isOptionSelected = this.selectedOptionService.isSelectedOption(
+      option
+    );
+    const icon = isOptionSelected ? (option.correct ? 'done' : 'clear') : '';
+    console.log('Option:', option, 'Selected:', isOptionSelected, 'Icon:', icon);
+    return icon;
+  } */
 
   trackByOption(option: Option): number {
     return option.optionId;
@@ -1001,6 +978,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
       console.log('Option clicked:', option);
+      // this.feedbackIcon = this.getFeedbackIcon(option);
+      console.log('Feedback icon set:', this.feedbackIcon);
 
       this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
       this.showFeedbackForOption = { [option.optionId]: true };
@@ -1411,10 +1390,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   selectOption(currentQuestion: QuizQuestion, option: SelectedOption, optionIndex: number): void {
-    const selectedOption = { ...option, optionId: optionIndex, questionIndex: this.currentQuestionIndex };
+    const selectedOption = { ...option, optionId: optionIndex, questionIndex: this.currentQuestionIndex } as SelectedOption;
     this.showFeedbackForOption = { [selectedOption.optionId]: true };
     this.selectedOptionService.setSelectedOption(selectedOption);
-    this.selectedOption = selectedOption;
+    this.selectedOption = option;
 
     /* this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
     this.showFeedbackForOption = { [option.optionId]: true };
