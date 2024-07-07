@@ -187,17 +187,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: (questions: QuizQuestion[]) => {
-        this.questionsList = questions;
-        console.log('Questions:', this.questions);
+    this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: (quiz) => {
+        this.questionsList = quiz.questions.map((question, qIndex) => ({
+          ...question,
+          options: question.options.map((option, oIndex) => ({
+            ...option,
+            optionId: oIndex
+          }))
+        }));
+        this.quizService.setQuizQuestions(this.questionsList);
+        console.log('Questions:', this.questionsList);
         console.log('Current Question Index:', this.currentQuestionIndex);
-  
+
         if (this.questionsList.length === 0) {
           console.error('Questions are not initialized');
           return;
         }
-  
+
         this.loadQuestion();
         this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
           this.selectedOption = selectedOption;
