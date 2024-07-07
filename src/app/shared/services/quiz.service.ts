@@ -501,6 +501,7 @@ export class QuizService implements OnDestroy {
         }
       }),
       map(filteredQuestions => ({ quizId, questions: filteredQuestions })),
+      tap(quiz => this.setActiveQuiz(quiz)),  // Set the active quiz here
       catchError(error => {
         console.error('An error occurred while loading questions:', error);
         return throwError(() => new Error('Failed to load questions'));

@@ -850,6 +850,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
 
         this.quizService.setActiveQuiz(quiz);
+        this.questionsList = quiz.questions;
         return this.quizService.getQuestionByIndex(this.currentQuestionIndex);
       }),
       catchError((error: Error) => {
@@ -859,7 +860,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (question: QuizQuestion | null) => {
         if (question) {
-          // You can pass the data to a child component or handle it here
           console.log('Loaded question:', question);
         } else {
           console.error('No question data available after fetch.');
@@ -868,7 +868,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: error => console.error('Error during subscription:', error),
       complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
-  }  
+  }
 
   initializeQuizFromRoute(): void {
     this.activatedRoute.data.subscribe(data => {
