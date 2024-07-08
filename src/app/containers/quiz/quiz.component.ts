@@ -816,10 +816,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
         const quizId = params.get('quizId');
-        if (!quizId) {
-          console.error('Quiz ID is missing');
-          return EMPTY;
-        }
         const questionIndex = +params.get('questionIndex') || 0;
         this.currentQuestionIndex = questionIndex;
 
@@ -836,7 +832,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           return EMPTY;
         }
 
-        this.questionsList = data.questions;
+        this.quizService.questionsList = data.questions;
         this.quizService.setActiveQuiz({ quizId: data.quizId, questions: data.questions } as Quiz);
         return this.quizService.getQuestionByIndex(this.currentQuestionIndex);
       }),
