@@ -191,7 +191,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }
           
         this.quiz = quizData as unknown as Quiz;
-        this.questionsList = quizData.questions;
+        this.quizService.questionsList = quizData.questions;
         this.currentQuestionIndex = 0;
         this.loadQuestion();
         this.loadOptions();
