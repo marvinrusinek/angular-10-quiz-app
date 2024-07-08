@@ -183,6 +183,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    this.loadQuestion();
     this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
       this.selectedOption = selectedOption;
       this.selectedOptions = selectedOption ? [selectedOption] : [];
@@ -297,12 +298,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   loadQuestion() {
-    if (!this.questionsList || this.questionsList.length === 0) {
+    if (!this.quizService.questionsList || this.quizService.questionsList.length === 0) {
       console.error('Questions are not available yet');
       return;
     }
   
-    const currentQuestion = this.questionsList[this.currentQuestionIndex];
+    const currentQuestion = this.quizService.questionsList[this.currentQuestionIndex];
     console.log("Loading Current Question:", currentQuestion);
   
     if (!currentQuestion || !currentQuestion.options) {
