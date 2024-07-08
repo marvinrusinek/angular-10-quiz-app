@@ -815,33 +815,38 @@ export class QuizComponent implements OnInit, OnDestroy {
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
-        return this.handleRouteParams(params).pipe(
+        const quizId = params.get('quizId');
+        if (!quizId) {
+          console.error('Quiz ID is missing');
+          return EMPTY;
+        }
+        const questionIndex = +params.get('questionIndex') || 0;
+        this.currentQuestionIndex = questionIndex;
+
+        return this.quizService.getQuestionsForQuiz(quizId).pipe(
           catchError((error: Error) => {
-            console.error('Error in handling route parameters:', error);
+            console.error('Error fetching quiz:', error);
             return EMPTY;
           })
         );
       }),
       switchMap(data => {
-        const { quizData, questionIndex } = data;
-  
-        if (!quizData || !Array.isArray(quizData.questions)) {
-          console.error('Invalid quiz data:', quizData);
+        if (!data || !data.questions || data.questions.length === 0) {
+          console.error('No questions found');
           return EMPTY;
         }
-  
-        this.quizService.setActiveQuiz(quizData);
-        this.initializeQuizState();
-        return this.quizService.getQuestionByIndex(questionIndex);
+
+        this.questionsList = data.questions;
+        this.quizService.setActiveQuiz({ quizId: data.quizId, questions: data.questions } as Quiz);
+        return this.quizService.getQuestionByIndex(this.currentQuestionIndex);
       }),
       catchError((error: Error) => {
-        console.error('Observable chain failed:', error);
+        console.error('Error fetching questions for quiz:', error);
         return EMPTY;
       })
     ).subscribe({
       next: (question: QuizQuestion | null) => {
         if (question) {
-          this.currentQuiz = this.quizService.getActiveQuiz();
           this.currentQuestion = question;
         } else {
           console.error('No question data available after fetch.');
