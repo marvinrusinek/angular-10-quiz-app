@@ -832,7 +832,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           return EMPTY;
         }
 
-        this.quizService.questionsList = data.questions;
+        this.questionsList = data.questions;
         this.quizService.setActiveQuiz({ quizId: data.quizId, questions: data.questions } as Quiz);
         return this.quizService.getQuestionByIndex(this.currentQuestionIndex);
       }),
@@ -852,6 +852,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
   }
+
 
   /* private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
