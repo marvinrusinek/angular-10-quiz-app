@@ -489,7 +489,7 @@ export class QuizService implements OnDestroy {
     return this.questions$;
   }
 
-  getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
+  /* getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
       tap(quiz => {
@@ -523,8 +523,42 @@ export class QuizService implements OnDestroy {
       }),
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     );
+  } */
+
+  getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
+    return this.http.get<Quiz[]>(this.quizUrl).pipe(
+      map(quizzes => {
+        const quiz = quizzes.find(quiz => quiz.quizId === quizId);
+        if (!quiz) {
+          throw new Error(`Quiz with ID ${quizId} not found`);
+        }
+
+        quiz.questions.forEach((question, qIndex) => {
+          question.options.forEach((option, oIndex) => {
+            option.optionId = oIndex;
+          });
+        });
+
+        if (this.checkedShuffle.value) {
+          Utils.shuffleArray(quiz.questions);  // Shuffle questions
+          quiz.questions.forEach(question => {
+            if (question.options) {
+              Utils.shuffleArray(question.options);  // Shuffle options within each question
+            }
+          });
+        }
+
+        return quiz;
+      }),
+      tap(quiz => this.setActiveQuiz(quiz as Quiz)),  // Set the active quiz here
+      map(quiz => ({ quizId: quiz.quizId, questions: quiz.questions })),
+      catchError(error => {
+        console.error('An error occurred while loading questions:', error);
+        return throwError(() => new Error('Failed to load questions'));
+      }),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    );
   }
-  
 
   public setQuestionData(data: any): void {
     this.questionDataSubject.next(data);

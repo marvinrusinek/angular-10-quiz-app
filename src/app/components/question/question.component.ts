@@ -302,7 +302,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  loadQuestion() {
+  /* loadQuestion() {
+    if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
+      console.error('Quiz or questions are not properly initialized');
+      return;
+    }
+
     if (!this.quizService.questionsList || this.quizService.questionsList.length === 0) {
       console.error('Questions are not available yet');
       return;
@@ -333,6 +338,42 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.displayOptions = this.getDisplayOptions();
     this.showFeedbackForOption = this.displayOptions.reduce((acc, option, idx) => {
       acc[idx] = true;
+      return acc;
+    }, {} as { [optionId: number]: boolean });
+    console.log('Display options loaded:', this.displayOptions);
+    console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
+  } */
+
+  loadQuestion() {
+    if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
+      console.error('Quiz or questions are not properly initialized');
+      return;
+    }
+
+    const currentQuestion = this.quiz.questions[this.currentQuestionIndex];
+    console.log("Loading Current Question:", currentQuestion);
+
+    if (!currentQuestion || !currentQuestion.options) {
+      console.error('Current question is undefined or has no options');
+      return;
+    }
+
+    this.currentQuestion = currentQuestion;
+    this.options = currentQuestion.options.map((option, index) => ({
+      ...option,
+      optionId: index
+    }));
+  }
+
+  loadOptions(): void {
+    if (!this.currentQuestion || !this.currentQuestion.options) {
+      console.error('Current question is undefined or has no options');
+      return;
+    }
+
+    this.displayOptions = this.getDisplayOptions();
+    this.showFeedbackForOption = this.displayOptions.reduce((acc, option, idx) => {
+      acc[option.optionId] = false; // Initially set to false
       return acc;
     }, {} as { [optionId: number]: boolean });
     console.log('Display options loaded:', this.displayOptions);
