@@ -814,68 +814,69 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
-      switchMap((params: ParamMap) => {
-        const quizId = params.get('quizId');
-        const questionIndex = +params.get('questionIndex') || 0;
-        this.currentQuestionIndex = questionIndex;
+        switchMap((params: ParamMap) => {
+            const quizId = params.get('quizId');
+            const questionIndex = +params.get('questionIndex') || 0;
+            this.currentQuestionIndex = questionIndex;
+
+            if (!quizId) {
+                console.error('Quiz ID is missing from the route parameters');
+                return EMPTY;
+            }
+
+            if (isNaN(questionIndex) || questionIndex < 0) {
+                console.error('Question index is not a valid number or is negative:', questionIndex);
+                return EMPTY;
+            }
+
+            return this.handleRouteParams(params).pipe(
+                catchError((error: Error) => {
+                    console.error('Error in handling route parameters:', error);
+                    return EMPTY;
+                })
+            );
+        }),
+        switchMap(data => {
+            const { quizData, questionIndex } = data;
+
+            if (!quizData || typeof quizData !== 'object' || !quizData.questions || !Array.isArray(quizData.questions)) {
+                console.error('Quiz data is missing, not an object, or the questions array is invalid:', quizData);
+                return EMPTY;
+            }
             
-        if (!quizId) {
-          console.error('Quiz ID is missing from the route parameters');
-          return EMPTY;
-        }
-
-        if (isNaN(questionIndex) || questionIndex < 0) {
-          console.error('Question index is not a valid number or is negative:', questionIndex);
-          return EMPTY;
-        }
-
-        return this.handleRouteParams(params).pipe(
-          catchError((error: Error) => {
-            console.error('Error in handling route parameters:', error);
+            // Adjust the last question index to be the maximum index of the questions array
+            const lastIndex = quizData.questions.length - 1;
+            const adjustedIndex = Math.min(questionIndex, lastIndex);
+            
+            // Handle the case where the adjusted index is negative
+            if (adjustedIndex < 0) {
+                console.error('Adjusted question index is negative:', adjustedIndex);
+                return EMPTY;
+            }
+            
+            // Set the active quiz and retrieve the question by index
+            this.quizService.setActiveQuiz(quizData);
+            this.initializeQuizState();
+            return this.quizService.getQuestionByIndex(adjustedIndex);
+        }),         
+        catchError((error: Error) => {
+            console.error('Observable chain failed:', error);
             return EMPTY;
-          })
-        );
-      }),
-      switchMap(data => {
-        const { quizData, questionIndex } = data;
-
-        if (!quizData || typeof quizData !== 'object' || !quizData.questions || !Array.isArray(quizData.questions)) {
-          console.error('Quiz data is missing, not an object, or the questions array is invalid:', quizData);
-          return EMPTY;
-        }
-            
-        // Adjust the last question index to be the maximum index of the questions array
-        const lastIndex = quizData.questions.length - 1;
-        const adjustedIndex = Math.min(questionIndex, lastIndex);
-            
-        // Handle the case where the adjusted index is negative
-        if (adjustedIndex < 0) {
-          console.error('Adjusted question index is negative:', adjustedIndex);
-          return EMPTY;
-        }
-            
-        // Set the active quiz and retrieve the question by index
-        this.quizService.setActiveQuiz(quizData);
-        this.initializeQuizState();
-        return this.quizService.getQuestionByIndex(adjustedIndex);
-      }),         
-      catchError((error: Error) => {
-        console.error('Observable chain failed:', error);
-        return EMPTY;
-      })
+        })
     ).subscribe({
-      next: (question: QuizQuestion | null) => {
-        if (question) {
-          this.currentQuiz = this.quizService.getActiveQuiz(); 
-          this.currentQuestion = question;
-        } else {
-          console.error('No question data available after fetch.');
-        }
-      },
-      error: error => console.error('Error during subscription:', error),
-      complete: () => console.log('Route parameters processed and question loaded successfully.')
+        next: (question: QuizQuestion | null) => {
+            if (question) {
+                this.currentQuiz = this.quizService.getActiveQuiz(); 
+                this.currentQuestion = question;
+            } else {
+                console.error('No question data available after fetch.');
+            }
+        },
+        error: error => console.error('Error during subscription:', error),
+        complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
   }
+
 
   /* private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
@@ -1374,16 +1375,18 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   handleRouteParams(params: ParamMap): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
     const quizId = params.get('quizId');
+    const questionIndex = parseInt(params.get('questionIndex'), 10);
+  
     if (!quizId) {
       console.error('Quiz ID is missing');
       return throwError(() => new Error('Quiz ID is required'));
     }
-    const questionIndex = parseInt(params.get('questionIndex'), 10);
+  
     if (isNaN(questionIndex)) {
       console.error('Question index is not a valid number:', params.get('questionIndex'));
       return throwError(() => new Error('Invalid question index'));
     }
-
+  
     return this.quizService.getQuizData().pipe(
       map((quizzes: Quiz[]) => {
         const quizData = quizzes.find(quiz => quiz.quizId === quizId);
@@ -1398,6 +1401,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       })
     );
   }
+  
 
   private handleQuizData(
     quiz: Quiz,
