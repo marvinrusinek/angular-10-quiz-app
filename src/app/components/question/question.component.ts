@@ -296,6 +296,26 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  loadQuestion() {
+    if (!this.questionsList || this.questionsList.length === 0) {
+      console.error('Questions are not available yet');
+      return;
+    }
+  
+    const currentQuestion = this.questionsList[this.currentQuestionIndex];
+    console.log("Loading Current Question:", currentQuestion);
+  
+    if (!currentQuestion || !currentQuestion.options) {
+      console.error('Current question is undefined or has no options');
+      return;
+    }
+  
+    this.options = currentQuestion.options.map((option, index) => ({
+      ...option,
+      optionId: index
+    }));
+  }  
+
   // Load options and set displayOptions
   loadOptions(): void {
     this.currentQuestion = this.quiz.questions[0]; // Example: Load the first question
