@@ -556,8 +556,7 @@ export class QuizService implements OnDestroy {
       catchError(error => {
         console.error('An error occurred while loading questions:', error);
         return throwError(() => new Error('Failed to load questions'));
-      }),
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+      })
     );
   }
 
