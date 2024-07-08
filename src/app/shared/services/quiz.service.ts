@@ -228,8 +228,18 @@ export class QuizService implements OnDestroy {
     this.currentQuestion$ = this.currentQuestionSource.asObservable();
   }
 
-  getQuizData(): Observable<Quiz[]> {
+  /* getQuizData(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
+      catchError((error) => {
+        console.error('Error fetching quiz data:', error);
+        return throwError(() => new Error('Error fetching quiz data'));
+      })
+    );
+  } */
+
+  getQuizData(quizId: string): Observable<Quiz> {
+    return this.http.get<Quiz[]>(this.quizUrl).pipe(
+      map(quizzes => quizzes.find(quiz => quiz.quizId === quizId) as Quiz),
       catchError((error) => {
         console.error('Error fetching quiz data:', error);
         return throwError(() => new Error('Error fetching quiz data'));

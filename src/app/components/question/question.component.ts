@@ -183,7 +183,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.loadQuestion();
+    this.quizService.getQuizData(this.quizId).subscribe((quiz: Quiz) => {
+      this.quiz = quiz;
+      this.loadQuestion();
+      this.loadOptions();
+    });
+
     this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
       this.selectedOption = selectedOption;
       this.selectedOptions = selectedOption ? [selectedOption] : [];
@@ -319,6 +324,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   // Load options and set displayOptions
   loadOptions(): void {
+    if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
+      console.error('Quiz or questions are not properly initialized');
+      return;
+    }
+
     this.currentQuestion = this.quiz.questions[0]; // Example: Load the first question
     this.displayOptions = this.getDisplayOptions();
     this.showFeedbackForOption = this.displayOptions.reduce((acc, option, idx) => {
