@@ -815,11 +815,20 @@ export class QuizComponent implements OnInit, OnDestroy {
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
-        const questionIndex = +params.get('questionIndex');
+        const quizId = params.get('quizId');
+        const questionIndex = +params.get('questionIndex') || 0;
+        this.currentQuestionIndex = questionIndex;
+            
+        if (!quizId) {
+          console.error('Quiz ID is missing from the route parameters');
+          return EMPTY;
+        }
+
         if (isNaN(questionIndex) || questionIndex < 0) {
           console.error('Question index is not a valid number or is negative:', questionIndex);
           return EMPTY;
         }
+
         return this.handleRouteParams(params).pipe(
           catchError((error: Error) => {
             console.error('Error in handling route parameters:', error);
@@ -834,17 +843,17 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Quiz data is missing, not an object, or the questions array is invalid:', quizData);
           return EMPTY;
         }
-        
+            
         // Adjust the last question index to be the maximum index of the questions array
         const lastIndex = quizData.questions.length - 1;
         const adjustedIndex = Math.min(questionIndex, lastIndex);
-        
+            
         // Handle the case where the adjusted index is negative
         if (adjustedIndex < 0) {
           console.error('Adjusted question index is negative:', adjustedIndex);
           return EMPTY;
         }
-        
+            
         // Set the active quiz and retrieve the question by index
         this.quizService.setActiveQuiz(quizData);
         this.initializeQuizState();
