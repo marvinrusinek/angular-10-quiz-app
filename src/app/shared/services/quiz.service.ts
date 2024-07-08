@@ -532,13 +532,13 @@ export class QuizService implements OnDestroy {
         if (!quiz) {
           throw new Error(`Quiz with ID ${quizId} not found`);
         }
-
+  
         quiz.questions.forEach((question, qIndex) => {
           question.options.forEach((option, oIndex) => {
             option.optionId = oIndex;
           });
         });
-
+  
         if (this.checkedShuffle.value) {
           Utils.shuffleArray(quiz.questions);  // Shuffle questions
           quiz.questions.forEach(question => {
@@ -547,11 +547,10 @@ export class QuizService implements OnDestroy {
             }
           });
         }
-
-        return quiz;
+  
+        return { quizId: quiz.quizId, questions: quiz.questions };
       }),
-      tap(quiz => this.setActiveQuiz(quiz as Quiz)),  // Set the active quiz here
-      map(quiz => ({ quizId: quiz.quizId, questions: quiz.questions })),
+      tap(quiz => this.setActiveQuiz(quiz as unknown as Quiz)),  // Set the active quiz here
       catchError(error => {
         console.error('An error occurred while loading questions:', error);
         return throwError(() => new Error('Failed to load questions'));
