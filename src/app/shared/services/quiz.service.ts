@@ -491,28 +491,26 @@ export class QuizService implements OnDestroy {
 
   getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
-      map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
-      tap(quiz => {
-        if (quiz) {
-          quiz.questions.forEach((question, qIndex) => {
-            question.options.forEach((option, oIndex) => {
-              option.optionId = oIndex;
-            });
-          });
-  
-          if (this.checkedShuffle.value) {
-            Utils.shuffleArray(quiz.questions);  // Shuffle questions
-            quiz.questions.forEach(question => {
-              if (question.options) {
-                Utils.shuffleArray(question.options);  // Shuffle options within each question
-              }
-            });
-          }
-        }
-      }),
-      map(quiz => {
+      map(quizzes => {
+        const quiz = quizzes.find(q => q.quizId === quizId);
         if (!quiz) {
           throw new Error(`Quiz with ID ${quizId} not found`);
+        }
+        // Ensure each option has an optionId
+        quiz.questions.forEach((question, qIndex) => {
+          question.options.forEach((option, oIndex) => {
+            option.optionId = oIndex;
+          });
+        });
+  
+        // Shuffle if needed
+        if (this.checkedShuffle.value) {
+          Utils.shuffleArray(quiz.questions);  // Shuffle questions
+          quiz.questions.forEach(question => {
+            if (question.options) {
+              Utils.shuffleArray(question.options);  // Shuffle options within each question
+            }
+          });
         }
         return { quizId: quiz.quizId, questions: quiz.questions };
       }),
@@ -524,6 +522,7 @@ export class QuizService implements OnDestroy {
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     );
   }
+  
 
   public setQuestionData(data: any): void {
     this.questionDataSubject.next(data);
