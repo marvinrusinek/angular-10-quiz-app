@@ -189,10 +189,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           console.error('Quiz or questions are not properly initialized');
           return;
         }
-          
+  
         this.quiz = quizData as unknown as Quiz;
-        this.quizService.questionsList = quizData.questions;
-        this.currentQuestionIndex = 0;
+        this.questionsList = quizData.questions;
+        this.currentQuestionIndex = 0; // Assuming we start with the first question
         this.loadQuestion();
         this.loadOptions();
       },
