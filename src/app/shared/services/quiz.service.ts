@@ -532,14 +532,15 @@ export class QuizService implements OnDestroy {
           const processedQuestions = this.checkedShuffle ? this.shuffleQuestions([...questions]) : questions;
   
           // Add optionId to each option if options are defined
-          processedQuestions.forEach(question => {
+          processedQuestions.forEach((question, qIndex) => {
             if (question.options && Array.isArray(question.options)) {
-              question.options = question.options.map((option, index) => ({
+              question.options = question.options.map((option, oIndex) => ({
                 ...option,
-                optionId: index
+                optionId: oIndex
               }));
             } else {
-              console.error(`Options are not properly defined for question: ${question.questionText || 'undefined'}`);
+              console.error(`Options are not properly defined for question:::>> ${question.questionText || 'undefined'}`);
+              console.log('Question index:', qIndex, 'Question:', question);
               question.options = [];  // Initialize as an empty array to prevent further errors
             }
           });
@@ -555,6 +556,7 @@ export class QuizService implements OnDestroy {
     }
     return this.questions$;
   }
+  
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuizData().pipe(
