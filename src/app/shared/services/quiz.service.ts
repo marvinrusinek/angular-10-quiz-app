@@ -461,39 +461,45 @@ export class QuizService implements OnDestroy {
 
   async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
-        const quizId = this.quizId; // Ensure this is set correctly in your service
-        const quizzes = await this.http.get<Quiz[]>(this.quizUrl).toPromise();
-        const quiz = quizzes.find(q => q.quizId === quizId);
-
-        if (!quiz) {
-            throw new Error(`Quiz with ID ${quizId} not found`);
+      const quizId = this.quizId; // Ensure this is set correctly in your service
+      const quizzes = await this.http.get<Quiz[]>(this.quizUrl).toPromise();
+      const quiz = quizzes.find(q => q.quizId === quizId);
+  
+      if (!quiz) {
+        throw new Error(`Quiz with ID ${quizId} not found`);
+      }
+  
+      // Set optionId for each option
+      quiz.questions.forEach((question, qIndex) => {
+        if (question.options && Array.isArray(question.options)) {
+          question.options.forEach((option, oIndex) => {
+            option.optionId = oIndex;
+          });
+        } else {
+          console.error(`Options are not properly defined for question:::>> ${question.questionText || 'undefined'}`);
+          question.options = [];  // Initialize as an empty array to prevent further errors
         }
-
-        // Set optionId for each option
-        quiz.questions.forEach((question, qIndex) => {
-            question.options.forEach((option, oIndex) => {
-                option.optionId = oIndex;
-            });
+      });
+  
+      if (this.checkedShuffle.value) {
+        Utils.shuffleArray(quiz.questions); // Shuffle questions
+        quiz.questions.forEach(question => {
+          if (question.options) {
+            Utils.shuffleArray(question.options); // Shuffle options within each question
+          }
         });
-
-        if (this.checkedShuffle.value) {
-            Utils.shuffleArray(quiz.questions); // Shuffle questions
-            quiz.questions.forEach(question => {
-                if (question.options) {
-                    Utils.shuffleArray(question.options); // Shuffle options within each question
-                }
-            });
-        }
-
-        // Update the BehaviorSubject with the new questions
-        this.questionsListSubject.next(quiz.questions);
-
-        return quiz.questions;
+      }
+  
+      // Update the BehaviorSubject with the new questions
+      this.questionsSubject.next(quiz.questions);
+  
+      return quiz.questions;
     } catch (error) {
-        console.error('Error fetching quiz questions:', error);
-        return [];
+      console.error('Error fetching quiz questions:', error);
+      return [];
     }
   }
+  
 
   async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
