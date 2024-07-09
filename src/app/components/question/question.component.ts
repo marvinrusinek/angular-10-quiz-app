@@ -183,9 +183,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    try {
-      this.questions = this.quizService.questions$;
-
+    if (this.questions) {
       this.questions.subscribe({
         next: (questions: QuizQuestion[]) => {
           this.questionsArray = questions;
@@ -207,21 +205,40 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           console.error('Error fetching questions', err);
         }
       });
+    } else {
+      console.error('Questions input is not provided');
+    }
 
+    try {
+      this.optionsToDisplay.forEach((option) => {
+        this.showFeedbackForOption[option.optionId] = false; // Initially set to false
+      });
+
+      // Reset state and messages for the new question
       this.resetMessages();
       this.resetStateForNewQuestion();
-      this.subscribeToOptionSelection();
 
+      // Subscribe to option selection changes to ensure the state is up-to-date
+      this.subscribeToOptionSelection();
+  
+      // Initialize the quiz and subscribe to selection changes if not already initialized
       if (!this.initialized) {
         this.initialized = true;
         await this.initializeQuiz();
       }
-
+  
+      // Initialize the current quiz question and handle its state
       this.initializeQuizQuestion();
       await this.handleQuestionState();
+
       this.loadOptions();
+
       this.setCorrectMessage([]);
+  
+      // Set up an event listener for visibility change to refresh data if needed
       document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
+  
+      // Log data for debugging
       this.logInitialData();
       this.logFinalData();
     } catch (error) {
@@ -229,6 +246,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  loadQuestion() {
+    if (!this.questionsArray || this.questionsArray.length === 0) {
+      console.error('Questions are not available yet');
+      return;
+    }
+    const currentQuestion = this.questionsArray[this.currentQuestionIndex];
+
+    if (!currentQuestion) {
+      console.error('Current question is undefined');
+      return;
+    }
+    this.options = currentQuestion.options.map((option, index) => ({
+      ...option,
+      optionId: index
+    }));
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     // Improved check for property changes that are not the first change
@@ -319,30 +352,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  loadQuestion() {
-    if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.error('Questions are not available yet');
-      return;
-    }
-    const currentQuestion = this.questionsArray[this.currentQuestionIndex];
-    console.log('Loading Current Question:', currentQuestion);
-    if (!currentQuestion || !currentQuestion.options) {
-      console.error('Current question is undefined or has no options');
-      return;
-    }
-    this.options = currentQuestion.options.map((option, index) => ({
-      ...option,
-      optionId: index
-    }));
-  }
-
   // Load options and set displayOptions
-  /* loadOptions(): void {
-    if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
-      console.error('Quiz or questions are not properly initialized');
-      return;
-    }
-
+  loadOptions(): void {
     this.currentQuestion = this.quiz.questions[0]; // Example: Load the first question
     this.displayOptions = this.getDisplayOptions();
     this.showFeedbackForOption = this.displayOptions.reduce((acc, option, idx) => {
@@ -351,25 +362,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }, {} as { [optionId: number]: boolean });
     console.log('Display options loaded:', this.displayOptions);
     console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
-  } */
-  loadOptions(): void {
-    if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.error('Questions are not available yet');
-      return;
-    }
-
-    const currentQuestion = this.questionsArray[this.currentQuestionIndex];
-    console.log("Loading Current Question:", currentQuestion);
-
-    if (!currentQuestion || !currentQuestion.options) {
-      console.error('Current question is undefined or has no options');
-      return;
-    }
-
-    this.options = currentQuestion.options.map((option, index) => ({
-      ...option,
-      optionId: index
-    }));
   }
 
   isSelectedOption(option: Option): boolean {
