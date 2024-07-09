@@ -461,7 +461,7 @@ export class QuizService implements OnDestroy {
 
   async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
-        const quizId = this.activeQuizId; // Ensure this is set correctly in your service
+        const quizId = this.quizId; // Ensure this is set correctly in your service
         const quizzes = await this.http.get<Quiz[]>(this.quizUrl).toPromise();
         const quiz = quizzes.find(q => q.quizId === quizId);
 
