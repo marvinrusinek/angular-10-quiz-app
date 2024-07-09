@@ -370,12 +370,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
   } */
   loadOptions(): void {
-    if (!this.currentQuiz || !this.currentQuiz.questions || this.currentQuiz.questions.length === 0) {
+    if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
         console.error('Quiz or questions are not properly initialized');
         return;
     }
 
-    const currentQuestion = this.currentQuiz.questions[this.currentQuestionIndex];
+    const currentQuestion = this.quiz.questions[this.currentQuestionIndex];
     console.log("Loading Current Question:", currentQuestion);
 
     if (!currentQuestion || !currentQuestion.options) {
