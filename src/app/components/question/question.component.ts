@@ -344,16 +344,30 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Quiz or questions are not properly initialized');
       return;
     }
-
-    this.currentQuestion = this.quiz.questions[0]; // Example: Load the first question
+  
+    const currentQuestion = this.quiz.questions[this.currentQuestionIndex];
+    console.log("Loading Current Question:", currentQuestion);
+  
+    if (!currentQuestion || !currentQuestion.options) {
+      console.error('Current question is undefined or has no options');
+      return;
+    }
+  
+    this.options = currentQuestion.options.map((option, index) => ({
+      ...option,
+      optionId: index
+    }));
+  
     this.displayOptions = this.getDisplayOptions();
     this.showFeedbackForOption = this.displayOptions.reduce((acc, option, idx) => {
-      acc[idx] = true;
+      acc[idx] = false;
       return acc;
     }, {} as { [optionId: number]: boolean });
+  
     console.log('Display options loaded:', this.displayOptions);
     console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
   }
+  
 
   isSelectedOption(option: Option): boolean {
     const isOptionSelected = this.selectedOptionService.isSelectedOption(option);
