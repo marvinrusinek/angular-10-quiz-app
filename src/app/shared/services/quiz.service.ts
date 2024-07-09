@@ -555,9 +555,6 @@ export class QuizService implements OnDestroy {
     }
     return this.questions$;
   }
-  
-  
-  
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuizData().pipe(
