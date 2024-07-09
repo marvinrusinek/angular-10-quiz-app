@@ -431,21 +431,21 @@ export class QuizService implements OnDestroy {
 
   async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
-      const quizId = this.quizId;
+      const quizId = this.quizId; // Ensure this is set correctly in your service
       const quizzes = await firstValueFrom(this.http.get<Quiz[]>(this.quizUrl));
       const quiz = quizzes.find(q => q.quizId === quizId);
-  
+
       if (!quiz) {
         throw new Error(`Quiz with ID ${quizId} not found`);
       }
-  
+
       // Set optionId for each option
       quiz.questions.forEach((question, qIndex) => {
         question.options.forEach((option, oIndex) => {
           option.optionId = oIndex;
         });
       });
-  
+
       if (this.checkedShuffle.value) {
         Utils.shuffleArray(quiz.questions); // Shuffle questions
         quiz.questions.forEach(question => {
@@ -454,10 +454,10 @@ export class QuizService implements OnDestroy {
           }
         });
       }
-  
+
       // Update the BehaviorSubject with the new questions
       this.questionsSubject.next(quiz.questions);
-  
+
       return quiz.questions;
     } catch (error) {
       console.error('Error fetching quiz questions:', error);
@@ -483,9 +483,9 @@ export class QuizService implements OnDestroy {
       this.http.get<Quiz[]>(this.quizUrl).pipe(
         tap((quizzes: Quiz[]) => {
           // Find the correct quiz and extract its questions
-          const selectedQuiz = quizzes.find(quiz => quiz.quizId === this.currentQuizId);
+          const selectedQuiz = quizzes.find(quiz => quiz.quizId === this.quizId);
           if (!selectedQuiz) {
-            console.error(`Quiz with ID ${this.currentQuizId} not found`);
+            console.error(`Quiz with ID ${this.quizId} not found`);
             this.questionsSubject.next([]); // Empty array to avoid further issues
             return;
           }
