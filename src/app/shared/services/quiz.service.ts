@@ -510,25 +510,33 @@ export class QuizService implements OnDestroy {
 
   getAllQuestions(): Observable<QuizQuestion[]> {
     if (this.questionsSubject.getValue().length === 0) {
-      this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-        tap((questions: QuizQuestion[]) => {
-          console.log('Fetched Questions:', questions);
+      this.http.get<Quiz[]>(this.quizUrl).pipe(
+        tap((quizzes: Quiz[]) => {
+          // Find the correct quiz and extract its questions
+          const selectedQuiz = quizzes.find(quiz => quiz.quizId === this.currentQuizId);
+          if (!selectedQuiz) {
+            console.error(`Quiz with ID ${this.currentQuizId} not found`);
+            this.questionsSubject.next([]); // Empty array to avoid further issues
+            return;
+          }
+          
+          const questions = selectedQuiz.questions;
   
-          const processedQuestions = this.checkedShuffle ? this.shuffleQuestions([...questions]) : questions;
-  
-          processedQuestions.forEach((question, qIndex) => {
+          // Add optionId to each option if options are defined
+          questions.forEach((question, qIndex) => {
             if (question.options && Array.isArray(question.options)) {
               question.options = question.options.map((option, oIndex) => ({
                 ...option,
                 optionId: oIndex
               }));
             } else {
-              console.error(`Options are not properly defined for question at index ${qIndex}:`, question);
+              console.error(`Options are not properly defined for question:::>> ${question.questionText || 'undefined'}`);
+              console.log('Question index:', qIndex, 'Question:', question);
               question.options = [];  // Initialize as an empty array to prevent further errors
             }
           });
   
-          this.questionsSubject.next(processedQuestions); // Update BehaviorSubject with new data
+          this.questionsSubject.next(questions); // Update BehaviorSubject with new data
         }),
         catchError((error: Error) => {
           console.error('Error fetching questions:', error);
@@ -539,6 +547,7 @@ export class QuizService implements OnDestroy {
     }
     return this.questions$;
   }
+  
   
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
