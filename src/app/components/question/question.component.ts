@@ -254,23 +254,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  loadQuestion() {
-    if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.error('Questions are not available yet');
-      return;
-    }
-    const currentQuestion = this.questionsArray[this.currentQuestionIndex];
-
-    if (!currentQuestion) {
-      console.error('Current question is undefined');
-      return;
-    }
-    this.options = currentQuestion.options.map((option, index) => ({
-      ...option,
-      optionId: index
-    }));
-  }
-
   ngOnChanges(changes: SimpleChanges): void {
     // Improved check for property changes that are not the first change
     const isSubsequentChange = (change: SimpleChange) => change && !change.firstChange;
@@ -358,6 +341,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       });
     }
+  }
+
+  loadQuestion(): void {
+    if (!this.questionsArray || this.questionsArray.length === 0) {
+      console.error('Questions are not available yet');
+      return;
+    }
+    const currentQuestion = this.questionsArray[this.currentQuestionIndex];
+
+    if (!currentQuestion) {
+      console.error('Current question is undefined');
+      return;
+    }
+    this.options = currentQuestion.options.map((option, index) => ({
+      ...option,
+      optionId: index
+    }));
   }
 
   // Load options and set displayOptions
