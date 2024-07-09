@@ -429,7 +429,7 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  async fetchQuizQuestions(): Promise<QuizQuestion[]> {
+  /* async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
       const quizId = this.quizId;
       const questionObjects: any[] = await this.fetchAndSetQuestions(quizId);
@@ -456,6 +456,42 @@ export class QuizService implements OnDestroy {
     } catch (error) {
       console.error('Error fetching quiz questions:', error);
       return [];
+    }
+  } */
+
+  async fetchQuizQuestions(): Promise<QuizQuestion[]> {
+    try {
+        const quizId = this.activeQuizId; // Ensure this is set correctly in your service
+        const quizzes = await this.http.get<Quiz[]>(this.quizUrl).toPromise();
+        const quiz = quizzes.find(q => q.quizId === quizId);
+
+        if (!quiz) {
+            throw new Error(`Quiz with ID ${quizId} not found`);
+        }
+
+        // Set optionId for each option
+        quiz.questions.forEach((question, qIndex) => {
+            question.options.forEach((option, oIndex) => {
+                option.optionId = oIndex;
+            });
+        });
+
+        if (this.checkedShuffle.value) {
+            Utils.shuffleArray(quiz.questions); // Shuffle questions
+            quiz.questions.forEach(question => {
+                if (question.options) {
+                    Utils.shuffleArray(question.options); // Shuffle options within each question
+                }
+            });
+        }
+
+        // Update the BehaviorSubject with the new questions
+        this.questionsListSubject.next(quiz.questions);
+
+        return quiz.questions;
+    } catch (error) {
+        console.error('Error fetching quiz questions:', error);
+        return [];
     }
   }
 
