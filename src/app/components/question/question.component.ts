@@ -207,16 +207,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
                     this.selectedOption = selectedOption;
                     console.log('Selected option updated', selectedOption);
                 });
-
-                // Load options for the current question after questions are set
-                this.quizService.getQuizData().subscribe((quiz: Quiz[]) => {
-                    this.quiz = quiz.find(q => q.questions.includes(this.questionsArray[0]));
-                    if (!this.quiz) {
-                        console.error('Quiz data is not properly initialized');
-                        return;
-                    }
-                    this.loadOptions();
-                });
             },
             error: (err) => {
                 console.error('Error fetching questions', err);
@@ -239,6 +229,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         // Initialize the current quiz question and handle its state
         this.initializeQuizQuestion();
         await this.handleQuestionState();
+
+        // Load options for the current question
+        this.loadOptions();
 
         // Set the correct message for the current question
         this.setCorrectMessage([]);

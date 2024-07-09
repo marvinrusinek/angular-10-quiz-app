@@ -788,7 +788,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             );
         }),
         switchMap(data => {
-            const { quizId, quizData, questionIndex } = data;
+            const { quizId, questionIndex, quizData } = data;
 
             if (!quizData || typeof quizData !== 'object' || !quizData.questions || !Array.isArray(quizData.questions)) {
                 console.error('Quiz data is missing, not an object, or the questions array is invalid:', quizData);
@@ -817,7 +817,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe({
         next: (question: QuizQuestion | null) => {
             if (question) {
-                this.currentQuiz = this.quizService.getActiveQuiz(); 
+                this.currentQuiz = this.quizService.getActiveQuiz();
                 this.currentQuestion = question;
             } else {
                 console.error('No question data available after fetch.');
@@ -827,6 +827,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
   }
+
 
   initializeQuizFromRoute(): void {
     this.activatedRoute.data.subscribe(data => {
