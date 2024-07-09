@@ -446,7 +446,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               quizQuestion.selectedOptions = null;
   
               // Check if options exist and are an array before mapping
-              if (Array.isArray(quizQuestion.options)) {
+              if (quizQuestion.options && Array.isArray(quizQuestion.options)) {
                 quizQuestion.options = quizQuestion.options.map((option, index) => ({
                   ...option,
                   optionId: index
@@ -476,6 +476,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         });
     }
   }
+  
    
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {    

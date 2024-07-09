@@ -530,10 +530,10 @@ export class QuizService implements OnDestroy {
       this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
         tap((questions: QuizQuestion[]) => {
           const processedQuestions = this.checkedShuffle ? this.shuffleQuestions([...questions]) : questions;
-          
+  
           // Add optionId to each option if options are defined
           processedQuestions.forEach(question => {
-            if (Array.isArray(question.options)) {
+            if (question.options && Array.isArray(question.options)) {
               question.options = question.options.map((option, index) => ({
                 ...option,
                 optionId: index
@@ -555,6 +555,7 @@ export class QuizService implements OnDestroy {
     }
     return this.questions$;
   }
+  
   
   
 
