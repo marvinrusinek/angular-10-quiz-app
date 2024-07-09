@@ -458,10 +458,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           map((questions: QuizQuestion[]) => {
             questions.forEach((quizQuestion: QuizQuestion) => {
               quizQuestion.selectedOptions = null;
-              quizQuestion.options = quizQuestion.options.map((option, index) => ({
-                ...option,
-                optionId: index
-              }));
+  
+              // Check if options exist and are an array before mapping
+              if (Array.isArray(quizQuestion.options)) {
+                quizQuestion.options = quizQuestion.options.map((option, index) => ({
+                  ...option,
+                  optionId: index
+                }));
+              } else {
+                console.error(`Options are not properly defined for question: ${quizQuestion.questionText}`);
+                quizQuestion.options = [];  // Initialize as an empty array to prevent further errors
+              }
             });
             return questions;
           })
@@ -482,8 +489,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           }
         });
     }
-  }
-  
+  }  
+
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {    
     try {
       await this.fetchAndProcessQuizQuestions();
