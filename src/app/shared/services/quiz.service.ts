@@ -516,7 +516,7 @@ export class QuizService implements OnDestroy {
             }
             return { quizId: quiz.quizId, questions: quiz.questions };
         }),
-        tap(quiz => this.setActiveQuiz(quiz as unknown as Quiz)),  // Set the active quiz here
+        tap(quiz => this.setActiveQuiz(quiz as unknown as Quiz)),
         catchError(error => {
             console.error('An error occurred while loading questions:', error);
             return throwError(() => new Error('Failed to load questions'));

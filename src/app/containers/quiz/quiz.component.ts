@@ -775,40 +775,31 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
-        switchMap((params: ParamMap) => this.handleRouteParams(params).pipe(
-            catchError((error: Error) => {
-                console.error('Error in handling route parameters:', error);
-                return EMPTY;
-            })
-        )),
-        switchMap(data => {
-            const { quizData, questionIndex } = data;
-
-            if (!quizData || typeof quizData !== 'object' || !quizData.questions || !Array.isArray(quizData.questions)) {
-                console.error('Quiz data is missing, not an object, or the questions array is invalid:', quizData);
+        switchMap((params: ParamMap) => {
+            const quizId = params.get('quizId');
+            if (!quizId) {
+                console.error('Quiz ID is missing');
                 return EMPTY;
             }
+            const questionIndex = +params.get('questionIndex') || 0;
+            this.currentQuestionIndex = questionIndex;
 
-            const lastIndex = quizData.questions.length - 1;
-            const adjustedIndex = Math.min(questionIndex, lastIndex);
-
-            if (adjustedIndex < 0) {
-                console.error('Adjusted question index is negative:', adjustedIndex);
-                return EMPTY;
-            }
-
-            this.quizService.setActiveQuiz(quizData);
-            this.initializeQuizState();
-            return this.quizService.getQuestionByIndex(adjustedIndex);
+            return this.quizService.getQuestionsForQuiz(quizId).pipe(
+                catchError((error: Error) => {
+                    console.error('Error fetching quiz:', error);
+                    return EMPTY;
+                })
+            );
         }),
-        catchError((error: Error) => {
-            console.error('Error fetching questions for quiz:', error);
-            return EMPTY;
-        })
+        tap(data => {
+            const { quizId, questions } = data;
+            this.quiz = { quizId, questions };
+            this.quizService.setActiveQuiz(this.quiz);
+        }),
+        switchMap(data => this.quizService.getQuestionByIndex(this.currentQuestionIndex))
     ).subscribe({
         next: (question: QuizQuestion | null) => {
             if (question) {
-                this.currentQuiz = this.quizService.getActiveQuiz();
                 this.currentQuestion = question;
             } else {
                 console.error('No question data available after fetch.');
@@ -818,6 +809,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
   }
+
 
   initializeQuizFromRoute(): void {
     this.activatedRoute.data.subscribe(data => {
