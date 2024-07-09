@@ -471,14 +471,9 @@ export class QuizService implements OnDestroy {
   
       // Set optionId for each option
       quiz.questions.forEach((question, qIndex) => {
-        if (question.options && Array.isArray(question.options)) {
-          question.options.forEach((option, oIndex) => {
-            option.optionId = oIndex;
-          });
-        } else {
-          console.error(`Options are not properly defined for question:::>> ${question.questionText || 'undefined'}`);
-          question.options = [];  // Initialize as an empty array to prevent further errors
-        }
+        question.options.forEach((option, oIndex) => {
+          option.optionId = oIndex;
+        });
       });
   
       if (this.checkedShuffle.value) {
@@ -499,7 +494,6 @@ export class QuizService implements OnDestroy {
       return [];
     }
   }
-  
 
   async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
