@@ -802,7 +802,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             return this.quizService.getQuestionByIndex(adjustedIndex);
         }),
         catchError((error: Error) => {
-            console.error('Observable chain failed:', error);
+            console.error('Error fetching questions for quiz:', error);
             return EMPTY;
         })
     ).subscribe({
@@ -818,6 +818,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
   }
+
 
   initializeQuizFromRoute(): void {
     this.activatedRoute.data.subscribe(data => {
