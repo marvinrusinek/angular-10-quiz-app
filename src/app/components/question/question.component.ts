@@ -230,7 +230,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
-  }  
+  }
 
   loadQuestion() {
     if (!this.questionsArray || this.questionsArray.length === 0) {
