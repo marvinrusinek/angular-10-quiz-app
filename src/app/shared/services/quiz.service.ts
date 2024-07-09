@@ -429,40 +429,10 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  /* async fetchQuizQuestions(): Promise<QuizQuestion[]> {
-    try {
-      const quizId = this.quizId;
-      const questionObjects: any[] = await this.fetchAndSetQuestions(quizId);
-      const questions: QuizQuestion[] = questionObjects[0].questions;
-
-      if (!questions || questions.length === 0) {
-        console.error('No questions found');
-        return [];
-      }
-
-      // Calculate correct answers
-      const correctAnswers = this.calculateCorrectAnswers(questions);
-      this.correctAnswersSubject.next(correctAnswers);
-
-      // Initialize combined question data
-      await this.initializeCombinedQuestionData();
-
-      // Set correct answers for questions
-      this.setCorrectAnswersForQuestions(questions, correctAnswers);
-
-      this.correctAnswersLoadedSubject.next(true);
-
-      return questions;
-    } catch (error) {
-      console.error('Error fetching quiz questions:', error);
-      return [];
-    }
-  } */
-
   async fetchQuizQuestions(): Promise<QuizQuestion[]> {
     try {
-      const quizId = this.quizId; // Ensure this is set correctly in your service
-      const quizzes = await this.http.get<Quiz[]>(this.quizUrl).toPromise();
+      const quizId = this.quizId;
+      const quizzes = await firstValueFrom(this.http.get<Quiz[]>(this.quizUrl));
       const quiz = quizzes.find(q => q.quizId === quizId);
   
       if (!quiz) {
