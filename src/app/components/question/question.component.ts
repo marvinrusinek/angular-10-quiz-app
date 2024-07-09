@@ -355,7 +355,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
   } */
   loadOptions(): void {
-    const currentQuestion = this.quiz.questions[this.currentQuestionIndex];
+    if (!this.questionsArray || this.questionsArray.length === 0) {
+      console.error('Questions are not available yet');
+      return;
+    }
+
+    const currentQuestion = this.questionsArray[this.currentQuestionIndex];
     console.log("Loading Current Question:", currentQuestion);
 
     if (!currentQuestion || !currentQuestion.options) {
