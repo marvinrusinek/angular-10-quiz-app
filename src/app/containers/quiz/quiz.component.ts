@@ -775,26 +775,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
-        switchMap((params: ParamMap) => {
-            const quizId = params.get('quizId');
-            if (!quizId) {
-                console.error('Quiz ID is missing');
+        switchMap((params: ParamMap) => this.handleRouteParams(params).pipe(
+            catchError((error: Error) => {
+                console.error('Error in handling route parameters:', error);
                 return EMPTY;
-            }
-            this.quizId = quizId;
-            const questionIndex = +params.get('questionIndex');
-            if (isNaN(questionIndex) || questionIndex < 0) {
-                console.error('Question index is not a valid number or is negative:', questionIndex);
-                return EMPTY;
-            }
-            this.currentQuestionIndex = questionIndex;
-            return this.handleRouteParams(params).pipe(
-                catchError((error: Error) => {
-                    console.error('Error in handling route parameters:', error);
-                    return EMPTY;
-                })
-            );
-        }),
+            })
+        )),
         switchMap(data => {
             const { quizData, questionIndex } = data;
 
@@ -803,17 +789,14 @@ export class QuizComponent implements OnInit, OnDestroy {
                 return EMPTY;
             }
 
-            // Adjust the last question index to be the maximum index of the questions array
             const lastIndex = quizData.questions.length - 1;
             const adjustedIndex = Math.min(questionIndex, lastIndex);
 
-            // Handle the case where the adjusted index is negative
             if (adjustedIndex < 0) {
                 console.error('Adjusted question index is negative:', adjustedIndex);
                 return EMPTY;
             }
 
-            // Set the active quiz and retrieve the question by index
             this.quizService.setActiveQuiz(quizData);
             this.initializeQuizState();
             return this.quizService.getQuestionByIndex(adjustedIndex);
@@ -827,6 +810,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             if (question) {
                 this.currentQuiz = this.quizService.getActiveQuiz();
                 this.currentQuestion = question;
+                this.loadOptions(); // Ensure loadOptions is called here
             } else {
                 console.error('No question data available after fetch.');
             }
