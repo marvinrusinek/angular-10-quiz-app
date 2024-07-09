@@ -780,35 +780,21 @@ export class QuizComponent implements OnInit, OnDestroy {
             const questionIndex = +params.get('questionIndex') || 0;
             this.currentQuestionIndex = questionIndex;
 
-            return this.handleRouteParams(params).pipe(
+            return this.quizService.getQuestionsForQuiz(quizId).pipe(
                 catchError((error: Error) => {
-                    console.error('Error in handling route parameters:', error);
+                    console.error('Error fetching quiz:', error);
                     return EMPTY;
                 })
             );
         }),
-        switchMap(data => {
-            const { quizId, questionIndex, quizData } = data;
-
-            if (!quizData || typeof quizData !== 'object' || !quizData.questions || !Array.isArray(quizData.questions)) {
-                console.error('Quiz data is missing, not an object, or the questions array is invalid:', quizData);
+        switchMap(quiz => {
+            if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+                console.error('Quiz data is invalid or no questions available');
                 return EMPTY;
             }
 
-            // Adjust the last question index to be the maximum index of the questions array
-            const lastIndex = quizData.questions.length - 1;
-            const adjustedIndex = Math.min(questionIndex, lastIndex);
-
-            // Handle the case where the adjusted index is negative
-            if (adjustedIndex < 0) {
-                console.error('Adjusted question index is negative:', adjustedIndex);
-                return EMPTY;
-            }
-
-            // Set the active quiz and retrieve the question by index
-            this.quizService.setActiveQuiz(quizData);
-            this.initializeQuizState();
-            return this.quizService.getQuestionByIndex(adjustedIndex);
+            this.quizService.setActiveQuiz(quiz);
+            return this.quizService.getQuestionByIndex(this.currentQuestionIndex);
         }),
         catchError((error: Error) => {
             console.error('Error fetching questions for quiz:', error);
@@ -819,6 +805,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             if (question) {
                 this.currentQuiz = this.quizService.getActiveQuiz();
                 this.currentQuestion = question;
+                this.loadOptions(); // Ensure options are loaded correctly
             } else {
                 console.error('No question data available after fetch.');
             }
@@ -827,7 +814,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
   }
-
 
   initializeQuizFromRoute(): void {
     this.activatedRoute.data.subscribe(data => {
