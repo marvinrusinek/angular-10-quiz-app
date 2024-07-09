@@ -354,7 +354,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   // Load options and set displayOptions
-  loadOptions(): void {
+  /* loadOptions(): void {
     if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
       console.error('Quiz or questions are not properly initialized');
       return;
@@ -368,6 +368,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }, {} as { [optionId: number]: boolean });
     console.log('Display options loaded:', this.displayOptions);
     console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
+  } */
+  loadOptions(): void {
+    if (!this.currentQuiz || !this.currentQuiz.questions || this.currentQuiz.questions.length === 0) {
+        console.error('Quiz or questions are not properly initialized');
+        return;
+    }
+
+    const currentQuestion = this.currentQuiz.questions[this.currentQuestionIndex];
+    console.log("Loading Current Question:", currentQuestion);
+
+    if (!currentQuestion || !currentQuestion.options) {
+        console.error('Current question is undefined or has no options');
+        return;
+    }
+
+    this.options = currentQuestion.options.map((option, index) => ({
+        ...option,
+        optionId: index
+    }));
   }
 
   isSelectedOption(option: Option): boolean {
