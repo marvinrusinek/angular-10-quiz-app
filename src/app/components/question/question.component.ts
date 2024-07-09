@@ -189,56 +189,56 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Questions input is not provided');
         return;
       }
-  
+
       // Subscribe to questions and initialize questionsArray
       this.questions.subscribe({
         next: (questions: QuizQuestion[]) => {
           this.questionsArray = questions;
           console.log('Questions:', this.questionsArray);
           console.log('Current Question Index:', this.currentQuestionIndex);
-  
+
           if (this.questionsArray.length === 0) {
             console.error('Questions are not initialized');
             return;
           }
-  
+
           this.loadQuestion();
           this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
             this.selectedOption = selectedOption;
             console.log('Selected option updated', selectedOption);
           });
+
+          // Load options for the current question after questions are set
+          this.loadOptions();
         },
         error: (err) => {
           console.error('Error fetching questions', err);
         }
       });
-  
+
       // Initialize the state for the new question
       this.resetMessages();
       this.resetStateForNewQuestion();
-  
+
       // Subscribe to option selection changes to ensure the state is up-to-date
       this.subscribeToOptionSelection();
-  
+
       // Initialize the quiz and subscribe to selection changes if not already initialized
       if (!this.initialized) {
         this.initialized = true;
         await this.initializeQuiz();
       }
-  
+
       // Initialize the current quiz question and handle its state
       this.initializeQuizQuestion();
       await this.handleQuestionState();
-  
-      // Load options for the current question
-      this.loadOptions();
-  
+
       // Set the correct message for the current question
       this.setCorrectMessage([]);
-  
+
       // Set up an event listener for visibility change to refresh data if needed
       document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
-  
+
       // Log data for debugging
       this.logInitialData();
       this.logFinalData();
@@ -246,6 +246,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Error in ngOnInit:', error);
     }
   }
+
 
   loadQuestion() {
     if (!this.questionsArray || this.questionsArray.length === 0) {
