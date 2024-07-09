@@ -442,18 +442,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         .getAllQuestions()
         .pipe(
           map((questions: QuizQuestion[]) => {
+            console.log('Questions in initializeQuizQuestion:', questions);
             questions.forEach((quizQuestion: QuizQuestion, qIndex) => {
               quizQuestion.selectedOptions = null;
   
-              // Check if options exist and are an array before mapping
               if (quizQuestion.options && Array.isArray(quizQuestion.options)) {
                 quizQuestion.options = quizQuestion.options.map((option, oIndex) => ({
                   ...option,
                   optionId: oIndex
                 }));
               } else {
-                console.error(`Options are not properly defined for question: ${quizQuestion.questionText || 'undefined'}`);
-                console.log('Question index:', qIndex, 'Question:', quizQuestion);
+                console.error(`Options are not properly defined for question at index ${qIndex}:`, quizQuestion);
+                console.log('Question:', quizQuestion);
                 quizQuestion.options = [];  // Initialize as an empty array to prevent further errors
               }
             });
@@ -476,7 +476,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           }
         });
     }
-  }   
+  }
+     
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {    
     try {
