@@ -810,7 +810,6 @@ export class QuizComponent implements OnInit, OnDestroy {
             if (question) {
                 this.currentQuiz = this.quizService.getActiveQuiz();
                 this.currentQuestion = question;
-                this.loadOptions(); // Ensure loadOptions is called here
             } else {
                 console.error('No question data available after fetch.');
             }
