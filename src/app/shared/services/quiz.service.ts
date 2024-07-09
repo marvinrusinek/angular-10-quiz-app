@@ -508,43 +508,11 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /* getAllQuestions(): Observable<QuizQuestion[]> {
-    if (this.questionsSubject.getValue().length === 0) {
-      this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-        tap((questions: QuizQuestion[]) => {
-          const processedQuestions = this.checkedShuffle ? this.shuffleQuestions([...questions]) : questions;
-          this.questionsSubject.next(processedQuestions); // Update BehaviorSubject with new data
-        }),
-        catchError((error: Error) => {
-          console.error('Error fetching questions:', error);
-          return of([]);
-        }),
-        shareReplay({ bufferSize: 1, refCount: true }) // Ensure the latest fetched data is replayed to new subscribers
-      ).subscribe();  // Start the Observable chain
-    }
-    return this.questions$;
-  } */
-
   getAllQuestions(): Observable<QuizQuestion[]> {
     if (this.questionsSubject.getValue().length === 0) {
       this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
         tap((questions: QuizQuestion[]) => {
           const processedQuestions = this.checkedShuffle ? this.shuffleQuestions([...questions]) : questions;
-  
-          // Add optionId to each option if options are defined
-          processedQuestions.forEach((question, qIndex) => {
-            if (question.options && Array.isArray(question.options)) {
-              question.options = question.options.map((option, oIndex) => ({
-                ...option,
-                optionId: oIndex
-              }));
-            } else {
-              console.error(`Options are not properly defined for question:::>> ${question.questionText || 'undefined'}`);
-              console.log('Question index:', qIndex, 'Question:', question);
-              question.options = [];  // Initialize as an empty array to prevent further errors
-            }
-          });
-  
           this.questionsSubject.next(processedQuestions); // Update BehaviorSubject with new data
         }),
         catchError((error: Error) => {
@@ -556,7 +524,6 @@ export class QuizService implements OnDestroy {
     }
     return this.questions$;
   }
-  
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuizData().pipe(

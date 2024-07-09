@@ -452,7 +452,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
                   optionId: oIndex
                 }));
               } else {
-                console.error(`Options are not properly defined for question:::>> ${quizQuestion.questionText || 'undefined'}`);
+                console.error(`Options are not properly defined for question: ${quizQuestion.questionText || 'undefined'}`);
                 console.log('Question index:', qIndex, 'Question:', quizQuestion);
                 quizQuestion.options = [];  // Initialize as an empty array to prevent further errors
               }
