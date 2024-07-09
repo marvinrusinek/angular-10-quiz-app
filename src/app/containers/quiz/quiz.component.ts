@@ -805,7 +805,6 @@ export class QuizComponent implements OnInit, OnDestroy {
             if (question) {
                 this.currentQuiz = this.quizService.getActiveQuiz();
                 this.currentQuestion = question;
-                this.loadOptions(); // Ensure options are loaded correctly
             } else {
                 console.error('No question data available after fetch.');
             }
