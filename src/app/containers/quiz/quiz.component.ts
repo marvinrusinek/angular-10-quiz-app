@@ -819,7 +819,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-
   initializeQuizFromRoute(): void {
     this.activatedRoute.data.subscribe(data => {
       if (data.quizData) {
