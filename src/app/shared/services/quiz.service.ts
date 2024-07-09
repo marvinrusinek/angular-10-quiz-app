@@ -491,35 +491,35 @@ export class QuizService implements OnDestroy {
 
   getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
-        map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
-        tap(quiz => {
-            if (quiz) {
-                quiz.questions.forEach((question, qIndex) => {
-                    question.options.forEach((option, oIndex) => {
-                        option.optionId = oIndex;
-                    });
-                });
+      map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
+      tap(quiz => {
+        if (quiz) {
+          quiz.questions.forEach((question, qIndex) => {
+            question.options.forEach((option, oIndex) => {
+              option.optionId = oIndex;
+            });
+          });
 
-                if (this.checkedShuffle.value) {
-                    Utils.shuffleArray(quiz.questions);  // Shuffle questions
-                    quiz.questions.forEach(question => {
-                        if (question.options) {
-                            Utils.shuffleArray(question.options);  // Shuffle options within each question
-                        }
-                    });
+          if (this.checkedShuffle.value) {
+            Utils.shuffleArray(quiz.questions);  // Shuffle questions
+              quiz.questions.forEach(question => {
+                if (question.options) {
+                  Utils.shuffleArray(question.options);  // Shuffle options within each question
                 }
+              });
             }
+          }
         }),
         map(quiz => {
-            if (!quiz) {
-                throw new Error(`Quiz with ID ${quizId} not found`);
-            }
-            return { quizId: quiz.quizId, questions: quiz.questions };
+          if (!quiz) {
+            throw new Error(`Quiz with ID ${quizId} not found`);
+          }
+          return { quizId: quiz.quizId, questions: quiz.questions };
         }),
         tap(quiz => this.setActiveQuiz(quiz as unknown as Quiz)),  // Set the active quiz here
         catchError(error => {
-            console.error('An error occurred while loading questions:', error);
-            return throwError(() => new Error('Failed to load questions'));
+          console.error('An error occurred while loading questions:', error);
+          return throwError(() => new Error('Failed to load questions'));
         }),
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     );
