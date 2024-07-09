@@ -533,13 +533,14 @@ export class QuizService implements OnDestroy {
           
           // Add optionId to each option if options are defined
           processedQuestions.forEach(question => {
-            if (question.options) {
+            if (Array.isArray(question.options)) {
               question.options = question.options.map((option, index) => ({
                 ...option,
                 optionId: index
               }));
             } else {
-              console.error(`Options are not properly defined for question: ${question.questionText}`);
+              console.error(`Options are not properly defined for question: ${question.questionText || 'undefined'}`);
+              question.options = [];  // Initialize as an empty array to prevent further errors
             }
           });
   
@@ -553,7 +554,8 @@ export class QuizService implements OnDestroy {
       ).subscribe();  // Start the Observable chain
     }
     return this.questions$;
-  }  
+  }
+  
   
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {

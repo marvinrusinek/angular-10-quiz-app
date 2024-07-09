@@ -466,7 +466,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
                   optionId: index
                 }));
               } else {
-                console.error(`Options are not properly defined for question: ${quizQuestion.questionText}`);
+                console.error(`Options are not properly defined for question: ${quizQuestion.questionText || 'undefined'}`);
                 quizQuestion.options = [];  // Initialize as an empty array to prevent further errors
               }
             });
@@ -489,7 +489,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           }
         });
     }
-  }  
+  }
+   
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {    
     try {
