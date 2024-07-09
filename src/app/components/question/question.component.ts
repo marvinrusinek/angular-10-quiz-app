@@ -245,7 +245,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
         console.error('Error in ngOnInit:', error);
     }
-  }
+  } 
+
 
   ngOnChanges(changes: SimpleChanges): void {
     // Improved check for property changes that are not the first change
@@ -337,6 +338,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   loadQuestion(): void {
+    if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
+      console.error('Quiz or questions are not properly initialized');
+      return;
+    }
+
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.error('Questions are not available yet');
       return;
@@ -371,21 +377,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
   loadOptions(): void {
     if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
-        console.error('Quiz or questions are not properly initialized');
-        return;
+      console.error('Quiz or questions are not properly initialized');
+      return;
     }
 
     const currentQuestion = this.quiz.questions[this.currentQuestionIndex];
     console.log("Loading Current Question:", currentQuestion);
 
     if (!currentQuestion || !currentQuestion.options) {
-        console.error('Current question is undefined or has no options');
-        return;
+      console.error('Current question is undefined or has no options');
+      return;
     }
 
     this.options = currentQuestion.options.map((option, index) => ({
-        ...option,
-        optionId: index
+      ...option,
+      optionId: index
     }));
   }
 
