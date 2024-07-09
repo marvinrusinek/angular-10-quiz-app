@@ -183,18 +183,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    if (this.questions) {
+    try {
+      // Ensure questions are provided as input
+      if (!this.questions) {
+        console.error('Questions input is not provided');
+        return;
+      }
+  
+      // Subscribe to questions and initialize questionsArray
       this.questions.subscribe({
         next: (questions: QuizQuestion[]) => {
           this.questionsArray = questions;
           console.log('Questions:', this.questionsArray);
           console.log('Current Question Index:', this.currentQuestionIndex);
-
+  
           if (this.questionsArray.length === 0) {
             console.error('Questions are not initialized');
             return;
           }
-
+  
           this.loadQuestion();
           this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
             this.selectedOption = selectedOption;
@@ -205,19 +212,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           console.error('Error fetching questions', err);
         }
       });
-    } else {
-      console.error('Questions input is not provided');
-    }
-
-    try {
-      this.optionsToDisplay.forEach((option) => {
-        this.showFeedbackForOption[option.optionId] = false; // Initially set to false
-      });
-
-      // Reset state and messages for the new question
+  
+      // Initialize the state for the new question
       this.resetMessages();
       this.resetStateForNewQuestion();
-
+  
       // Subscribe to option selection changes to ensure the state is up-to-date
       this.subscribeToOptionSelection();
   
@@ -230,9 +229,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Initialize the current quiz question and handle its state
       this.initializeQuizQuestion();
       await this.handleQuestionState();
-
+  
+      // Load options for the current question
       this.loadOptions();
-
+  
+      // Set the correct message for the current question
       this.setCorrectMessage([]);
   
       // Set up an event listener for visibility change to refresh data if needed
