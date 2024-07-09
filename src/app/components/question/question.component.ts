@@ -184,69 +184,75 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     try {
-      // Ensure questions are provided as input
-      if (!this.questions) {
-        console.error('Questions input is not provided');
-        return;
-      }
-
-      // Subscribe to questions and initialize questionsArray
-      this.questions.subscribe({
-        next: (questions: QuizQuestion[]) => {
-          this.questionsArray = questions;
-          console.log('Questions:', this.questionsArray);
-          console.log('Current Question Index:', this.currentQuestionIndex);
-
-          if (this.questionsArray.length === 0) {
-            console.error('Questions are not initialized');
+        // Ensure questions are provided as input
+        if (!this.questions) {
+            console.error('Questions input is not provided');
             return;
-          }
-
-          this.loadQuestion();
-          this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
-            this.selectedOption = selectedOption;
-            console.log('Selected option updated', selectedOption);
-          });
-
-          // Load options for the current question after questions are set
-          this.loadOptions();
-        },
-        error: (err) => {
-          console.error('Error fetching questions', err);
         }
-      });
 
-      // Initialize the state for the new question
-      this.resetMessages();
-      this.resetStateForNewQuestion();
+        // Subscribe to questions and initialize questionsArray
+        this.questions.subscribe({
+            next: (questions: QuizQuestion[]) => {
+                this.questionsArray = questions;
+                console.log('Questions:', this.questionsArray);
+                console.log('Current Question Index:', this.currentQuestionIndex);
 
-      // Subscribe to option selection changes to ensure the state is up-to-date
-      this.subscribeToOptionSelection();
+                if (this.questionsArray.length === 0) {
+                    console.error('Questions are not initialized');
+                    return;
+                }
 
-      // Initialize the quiz and subscribe to selection changes if not already initialized
-      if (!this.initialized) {
-        this.initialized = true;
-        await this.initializeQuiz();
-      }
+                this.loadQuestion();
+                this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
+                    this.selectedOption = selectedOption;
+                    console.log('Selected option updated', selectedOption);
+                });
 
-      // Initialize the current quiz question and handle its state
-      this.initializeQuizQuestion();
-      await this.handleQuestionState();
+                // Load options for the current question after questions are set
+                this.quizService.getQuizData().subscribe((quiz: Quiz[]) => {
+                    this.quiz = quiz.find(q => q.questions.includes(this.questionsArray[0]));
+                    if (!this.quiz) {
+                        console.error('Quiz data is not properly initialized');
+                        return;
+                    }
+                    this.loadOptions();
+                });
+            },
+            error: (err) => {
+                console.error('Error fetching questions', err);
+            }
+        });
 
-      // Set the correct message for the current question
-      this.setCorrectMessage([]);
+        // Initialize the state for the new question
+        this.resetMessages();
+        this.resetStateForNewQuestion();
 
-      // Set up an event listener for visibility change to refresh data if needed
-      document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
+        // Subscribe to option selection changes to ensure the state is up-to-date
+        this.subscribeToOptionSelection();
 
-      // Log data for debugging
-      this.logInitialData();
-      this.logFinalData();
+        // Initialize the quiz and subscribe to selection changes if not already initialized
+        if (!this.initialized) {
+            this.initialized = true;
+            await this.initializeQuiz();
+        }
+
+        // Initialize the current quiz question and handle its state
+        this.initializeQuizQuestion();
+        await this.handleQuestionState();
+
+        // Set the correct message for the current question
+        this.setCorrectMessage([]);
+
+        // Set up an event listener for visibility change to refresh data if needed
+        document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
+
+        // Log data for debugging
+        this.logInitialData();
+        this.logFinalData();
     } catch (error) {
-      console.error('Error in ngOnInit:', error);
+        console.error('Error in ngOnInit:', error);
     }
   }
-
 
   loadQuestion() {
     if (!this.questionsArray || this.questionsArray.length === 0) {
@@ -356,11 +362,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   // Load options and set displayOptions
   loadOptions(): void {
+    if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
+        console.error('Quiz or questions are not properly initialized');
+        return;
+    }
+
     this.currentQuestion = this.quiz.questions[0]; // Example: Load the first question
     this.displayOptions = this.getDisplayOptions();
     this.showFeedbackForOption = this.displayOptions.reduce((acc, option, idx) => {
-      acc[idx] = true;
-      return acc;
+        acc[idx] = true;
+        return acc;
     }, {} as { [optionId: number]: boolean });
     console.log('Display options loaded:', this.displayOptions);
     console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
