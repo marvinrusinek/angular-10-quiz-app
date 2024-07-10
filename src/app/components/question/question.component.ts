@@ -552,19 +552,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
                 }
             });
 
-            // Set the quiz property to ensure it's available when needed
             this.quiz = this.quizService.getActiveQuiz();
             if (!this.quiz) {
                 console.error('Failed to set the active quiz');
             }
-            return questions; // Return the questions
+            return questions;
         } else {
             console.error('No questions were loaded');
-            return []; // Return an empty array if no questions are loaded
+            return [];
         }
     } catch (error) {
         console.error('Error loading questions:', error);
-        return []; // Return an empty array in case of an error
+        return [];
     } finally {
         this.isLoading = false;
     }
