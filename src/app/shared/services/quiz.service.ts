@@ -528,7 +528,7 @@ export class QuizService implements OnDestroy {
               question.options = [];
             }
           });
-
+  
           if (this.checkedShuffle.value) {
             Utils.shuffleArray(quiz.questions);
             quiz.questions.forEach(question => {
@@ -553,7 +553,6 @@ export class QuizService implements OnDestroy {
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     );
   }
-
 
   public setQuestionData(data: any): void {
     this.questionDataSubject.next(data);
