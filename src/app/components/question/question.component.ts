@@ -505,7 +505,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         if (questions && questions.length > 0) {
             this.questions = of(questions);
 
-            // Update component's state with the fetched questions
             questions.forEach((question, index) => {
                 const state = this.quizStateService.getQuestionState(quizId, index);
                 if (state?.isAnswered) {
@@ -519,10 +518,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         } else {
             console.error('No questions were loaded');
         }
+
+        // Set the quiz property to ensure it's available when needed
+        this.quiz = this.quizService.getActiveQuiz();
+        if (!this.quiz) {
+            console.error('Failed to set the active quiz');
+        }
     } catch (error) {
-      console.error('Error loading questions:', error);
+        console.error('Error loading questions:', error);
     } finally {
-      this.isLoading = false;
+        this.isLoading = false;
     }
   }
 
