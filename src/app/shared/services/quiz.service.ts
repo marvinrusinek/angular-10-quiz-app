@@ -433,37 +433,35 @@ export class QuizService implements OnDestroy {
     try {
       const quizzes = await firstValueFrom(this.http.get<Quiz[]>(this.quizUrl));
       const quiz = quizzes.find(q => q.quizId === quizId);
-
+  
       if (!quiz) {
         throw new Error(`Quiz with ID ${quizId} not found`);
       }
-
-      // Set optionId for each option
+  
       quiz.questions.forEach((question, qIndex) => {
         question.options.forEach((option, oIndex) => {
           option.optionId = oIndex;
         });
       });
-
+  
       if (this.checkedShuffle.value) {
-        Utils.shuffleArray(quiz.questions); // Shuffle questions
+        Utils.shuffleArray(quiz.questions);
         quiz.questions.forEach(question => {
           if (question.options) {
-            Utils.shuffleArray(question.options); // Shuffle options within each question
+            Utils.shuffleArray(question.options);
           }
         });
       }
-
-      // Update the BehaviorSubject with the new questions
-      this.questionsSubject.next(quiz.questions);
-
+  
+      this.questionsListSubject.next(quiz.questions);
+  
       return quiz.questions;
     } catch (error) {
       console.error('Error fetching quiz questions:', error);
       return [];
     }
   }
-
+  
   async fetchAndSetQuestions(quizId: string): Promise<{ quizId: string; questions: QuizQuestion[] }> {
     try {
       const questionsData = await firstValueFrom(this.getQuestionsForQuiz(quizId));
