@@ -342,7 +342,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       optionId: index
     }));
   
-    this.displayOptions = this.getDisplayOptions ? this.getDisplayOptions() : this.options;
+    this.displayOptions = this.getDisplayOptions();
     this.showFeedbackForOption = this.displayOptions.reduce((acc, option, idx) => {
       acc[idx] = false;
       return acc;
@@ -506,7 +506,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.questions = of(questions);
   
         // Update component's state with the fetched questions
-        // Display explanation texts for previously answered questions
         questions.forEach((question, index) => {
           const state = this.quizStateService.getQuestionState(this.quizId, index);
           if (state?.isAnswered) {
@@ -526,6 +525,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.isLoading = false;
     }
   }
+  
 
   private async handleQuestionState(): Promise<void> {
     if (this.currentQuestionIndex === 0) {
