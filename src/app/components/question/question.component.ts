@@ -520,9 +520,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             console.error('No questions were loaded');
         }
     } catch (error) {
-        console.error('Error loading questions:', error);
+      console.error('Error loading questions:', error);
     } finally {
-        this.isLoading = false;
+      this.isLoading = false;
     }
   }
 
