@@ -520,7 +520,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private async fetchAndProcessQuizQuestions(quizId: string): Promise<void> {
+  /* private async fetchAndProcessQuizQuestions(quizId: string): Promise<void> {
     this.isLoading = true;
 
     try {
@@ -566,7 +566,41 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } finally {
         this.isLoading = false;
     }
+  } */
+
+  async fetchAndProcessQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
+    this.isLoading = true;
+  
+    try {
+      const questions = await this.quizService.fetchQuizQuestions(quizId);
+  
+      if (questions && questions.length > 0) {
+        this.questions = of(questions);
+  
+        questions.forEach((question, index) => {
+          const state = this.quizStateService.getQuestionState(this.quizId, index);
+          if (state?.isAnswered) {
+            const formattedExplanationText: FormattedExplanation = {
+              questionIndex: index,
+              explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
+            };
+            this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
+          }
+        });
+  
+        return questions;
+      } else {
+        console.error('No questions were loaded');
+        return [];
+      }
+    } catch (error) {
+      console.error('Error loading questions:', error);
+      return [];
+    } finally {
+      this.isLoading = false;
+    }
   }
+  
 
   private async handleQuestionState(): Promise<void> {
     if (this.currentQuestionIndex === 0) {
