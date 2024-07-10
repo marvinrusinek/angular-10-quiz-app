@@ -841,14 +841,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private initializeQuizBasedOnRouteParams(quizId: string): void {
     this.quizService.getQuestionsForQuiz(quizId).subscribe({
-      next: (quiz) => {
+      next: (quiz: Quiz) => {
         if (!quiz || !quiz.questions || quiz.questions.length === 0) {
           console.error('Quiz data is invalid or no questions available');
           return;
         }
         this.quizService.setActiveQuiz(quiz);
         this.currentQuestionIndex = 0; // Start with the first question
-        this.loadQuestion();
       },
       error: (error) => {
         console.error('Error fetching questions for quiz:', error);
