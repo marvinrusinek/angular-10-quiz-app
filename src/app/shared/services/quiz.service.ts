@@ -478,13 +478,9 @@ export class QuizService implements OnDestroy {
         }
 
         quiz.questions.forEach((question, qIndex) => {
-            if (question.options && Array.isArray(question.options)) {
-                question.options.forEach((option, oIndex) => {
-                    option.optionId = oIndex;
-                });
-            } else {
-                console.error(`Options are not properly defined for question: ${question.questionText}`);
-            }
+            question.options.forEach((option, oIndex) => {
+                option.optionId = oIndex;
+            });
         });
 
         if (this.checkedShuffle.value) {
@@ -499,10 +495,11 @@ export class QuizService implements OnDestroy {
         this.questionsSubject.next(quiz.questions);
         return quiz.questions;
     } catch (error) {
-      console.error('Error fetching quiz questions:', error);
-      return [];
+        console.error('Error fetching quiz questions:', error);
+        return [];
     }
   }
+
   
   async fetchAndSetQuestions(quizId: string): Promise<{ quizId: string; questions: QuizQuestion[] }> {
     try {
