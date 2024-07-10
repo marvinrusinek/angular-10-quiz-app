@@ -458,46 +458,47 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private initializeQuizQuestion(): void {
     if (!this.quizStateService.getQuizQuestionCreated()) {
-      this.quizStateService.setQuizQuestionCreated();
-  
-      this.questionsObservableSubscription = this.quizService
-        .getAllQuestions()
-        .pipe(
-          map((questions: QuizQuestion[]) => {
-            questions.forEach((quizQuestion: QuizQuestion) => {
-              quizQuestion.selectedOptions = null;
-  
-              // Check if options exist and are an array before mapping
-              if (Array.isArray(quizQuestion.options)) {
-                quizQuestion.options = quizQuestion.options.map((option, index) => ({
-                  ...option,
-                  optionId: index
-                }));
-              } else {
-                console.error(`Options are not properly defined for question: ${quizQuestion.questionText}`);
-                quizQuestion.options = [];  // Initialize as an empty array to prevent further errors
-              }
+        this.quizStateService.setQuizQuestionCreated();
+
+        this.questionsObservableSubscription = this.quizService
+            .getAllQuestions()
+            .pipe(
+                map((questions: QuizQuestion[]) => {
+                    questions.forEach((quizQuestion: QuizQuestion) => {
+                        quizQuestion.selectedOptions = null;
+
+                        // Check if options exist and are an array before mapping
+                        if (Array.isArray(quizQuestion.options)) {
+                            quizQuestion.options = quizQuestion.options.map((option, index) => ({
+                                ...option,
+                                optionId: index
+                            }));
+                        } else {
+                            console.error(`Options are not properly defined for question: ${quizQuestion.questionText}`);
+                            quizQuestion.options = [];  // Initialize as an empty array to prevent further errors
+                        }
+                    });
+                    return questions;
+                })
+            )
+            .subscribe({
+                next: (questions: QuizQuestion[]) => {
+                    // Initialize the first question
+                    if (questions && questions.length > 0) {
+                        this.selectedOptionService.resetAnsweredState();
+                        const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
+                        this.selectedOptionService.setAnsweredState(hasAnswered);
+                        console.log('Initial answered state for the first question:', hasAnswered);
+                        this.cdRef.markForCheck(); // Trigger change detection
+                    }
+                },
+                error: (err) => {
+                    console.error('Error fetching questions:', err);
+                }
             });
-            return questions;
-          })
-        )
-        .subscribe({
-          next: (questions: QuizQuestion[]) => {
-            // Initialize the first question
-            if (questions && questions.length > 0) {
-              this.selectedOptionService.resetAnsweredState();
-              const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
-              this.selectedOptionService.setAnsweredState(hasAnswered);
-              console.log('Initial answered state for the first question:', hasAnswered);
-              this.cdRef.markForCheck(); // Trigger change detection
-            }
-          },
-          error: (err) => {
-            console.error('Error fetching questions:', err);
-          }
-        });
     }
-  }     
+  }
+     
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {    
     try {
