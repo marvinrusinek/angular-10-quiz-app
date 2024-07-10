@@ -465,7 +465,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
+  /* async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
       const questionsData = await firstValueFrom(
         this.getQuestionsForQuiz(quizId)
@@ -476,7 +476,20 @@ export class QuizService implements OnDestroy {
       console.error('Error fetching questions for quiz:', error);
       return [];
     }
+  } */
+
+  async fetchAndSetQuestions(quizId: string): Promise<{ quizId: string; questions: QuizQuestion[] }> {
+    try {
+      const questionsData = await firstValueFrom(this.getQuestionsForQuiz(quizId));
+      this.questions = questionsData.questions;
+      return questionsData;
+    } catch (error) {
+      console.error('Error fetching questions for quiz:', error);
+      return { quizId, questions: [] };
+    }
   }
+  
+  
 
   getAllQuestions(): Observable<QuizQuestion[]> {
     if (this.questionsSubject.getValue().length === 0) {
@@ -518,38 +531,41 @@ export class QuizService implements OnDestroy {
     return this.questions$;
   }
   
+  getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
+    return this.http.get<Quiz[]>(this.quizUrl).pipe(
+      map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
+      tap(quiz => {
+        if (quiz) {
+          quiz.questions.forEach((question, qIndex) => {
+            question.options.forEach((option, oIndex) => {
+              option.optionId = oIndex;
+            });
+          });
   
-
-  getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
-    return this.getQuizData().pipe(
-      map(quizzes => {
-        const quiz = quizzes.find(q => q.quizId === quizId);
+          if (this.checkedShuffle.value) {
+            Utils.shuffleArray(quiz.questions); // Shuffle questions
+            quiz.questions.forEach(question => {
+              if (question.options) {
+                Utils.shuffleArray(question.options); // Shuffle options within each question
+              }
+            });
+          }
+        }
+      }),
+      map(quiz => {
         if (!quiz) {
           throw new Error(`Quiz with ID ${quizId} not found`);
         }
-        quiz.questions.forEach((question, qIndex) => {
-          question.options.forEach((option, oIndex) => {
-            option.optionId = oIndex;
-          });
-        });
-        return quiz.questions;
+        return { quizId: quiz.quizId, questions: quiz.questions };
       }),
-      tap(questions => {
-        if (this.checkedShuffle.value) {
-          Utils.shuffleArray(questions);  // Shuffle questions
-          questions.forEach(question => {
-            if (question.options) {
-              Utils.shuffleArray(question.options);  // Shuffle options within each question
-            }
-          });
-        }
-      }),
+      tap(quiz => this.setActiveQuiz(quiz as unknown as Quiz)),  // Set the active quiz here
       catchError(error => {
         console.error('An error occurred while loading questions:', error);
         return throwError(() => new Error('Failed to load questions'));
-      })
+      }),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     );
-  }
+  }  
 
   public setQuestionData(data: any): void {
     this.questionDataSubject.next(data);
