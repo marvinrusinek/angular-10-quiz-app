@@ -184,33 +184,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     try {
-      if (!this.questions) {
-        console.error('Questions input is not provided');
+      // Fetch the quiz ID from the route or input
+      const quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
+      if (!quizId) {
+        console.error('Quiz ID is missing');
         return;
       }
   
-      this.questions.subscribe({
-        next: (questions: QuizQuestion[]) => {
-          this.questionsArray = questions;
-          console.log('Questions:', this.questionsArray);
-          console.log('Current Question Index:', this.currentQuestionIndex);
+      // Fetch and process quiz questions
+      await this.fetchAndProcessQuizQuestions(quizId);
   
-          if (this.questionsArray.length === 0) {
-            console.error('Questions are not initialized');
-            return;
-          }
-  
-          this.loadQuestion();
-          this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
-            this.selectedOption = selectedOption;
-            console.log('Selected option updated', selectedOption);
-          });
-        },
-        error: (err) => {
-          console.error('Error fetching questions', err);
-        }
-      });
-  
+      // Other initialization logic
       this.resetMessages();
       this.resetStateForNewQuestion();
       this.subscribeToOptionSelection();
@@ -231,7 +215,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Error in ngOnInit:', error);
     }
   }
-
+  
   loadQuestion() {
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.error('Questions are not available yet');
@@ -512,34 +496,34 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private async fetchAndProcessQuizQuestions(): Promise<void> {
+  private async fetchAndProcessQuizQuestions(quizId: string): Promise<void> {
     this.isLoading = true;
-  
+
     try {
-      const questions = await this.quizService.fetchQuizQuestions();
-  
-      if (questions && questions.length > 0) {
-        this.questions = of(questions);
-  
-        // Update component's state with the fetched questions
-        // Display explanation texts for previously answered questions
-        questions.forEach((question, index) => {
-          const state = this.quizStateService.getQuestionState(this.quizId, index);
-          if (state?.isAnswered) {
-            const formattedExplanationText: FormattedExplanation = {
-              questionIndex: index,
-              explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
-            };
-            this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
-          }
-        });
-      } else {
-        console.error('No questions were loaded');
-      }
+        const questions = await this.quizService.fetchQuizQuestions(quizId);
+
+        if (questions && questions.length > 0) {
+            this.questions = of(questions);
+
+            // Update component's state with the fetched questions
+            // Display explanation texts for previously answered questions
+            questions.forEach((question, index) => {
+                const state = this.quizStateService.getQuestionState(this.quizId, index);
+                if (state?.isAnswered) {
+                    const formattedExplanationText: FormattedExplanation = {
+                        questionIndex: index,
+                        explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
+                    };
+                    this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
+                }
+            });
+        } else {
+            console.error('No questions were loaded');
+        }
     } catch (error) {
-      console.error('Error loading questions:', error);
+        console.error('Error loading questions:', error);
     } finally {
-      this.isLoading = false;
+        this.isLoading = false;
     }
   }
 
