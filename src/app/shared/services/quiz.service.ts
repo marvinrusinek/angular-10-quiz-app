@@ -552,23 +552,28 @@ export class QuizService implements OnDestroy {
 
   getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
-      map(quizzes => {
-        const quiz = quizzes.find(q => q.quizId === quizId);
+      map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
+      tap(quiz => {
+        if (quiz) {
+          quiz.questions.forEach((question, qIndex) => {
+            question.options.forEach((option, oIndex) => {
+              option.optionId = oIndex;
+            });
+          });
+
+          if (this.checkedShuffle.value) {
+            Utils.shuffleArray(quiz.questions);
+            quiz.questions.forEach(question => {
+              if (question.options) {
+                Utils.shuffleArray(question.options);
+              }
+            });
+          }
+        }
+      }),
+      map(quiz => {
         if (!quiz) {
           throw new Error(`Quiz with ID ${quizId} not found`);
-        }
-        quiz.questions.forEach((question, qIndex) => {
-          question.options.forEach((option, oIndex) => {
-            option.optionId = oIndex;
-          });
-        });
-        if (this.checkedShuffle.value) {
-          Utils.shuffleArray(quiz.questions);
-          quiz.questions.forEach(question => {
-            if (question.options) {
-              Utils.shuffleArray(question.options);
-            }
-          });
         }
         return { quizId: quiz.quizId, questions: quiz.questions };
       }),
