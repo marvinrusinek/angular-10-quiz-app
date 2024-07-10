@@ -518,22 +518,16 @@ export class QuizService implements OnDestroy {
       tap(quiz => {
         if (quiz) {
           quiz.questions.forEach((question, qIndex) => {
-            if (Array.isArray(question.options)) {
-              question.options = question.options.map((option, oIndex) => ({
-                ...option,
-                optionId: oIndex
-              }));
-            } else {
-              console.error(`Options are not properly defined for question: ${question.questionText || 'undefined'}`);
-              question.options = [];
-            }
+            question.options.forEach((option, oIndex) => {
+              option.optionId = oIndex;
+            });
           });
   
           if (this.checkedShuffle.value) {
-            Utils.shuffleArray(quiz.questions);
+            Utils.shuffleArray(quiz.questions);  // Shuffle questions
             quiz.questions.forEach(question => {
               if (question.options) {
-                Utils.shuffleArray(question.options);
+                Utils.shuffleArray(question.options);  // Shuffle options within each question
               }
             });
           }
@@ -553,6 +547,7 @@ export class QuizService implements OnDestroy {
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     );
   }
+  
   
 
   public setQuestionData(data: any): void {
