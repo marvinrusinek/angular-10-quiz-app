@@ -523,7 +523,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } finally {
       this.isLoading = false;
     }
-  }  
+  }
 
   private async handleQuestionState(): Promise<void> {
     if (this.currentQuestionIndex === 0) {
