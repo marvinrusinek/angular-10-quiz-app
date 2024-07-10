@@ -520,7 +520,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* private async fetchAndProcessQuizQuestions(quizId: string): Promise<void> {
+  private async fetchAndProcessQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     this.isLoading = true;
 
     try {
@@ -552,55 +552,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
                     this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
                 }
             });
+
+            // Set the quiz property to ensure it's available when needed
+            this.quiz = this.quizService.getActiveQuiz();
+            if (!this.quiz) {
+                console.error('Failed to set the active quiz');
+            }
+
+            return questions; // Return the questions
         } else {
             console.error('No questions were loaded');
-        }
-
-        // Set the quiz property to ensure it's available when needed
-        this.quiz = this.quizService.getActiveQuiz();
-        if (!this.quiz) {
-            console.error('Failed to set the active quiz');
+            return []; // Return an empty array if no questions are loaded
         }
     } catch (error) {
         console.error('Error loading questions:', error);
+        return []; // Return an empty array in case of an error
     } finally {
         this.isLoading = false;
     }
-  } */
-
-  async fetchAndProcessQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
-    this.isLoading = true;
-  
-    try {
-      const questions = await this.quizService.fetchQuizQuestions(quizId);
-  
-      if (questions && questions.length > 0) {
-        this.questions = of(questions);
-  
-        questions.forEach((question, index) => {
-          const state = this.quizStateService.getQuestionState(this.quizId, index);
-          if (state?.isAnswered) {
-            const formattedExplanationText: FormattedExplanation = {
-              questionIndex: index,
-              explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
-            };
-            this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
-          }
-        });
-  
-        return questions;
-      } else {
-        console.error('No questions were loaded');
-        return [];
-      }
-    } catch (error) {
-      console.error('Error loading questions:', error);
-      return [];
-    } finally {
-      this.isLoading = false;
-    }
   }
-  
 
   private async handleQuestionState(): Promise<void> {
     if (this.currentQuestionIndex === 0) {
