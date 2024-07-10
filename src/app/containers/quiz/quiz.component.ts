@@ -841,43 +841,43 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
-      switchMap((params: ParamMap) => {
-        const quizId = params.get('quizId') || this.quizId;
-        const questionIndex = +params.get('questionIndex') || 0;
-        this.currentQuestionIndex = questionIndex;
+        switchMap((params: ParamMap) => {
+            const quizId = params.get('quizId') || this.quizId;
+            const questionIndex = +params.get('questionIndex') || 0;
+            this.currentQuestionIndex = questionIndex;
 
-        return this.quizService.getQuestionsForQuiz(quizId).pipe(
-          catchError((error: Error) => {
-            console.error('Error fetching quiz:', error);
+            return this.quizService.getQuestionsForQuiz(quizId).pipe(
+                catchError((error: Error) => {
+                    console.error('Error fetching quiz:', error);
+                    return EMPTY;
+                })
+            );
+        }),
+        switchMap(quiz => {
+            if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+                console.error('Quiz data is invalid or no questions available');
+                return EMPTY;
+            }
+
+            this.quizService.setActiveQuiz(quiz);
+            this.questionsList = quiz.questions;
+            return of(quiz.questions[this.currentQuestionIndex]);
+        }),
+        catchError((error: Error) => {
+            console.error('Error fetching questions for quiz:', error);
             return EMPTY;
-          })
-        );
-      }),
-      switchMap(quiz => {
-        if (!quiz || !quiz.questions || quiz.questions.length === 0) {
-          console.error('Quiz data is invalid or no questions available');
-          return EMPTY;
-        }
-
-        this.quizService.setActiveQuiz(quiz);
-        return this.quizService.getQuestionByIndex(this.currentQuestionIndex);
-      }),
-      catchError((error: Error) => {
-        console.error('Error fetching questions for quiz:', error);
-        return EMPTY;
-      })
+        })
     ).subscribe({
-      next: (question: QuizQuestion | null) => {
-        if (question) {
-          console.log('Loaded question:', question);
-          this.currentQuiz = this.quizService.getActiveQuiz();
-          this.currentQuestion = question;
-        } else {
-          console.error('No question data available after fetch.');
-        }
-      },
-      error: error => console.error('Error during subscription:', error),
-      complete: () => console.log('Route parameters processed and question loaded successfully.')
+        next: (question: QuizQuestion | null) => {
+            if (question) {
+                this.currentQuiz = this.quizService.getActiveQuiz();
+                this.currentQuestion = question;
+            } else {
+                console.error('No question data available after fetch.');
+            }
+        },
+        error: error => console.error('Error during subscription:', error),
+        complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
   }
 
