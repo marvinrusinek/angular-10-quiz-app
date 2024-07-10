@@ -431,24 +431,31 @@ export class QuizService implements OnDestroy {
 
   async fetchQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
-      const quizzes = await this.http.get<Quiz[]>(this.quizUrl).toPromise();
+      const quizzes = await firstValueFrom(this.http.get<Quiz[]>(this.quizUrl));
       const quiz = quizzes.find(q => q.quizId === quizId);
   
       if (!quiz) {
         throw new Error(`Quiz with ID ${quizId} not found`);
       }
   
+      // Ensure each option has an optionId and log the options
       quiz.questions.forEach((question, qIndex) => {
-        question.options.forEach((option, oIndex) => {
-          option.optionId = oIndex;
-        });
+        console.log(`Question ${qIndex}:`, question);
+        if (question.options) {
+          question.options.forEach((option, oIndex) => {
+            option.optionId = oIndex;
+            console.log(`Option ${oIndex} for Question ${qIndex}:`, option);
+          });
+        } else {
+          console.error(`Options are not properly defined for question: ${question.questionText}`);
+        }
       });
   
       if (this.checkedShuffle.value) {
-        Utils.shuffleArray(quiz.questions);
+        Utils.shuffleArray(quiz.questions); // Shuffle questions
         quiz.questions.forEach(question => {
           if (question.options) {
-            Utils.shuffleArray(question.options);
+            Utils.shuffleArray(question.options); // Shuffle options within each question
           }
         });
       }
@@ -460,6 +467,7 @@ export class QuizService implements OnDestroy {
       return [];
     }
   }
+  
   
   async fetchAndSetQuestions(quizId: string): Promise<{ quizId: string; questions: QuizQuestion[] }> {
     try {
