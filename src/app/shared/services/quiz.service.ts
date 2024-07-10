@@ -514,20 +514,21 @@ export class QuizService implements OnDestroy {
 
   getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
-      map(quizzes => {
-        const quiz = quizzes.find(q => q.quizId === quizId);
-        if (!quiz) {
-          throw new Error(`Quiz with ID ${quizId} not found`);
-        }
-        return quiz;
-      }),
+      map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
       tap(quiz => {
         if (quiz) {
           quiz.questions.forEach((question, qIndex) => {
-            question.options.forEach((option, oIndex) => {
-              option.optionId = oIndex;
-            });
+            if (Array.isArray(question.options)) {
+              question.options = question.options.map((option, oIndex) => ({
+                ...option,
+                optionId: oIndex
+              }));
+            } else {
+              console.error(`Options are not properly defined for question:::>> ${question.questionText || 'undefined'}`);
+              question.options = [];
+            }
           });
+
           if (this.checkedShuffle.value) {
             Utils.shuffleArray(quiz.questions);
             quiz.questions.forEach(question => {
@@ -538,7 +539,12 @@ export class QuizService implements OnDestroy {
           }
         }
       }),
-      map(quiz => ({ quizId: quiz.quizId, questions: quiz.questions })),
+      map(quiz => {
+        if (!quiz) {
+          throw new Error(`Quiz with ID ${quizId} not found`);
+        }
+        return { quizId: quiz.quizId, questions: quiz.questions };
+      }),
       tap(quiz => this.setActiveQuiz(quiz as unknown as Quiz)),
       catchError(error => {
         console.error('An error occurred while loading questions:', error);
@@ -546,7 +552,8 @@ export class QuizService implements OnDestroy {
       }),
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     );
-  }  
+  }
+
 
   public setQuestionData(data: any): void {
     this.questionDataSubject.next(data);
