@@ -453,7 +453,7 @@ export class QuizService implements OnDestroy {
         });
       }
   
-      this.questionsListSubject.next(quiz.questions);
+      this.questionsSubject.next(quiz.questions);
   
       return quiz.questions;
     } catch (error) {
