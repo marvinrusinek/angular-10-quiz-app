@@ -342,7 +342,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       optionId: index
     }));
   
-    this.displayOptions = this.getDisplayOptions();
+    this.displayOptions = this.getDisplayOptions ? this.getDisplayOptions() : this.options;
     this.showFeedbackForOption = this.displayOptions.reduce((acc, option, idx) => {
       acc[idx] = false;
       return acc;
