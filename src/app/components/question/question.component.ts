@@ -184,17 +184,41 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     try {
-      // Fetch the quiz ID from the route or input
       const quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
       if (!quizId) {
         console.error('Quiz ID is missing');
         return;
       }
   
-      // Fetch and process quiz questions
-      await this.fetchAndProcessQuizQuestions(quizId);
+      const questions = await this.fetchAndProcessQuizQuestions(quizId);
   
-      // Other initialization logic
+      if (questions && questions.length > 0) {
+        this.questions = of(questions);
+        this.questions.subscribe({
+          next: (questions: QuizQuestion[]) => {
+            this.questionsArray = questions;
+            console.log('Questions:', this.questionsArray);
+            console.log('Current Question Index:', this.currentQuestionIndex);
+  
+            if (this.questionsArray.length === 0) {
+              console.error('Questions are not initialized');
+              return;
+            }
+  
+            this.loadQuestion();
+            this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
+              this.selectedOption = selectedOption;
+              console.log('Selected option updated', selectedOption);
+            });
+          },
+          error: (err) => {
+            console.error('Error fetching questions', err);
+          }
+        });
+      } else {
+        console.error('No questions were loaded');
+      }
+  
       this.resetMessages();
       this.resetStateForNewQuestion();
       this.subscribeToOptionSelection();
@@ -215,6 +239,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Error in ngOnInit:', error);
     }
   }
+  
   
   loadQuestion() {
     if (!this.questionsArray || this.questionsArray.length === 0) {
