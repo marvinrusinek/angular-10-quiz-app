@@ -522,11 +522,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async fetchAndProcessQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     this.isLoading = true;
+
     try {
         const questions = await this.quizService.fetchQuizQuestions(quizId);
 
         if (questions && questions.length > 0) {
             this.questions = of(questions);
+
             questions.forEach((question, qIndex) => {
                 if (question.options) {
                     question.options.forEach((option, oIndex) => {
