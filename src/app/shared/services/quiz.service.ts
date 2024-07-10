@@ -470,36 +470,35 @@ export class QuizService implements OnDestroy {
 
   async fetchQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
-      const quizzes = await this.http.get<Quiz[]>(this.quizUrl).toPromise();
-      const quiz = quizzes.find(q => q.quizId === quizId);
-  
-      if (!quiz) {
-        throw new Error(`Quiz with ID ${quizId} not found`);
-      }
-  
-      quiz.questions.forEach((question, qIndex) => {
-        question.options.forEach((option, oIndex) => {
-          option.optionId = oIndex;
+        const quizzes = await firstValueFrom(this.http.get<Quiz[]>(this.quizUrl));
+        const quiz = quizzes.find(q => q.quizId === quizId);
+
+        if (!quiz) {
+            throw new Error(`Quiz with ID ${quizId} not found`);
+        }
+
+        quiz.questions.forEach((question, qIndex) => {
+            question.options.forEach((option, oIndex) => {
+                option.optionId = oIndex;
+            });
         });
-      });
-  
-      if (this.checkedShuffle.value) {
-        Utils.shuffleArray(quiz.questions);
-        quiz.questions.forEach(question => {
-          if (question.options) {
-            Utils.shuffleArray(question.options);
-          }
-        });
-      }
-  
-      this.questionsSubject.next(quiz.questions);
-      return quiz.questions;
+
+        if (this.checkedShuffle.value) {
+            Utils.shuffleArray(quiz.questions);
+            quiz.questions.forEach(question => {
+                if (question.options) {
+                    Utils.shuffleArray(question.options);
+                }
+            });
+        }
+
+        this.questionsSubject.next(quiz.questions);
+        return quiz.questions;
     } catch (error) {
-      console.error('Error fetching quiz questions:', error);
-      return [];
+        console.error('Error fetching quiz questions:', error);
+        return [];
     }
   }
-  
   
   async fetchAndSetQuestions(quizId: string): Promise<{ quizId: string; questions: QuizQuestion[] }> {
     try {
