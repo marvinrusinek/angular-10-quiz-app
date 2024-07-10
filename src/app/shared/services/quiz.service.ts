@@ -524,7 +524,7 @@ export class QuizService implements OnDestroy {
                 optionId: oIndex
               }));
             } else {
-              console.error(`Options are not properly defined for question:::>> ${question.questionText || 'undefined'}`);
+              console.error(`Options are not properly defined for question: ${question.questionText || 'undefined'}`);
               question.options = [];
             }
           });
@@ -553,6 +553,7 @@ export class QuizService implements OnDestroy {
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     );
   }
+  
 
   public setQuestionData(data: any): void {
     this.questionDataSubject.next(data);
