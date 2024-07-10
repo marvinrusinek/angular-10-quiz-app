@@ -478,13 +478,9 @@ export class QuizService implements OnDestroy {
         }
 
         quiz.questions.forEach((question, qIndex) => {
-            if (question.options) {
-                question.options.forEach((option, oIndex) => {
-                    option.optionId = oIndex;
-                });
-            } else {
-                console.error(`Options are not properly defined for question: ${question.questionText}`);
-            }
+            question.options.forEach((option, oIndex) => {
+                option.optionId = oIndex;
+            });
         });
 
         if (this.checkedShuffle.value) {
