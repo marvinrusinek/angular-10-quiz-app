@@ -498,30 +498,31 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async fetchAndProcessQuizQuestions(quizId: string): Promise<void> {
     this.isLoading = true;
-  
+
     try {
-      const questions = await this.quizService.fetchQuizQuestions(quizId);
-  
-      if (questions && questions.length > 0) {
-        this.questions = of(questions);
-  
-        questions.forEach((question, index) => {
-          const state = this.quizStateService.getQuestionState(quizId, index);
-          if (state?.isAnswered) {
-            const formattedExplanationText: FormattedExplanation = {
-              questionIndex: index,
-              explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
-            };
-            this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
-          }
-        });
-      } else {
-        console.error('No questions were loaded');
-      }
+        const questions = await this.quizService.fetchQuizQuestions(quizId);
+
+        if (questions && questions.length > 0) {
+            this.questions = of(questions);
+
+            // Update component's state with the fetched questions
+            questions.forEach((question, index) => {
+                const state = this.quizStateService.getQuestionState(quizId, index);
+                if (state?.isAnswered) {
+                    const formattedExplanationText: FormattedExplanation = {
+                        questionIndex: index,
+                        explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
+                    };
+                    this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
+                }
+            });
+        } else {
+            console.error('No questions were loaded');
+        }
     } catch (error) {
-      console.error('Error loading questions:', error);
+        console.error('Error loading questions:', error);
     } finally {
-      this.isLoading = false;
+        this.isLoading = false;
     }
   }
 
