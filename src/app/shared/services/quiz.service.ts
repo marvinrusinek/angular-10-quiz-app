@@ -495,8 +495,8 @@ export class QuizService implements OnDestroy {
         this.questionsSubject.next(quiz.questions);
         return quiz.questions;
     } catch (error) {
-        console.error('Error fetching quiz questions:', error);
-        return [];
+      console.error('Error fetching quiz questions:', error);
+      return [];
     }
   }
     
