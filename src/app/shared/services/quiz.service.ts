@@ -528,10 +528,10 @@ export class QuizService implements OnDestroy {
           });
   
           if (this.checkedShuffle.value) {
-            Utils.shuffleArray(quiz.questions); // Shuffle questions
+            Utils.shuffleArray(quiz.questions);  // Shuffle questions
             quiz.questions.forEach(question => {
               if (question.options) {
-                Utils.shuffleArray(question.options); // Shuffle options within each question
+                Utils.shuffleArray(question.options);  // Shuffle options within each question
               }
             });
           }
@@ -551,6 +551,7 @@ export class QuizService implements OnDestroy {
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     );
   }
+  
   
 
   public setQuestionData(data: any): void {
