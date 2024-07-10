@@ -465,19 +465,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /* async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
-    try {
-      const questionsData = await firstValueFrom(
-        this.getQuestionsForQuiz(quizId)
-      );
-      this.questions = questionsData.questions;
-      return questionsData.questions;
-    } catch (error) {
-      console.error('Error fetching questions for quiz:', error);
-      return [];
-    }
-  } */
-
   async fetchAndSetQuestions(quizId: string): Promise<{ quizId: string; questions: QuizQuestion[] }> {
     try {
       const questionsData = await firstValueFrom(this.getQuestionsForQuiz(quizId));
@@ -488,8 +475,6 @@ export class QuizService implements OnDestroy {
       return { quizId, questions: [] };
     }
   }
-  
-  
 
   getAllQuestions(): Observable<QuizQuestion[]> {
     if (this.questionsSubject.getValue().length === 0) {
