@@ -522,20 +522,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async fetchAndProcessQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     this.isLoading = true;
-
     try {
         const questions = await this.quizService.fetchQuizQuestions(quizId);
 
         if (questions && questions.length > 0) {
             this.questions = of(questions);
-
-            // Ensure option IDs are set
             questions.forEach((question, qIndex) => {
-                console.log(`Question ${qIndex}:`, question);
                 if (question.options) {
                     question.options.forEach((option, oIndex) => {
                         option.optionId = oIndex;
-                        console.log(`Option ${oIndex} for Question ${qIndex}:`, option);
                     });
                 } else {
                     console.error(`Options are not properly defined for question: ${question.questionText}`);
@@ -554,9 +549,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             });
 
             this.quiz = this.quizService.getActiveQuiz();
-            if (!this.quiz) {
-                console.error('Failed to set the active quiz');
-            }
             return questions;
         } else {
             console.error('No questions were loaded');
