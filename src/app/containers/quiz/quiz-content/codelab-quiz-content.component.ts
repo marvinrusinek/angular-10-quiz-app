@@ -35,7 +35,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   shouldDisplayCorrectAnswers = false;
   private shouldDisplayCorrectAnswersSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   shouldDisplayCorrectAnswers$ = this.shouldDisplayCorrectAnswersSubject.asObservable();
-  shouldShowCorrectAnswers$: Observable<boolean>;
   questionIndex: number;
   questionText = '';
   currentQuestionIndexValue: number;
@@ -115,16 +114,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
     this.shouldDisplayCorrectAnswers$ = this.quizStateService.explanationDisplayed$.pipe(
       map((isDisplayed: boolean) => !isDisplayed)
-    );
-
-    this.shouldShowCorrectAnswers$ = combineLatest([
-      this.shouldDisplayCorrectAnswers$,
-      this.isExplanationDisplayed$,
-      this.correctAnswersText$
-    ]).pipe(
-      map(([shouldDisplay, isExplanationDisplayed, correctAnswersText]) => 
-        shouldDisplay && !isExplanationDisplayed && !!correctAnswersText
-      )
     );
   }
 
