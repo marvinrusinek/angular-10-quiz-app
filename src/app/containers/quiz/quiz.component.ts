@@ -183,6 +183,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    this.activatedRoute.paramMap.subscribe(params => {
+      const quizId = params.get('quizId');
+      if (quizId) {
+        this.quizId = quizId;
+        this.initializeQuizBasedOnRouteParams(quizId);
+      } else {
+        console.error('Quiz ID is not provided in the route');
+      }
+    });
+
     this.subscribeToSelectionMessage();
 
     // Initialize route parameters and subscribe to updates
@@ -773,7 +783,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  private initializeQuizBasedOnRouteParams(): void {
+  /* private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
         const questionIndex = +params.get('questionIndex');
@@ -827,7 +837,26 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: error => console.error('Error during subscription:', error),
       complete: () => console.log('Route parameters processed and question loaded successfully.')
     });
+  } */
+
+  private initializeQuizBasedOnRouteParams(quizId: string): void {
+    this.quizService.getQuestionsForQuiz(quizId).subscribe({
+      next: (quiz) => {
+        if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+          console.error('Quiz data is invalid or no questions available');
+          return;
+        }
+        this.quizService.setActiveQuiz(quiz);
+        this.currentQuestionIndex = 0; // Start with the first question
+        this.loadQuestion();
+      },
+      error: (error) => {
+        console.error('Error fetching questions for quiz:', error);
+      },
+      complete: () => console.log('Quiz questions loaded successfully')
+    });
   }
+  
 
   initializeQuizFromRoute(): void {
     this.activatedRoute.data.subscribe(data => {
