@@ -187,7 +187,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const quizId = params.get('quizId');
       if (quizId) {
         this.quizId = quizId;
-        this.initializeQuizBasedOnRouteParams(quizId);
+        this.initializeQuizBasedOnRouteParams();
       } else {
         console.error('Quiz ID is not provided in the route');
       }
