@@ -315,7 +315,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private onVisibilityChange(): void {
     if (!document.hidden) {
       this.ngZone.run(async () => {
-        await this.fetchAndProcessQuizQuestions();
+        await this.fetchAndProcessQuizQuestions(this.quizId);
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       });
@@ -477,10 +477,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {    
     try {
-      await this.fetchAndProcessQuizQuestions();
+      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+      await this.fetchAndProcessQuizQuestions(this.quizId);
       this.subscribeToCorrectAnswersAndData();
   
-      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
       if (this.quizId) {
         await this.quizDataService.asyncOperationToSetQuestion(
           this.quizId, this.currentQuestionIndex
