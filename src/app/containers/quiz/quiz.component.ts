@@ -760,7 +760,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     };
     this.data = data;
     this.quizService.setQuizId(quizId);
-    this.quizService.fetchQuizQuestions();
+    this.quizService.fetchQuizQuestions(quizId);
     this.quizService.setQuestionData(questionData);
 
     // Subscribe to the observable to get the actual data
