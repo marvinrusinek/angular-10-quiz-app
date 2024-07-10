@@ -860,7 +860,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             }
 
             this.quizService.setActiveQuiz(quiz);
-            this.questionsList = quiz.questions;
+            this.quizService.questionsList = quiz.questions;
             return of(quiz.questions[this.currentQuestionIndex]);
         }),
         catchError((error: Error) => {
