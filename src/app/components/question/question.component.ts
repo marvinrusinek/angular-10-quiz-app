@@ -505,6 +505,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         if (questions && questions.length > 0) {
             this.questions = of(questions);
 
+            // Ensure option IDs are set
+            questions.forEach((question, qIndex) => {
+              question.options.forEach((option, oIndex) => {
+                option.optionId = oIndex;
+              });
+            });
+
             questions.forEach((question, index) => {
                 const state = this.quizStateService.getQuestionState(quizId, index);
                 if (state?.isAnswered) {
