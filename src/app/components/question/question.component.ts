@@ -236,7 +236,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.logInitialData();
         this.logFinalData();
     } catch (error) {
-        console.error('Error in ngOnInit:', error);
+      console.error('Error in ngOnInit:', error);
     }
   }
 
