@@ -468,8 +468,6 @@ export class QuizService implements OnDestroy {
     }
   }
   
-  
-  
   async fetchAndSetQuestions(quizId: string): Promise<{ quizId: string; questions: QuizQuestion[] }> {
     try {
       const questionsData = await firstValueFrom(this.getQuestionsForQuiz(quizId));
