@@ -336,15 +336,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   // Load options and set displayOptions
   loadOptions(): void {
-    console.log('Current quiz:', this.quiz);
     if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
       console.error('Quiz or questions are not properly initialized');
       return;
     }
   
-    const currentQuestion = this.quiz.questions[this.currentQuestionIndex];
-    console.log("Loading Current Question:", currentQuestion);
-  
+    const currentQuestion = this.quiz.questions[this.currentQuestionIndex];  
     if (!currentQuestion || !currentQuestion.options) {
       console.error('Current question is undefined or has no options');
       return;
@@ -365,7 +362,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
   }
   
-
   isSelectedOption(option: Option): boolean {
     const isOptionSelected = this.selectedOptionService.isSelectedOption(option);
     return isOptionSelected;
