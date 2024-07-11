@@ -439,9 +439,11 @@ export class QuizService implements OnDestroy {
         }
 
         quiz.questions.forEach((question, qIndex) => {
+          if (question.options) {
             question.options.forEach((option, oIndex) => {
-                option.optionId = oIndex;
+              option.optionId = oIndex;
             });
+          }
         });
 
         if (this.checkedShuffle.value) {
