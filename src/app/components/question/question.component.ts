@@ -288,30 +288,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.options
       );
     }
-
-    if (changes.questions && changes.questions.currentValue) {
-      this.questions.subscribe({
-        next: (questions: QuizQuestion[]) => {
-          this.questionsArray = questions;
-          console.log('Questions:', this.questionsArray);
-          console.log('Current Question Index:', this.currentQuestionIndex);
-
-          if (this.questionsArray.length === 0) {
-            console.error('Questions are not initialized');
-            return;
-          }
-
-          this.loadQuestion();
-          this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
-            this.selectedOption = selectedOption;
-            console.log('Selected option updated', selectedOption);
-          });
-        },
-        error: (err) => {
-          console.error('Error fetching questions', err);
-        }
-      });
-    }
   }
   
   ngOnDestroy(): void {
