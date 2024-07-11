@@ -322,24 +322,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Current question is undefined');
       return;
     }
+  
     this.options = currentQuestion.options.map((option, index) => ({
       ...option,
       optionId: index
     }));
-
+  
     this.displayOptions = this.getDisplayOptions();
-    this.showFeedbackForOption = this.displayOptions.reduce((acc, option, idx) => {
-      // acc[idx] = false;
+    this.showFeedbackForOption = this.displayOptions.reduce((acc, option) => {
       acc[option.optionId] = false;
       return acc;
     }, {} as { [optionId: number]: boolean });
+  
     console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
-
-    // Only update explanation text if the question has been answered
+  
     if (this.isQuestionAnswered(this.currentQuestionIndex)) {
       this.explanationTextService.updateExplanationText(currentQuestion);
     }
   }
+  
 
   // Load options and set displayOptions
   loadOptions(): void {
@@ -348,11 +349,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
   
-    const currentQuestion = this.quiz.questions[this.currentQuestionIndex];  
+    const currentQuestion = this.quiz.questions[this.currentQuestionIndex];
     if (!currentQuestion || !currentQuestion.options) {
       console.error('Current question is undefined or has no options');
       return;
     }
+  
+    this.options = currentQuestion.options.map((option, index) => ({
+      ...option,
+      optionId: index
+    }));
+  
+    this.displayOptions = this.getDisplayOptions();
+    this.showFeedbackForOption = this.displayOptions.reduce((acc, option) => {
+      acc[option.optionId] = false;
+      return acc;
+    }, {} as { [optionId: number]: boolean });
+  
+    console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
   }
   
   isSelectedOption(option: Option): boolean {
