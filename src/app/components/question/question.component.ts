@@ -552,15 +552,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
                     this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
                 }
             });
-            return questions;  // Ensure this return is here
+
+            return questions;
         } else {
             console.error('No questions were loaded');
             return [];
-        }
-
-        this.quiz = this.quizService.getActiveQuiz();
-        if (!this.quiz) {
-            console.error('Failed to set the active quiz');
         }
     } catch (error) {
         console.error('Error loading questions:', error);
