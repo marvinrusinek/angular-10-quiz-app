@@ -516,7 +516,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
             // Ensure option IDs are set
             questions.forEach((question, qIndex) => {
-              console.log(`Question ${qIndex}:`, question);
               if (question.options) {
                 question.options.forEach((option, oIndex) => {
                   option.optionId = oIndex;
