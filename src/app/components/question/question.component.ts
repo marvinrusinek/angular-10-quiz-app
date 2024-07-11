@@ -1456,22 +1456,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   selectOption(currentQuestion: QuizQuestion, option: SelectedOption, optionIndex: number): void {
-    const selectedOption = { ...option, optionId: optionIndex, questionIndex: this.currentQuestionIndex };
+    const selectedOption = { ...option, optionId: optionIndex, questionIndex: this.currentQuestionIndex } as SelectedOption;
     this.showFeedbackForOption = { [selectedOption.optionId]: true };
     this.selectedOptionService.setSelectedOption(selectedOption);
     this.selectedOption = selectedOption;
     console.log("Selected Option:", this.selectedOption);
-
-    /* this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
-    this.showFeedbackForOption = { [option.optionId]: true };
-    this.showFeedback = true;
-    this.selectedOption = option;
-    this.selectedOptionService.setSelectedOption(option as SelectedOption); */
-
-    /* const selectedOption = { ...option, optionId: optionIndex, questionIndex: this.currentQuestionIndex };
-    this.selectedOptionService.setSelectedOption(selectedOption);
-    this.selectedOption = selectedOption;
-    console.log('Option selected:', selectedOption); */
   
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
