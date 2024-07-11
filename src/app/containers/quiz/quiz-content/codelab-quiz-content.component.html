@@ -14,15 +14,12 @@
         </div>
       </ng-template>
 
-      <!--<span class="number-correct" 
+      <span class="number-correct" 
         *ngIf="(shouldDisplayCorrectAnswers$ | async) && 
                !(isExplanationDisplayed$ | async) && 
                (correctAnswersText$ | async)">
         {{ correctAnswersText$ | async }}
-      </span>-->
-      <span class="number-correct" *ngIf="shouldShowCorrectAnswers() | async">
-        {{ correctAnswersText$ | async }}
-      </span>      
+      </span>
     </h3>
   </section>
 </ng-container>
