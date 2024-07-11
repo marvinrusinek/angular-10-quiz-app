@@ -219,6 +219,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             console.error('No questions were loaded');
         }
 
+        // Ensure this.quiz is set correctly
+        this.quiz = this.quizService.getActiveQuiz();
+        if (!this.quiz) {
+          console.error('Failed to get the active quiz');
+          return;
+        }
+
         this.resetMessages();
         this.resetStateForNewQuestion();
         this.subscribeToOptionSelection();
