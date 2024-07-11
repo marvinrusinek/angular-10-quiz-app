@@ -552,7 +552,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
           }
         });
-        return questions;  // Make sure to return questions
+        return questions;  // Ensure this return is here
       } else {
         console.error('No questions were loaded');
         return [];
@@ -569,7 +569,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.isLoading = false;
     }
   }
-  
+    
 
   private async handleQuestionState(): Promise<void> {
     if (this.currentQuestionIndex === 0) {
