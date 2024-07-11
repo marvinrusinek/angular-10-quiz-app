@@ -351,6 +351,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       ...option,
       optionId: index
     }));
+
+    // Only update explanation text if the question has been answered
+    if (this.quizService.isAnswered(this.currentQuestionIndex)) {
+      this.explanationTextService.updateExplanation(currentQuestion);
+    }
   }
 
   // Load options and set displayOptions
