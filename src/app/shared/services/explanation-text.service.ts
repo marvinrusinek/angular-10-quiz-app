@@ -35,7 +35,7 @@ export class ExplanationTextService {
 
   constructor() {}
 
-  updateExplanation(question: QuizQuestion): void {
+  updateExplanationText(question: QuizQuestion): void {
     this.explanationSubject.next(question);
   }
 
