@@ -184,66 +184,66 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     try {
-        const quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
-        if (!quizId) {
-            console.error('Quiz ID is missing');
-            return;
-        }
+      const quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
+      if (!quizId) {
+        console.error('Quiz ID is missing');
+        return;
+      }
 
-        const questions = await this.fetchAndProcessQuizQuestions(quizId);
+      const questions = await this.fetchAndProcessQuizQuestions(quizId);
 
-        if (questions && questions.length > 0) {
-            this.questions = of(questions);
-            this.questions.subscribe({
-                next: (questions: QuizQuestion[]) => {
-                    this.questionsArray = questions;
-                    console.log('Questions:', this.questionsArray);
-                    console.log('Current Question Index:', this.currentQuestionIndex);
+      if (questions && questions.length > 0) {
+        this.questions = of(questions);
+        this.questions.subscribe({
+          next: (questions: QuizQuestion[]) => {
+            this.questionsArray = questions;
+            console.log('Questions:', this.questionsArray);
+            console.log('Current Question Index:', this.currentQuestionIndex);
 
-                    if (this.questionsArray.length === 0) {
-                        console.error('Questions are not initialized');
-                        return;
-                    }
+            if (this.questionsArray.length === 0) {
+              console.error('Questions are not initialized');
+              return;
+            }
 
-                    this.loadQuestion();
-                    this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
-                        this.selectedOption = selectedOption;
-                        console.log('Selected option updated', selectedOption);
-                    });
-                },
-                error: (err) => {
-                    console.error('Error fetching questions', err);
-                }
+            this.loadQuestion();
+            this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
+              this.selectedOption = selectedOption;
+              console.log('Selected option updated', selectedOption);
             });
-        } else {
-            console.error('No questions were loaded');
-        }
+          },
+          error: (err) => {
+            console.error('Error fetching questions', err);
+          }
+        });
+      } else {
+        console.error('No questions were loaded');
+      }
 
-        // Ensure this.quiz is set correctly
-        this.quiz = this.quizService.getActiveQuiz();
-        if (!this.quiz) {
-          console.error('Failed to get the active quiz');
-          return;
-        }
+      // Ensure this.quiz is set correctly
+      this.quiz = this.quizService.getActiveQuiz();
+      if (!this.quiz) {
+        console.error('Failed to get the active quiz');
+        return;
+      }
 
-        this.resetMessages();
-        this.resetStateForNewQuestion();
-        this.subscribeToOptionSelection();
+      this.resetMessages();
+      this.resetStateForNewQuestion();
+      this.subscribeToOptionSelection();
 
-        if (!this.initialized) {
-            this.initialized = true;
-            await this.initializeQuiz();
-        }
+      if (!this.initialized) {
+        this.initialized = true;
+        await this.initializeQuiz();
+      }
 
-        this.initializeQuizQuestion();
-        await this.handleQuestionState();
-        this.loadOptions();
-        this.setCorrectMessage([]);
-        document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
-        this.logInitialData();
-        this.logFinalData();
+      this.initializeQuizQuestion();
+      await this.handleQuestionState();
+      this.loadOptions();
+      this.setCorrectMessage([]);
+      document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
+      this.logInitialData();
+      this.logFinalData();
     } catch (error) {
-        console.error('Error in ngOnInit:', error);
+      console.error('Error in ngOnInit:', error);
     }
   }
 
