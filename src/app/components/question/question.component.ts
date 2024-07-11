@@ -530,7 +530,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
         if (questions && questions.length > 0) {
             this.questions = of(questions);
-
             questions.forEach((question, qIndex) => {
                 if (question.options) {
                     question.options.forEach((option, oIndex) => {
@@ -540,28 +539,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
                     console.error(`Options are not properly defined for question: ${question.questionText}`);
                 }
             });
-
-            questions.forEach((question, index) => {
-                const state = this.quizStateService.getQuestionState(quizId, index);
-                if (state?.isAnswered) {
-                    const formattedExplanationText: FormattedExplanation = {
-                        questionIndex: index,
-                        explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
-                    };
-                    this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
-                }
-            });
-
-            return questions;
+            return questions; // Ensure we return questions here
         } else {
             console.error('No questions were loaded');
             return [];
-        }
-
-        // Set the quiz property to ensure it's available when needed
-        this.quiz = this.quizService.getActiveQuiz();
-        if (!this.quiz) {
-            console.error('Failed to set the active quiz');
         }
     } catch (error) {
         console.error('Error loading questions:', error);
