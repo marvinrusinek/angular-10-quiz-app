@@ -329,7 +329,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }));
 
     // Only update explanation text if the question has been answered
-    if (this.quizService.isAnswered(this.currentQuestionIndex)) {
+    if (this.isQuestionAnswered(this.currentQuestionIndex)) {
       this.explanationTextService.updateExplanationText(currentQuestion);
     }
   }
