@@ -532,15 +532,29 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
             // Ensure option IDs are set
             questions.forEach((question, qIndex) => {
+                console.log(`Question ${qIndex}:`, question);
                 if (question.options) {
                     question.options.forEach((option, oIndex) => {
                         option.optionId = oIndex;
+                        console.log(`Option ${oIndex} for Question ${qIndex}:`, option);
                     });
                 } else {
                     console.error(`Options are not properly defined for question: ${question.questionText}`);
                 }
             });
-            return questions;
+
+            questions.forEach((question, index) => {
+                const state = this.quizStateService.getQuestionState(quizId, index);
+                if (state?.isAnswered) {
+                    const formattedExplanationText: FormattedExplanation = {
+                        questionIndex: index,
+                        explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
+                    };
+                    this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
+                }
+            });
+
+            return questions; // Return the questions array
         } else {
             console.error('No questions were loaded');
             return [];
