@@ -328,6 +328,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       optionId: index
     }));
 
+    this.displayOptions = this.getDisplayOptions();
+    this.showFeedbackForOption = this.displayOptions.reduce((acc, option, idx) => {
+      // acc[idx] = false;
+      acc[option.optionId] = false;
+      return acc;
+    }, {} as { [optionId: number]: boolean });
+    console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
+
     // Only update explanation text if the question has been answered
     if (this.isQuestionAnswered(this.currentQuestionIndex)) {
       this.explanationTextService.updateExplanationText(currentQuestion);
@@ -346,14 +354,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Current question is undefined or has no options');
       return;
     }
-  
-    this.displayOptions = this.getDisplayOptions();
-    this.showFeedbackForOption = this.displayOptions.reduce((acc, option, idx) => {
-      // acc[idx] = false;
-      acc[option.optionId] = false;
-      return acc;
-    }, {} as { [optionId: number]: boolean });
-    console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
   }
   
   isSelectedOption(option: Option): boolean {
