@@ -529,6 +529,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
         if (questions && questions.length > 0) {
             this.questions = of(questions);
+
+            // Ensure option IDs are set
             questions.forEach((question, qIndex) => {
                 if (question.options) {
                     question.options.forEach((option, oIndex) => {
@@ -538,7 +540,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
                     console.error(`Options are not properly defined for question: ${question.questionText}`);
                 }
             });
-            return questions; // Ensure we return questions here
+            return questions;
         } else {
             console.error('No questions were loaded');
             return [];
