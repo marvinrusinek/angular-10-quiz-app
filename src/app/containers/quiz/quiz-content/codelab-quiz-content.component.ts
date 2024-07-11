@@ -154,6 +154,18 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
+  shouldShowCorrectAnswers(): Observable<boolean> {
+    return combineLatest([
+      this.shouldDisplayCorrectAnswers$,
+      this.isExplanationDisplayed$,
+      this.correctAnswersText$
+    ]).pipe(
+      map(([shouldDisplay, isExplanationDisplayed, correctAnswersText]) => 
+        shouldDisplay && !isExplanationDisplayed && !!correctAnswersText
+      )
+    );
+  }
+
   private initializeExplanationTextObservable(): void {
     combineLatest([
       this.quizStateService.currentQuestion$,
