@@ -45,9 +45,10 @@ export class FeedbackIconDirective implements OnChanges {
     const icon = this.showFeedbackForOption[this.option.optionId] ? '✔️' : '';
     console.log('Setting icon to', icon);
     this.renderer.setProperty(this.el.nativeElement, 'innerText', icon);
-/*
+
     // if (this.showFeedbackForOption && this.showFeedbackForOption[this.option.optionId]) {
-    if (this.isAnswered && isSelected) {
+    if (this.showFeedbackForOption[this.option.optionId]) {
+    // if (this.isAnswered && isSelected) {
     // if (this.isAnswered && this.showFeedbackForOption[this.option.optionId]) {
       const icon = this.option.correct ? '✔️' : '❌';
       console.log('Setting icon to', icon);
@@ -55,7 +56,7 @@ export class FeedbackIconDirective implements OnChanges {
     } else {
       console.log('Clearing icon');
       this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
-    } */
+    }
   }
 
   public reset(): void {
