@@ -34,16 +34,16 @@ export class FeedbackIconDirective implements OnChanges {
     this.isAnswered = true;
     console.log('updateIcon called for option', this.option);
 
-    if (!this.option || this.option.optionId === undefined) {
+    /* if (!this.option || this.option.optionId === undefined) {
       console.log('Option or optionId is undefined');
       return;
-    }
+    } */
 
     const isSelected = this.selectedOptionService.isSelectedOption(this.option);
     console.log('isSelected:', isSelected, 'showFeedback:', this.showFeedbackForOption[this.option.optionId]);
 
-    if (this.showFeedbackForOption && this.showFeedbackForOption[this.option.optionId]) {
-    // if (this.isAnswered && isSelected) {
+    // if (this.showFeedbackForOption && this.showFeedbackForOption[this.option.optionId]) {
+    if (this.isAnswered && isSelected) {
     // if (this.isAnswered && this.showFeedbackForOption[this.option.optionId]) {
       const icon = this.option.correct ? '✔️' : '❌';
       console.log('Setting icon to', icon);
