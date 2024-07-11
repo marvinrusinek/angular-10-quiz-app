@@ -523,49 +523,53 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async fetchAndProcessQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     this.isLoading = true;
-
+  
     try {
-        const questions = await this.quizService.fetchQuizQuestions(quizId);
-
-        if (questions && questions.length > 0) {
-            this.questions = of(questions);
-
-            // Ensure option IDs are set
-            questions.forEach((question, qIndex) => {
-                console.log(`Question ${qIndex}:`, question);
-                if (question.options) {
-                    question.options.forEach((option, oIndex) => {
-                        option.optionId = oIndex;
-                        console.log(`Option ${oIndex} for Question ${qIndex}:`, option);
-                    });
-                } else {
-                    console.error(`Options are not properly defined for question: ${question.questionText}`);
-                }
+      const questions = await this.quizService.fetchQuizQuestions(quizId);
+  
+      if (questions && questions.length > 0) {
+        this.questions = of(questions);
+  
+        questions.forEach((question, qIndex) => {
+          console.log(`Question ${qIndex}:`, question);
+          if (question.options) {
+            question.options.forEach((option, oIndex) => {
+              option.optionId = oIndex;
+              console.log(`Option ${oIndex} for Question ${qIndex}:`, option);
             });
-
-            questions.forEach((question, index) => {
-                const state = this.quizStateService.getQuestionState(quizId, index);
-                if (state?.isAnswered) {
-                    const formattedExplanationText: FormattedExplanation = {
-                        questionIndex: index,
-                        explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
-                    };
-                    this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
-                }
-            });
-
-            return questions; // Return the questions array
-        } else {
-            console.error('No questions were loaded');
-            return [];
-        }
-    } catch (error) {
-        console.error('Error loading questions:', error);
+          } else {
+            console.error(`Options are not properly defined for question: ${question.questionText}`);
+          }
+        });
+  
+        questions.forEach((question, index) => {
+          const state = this.quizStateService.getQuestionState(quizId, index);
+          if (state?.isAnswered) {
+            const formattedExplanationText: FormattedExplanation = {
+              questionIndex: index,
+              explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
+            };
+            this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
+          }
+        });
+        return questions;  // Make sure to return questions
+      } else {
+        console.error('No questions were loaded');
         return [];
+      }
+  
+      this.quiz = this.quizService.getActiveQuiz();
+      if (!this.quiz) {
+        console.error('Failed to set the active quiz');
+      }
+    } catch (error) {
+      console.error('Error loading questions:', error);
+      return [];
     } finally {
-        this.isLoading = false;
+      this.isLoading = false;
     }
   }
+  
 
   private async handleQuestionState(): Promise<void> {
     if (this.currentQuestionIndex === 0) {
