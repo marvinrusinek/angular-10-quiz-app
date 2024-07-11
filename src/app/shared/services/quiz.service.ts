@@ -431,7 +431,7 @@ export class QuizService implements OnDestroy {
 
   async fetchQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
-        const quizzes = await this.http.get<Quiz[]>(this.quizUrl).toPromise();
+        const quizzes = await firstValueFrom(this.http.get<Quiz[]>(this.quizUrl));
         const quiz = quizzes.find(q => q.quizId === quizId);
 
         if (!quiz) {
@@ -453,8 +453,8 @@ export class QuizService implements OnDestroy {
             });
         }
 
-        this.questionsSubject.next(quiz.questions);
         this.setActiveQuiz(quiz); // Ensure active quiz is set
+        this.questionsSubject.next(quiz.questions);
 
         return quiz.questions;
     } catch (error) {
