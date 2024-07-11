@@ -519,6 +519,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               if (question.options) {
                 question.options.forEach((option, oIndex) => {
                   option.optionId = oIndex;
+                });
               } else {
                 console.error(`Options are not properly defined for question: ${question.questionText}`);
               }
