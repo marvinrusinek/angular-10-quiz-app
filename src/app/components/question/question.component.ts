@@ -354,7 +354,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     this.displayOptions = this.getDisplayOptions();
     this.showFeedbackForOption = this.displayOptions.reduce((acc, option, idx) => {
-      acc[idx] = false;
+      // acc[idx] = false;
+      acc[option.optionId] = false;
       return acc;
     }, {} as { [optionId: number]: boolean });
     console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
