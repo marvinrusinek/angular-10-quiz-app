@@ -1485,7 +1485,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     // Notify the service to update the explanation text
     if (this.currentQuestion) {
-      this.explanationTextService.updateExplanation(this.currentQuestion);
+      this.explanationTextService.updateExplanationText(this.currentQuestion);
     } else {
       console.error('Current question is not set.');
     }
