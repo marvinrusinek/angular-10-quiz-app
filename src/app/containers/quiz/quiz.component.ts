@@ -1736,7 +1736,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     // Reset feedback icons
     // Check if feedbackIconDirectives are available
     
-    if (this.feedbackIconDirectives) {
+    if (this.feedbackIconDirectives && this.feedbackIconDirectives.length > 0) {
       console.log('FeedbackIconDirectives found:', this.feedbackIconDirectives.length); // Log number of directives found
       // Reset feedback icons
       this.feedbackIconDirectives.forEach(directive => {
