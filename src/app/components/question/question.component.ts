@@ -332,7 +332,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     // Reset icons
-    this.resetIcons();
+    // this.resetIcons();
   
     this.options = currentQuestion.options.map((option, index) => ({
       ...option,
