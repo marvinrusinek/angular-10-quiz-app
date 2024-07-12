@@ -1737,6 +1737,8 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Reset UI immediately before navigating
   private resetUI(): void {
+    console.log('Resetting UI');
+
     if (this.feedbackIconDirectives && this.feedbackIconDirectives.length > 0) {
       console.log('FeedbackIconDirectives found:', this.feedbackIconDirectives.length); // Log number of directives found
       // Reset feedback icons
