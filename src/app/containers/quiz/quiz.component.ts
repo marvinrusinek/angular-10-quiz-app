@@ -27,6 +27,7 @@ import { TimerService } from '../../shared/services/timer.service';
 import { ResetBackgroundService } from '../../shared/services/reset-background.service';
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
 
+import { FeedbackIconDirective } from '../../directives/feedback-icon.directive';
 import { HighlightOptionDirective } from '../../directives/highlight-option.directive';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
@@ -151,6 +152,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private resetBackgroundService: ResetBackgroundService,
     private sharedVisibilityService: SharedVisibilityService,
     private highlightOptionDirective: HighlightOptionDirective,
+    private feedbackIconDirective: FeedbackIconDirective,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private ngZone: NgZone,
@@ -1722,6 +1724,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   // Reset UI immediately before navigating
   private resetUI(): void {
     this.highlightOptionDirective.reset();
+    this.feedbackIconDirective.reset();
     this.timerService.startTimer(30);
     this.resetBackgroundService.setShouldResetBackground(true);
     this.selectedOptionService.clearOptions();
