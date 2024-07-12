@@ -43,12 +43,11 @@ export class FeedbackIconDirective implements OnChanges {
     const isSelected = this.selectedOption?.optionId === this.option.optionId;
 
     if (this.isAnswered && isSelected) {
-      const icon = this.option.correct ? '✔️' : '❌';
+      const icon = this.option.correct ? '✔️' : '✖️';
       this.renderer.setProperty(this.el.nativeElement, 'innerText', icon);
-      this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
     } else {
       this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
-    } 
+    }
   }
 
   public reset(): void {
