@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
@@ -41,7 +41,7 @@ type AnimationState = 'animationStarted' | 'none';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [QuizService, QuizDataService, QuizStateService, HighlightOptionDirective, FeedbackIconDirective]
 })
-export class QuizComponent implements OnInit, OnDestroy {
+export class QuizComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren(HighlightOptionDirective) highlightOptionDirectives!: QueryList<HighlightOptionDirective>;
   @ViewChildren(FeedbackIconDirective) feedbackIconDirectives!: QueryList<FeedbackIconDirective>;
   @Input() data: {
@@ -213,6 +213,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.checkIfAnswerSelected(true);
   }
+
+  ngAfterViewInit() {
+    this.highlightOptionDirectives.changes.subscribe(() => this.resetUI());
+    this.feedbackIconDirectives.changes.subscribe(() => this.resetUI());
+  }  
 
   ngOnDestroy(): void {
     this.isDestroyed = true;
