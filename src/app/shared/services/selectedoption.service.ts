@@ -26,24 +26,6 @@ export class SelectedOptionService {
 
   constructor(private quizService: QuizService) {}
 
-  /* getShowFeedbackForOption(): { [optionId: number]: boolean } {
-    return this.showFeedbackForOptionSubject.value;
-  }
-
-  setSelectedOption(option: SelectedOption): void {
-    this.selectedOption = option;
-    this.updateAnsweredState();
-    this.selectedOptionSubject.next(option);
-    const currentFeedback = this.showFeedbackForOptionSubject.value;
-    currentFeedback[option.optionId] = true;
-    this.showFeedbackForOptionSubject.next(currentFeedback);
-  }
-
-  getSelectedOption(): Option {
-    return this.selectedOptionSubject.value;
-    // return this.selectedOption;
-  } */
-
   setSelectedOption(option: SelectedOption): void {
     this.selectedOptionSubject.next(option);
     const currentFeedback = { ...this.showFeedbackForOptionSubject.value };
