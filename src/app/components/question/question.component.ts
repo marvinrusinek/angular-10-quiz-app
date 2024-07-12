@@ -29,7 +29,6 @@ import { TimerService } from '../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
-  @ViewChildren(FeedbackIconDirective) feedbackIconDirectives!: QueryList<FeedbackIconDirective>;
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() selectionChanged: EventEmitter<{
