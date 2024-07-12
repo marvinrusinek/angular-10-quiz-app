@@ -1,4 +1,4 @@
-import { Directive, ElementRef, HostListener, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 import { SelectedOption } from '../shared/models/SelectedOption.model';
@@ -28,10 +28,6 @@ export class FeedbackIconDirective implements OnChanges {
     if (changes['selectedOption'] || changes['showFeedbackForOption']) {
       this.updateIcon();
     }
-  }
-
-  @HostListener('click') onClick() {
-    this.isAnswered = true;
   }
 
   private updateIcon(): void {
