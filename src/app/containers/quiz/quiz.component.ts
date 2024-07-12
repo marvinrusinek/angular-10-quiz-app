@@ -216,7 +216,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.feedbackIconDirectives.changes.subscribe(() => this.resetUI());
-    this.resetUI();
   }
 
   ngOnDestroy(): void {
