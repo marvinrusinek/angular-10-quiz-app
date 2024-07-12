@@ -1730,7 +1730,12 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
   // Reset UI immediately before navigating
   private resetUI(): void {
     this.highlightOptionDirectives.forEach(directive => directive.reset());
-    this.feedbackIconDirectives.forEach(directive => directive.reset());
+    // this.feedbackIconDirectives.forEach(directive => directive.reset());
+    // Reset feedback icons
+    this.feedbackIconDirectives.forEach(directive => {
+      console.log('Resetting feedback icon for directive:', directive); // Log each directive
+      directive.reset();
+    });
     this.timerService.startTimer(30);
     this.resetBackgroundService.setShouldResetBackground(true);
     this.selectedOptionService.clearOptions();
