@@ -1736,9 +1736,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   // Reset UI immediately before navigating
-  private resetUI(): void {
-    console.log('Resetting UI');
-
+  /* private resetUI(): void {
     if (this.feedbackIconDirectives && this.feedbackIconDirectives.length > 0) {
       console.log('FeedbackIconDirectives found:', this.feedbackIconDirectives.length); // Log number of directives found
       // Reset feedback icons
@@ -1755,6 +1753,48 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     this.resetBackgroundService.setShouldResetBackground(true);
     this.selectedOptionService.clearOptions();
     this.explanationTextService.resetExplanationState();
+  } */
+
+  private resetUI(): void {
+    console.log('Resetting UI'); // Log for debugging
+
+    if (this.feedbackIconDirectives && this.feedbackIconDirectives.length > 0) {
+      console.log('FeedbackIconDirectives found:', this.feedbackIconDirectives.length); // Log number of directives found
+      this.feedbackIconDirectives.forEach((directive, index) => {
+        console.log(`Resetting feedback icon for directive ${index}:`, directive); // Log each directive
+        directive.reset();
+      });
+    } else {
+      console.log('No FeedbackIconDirectives found');
+    }
+
+    // Reset other UI elements
+    if (this.highlightOptionDirectives) {
+      this.highlightOptionDirectives.forEach((directive, index) => {
+        console.log(`Resetting highlight option for directive ${index}:`, directive); // Log each directive
+        directive.reset();
+      });
+    }
+
+    if (this.timerService) {
+      console.log('Restarting timer');
+      this.timerService.startTimer(30);
+    }
+
+    if (this.resetBackgroundService) {
+      console.log('Resetting background');
+      this.resetBackgroundService.setShouldResetBackground(true);
+    }
+
+    if (this.selectedOptionService) {
+      console.log('Clearing selected options');
+      this.selectedOptionService.clearOptions();
+    }
+
+    if (this.explanationTextService) {
+      console.log('Resetting explanation text state');
+      this.explanationTextService.resetExplanationState();
+    }
   }
 
   private resetQuestionDisplayState(): void {
