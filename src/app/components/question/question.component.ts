@@ -877,7 +877,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  public setCorrectMessage(correctAnswers: number[]): void {
+  /* public setCorrectMessage(correctAnswers: number[]): void {
     this.quizService.correctAnswersLoadedSubject.subscribe(
       (loaded: boolean) => {
         if (loaded) {
@@ -906,6 +906,29 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }
       }
     );
+  } */
+
+  setCorrectMessage(correctAnswers: number[]): void {
+    console.log('Setting correct message with correct answers:', correctAnswers);
+    this.quizService.correctAnswersLoadedSubject.subscribe((loaded: boolean) => {
+      if (loaded) {
+        if (this.options && this.options.length > 0) {
+          if (correctAnswers && correctAnswers.length > 0) {
+            try {
+              this.correctMessage = this.quizService.setCorrectMessage(correctAnswers, this.options);
+              console.log('Correct message set:', this.correctMessage);
+            } catch (error) {
+              console.error('An error occurred while updating the correct message:', error);
+            }
+          } else {
+            this.correctMessage = 'No correct answers found for the current question.';
+          }
+        }
+      } else {
+        this.correctMessage = 'The correct answers are not available yet.';
+      }
+      console.log('Final correct message:', this.correctMessage);
+    });
   }
 
   /* setCorrectMessage(correctAnswerOptions, options): void {
