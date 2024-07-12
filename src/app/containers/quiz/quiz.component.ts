@@ -1816,6 +1816,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     this.quizService.resetAll();
     this.currentQuestionIndex = 0;  // Reset to the first question's index
     this.progressPercentage = 0; // Reset the progressPercentage to 0
+    this.score = 0; // Reset the score to 0
 
     // Reset the current question index to the first question
     this.quizService.setCurrentQuestionIndex(0);
