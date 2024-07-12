@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
   EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit,
-  Output, SimpleChange, SimpleChanges } from '@angular/core';
+  Output, SimpleChange, SimpleChanges, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
+import { FeedbackIconDirective } from '../../directives/feedback-icon.directive';
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -29,6 +30,7 @@ import { TimerService } from '../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
+  @ViewChildren(FeedbackIconDirective) feedbackIconDirectives!: QueryList<FeedbackIconDirective>;
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() selectionChanged: EventEmitter<{
@@ -312,6 +314,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  private resetIcons(): void {
+    if (this.feedbackIconDirectives) {
+      this.feedbackIconDirectives.forEach(directive => directive.reset());
+    }
+  }
+
   loadQuestion(): void {
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.error('Questions are not available yet');
@@ -331,6 +339,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         directive.reset();
       }
     });
+
+    // Reset icons
+    this.resetIcons();
   
     this.options = currentQuestion.options.map((option, index) => ({
       ...option,
