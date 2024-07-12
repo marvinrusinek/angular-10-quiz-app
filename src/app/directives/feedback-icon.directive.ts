@@ -2,6 +2,7 @@ import { Directive, ElementRef, HostListener, Input, OnChanges, Renderer2, Simpl
 
 import { Option } from '../shared/models/Option.model';
 import { SelectedOption } from '../shared/models/SelectedOption.model';
+import { SelectedOptionService } from '../shared/services/selectedoption.service';
 
 @Directive({
   selector: '[appFeedbackIcon]'
@@ -16,7 +17,8 @@ export class FeedbackIconDirective implements OnChanges {
 
   constructor(
     private el: ElementRef,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private selectedOptionService: SelectedOptionService
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -41,7 +43,7 @@ export class FeedbackIconDirective implements OnChanges {
       return;
     }
 
-    const isSelected = this.selectedOption?.optionId === this.option.optionId;
+    const isSelected = this.selectedOptionService.isSelectedOption(option);
     const showFeedback = this.showFeedbackForOption[this.option.optionId];
 
     if (this.isAnswered && isSelected && showFeedback) {
