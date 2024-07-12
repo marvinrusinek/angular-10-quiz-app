@@ -322,6 +322,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Current question is undefined');
       return;
     }
+
+    // Reset icons
+    const icons = document.querySelectorAll('.icon');
+    icons.forEach(icon => {
+      const directive = icon['__ngContext__'].map(item => item.constructor).find(ctor => ctor.name === 'FeedbackIconDirective');
+      if (directive) {
+        directive.reset();
+      }
+    });
   
     this.options = currentQuestion.options.map((option, index) => ({
       ...option,

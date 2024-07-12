@@ -1,15 +1,16 @@
 import { Directive, ElementRef, HostListener, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
+import { SelectedOption } from '../shared/models/SelectedOption.model';
 
 @Directive({
   selector: '[appFeedbackIcon]'
 })
 export class FeedbackIconDirective implements OnChanges {
-  @Input() option: Option;
+  @Input() option!: Option;
   @Input() index: number;
-  @Input() selectedOption: Option | null;
-  @Input() showFeedbackForOption: { [optionId: number]: boolean };
+  @Input() selectedOption!: SelectedOption | null;
+  @Input() showFeedbackForOption!: { [optionId: number]: boolean };
 
   isAnswered = false;
 
@@ -24,7 +25,9 @@ export class FeedbackIconDirective implements OnChanges {
     if (changes.option && this.option) {
       this.option.optionId = this.option.optionId ?? this.index;
     }
-    this.updateIcon();
+    if (changes['selectedOption'] || changes['showFeedbackForOption']) {
+      this.updateIcon();
+    }
   }
 
   @HostListener('click') onClick() {
