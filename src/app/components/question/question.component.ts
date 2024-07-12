@@ -27,7 +27,8 @@ import { TimerService } from '../../shared/services/timer.service';
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [FeedbackIconDirective]
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChildren(FeedbackIconDirective) feedbackIconDirectives!: QueryList<FeedbackIconDirective>;
@@ -145,6 +146,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected selectionMessageService: SelectionMessageService,
     protected sharedVisibilityService: SharedVisibilityService,
     protected timerService: TimerService,
+    protected feedbackIconDirective: FeedbackIconDirective,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef,
@@ -315,6 +317,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   loadQuestion(): void {
+    this.feedbackIconDirective.reset(); // Reset the UI before loading a new question
+
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.error('Questions are not available yet');
       return;

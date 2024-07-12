@@ -34,7 +34,7 @@ import { TimerService } from '../../../../shared/services/timer.service';
     '../../question.component.scss'
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.ShadowDom,
+  encapsulation: ViewEncapsulation.ShadowDom
 })
 export class SingleAnswerComponent extends QuizQuestionComponent implements OnInit, OnDestroy {
   @Input() question!: QuizQuestion;
