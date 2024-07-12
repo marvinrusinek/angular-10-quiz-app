@@ -216,6 +216,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.feedbackIconDirectives.changes.subscribe(() => this.resetUI());
+    this.resetUI();
   }
 
   ngOnDestroy(): void {
@@ -1730,7 +1731,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
   // Reset UI immediately before navigating
   private resetUI(): void {
     this.highlightOptionDirectives.forEach(directive => directive.reset());
-    
+
     // this.feedbackIconDirectives.forEach(directive => directive.reset());
     // Reset feedback icons
     // Check if feedbackIconDirectives are available
