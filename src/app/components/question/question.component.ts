@@ -314,12 +314,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private resetIcons(): void {
-    if (this.feedbackIconDirectives) {
-      this.feedbackIconDirectives.forEach(directive => directive.reset());
-    }
-  }
-
   loadQuestion(): void {
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.error('Questions are not available yet');
@@ -331,9 +325,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    // Reset icons
-    // this.resetIcons();
-  
     this.options = currentQuestion.options.map((option, index) => ({
       ...option,
       optionId: index
