@@ -1,7 +1,6 @@
 import { Directive, ElementRef, HostListener, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
-import { SelectedOptionService } from '../shared/services/selectedoption.service';
 
 @Directive({
   selector: '[appFeedbackIcon]'
@@ -16,8 +15,7 @@ export class FeedbackIconDirective implements OnChanges {
 
   constructor(
     private el: ElementRef,
-    private renderer: Renderer2,
-    private selectedOptionService: SelectedOptionService
+    private renderer: Renderer2
   ) {
     console.log("OPTION", this.option);
   }
