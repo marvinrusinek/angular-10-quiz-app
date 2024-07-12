@@ -1522,7 +1522,11 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
         this.selectedOptionService.setAnsweredState(isAnswered);
   
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-        this.resetUI();
+
+        setTimeout(() => {
+          console.log('Calling resetUI after setTimeout in advanceToNextQuestion');
+          this.resetUI();
+        }, 0);
       } else {
         console.log('End of quiz reached.');
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
@@ -1550,7 +1554,11 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
 
       // Combine fetching data and initializing question state into a single method
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-      this.resetUI();
+      
+      setTimeout(() => {
+        console.log('Calling resetUI after setTimeout in advanceToPreviousQuestion');
+        this.resetUI();
+      }, 0);
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
@@ -1758,10 +1766,11 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     this.quizStateService.createDefaultQuestionState();  // Initialize all question states
     this.quizStateService.clearSelectedOptions();  // Clear selected options for all questions
 
-    this.cdRef.detectChanges();
-
     // Step 1: Reset quiz-specific states and services
-    this.resetUI();
+    setTimeout(() => {
+      console.log('Calling resetUI after setTimeout in restartQuiz');
+      this.resetUI();
+    }, 0);
     this.quizService.resetAll();
     this.currentQuestionIndex = 0;  // Reset to the first question's index
     this.progressPercentage = 0; // Reset the progressPercentage to 0
