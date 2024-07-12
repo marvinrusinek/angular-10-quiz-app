@@ -1759,6 +1759,8 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     this.quizStateService.createDefaultQuestionState();  // Initialize all question states
     this.quizStateService.clearSelectedOptions();  // Clear selected options for all questions
 
+    this.cdRef.detectChanges();
+
     // Step 1: Reset quiz-specific states and services
     this.resetUI();
     this.quizService.resetAll();
