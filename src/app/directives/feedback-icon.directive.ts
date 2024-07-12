@@ -17,9 +17,7 @@ export class FeedbackIconDirective implements OnChanges {
   constructor(
     private el: ElementRef,
     private renderer: Renderer2
-  ) {
-    console.log("OPTION", this.option);
-  }
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.option && this.option) {
