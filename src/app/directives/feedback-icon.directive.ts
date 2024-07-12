@@ -68,6 +68,7 @@ export class FeedbackIconDirective implements OnChanges {
   } */
 
   private updateIcon(): void {
+    this.isAnswered = true;
     console.log('updateIcon called for option', this.option);
 
     if (!this.option || this.option.optionId === undefined) {
@@ -76,15 +77,15 @@ export class FeedbackIconDirective implements OnChanges {
     }
 
     const isSelected = this.selectedOption?.optionId === this.option.optionId;
-    const showFeedback = this.showFeedbackForOption[this.option.optionId];
-    console.log('isSelected:', isSelected);
-    console.log('showFeedback:', showFeedback);
 
-    if (isSelected && showFeedback) {
-      this.renderer.setProperty(this.el.nativeElement, 'textContent', '✓'); // Example icon
+    if (this.isAnswered && isSelected) {
+      const icon = this.option.correct ? '✔️' : '❌';
+      console.log('Setting icon to', icon);
+      this.renderer.setProperty(this.el.nativeElement, 'innerText', icon);
     } else {
-      this.renderer.setProperty(this.el.nativeElement, 'textContent', '');
-    }
+      console.log('Clearing icon');
+      this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
+    } 
   }
 
   public reset(): void {
