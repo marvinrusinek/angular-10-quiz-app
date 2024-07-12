@@ -451,47 +451,46 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private initializeQuizQuestion(): void {
     if (!this.quizStateService.getQuizQuestionCreated()) {
-        this.quizStateService.setQuizQuestionCreated();
+      this.quizStateService.setQuizQuestionCreated();
 
-        this.questionsObservableSubscription = this.quizService
-            .getAllQuestions()
-            .pipe(
-                map((questions: QuizQuestion[]) => {
-                    questions.forEach((quizQuestion: QuizQuestion) => {
-                        quizQuestion.selectedOptions = null;
+      this.questionsObservableSubscription = this.quizService
+        .getAllQuestions()
+        .pipe(
+          map((questions: QuizQuestion[]) => {
+            questions.forEach((quizQuestion: QuizQuestion) => {
+              quizQuestion.selectedOptions = null;
 
-                        // Check if options exist and are an array before mapping
-                        if (Array.isArray(quizQuestion.options)) {
-                            quizQuestion.options = quizQuestion.options.map((option, index) => ({
-                                ...option,
-                                optionId: index
-                            }));
-                        } else {
-                            console.error(`Options are not properly defined for question: ${quizQuestion.questionText}`);
-                            quizQuestion.options = [];  // Initialize as an empty array to prevent further errors
-                        }
-                    });
-                    return questions;
-                })
-            )
-            .subscribe({
-                next: (questions: QuizQuestion[]) => {
-                    // Initialize the first question
-                    if (questions && questions.length > 0) {
-                        this.selectedOptionService.resetAnsweredState();
-                        const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
-                        this.selectedOptionService.setAnsweredState(hasAnswered);
-                        console.log('Initial answered state for the first question:', hasAnswered);
-                        this.cdRef.markForCheck(); // Trigger change detection
-                    }
-                },
-                error: (err) => {
-                    console.error('Error fetching questions:', err);
-                }
+              // Check if options exist and are an array before mapping
+              if (Array.isArray(quizQuestion.options)) {
+                quizQuestion.options = quizQuestion.options.map((option, index) => ({
+                  ...option,
+                  optionId: index
+                }));
+              } else {
+                console.error(`Options are not properly defined for question: ${quizQuestion.questionText}`);
+                quizQuestion.options = [];  // Initialize as an empty array to prevent further errors
+              }
             });
+            return questions;
+          })
+      )
+      .subscribe({
+        next: (questions: QuizQuestion[]) => {
+          // Initialize the first question
+          if (questions && questions.length > 0) {
+            this.selectedOptionService.resetAnsweredState();
+            const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
+            this.selectedOptionService.setAnsweredState(hasAnswered);
+            console.log('Initial answered state for the first question:', hasAnswered);
+            this.cdRef.markForCheck(); // Trigger change detection
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching questions:', err);
+        }
+      });
     }
   }
-     
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {    
     try {
@@ -518,44 +517,44 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isLoading = true;
 
     try {
-        const questions = await this.quizService.fetchQuizQuestions(quizId);
+      const questions = await this.quizService.fetchQuizQuestions(quizId);
 
-        if (questions && questions.length > 0) {
-            this.questions = of(questions);
+      if (questions && questions.length > 0) {
+        this.questions = of(questions);
 
-            // Ensure option IDs are set
-            questions.forEach((question, qIndex) => {
-              if (question.options) {
-                question.options.forEach((option, oIndex) => {
-                  option.optionId = oIndex;
-                });
-              } else {
-                console.error(`Options are not properly defined for question: ${question.questionText}`);
-              }
+        // Ensure option IDs are set
+        questions.forEach((question, qIndex) => {
+          if (question.options) {
+            question.options.forEach((option, oIndex) => {
+              option.optionId = oIndex;
             });
+          } else {
+            console.error(`Options are not properly defined for question: ${question.questionText}`);
+          }
+        });
 
-            // Handle explanation texts for previously answered questions
-            questions.forEach((question, index) => {
-                const state = this.quizStateService.getQuestionState(quizId, index);
-                if (state?.isAnswered) {
-                    const formattedExplanationText: FormattedExplanation = {
-                        questionIndex: index,
-                        explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
-                    };
-                    this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
-                }
-            });
+        // Handle explanation texts for previously answered questions
+        questions.forEach((question, index) => {
+          const state = this.quizStateService.getQuestionState(quizId, index);
+          if (state?.isAnswered) {
+            const formattedExplanationText: FormattedExplanation = {
+              questionIndex: index,
+              explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index)
+            };
+            this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
+          }
+        });
 
-            return questions;
-        } else {
-            console.error('No questions were loaded');
-            return [];
-        }
-    } catch (error) {
-        console.error('Error loading questions:', error);
+        return questions;
+      } else {
+        console.error('No questions were loaded');
         return [];
+      }
+    } catch (error) {
+      console.error('Error loading questions:', error);
+      return [];
     } finally {
-        this.isLoading = false;
+      this.isLoading = false;
     }
   }
 
