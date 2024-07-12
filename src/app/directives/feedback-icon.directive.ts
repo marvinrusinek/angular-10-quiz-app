@@ -12,7 +12,6 @@ export class FeedbackIconDirective implements OnChanges {
   @Input() index: number;
   @Input() selectedOption!: SelectedOption | null;
   @Input() showFeedbackForOption!: { [optionId: number]: boolean };
-
   isAnswered = false;
 
   constructor(
