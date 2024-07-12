@@ -21,7 +21,6 @@ export class FeedbackIconDirective implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // console.log('ngOnChanges called', changes);
     if (changes.option && this.option) {
       this.option.optionId = this.option.optionId ?? this.index;
     }
@@ -35,7 +34,6 @@ export class FeedbackIconDirective implements OnChanges {
 
   private updateIcon(): void {
     this.isAnswered = true;
-    console.log('updateIcon called for option', this.option);
 
     if (!this.option || this.option.optionId === undefined) {
       console.log('Option or optionId is undefined');
@@ -46,10 +44,9 @@ export class FeedbackIconDirective implements OnChanges {
 
     if (this.isAnswered && isSelected) {
       const icon = this.option.correct ? '✔️' : '❌';
-      console.log('Setting icon to', icon);
       this.renderer.setProperty(this.el.nativeElement, 'innerText', icon);
+      this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
     } else {
-      console.log('Clearing icon');
       this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
     } 
   }
