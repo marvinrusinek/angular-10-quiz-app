@@ -56,5 +56,6 @@ export class FeedbackIconDirective implements OnChanges {
   public reset(): void {
     this.isAnswered = false;
     this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
+    this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
   }
 }
