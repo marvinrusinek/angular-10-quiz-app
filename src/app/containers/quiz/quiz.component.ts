@@ -39,7 +39,7 @@ type AnimationState = 'animationStarted' | 'none';
   styleUrls: ['./quiz.component.scss'],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [QuizService, QuizDataService, QuizStateService, HighlightOptionDirective]
+  providers: [QuizService, QuizDataService, QuizStateService, FeedbackIconDirective, HighlightOptionDirective]
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Input() data: {
