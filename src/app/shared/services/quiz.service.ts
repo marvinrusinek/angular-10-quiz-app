@@ -442,7 +442,6 @@ export class QuizService implements OnDestroy {
         if (question.options) {
           question.options.forEach((option, oIndex) => {
             option.optionId = oIndex;
-            console.log("option.optionId", option.optionId);
           });
         } else {
           console.error(`Options are not properly defined for question: ${question.questionText}`);

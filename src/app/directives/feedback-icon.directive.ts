@@ -32,14 +32,14 @@ export class FeedbackIconDirective implements OnChanges {
     this.updateIcon();
   }
 
-  private updateIcon(): void {
+  /* private updateIcon(): void {
     this.isAnswered = true;
     console.log('updateIcon called for option', this.option);
 
-    /* if (!this.option || this.option.optionId === undefined) {
+    if (!this.option || this.option.optionId === undefined) {
       console.log('Option or optionId is undefined');
       return;
-    } */
+    }
 
     // const isSelected = this.selectedOptionService.isSelectedOption(this.option);
 
@@ -63,6 +63,26 @@ export class FeedbackIconDirective implements OnChanges {
     } else {
       console.log('Clearing icon');
       this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
+    } 
+  } */
+
+  private updateIcon(): void {
+    console.log('updateIcon called for option', this.option);
+
+    if (!this.option || this.option.optionId === undefined) {
+      console.log('Option or optionId is undefined');
+      return;
+    }
+
+    const isSelected = this.selectedOption?.optionId === this.option.optionId;
+    const showFeedback = this.showFeedbackForOption[this.option.optionId];
+    console.log('isSelected:', isSelected);
+    console.log('showFeedback:', showFeedback);
+
+    if (isSelected && showFeedback) {
+      this.renderer.setProperty(this.el.nativeElement, 'textContent', '✓'); // Example icon
+    } else {
+      this.renderer.setProperty(this.el.nativeElement, 'textContent', '');
     }
   }
 
