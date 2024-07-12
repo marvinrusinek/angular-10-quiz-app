@@ -1054,6 +1054,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       this.processCurrentQuestionState(currentQuestion, option, index);
+
+      this.selectedOptionService.setSelectedOption(option);
+      const correctAnswers = this.options.filter(opt => opt.correct).map(opt => opt.optionId);
+      this.setCorrectMessage(correctAnswers);
+
       await this.handleCorrectnessAndTimer();
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
