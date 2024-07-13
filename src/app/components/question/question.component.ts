@@ -908,7 +908,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     );
   } */
 
-  
   setCorrectMessage(correctOptions: Option[]): void {
     console.log('Setting correct message with correct options:', correctOptions);
     this.quizService.correctAnswersLoadedSubject.subscribe((loaded: boolean) => {
