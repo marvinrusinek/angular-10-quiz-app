@@ -875,13 +875,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Find the indices of correct options in the original optionsToDisplay array
     const correctOptionIndices = correctOptions.map(correctOption => {
       const originalIndex = this.optionsToDisplay.findIndex(option => option.optionId === correctOption.optionId);
-      return `Option ${originalIndex + 1}`; // +1 to make it 1-based index for display
+      return originalIndex + 1; // +1 to make it 1-based index for display
     });
   
     const uniqueIndices = [...new Set(correctOptionIndices)]; // Remove duplicates if any
     const optionsText = uniqueIndices.length === 1 ? 'answer' : 'answers';
     const areIsText = uniqueIndices.length === 1 ? 'is' : 'are';
-    return `The correct ${optionsText} ${areIsText} ${uniqueIndices.join(' and ')}.`;
+    const optionStrings = uniqueIndices.map(index => `Option ${index}`);
+    return `The correct ${optionsText} ${areIsText} ${optionStrings.join(' and ')}.`;
   }  
 
   /* private subscribeToCorrectAnswers(): void {
