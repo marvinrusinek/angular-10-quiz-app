@@ -883,6 +883,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const areIsText = uniqueIndices.length === 1 ? 'is' : 'are';
     const optionStrings = uniqueIndices.map(index => `Option ${index}`);
     return `The correct ${optionsText} ${areIsText} ${optionStrings.join(' and ')}.`;
+  }
+
+  public resetState(): void {
+    this.correctMessage = '';
+    this.showFeedback = false;
+    this.selectedOption = null;
   }  
 
   /* private subscribeToCorrectAnswers(): void {
