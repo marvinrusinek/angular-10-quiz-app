@@ -5,15 +5,6 @@
         {{ combinedText }}
       </span>
 
-      <!--<ng-template #questionDisplay>
-        <span *ngIf="questionToDisplay">{{ questionToDisplay }}</span>
-        <span *ngIf="!questionToDisplay">Loading question...</span>
-        <div *ngIf="explanationToDisplay">
-          <h4>Explanation:</h4>
-          <p>{{ explanationToDisplay }}</p>
-        </div>
-      </ng-template>-->
-
       <span class="number-correct" 
         *ngIf="(shouldDisplayCorrectAnswers$ | async) && 
                !(isExplanationDisplayed$ | async) && 
