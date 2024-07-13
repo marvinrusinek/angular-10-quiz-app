@@ -872,11 +872,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return 'No correct answers found for the current question.';
     }
   
-    const correctOptionIndices = correctOptions.map((option, index) => `Option ${index + 1}`);
+    // Find the indices of correct options in the original optionsToDisplay array
+    const correctOptionIndices = correctOptions.map(correctOption => {
+      const originalIndex = this.optionsToDisplay.findIndex(option => option.optionId === correctOption.optionId);
+      return `Option ${originalIndex + 1}`;
+    });
+  
     const optionsText = correctOptionIndices.length === 1 ? 'answer' : 'answers';
     const areIsText = correctOptionIndices.length === 1 ? 'is' : 'are';
     return `The correct ${optionsText} ${areIsText} ${correctOptionIndices.join(' and ')}.`;
-  }   
+  }
+  
 
   /* private subscribeToCorrectAnswers(): void {
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {
