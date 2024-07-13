@@ -1762,33 +1762,44 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
   } */
 
   private resetUI(): void {
-    console.log('Resetting UI'); // Log for debugging
+    console.log('Resetting UI');
+
+    // Log the current state of feedbackIconDirectives
+    console.log('Current FeedbackIconDirectives:', this.feedbackIconDirectives.length);
+    this.feedbackIconDirectives.forEach((directive, index) => {
+      console.log(`FeedbackIconDirective ${index}:`, directive);
+    });
 
     // Forcefully clear feedback icons directly by targeting DOM elements
     const feedbackIconElements = document.querySelectorAll('.icon');
     feedbackIconElements.forEach((element, index) => {
-      console.log(`Forcefully clearing feedback icon ${index}`, element); // Log each element
+      console.log(`Forcefully clearing feedback icon ${index}`, element);
       this.renderer.setProperty(element, 'innerText', '');
     });
 
+    // Reset FeedbackIconDirectives
     if (this.feedbackIconDirectives && this.feedbackIconDirectives.length > 0) {
-      console.log('FeedbackIconDirectives found:', this.feedbackIconDirectives.length); // Log number of directives found
+      console.log('FeedbackIconDirectives found:', this.feedbackIconDirectives.length);
       this.feedbackIconDirectives.forEach((directive, index) => {
-        console.log(`Resetting feedback icon for directive ${index}:`, directive); // Log each directive
+        console.log(`Resetting feedback icon for directive ${index}:`, directive);
         directive.reset();
       });
     } else {
       console.log('No FeedbackIconDirectives found');
     }
 
-    // Reset other UI elements
-    if (this.highlightOptionDirectives) {
+    // Reset HighlightOptionDirectives
+    if (this.highlightOptionDirectives && this.highlightOptionDirectives.length > 0) {
+      console.log('HighlightOptionDirectives found:', this.highlightOptionDirectives.length);
       this.highlightOptionDirectives.forEach((directive, index) => {
-        console.log(`Resetting highlight option for directive ${index}:`, directive); // Log each directive
+        console.log(`Resetting highlight option for directive ${index}:`, directive);
         directive.reset();
       });
+    } else {
+      console.log('No HighlightOptionDirectives found');
     }
 
+    // Reset other UI elements
     if (this.timerService) {
       console.log('Restarting timer');
       this.timerService.startTimer(30);
