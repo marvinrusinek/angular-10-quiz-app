@@ -1775,6 +1775,9 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
   private resetUI(): void {
     console.log('Resetting UI');
 
+    // Trigger feedback icon reset
+    this.resetFeedbackService.setShouldResetFeedback(true);
+
     // Log the current state of feedbackIconDirectives
     console.log('Current FeedbackIconDirectives:', this.feedbackIconDirectives.length);
     this.feedbackIconDirectives.forEach((directive, index) => {
