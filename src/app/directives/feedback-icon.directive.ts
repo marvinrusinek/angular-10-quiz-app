@@ -15,7 +15,7 @@ export class FeedbackIconDirective implements OnChanges {
   @Input() selectedOption!: SelectedOption | null;
   @Input() showFeedbackForOption!: { [optionId: number]: boolean };
   isAnswered = false;
-  private resetSubscription: Subscription;
+  private resetIconSubscription: Subscription;
 
   constructor(
     private el: ElementRef,
@@ -23,9 +23,9 @@ export class FeedbackIconDirective implements OnChanges {
     private resetFeedbackIconService: ResetFeedbackIconService,
     private selectedOptionService: SelectedOptionService
   ) {
-    this.resetSubscription = this.resetFeedbackIconService.shouldResetFeedback$.subscribe((shouldReset) => {
+    this.resetIconSubscription = this.resetFeedbackIconService.shouldResetFeedback$.subscribe((shouldReset) => {
       if (shouldReset) {
-        this.reset();
+        this.resetIcon();
       }
     });
   }
@@ -40,7 +40,7 @@ export class FeedbackIconDirective implements OnChanges {
   }
 
   ngOnDestroy(): void {
-    this.resetSubscription.unsubscribe();
+    this.resetIconSubscription?.unsubscribe();
   }
 
   private updateIcon(): void {
@@ -62,9 +62,8 @@ export class FeedbackIconDirective implements OnChanges {
     }
   }
 
-  public reset(): void {
+  public resetIcon(): void {
     this.isAnswered = false;
-    console.log('Resetting feedback icon'); // Log for debugging
     this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
     this.removeIconSpan();
   }
