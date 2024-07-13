@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnDestroy, OnInit, QueryList, Renderer2, ViewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
@@ -43,8 +43,6 @@ type AnimationState = 'animationStarted' | 'none';
   providers: [QuizService, QuizDataService, QuizStateService, HighlightOptionDirective, FeedbackIconDirective]
 })
 export class QuizComponent implements OnInit, OnDestroy {
-  @ViewChildren(HighlightOptionDirective) highlightOptionDirectives!: QueryList<HighlightOptionDirective>;
-  @ViewChildren(FeedbackIconDirective) feedbackIconDirectives!: QueryList<FeedbackIconDirective>;
   @Input() data: {
     questionText: string;
     correctAnswersText?: string;
