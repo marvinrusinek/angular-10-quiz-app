@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnDestroy, OnInit, QueryList, Renderer2, ViewChildren } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
@@ -158,7 +158,8 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private ngZone: NgZone,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private renderer: Renderer2
   ) {
     this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
       if (isHidden) {
@@ -1782,6 +1783,13 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
         directive.reset();
       });
     }
+
+    // Forcefully clear feedback icons directly by targeting DOM elements
+    const feedbackIconElements = document.querySelectorAll('.icon');
+    feedbackIconElements.forEach((element, index) => {
+      console.log(`Forcefully clearing feedback icon ${index}`, element); // Log each element
+      this.renderer.setProperty(element, 'innerText', '');
+    });
 
     if (this.timerService) {
       console.log('Restarting timer');
