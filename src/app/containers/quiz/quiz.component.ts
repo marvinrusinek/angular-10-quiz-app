@@ -153,8 +153,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     private selectedOptionService: SelectedOptionService,
     private resetBackgroundService: ResetBackgroundService,
     private sharedVisibilityService: SharedVisibilityService,
-    private highlightOptionDirective: HighlightOptionDirective,
-    private feedbackIconDirective: FeedbackIconDirective,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private ngZone: NgZone,
