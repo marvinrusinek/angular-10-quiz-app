@@ -29,7 +29,8 @@ export class FeedbackComponent implements OnChanges {
         selectedOption: this.selectedOption,
         feedback: this.feedback,
         feedbackMessageClass: this.feedbackMessageClass,
-        correctMessage: this.correctMessage
+        correctMessage: this.correctMessage,
+        showFeedback: this.showFeedback
       });
     }
   }
