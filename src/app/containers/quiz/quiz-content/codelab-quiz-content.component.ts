@@ -338,7 +338,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }
   
       this.explanationTexts = explanationTexts;
-      console.log("Fetched Explanation Texts:", this.explanationTexts);
   
       await Promise.all(
         questions.map(async (question, index) => {
