@@ -983,7 +983,7 @@ export class QuizService implements OnDestroy {
     this.correctAnswersLoadedSubject.next(loaded);
   }
 
-  setCorrectMessage(
+  /* setCorrectMessage(
     correctAnswerOptions: Option[],
     currentOptions: Option[]
   ): string {
@@ -1014,6 +1014,33 @@ export class QuizService implements OnDestroy {
     return `The correct answer${
       optionsText === 'Option' ? '' : 's'
     } ${areIsText} ${correctOptionTexts.join(' and ')}.`;
+  } */
+
+  setCorrectMessage(correctAnswerOptions: Option[], currentOptions: Option[]): string {
+    console.log('Correct Answer Options:::>>>', correctAnswerOptions);
+    
+    if (!Array.isArray(correctAnswerOptions)) {
+      console.error('correctAnswerOptions is not an array');
+      return 'The correct answers are not available yet.';
+    }
+
+    const validCorrectOptions = correctAnswerOptions.filter(option => option && option.correct);
+    if (!validCorrectOptions || validCorrectOptions.length === 0) {
+      return 'The correct answers are not available yet.';
+    }
+
+    const correctOptionIds = validCorrectOptions.map(option => option.optionId);
+    if (correctOptionIds.length === 0) {
+      return 'The correct answers are not available yet.';
+    }
+
+    const correctOptionTexts = currentOptions
+      .filter(option => correctOptionIds.includes(option.optionId))
+      .map(option => option.text);
+
+    const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
+    const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
+    return `The correct answer${optionsText === 'Option' ? '' : 's'} ${areIsText} ${correctOptionTexts.join(' and ')}.`;
   }
 
   updateBadgeText(questionNumber: number, totalQuestions: number): void {
