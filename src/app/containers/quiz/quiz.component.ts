@@ -25,6 +25,7 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
 import { ResetBackgroundService } from '../../shared/services/reset-background.service';
+import { ResetFeedbackIconService } from '../../shared/services/reset-feedback-icon.service';
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
 
 import { FeedbackIconDirective } from '../../directives/feedback-icon.directive';
@@ -152,6 +153,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     private selectionMessageService: SelectionMessageService,
     private selectedOptionService: SelectedOptionService,
     private resetBackgroundService: ResetBackgroundService,
+    private resetFeedbackIconService: ResetFeedbackIconService,
     private sharedVisibilityService: SharedVisibilityService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -1776,7 +1778,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     console.log('Resetting UI');
 
     // Trigger feedback icon reset
-    this.resetFeedbackService.setShouldResetFeedback(true);
+    this.resetFeedbackIconService.setShouldResetFeedback(true);
 
     // Log the current state of feedbackIconDirectives
     console.log('Current FeedbackIconDirectives:', this.feedbackIconDirectives.length);
