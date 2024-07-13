@@ -872,63 +872,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* public setCorrectMessage(correctAnswers: number[]): void {
-    this.quizService.correctAnswersLoadedSubject.subscribe(
-      (loaded: boolean) => {
-        if (loaded) {
-          if (this.data && this.data.options && this.data.options.length > 0) {
-            if (correctAnswers && correctAnswers.length > 0) {
-              if (!this.correctMessage) {
-                try {
-                  this.correctMessage = this.quizService.setCorrectMessage(
-                    this.quizService.correctAnswerOptions,
-                    this.data.options
-                  );
-                } catch (error) {
-                  console.error(
-                    'An error occurred while updating the correct message:',
-                    error
-                  );
-                }
-              }
-            } else {
-              this.correctMessage =
-                'No correct answers found for the current question.';
-            }
-          }
-        } else {
-          this.correctMessage = 'The correct answers are not available yet.';
-        }
-      }
-    );
-  } */
-
-  /* setCorrectMessage(correctOptions: Option[]): void {
-    console.log('Setting correct message with correct options:', correctOptions);
-    this.quizService.correctAnswersLoadedSubject.subscribe((loaded: boolean) => {
-      if (loaded) {
-        if (this.options && this.options.length > 0) {
-          if (correctOptions && correctOptions.length > 0) {
-            try {
-              this.correctMessage = this.quizService.setCorrectMessage(
-                correctOptions,
-                this.options
-              );
-              console.log('Correct message set:', this.correctMessage);
-            } catch (error) {
-              console.error('An error occurred while updating the correct message:', error);
-            }
-          } else {
-            this.correctMessage = 'No correct answers found for the current question.';
-          }
-        }
-      } else {
-        this.correctMessage = 'The correct answers are not available yet.';
-      }
-      console.log('Final correct message:', this.correctMessage);
-    });
-  } */
-
   setCorrectMessage(correctOptions: Option[]): string {
     if (!correctOptions || correctOptions.length === 0) {
       return 'No correct answers found for the current question.';
@@ -939,13 +882,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
     return `The correct ${optionsText} ${areIsText} ${correctOptionTexts.join(' and ')}.`;
   }
-
-  /* setCorrectMessage(correctAnswerOptions, options): void {
-    // if (this.correctAnswers && this.currentOptions) {
-    this.correctMessage = this.quizService.setCorrectMessage(correctAnswerOptions, options);
-    console.log('MY CORR MSG:::>>>', this.correctMessage);
-    // }
-  } */
 
   /* private subscribeToCorrectAnswers(): void {
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {
