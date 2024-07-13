@@ -908,14 +908,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     );
   } */
 
-  setCorrectMessage(correctAnswers: number[]): void {
-    console.log('Setting correct message with correct answers:', correctAnswers);
+  
+  setCorrectMessage(correctOptions: Option[]): void {
+    console.log('Setting correct message with correct options:', correctOptions);
     this.quizService.correctAnswersLoadedSubject.subscribe((loaded: boolean) => {
       if (loaded) {
         if (this.options && this.options.length > 0) {
-          if (correctAnswers && correctAnswers.length > 0) {
+          if (correctOptions && correctOptions.length > 0) {
             try {
-              this.correctMessage = this.quizService.setCorrectMessage(correctAnswers, this.options);
+              this.correctMessage = this.quizService.setCorrectMessage(
+                correctOptions,
+                this.options
+              );
               console.log('Correct message set:', this.correctMessage);
             } catch (error) {
               console.error('An error occurred while updating the correct message:', error);
