@@ -867,15 +867,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   setCorrectMessage(correctOptions: Option[]): string {
+    console.log('setCorrectMessage called with correctOptions:', correctOptions);
     if (!correctOptions || correctOptions.length === 0) {
       return 'No correct answers found for the current question.';
     }
   
-    const correctOptionTexts = correctOptions.map(option => option.text);
+    const correctOptionTexts = correctOptions.map((option, index) => `Option ${index + 1}: ${option.text}`);
     const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
     const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
     return `The correct ${optionsText} ${areIsText} ${correctOptionTexts.join(' and ')}.`;
-  }
+  }  
 
   /* private subscribeToCorrectAnswers(): void {
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {
