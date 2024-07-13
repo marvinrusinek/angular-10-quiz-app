@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 
 import { Option } from '../shared/models/Option.model';
 import { SelectedOption } from '../shared/models/SelectedOption.model';
+import { ResetFeedbackIconService } from '../shared/services/reset-feedback-icon.service';
 import { SelectedOptionService } from '../shared/services/selectedoption.service';
 
 @Directive({
@@ -19,6 +20,7 @@ export class FeedbackIconDirective implements OnChanges {
   constructor(
     private el: ElementRef,
     private renderer: Renderer2,
+    private resetFeedbackService: ResetFeedbackService,
     private selectedOptionService: SelectedOptionService
   ) {
     this.resetSubscription = this.resetFeedbackService.shouldResetFeedback$.subscribe((shouldReset) => {
