@@ -1038,7 +1038,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.showFeedbackForOption[+key] = false;
     });
     this.showFeedbackForOption[index] = this.showFeedback && this.selectedOption === option;
-    console.log('Updated showFeedbackForOption:', this.showFeedbackForOption);
   }
 
   private resetMessages(): void {
