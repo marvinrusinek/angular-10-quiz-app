@@ -1014,6 +1014,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Could not retrieve the current question.');
         return;
       }
+      this.selectOption(currentQuestion, option, index);
   
       // Update selection message based on answer state
       const isAnswered = true;
