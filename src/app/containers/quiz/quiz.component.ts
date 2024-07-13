@@ -1731,88 +1731,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   // Reset UI immediately before navigating
-  /* private resetUI(): void {
-    if (this.feedbackIconDirectives && this.feedbackIconDirectives.length > 0) {
-      console.log('FeedbackIconDirectives found:', this.feedbackIconDirectives.length); // Log number of directives found
-      // Reset feedback icons
-      this.feedbackIconDirectives.forEach(directive => {
-        console.log('Resetting feedback icon for directive:', directive); // Log each directive
-        directive.reset();
-      });
-    } else {
-      console.log('No FeedbackIconDirectives found');
-    }
-
+  private resetUI(): void {
+    this.resetFeedbackIconService.setShouldResetFeedback(true);    
+    this.feedbackIconDirectives.forEach(directive => {
+      directive.reset();
+    });
     this.highlightOptionDirectives.forEach(directive => directive.reset());
     this.timerService.startTimer(30);
     this.resetBackgroundService.setShouldResetBackground(true);
     this.selectedOptionService.clearOptions();
     this.explanationTextService.resetExplanationState();
-  } */
-
-  private resetUI(): void {
-    console.log('Resetting UI');
-
-    // Trigger feedback icon reset
-    this.resetFeedbackIconService.setShouldResetFeedback(true);
-
-    // Log the current state of feedbackIconDirectives
-    console.log('Current FeedbackIconDirectives:', this.feedbackIconDirectives.length);
-    this.feedbackIconDirectives.forEach((directive, index) => {
-      console.log(`FeedbackIconDirective ${index}:`, directive);
-    });
-
-    // Forcefully clear feedback icons directly by targeting DOM elements
-    const feedbackIconElements = document.querySelectorAll('.icon');
-    console.log('Before clearing icons:', feedbackIconElements);
-    feedbackIconElements.forEach((element, index) => {
-      console.log(`Forcefully clearing feedback icon ${index}`, element);
-      this.renderer.setProperty(element, 'innerText', '');
-    });
-    console.log('After clearing icons:', feedbackIconElements);
-
-    // Reset FeedbackIconDirectives
-    if (this.feedbackIconDirectives && this.feedbackIconDirectives.length > 0) {
-      console.log('FeedbackIconDirectives found:', this.feedbackIconDirectives.length);
-      this.feedbackIconDirectives.forEach((directive, index) => {
-        console.log(`Resetting feedback icon for directive ${index}:`, directive);
-        directive.reset();
-      });
-    } else {
-      console.log('No FeedbackIconDirectives found');
-    }
-
-    // Reset HighlightOptionDirectives
-    if (this.highlightOptionDirectives && this.highlightOptionDirectives.length > 0) {
-      console.log('HighlightOptionDirectives found:', this.highlightOptionDirectives.length);
-      this.highlightOptionDirectives.forEach((directive, index) => {
-        console.log(`Resetting highlight option for directive ${index}:`, directive);
-        directive.reset();
-      });
-    } else {
-      console.log('No HighlightOptionDirectives found');
-    }
-
-    // Reset other UI elements
-    if (this.timerService) {
-      console.log('Restarting timer');
-      this.timerService.startTimer(30);
-    }
-
-    if (this.resetBackgroundService) {
-      console.log('Resetting background');
-      this.resetBackgroundService.setShouldResetBackground(true);
-    }
-
-    if (this.selectedOptionService) {
-      console.log('Clearing selected options');
-      this.selectedOptionService.clearOptions();
-    }
-
-    if (this.explanationTextService) {
-      console.log('Resetting explanation text state');
-      this.explanationTextService.resetExplanationState();
-    }
   }
 
   private resetQuestionDisplayState(): void {
