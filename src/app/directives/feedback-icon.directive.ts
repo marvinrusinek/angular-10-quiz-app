@@ -52,7 +52,7 @@ export class FeedbackIconDirective implements OnChanges {
     this.isAnswered = false;
     console.log('Resetting feedback icon'); // Log for debugging
     this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
-    // this.removeIconSpan();
+    this.removeIconSpan();
   }
 
   private removeIconSpan(): void {
