@@ -1729,9 +1729,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   // Reset UI immediately before navigating
   private resetUI(): void {
+    this.quizService.resetAll();
     this.timerService.startTimer(30);
+
     this.resetBackgroundService.setShouldResetBackground(true);
     this.resetFeedbackIconService.setShouldResetFeedback(true);
+    
     this.selectedOptionService.clearOptions();
     this.explanationTextService.resetExplanationState();
   }
