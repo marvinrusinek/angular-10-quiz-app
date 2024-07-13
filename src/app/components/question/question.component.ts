@@ -1082,7 +1082,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.processCurrentQuestionState(currentQuestion, option, index);
 
       this.selectedOptionService.setSelectedOption(option);
-      const correctAnswers = this.options.filter(opt => opt.correct).map(opt => opt.optionId);
+      const correctAnswers = this.options.filter(opt => opt.correct);
       this.setCorrectMessage(correctAnswers);
 
       await this.handleCorrectnessAndTimer();
