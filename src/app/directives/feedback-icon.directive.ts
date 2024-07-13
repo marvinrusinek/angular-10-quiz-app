@@ -20,10 +20,10 @@ export class FeedbackIconDirective implements OnChanges {
   constructor(
     private el: ElementRef,
     private renderer: Renderer2,
-    private resetFeedbackService: ResetFeedbackService,
+    private resetFeedbackIconService: ResetFeedbackIconService,
     private selectedOptionService: SelectedOptionService
   ) {
-    this.resetSubscription = this.resetFeedbackService.shouldResetFeedback$.subscribe((shouldReset) => {
+    this.resetSubscription = this.resetFeedbackIconService.shouldResetFeedback$.subscribe((shouldReset) => {
       if (shouldReset) {
         this.reset();
       }
