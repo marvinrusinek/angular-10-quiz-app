@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
   EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit,
-  Output, QueryList, SimpleChange, SimpleChanges, ViewChildren } from '@angular/core';
+  Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
@@ -903,7 +903,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     );
   } */
 
-  setCorrectMessage(correctOptions: Option[]): void {
+  /* setCorrectMessage(correctOptions: Option[]): void {
     console.log('Setting correct message with correct options:', correctOptions);
     this.quizService.correctAnswersLoadedSubject.subscribe((loaded: boolean) => {
       if (loaded) {
@@ -927,6 +927,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
       console.log('Final correct message:', this.correctMessage);
     });
+  } */
+
+  setCorrectMessage(correctOptions: Option[]): string {
+    if (!correctOptions || correctOptions.length === 0) {
+      return 'No correct answers found for the current question.';
+    }
+
+    const correctOptionTexts = correctOptions.map(option => option.text);
+    const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
+    const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
+    return `The correct ${optionsText} ${areIsText} ${correctOptionTexts.join(' and ')}.`;
   }
 
   /* setCorrectMessage(correctAnswerOptions, options): void {
@@ -1075,7 +1086,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       // Process state changes
       this.processCurrentQuestionState(currentQuestion, option, index);
-      this.setCorrectMessage(this.options.filter(opt => opt.correct));
+      const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
+      this.correctMessage = this.setCorrectMessage(correctOptions);
   
       // Handle correctness and timer
       await this.handleCorrectnessAndTimer();
