@@ -1776,6 +1776,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
       console.log(`Forcefully clearing feedback icon ${index}`, element);
       this.renderer.setProperty(element, 'innerText', '');
     });
+    console.log('After clearing icons:', feedbackIconElements);
 
     // Reset FeedbackIconDirectives
     if (this.feedbackIconDirectives && this.feedbackIconDirectives.length > 0) {
