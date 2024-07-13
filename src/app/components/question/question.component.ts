@@ -1035,10 +1035,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   // Helper method to update feedback for options
   private updateFeedbackForOption(index: number, option: SelectedOption): void {
-    Object.keys(this.showFeedbackForOption).forEach(key => {
-      this.showFeedbackForOption[+key] = false;
-    });
-    this.showFeedbackForOption[index] = this.showFeedback && this.selectedOption === option;
+    this.showFeedbackForOption = {}; // Reset the feedback object
+    this.showFeedbackForOption[option.optionId] = this.showFeedback && this.selectedOption === option;
   }
 
   private resetMessages(): void {
