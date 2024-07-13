@@ -885,12 +885,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return `The correct ${optionsText} ${areIsText} ${optionStrings.join(' and ')}.`;
   }
 
-  public resetState(): void {
-    this.correctMessage = '';
-    this.showFeedback = false;
-    this.selectedOption = null;
-  }  
-
   /* private subscribeToCorrectAnswers(): void {
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {
       const currentCorrectAnswers = correctAnswers.get(this.question.questionText);
