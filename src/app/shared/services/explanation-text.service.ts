@@ -179,9 +179,6 @@ export class ExplanationTextService {
       questionIndex: index,
       explanation: formattedExplanation
     };
-
-    console.log(`Stored formatted explanation for index ${index}:`, this.formattedExplanations[index]);
-
     this.explanationsUpdated.next(this.formattedExplanations);
   }
 
