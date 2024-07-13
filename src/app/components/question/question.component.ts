@@ -245,12 +245,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Improved check for property changes that are not the first change
     const isSubsequentChange = (change: SimpleChange) => change && !change.firstChange;
-    
-    // Handling changes to correctAnswers or selectedOptions
+  
+    // Check for changes in correctAnswers or selectedOptions
     if (isSubsequentChange(changes.correctAnswers) || isSubsequentChange(changes.selectedOptions)) {
-      // Ensure question is defined before calling getCorrectAnswers
       if (this.currentQuestion) {
         this.getCorrectAnswers();
         this.correctMessage = this.quizService.setCorrectMessage(
@@ -262,30 +260,26 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     }
   
-    // Handling changes to the question
+    // Check for changes in the current question
     if (isSubsequentChange(changes.currentQuestion)) {
-      // console.log('QuizQuestionComponent - ngOnChanges - Question changed:', this.question);
       if (this.currentQuestion) {
         this.quizService.handleQuestionChange(
           this.currentQuestion,
           isSubsequentChange(changes.selectedOptions) ? changes.selectedOptions.currentValue : null,
           this.options
         );
-
-        // Rebuild the form whenever the question changes
-        this.buildForm();
+        this.buildForm(); // Rebuild the form whenever the question changes
       } else {
         console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined after change.');
       }
     } else if (isSubsequentChange(changes.selectedOptions)) {
-      // If only selectedOptions changes, not triggered by question change
       this.quizService.handleQuestionChange(
         null,
         changes.selectedOptions.currentValue,
         this.options
       );
     }
-  }
+  }  
   
   ngOnDestroy(): void {
     document.removeEventListener('visibilitychange', this.onVisibilityChange.bind(this));
