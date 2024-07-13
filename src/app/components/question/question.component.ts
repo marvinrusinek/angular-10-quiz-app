@@ -206,7 +206,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.loadQuestion();
             this.selectedOptionService.selectedOption$.subscribe(selectedOption => {
               this.selectedOption = selectedOption;
-              console.log('Selected option updated', selectedOption);
             });
           },
           error: (err) => {
