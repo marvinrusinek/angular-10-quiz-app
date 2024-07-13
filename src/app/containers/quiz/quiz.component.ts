@@ -217,7 +217,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     console.log('ngAfterViewInit called');
     console.log('Initial FeedbackIconDirectives:', this.feedbackIconDirectives.length);
     console.log('Initial HighlightOptionDirectives:', this.highlightOptionDirectives.length);
-    
+
     this.feedbackIconDirectives.changes.subscribe(() => {
       console.log('FeedbackIconDirectives changed:', this.feedbackIconDirectives.length);
       this.resetUI();
@@ -227,6 +227,12 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
       console.log('HighlightOptionDirectives changed:', this.highlightOptionDirectives.length);
       this.resetUI();
     });
+
+    // Initial reset call to ensure directives are captured after view init
+    setTimeout(() => {
+      console.log('Manual check for FeedbackIconDirectives:', this.feedbackIconDirectives.length);
+      this.resetUI();
+    }, 0);
   }
 
   ngOnDestroy(): void {
