@@ -1001,7 +1001,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
       this.selectedOption = option;
       this.showFeedback = true;
-      this.updateFeedbackForOption(index, option);
+      this.updateFeedbackForOption(option);
 
       // Update selected option in service
       this.updateSelectedOption(option);
@@ -1034,7 +1034,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   // Helper method to update feedback for options
-  private updateFeedbackForOption(index: number, option: SelectedOption): void {
+  private updateFeedbackForOption(option: SelectedOption): void {
     this.showFeedbackForOption = {}; // Reset the feedback object
     this.showFeedbackForOption[option.optionId] = this.showFeedback && this.selectedOption === option;
   }
