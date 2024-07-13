@@ -336,8 +336,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (this.isQuestionAnswered(this.currentQuestionIndex)) {
       this.explanationTextService.updateExplanationText(currentQuestion);
     }
-
-    this.cdRef.detectChanges();
   }
   
   // Load options and set displayOptions
@@ -365,8 +363,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }, {} as { [optionId: number]: boolean });
   
     console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
-
-    this.cdRef.detectChanges();
   }
 
   isSelectedOption(option: Option): boolean {
