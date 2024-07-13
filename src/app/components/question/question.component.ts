@@ -995,8 +995,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   // Call this method when an option is selected
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
-      console.log('Option clicked:', option);
-  
       // Set selected option and show feedback
       this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
       this.selectedOption = option;
