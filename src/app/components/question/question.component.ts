@@ -873,7 +873,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   
     const correctOptionIndices = correctOptions.map((option, index) => `Option ${index + 1}`);
-    const optionsText = correctOptionIndices.length === 1 ? 'Option' : 'Options';
+    const optionsText = correctOptionIndices.length === 1 ? 'answer' : 'answers';
     const areIsText = correctOptionIndices.length === 1 ? 'is' : 'are';
     return `The correct ${optionsText} ${areIsText} ${correctOptionIndices.join(' and ')}.`;
   }   
