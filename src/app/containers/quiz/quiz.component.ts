@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnDestroy, OnInit, QueryList, Renderer2, ViewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnDestroy, OnInit, QueryList, Renderer2, ViewChildren } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
@@ -42,7 +42,7 @@ type AnimationState = 'animationStarted' | 'none';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [QuizService, QuizDataService, QuizStateService, HighlightOptionDirective, FeedbackIconDirective]
 })
-export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
+export class QuizComponent implements OnInit, OnDestroy {
   @ViewChildren(HighlightOptionDirective) highlightOptionDirectives!: QueryList<HighlightOptionDirective>;
   @ViewChildren(FeedbackIconDirective) feedbackIconDirectives!: QueryList<FeedbackIconDirective>;
   @Input() data: {
@@ -105,8 +105,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
   }>(null);
   combinedQuestionData$: Observable<any> =
     this.combinedQuestionDataSubject.asObservable();
-
-  private currentQuizSubject = new BehaviorSubject<Quiz | null>(null);
 
   private correctAnswersTextSource = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
@@ -213,28 +211,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
-  }
-
-  ngAfterViewInit(): void {
-    console.log('ngAfterViewInit called');
-    console.log('Initial FeedbackIconDirectives:', this.feedbackIconDirectives.length);
-    console.log('Initial HighlightOptionDirectives:', this.highlightOptionDirectives.length);
-
-    this.feedbackIconDirectives.changes.subscribe(() => {
-      console.log('FeedbackIconDirectives changed:', this.feedbackIconDirectives.length);
-      this.resetUI();
-    });
-
-    this.highlightOptionDirectives.changes.subscribe(() => {
-      console.log('HighlightOptionDirectives changed:', this.highlightOptionDirectives.length);
-      this.resetUI();
-    });
-
-    // Initial reset call to ensure directives are captured after view init
-    setTimeout(() => {
-      console.log('Manual check for FeedbackIconDirectives:', this.feedbackIconDirectives.length);
-      this.resetUI();
-    }, 0);
   }
 
   ngOnDestroy(): void {
