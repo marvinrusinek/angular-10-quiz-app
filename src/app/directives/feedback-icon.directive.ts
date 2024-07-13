@@ -1,4 +1,5 @@
 import { Directive, ElementRef, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 import { Option } from '../shared/models/Option.model';
 import { SelectedOption } from '../shared/models/SelectedOption.model';
@@ -13,12 +14,19 @@ export class FeedbackIconDirective implements OnChanges {
   @Input() selectedOption!: SelectedOption | null;
   @Input() showFeedbackForOption!: { [optionId: number]: boolean };
   isAnswered = false;
+  private resetSubscription: Subscription;
 
   constructor(
     private el: ElementRef,
     private renderer: Renderer2,
     private selectedOptionService: SelectedOptionService
-  ) {}
+  ) {
+    this.resetSubscription = this.resetFeedbackService.shouldResetFeedback$.subscribe((shouldReset) => {
+      if (shouldReset) {
+        this.reset();
+      }
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.option && this.option) {
@@ -27,6 +35,10 @@ export class FeedbackIconDirective implements OnChanges {
     if (changes['selectedOption'] || changes['showFeedbackForOption']) {
       this.updateIcon();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.resetSubscription.unsubscribe();
   }
 
   private updateIcon(): void {
