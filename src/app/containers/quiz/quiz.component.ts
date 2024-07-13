@@ -1764,6 +1764,13 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
   private resetUI(): void {
     console.log('Resetting UI'); // Log for debugging
 
+    // Forcefully clear feedback icons directly by targeting DOM elements
+    const feedbackIconElements = document.querySelectorAll('.icon');
+    feedbackIconElements.forEach((element, index) => {
+      console.log(`Forcefully clearing feedback icon ${index}`, element); // Log each element
+      this.renderer.setProperty(element, 'innerText', '');
+    });
+
     if (this.feedbackIconDirectives && this.feedbackIconDirectives.length > 0) {
       console.log('FeedbackIconDirectives found:', this.feedbackIconDirectives.length); // Log number of directives found
       this.feedbackIconDirectives.forEach((directive, index) => {
@@ -1781,13 +1788,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
         directive.reset();
       });
     }
-
-    // Forcefully clear feedback icons directly by targeting DOM elements
-    const feedbackIconElements = document.querySelectorAll('.icon');
-    feedbackIconElements.forEach((element, index) => {
-      console.log(`Forcefully clearing feedback icon ${index}`, element); // Log each element
-      this.renderer.setProperty(element, 'innerText', '');
-    });
 
     if (this.timerService) {
       console.log('Restarting timer');
