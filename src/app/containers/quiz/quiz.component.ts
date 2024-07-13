@@ -214,14 +214,19 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    console.log('ngAfterViewInit called');
+    console.log('Initial FeedbackIconDirectives:', this.feedbackIconDirectives.length);
+    console.log('Initial HighlightOptionDirectives:', this.highlightOptionDirectives.length);
+    
     this.feedbackIconDirectives.changes.subscribe(() => {
       console.log('FeedbackIconDirectives changed:', this.feedbackIconDirectives.length);
       this.resetUI();
     });
-    console.log('ngAfterViewInit called'); // Log for debugging
-    setTimeout(() => {
-      console.log('Manual check for FeedbackIconDirectives:', this.feedbackIconDirectives.length);
-    }, 0);
+
+    this.highlightOptionDirectives.changes.subscribe(() => {
+      console.log('HighlightOptionDirectives changed:', this.highlightOptionDirectives.length);
+      this.resetUI();
+    });
   }
 
   ngOnDestroy(): void {
@@ -1772,6 +1777,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Forcefully clear feedback icons directly by targeting DOM elements
     const feedbackIconElements = document.querySelectorAll('.icon');
+    console.log('Before clearing icons:', feedbackIconElements);
     feedbackIconElements.forEach((element, index) => {
       console.log(`Forcefully clearing feedback icon ${index}`, element);
       this.renderer.setProperty(element, 'innerText', '');
