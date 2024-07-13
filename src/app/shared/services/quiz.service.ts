@@ -1316,7 +1316,7 @@ export class QuizService implements OnDestroy {
       return;
     }
 
-    this.http.get<Quiz>(this.quizUrl)
+    this.http.get<any>(this.quizUrl)
       .pipe(
         map(response => {
           const quizzes = response.quizzes || response;
