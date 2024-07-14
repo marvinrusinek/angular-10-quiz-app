@@ -1527,6 +1527,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.log('Calling resetUI after setTimeout in advanceToNextQuestion');
           this.resetUI();
         }, 0);
+        this.resetStateService.triggerResetFeedback();
         this.resetStateService.triggerResetState(); // Trigger reset state in other component
       } else {
         console.log('End of quiz reached.');
@@ -1564,6 +1565,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('Calling resetUI after setTimeout in advanceToPreviousQuestion');
         this.resetUI();
       }, 0);
+      this.resetStateService.triggerResetFeedback();
       this.resetStateService.triggerResetState(); // Trigger reset state in other component
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
