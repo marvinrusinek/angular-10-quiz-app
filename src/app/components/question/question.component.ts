@@ -18,6 +18,7 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
+import { ResetStateService } from '../../shared/services/reset-state.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
@@ -140,6 +141,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected quizStateService: QuizStateService,
     protected quizQuestionManagerService: QuizQuestionManagerService,
     protected explanationTextService: ExplanationTextService,
+    protected resetStateService: ResetStateService,
     protected selectedOptionService: SelectedOptionService,
     protected selectionMessageService: SelectionMessageService,
     protected sharedVisibilityService: SharedVisibilityService,
