@@ -1154,6 +1154,11 @@ export class QuizService implements OnDestroy {
     console.log('Determining correct answer for question:', JSON.stringify(question, null, 2));
     console.log('Answers provided:', JSON.stringify(answers, null, 2));
   
+    // Ensure option IDs are assigned based on array position
+    question.options.forEach((option, index) => {
+      option.optionId = index;
+    });
+  
     return await Promise.all(
       answers.map(async (answer) => {
         const option = question.options && question.options.find(opt => opt.optionId === answer.optionId);
@@ -1170,6 +1175,7 @@ export class QuizService implements OnDestroy {
       })
     );
   }
+  
   
   
   
