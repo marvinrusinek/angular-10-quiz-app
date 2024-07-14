@@ -866,25 +866,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* setCorrectMessage(correctOptions: Option[]): string {
-    console.log('setCorrectMessage called with correctOptions:', correctOptions);
-    if (!correctOptions || correctOptions.length === 0) {
-      return 'No correct answers found for the current question.';
-    }
-  
-    const correctOptionIndices = correctOptions.map(correctOption => {
-      const originalIndex = this.optionsToDisplay.findIndex(option => option.optionId === correctOption.optionId);
-      return originalIndex + 1; // +1 to make it 1-based index for display
-    });
-  
-    const uniqueIndices = [...new Set(correctOptionIndices)]; // Remove duplicates if any
-    const optionsText = uniqueIndices.length === 1 ? 'answer' : 'answers';
-    const areIsText = uniqueIndices.length === 1 ? 'is' : 'are';
-    const optionStrings = uniqueIndices.map(index => `Option ${index}`);
-    
-    return `The correct ${optionsText} ${areIsText} ${optionStrings.join(' and ')}.`;
-  } */
-
   setCorrectMessage(correctOptions: Option[]): string {
     console.log('setCorrectMessage called with correctOptions:', correctOptions);
     if (!correctOptions || correctOptions.length === 0) {
@@ -906,9 +887,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     return `The correct ${optionsText} ${optionStrings}.`;
   }
-  
-  
-  
 
   /* private subscribeToCorrectAnswers(): void {
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {
