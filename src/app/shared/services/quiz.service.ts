@@ -1151,9 +1151,6 @@ export class QuizService implements OnDestroy {
   }
 
   async determineCorrectAnswer(question: QuizQuestion, answers: Option[]): Promise<boolean[]> {
-    console.log('Determining correct answer for question:', JSON.stringify(question, null, 2));
-    console.log('Answers provided:', JSON.stringify(answers, null, 2));
-  
     // Ensure option IDs are assigned based on array position
     question.options.forEach((option, index) => {
       option.optionId = index;
@@ -1162,7 +1159,6 @@ export class QuizService implements OnDestroy {
     return await Promise.all(
       answers.map(async (answer) => {
         const option = question.options && question.options.find(opt => opt.optionId === answer.optionId);
-        console.log('Answer ID:', answer.optionId, 'Option found:', option);
         
         if (!option) {
           console.error('Option not found for answer ID:', answer.optionId);
