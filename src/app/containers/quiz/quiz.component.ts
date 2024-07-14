@@ -1771,6 +1771,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Calling resetUI after setTimeout in restartQuiz');
       this.resetUI();
     }, 0);
+    this.resetStateService.triggerResetFeedback();
     this.resetStateService.triggerResetState(); // Trigger reset state in other component
     this.quizService.resetAll();
     this.currentQuestionIndex = 0;  // Reset to the first question's index
