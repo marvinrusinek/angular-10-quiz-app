@@ -999,7 +999,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     try {
       // Set selected option and show feedback
       this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
-      this.selectedOption = { ...option, optionId: index };
+      this.selectedOption = { ...option, optionId: index + 1 };
       this.showFeedback = true;
       this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
       this.updateFeedbackForOption(option);
