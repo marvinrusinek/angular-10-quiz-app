@@ -880,7 +880,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const uniqueIndices = [...new Set(correctOptionIndices)]; // Remove duplicates if any
     const optionsText = uniqueIndices.length === 1 ? 'Option' : 'Options';
     const areIsText = uniqueIndices.length === 1 ? 'is' : 'are';
-    const optionStrings = uniqueIndices.map(index => `${index}`);
+    const optionStrings = uniqueIndices.map(index => `Option ${index}`);
     return `The correct ${optionsText} ${areIsText} ${optionStrings.join(' and ')}.`;
   }  
 
