@@ -4,7 +4,6 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
-
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuizStatus } from '../../shared/models/quiz-status.enum';
@@ -1525,6 +1524,10 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.resetUI();
         }, 0);
         this.resetStateService.triggerResetState(); // Trigger reset state in other component
+
+        if (this.quizQuestionComponent) {
+          this.quizQuestionComponent.resetFeedback();
+        }
       } else {
         console.log('End of quiz reached.');
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
