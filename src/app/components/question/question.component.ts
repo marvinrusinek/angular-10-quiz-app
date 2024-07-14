@@ -161,9 +161,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
 
-    this.questionForm = this.fb.group({
+    /* this.questionForm = this.fb.group({
       selectedOption: ['']
-    });
+    }); */
 
     /* this.sharedVisibilitySubscription =
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
