@@ -24,6 +24,7 @@ import { ExplanationTextService } from '../../shared/services/explanation-text.s
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
+import { ResetStateService } from '../../shared/services/reset-state.service';
 import { ResetBackgroundService } from '../../shared/services/reset-background.service';
 import { ResetFeedbackIconService } from '../../shared/services/reset-feedback-icon.service';
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
@@ -148,6 +149,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private explanationTextService: ExplanationTextService,
     private selectionMessageService: SelectionMessageService,
     private selectedOptionService: SelectedOptionService,
+    private resetStateService: ResetStateService,
     private resetBackgroundService: ResetBackgroundService,
     private resetFeedbackIconService: ResetFeedbackIconService,
     private sharedVisibilityService: SharedVisibilityService,
@@ -1519,6 +1521,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.log('Calling resetUI after setTimeout in advanceToNextQuestion');
           this.resetUI();
         }, 0);
+        this.resetStateService.triggerResetState(); // Trigger reset state in other component
       } else {
         console.log('End of quiz reached.');
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
@@ -1551,6 +1554,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('Calling resetUI after setTimeout in advanceToPreviousQuestion');
         this.resetUI();
       }, 0);
+      this.resetStateService.triggerResetState(); // Trigger reset state in other component
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
@@ -1755,6 +1759,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Calling resetUI after setTimeout in restartQuiz');
       this.resetUI();
     }, 0);
+    this.resetStateService.triggerResetState(); // Trigger reset state in other component
     this.quizService.resetAll();
     this.currentQuestionIndex = 0;  // Reset to the first question's index
     this.progressPercentage = 0; // Reset the progressPercentage to 0
