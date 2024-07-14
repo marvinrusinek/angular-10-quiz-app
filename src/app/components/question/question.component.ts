@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
   EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit,
   Output, SimpleChange, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
@@ -147,7 +147,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected sharedVisibilityService: SharedVisibilityService,
     protected timerService: TimerService,
     protected activatedRoute: ActivatedRoute,
-    protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef,
     protected router: Router,
     protected ngZone: NgZone 
@@ -161,10 +160,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
     this.resetStateService = resetStateService;
-
-    /* this.questionForm = this.fb.group({
-      selectedOption: ['']
-    }); */
 
     /* this.sharedVisibilitySubscription =
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
@@ -181,9 +176,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe((totalQuestions: number) => {
         this.totalQuestions = totalQuestions;
       });
-    
-    // this.selectedOption = this.selectedOptionService.getSelectedOption();
-    // this.showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
   }
 
   async ngOnInit(): Promise<void> {
