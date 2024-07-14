@@ -160,6 +160,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
+    this.resetStateService = resetStateService;
 
     /* this.questionForm = this.fb.group({
       selectedOption: ['']
@@ -181,15 +182,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.totalQuestions = totalQuestions;
       });
     
-    // this.selectedOption = this.selectedOptionService.getSelectedOption();
-    // this.showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
-
-    this.resetStateSubscription = this.resetStateService.resetState$.subscribe(() => {
-      this.resetState();
-    });
+    this.selectedOption = this.selectedOptionService.getSelectedOption();
+    this.showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
   }
 
   async ngOnInit(): Promise<void> {
+    this.resetStateSubscription = this.resetStateService.resetState$.subscribe(() => {
+      this.resetState();
+    });
     try {
       const quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
       if (!quizId) {
