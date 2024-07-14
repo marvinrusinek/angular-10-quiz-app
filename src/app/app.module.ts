@@ -57,6 +57,7 @@ import { SelectionMessageService } from './shared/services/selection-message.ser
 import { TimerService } from './shared/services/timer.service';
 import { CountdownService } from './shared/services/countdown.service';
 import { StopwatchService } from './shared/services/stopwatch.service';
+import { ResetStateService } from './shared/services/reset-state.service';
 import { ResetBackgroundService } from './shared/services/reset-background.service';
 import { ResetFeedbackIconService } from './shared/services/reset-feedback-icon.service';
 import { SharedVisibilityService } from './shared/services/shared-visibility.service';
@@ -134,6 +135,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     TimerService,
     CountdownService,
     StopwatchService,
+    ResetStateService,
     ResetBackgroundService,
     ResetFeedbackIconService,
     SharedVisibilityService
