@@ -1004,10 +1004,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
       this.updateFeedbackForOption(option);
 
-      console.log('onOptionClicked - showFeedbackForOption:', this.showFeedbackForOption);
-
-      console.log('onOptionClicked - SelectedOption set:', this.selectedOption);
-
       // Update selected option in service
       this.updateSelectedOption(option);
       this.selectedOptionService.setOptionSelected(true);
@@ -1026,9 +1022,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       }
-
-      this.cdRef.detectChanges();
-      console.log('onOptionClicked - Change detection triggered');
   
       // Process state changes
       this.processCurrentQuestionState(currentQuestion, option, index);
