@@ -105,6 +105,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   displayOptions: Option[] = [];
   correctAnswersLoaded = false;
+  resetFeedbackSubscription: Subscription;
   resetStateSubscription: Subscription;
   sharedVisibilitySubscription: Subscription;
   optionSelectionSubscription: Subscription;
@@ -177,9 +178,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
+      this.resetFeedback();
+    });
+
     this.resetStateSubscription = this.resetStateService.resetState$.subscribe(() => {
       this.resetState();
     });
+
     try {
       const quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
       if (!quizId) {
@@ -286,6 +292,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.currentQuestionSubscription?.unsubscribe();
     this.optionSelectionSubscription?.unsubscribe();
     this.sharedVisibilitySubscription?.unsubscribe();
+    this.resetFeedbackSubscription?.unsubscribe();
     this.resetStateSubscription?.unsubscribe();
   }
   
