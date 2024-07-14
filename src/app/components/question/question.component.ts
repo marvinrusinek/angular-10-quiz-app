@@ -894,19 +894,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return 'No correct answers found for the current question.';
     }
   
+    // Determine the correct option indices based on their position
     const correctOptionIndices = correctOptions.map(correctOption => {
       const originalIndex = this.optionsToDisplay.findIndex(option => option.optionId === correctOption.optionId);
       return originalIndex + 1; // +1 to make it 1-based index for display
     });
   
-    const uniqueIndices = [...new Set(correctOptionIndices)]; // Remove duplicates if any
+    // Remove duplicates if any
+    const uniqueIndices = [...new Set(correctOptionIndices)];
     const optionsText = uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
     const optionStrings = uniqueIndices.length > 1 
       ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
-      : uniqueIndices[0].toString();
+      : uniqueIndices[0];
   
     return `The correct ${optionsText} ${optionStrings}.`;
   }
+  
   
 
   /* private subscribeToCorrectAnswers(): void {
