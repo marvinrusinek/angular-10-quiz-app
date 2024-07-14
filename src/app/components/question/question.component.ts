@@ -991,6 +991,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.showFeedback = false;
     this.selectedOption = null;
     this.showFeedbackForOption = {};
+    this.resetFeedback();
     this.selectedOptionService.clearOptions(); 
   }
 
