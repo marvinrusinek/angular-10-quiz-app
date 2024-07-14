@@ -182,8 +182,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.totalQuestions = totalQuestions;
       });
     
-    this.selectedOption = this.selectedOptionService.getSelectedOption();
-    this.showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
+    // this.selectedOption = this.selectedOptionService.getSelectedOption();
+    // this.showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
   }
 
   async ngOnInit(): Promise<void> {
