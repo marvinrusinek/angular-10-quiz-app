@@ -181,8 +181,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.totalQuestions = totalQuestions;
       });
     
-    this.selectedOption = this.selectedOptionService.getSelectedOption();
-    this.showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
+    // this.selectedOption = this.selectedOptionService.getSelectedOption();
+    // this.showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
 
     this.resetStateSubscription = this.resetStateService.resetState$.subscribe(() => {
       this.resetState();
