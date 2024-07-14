@@ -1035,11 +1035,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       // Process state changes
       this.processCurrentQuestionState(currentQuestion, option, index);
-      console.log('Options to display:', this.optionsToDisplay);
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
-      console.log('Correct options:', correctOptions);
       this.correctMessage = this.setCorrectMessage(correctOptions);
-      console.log('Correct message:::>>>', this.correctMessage);
   
       // Handle correctness and timer
       await this.handleCorrectnessAndTimer();
