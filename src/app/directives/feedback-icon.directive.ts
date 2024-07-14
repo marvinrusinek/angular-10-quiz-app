@@ -34,7 +34,7 @@ export class FeedbackIconDirective implements OnChanges {
     if (changes.option && this.option) {
       this.option.optionId = this.option.optionId ?? this.index;
     }
-    if (changes['selectedOption'] || changes['showFeedbackForOption']) {
+    if (changes.selectedOption || changes.showFeedbackForOption) {
       this.updateIcon();
     }
   }
