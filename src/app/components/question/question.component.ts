@@ -994,6 +994,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOptionService.clearOptions(); 
   }
 
+  private resetFeedback(): void {
+    this.correctMessage = '';
+    this.showFeedback = false;
+    this.selectedOption = null;
+    this.showFeedbackForOption = {};
+    console.log('resetFeedback - Feedback reset');
+  }
+
   // Call this method when an option is selected
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {

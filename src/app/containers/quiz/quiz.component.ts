@@ -1,13 +1,15 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
+
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuizStatus } from '../../shared/models/quiz-status.enum';
 import { QuestionType } from '../../shared/models/question-type.enum';
+import { QuizQuestionComponent } from '../../components/question/question.component';
 import { QuizData } from '../../shared/models/QuizData.model';
 import { QuestionState } from '../../shared/models/QuestionState.model';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
@@ -44,6 +46,7 @@ type AnimationState = 'animationStarted' | 'none';
   providers: [QuizService, QuizDataService, QuizStateService, HighlightOptionDirective, FeedbackIconDirective]
 })
 export class QuizComponent implements OnInit, OnDestroy {
+  @ViewChild(QuizQuestionComponent) quizQuestionComponent: QuizQuestionComponent;
   @Input() data: {
     questionText: string;
     correctAnswersText?: string;
