@@ -1523,10 +1523,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
-        setTimeout(() => {
-          console.log('Calling resetUI after setTimeout in advanceToNextQuestion');
-          this.resetUI();
-        }, 0);
+        this.resetUI();
         this.resetStateService.triggerResetFeedback();
         this.resetStateService.triggerResetState(); // Trigger reset state in other component
       } else {
@@ -1561,10 +1558,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Combine fetching data and initializing question state into a single method
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
       
-      setTimeout(() => {
-        console.log('Calling resetUI after setTimeout in advanceToPreviousQuestion');
-        this.resetUI();
-      }, 0);
+      this.resetUI();
       this.resetStateService.triggerResetFeedback();
       this.resetStateService.triggerResetState(); // Trigger reset state in other component
     } catch (error) {
