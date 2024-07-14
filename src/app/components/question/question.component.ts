@@ -872,18 +872,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return 'No correct answers found for the current question.';
     }
   
-    // Find the indices of correct options in the original optionsToDisplay array
     const correctOptionIndices = correctOptions.map(correctOption => {
       const originalIndex = this.optionsToDisplay.findIndex(option => option.optionId === correctOption.optionId);
       return originalIndex + 1; // +1 to make it 1-based index for display
     });
   
     const uniqueIndices = [...new Set(correctOptionIndices)]; // Remove duplicates if any
-    const optionsText = uniqueIndices.length === 1 ? 'answer' : 'answers';
+    const optionsText = uniqueIndices.length === 1 ? 'Option' : 'Options';
     const areIsText = uniqueIndices.length === 1 ? 'is' : 'are';
-    const optionStrings = uniqueIndices.map(index => `Option ${index}`);
+    const optionStrings = uniqueIndices.map(index => `${index}`);
     return `The correct ${optionsText} ${areIsText} ${optionStrings.join(' and ')}.`;
-  }
+  }  
 
   /* private subscribeToCorrectAnswers(): void {
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {
@@ -1001,7 +1000,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.showFeedbackForOption = {};
     console.log('State reset in QuizQuestionComponent');
   }
-  
+
 
   // Call this method when an option is selected
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
