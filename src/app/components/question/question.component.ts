@@ -901,10 +901,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     const uniqueIndices = [...new Set(correctOptionIndices)]; // Remove duplicates if any
     const optionsText = uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings = uniqueIndices.map(index => `${index}`).join(', ').replace(/,([^,]*)$/, ' and$1');
+    const optionStrings = uniqueIndices.length > 1 
+      ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
+      : uniqueIndices[0].toString();
   
     return `The correct ${optionsText} ${optionStrings}.`;
-  }  
+  }
+  
 
   /* private subscribeToCorrectAnswers(): void {
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {
