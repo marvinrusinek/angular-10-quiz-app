@@ -1026,8 +1026,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
       this.updateFeedbackForOption(option);
 
-      this.feedbackForOption = this.showFeedback && this.selectedOption?.optionId === option.optionId;
-
       console.log('onOptionClicked - showFeedbackForOption:', this.showFeedbackForOption);
 
       console.log('onOptionClicked - SelectedOption set:', this.selectedOption);
