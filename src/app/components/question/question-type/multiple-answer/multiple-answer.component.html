@@ -9,11 +9,11 @@
     <label class="options">
       <mat-checkbox
         appHighlightOption
+        #HighlightDirective
         [appHighlightInputType]="'checkbox'"
         [appHighlightReset]="shouldResetBackground"
         [appResetBackground]="shouldResetBackground"
         [shouldResetBackground]="shouldResetBackground"
-        #highlightDirective
         [checked]="isSelectedOption(option)"
         (click)="onOptionClicked(option, idx)"
         [isCorrect]="option.correct"
