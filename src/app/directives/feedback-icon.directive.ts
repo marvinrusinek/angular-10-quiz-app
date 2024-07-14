@@ -31,6 +31,7 @@ export class FeedbackIconDirective implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log('FeedbackIconDirective - ngOnChanges - changes:', changes);
     if (changes.option && this.option) {
       this.option.optionId = this.option.optionId ?? this.index;
     }
