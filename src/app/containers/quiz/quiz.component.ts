@@ -1524,8 +1524,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
         this.resetUI();
-        this.resetStateService.triggerResetFeedback();
-        this.resetStateService.triggerResetState(); // Trigger reset state in other component
       } else {
         console.log('End of quiz reached.');
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
@@ -1557,10 +1555,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       // Combine fetching data and initializing question state into a single method
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-      
+            
       this.resetUI();
-      this.resetStateService.triggerResetFeedback();
-      this.resetStateService.triggerResetState(); // Trigger reset state in other component
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
@@ -1744,6 +1740,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.resetBackgroundService.setShouldResetBackground(true);
     this.resetFeedbackIconService.setShouldResetFeedback(true);
+
+    this.resetStateService.triggerResetFeedback();
+    this.resetStateService.triggerResetState();
     
     this.selectedOptionService.clearOptions();
     this.explanationTextService.resetExplanationState();
