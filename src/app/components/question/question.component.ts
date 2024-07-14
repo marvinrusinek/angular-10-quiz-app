@@ -1,6 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component,
-  EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit,
-  Output, SimpleChange, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
@@ -993,6 +991,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.showFeedback = false;
     this.selectedOption = null;
     this.showFeedbackForOption = {};
+    this.selectedOptionService.clearOptions(); 
   }
 
   // Call this method when an option is selected
