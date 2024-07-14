@@ -9,7 +9,6 @@
     <label class="options">
       <mat-checkbox
         appHighlightOption
-        #HighlightDirective
         [appHighlightInputType]="'checkbox'"
         [appHighlightReset]="shouldResetBackground"
         [appResetBackground]="shouldResetBackground"
@@ -24,7 +23,6 @@
         <span class="icon"
           *ngIf="showFeedbackForOption[idx]"
           appFeedbackIcon
-          #FeedbackIconDirective
           [option]="option"
           [index]="idx"
           [selectedOption]="selectedOption"
