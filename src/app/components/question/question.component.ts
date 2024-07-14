@@ -866,50 +866,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* setCorrectMessage(correctOptions: Option[]): string {
-    console.log('setCorrectMessage called with correctOptions:', correctOptions);
+  setCorrectMessage(correctOptions: Option[]): string {
     if (!correctOptions || correctOptions.length === 0) {
       return 'No correct answers found for the current question.';
     }
   
     const correctOptionIndices = correctOptions.map(correctOption => {
-      const originalIndex = this.optionsToDisplay.findIndex(option => option.optionId === correctOption.optionId);
+      const originalIndex = this.optionsToDisplay.findIndex(option => option.text === correctOption.text);
       return originalIndex + 1; // +1 to make it 1-based index for display
     });
   
     const uniqueIndices = [...new Set(correctOptionIndices)]; // Remove duplicates if any
     const optionsText = uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-    
-    // Create a string from the unique indices with commas and 'and' before the last item
     const optionStrings = uniqueIndices.length > 1 
       ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
-      : uniqueIndices[0];
-  
-    return `The correct ${optionsText} ${optionStrings}.`;
-  } */
-
-  setCorrectMessage(correctOptions: Option[]): string {
-    console.log('setCorrectMessage called with correctOptions:', correctOptions);
-    if (!correctOptions || correctOptions.length === 0) {
-      return 'No correct answers found for the current question.';
-    }
-  
-    // Determine the correct option indices based on their position
-    const correctOptionIndices = correctOptions.map(correctOption => {
-      const originalIndex = this.optionsToDisplay.findIndex(option => option.optionId === correctOption.optionId);
-      return originalIndex + 1; // +1 to make it 1-based index for display
-    });
-  
-    // Remove duplicates if any
-    const uniqueIndices = [...new Set(correctOptionIndices)];
-    const optionsText = uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings = uniqueIndices.length > 1 
-      ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
-      : uniqueIndices[0];
+      : `${uniqueIndices[0]}`;
   
     return `The correct ${optionsText} ${optionStrings}.`;
   }
-  
   
 
   /* private subscribeToCorrectAnswers(): void {
