@@ -118,6 +118,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isComponentDestroyed = false;
   lastMessage = '';
   private initialized = false;
+  feedbackForOption: boolean;
 
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -1024,6 +1025,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.showFeedback = true;
       this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
       this.updateFeedbackForOption(option);
+
+      this.feedbackForOption = this.showFeedback && this.selectedOption?.optionId === option.optionId;
 
       console.log('onOptionClicked - showFeedbackForOption:', this.showFeedbackForOption);
 
