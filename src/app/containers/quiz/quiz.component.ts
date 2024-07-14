@@ -1561,6 +1561,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.resetUI();
       }, 0);
       this.resetStateService.triggerResetState(); // Trigger reset state in other component
+
+      if (this.quizQuestionComponent) {
+        this.quizQuestionComponent.resetFeedback();
+      }
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
