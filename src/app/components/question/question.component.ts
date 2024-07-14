@@ -1000,9 +1000,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.showFeedback = false;
     this.selectedOption = null;
     this.showFeedbackForOption = {};
-    console.log('State reset in QuizQuestionComponent');
   }
-
 
   // Call this method when an option is selected
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
