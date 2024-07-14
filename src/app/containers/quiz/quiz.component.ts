@@ -1503,6 +1503,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.resetFeedback();
+    }
+
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1524,10 +1528,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.resetUI();
         }, 0);
         this.resetStateService.triggerResetState(); // Trigger reset state in other component
-
-        if (this.quizQuestionComponent) {
-          this.quizQuestionComponent.resetFeedback();
-        }
       } else {
         console.log('End of quiz reached.');
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
@@ -1541,6 +1541,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async advanceToPreviousQuestion(): Promise<void> {
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.resetFeedback();
+    }
+
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1561,10 +1565,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.resetUI();
       }, 0);
       this.resetStateService.triggerResetState(); // Trigger reset state in other component
-
-      if (this.quizQuestionComponent) {
-        this.quizQuestionComponent.resetFeedback();
-      }
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
