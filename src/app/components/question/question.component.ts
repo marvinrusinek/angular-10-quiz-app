@@ -297,6 +297,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.currentQuestionSubscription?.unsubscribe();
     this.optionSelectionSubscription?.unsubscribe();
     this.sharedVisibilitySubscription?.unsubscribe();
+    this.resetStateSubscription?.unsubscribe();
   }
   
   // Function to handle visibility changes
