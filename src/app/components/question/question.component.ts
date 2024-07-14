@@ -18,6 +18,7 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
+import { ResetStateService } from '../../shared/services/reset-state.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
@@ -106,6 +107,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   displayOptions: Option[] = [];
   correctAnswersLoaded = false;
+  resetStateSubscription: Subscription;
   sharedVisibilitySubscription: Subscription;
   optionSelectionSubscription: Subscription;
   isExplanationTextDisplayed = false;
@@ -142,6 +144,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected selectedOptionService: SelectedOptionService,
     protected selectionMessageService: SelectionMessageService,
     protected sharedVisibilityService: SharedVisibilityService,
+    protected resetStateService: ResetStateService,
     protected timerService: TimerService,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder,
@@ -180,6 +183,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     
     this.selectedOption = this.selectedOptionService.getSelectedOption();
     this.showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
+
+    this.resetStateSubscription = this.resetStateService.resetState$.subscribe(() => {
+      this.resetState();
+    });
   }
 
   async ngOnInit(): Promise<void> {
