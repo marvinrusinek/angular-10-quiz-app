@@ -1,17 +1,21 @@
 import { Injectable } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
+import { Subject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ResetStateService {
-  private resetStateSubject = new Subject<void>();
+  private resetStateSource = new Subject<void>();
+  resetState$ = this.resetStateSource.asObservable();
 
-  get resetState$(): Observable<void> {
-    return this.resetStateSubject.asObservable();
-  }
+  private resetFeedbackSource = new Subject<void>();
+  resetFeedback$ = this.resetFeedbackSource.asObservable();
 
   triggerResetState(): void {
-    this.resetStateSubject.next();
+    this.resetStateSource.next();
+  }
+
+  triggerResetFeedback(): void {
+    this.resetFeedbackSource.next();
   }
 }
