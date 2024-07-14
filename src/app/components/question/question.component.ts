@@ -275,6 +275,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.options
       );
     }
+
+    if (changes.reset && changes.reset.currentValue) {
+      this.resetFeedback();
+    }
   }  
   
   ngOnDestroy(): void {
