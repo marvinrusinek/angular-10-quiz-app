@@ -239,7 +239,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.initializeQuizQuestion();
       await this.handleQuestionState();
       this.loadOptions();
-      this.setCorrectMessage([]);
+      this.quizService.setCorrectMessage([]);
       document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
       this.logInitialData();
       this.logFinalData();
@@ -255,7 +255,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (isSubsequentChange(changes.correctAnswers) || isSubsequentChange(changes.selectedOptions)) {
       if (this.currentQuestion) {
         this.getCorrectAnswers();
-        this.correctMessage = this.setCorrectMessage(
+        this.correctMessage = this.quizService.setCorrectMessage(
           this.quizService.correctAnswerOptions
         );
       } else {
@@ -846,25 +846,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('resetFeedback - Feedback reset');
   }
 
-  setCorrectMessage(correctOptions: Option[]): string {
-    if (!correctOptions || correctOptions.length === 0) {
-      return 'No correct answers found for the current question.';
-    }
-  
-    const correctOptionIndices = correctOptions.map(correctOption => {
-      const originalIndex = this.optionsToDisplay.findIndex(option => option.text === correctOption.text);
-      return originalIndex + 1; // +1 to make it 1-based index for display
-    });
-  
-    const uniqueIndices = [...new Set(correctOptionIndices)]; // Remove duplicates if any
-    const optionsText = uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings = uniqueIndices.length > 1 
-      ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
-      : `${uniqueIndices[0]}`;
-  
-    return `The correct ${optionsText} ${optionStrings}.`;
-  }
-
   // Call this method when an option is selected
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
@@ -904,7 +885,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Process state changes
       this.processCurrentQuestionState(currentQuestion, option, index);
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
-      this.correctMessage = this.setCorrectMessage(correctOptions);
+      this.correctMessage = this.quizService.setCorrectMessage(correctOptions);
   
       // Handle correctness and timer
       await this.handleCorrectnessAndTimer();
@@ -1342,7 +1323,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Retrieve correct answers and set correct message
     const correctAnswers = this.optionsToDisplay.filter(opt => opt.correct);
-    this.setCorrectMessage(correctAnswers);
+    this.quizService.setCorrectMessage(correctAnswers);
   }
 
   unselectOption(): void {

@@ -561,7 +561,6 @@ export class QuizService implements OnDestroy {
     questionIndex: number
   ): {
     questionText: string;
-    correctAnswersText: string;
     currentOptions: Option[];
   } | null {
     const currentQuiz = this.quizData.find((quiz) => quiz.quizId === quizId);
@@ -572,14 +571,9 @@ export class QuizService implements OnDestroy {
       const correctAnswerOptions = currentQuestion.options.filter(
         (option) => option.correct
       );
-      const correctAnswersText = this.setCorrectMessage(
-        correctAnswerOptions,
-        currentQuestion.options
-      );
 
       return {
         questionText: currentQuestion.questionText,
-        correctAnswersText: correctAnswersText,
         currentOptions: currentQuestion.options
       };
     }
