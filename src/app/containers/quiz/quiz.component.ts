@@ -1016,7 +1016,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           // Call updateCorrectAnswersText and handle the promise
           try {
             await this.updateCorrectAnswersText(question, this.options);
-            console.log('Correct answers text updated.');
           } catch (error) {
             console.error('Error updating correct answers text:', error);
           }
