@@ -1732,6 +1732,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   // Reset UI immediately before navigating
   private resetUI(): void {
+    console.log('QuizComponent - resetUI called');
     this.quizService.resetAll();
     this.timerService.startTimer(30);
 
@@ -1743,6 +1744,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     
     this.selectedOptionService.clearOptions();
     this.explanationTextService.resetExplanationState();
+    console.log('QuizComponent - resetUI - Feedback and state reset triggered');
   }
 
   private resetQuestionDisplayState(): void {
