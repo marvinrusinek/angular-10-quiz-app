@@ -42,6 +42,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     new EventEmitter<string>();
   @Output() showExplanationChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
+  @Output() selectionMessageChange = new EventEmitter<string>();
+  @Output() isAnsweredChange = new EventEmitter<boolean>();
+  @Output() isAnswered = false;
   @Input() data: {
     questionText: string;
     explanationText?: string;
@@ -66,9 +69,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() showFeedback = true;
   @Input() selectionMessage: string;
   @Input() reset: boolean;
-  @Output() selectionMessageChange = new EventEmitter<string>();
-  @Output() isAnsweredChange = new EventEmitter<boolean>();
-  @Output() isAnswered = false;
 
   combinedQuestionData$: Subject<{
     questionText: string;
