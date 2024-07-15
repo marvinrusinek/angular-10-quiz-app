@@ -707,21 +707,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  // for generic form
   getOptionsForQuestion(): Option[] {
     return this.currentQuestionIndex === this.previousQuestionIndex
       ? this.optionsToDisplay : this.data?.options;
-  }
-
-  updateQuestionForm(): void {
-    // Fetch the correct answers and update the correct message
-    this.getCorrectAnswers();
-    this.quizService.correctAnswers$.subscribe((correctAnswers) => {
-      this.correctAnswers = correctAnswers.get(this.data.questionText);
-    });
-
-    // Update other form-related logic
-    this.updateCorrectAnswers();
-    this.resetForm();
   }
 
   subscriptionToQuestion(): void {
@@ -757,16 +746,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     return this.correctAnswers;
   }  
-
-  private updateCorrectAnswers(): void {
-    console.log('Current Options:::>>>', this.data.options);
-    if (this.data && this.data.options) {
-      this.correctAnswers = this.data.options
-        .filter((option) => option.correct)
-        .map((option) => option.value);
-      console.log('Correct Answers::>>', this.correctAnswers);
-    }
-  }
 
   setQuestionOptions(): void {
     this.selectedQuiz
