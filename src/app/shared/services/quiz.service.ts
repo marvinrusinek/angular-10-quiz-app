@@ -983,65 +983,7 @@ export class QuizService implements OnDestroy {
     this.correctAnswersLoadedSubject.next(loaded);
   }
 
-  /* setCorrectMessage(
-    correctAnswerOptions: Option[],
-    currentOptions: Option[]
-  ): string {
-    console.log('Correct Answer Options:::>>>', correctAnswerOptions);
-    if (!Array.isArray(correctAnswerOptions)) {
-      console.error('correctAnswerOptions is not an array');
-      return;
-    }
-
-    if (!correctAnswerOptions || correctAnswerOptions.length === 0) {
-      return 'The correct answers are not available yet.';
-    }
-
-    const correctOptionIds = correctAnswerOptions
-      .filter((option) => option.correct)
-      .map((option) => option.optionId);
-
-    if (correctOptionIds.length === 0) {
-      return 'The correct answers are not available yet.';
-    }
-
-    const correctOptionTexts = currentOptions
-      .filter((option) => correctOptionIds.includes(option.optionId))
-      .map((option) => option.text);
-
-    const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
-    const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
-    return `The correct answer${
-      optionsText === 'Option' ? '' : 's'
-    } ${areIsText} ${correctOptionTexts.join(' and ')}.`;
-  } */
-
-  setCorrectMessage(correctAnswerOptions: Option[], currentOptions: Option[]): string {
-    console.log('Correct Answer Options:::>>>', correctAnswerOptions);
-    
-    if (!Array.isArray(correctAnswerOptions)) {
-      console.error('correctAnswerOptions is not an array');
-      return 'The correct answers are not available yet.';
-    }
-
-    const validCorrectOptions = correctAnswerOptions.filter(option => option && option.correct);
-    if (!validCorrectOptions || validCorrectOptions.length === 0) {
-      return 'The correct answers are not available yet.';
-    }
-
-    const correctOptionIds = validCorrectOptions.map(option => option.optionId);
-    if (correctOptionIds.length === 0) {
-      return 'The correct answers are not available yet.';
-    }
-
-    const correctOptionTexts = currentOptions
-      .filter(option => correctOptionIds.includes(option.optionId))
-      .map(option => option.text);
-
-    const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
-    const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
-    return `The correct answer${optionsText === 'Option' ? '' : 's'} ${areIsText} ${correctOptionTexts.join(' and ')}.`;
-  }
+  
 
   updateBadgeText(questionNumber: number, totalQuestions: number): void {
     if (questionNumber > 0 && questionNumber <= totalQuestions) {
@@ -1069,6 +1011,25 @@ export class QuizService implements OnDestroy {
 
   setAnswerStatus(status: boolean): void {
     this.answerStatus.next(status);
+  }
+
+  setCorrectMessage(correctOptions: Option[]): string {
+    if (!correctOptions || correctOptions.length === 0) {
+      return 'No correct answers found for the current question.';
+    }
+  
+    const correctOptionIndices = correctOptions.map(correctOption => {
+      const originalIndex = this.optionsToDisplay.findIndex(option => option.text === correctOption.text);
+      return originalIndex + 1; // +1 to make it 1-based index for display
+    });
+  
+    const uniqueIndices = [...new Set(correctOptionIndices)]; // Remove duplicates if any
+    const optionsText = uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
+    const optionStrings = uniqueIndices.length > 1 
+      ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
+      : `${uniqueIndices[0]}`;
+  
+    return `The correct ${optionsText} ${optionStrings}.`;
   }
 
   // Method to check if the current question is answered
