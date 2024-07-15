@@ -31,7 +31,6 @@ export class FeedbackIconDirective implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('FeedbackIconDirective - ngOnChanges - changes:', changes);
     if (changes.option && this.option) {
       this.option.optionId = this.option.optionId ?? this.index;
     }
@@ -54,8 +53,6 @@ export class FeedbackIconDirective implements OnChanges {
 
     const isSelected = this.selectedOptionService.isSelectedOption(this.option);
     const showFeedback = this.showFeedbackForOption[this.option.optionId];
-
-    console.log('FeedbackIconDirective - updateIcon - isSelected:', isSelected, 'showFeedback:', showFeedback);
 
     if (isSelected && showFeedback) {
       const icon = this.option.correct ? '✔️' : '✖️';
