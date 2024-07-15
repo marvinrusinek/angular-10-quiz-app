@@ -884,7 +884,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       this.cdRef.detectChanges();
-      console.log('onOptionClicked - Change detection triggered');
   
       // Process state changes
       this.processCurrentQuestionState(currentQuestion, option, index);
