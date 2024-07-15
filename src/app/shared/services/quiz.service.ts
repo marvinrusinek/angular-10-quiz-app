@@ -568,10 +568,6 @@ export class QuizService implements OnDestroy {
     if (currentQuiz && currentQuiz.questions.length > questionIndex) {
       const currentQuestion = currentQuiz.questions[questionIndex];
 
-      const correctAnswerOptions = currentQuestion.options.filter(
-        (option) => option.correct
-      );
-
       return {
         questionText: currentQuestion.questionText,
         currentOptions: currentQuestion.options
