@@ -239,7 +239,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.initializeQuizQuestion();
       await this.handleQuestionState();
       this.loadOptions();
-      this.quizService.setCorrectMessage([]);
+      this.setCorrectMessage([]);
       document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
       this.logInitialData();
       this.logFinalData();
@@ -255,7 +255,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (isSubsequentChange(changes.correctAnswers) || isSubsequentChange(changes.selectedOptions)) {
       if (this.currentQuestion) {
         this.getCorrectAnswers();
-        this.correctMessage = this.quizService.setCorrectMessage(
+        this.correctMessage = this.setCorrectMessage(
           this.quizService.correctAnswerOptions
         );
       } else {
