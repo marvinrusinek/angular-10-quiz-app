@@ -1324,7 +1324,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Current question is not set.');
     }
   
-    // Set the explanation text in the quiz question manager service (if needed)
+    // Set the explanation text in the quiz question manager service
     this.quizQuestionManagerService.setExplanationText(currentQuestion.explanation || '');
   
     // Emit events and update states after the option is selected
