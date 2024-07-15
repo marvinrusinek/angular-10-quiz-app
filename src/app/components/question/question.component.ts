@@ -821,6 +821,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.showFeedback = false;
     this.selectedOption = null;
     this.showFeedbackForOption = {};
+    console.log('resetFeedback - Feedback state before change detection:', {
+      correctMessage: this.correctMessage,
+      showFeedback: this.showFeedback,
+      selectedOption: this.selectedOption,
+      showFeedbackForOption: this.showFeedbackForOption,
+    });
     this.cdRef.detectChanges();
     console.log('resetFeedback - Feedback reset');
   }
