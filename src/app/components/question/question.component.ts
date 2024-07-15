@@ -180,10 +180,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
+      console.log('QuizQuestionComponent - Reset feedback triggered');
       this.resetFeedback();
     });
 
     this.resetStateSubscription = this.resetStateService.resetState$.subscribe(() => {
+      console.log('QuizQuestionComponent - Reset state triggered');
       this.resetState();
     });
 
