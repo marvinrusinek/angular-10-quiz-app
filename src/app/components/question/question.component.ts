@@ -35,15 +35,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     selectedOptions: Option[];
   }> = new EventEmitter();
   @Output() optionSelected: EventEmitter<boolean> = new EventEmitter<boolean>();
-  @Output() questionAnswered = new EventEmitter<boolean>();
+  @Output() questionAnswered: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() isAnswerSelectedChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
   @Output() explanationToDisplayChange: EventEmitter<string> =
     new EventEmitter<string>();
   @Output() showExplanationChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
-  @Output() selectionMessageChange = new EventEmitter<string>();
-  @Output() isAnsweredChange = new EventEmitter<boolean>();
+  @Output() selectionMessageChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() isAnsweredChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() isAnswered = false;
   @Input() data: {
     questionText: string;
