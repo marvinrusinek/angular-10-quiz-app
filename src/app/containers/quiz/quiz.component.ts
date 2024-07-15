@@ -1057,7 +1057,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         
       // Emit the correct answers text to subscribers
       this.correctAnswersTextSource.next(correctAnswersText);
-      console.log('Correct answers text:', correctAnswersText);
     } else {
       // Clear the text if it's a single-answer question or the explanation is displayed
       this.correctAnswersTextSource.next('');
