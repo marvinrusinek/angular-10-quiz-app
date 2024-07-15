@@ -861,7 +861,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.updateFeedbackForOption(option);
 
       console.log('onOptionClicked - showFeedbackForOption:', this.showFeedbackForOption);
-
       console.log('onOptionClicked - SelectedOption set:', this.selectedOption);
 
       // Update selected option in service
