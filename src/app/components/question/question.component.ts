@@ -807,13 +807,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  public resetState(): void {
-    this.correctMessage = '';
-    this.showFeedback = false;
-    this.selectedOption = null;
-    this.showFeedbackForOption = {};
+  private resetState(): void {
     this.resetFeedback();
-    this.selectedOptionService.clearOptions(); 
+    this.selectedOptionService.clearOptions();
+    console.log('resetState - State reset');
   }
 
   public resetFeedback(): void {
