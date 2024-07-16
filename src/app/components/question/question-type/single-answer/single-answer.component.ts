@@ -42,8 +42,8 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   @Input() optionsToDisplay: Option[];
   @Input() correctMessage: string;
   @Input() selected: string;
+  @Input() showFeedback = false;
   optionChecked: { [optionId: number]: boolean } = {};
-  showFeedback = false;
 
   private destroyed$ = new Subject<void>();
 

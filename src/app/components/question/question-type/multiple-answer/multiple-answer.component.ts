@@ -33,11 +33,11 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   @Input() optionsToDisplay: Option[];
   @Input() correctMessage: string;
   @Input() correctAnswers: number[];
+  @Input() showFeedback = false;
   form: FormGroup;
   selectedOptions: SelectedOption[] = [];
   optionChecked: { [optionId: number]: boolean } = {};
   options$: Observable<Option[]>;
-  showFeedback = false;
   private destroyed$ = new Subject<void>();
 
   constructor(
