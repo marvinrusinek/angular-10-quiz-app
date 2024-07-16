@@ -1743,6 +1743,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Reset feedback text and other related properties
     this.feedback = '';
+    this.showFeedback = false;
     this.correctMessage = '';
     this.selectedOption = null;
     this.showFeedback = false;
