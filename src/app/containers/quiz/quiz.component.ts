@@ -1724,11 +1724,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   // Reset UI immediately before navigating
   private resetUI(): void {
+    console.log('QuizComponent - resetUI called');
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.resetFeedback();
     }
 
-    console.log('QuizComponent - resetUI called');
     this.quizService.resetAll();
     this.timerService.startTimer(30);
 
