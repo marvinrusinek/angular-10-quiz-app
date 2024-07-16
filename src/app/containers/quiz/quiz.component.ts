@@ -1727,7 +1727,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   private resetUI(): void {
     console.log('QuizComponent - resetUI called');
     if (this.quizQuestionComponent) {
-      this.quizQuestionComponent.resetFeedback();
+      this.quizQuestionComponent.resetState();
     }
 
     this.quizService.resetAll();
