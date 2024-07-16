@@ -12,7 +12,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
 export class FeedbackComponent implements OnChanges {
   @Input() correctMessage: string;
   @Input() selectedOption: Option & { correct: boolean };
-  @Input() showFeedback: boolean = false;
+  @Input() showFeedback: boolean;
   @Input() feedback: string = '';
   feedbackMessageClass: string;
 
