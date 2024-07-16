@@ -13,7 +13,7 @@ export class FeedbackComponent implements OnChanges {
   @Input() correctMessage: string;
   @Input() selectedOption: Option & { correct: boolean };
   @Input() showFeedback: boolean;
-  feedback: string;
+  @Input() feedback: string = '';
   feedbackMessageClass: string;
 
   constructor(private selectedOptionService: SelectedOptionService) {
