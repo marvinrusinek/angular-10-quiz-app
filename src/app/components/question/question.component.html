@@ -53,6 +53,7 @@
             [selectedOptions]="currentQuestion?.selectedOptions"
             [correctAnswers]="correctAnswers"
             [correctMessage]="correctMessage"
+            [showFeedback]="showFeedback"
             (answer)="updateClassName($event)"
           ></codelab-question-multiple-answer>
 
@@ -67,6 +68,7 @@
             [currentQuestionIndex]="currentQuestionIndex"
             [selectedOption]="currentQuestion?.selectedOption"
             [correctMessage]="correctMessage"
+            [showFeedback]="showFeedback"
             (answer)="updateClassName($event)"
           ></codelab-question-single-answer>
         </ng-container>
