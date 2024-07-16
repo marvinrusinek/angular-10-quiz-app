@@ -1744,6 +1744,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     
     this.selectedOptionService.clearOptions();
     this.explanationTextService.resetExplanationState();
+    this.cdRef.detectChanges();
     console.log('QuizComponent - resetUI - Feedback and state reset triggered');
   }
 
