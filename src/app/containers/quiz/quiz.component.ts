@@ -1500,10 +1500,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
-    if (this.quizQuestionComponent) {
-      this.quizQuestionComponent.resetFeedback();
-    }
-
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1534,10 +1530,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async advanceToPreviousQuestion(): Promise<void> {
-    if (this.quizQuestionComponent) {
-      this.quizQuestionComponent.resetFeedback();
-    }
-
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1732,6 +1724,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   // Reset UI immediately before navigating
   private resetUI(): void {
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.resetFeedback();
+    }
+
     console.log('QuizComponent - resetUI called');
     this.quizService.resetAll();
     this.timerService.startTimer(30);
