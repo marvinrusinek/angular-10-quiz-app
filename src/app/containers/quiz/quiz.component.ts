@@ -118,6 +118,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   score: number;
   elapsedTimeDisplay = 0;
   shouldDisplayCorrectAnswersFlag = false;
+  showFeedback = false;
 
   questionToDisplay = '';
   optionsToDisplay: Option[] = [];
@@ -1746,7 +1747,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.showFeedback = false;
     this.correctMessage = '';
     this.selectedOption = null;
-    this.showFeedback = false;
 
     this.cdRef.detectChanges();
     console.log('QuizComponent - resetUI - Feedback and state reset triggered');
