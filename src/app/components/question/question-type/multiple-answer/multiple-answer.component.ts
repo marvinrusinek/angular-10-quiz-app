@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, NgZone, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, NgZone, OnDestroy, OnInit, ViewEncapsulation, ComponentFactoryResolver } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
@@ -50,6 +50,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     selectionMessageService: SelectionMessageService,
     sharedVisibilityService: SharedVisibilityService,
     timerService: TimerService,
+    componentFactoryResolver: ComponentFactoryResolver,
     activatedRoute: ActivatedRoute,
     fb: FormBuilder,
     cdRef: ChangeDetectorRef,
@@ -66,6 +67,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
       selectionMessageService,
       sharedVisibilityService,
       timerService,
+      componentFactoryResolver,
       activatedRoute,
       fb,
       cdRef,

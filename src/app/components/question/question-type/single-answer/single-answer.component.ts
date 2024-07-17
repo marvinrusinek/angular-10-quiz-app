@@ -6,7 +6,7 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
-  ViewEncapsulation
+  ViewEncapsulation, ComponentFactoryResolver
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FormBuilder } from '@angular/forms';
@@ -57,6 +57,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     selectionMessageService: SelectionMessageService,
     sharedVisibilityService: SharedVisibilityService,
     timerService: TimerService,
+    componentFactoryResolver: ComponentFactoryResolver,
     activatedRoute: ActivatedRoute,
     fb: FormBuilder,
     cdRef: ChangeDetectorRef,
@@ -73,6 +74,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
       selectionMessageService,
       sharedVisibilityService,
       timerService,
+      componentFactoryResolver,
       activatedRoute,
       fb,
       cdRef,
