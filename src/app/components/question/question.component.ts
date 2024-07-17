@@ -1640,7 +1640,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   loadDynamicComponent() {
-    const component = this.multipleAnswer ? CodelabQuestionMultipleAnswerComponent : CodelabQuestionSingleAnswerComponent;
+    const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     this.dynamicComponentContainer.clear();
     const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
