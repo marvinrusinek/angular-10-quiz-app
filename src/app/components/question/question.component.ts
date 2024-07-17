@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
@@ -147,6 +147,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected selectionMessageService: SelectionMessageService,
     protected sharedVisibilityService: SharedVisibilityService,
     protected timerService: TimerService,
+    protected componentFactoryResolver: ComponentFactoryResolver,
     protected activatedRoute: ActivatedRoute,
     protected cdRef: ChangeDetectorRef,
     protected router: Router,
@@ -180,7 +181,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.updateDynamicComponent();
+    this.loadDynamicComponent();
 
     this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
       console.log('QuizQuestionComponent - Reset feedback triggered');
@@ -1633,4 +1634,27 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Playback failed:', error);
     });
   } */
+
+  loadDynamicComponent() {
+    const component = this.multipleAnswer ? CodelabQuestionMultipleAnswerComponent : CodelabQuestionSingleAnswerComponent;
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
+    this.dynamicComponentContainer.clear();
+    const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
+
+    // Set inputs
+    componentRef.instance.form = this.questionForm;
+    componentRef.instance.data = this.data;
+    componentRef.instance.question = this.questionToDisplay;
+    componentRef.instance.questions = this.questions;
+    componentRef.instance.currentQuestion$ = this.currentQuestion$;
+    componentRef.instance.currentQuestionIndex = this.currentQuestionIndex;
+    componentRef.instance.options = this.options;
+    componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+    componentRef.instance.selectedOptions = this.currentQuestion?.selectedOptions;
+    componentRef.instance.selectedOption = this.currentQuestion?.selectedOption;
+    componentRef.instance.correctAnswers = this.correctAnswers;
+    componentRef.instance.correctMessage = this.correctMessage;
+    componentRef.instance.showFeedback = this.showFeedback;
+    componentRef.instance.answer = this.updateClassName.bind(this);
+  }
 }
