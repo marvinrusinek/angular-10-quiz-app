@@ -185,6 +185,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    this.questionForm = this.fb.group({});
     this.loadDynamicComponent();
 
     this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
