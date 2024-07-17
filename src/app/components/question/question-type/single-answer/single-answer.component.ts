@@ -92,6 +92,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
+    this.timerService = timerService;
   }
 
   async ngOnInit(): Promise<void> {

@@ -162,10 +162,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizStateService = quizStateService;
     this.quizQuestionManagerService = quizQuestionManagerService;
     this.explanationTextService = explanationTextService;
+    this.resetStateService = resetStateService;
     this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
-    this.resetStateService = resetStateService;
+    this.timerService = timerService;
 
     /* this.sharedVisibilitySubscription =
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {

@@ -85,6 +85,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
+    this.timerService = timerService;
 
     this.selectedOptions = [];
   }
