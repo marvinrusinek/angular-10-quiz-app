@@ -123,8 +123,8 @@ import { QuizGuard } from './router/guards/quiz.guard';
   ],
   bootstrap: [AppComponent],
   entryComponents: [
-    CodelabQuestionMultipleAnswerComponent,
-    CodelabQuestionSingleAnswerComponent
+    MultipleAnswerComponent,
+    SingleAnswerComponent
   ],
   providers: [
     QuizGuard,
