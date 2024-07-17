@@ -1744,13 +1744,23 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.resetExplanationState();
 
     // Reset feedback text and other related properties
+    this.resetFeedback();
+  }
+
+  resetFeedback(): void {
+    console.log('QuizComponent - resetFeedback called');
+    // Reset feedback text and other related properties
     this.feedback = '';
     this.correctMessage = '';
     this.selectedOption = null;
     this.showFeedback = false;
-
     this.cdRef.detectChanges();
-    console.log('QuizComponent - resetUI - Feedback and state reset triggered');
+    console.log('QuizComponent - resetFeedback - Feedback reset', {
+      feedback: this.feedback,
+      correctMessage: this.correctMessage,
+      selectedOption: this.selectedOption,
+      showFeedback: this.showFeedback
+    });
   }
 
   private resetQuestionDisplayState(): void {
