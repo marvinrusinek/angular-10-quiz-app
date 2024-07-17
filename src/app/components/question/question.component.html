@@ -1,87 +1,22 @@
-<!--<form [formGroup]="questionForm" [ngSwitch]="multipleAnswer">
-  <ng-container *ngIf="shouldDisplayTextContent()">
-    <codelab-question-generic
-      *ngIf="shouldDisplayOptions(); else noOptions"
-      [form]="questionForm"
-      [questionType]="multipleAnswer ? 'multiple' : 'single'" 
-      [data]="data"
-      [question]="questionToDisplay"
-      [questions]="questions"
-      [currentQuestion$]="currentQuestion$"
-      [currentQuestionIndex]="currentQuestionIndex"
-      [options]="options"
-      [optionsToDisplay]="optionsToDisplay"
-      [selectedOptions]="currentQuestion?.selectedOptions"
-      [correctAnswers]="correctAnswers"
-      [correctMessage]="correctMessage"
-      (answer)="updateClassName($event)"
-    ></codelab-question-generic>
-
-    <ng-template #noOptions>
-      No options found for the current question.
-    </ng-template>
-  </ng-container>
-</form>-->
-
 <ang-music-player *ngIf="playCorrectSound" [src]="correctAudioSource"></ang-music-player>
 <ang-music-player *ngIf="playIncorrectSound" [src]="incorrectAudioSource"></ang-music-player>
 
 <!--<ang-music-player [audioList]="audioList"></ang-music-player>-->
 
-<form [formGroup]="questionForm" [ngSwitch]="multipleAnswer" (ngSubmit)="onSubmit()">
+<form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
   <ng-container *ngIf="shouldDisplayTextContent">
-    <ng-container *ngSwitchCase="multipleAnswer">
-      <ng-container *ngTemplateOutlet="questionTemplate; context: {$implicit: 'multiple'}"></ng-container>
-    </ng-container>
-
-    <ng-container *ngSwitchCase="!multipleAnswer">
-      <ng-container *ngTemplateOutlet="questionTemplate; context: {$implicit: 'single'}"></ng-container>
-    </ng-container>
-
-    <ng-template #questionTemplate let-type>
-      <ng-container *ngIf="shouldDisplayOptions; else noOptions">
-        <ng-container [ngSwitch]="type">
-          <codelab-question-multiple-answer *ngSwitchCase="'multiple'"
-            [form]="questionForm"
-            [data]="data"
-            [question]="questionToDisplay"
-            [questions]="questions"
-            [currentQuestion$]="currentQuestion$"
-            [currentQuestionIndex]="currentQuestionIndex"
-            [options]="options"
-            [optionsToDisplay]="optionsToDisplay"
-            [selectedOptions]="currentQuestion?.selectedOptions"
-            [correctAnswers]="correctAnswers"
-            [correctMessage]="correctMessage"
-            [showFeedback]="showFeedback"
-            (answer)="updateClassName($event)"
-          ></codelab-question-multiple-answer>
-
-          <codelab-question-single-answer *ngSwitchCase="'single'"
-            [form]="questionForm"
-            [data]="data"
-            [question]="questionToDisplay"
-            [questions]="questions"
-            [options]="options"
-            [optionsToDisplay]="optionsToDisplay"
-            [currentQuestion]="currentQuestion"
-            [currentQuestionIndex]="currentQuestionIndex"
-            [selectedOption]="currentQuestion?.selectedOption"
-            [correctMessage]="correctMessage"
-            [showFeedback]="showFeedback"
-            (answer)="updateClassName($event)"
-          ></codelab-question-single-answer>
-        </ng-container>
+    <ng-container *ngIf="shouldDisplayOptions; else noOptions">
+      <ng-container *ngComponentOutlet="componentToLoad" [ngComponentOutletContext]="context">
       </ng-container>
+    </ng-container>
 
-      <ng-template #noOptions>
-        <ng-container *ngIf="isLoading">
-          Loading options&hellip;
-        </ng-container>
-        <ng-container *ngIf="shouldRenderContainer">
-          No options found for the current question.
-        </ng-container>
-      </ng-template>
+    <ng-template #noOptions>
+      <ng-container *ngIf="isLoading">
+        Loading options&hellip;
+      </ng-container>
+      <ng-container *ngIf="shouldRenderContainer">
+        No options found for the current question.
+      </ng-container>
     </ng-template>
   </ng-container>
 </form>
