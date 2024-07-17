@@ -1646,20 +1646,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.dynamicComponentContainer.clear();
     const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
 
-    // Set inputs
     componentRef.instance.form = this.questionForm;
-    componentRef.instance.data = this.data;
-    componentRef.instance.question = this.questionToDisplay;
+    componentRef.instance.data = {};
+    componentRef.instance.question = this.currentQuestion;
     componentRef.instance.questions = this.questions;
-    componentRef.instance.currentQuestion$ = this.currentQuestion$;
     componentRef.instance.currentQuestionIndex = this.currentQuestionIndex;
-    componentRef.instance.options = this.options;
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
-    componentRef.instance.selectedOptions = this.currentQuestion?.selectedOptions;
-    componentRef.instance.selectedOption = this.currentQuestion?.selectedOption;
-    componentRef.instance.correctAnswers = this.correctAnswers;
-    componentRef.instance.correctMessage = this.correctMessage;
-    componentRef.instance.showFeedback = this.showFeedback;
-    componentRef.instance.answer = this.updateClassName.bind(this);
+    componentRef.instance.correctMessage = 'Correct';
+    componentRef.instance.correctAnswers = [1, 2];  // Add other properties as needed
+    componentRef.instance.showFeedback = false;
   }
 }
