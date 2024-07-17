@@ -122,6 +122,10 @@ import { QuizGuard } from './router/guards/quiz.guard';
     MatExpansionModule
   ],
   bootstrap: [AppComponent],
+  entryComponents: [
+    CodelabQuestionMultipleAnswerComponent,
+    CodelabQuestionSingleAnswerComponent
+  ],
   providers: [
     QuizGuard,
     QuizService,
