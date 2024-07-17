@@ -40,7 +40,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   options$: Observable<Option[]>;
   private destroyed$ = new Subject<void>();
 
-  /* constructor(
+  constructor(
     quizService: QuizService,
     quizDataService: QuizDataService,
     quizStateService: QuizStateService,
@@ -82,10 +82,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.sharedVisibilityService = sharedVisibilityService;
 
     this.selectedOptions = [];
-  } */
-
-  constructor(private quizService: QuizService) {
-    super();
   }
 
   async ngOnInit(): Promise<void> {
