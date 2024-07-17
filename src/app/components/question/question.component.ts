@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
@@ -152,6 +152,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected timerService: TimerService,
     protected componentFactoryResolver: ComponentFactoryResolver,
     protected activatedRoute: ActivatedRoute,
+    protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef,
     protected router: Router,
     protected ngZone: NgZone 
