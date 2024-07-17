@@ -89,6 +89,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     this.quizQuestionManagerService = quizQuestionManagerService;
     this.explanationTextService = explanationTextService;
     this.resetStateService = resetStateService;
+    this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
   }
