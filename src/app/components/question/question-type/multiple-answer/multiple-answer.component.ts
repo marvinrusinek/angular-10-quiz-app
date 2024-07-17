@@ -46,6 +46,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     quizStateService: QuizStateService,
     quizQuestionManagerService: QuizQuestionManagerService,
     explanationTextService: ExplanationTextService,
+    resetStateService: ResetStateService,
     selectedOptionService: SelectedOptionService,
     selectionMessageService: SelectionMessageService,
     sharedVisibilityService: SharedVisibilityService,
@@ -63,6 +64,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
       quizStateService,
       quizQuestionManagerService,
       explanationTextService,
+      resetStateService,
       selectedOptionService,
       selectionMessageService,
       sharedVisibilityService,
@@ -79,6 +81,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.quizStateService = quizStateService;
     this.quizQuestionManagerService = quizQuestionManagerService;
     this.explanationTextService = explanationTextService;
+    this.resetStateService = resetStateService;
     this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
