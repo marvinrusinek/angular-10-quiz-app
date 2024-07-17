@@ -6,10 +6,7 @@
 <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
   <ng-container *ngIf="shouldDisplayTextContent">
     <ng-container *ngIf="shouldDisplayOptions; else noOptions">
-      <ng-container 
-        *ngComponentOutlet="componentToLoad"
-        [ngComponentOutletContext]="context">
-      </ng-container>
+      <ng-container #dynamicComponentContainer></ng-container>
     </ng-container>
 
     <ng-template #noOptions>
