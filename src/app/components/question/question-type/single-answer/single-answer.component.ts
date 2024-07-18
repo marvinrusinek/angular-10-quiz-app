@@ -21,6 +21,9 @@ import { QuizDataService } from '../../../../shared/services/quizdata.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../../../shared/services/explanation-text.service';
+import { ResetBackgroundService } from '../../../../shared/services/reset-background.service';
+import { ResetFeedbackIconService } from '../../../../shared/services/reset-feedback-icon.service';
+import { ResetStateService } from '../../../../shared/services/reset-state.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../../../shared/services/selection-message.service';
 import { SharedVisibilityService } from '../../../../shared/services/shared-visibility.service';
@@ -53,6 +56,8 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     quizStateService: QuizStateService,
     quizQuestionManagerService: QuizQuestionManagerService,
     explanationTextService: ExplanationTextService,
+    resetBackgroundService: ResetBackgroundService,
+    resetFeedbackIconService: ResetFeedbackIconService,
     resetStateService: ResetStateService,
     selectedOptionService: SelectedOptionService,
     selectionMessageService: SelectionMessageService,
@@ -71,6 +76,8 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
       quizStateService,
       quizQuestionManagerService,
       explanationTextService,
+      resetBackgroundService,
+      resetFeedbackIconService,
       resetStateService,
       selectedOptionService,
       selectionMessageService,
@@ -88,6 +95,8 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     this.quizStateService = quizStateService;
     this.quizQuestionManagerService = quizQuestionManagerService;
     this.explanationTextService = explanationTextService;
+    this.resetBackgroundService = resetBackgroundService;
+    this.resetFeedbackIconService = resetFeedbackIconService;
     this.resetStateService = resetStateService;
     this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
