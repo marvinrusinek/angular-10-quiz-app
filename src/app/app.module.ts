@@ -42,7 +42,6 @@ import { SummaryStatsComponent } from './containers/results/summary-report/summa
 import { ChallengeComponent } from './containers/results/challenge/challenge.component';
 import { CodelabQuizContentComponent } from './containers/quiz/quiz-content/codelab-quiz-content.component';
 import { CodelabQuizHeaderComponent } from './containers/quiz/quiz-header/quiz-header.component';
-import { CodelabQuestionGenericComponent } from './components/question/generic/codelab-question-generic.component';
 import { FeedbackIconDirective } from './directives/feedback-icon.directive';
 import { HighlightOptionDirective } from './directives/highlight-option.directive';
 import { ResetBackgroundDirective } from './directives/reset-background.directive';
@@ -87,7 +86,6 @@ import { QuizGuard } from './router/guards/quiz.guard';
     ChallengeComponent,
     CodelabQuizContentComponent,
     CodelabQuizHeaderComponent,
-    CodelabQuestionGenericComponent,
     FeedbackIconDirective,
     HighlightOptionDirective,
     ResetBackgroundDirective,
