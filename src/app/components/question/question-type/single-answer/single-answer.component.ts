@@ -14,6 +14,7 @@ import { Subject } from 'rxjs';
 
 import { QuizQuestionComponent } from '../../question.component';
 import { Option } from '../../../../shared/models/Option.model';
+import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
@@ -46,6 +47,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   @Input() correctMessage: string;
   @Input() selected: string;
   @Input() showFeedback = false;
+  selectedOptions: SelectedOption[] = [];
   optionChecked: { [optionId: number]: boolean } = {};
 
   private destroyed$ = new Subject<void>();
