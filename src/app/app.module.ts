@@ -137,9 +137,9 @@ import { QuizGuard } from './router/guards/quiz.guard';
     TimerService,
     CountdownService,
     StopwatchService,
-    ResetStateService,
     ResetBackgroundService,
     ResetFeedbackIconService,
+    ResetStateService,
     SharedVisibilityService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
