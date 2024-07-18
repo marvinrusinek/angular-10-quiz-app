@@ -1645,7 +1645,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   } */
 
-  loadDynamicComponent() {
+  /* loadDynamicComponent() {
     const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     this.dynamicComponentContainer.clear();
@@ -1660,5 +1660,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     componentRef.instance.correctMessage = 'Correct';
     componentRef.instance.correctAnswers = [1, 2];  // Add other properties as needed
     componentRef.instance.showFeedback = false;
+  } */
+
+  loadDynamicComponent() {
+    const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
+    this.dynamicComponentContainer.clear();
+    const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
+
+    componentRef.instance.form = this.questionForm;
+    componentRef.instance.question = this.currentQuestion;
+    componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   }
 }
