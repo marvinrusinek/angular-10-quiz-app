@@ -41,7 +41,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   form: FormGroup;
   selectedOptions: SelectedOption[] = [];
   optionChecked: { [optionId: number]: boolean } = {};
-  options$: Observable<Option[]>;
   private destroyed$ = new Subject<void>();
 
   constructor(
