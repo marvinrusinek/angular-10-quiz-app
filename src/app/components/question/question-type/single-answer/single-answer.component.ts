@@ -53,24 +53,24 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   private destroyed$ = new Subject<void>();
 
   constructor(
-    quizService: QuizService,
-    quizDataService: QuizDataService,
-    quizStateService: QuizStateService,
-    quizQuestionManagerService: QuizQuestionManagerService,
-    explanationTextService: ExplanationTextService,
-    resetBackgroundService: ResetBackgroundService,
-    resetFeedbackIconService: ResetFeedbackIconService,
-    resetStateService: ResetStateService,
-    selectedOptionService: SelectedOptionService,
-    selectionMessageService: SelectionMessageService,
-    sharedVisibilityService: SharedVisibilityService,
-    timerService: TimerService,
-    componentFactoryResolver: ComponentFactoryResolver,
-    activatedRoute: ActivatedRoute,
-    fb: FormBuilder,
-    cdRef: ChangeDetectorRef,
-    router: Router,
-    ngZone: NgZone
+    protected quizService: QuizService,
+    protected quizDataService: QuizDataService,
+    protected quizStateService: QuizStateService,
+    protected quizQuestionManagerService: QuizQuestionManagerService,
+    protected explanationTextService: ExplanationTextService,
+    protected resetBackgroundService: ResetBackgroundService,
+    protected resetFeedbackIconService: ResetFeedbackIconService,
+    protected resetStateService: ResetStateService,
+    protected selectedOptionService: SelectedOptionService,
+    protected selectionMessageService: SelectionMessageService,
+    protected sharedVisibilityService: SharedVisibilityService,
+    protected timerService: TimerService,
+    protected componentFactoryResolver: ComponentFactoryResolver,
+    protected activatedRoute: ActivatedRoute,
+    protected fb: FormBuilder,
+    protected cdRef: ChangeDetectorRef,
+    protected router: Router,
+    protected ngZone: NgZone
   ) {
     super(
       quizService,
