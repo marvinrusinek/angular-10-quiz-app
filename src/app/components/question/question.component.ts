@@ -146,6 +146,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected quizQuestionManagerService: QuizQuestionManagerService,
     protected explanationTextService: ExplanationTextService,
     protected resetStateService: ResetStateService,
+    protected resetBackgroundService: ResetBackgroundService,
+    protected resetFeedbackIconService: ResetFeedbackIconService,
     protected selectedOptionService: SelectedOptionService,
     protected selectionMessageService: SelectionMessageService,
     protected sharedVisibilityService: SharedVisibilityService,
@@ -163,6 +165,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizQuestionManagerService = quizQuestionManagerService;
     this.explanationTextService = explanationTextService;
     this.resetStateService = resetStateService;
+    this.resetBackgroundService = resetBackgroundService;
+    this.resetFeedbackIconService = resetFeedbackIconService;
     this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
