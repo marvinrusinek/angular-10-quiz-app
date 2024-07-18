@@ -191,6 +191,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.questionForm = this.fb.group({});
+    this.multipleAnswer = this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion); // Set the flag correctly
     this.loadDynamicComponent();
 
     this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
