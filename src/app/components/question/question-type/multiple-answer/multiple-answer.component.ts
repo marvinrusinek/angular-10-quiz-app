@@ -139,7 +139,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     }
   }
 
-  onOptionClick(option: SelectedOption, index: number, event?: MouseEvent): void {
+  /* onOptionClick(option: SelectedOption, index: number, event?: MouseEvent): void {
     if (event) {
       event.stopPropagation();
     }
@@ -147,7 +147,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     super.onOptionClicked(option, index);
     this.selectedOption = option;
     this.showFeedback = true;
-  }
+  } */
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOptionService.isSelectedOption(option, this.selectedOptions, this.showFeedbackForOption);

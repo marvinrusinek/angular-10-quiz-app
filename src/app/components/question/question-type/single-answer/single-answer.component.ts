@@ -108,12 +108,6 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
 
   async ngOnInit(): Promise<void> {
     console.log('options in codelab-question-single-answer', this.options); // not working
-
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        console.log('SingleAnswerComponent destroyed');
-      }
-    });
   }
 
   ngOnDestroy(): void {
@@ -121,7 +115,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     this.destroyed$.complete();
   }
 
-  onOptionClick(option: SelectedOption, index: number, event?: MouseEvent): void {
+  /* onOptionClick(option: SelectedOption, index: number, event?: MouseEvent): void {
     if (event) {
       event.stopPropagation();
     }
@@ -129,5 +123,5 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     super.onOptionClicked(option, index);
     this.selectedOption = option;
     this.showFeedback = true;
-  }
+  } */
 }
