@@ -100,6 +100,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   }
 
   async ngOnInit(): Promise<void> {
+    super.ngOnInit();
     this.quizStateService.currentQuestion$.subscribe(question => {
       if (question) {
         this.currentQuestion = question;

@@ -107,6 +107,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   }
 
   async ngOnInit(): Promise<void> {
+    super.ngOnInit();
     console.log('options in codelab-question-single-answer', this.options); // not working
   }
 
