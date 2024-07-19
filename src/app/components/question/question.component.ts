@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
@@ -31,7 +31,7 @@ import { SingleAnswerComponent } from './question-type/single-answer/single-answ
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
+export class QuizQuestionComponent implements AfterViewInit, OnInit, OnChanges, OnDestroy {
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: true }) dynamicComponentContainer!: ViewContainerRef;
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
@@ -194,7 +194,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.questionForm = this.fb.group({});
     this.multipleAnswer = this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion); // Set the flag correctly
-    this.loadDynamicComponent();
+
+    console.log('ngOnInit:', this.dynamicComponentContainer);
 
     this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
       console.log('QuizQuestionComponent - Reset feedback triggered');
@@ -265,6 +266,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
+  }
+
+  ngAfterViewInit() {
+    console.log('ngAfterViewInit:', this.dynamicComponentContainer);
+    if (!this.dynamicComponentContainer) {
+      console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
+    }
+    this.loadDynamicComponent();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -1667,6 +1676,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   loadDynamicComponent() {
     if (this.dynamicComponentContainer) {
+      console.log('Loading dynamic component');
       const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
       this.dynamicComponentContainer.clear();
