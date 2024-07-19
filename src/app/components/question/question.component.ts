@@ -1666,13 +1666,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   loadDynamicComponent() {
-    const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
-    this.dynamicComponentContainer.clear();
-    const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
+    if (this.dynamicComponentContainer) {
+      const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
+      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
+      this.dynamicComponentContainer.clear();
+      const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
 
-    componentRef.instance.form = this.questionForm;
-    componentRef.instance.question = this.currentQuestion;
-    componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+      componentRef.instance.form = this.questionForm;
+      componentRef.instance.question = this.currentQuestion;
+      componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+    } else {
+      console.error('dynamicComponentContainer is undefined');
+    }
   }
 }

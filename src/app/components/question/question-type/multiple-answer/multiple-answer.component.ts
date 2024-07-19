@@ -99,7 +99,7 @@ export class MultipleAnswerComponent implements AfterViewInit, OnInit, OnDestroy
   }
 
   async ngOnInit(): Promise<void> {
-    super.ngOnInit();
+    // super.ngOnInit();
     this.quizStateService.currentQuestion$.subscribe(question => {
       if (question) {
         this.currentQuestion = question;
