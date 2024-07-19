@@ -138,6 +138,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private destroy$: Subject<void> = new Subject<void>();
 
+
   constructor(
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
@@ -163,9 +164,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizStateService = quizStateService;
     this.quizQuestionManagerService = quizQuestionManagerService;
     this.explanationTextService = explanationTextService;
-    this.resetStateService = resetStateService;
     this.resetBackgroundService = resetBackgroundService;
     this.resetFeedbackIconService = resetFeedbackIconService;
+    this.resetStateService = resetStateService;
     this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
