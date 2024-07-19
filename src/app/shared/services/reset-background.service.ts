@@ -6,7 +6,7 @@ export class ResetBackgroundService {
   private shouldResetBackgroundSource = new Subject<boolean>();
   shouldResetBackground$ = this.shouldResetBackgroundSource.asObservable();
 
-  setShouldResetBackground(value: boolean) {
+  setShouldResetBackground(value: boolean): void {
     this.shouldResetBackgroundSource.next(value);
   }
 }
