@@ -272,8 +272,9 @@ export class QuizQuestionComponent implements AfterViewInit, OnInit, OnChanges, 
     console.log('ngAfterViewInit:', this.dynamicComponentContainer);
     if (!this.dynamicComponentContainer) {
       console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
+    } else {
+      this.loadDynamicComponent();
     }
-    this.loadDynamicComponent();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -1675,18 +1676,25 @@ export class QuizQuestionComponent implements AfterViewInit, OnInit, OnChanges, 
   } */
 
   loadDynamicComponent() {
-    if (this.dynamicComponentContainer) {
-      console.log('Loading dynamic component');
-      const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
-      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
-      this.dynamicComponentContainer.clear();
-      const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
+    console.log('Inside loadDynamicComponent');
+    try {
+      if (this.dynamicComponentContainer) {
+        console.log('Loading dynamic component');
+        const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
+        console.log('Component to load:', component);
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
+        this.dynamicComponentContainer.clear();
+        const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
 
-      componentRef.instance.form = this.questionForm;
-      componentRef.instance.question = this.currentQuestion;
-      componentRef.instance.optionsToDisplay = this.optionsToDisplay;
-    } else {
-      console.error('dynamicComponentContainer is undefined');
+        console.log('ComponentRef:', componentRef);
+        componentRef.instance.form = this.questionForm;
+        componentRef.instance.question = this.currentQuestion;
+        componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+      } else {
+        console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
+      }
+    } catch (error) {
+      console.error('Error in loadDynamicComponent:', error);
     }
   }
 }
