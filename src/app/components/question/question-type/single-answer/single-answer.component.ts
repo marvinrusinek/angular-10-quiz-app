@@ -116,7 +116,7 @@ export class SingleAnswerComponent implements OnInit, OnDestroy {
     }
     console.log('SingleAnswerComponent: question', this.question);
     console.log('SingleAnswerComponent: optionsToDisplay', this.optionsToDisplay);
-    
+
     // super.ngOnInit();
     console.log('options in codelab-question-single-answer', this.options); // not working
   }
