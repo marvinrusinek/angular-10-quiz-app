@@ -270,10 +270,10 @@ export class QuizQuestionComponent implements AfterViewInit, OnInit, OnChanges, 
 
   ngAfterViewInit() {
     console.log('ngAfterViewInit:', this.dynamicComponentContainer);
-    if (!this.dynamicComponentContainer) {
-      console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
-    } else {
+    if (this.dynamicComponentContainer) {
       this.loadDynamicComponent();
+    } else {
+      console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
     }
   }
 
