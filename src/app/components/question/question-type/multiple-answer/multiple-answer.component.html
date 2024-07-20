@@ -21,7 +21,6 @@
         <span>{{ idx + 1 }}.  {{ option?.text }}</span>
 
         <span class="icon"
-          *ngIf="showFeedbackForOption[idx]"
           appFeedbackIcon
           [option]="option"
           [index]="idx"
@@ -31,7 +30,6 @@
       </mat-checkbox>
 
       <codelab-quiz-feedback
-        *ngIf="shouldShowFeedback(option)"
         [question]="currentQuestion"
         [selectedOption]="selectedOption"
         [correctMessage]="correctMessage"
