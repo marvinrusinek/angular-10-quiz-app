@@ -99,6 +99,17 @@ export class MultipleAnswerComponent implements AfterViewInit, OnInit, OnDestroy
   }
 
   async ngOnInit(): Promise<void> {
+    if (!this.question) {
+      console.error('MultipleAnswerComponent: question is undefined');
+    }
+    if (!this.optionsToDisplay) {
+      console.error('MultipleAnswerComponent: optionsToDisplay is undefined');
+    } else if (this.optionsToDisplay.length === 0) {
+      console.warn('MultipleAnswerComponent: optionsToDisplay is empty');
+    }
+    console.log('MultipleAnswerComponent: question', this.question);
+    console.log('MultipleAnswerComponent: optionsToDisplay', this.optionsToDisplay);
+
     // super.ngOnInit();
     this.quizStateService.currentQuestion$.subscribe(question => {
       if (question) {
