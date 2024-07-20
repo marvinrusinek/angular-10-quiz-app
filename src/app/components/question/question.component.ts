@@ -277,7 +277,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
     } else {
       console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
     }
-  }  
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     const isSubsequentChange = (change: SimpleChange) => change && !change.firstChange;
@@ -1698,15 +1698,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
       console.error('Error in loadDynamicComponent:', error);
     } */
   
-  loadDynamicComponent() {
-    console.log('Inside loadDynamicComponent');
-    if (this.dynamicComponentContainer) {
-      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(MultipleAnswerComponent);
-      const viewContainerRef = this.dynamicComponentContainer;
-      const componentRef = viewContainerRef.createComponent(componentFactory);
-      console.log('MultipleAnswerComponent loaded:', componentRef);
-    } else {
-      console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
+    loadDynamicComponent() {
+      console.log('Inside loadDynamicComponent');
+      if (this.dynamicComponentContainer) {
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(DynamicTestComponent);
+        this.dynamicComponentContainer.clear();
+        const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
+        console.log('DynamicTestComponent loaded:', componentRef);
+      } else {
+        console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
+      }
     }
-  }
 }

@@ -1,18 +1,7 @@
-import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-test',
-  templateUrl: './test.component.html'
+  template: `<div>Test Component Loaded!</div>`
 })
-export class TestComponent implements AfterViewInit {
-  @ViewChild('testContainer', { static: true }) testContainer!: ElementRef;
-
-  ngAfterViewInit() {
-    console.log('ngAfterViewInit triggered');
-    if (this.testContainer) {
-      console.log('ngAfterViewInit testContainer:', this.testContainer);
-    } else {
-      console.error('testContainer is undefined');
-    }
-  }
-}
+export class TestComponent {}
