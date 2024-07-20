@@ -106,6 +106,17 @@ export class SingleAnswerComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    if (!this.question) {
+      console.error('SingleAnswerComponent: question is undefined');
+    }
+    if (!this.optionsToDisplay) {
+      console.error('SingleAnswerComponent: optionsToDisplay is undefined');
+    } else if (this.optionsToDisplay.length === 0) {
+      console.warn('SingleAnswerComponent: optionsToDisplay is empty');
+    }
+    console.log('SingleAnswerComponent: question', this.question);
+    console.log('SingleAnswerComponent: optionsToDisplay', this.optionsToDisplay);
+    
     // super.ngOnInit();
     console.log('options in codelab-question-single-answer', this.options); // not working
   }
