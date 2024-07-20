@@ -71,7 +71,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     protected router: Router,
     protected ngZone: NgZone
   ) {
-    /* super(
+    super(
       quizService,
       quizDataService,
       quizStateService,
@@ -90,7 +90,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
       cdRef,
       router,
       ngZone
-    ); */
+    );
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
@@ -117,7 +117,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     console.log('SingleAnswerComponent: question', this.question);
     console.log('SingleAnswerComponent: optionsToDisplay', this.optionsToDisplay);
 
-    // super.ngOnInit();
+    super.ngOnInit();
     console.log('options in codelab-question-single-answer', this.options); // not working
   }
 

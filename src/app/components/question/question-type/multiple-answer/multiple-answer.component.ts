@@ -62,7 +62,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     protected router: Router,
     protected ngZone: NgZone
   ) {
-    /* super(
+    super(
       quizService,
       quizDataService,
       quizStateService,
@@ -81,7 +81,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
       cdRef,
       router,
       ngZone
-    ); */
+    );
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
@@ -110,7 +110,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     console.log('MultipleAnswerComponent: question', this.question);
     console.log('MultipleAnswerComponent: optionsToDisplay', this.optionsToDisplay);
     
-    // super.ngOnInit();
+    super.ngOnInit();
     this.quizStateService.currentQuestion$.subscribe(question => {
       if (question) {
         this.currentQuestion = question;
