@@ -30,7 +30,7 @@ import { TimerService } from '../../../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom
 })
-export class MultipleAnswerComponent implements AfterViewInit, OnInit, OnDestroy {
+export class MultipleAnswerComponent extends QuizQuestionComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[] = [];
@@ -62,7 +62,7 @@ export class MultipleAnswerComponent implements AfterViewInit, OnInit, OnDestroy
     protected router: Router,
     protected ngZone: NgZone
   ) {
-    /* super(
+    super(
       quizService,
       quizDataService,
       quizStateService,
@@ -81,7 +81,7 @@ export class MultipleAnswerComponent implements AfterViewInit, OnInit, OnDestroy
       cdRef,
       router,
       ngZone
-    ); */
+    );
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;

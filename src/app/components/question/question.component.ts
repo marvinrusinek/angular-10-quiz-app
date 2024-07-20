@@ -1662,20 +1662,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
   } */
 
   loadDynamicComponent() {
-    console.log('Inside loadDynamicComponent');
-    console.log('Question:', this.question);
-    console.log('Options to display:', this.optionsToDisplay);
-    if (this.dynamicComponentContainer) {
-      const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
-      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
-      this.dynamicComponentContainer.clear();
-      const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
-      componentRef.instance.form = this.questionForm;
-      componentRef.instance.question = this.question;
-      componentRef.instance.optionsToDisplay = this.optionsToDisplay;
-      console.log(`${component.name} loaded:`, componentRef);
-    } else {
-      console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
-    }
+    const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
+    this.dynamicComponentContainer.clear();
+    const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
+    componentRef.instance.form = this.questionForm;
+    componentRef.instance.question = this.question;
+    componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   }
 }
