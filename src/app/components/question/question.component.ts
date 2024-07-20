@@ -1661,84 +1661,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
     });
   } */
 
-  /* loadDynamicComponent() {
-    const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
-    this.dynamicComponentContainer.clear();
-    const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
-
-    componentRef.instance.form = this.questionForm;
-    componentRef.instance.data = {};
-    componentRef.instance.question = this.currentQuestion;
-    componentRef.instance.questions = this.questions;
-    componentRef.instance.currentQuestionIndex = this.currentQuestionIndex;
-    componentRef.instance.optionsToDisplay = this.optionsToDisplay;
-    componentRef.instance.correctMessage = 'Correct';
-    componentRef.instance.correctAnswers = [1, 2];  // Add other properties as needed
-    componentRef.instance.showFeedback = false;
-  } */
-
-  /* loadDynamicComponent() {
+  loadDynamicComponent() {
     console.log('Inside loadDynamicComponent');
-    try {
-      if (this.dynamicComponentContainer) {
-        console.log('Loading dynamic component');
-        const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
-        console.log('Component to load:', component);
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
-        this.dynamicComponentContainer.clear();
-        const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
-
-        console.log('ComponentRef:', componentRef);
-        componentRef.instance.form = this.questionForm;
-        componentRef.instance.question = this.currentQuestion;
-        componentRef.instance.optionsToDisplay = this.optionsToDisplay;
-      } else {
-        console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
-      }
-    } catch (error) {
-      console.error('Error in loadDynamicComponent:', error);
-    } */
-  
-   /* loadDynamicComponent() {
-      console.log('Inside loadDynamicComponent');
-      if (this.dynamicComponentContainer) {
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(DynamicTestComponent);
-        this.dynamicComponentContainer.clear();
-        const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
-        console.log('DynamicTestComponent loaded:', componentRef);
-      } else {
-        console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
-      }
-    } */
-
-    loadDynamicComponent() {
-      console.log('Inside loadDynamicComponent');
-      console.log('Question:', this.question);
-      console.log('Options to display:', this.optionsToDisplay);
-      if (this.dynamicComponentContainer) {
-        const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
-        this.dynamicComponentContainer.clear();
-        const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
-        componentRef.instance.form = this.questionForm;
-        componentRef.instance.question = this.question;
-        componentRef.instance.optionsToDisplay = this.optionsToDisplay;
-        console.log(`${component.name} loaded:`, componentRef);
-      } else {
-        console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
-      }
+    console.log('Question:', this.question);
+    console.log('Options to display:', this.optionsToDisplay);
+    if (this.dynamicComponentContainer) {
+      const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
+      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
+      this.dynamicComponentContainer.clear();
+      const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
+      componentRef.instance.form = this.questionForm;
+      componentRef.instance.question = this.question;
+      componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+      console.log(`${component.name} loaded:`, componentRef);
+    } else {
+      console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
     }
-
-    /* loadDynamicComponent() {
-      console.log('Inside loadDynamicComponent');
-      if (this.dynamicComponentContainer) {
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(TestComponent);
-        this.dynamicComponentContainer.clear();
-        const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
-        console.log('TestComponent loaded:', componentRef);
-      } else {
-        console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
-      }
-    } */
+  }
 }
