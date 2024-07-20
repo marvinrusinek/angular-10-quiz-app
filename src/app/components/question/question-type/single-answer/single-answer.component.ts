@@ -31,7 +31,8 @@ import { TimerService } from '../../../../shared/services/timer.service';
 
 @Component({
   selector: 'codelab-question-single-answer',
-  templateUrl: './single-answer.component.html',
+  // templateUrl: './single-answer.component.html',
+  template: `<p>Single Answer Component</p>`,
   styleUrls: [
     './single-answer.component.scss',
     '../../question.component.scss'
