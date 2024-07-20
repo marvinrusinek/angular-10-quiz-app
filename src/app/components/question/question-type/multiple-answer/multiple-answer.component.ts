@@ -30,7 +30,7 @@ import { TimerService } from '../../../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom
 })
-export class MultipleAnswerComponent implements AfterViewInit, OnInit, OnDestroy {
+export class MultipleAnswerComponent extends QuizQuestionComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[] = [];
