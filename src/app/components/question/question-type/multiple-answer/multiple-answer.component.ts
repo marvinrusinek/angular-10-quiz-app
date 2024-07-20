@@ -163,7 +163,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   } */
 
   isSelectedOption(option: Option): boolean {
-    return this.selectedOptionService.isSelectedOption(option, this.selectedOptions, this.showFeedbackForOption);
+    return this.selectedOptionService.isSelectedOption(option);
   }
   
   shouldDisplayFeedback(option: Option): boolean {
