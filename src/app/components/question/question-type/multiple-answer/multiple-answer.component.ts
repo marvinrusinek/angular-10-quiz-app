@@ -11,6 +11,7 @@ import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../../shared/services/quizdata.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../../../shared/services/quizquestionmgr.service';
+import { QuizResolverService } from '../../../../shared/services/quiz-resolver.service';
 import { ExplanationTextService } from '../../../../shared/services/explanation-text.service';
 import { ResetBackgroundService } from '../../../../shared/services/reset-background.service';
 import { ResetFeedbackIconService } from '../../../../shared/services/reset-feedback-icon.service';
@@ -19,6 +20,8 @@ import { SelectedOptionService } from '../../../../shared/services/selectedoptio
 import { SelectionMessageService } from '../../../../shared/services/selection-message.service';
 import { SharedVisibilityService } from '../../../../shared/services/shared-visibility.service';
 import { TimerService } from '../../../../shared/services/timer.service';
+import { CountdownService } from '../../../../shared/services/countdown.service';
+import { StopwatchService } from '../../../../shared/services/stopwatch.service';
 
 @Component({
   selector: 'codelab-question-multiple-answer',
