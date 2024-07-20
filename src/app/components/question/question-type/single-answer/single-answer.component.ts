@@ -39,7 +39,7 @@ import { TimerService } from '../../../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom
 })
-export class SingleAnswerComponent extends QuizQuestionComponent implements OnInit, OnDestroy {
+export class SingleAnswerComponent implements OnInit, OnDestroy {
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[];
@@ -71,7 +71,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     protected router: Router,
     protected ngZone: NgZone
   ) {
-    super(
+    /* super(
       quizService,
       quizDataService,
       quizStateService,
@@ -90,7 +90,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
       cdRef,
       router,
       ngZone
-    );
+    ); */
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
