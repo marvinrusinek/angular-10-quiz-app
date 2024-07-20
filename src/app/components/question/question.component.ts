@@ -185,6 +185,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
     this.sharedVisibilityService = sharedVisibilityService;
     this.timerService = timerService;
 
+    this.questionForm = this.fb.group({});
+
     /* this.sharedVisibilitySubscription =
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
         this.handlePageVisibilityChange(isHidden);
@@ -203,7 +205,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
   }
 
   async ngOnInit(): Promise<void> {
-    this.questionForm = this.fb.group({});
     //this.multipleAnswer = this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion); // Set the flag correctly
     this.multipleAnswer = this.question.options.filter(option => option.correct).length > 1;
 
