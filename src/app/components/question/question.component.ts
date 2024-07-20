@@ -151,7 +151,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
 
   private destroy$: Subject<void> = new Subject<void>();
 
-
   constructor(
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,

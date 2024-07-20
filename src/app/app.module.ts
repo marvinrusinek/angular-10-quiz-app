@@ -136,16 +136,17 @@ import { QuizGuard } from './router/guards/quiz.guard';
     QuizResolverService,
     QuizStateService,
     ExplanationTextService,
+    ResetBackgroundService,
+    ResetFeedbackIconService,
+    ResetStateService,
     SelectedOptionService,
     SelectionMessageService,
     TimerService,
     CountdownService,
     StopwatchService,
-    ResetBackgroundService,
-    ResetFeedbackIconService,
-    ResetStateService,
     SharedVisibilityService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule {}
+
