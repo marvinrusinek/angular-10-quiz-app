@@ -861,7 +861,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
     this.selectedOption = null;
     this.showFeedbackForOption = {};
 
-    this.cdRef.detectChanges();
     console.log('QuizQuestionComponent - resetFeedback - After reset:', {
       correctMessage: this.correctMessage,
       showFeedback: this.showFeedback,
