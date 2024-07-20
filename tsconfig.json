@@ -19,12 +19,16 @@
       "dom"
     ],
     "paths": {
-      "@codelab-quiz-models": ["./app/shared/models/*"],
-      "@codelab-quiz-services": ["./app/shared/services/*"]
+      "@codelab-quiz-models": [
+        "./app/shared/models/*"
+      ],
+      "@codelab-quiz-services": [
+        "./app/shared/services/*"
+      ]
     }
   },
   "angularCompilerOptions": {
-    "enableIvy": false,
+    "enableIvy": true,
     "fullTemplateTypeCheck": true,
     "strictInjectionParameters": true
   }
