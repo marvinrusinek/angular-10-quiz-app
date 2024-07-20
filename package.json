@@ -26,7 +26,6 @@
     "@types/lodash": "^4.14.202",
     "ang-music-player": "^0.0.4",
     "bootstrap": "4.5.3",
-    "codelab-quiz-models/*": "*",
     "core-js": "3.6.5",
     "hammerjs": "^2.0.8",
     "hover.css": "2.3.2",
