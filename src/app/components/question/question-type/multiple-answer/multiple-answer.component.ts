@@ -31,13 +31,13 @@ import { TimerService } from '../../../../shared/services/timer.service';
   encapsulation: ViewEncapsulation.ShadowDom
 })
 export class MultipleAnswerComponent extends QuizQuestionComponent implements AfterViewInit, OnInit, OnDestroy {
+  @Input() form!: FormGroup;
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[] = [];
   @Input() correctMessage: string;
   @Input() correctAnswers: number[];
   @Input() showFeedback = false;
-  @Input() form!: FormGroup;
   selectedOptions: SelectedOption[] = [];
   optionChecked: { [optionId: number]: boolean } = {};
   private destroyed$ = new Subject<void>();
