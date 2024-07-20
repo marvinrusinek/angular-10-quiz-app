@@ -1713,6 +1713,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
 
     loadDynamicComponent() {
       console.log('Inside loadDynamicComponent');
+      console.log('Question:', this.question);
+      console.log('Options to display:', this.optionsToDisplay);
       if (this.dynamicComponentContainer) {
         const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
