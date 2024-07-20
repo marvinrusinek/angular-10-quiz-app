@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
@@ -33,6 +33,7 @@ import { SingleAnswerComponent } from './question-type/single-answer/single-answ
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: true }) dynamicComponentContainer!: ViewContainerRef;
+  // @ViewChild('dynamicComponentContainer', { static: true }) dynamicComponentContainer!: ElementRef;
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() selectionChanged: EventEmitter<{
@@ -1675,7 +1676,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
     componentRef.instance.showFeedback = false;
   } */
 
-  loadDynamicComponent() {
+  /* loadDynamicComponent() {
     console.log('Inside loadDynamicComponent');
     try {
       if (this.dynamicComponentContainer) {
@@ -1695,6 +1696,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
       }
     } catch (error) {
       console.error('Error in loadDynamicComponent:', error);
+    } */
+  
+  loadDynamicComponent() {
+    console.log('Inside loadDynamicComponent');
+    if (this.dynamicComponentContainer) {
+      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(MultipleAnswerComponent);
+      const viewContainerRef = this.dynamicComponentContainer;
+      const componentRef = viewContainerRef.createComponent(componentFactory);
+      console.log('MultipleAnswerComponent loaded:', componentRef);
+    } else {
+      console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
     }
   }
 }
