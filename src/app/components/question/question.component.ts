@@ -195,7 +195,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
 
   async ngOnInit(): Promise<void> {
     this.questionForm = this.fb.group({});
-    this.multipleAnswer = this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion); // Set the flag correctly
+    //this.multipleAnswer = this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion); // Set the flag correctly
+    this.multipleAnswer = this.question.options.filter(option => option.correct).length > 1;
 
     console.log('ngOnInit:', this.dynamicComponentContainer);
 

@@ -126,6 +126,10 @@ export class SingleAnswerComponent implements OnInit, OnDestroy {
     this.destroyed$.complete();
   }
 
+  isSelectedOption(option: Option): boolean {
+    return this.selectedOptionService.isSelectedOption(option, this.selectedOptions, this.showFeedbackForOption);
+  }
+
   /* onOptionClick(option: SelectedOption, index: number, event?: MouseEvent): void {
     if (event) {
       event.stopPropagation();
