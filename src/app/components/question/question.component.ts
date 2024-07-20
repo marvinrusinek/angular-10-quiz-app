@@ -29,7 +29,8 @@ import { SingleAnswerComponent } from './question-type/single-answer/single-answ
 
 @Component({
   selector: 'codelab-quiz-question',
-  templateUrl: './question.component.html',
+  // templateUrl: './question.component.html',
+  template: `<p>Quiz Question Component</p>`,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
@@ -205,6 +206,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('QuizQuestionComponent initialized');
     //this.multipleAnswer = this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion); // Set the flag correctly
     this.multipleAnswer = this.question.options.filter(option => option.correct).length > 1;
 
