@@ -2,7 +2,7 @@ import { Component, AfterViewInit, ViewChild, ViewContainerRef } from '@angular/
 
 @Component({
   selector: 'app-test',
-  templateUrl: './test.component.html'
+  template: `<div #testContainer>Test Container</div>`
 })
 export class TestComponent implements AfterViewInit {
   @ViewChild('testContainer', { read: ViewContainerRef, static: true }) testContainer!: ViewContainerRef;
