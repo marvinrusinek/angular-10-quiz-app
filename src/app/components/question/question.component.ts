@@ -29,8 +29,7 @@ import { SingleAnswerComponent } from './question-type/single-answer/single-answ
 
 @Component({
   selector: 'codelab-quiz-question',
-  // templateUrl: './question.component.html',
-  template: `<p>Quiz Question Component</p>`,
+  templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
@@ -60,20 +59,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
     options: Option[];
   };
   @Input() questionData: QuizQuestion;
-  // @Input() question!: QuizQuestion;
-  question: QuizQuestion = {
+  @Input() question!: QuizQuestion;
+  /* question: QuizQuestion = {
     text: 'Sample question?',
     options: [
       { text: 'Option 1', correct: false } as Option,
       { text: 'Option 2', correct: true } as Option,
       { text: 'Option 3', correct: false } as Option
     ]
-  };
+  }; */
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions: Observable<QuizQuestion[]>;
   @Input() options: Option[];
-  // @Input() optionsToDisplay: Option[] = [];
-  optionsToDisplay: Option[] = this.question.options;
+  @Input() optionsToDisplay: Option[] = [];
+  // optionsToDisplay: Option[] = this.question.options;
   @Input() currentQuestion: QuizQuestion;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
   @Input() currentQuestionIndex: number = 0;
