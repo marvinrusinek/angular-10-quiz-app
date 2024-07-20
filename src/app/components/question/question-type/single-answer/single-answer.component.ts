@@ -40,7 +40,7 @@ import { TimerService } from '../../../../shared/services/timer.service';
   encapsulation: ViewEncapsulation.ShadowDom
 })
 export class SingleAnswerComponent extends QuizQuestionComponent implements OnInit, OnDestroy {
-  @Input() form!: FormGroup;
+  @Input() questionForm!: FormGroup;
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[] = [];
