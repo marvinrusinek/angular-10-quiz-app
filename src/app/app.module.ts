@@ -125,8 +125,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
   bootstrap: [AppComponent],
   entryComponents: [
     MultipleAnswerComponent,
-    SingleAnswerComponent,
-    QuizQuestionComponent
+    SingleAnswerComponent
   ],
   providers: [
     QuizGuard,
