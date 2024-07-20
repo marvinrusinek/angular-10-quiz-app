@@ -1754,7 +1754,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.correctMessage = '';
     this.selectedOption = null;
     this.showFeedback = false;
-    this.cdRef.detectChanges();
+    
     console.log('QuizComponent - resetFeedback - Feedback reset', {
       feedback: this.feedback,
       correctMessage: this.correctMessage,
