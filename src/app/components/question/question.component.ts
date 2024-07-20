@@ -31,7 +31,7 @@ import { SingleAnswerComponent } from './question-type/single-answer/single-answ
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class QuizQuestionComponent implements AfterViewInit, OnInit, OnChanges, OnDestroy {
+export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: true }) dynamicComponentContainer!: ViewContainerRef;
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
@@ -271,11 +271,12 @@ export class QuizQuestionComponent implements AfterViewInit, OnInit, OnChanges, 
   ngAfterViewInit() {
     console.log('ngAfterViewInit:', this.dynamicComponentContainer);
     if (this.dynamicComponentContainer) {
+      console.log('dynamicComponentContainer is initialized');
       this.loadDynamicComponent();
     } else {
       console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
     }
-  }
+  }  
 
   ngOnChanges(changes: SimpleChanges): void {
     const isSubsequentChange = (change: SimpleChange) => change && !change.firstChange;
