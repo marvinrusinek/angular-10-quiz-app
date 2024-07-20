@@ -109,7 +109,7 @@ export class MultipleAnswerComponent implements AfterViewInit, OnInit, OnDestroy
     }
     console.log('MultipleAnswerComponent: question', this.question);
     console.log('MultipleAnswerComponent: optionsToDisplay', this.optionsToDisplay);
-
+    
     // super.ngOnInit();
     this.quizStateService.currentQuestion$.subscribe(question => {
       if (question) {
