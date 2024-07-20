@@ -123,6 +123,11 @@ import { QuizGuard } from './router/guards/quiz.guard';
     MatExpansionModule
   ],
   bootstrap: [AppComponent],
+  entryComponents: [
+    MultipleAnswerComponent,
+    SingleAnswerComponent,
+    QuizQuestionComponent
+  ],
   providers: [
     QuizGuard,
     QuizService,
