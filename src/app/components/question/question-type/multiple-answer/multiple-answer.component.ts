@@ -37,7 +37,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   @Input() correctMessage: string;
   @Input() correctAnswers: number[];
   @Input() showFeedback = false;
-  form: FormGroup;
+  @Input() form!: FormGroup;
   selectedOptions: SelectedOption[] = [];
   optionChecked: { [optionId: number]: boolean } = {};
   private destroyed$ = new Subject<void>();
