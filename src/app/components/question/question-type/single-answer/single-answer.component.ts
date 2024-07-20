@@ -130,7 +130,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   }
 
   isSelectedOption(option: Option): boolean {
-    return this.selectedOptionService.isSelectedOption(option, this.selectedOptions, this.showFeedbackForOption);
+    return this.selectedOptionService.isSelectedOption(option);
   }
 
   /* onOptionClick(option: SelectedOption, index: number, event?: MouseEvent): void {
