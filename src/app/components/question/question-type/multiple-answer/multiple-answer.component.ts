@@ -99,6 +99,9 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('MultipleAnswerComponent initialized');
+    super.ngOnInit();
+
     if (!this.question) {
       console.error('MultipleAnswerComponent: question is undefined');
     }
@@ -110,7 +113,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     console.log('MultipleAnswerComponent: question', this.question);
     console.log('MultipleAnswerComponent: optionsToDisplay', this.optionsToDisplay);
     
-    super.ngOnInit();
     this.quizStateService.currentQuestion$.subscribe(question => {
       if (question) {
         this.currentQuestion = question;
