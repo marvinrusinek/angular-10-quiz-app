@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
+import { TestComponent } from './test.component';
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -1698,13 +1699,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
       console.error('Error in loadDynamicComponent:', error);
     } */
   
-    loadDynamicComponent() {
+   /* loadDynamicComponent() {
       console.log('Inside loadDynamicComponent');
       if (this.dynamicComponentContainer) {
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(DynamicTestComponent);
         this.dynamicComponentContainer.clear();
         const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
         console.log('DynamicTestComponent loaded:', componentRef);
+      } else {
+        console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
+      }
+    } */
+
+    loadDynamicComponent() {
+      console.log('Inside loadDynamicComponent');
+      if (this.dynamicComponentContainer) {
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(TestComponent);
+        this.dynamicComponentContainer.clear();
+        const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
+        console.log('TestComponent loaded:', componentRef);
       } else {
         console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
       }
