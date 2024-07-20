@@ -9,7 +9,7 @@ import {
   ViewEncapsulation, ComponentFactoryResolver
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
 
 import { QuizQuestionComponent } from '../../question.component';
@@ -57,6 +57,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     protected quizDataService: QuizDataService,
     protected quizStateService: QuizStateService,
     protected quizQuestionManagerService: QuizQuestionManagerService,
+    protected quizResolverService: QuizResolverService,
     protected explanationTextService: ExplanationTextService,
     protected resetBackgroundService: ResetBackgroundService,
     protected resetFeedbackIconService: ResetFeedbackIconService,
@@ -65,6 +66,8 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     protected selectionMessageService: SelectionMessageService,
     protected sharedVisibilityService: SharedVisibilityService,
     protected timerService: TimerService,
+    protected countdownService: CountdownService,
+    protected stopwatchService: StopwatchService,
     protected componentFactoryResolver: ComponentFactoryResolver,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder,
@@ -77,6 +80,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
       quizDataService,
       quizStateService,
       quizQuestionManagerService,
+      quizResolverService,
       explanationTextService,
       resetBackgroundService,
       resetFeedbackIconService,
@@ -85,6 +89,8 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
       selectionMessageService,
       sharedVisibilityService,
       timerService,
+      countdownService,
+      stopwatchService,
       componentFactoryResolver,
       activatedRoute,
       fb,

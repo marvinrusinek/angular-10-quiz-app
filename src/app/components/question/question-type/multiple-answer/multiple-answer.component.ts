@@ -89,6 +89,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
     this.quizQuestionManagerService = quizQuestionManagerService;
+    this.quizResolverService = quizResolverService;
     this.explanationTextService = explanationTextService;
     this.resetBackgroundService = resetBackgroundService;
     this.resetFeedbackIconService = resetFeedbackIconService;
@@ -97,6 +98,8 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
     this.timerService = timerService;
+    this.countdownService = countdownService;
+    this.stopwatchService = stopwatchService;
 
     this.selectedOptions = [];
   }
