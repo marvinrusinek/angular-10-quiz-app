@@ -22,8 +22,7 @@ import { TimerService } from '../../../../shared/services/timer.service';
 
 @Component({
   selector: 'codelab-question-multiple-answer',
-  // templateUrl: './multiple-answer.component.html',
-  template: `<p>Multiple Answer Component</p>`,
+  templateUrl: './multiple-answer.component.html',
   styleUrls: [
     './multiple-answer.component.scss',
     '../../question.component.scss'
