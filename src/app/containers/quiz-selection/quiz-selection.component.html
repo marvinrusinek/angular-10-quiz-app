@@ -10,8 +10,16 @@
       <h4>How well do you know Angular? Find out!</h4>
     </div>
     <div class="info">
-      <a href="https://github.com/codelab-fun/codelab/blob/master/README.md" target="_blank">
-        <i class="material-icons" matTooltip="Angular Codelab info" matTooltipPosition="right">info</i>
+      <a
+        href="https://github.com/codelab-fun/codelab/blob/master/README.md"
+        target="_blank"
+      >
+        <i
+          class="material-icons"
+          matTooltip="Angular Codelab info"
+          matTooltipPosition="right"
+          >info</i
+        >
       </a>
     </div>
   </header>
@@ -21,28 +29,52 @@
       <span i18n>Milestones &#x25BC;</span>
     </button>
     <mat-menu #menu="matMenu" xPosition="before">
-      <span style="margin-left: 10px" i18n><strong>Select a Quiz&hellip;</strong></span>
+      <span style="margin-left: 10px" i18n
+        ><strong>Select a Quiz&hellip;</strong></span
+      >
       <div *ngFor="let quiz of quizzes$ | async">
-        <button mat-menu-item name="milestone" routerLinkActive="active" [routerLink]="['/intro/', quiz?.quizId]"
-         data-i18n="quiz.milestone" style="outline: none !important; border: none !important;">
-          {{ quiz?.milestone || "Milestone not found" }}
+        <button
+          mat-menu-item
+          name="milestone"
+          routerLinkActive="active"
+          [routerLink]="['/intro/', quiz?.quizId]"
+          data-i18n="quiz.milestone"
+          style="outline: none !important; border: none !important;"
+        >
+          {{ quiz?.milestone || 'Milestone not found' }}
         </button>
       </div>
     </mat-menu>
   </div>
 
   <div class="quiz-grid">
-    <div class="quiz-tile" #quizTile *ngFor="let quiz of quizzes$ | async; let i = index"
-      [@slideLeftToRight]="animationState$ | async" (@slideLeftToRight.done)="animationDoneHandler()"
-      (click)="onSelect(quiz.quizId, i)" routerLinkActive="active" [ngStyle]="getQuizTileStyles(quiz)" loading="lazy">
+    <div
+      class="quiz-tile"
+      #quizTile
+      *ngFor="let quiz of quizzes$ | async; let i = index"
+      [@slideLeftToRight]="animationState$ | async"
+      (@slideLeftToRight.done)="animationDoneHandler()"
+      (click)="onSelect(quiz.quizId, i)"
+      routerLinkActive="active"
+      [ngStyle]="getQuizTileStyles(quiz)"
+      loading="lazy"
+    >
       <summary class="quiz-info">
-        <h5 class="quiz-title" i18n>{{ quiz?.milestone || "Milestone not found" }}</h5>
-        <h6 class="quiz-summary" i18n>{{ quiz?.summary || "Summary not found" }}</h6>
+        <h5 class="quiz-title" i18n>
+          {{ quiz?.milestone || 'Milestone not found' }}
+        </h5>
+        <h6 class="quiz-summary" i18n>
+          {{ quiz?.summary || 'Summary not found' }}
+        </h6>
       </summary>
 
       <div class="status-icon">
         <span [ngClass]="getLinkClass(quiz)" [matTooltip]="getTooltip(quiz)">
-          <a *ngIf="shouldShowLink(quiz)" routerLinkActive="active" [routerLink]="getLinkRouterLink(quiz)">
+          <a
+            *ngIf="shouldShowLink(quiz)"
+            routerLinkActive="active"
+            [routerLink]="getLinkRouterLink(quiz)"
+          >
             <i [ngClass]="getIconClass(quiz)"></i>
           </a>
         </span>
@@ -51,64 +83,65 @@
   </div>
 
   <footer>
-    <h3 i18n>Copyright &copy; 2024
+    <h3 i18n>
+      Copyright &copy; 2024
       <a target="_blank" href="https://www.codelab.fun">codelab.fun</a>
     </h3>
   </footer>
 </div>
 <!--
 <ion-page>
-  <ion-content>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Angular Codelab Quiz App</ion-title>
-        <ion-buttons slot="start">
-          <ion-button href="https://www.codelab.fun" target="_blank">
-            <ion-icon slot="icon-only" name="logo"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-        <ion-buttons slot="end">
-          <ion-button href="https://github.com/codelab-fun/codelab/blob/master/README.md" target="_blank">
-            <ion-icon slot="icon-only" name="information-circle"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
+<ion-content>
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Angular Codelab Quiz App</ion-title>
+      <ion-buttons slot="start">
+        <ion-button href="https://www.codelab.fun" target="_blank">
+          <ion-icon slot="icon-only" name="logo"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-buttons slot="end">
+        <ion-button href="https://github.com/codelab-fun/codelab/blob/master/README.md" target="_blank">
+          <ion-icon slot="icon-only" name="information-circle"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
 
-    <ion-header collapse="condense">
-      <ion-toolbar>
-        <ion-title size="large">Angular Codelab Quiz App</ion-title>
-      </ion-toolbar>
-    </ion-header>
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Angular Codelab Quiz App</ion-title>
+    </ion-toolbar>
+  </ion-header>
 
-    <ion-content class="ion-padding">
-      <h4>How well do you know Angular? Find out!</h4>
+  <ion-content class="ion-padding">
+    <h4>How well do you know Angular? Find out!</h4>
 
-      <ion-item>
-        <ion-label>Milestones</ion-label>
-        <ion-select [interfaceOptions]="customPopoverOptions" interface="popover">
-          <ion-select-option *ngFor="let quiz of quizzes$ | async" [value]="quiz?.quizId">{{ quiz?.milestone || "Milestone not found" }}</ion-select-option>
-        </ion-select>
-      </ion-item>
+    <ion-item>
+      <ion-label>Milestones</ion-label>
+      <ion-select [interfaceOptions]="customPopoverOptions" interface="popover">
+        <ion-select-option *ngFor="let quiz of quizzes$ | async" [value]="quiz?.quizId">{{ quiz?.milestone || "Milestone not found" }}</ion-select-option>
+      </ion-select>
+    </ion-item>
 
-      <div class="quiz-grid">
-        <ion-card class="quiz-tile" *ngFor="let quiz of quizzes$ | async" (click)="onSelect(quiz.quizId)" [@slideLeftToRight]="animationState$ | async" (@slideLeftToRight.done)="animationDoneHandler()" routerLinkActive="active" [ngStyle]="getQuizTileStyles(quiz)" loading="lazy">
-          <ion-card-header>
-            <ion-card-title>{{ quiz?.milestone || "Milestone not found" }}</ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            {{ quiz?.summary || "Summary not found" }}
-          </ion-card-content>
-        </ion-card>
-      </div>
-    </ion-content>
-
-    <ion-footer>
-      <ion-toolbar>
-        <ion-title>
-          <a target="_blank" href="https://www.codelab.fun">codelab.fun</a>
-        </ion-title>
-      </ion-toolbar>
-    </ion-footer>
+    <div class="quiz-grid">
+      <ion-card class="quiz-tile" *ngFor="let quiz of quizzes$ | async" (click)="onSelect(quiz.quizId)" [@slideLeftToRight]="animationState$ | async" (@slideLeftToRight.done)="animationDoneHandler()" routerLinkActive="active" [ngStyle]="getQuizTileStyles(quiz)" loading="lazy">
+        <ion-card-header>
+          <ion-card-title>{{ quiz?.milestone || "Milestone not found" }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          {{ quiz?.summary || "Summary not found" }}
+        </ion-card-content>
+      </ion-card>
+    </div>
   </ion-content>
+
+  <ion-footer>
+    <ion-toolbar>
+      <ion-title>
+        <a target="_blank" href="https://www.codelab.fun">codelab.fun</a>
+      </ion-title>
+    </ion-toolbar>
+  </ion-footer>
+</ion-content>
 </ion-page>-->

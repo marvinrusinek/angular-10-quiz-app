@@ -32,7 +32,7 @@ export class SummaryReportComponent implements OnInit {
   };
   elapsedMinutes: number;
   elapsedSeconds: number;
-  checkedShuffle: boolean;
+  checkedShuffle: Observable<boolean>;
   highScores: QuizScore[];
   codelabUrl = 'https://www.codelab.fun';
 
