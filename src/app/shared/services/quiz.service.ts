@@ -325,6 +325,10 @@ export class QuizService implements OnDestroy {
     this.completedQuizId = value;
   }
 
+  public setCheckedShuffle(value: boolean): void {
+    this._checkedShuffle.next(value);
+  }
+
   setQuestions(questions: QuizQuestion[]): void {
     this.questionsSubject.next(questions);
   }
