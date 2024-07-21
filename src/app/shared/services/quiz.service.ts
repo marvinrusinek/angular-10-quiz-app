@@ -215,6 +215,10 @@ export class QuizService implements OnDestroy {
     return this._quizData$.asObservable();
   }
 
+  getQuizName(segments: any[]): string {
+    return segments[1].toString();
+  }
+
   initializeData(): void {
     this.quizData = QUIZ_DATA || [];
     if (QUIZ_DATA) {
