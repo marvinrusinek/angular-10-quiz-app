@@ -305,6 +305,22 @@ export class QuizService implements OnDestroy {
     this.indexOfQuizId = index;
   }
 
+  setQuizStatus(value: string): void {
+    this.status = value;
+  }
+
+  setStartedQuizId(value: string) {
+    this.startedQuizId = value;
+  }
+
+  setContinueQuizId(value: string) {
+    this.continueQuizId = value;
+  }
+
+  setQuizCompleted(completed: boolean) {
+    this.quizCompleted = completed;
+  }
+
   setQuestions(questions: QuizQuestion[]): void {
     this.questionsSubject.next(questions);
   }
