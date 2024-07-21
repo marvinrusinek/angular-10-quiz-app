@@ -32,7 +32,7 @@ export class SummaryReportComponent implements OnInit {
   };
   elapsedMinutes: number;
   elapsedSeconds: number;
-  checkedShuffle: Observable<boolean>;
+  checkedShuffle$: Observable<boolean>;
   highScores: QuizScore[];
   codelabUrl = 'https://www.codelab.fun';
 
@@ -49,7 +49,7 @@ export class SummaryReportComponent implements OnInit {
       map((segments) => this.quizService.getQuizName(segments))
     );
     this.quizId = this.quizService.quizId;
-    this.checkedShuffle = this.quizService.checkedShuffle.asObservable();
+    this.checkedShuffle$ = this.quizService.checkedShuffle$;
     this.calculateElapsedTime();
     this.quizService.saveHighScores();
     this.highScores = this.quizService.highScores;
