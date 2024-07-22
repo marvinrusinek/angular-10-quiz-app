@@ -210,7 +210,7 @@ export class QuizQuestionComponent
     protected router: Router,
     protected ngZone: NgZone
   ) {
-    super(componentFactoryResolver, fb);
+    super(null, fb);
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
@@ -339,6 +339,13 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
+  }
+
+  ngAfterViewInit(): void {
+    const componentRef = this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.multipleAnswer.value);
+    componentRef.instance.questionForm = this.questionForm;
+    componentRef.instance.question = this.question;
+    componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
