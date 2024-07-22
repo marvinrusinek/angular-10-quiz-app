@@ -161,7 +161,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements Af
 
   initializeFeedbackForOptions() {
     if (this.optionsToDisplay) {
-      this.showFeedbackForOption = this.optionsToDisplay.map(option => false);
+      this.showFeedbackForOption = new Array(this.optionsToDisplay.length).fill(false);
     } else {
       console.error('SingleAnswerComponent - optionsToDisplay is not defined');
     }

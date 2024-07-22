@@ -148,7 +148,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
 
   initializeFeedbackForOptions() {
     if (this.optionsToDisplay) {
-      this.showFeedbackForOption = this.optionsToDisplay.map(option => false);
+      this.showFeedbackForOption = new Array(this.optionsToDisplay.length).fill(false);
     } else {
       console.error('SingleAnswerComponent - optionsToDisplay is not defined');
     }
