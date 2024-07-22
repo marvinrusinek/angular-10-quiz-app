@@ -1932,3 +1932,4 @@ export class QuizQuestionComponent
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   } */
 }
+
