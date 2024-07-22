@@ -426,6 +426,10 @@ export class QuizQuestionComponent
     }
   }
 
+  getComponentToLoad(): Type<any> {
+    return this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
+  }
+
   loadQuestion(): void {
     this.resetState();
 
