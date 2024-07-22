@@ -230,6 +230,8 @@ export class QuizQuestionComponent
 
     this.questionForm = this.fb.group({});
 
+    super(componentFactoryResolver, fb);
+
     /* this.sharedVisibilitySubscription =
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
         this.handlePageVisibilityChange(isHidden);
@@ -1914,7 +1916,7 @@ export class QuizQuestionComponent
     });
   } */
 
-  loadDynamicComponent() {
+  /* loadDynamicComponent() {
     console.log('Loading dynamic component');
     const component = this.multipleAnswer
       ? MultipleAnswerComponent
@@ -1929,5 +1931,5 @@ export class QuizQuestionComponent
     componentRef.instance.questionForm = this.questionForm;
     componentRef.instance.question = this.question;
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
-  }
+  } */
 }
