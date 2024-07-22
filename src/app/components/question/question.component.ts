@@ -215,6 +215,7 @@ export class QuizQuestionComponent
     protected router: Router,
     protected ngZone: NgZone
   ) {
+    super(componentFactoryResolver, fb);
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
@@ -229,8 +230,6 @@ export class QuizQuestionComponent
     this.timerService = timerService;
 
     this.questionForm = this.fb.group({});
-
-    super(componentFactoryResolver, fb);
 
     /* this.sharedVisibilitySubscription =
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
