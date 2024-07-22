@@ -254,6 +254,8 @@ export class QuizQuestionComponent
 
   async ngOnInit(): Promise<void> {
     console.log('QuizQuestionComponent initialized');
+    console.log('ngOnInit:', this.dynamicComponentContainer);
+    
     const hasMultipleAnswers =
       this.currentQuestion.options.filter((option) => option.correct).length >
       1;
@@ -261,8 +263,6 @@ export class QuizQuestionComponent
 
     const component = this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
     this.loadDynamicComponent(component);
-
-    console.log('ngOnInit:', this.dynamicComponentContainer);
 
     this.resetFeedbackSubscription =
       this.resetStateService.resetFeedback$.subscribe(() => {
