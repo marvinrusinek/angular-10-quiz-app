@@ -118,7 +118,7 @@ export class SingleAnswerComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     console.log('SingleAnswerComponent initialized');
-    super.ngOnInit();
+    // super.ngOnInit();
 
     if (!this.question) {
       console.error('SingleAnswerComponent: question is undefined');
