@@ -261,6 +261,9 @@ export class QuizQuestionComponent
       1;
     this.multipleAnswer.next(hasMultipleAnswers);
 
+    const component = this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
+    this.loadDynamicComponent(component);
+
     console.log('ngOnInit:', this.dynamicComponentContainer);
 
     this.resetFeedbackSubscription =
@@ -341,10 +344,6 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
-  }
-
-  ngAfterViewInit() {
-    this.loadDynamicComponent(this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent);
   }
 
   ngOnChanges(changes: SimpleChanges): void {

@@ -34,7 +34,7 @@ import { BaseQuestionComponent } from '../../base-question.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom
 })
-export class MultipleAnswerComponent extends QuizQuestionComponent implements AfterViewInit, OnInit, OnDestroy {
+export class MultipleAnswerComponent extends BaseQuestionComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() questionForm!: FormGroup;
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
