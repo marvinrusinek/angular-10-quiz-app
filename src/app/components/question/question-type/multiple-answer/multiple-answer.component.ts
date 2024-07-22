@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, NgZone, OnDestroy, OnInit, ViewEncapsulation, ComponentFactoryResolver } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs'; 
 
 import { QuizQuestionComponent } from '../../question.component';
 import { Option } from '../../../../shared/models/Option.model';
@@ -22,6 +22,7 @@ import { SharedVisibilityService } from '../../../../shared/services/shared-visi
 import { TimerService } from '../../../../shared/services/timer.service';
 import { CountdownService } from '../../../../shared/services/countdown.service';
 import { StopwatchService } from '../../../../shared/services/stopwatch.service';
+
 
 @Component({
   selector: 'codelab-question-multiple-answer',
@@ -50,6 +51,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     protected quizDataService: QuizDataService,
     protected quizStateService: QuizStateService,
     protected quizQuestionManagerService: QuizQuestionManagerService,
+    protected quizResolverService: QuizResolverService,
     protected explanationTextService: ExplanationTextService,
     protected resetBackgroundService: ResetBackgroundService,
     protected resetFeedbackIconService: ResetFeedbackIconService,
@@ -58,6 +60,8 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     protected selectionMessageService: SelectionMessageService,
     protected sharedVisibilityService: SharedVisibilityService,
     protected timerService: TimerService,
+    protected countdownService: CountdownService,
+    protected stopwatchService: StopwatchService,
     protected componentFactoryResolver: ComponentFactoryResolver,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder,
