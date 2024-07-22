@@ -254,8 +254,6 @@ export class QuizQuestionComponent
 
   async ngOnInit(): Promise<void> {
     console.log('QuizQuestionComponent initialized');
-    //this.multipleAnswer = this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion); // Set the flag correctly
-    //this.multipleAnswer.next(this.question.options.filter(option => option.correct).length > 1);
     const hasMultipleAnswers =
       this.currentQuestion.options.filter((option) => option.correct).length >
       1;
