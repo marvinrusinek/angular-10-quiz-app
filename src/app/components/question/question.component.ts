@@ -248,6 +248,11 @@ export class QuizQuestionComponent
     console.log('QuizQuestionComponent initialized');
     console.log('ngOnInit:', this.dynamicComponentContainer);
 
+    if (!this.question) {
+      console.error('Question is not defined');
+      return;
+    }
+
     const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
     this.multipleAnswer.next(hasMultipleAnswers);
 
