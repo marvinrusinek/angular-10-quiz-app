@@ -147,10 +147,19 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements Af
   ngAfterViewInit(): void {
     this.initializeOptionChecked();
   }
+  
 
   ngOnDestroy(): void {
     this.destroyed$.next();
     this.destroyed$.complete();
+  }
+
+  initializeFeedbackForOptions() {
+    if (this.optionsToDisplay) {
+      this.showFeedbackForOption = this.optionsToDisplay.map(option => false);
+    } else {
+      console.error('SingleAnswerComponent - optionsToDisplay is not defined');
+    }
   }
 
   initializeOptionChecked(): void {
