@@ -248,11 +248,10 @@ export class QuizQuestionComponent
     console.log('QuizQuestionComponent initialized');
     console.log('ngOnInit:', this.dynamicComponentContainer);
 
-    const hasMultipleAnswers =
-      this.currentQuestion.options.filter((option) => option.correct).length >
-      1;
+    const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
     this.multipleAnswer.next(hasMultipleAnswers);
 
+    // Load the dynamic component based on the multipleAnswer value
     const component = this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
     this.loadDynamicComponent(component);
 
