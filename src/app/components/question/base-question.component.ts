@@ -19,6 +19,7 @@ export class BaseQuestionComponent implements OnInit {
     protected componentFactoryResolver: ComponentFactoryResolver,
     protected fb: FormBuilder
   ) {
+    console.log('FormBuilder:', this.fb); 
     this.questionForm = this.fb.group({});
   }
 
