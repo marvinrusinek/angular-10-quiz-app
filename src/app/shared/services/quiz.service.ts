@@ -118,6 +118,7 @@ export class QuizService implements OnDestroy {
   shouldDisplayExplanation = false;
 
   _checkedShuffle: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  checkedShuffle = new BehaviorSubject<boolean>(false);
   checkedShuffle$ = this._checkedShuffle.asObservable();
   private shuffledQuestions: QuizQuestion[] = [];
 
