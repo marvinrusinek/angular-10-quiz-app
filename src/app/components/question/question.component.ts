@@ -106,14 +106,6 @@ export class QuizQuestionComponent
   };
   @Input() questionData: QuizQuestion;
   @Input() question!: QuizQuestion;
-  /* question: QuizQuestion = {
-    text: 'Sample question?',
-    options: [
-      { text: 'Option 1', correct: false } as Option,
-      { text: 'Option 2', correct: true } as Option,
-      { text: 'Option 3', correct: false } as Option
-    ]
-  }; */
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions: Observable<QuizQuestion[]>;
   @Input() options: Option[];
@@ -255,7 +247,7 @@ export class QuizQuestionComponent
   async ngOnInit(): Promise<void> {
     console.log('QuizQuestionComponent initialized');
     console.log('ngOnInit:', this.dynamicComponentContainer);
-    
+
     const hasMultipleAnswers =
       this.currentQuestion.options.filter((option) => option.correct).length >
       1;
