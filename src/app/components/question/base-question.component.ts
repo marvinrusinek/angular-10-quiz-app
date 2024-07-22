@@ -68,7 +68,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     protected componentFactoryResolver: ComponentFactoryResolver,
     protected fb: FormBuilder
   ) {
-    // this.questionForm = this.fb.group({});
+    this.questionForm = this.fb.group({});
   }
 
   ngOnInit(): void {
