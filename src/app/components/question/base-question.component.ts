@@ -21,7 +21,7 @@ export class BaseQuestionComponent implements OnInit {
     protected fb: FormBuilder
   ) {
     console.log('FormBuilder:', this.fb); 
-    this.questionForm = this.fb.group({});
+    // this.questionForm = this.fb.group({});
   }
 
   ngOnInit() {

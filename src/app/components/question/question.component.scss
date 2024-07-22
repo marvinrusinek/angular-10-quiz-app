@@ -9,14 +9,16 @@
     cursor: pointer;
     display: inline-block;
     width: 580px !important;
-    height: auto;
+    height: auto !important;
     font-family: $font-stack;
     font-size: 20px;
     color: $dark-brown;
     background-color: $light-gray;
     border: 2px solid $medium-gray;
     padding: 10px 15px 10px 30px;
+    padding-bottom: 20px !important;
     margin-left: -5px !important;
+    margin-bottom: 30px;
     padding-left: -25px !important;
     overflow: unset !important;
 
