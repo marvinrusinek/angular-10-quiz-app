@@ -8,7 +8,7 @@ import {
   OnInit,
   ViewEncapsulation, ComponentFactoryResolver
 } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
 
