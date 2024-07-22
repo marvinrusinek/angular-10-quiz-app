@@ -1,6 +1,6 @@
 import { Injectable, ComponentFactoryResolver, ViewContainerRef, Type } from '@angular/core';
-import { SingleAnswerComponent } from './question-type/single-answer/single-answer.component';
-import { MultipleAnswerComponent } from './question-type/multiple-answer/multiple-answer.component';
+import { SingleAnswerComponent } from '../../components/question/question-type/single-answer/single-answer.component';
+import { MultipleAnswerComponent } from '../../components/question/question-type/multiple-answer/multiple-answer.component';
 
 @Injectable({
   providedIn: 'root'
