@@ -72,6 +72,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    console.log('BaseQuestionComponent ngOnInit');
     if (this.question) {
       this.optionsToDisplay = this.question.options;
       const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
@@ -82,6 +83,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    console.log('BaseQuestionComponent ngAfterViewInit', this.dynamicComponentContainer);
     if (this.dynamicComponentContainer) {
       this.loadDynamicComponent();
     } else {
