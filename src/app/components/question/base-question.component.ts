@@ -1,8 +1,9 @@
 import { Component, Input, ViewChild, ViewContainerRef, ComponentFactoryResolver, OnInit, AfterViewInit, Type } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-import { Option } from '../../shared/models/Option.model';
 import { BehaviorSubject } from 'rxjs';
+
+import { Option } from '../../shared/models/Option.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Component({
   template: ''
@@ -44,6 +45,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   }
 }
+
 
 
 
