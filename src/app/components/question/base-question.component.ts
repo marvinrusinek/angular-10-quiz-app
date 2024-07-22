@@ -1,4 +1,53 @@
-import { Component, Input, ViewChild, ViewContainerRef, ComponentFactoryResolver, OnInit, AfterViewInit, Type } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef, Input, AfterViewInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { BehaviorSubject } from 'rxjs';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+import { Option } from '../../shared/models/Option.model';
+import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
+
+@Component({
+  template: ''
+})
+export class BaseQuestionComponent implements OnInit, AfterViewInit {
+  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: true }) dynamicComponentContainer!: ViewContainerRef;
+
+  @Input() question!: QuizQuestion;
+  multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  questionForm: FormGroup;
+  optionsToDisplay: Option[] = [];
+
+  constructor(
+    protected fb: FormBuilder,
+    private dynamicComponentService: DynamicComponentService
+  ) {
+    this.questionForm = this.fb.group({});
+  }
+
+  ngOnInit() {
+    if (this.question) {
+      this.optionsToDisplay = this.question.options;
+      const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
+      this.multipleAnswer.next(hasMultipleAnswers);
+    } else {
+      console.error('Question input is undefined');
+    }
+  }
+
+  ngAfterViewInit() {
+    const component = this.dynamicComponentService.getComponent(this.multipleAnswer.value);
+    this.loadDynamicComponent(component);
+  }
+
+  loadDynamicComponent(component: Type<any>) {
+    const componentRef = this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, component);
+    componentRef.instance.questionForm = this.questionForm;
+    componentRef.instance.question = this.question;
+    componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+  }
+}
+
+
+/* import { Component, Input, ViewChild, ViewContainerRef, ComponentFactoryResolver, OnInit, AfterViewInit, Type } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
@@ -46,7 +95,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     componentRef.instance.question = this.question;
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   }
-}
+} */
 
 
 
