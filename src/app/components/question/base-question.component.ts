@@ -23,7 +23,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     this.questionForm = this.fb.group({});
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (this.question) {
       this.optionsToDisplay = this.question.options;
       const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
@@ -33,11 +33,11 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.loadDynamicComponent();
   }
 
-  loadDynamicComponent() {
+  loadDynamicComponent(): void {
     const component = this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     this.dynamicComponentContainer.clear();
