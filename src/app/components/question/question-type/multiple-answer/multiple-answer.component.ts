@@ -22,7 +22,7 @@ import { SharedVisibilityService } from '../../../../shared/services/shared-visi
 import { TimerService } from '../../../../shared/services/timer.service';
 import { CountdownService } from '../../../../shared/services/countdown.service';
 import { StopwatchService } from '../../../../shared/services/stopwatch.service';
-
+import { BaseQuestionComponent } from '../../base-question.component'; 
 
 @Component({
   selector: 'codelab-question-multiple-answer',
@@ -34,7 +34,7 @@ import { StopwatchService } from '../../../../shared/services/stopwatch.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom
 })
-export class MultipleAnswerComponent extends QuizQuestionComponent implements AfterViewInit, OnInit, OnDestroy {
+export class MultipleAnswerComponent extends BaseQuestionComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() questionForm!: FormGroup;
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
