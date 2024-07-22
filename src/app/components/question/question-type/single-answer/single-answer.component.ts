@@ -141,6 +141,14 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     this.destroyed$.complete();
   }
 
+  initializeFeedbackForOptions() {
+    if (this.optionsToDisplay) {
+      this.showFeedbackForOption = this.optionsToDisplay.map(option => false);
+    } else {
+      console.error('SingleAnswerComponent - optionsToDisplay is not defined');
+    }
+  }
+
   isSelectedOption(option: Option): boolean {
     return this.selectedOptionService.isSelectedOption(option);
   }
