@@ -341,6 +341,7 @@ export class QuizQuestionComponent
   }
 
   ngAfterViewInit(): void {
+    super.ngAfterViewInit();
     const componentRef = this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.multipleAnswer.value);
     componentRef.instance.questionForm = this.questionForm;
     componentRef.instance.question = this.question;
