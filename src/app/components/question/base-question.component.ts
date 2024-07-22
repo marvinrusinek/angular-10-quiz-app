@@ -12,7 +12,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: true }) dynamicComponentContainer!: ViewContainerRef;
 
   @Input() question!: QuizQuestion;
-  @Input() multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   questionForm: FormGroup;
   optionsToDisplay: Option[] = [];
 
@@ -26,8 +26,10 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     if (this.question) {
       this.optionsToDisplay = this.question.options;
+      const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
+      this.multipleAnswer.next(hasMultipleAnswers);
     } else {
-      console.error('Question input is undefined in BaseQuestionComponent');
+      console.error('Question input is undefined');
     }
   }
 
