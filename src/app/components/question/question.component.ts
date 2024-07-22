@@ -25,6 +25,7 @@ import { SelectionMessageService } from '../../shared/services/selection-message
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
 import { TimerService } from '../../shared/services/timer.service';
 
+
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
