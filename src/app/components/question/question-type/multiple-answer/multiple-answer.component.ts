@@ -43,6 +43,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements Af
   @Input() showFeedback = false;
   selectedOptions: SelectedOption[] = [];
   optionChecked: { [optionId: number]: boolean } = {};
+  showFeedbackForOption: boolean[] = [];
   private destroyed$ = new Subject<void>();
 
   constructor(

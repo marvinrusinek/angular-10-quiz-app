@@ -52,6 +52,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
   @Input() showFeedback = false;
   selectedOptions: SelectedOption[] = [];
   optionChecked: { [optionId: number]: boolean } = {};
+  showFeedbackForOption: boolean[] = [];
 
   private destroyed$ = new Subject<void>();
 
