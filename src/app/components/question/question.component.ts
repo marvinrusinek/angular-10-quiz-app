@@ -1675,9 +1675,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
     console.log('Loading dynamic component');
     const component = this.multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
+    console.log('ComponentFactory:', componentFactory);
     this.dynamicComponentContainer.clear();
     const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
-    componentRef.instance.form = this.questionForm;
+    console.log('ComponentRef:', componentRef);
+    componentRef.instance.questionForm = this.questionForm;
     componentRef.instance.question = this.question;
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   }
