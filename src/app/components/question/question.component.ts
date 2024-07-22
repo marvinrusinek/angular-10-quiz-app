@@ -116,8 +116,8 @@ export class QuizQuestionComponent
   @Input() currentQuestionIndex: number = 0;
   @Input() previousQuestionIndex: number;
   @Input() quizId: string | null | undefined = '';
-  // @Input() multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  multipleAnswer = new BehaviorSubject<boolean>(false);
+  @Input() multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  // multipleAnswer = new BehaviorSubject<boolean>(false);
   @Input() explanationText: string | null;
   @Input() isOptionSelected = false;
   @Input() showFeedback = false;
