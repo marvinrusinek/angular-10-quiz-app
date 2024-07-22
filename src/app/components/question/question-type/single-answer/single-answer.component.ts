@@ -12,7 +12,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
 
-import { QuizQuestionComponent } from '../../question.component';
 import { Option } from '../../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
@@ -42,7 +41,7 @@ import { StopwatchService } from '../../../../shared/services/stopwatch.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom
 })
-export class SingleAnswerComponent extends QuizQuestionComponent implements OnInit, OnDestroy {
+export class SingleAnswerComponent implements OnInit, OnDestroy {
   @Input() questionForm!: FormGroup;
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
@@ -78,7 +77,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     protected router: Router,
     protected ngZone: NgZone
   ) {
-    super(
+    /* super(
       quizService,
       quizDataService,
       quizStateService,
@@ -102,7 +101,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
       cdRef,
       router,
       ngZone
-    );
+    ); */
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
