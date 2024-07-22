@@ -51,6 +51,7 @@ import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
+import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 import { ResetBackgroundService } from '../../shared/services/reset-background.service';
 import { ResetFeedbackIconService } from '../../shared/services/reset-feedback-icon.service';
@@ -193,6 +194,7 @@ export class QuizQuestionComponent
     protected quizDataService: QuizDataService,
     protected quizStateService: QuizStateService,
     protected quizQuestionManagerService: QuizQuestionManagerService,
+    protected dynamicComponentService: DynamicComponentService,
     protected explanationTextService: ExplanationTextService,
     protected resetBackgroundService: ResetBackgroundService,
     protected resetFeedbackIconService: ResetFeedbackIconService,
