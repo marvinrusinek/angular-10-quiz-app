@@ -87,13 +87,18 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   }
 
   loadDynamicComponent(): void {
-    const component = this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
+    const component = this.getComponentToLoad();
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     this.dynamicComponentContainer.clear();
     const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
     componentRef.instance.questionForm = this.questionForm;
     componentRef.instance.question = this.question;
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+  }
+
+  protected getComponentToLoad(): Type<any> {
+    // This method should be overridden in derived classes to return the correct component
+    return this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
   }
 }
 
