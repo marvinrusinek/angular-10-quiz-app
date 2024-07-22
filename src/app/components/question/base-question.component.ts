@@ -39,4 +39,3 @@ export class BaseQuestionComponent implements OnInit {
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   }
 }
-
