@@ -114,6 +114,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements Af
   async ngOnInit(): Promise<void> {
     console.log('MultipleAnswerComponent initialized');
     super.ngOnInit();
+    this.initializeFeedbackForOptions();
 
     if (!this.question) {
       console.error('MultipleAnswerComponent: question is undefined');

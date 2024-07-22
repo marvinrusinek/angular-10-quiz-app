@@ -121,6 +121,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
   async ngOnInit(): Promise<void> {
     console.log('SingleAnswerComponent initialized');
     super.ngOnInit();
+    this.initializeFeedbackForOptions();
 
     if (!this.question) {
       console.error('SingleAnswerComponent: question is undefined');
