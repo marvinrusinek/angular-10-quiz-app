@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ViewContainerRef, Input, AfterViewInit } from '@angular/core';
+/* import { Component, OnInit, ViewChild, ViewContainerRef, Input, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -20,7 +20,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     protected fb: FormBuilder,
     private dynamicComponentService: DynamicComponentService
   ) {
-    this.questionForm = this.fb.group({});
+    // this.questionForm = this.fb.group({});
   }
 
   ngOnInit() {
@@ -44,10 +44,10 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     componentRef.instance.question = this.question;
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   }
-}
+} */
 
 
-/* import { Component, Input, ViewChild, ViewContainerRef, ComponentFactoryResolver, OnInit, AfterViewInit, Type } from '@angular/core';
+import { Component, Input, ViewChild, ViewContainerRef, ComponentFactoryResolver, OnInit, AfterViewInit, Type } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
@@ -95,7 +95,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     componentRef.instance.question = this.question;
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   }
-} */
+}
 
 
 
