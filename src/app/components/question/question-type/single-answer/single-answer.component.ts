@@ -142,7 +142,10 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     this.destroyed$.complete();
   }
 
-  
+  onOptionClicked(option: Option, index: number) {
+    super.onOptionClicked(option, index);
+    this.showFeedbackForOption[index] = true;
+  }
 
   initializeFeedbackForOptions() {
     if (this.optionsToDisplay) {
