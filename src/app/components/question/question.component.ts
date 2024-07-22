@@ -76,8 +76,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
   @Input() currentQuestionIndex: number = 0;
   @Input() previousQuestionIndex: number;
   @Input() quizId: string | null | undefined = '';
-  @Input() multipleAnswer: BehaviorSubject<boolean> =
-    new BehaviorSubject<boolean>(false);
+  // @Input() multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  multipleAnswer = new BehaviorSubject<boolean>(false);
   @Input() explanationText: string | null;
   @Input() isOptionSelected = false;
   @Input() showFeedback = false;
@@ -204,7 +204,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, Afte
   async ngOnInit(): Promise<void> {
     console.log('QuizQuestionComponent initialized');
     //this.multipleAnswer = this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion); // Set the flag correctly
-    this.multipleAnswer.next(this.question.options.filter(option => option.correct).length > 1);
+    //this.multipleAnswer.next(this.question.options.filter(option => option.correct).length > 1);
+    const hasMultipleAnswers = this.currentQuestion.options.filter(option => option.correct).length > 1;
+    this.multipleAnswer.next(hasMultipleAnswers);
 
     console.log('ngOnInit:', this.dynamicComponentContainer);
 
