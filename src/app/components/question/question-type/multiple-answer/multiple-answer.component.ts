@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Observable, Subject } from 'rxjs'; 
 
+import { QuizQuestionComponent } from '../../question.component';
 import { Option } from '../../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
@@ -33,7 +34,7 @@ import { StopwatchService } from '../../../../shared/services/stopwatch.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom
 })
-export class MultipleAnswerComponent implements AfterViewInit, OnInit, OnDestroy {
+export class MultipleAnswerComponent extends QuizQuestionComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() questionForm!: FormGroup;
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
@@ -68,7 +69,7 @@ export class MultipleAnswerComponent implements AfterViewInit, OnInit, OnDestroy
     protected router: Router,
     protected ngZone: NgZone
   ) {
-    /* super(
+    super(
       quizService,
       quizDataService,
       quizStateService,
@@ -90,7 +91,7 @@ export class MultipleAnswerComponent implements AfterViewInit, OnInit, OnDestroy
       cdRef,
       router,
       ngZone
-    ); */
+    );
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
@@ -112,7 +113,7 @@ export class MultipleAnswerComponent implements AfterViewInit, OnInit, OnDestroy
 
   async ngOnInit(): Promise<void> {
     console.log('MultipleAnswerComponent initialized');
-    // super.ngOnInit();
+    super.ngOnInit();
 
     if (!this.question) {
       console.error('MultipleAnswerComponent: question is undefined');
