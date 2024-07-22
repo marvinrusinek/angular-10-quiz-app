@@ -39,7 +39,6 @@ import {
   tap,
 } from 'rxjs/operators';
 
-import { TestComponent } from './test.component';
 import { BaseQuestionComponent } from './base-question.component';
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
