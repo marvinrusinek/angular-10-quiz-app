@@ -341,15 +341,7 @@ export class QuizQuestionComponent
   }
 
   ngAfterViewInit() {
-    console.log('ngAfterViewInit:', this.dynamicComponentContainer);
-    if (this.dynamicComponentContainer) {
-      console.log('dynamicComponentContainer is initialized');
-      this.loadDynamicComponent();
-    } else {
-      console.error(
-        'dynamicComponentContainer is still undefined in ngAfterViewInit'
-      );
-    }
+    this.loadDynamicComponent(this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
