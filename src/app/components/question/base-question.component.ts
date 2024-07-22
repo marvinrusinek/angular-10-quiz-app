@@ -1,8 +1,9 @@
 import { Component, OnInit, Input, ViewChild, ViewContainerRef, ComponentFactoryResolver, Type } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-import { Option } from '../../shared/models/Option.model';
 import { BehaviorSubject } from 'rxjs';
+
+import { Option } from '../../shared/models/Option.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Component({
   template: ''
