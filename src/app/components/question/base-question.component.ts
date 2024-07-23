@@ -111,7 +111,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   } */
 
   getComponentToLoad(): Type<any> {
-    throw new Error('Method not implemented.');
+    return this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
   }
 }
 
