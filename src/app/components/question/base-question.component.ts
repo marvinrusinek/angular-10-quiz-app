@@ -94,11 +94,15 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   loadDynamicComponent(): void {
     const component = this.getComponentToLoad();
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
-    this.dynamicComponentContainer.clear();
-    const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
-    componentRef.instance.questionForm = this.questionForm;
-    componentRef.instance.question = this.question;
-    componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+    if (this.dynamicComponentContainer) {
+      this.dynamicComponentContainer.clear();
+      const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
+      componentRef.instance.questionForm = this.questionForm;
+      componentRef.instance.question = this.question;
+      componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+    } else {
+      console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
+    }
   }
 
   /* protected getComponentToLoad(): Type<any> {
