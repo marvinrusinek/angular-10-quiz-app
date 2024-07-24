@@ -42,13 +42,23 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     }
   }
 
-  loadDynamicComponent(): void {
+  /* loadDynamicComponent(): void {
     const component = this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     if (!this.dynamicComponentContainer) {
       console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
       return;
     }
+    this.dynamicComponentContainer.clear();
+    const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
+    componentRef.instance.questionForm = this.questionForm;
+    componentRef.instance.question = this.question;
+    componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+  } */
+
+  loadDynamicComponent(): void {
+    const component = this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     this.dynamicComponentContainer.clear();
     const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
     componentRef.instance.questionForm = this.questionForm;
