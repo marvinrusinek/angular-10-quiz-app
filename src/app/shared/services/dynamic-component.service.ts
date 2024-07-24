@@ -13,6 +13,7 @@ export class DynamicComponentService {
   loadComponent(container: ViewContainerRef, multipleAnswer: boolean): any {
     const component = multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
+    console.log('Clearing and creating component in container:', container);
     container.clear();
     return container.createComponent(componentFactory);
   }
