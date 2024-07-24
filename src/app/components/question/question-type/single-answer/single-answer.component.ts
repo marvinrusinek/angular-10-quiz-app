@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -42,7 +43,7 @@ import { BaseQuestionComponent } from '../../base-question.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom
 })
-export class SingleAnswerComponent extends BaseQuestionComponent implements OnInit, OnDestroy {
+export class SingleAnswerComponent extends BaseQuestionComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() questionForm!: FormGroup;
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
@@ -140,6 +141,10 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
   ngOnDestroy(): void {
     this.destroyed$.next();
     this.destroyed$.complete();
+  }
+
+  ngAfterViewInit(): void {
+    super.ngAfterViewInit();
   }
 
   onOptionClicked(option: Option, index: number) {
