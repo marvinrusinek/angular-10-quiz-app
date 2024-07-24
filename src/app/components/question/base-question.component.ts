@@ -17,7 +17,8 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
 
   constructor(
     protected componentFactoryResolver: ComponentFactoryResolver,
-    protected fb: FormBuilder
+    protected fb: FormBuilder,
+    protected dynamicComponentService: DynamicComponentService
   ) {
     this.questionForm = this.fb.group({});
   }
