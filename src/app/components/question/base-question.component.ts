@@ -5,7 +5,6 @@ import { BehaviorSubject } from 'rxjs';
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
-
 @Component({
   template: ''
 })
