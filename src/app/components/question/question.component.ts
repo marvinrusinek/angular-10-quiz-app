@@ -215,6 +215,7 @@ export class QuizQuestionComponent
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
     this.quizQuestionManagerService = quizQuestionManagerService;
+    this.dynamicComponentService = dynamicComponentService;
     this.explanationTextService = explanationTextService;
     this.resetBackgroundService = resetBackgroundService;
     this.resetFeedbackIconService = resetFeedbackIconService;

@@ -79,7 +79,6 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   }
 
   getComponentToLoad(): Type<any> {
-    // This method should be overridden in derived classes to return the correct component
     return this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
   }
 }
