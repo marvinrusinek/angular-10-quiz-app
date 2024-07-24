@@ -17,4 +17,3 @@ export class DynamicComponentService {
     return container.createComponent(componentFactory);
   }
 }
-
