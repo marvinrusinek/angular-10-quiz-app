@@ -146,6 +146,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements Af
   }  
 
   ngAfterViewInit(): void {
+    super.ngAfterViewInit();
     this.initializeOptionChecked();
   }
   
