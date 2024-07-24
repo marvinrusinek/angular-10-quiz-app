@@ -32,7 +32,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit(): void {
+  /* ngAfterViewInit(): void {
     console.log('ngAfterViewInit triggered');
     console.log('dynamicComponentContainer:', this.dynamicComponentContainer);
     if (!this.dynamicComponentContainer) {
@@ -40,6 +40,10 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     } else {
       this.loadDynamicComponent();
     }
+  } */
+
+  ngAfterViewInit(): void {
+    this.loadDynamicComponent();
   }
 
   /* loadDynamicComponent(): void {
@@ -57,10 +61,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   } */
 
   loadDynamicComponent(): void {
-    const component = this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
-    this.dynamicComponentContainer.clear();
-    const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
+    const componentRef = this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.multipleAnswer.value);
     componentRef.instance.questionForm = this.questionForm;
     componentRef.instance.question = this.question;
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
