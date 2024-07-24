@@ -45,8 +45,8 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     console.log('ngAfterViewInit:', this.dynamicComponentContainer);
     if (!this.dynamicComponentContainer) {
-        console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
-        return;
+      console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
+      return;
     }
     this.loadDynamicComponent();
   }
