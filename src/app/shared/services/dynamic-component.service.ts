@@ -16,4 +16,12 @@ export class DynamicComponentService {
     container.clear();
     return container.createComponent(componentFactory);
   }
+
+  getMultipleAnswerComponent(): Type<any> {
+    return MultipleAnswerComponent;
+  }
+
+  getSingleAnswerComponent(): Type<any> {
+    return SingleAnswerComponent;
+  }
 }
