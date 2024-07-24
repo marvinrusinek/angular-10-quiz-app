@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
+
 
 @Component({
   template: ''
@@ -19,8 +19,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
 
   constructor(
     protected componentFactoryResolver: ComponentFactoryResolver,
-    protected fb: FormBuilder,
-    protected dynamicComponentService: DynamicComponentService
+    protected fb: FormBuilder
   ) {
     this.questionForm = this.fb.group({});
   }

@@ -209,8 +209,7 @@ export class QuizQuestionComponent
     protected router: Router,
     protected ngZone: NgZone
   ) {
-    // super(null, fb);
-    super(componentFactoryResolver, fb, dynamicComponentService);
+    super(null, fb);
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
