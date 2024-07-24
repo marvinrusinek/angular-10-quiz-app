@@ -34,16 +34,6 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     }
   }
 
-  /* ngAfterViewInit(): void {
-    console.log('ngAfterViewInit triggered');
-    console.log('dynamicComponentContainer:', this.dynamicComponentContainer);
-    if (!this.dynamicComponentContainer) {
-      console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
-    } else {
-      this.loadDynamicComponent();
-    }
-  } */
-
   ngAfterViewInit(): void {
     console.log('ngAfterViewInit:', this.dynamicComponentContainer);
     if (!this.dynamicComponentContainer) {
@@ -52,20 +42,6 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     }
     this.loadDynamicComponent();
   }
-
-  /* loadDynamicComponent(): void {
-    const component = this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
-    if (!this.dynamicComponentContainer) {
-      console.error('dynamicComponentContainer is undefined in loadDynamicComponent');
-      return;
-    }
-    this.dynamicComponentContainer.clear();
-    const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
-    componentRef.instance.questionForm = this.questionForm;
-    componentRef.instance.question = this.question;
-    componentRef.instance.optionsToDisplay = this.optionsToDisplay;
-  } */
 
   loadDynamicComponent(): void {
     console.log('Loading dynamic component');
