@@ -1,4 +1,4 @@
-import { Injectable, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
+import { Injectable, ComponentFactoryResolver, ViewContainerRef, Type } from '@angular/core';
 
 import { MultipleAnswerComponent } from '../../components/question/question-type/multiple-answer/multiple-answer.component';
 import { SingleAnswerComponent } from '../../components/question/question-type/single-answer/single-answer.component';
@@ -17,3 +17,4 @@ export class DynamicComponentService {
     return container.createComponent(componentFactory);
   }
 }
+
