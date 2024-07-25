@@ -23,7 +23,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     this.questionForm = this.fb.group({});
   }
 
-  ngOnInit(): void {
+  /* ngOnInit(): void {
     if (this.question) {
       this.optionsToDisplay = this.question.options;
       const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
@@ -31,22 +31,32 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     } else {
       console.error('Question input is undefined');
     }
+  } */
+
+  ngOnInit(): void {
+    if (!this.question) {
+      console.error('Question input is undefined');
+    }
   }
 
-  ngAfterViewInit(): void {
+  /* ngAfterViewInit(): void {
     console.log('ngAfterViewInit:', this.dynamicComponentContainer);
     if (!this.dynamicComponentContainer) {
       console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
       return;
     }
     this.loadDynamicComponent();
+  } */
+
+  ngAfterViewInit(): void {
+    if (this.question) {
+      this.loadDynamicComponent();
+    }
   }
 
   loadDynamicComponent(): void {
-    console.log('Loading dynamic component');
-    const componentRef = this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.multipleAnswer.value);
-    componentRef.instance.questionForm = this.questionForm;
+    const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
+    const componentRef = this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, hasMultipleAnswers);
     componentRef.instance.question = this.question;
-    componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   }
 }
