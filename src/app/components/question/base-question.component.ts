@@ -22,12 +22,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     private componentFactoryResolver: ComponentFactoryResolver,
     protected fb: FormBuilder
   ) {
-    //if (typeof this.fb.group !== 'function') {
-    //  console.error('FormBuilder group method is not a function');  // Additional check
-    //} else {
-      this.questionForm = this.fb.group({});  // Initialize the form group here
-    //  console.log('Initialized questionForm:', this.questionForm);  // Debugging log to check form group initialization
-    //}
+    this.questionForm = this.fb.group({});  // Initialize the form group here
   }
 
   ngOnInit(): void {
