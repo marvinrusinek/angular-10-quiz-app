@@ -9,7 +9,8 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
   template: ''
 })
 export class BaseQuestionComponent implements OnInit, AfterViewInit {
-  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: true }) dynamicComponentContainer!: ViewContainerRef;
+  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: true })
+  dynamicComponentContainer!: ViewContainerRef;
 
   @Input() question!: QuizQuestion;
   multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -56,7 +57,9 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   }
 
   loadComponent(container: ViewContainerRef, multipleAnswer: boolean): any {
-    //const component = multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
+    const component = multipleAnswer
+      ? (await this.importComponent('multiple')).MultipleAnswerComponent
+      : (await this.importComponent('single')).SingleAnswerComponent;
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     container.clear();
     return container.createComponent(componentFactory);
