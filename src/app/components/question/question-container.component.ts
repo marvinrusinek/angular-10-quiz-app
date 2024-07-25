@@ -14,6 +14,8 @@ export class QuestionContainerComponent implements AfterViewInit {
   constructor(private dynamicComponentService: DynamicComponentService) {}
 
   ngAfterViewInit(): void {
+    console.log('QuestionContainerComponent ngAfterViewInit called');
+    console.log('question input:', this.question);
     this.loadDynamicComponent();
   }
 
