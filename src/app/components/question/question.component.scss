@@ -37,6 +37,28 @@
     }
   }
 
+  input[type="radio"] {
+    display: none;
+  }
+
+  mat-radio-button .mat-radio-outer-circle,
+  mat-radio-button .mat-radio-inner-circle {
+    display: none;
+  }
+
+  mat-radio-button .mat-radio-label-content {
+    padding-left: 0 !important;
+  }
+
+  mat-checkbox .mat-checkbox-frame,
+  mat-checkbox .mat-checkbox-background {
+    display: none;
+  }
+
+  mat-checkbox .mat-checkbox-inner-container {
+    margin-left: 0 !important;
+  }
+
   .correct {
     background-color: $green;
   }
