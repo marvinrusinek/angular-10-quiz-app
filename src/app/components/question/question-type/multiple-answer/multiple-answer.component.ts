@@ -109,6 +109,10 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements Af
     this.stopwatchService = stopwatchService;
 
     this.selectedOptions = [];
+
+    this.question.options.forEach(option => {
+      this.questionForm.addControl(option.optionText, this.fb.control(false));
+    });
   }
 
   async ngOnInit(): Promise<void> {

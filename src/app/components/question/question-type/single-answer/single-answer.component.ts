@@ -117,6 +117,10 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
     this.timerService = timerService;
+
+    this.question.options.forEach(option => {
+      this.questionForm.addControl(option.optionText, this.fb.control(false));
+    });
   }
 
   async ngOnInit(): Promise<void> {

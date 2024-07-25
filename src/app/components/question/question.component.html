@@ -20,4 +20,6 @@
   </ng-container>
 </form>-->
 
-<div #dynamicComponentContainer></div>
+<div *ngIf="question">
+  <div #dynamicComponentContainer></div>
+</div>
