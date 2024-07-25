@@ -18,9 +18,9 @@ export class DynamicComponentService {
 
   private async importComponent(type: string): Promise<{ MultipleAnswerComponent?: Type<any>; SingleAnswerComponent?: Type<any>; }> {
     if (type === 'multiple') {
-      return import('../components/question/question-type/multiple-answer/multiple-answer.component');
+      return import('../../components/question/question-type/multiple-answer/multiple-answer.component');
     } else {
-      return import('../components/question/question-type/single-answer/single-answer.component');
+      return import('../../components/question/question-type/single-answer/single-answer.component');
     }
   }
 }
