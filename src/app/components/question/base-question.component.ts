@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, ViewContainerRef, ComponentFactoryResolver, OnInit, AfterViewInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, ViewChild, ViewContainerRef, ComponentFactoryResolver, OnInit, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { Option } from '../../shared/models/Option.model';
@@ -21,7 +21,8 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   constructor(
     private componentFactoryResolver: ComponentFactoryResolver,
     private fb: FormBuilder,
-    private dynamicComponentService: DynamicComponentService  // Ensure DynamicComponentService is injected here
+    private dynamicComponentService: DynamicComponentService, 
+    private cdRef: ChangeDetectorRef
   ) {
     console.log('FormBuilder instance:', this.fb);  // Debugging log to check FormBuilder instance
     if (typeof this.fb.group !== 'function') {
@@ -51,6 +52,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
         return;
       }
       this.loadDynamicComponent();
+      this.cdRef.detectChanges();
     }, 0);
   }
 
