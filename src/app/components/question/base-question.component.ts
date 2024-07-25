@@ -1,4 +1,35 @@
-import { Component, Input, ViewChild, ViewContainerRef, ComponentFactoryResolver, OnInit, AfterViewInit, Type } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Option } from '../../shared/models/Option.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+
+@Component({
+  selector: 'app-base-question',
+  templateUrl: './base-question.component.html',
+  styleUrls: ['./base-question.component.css']
+})
+export class BaseQuestionComponent implements OnInit {
+  @Input() question!: QuizQuestion;
+  questionForm: FormGroup;
+  optionsToDisplay: Option[] = [];
+
+  constructor(protected fb: FormBuilder) {
+    this.questionForm = this.fb.group({});
+  }
+
+  ngOnInit(): void {
+    if (this.question) {
+      this.optionsToDisplay = this.question.options;
+    } else {
+      console.error('Question input is undefined');
+    }
+  }
+}
+
+
+
+
+/* import { Component, Input, ViewChild, ViewContainerRef, ComponentFactoryResolver, OnInit, AfterViewInit, Type } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
@@ -65,11 +96,11 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     return container.createComponent(componentFactory);
   }
 
-  /* private async importComponent(type: string): Promise<{ MultipleAnswerComponent?: Type<any>; SingleAnswerComponent?: Type<any>; }> {
+  //private async importComponent(type: string): Promise<{ MultipleAnswerComponent?: Type<any>; SingleAnswerComponent?: Type<any>; }> {
     if (type === 'multiple') {
       return import('../components/question/question-type/multiple-answer/multiple-answer.component');
     } else {
       return import('../components/question/question-type/single-answer/single-answer.component');
     }
-  } */
-}
+  //}
+} */
