@@ -5,9 +5,6 @@ import { BehaviorSubject } from 'rxjs';
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
-import { MultipleAnswerComponent } from '../../../../components/question/question-type/multiple-answer/multiple-answer.component';
-import { SingleAnswerComponent } from '../../../../components/question/question-type/single-answer/single-answer.component';
-
 @Component({
   template: ''
 })
@@ -60,19 +57,19 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   }
 
   loadComponent(container: ViewContainerRef, multipleAnswer: boolean): any {
-    const component = multipleAnswer
-      ? (await this.importComponent('multiple')).MultipleAnswerComponent
-      : (await this.importComponent('single')).SingleAnswerComponent;
+    // const component = multipleAnswer
+      //? (await this.importComponent('multiple')).MultipleAnswerComponent
+      //: (await this.importComponent('single')).SingleAnswerComponent;
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     container.clear();
     return container.createComponent(componentFactory);
   }
 
-  private async importComponent(type: string): Promise<{ MultipleAnswerComponent?: Type<any>; SingleAnswerComponent?: Type<any>; }> {
+  /* private async importComponent(type: string): Promise<{ MultipleAnswerComponent?: Type<any>; SingleAnswerComponent?: Type<any>; }> {
     if (type === 'multiple') {
       return import('../components/question/question-type/multiple-answer/multiple-answer.component');
     } else {
       return import('../components/question/question-type/single-answer/single-answer.component');
     }
-  }
+  } */
 }
