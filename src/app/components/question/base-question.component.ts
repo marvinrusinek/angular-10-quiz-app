@@ -33,7 +33,6 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    console.log('BaseQuestionComponent ngOnInit called');
     console.log('question input:', this.question);
     if (this.question) {
       this.optionsToDisplay = this.question.options;
