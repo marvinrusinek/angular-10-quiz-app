@@ -48,11 +48,5 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     componentRef.instance.questionForm = this.questionForm;
     componentRef.instance.question = this.question;
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
-    console.log('Dynamic component loaded:', componentRef);
-  }
-
-  getComponentToLoad(): Type<any> {
-    // This method should be overridden in derived classes to return the correct component
-    throw new Error('getComponentToLoad method should be overridden in derived classes');
   }
 }
