@@ -20,12 +20,16 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     private componentFactoryResolver: ComponentFactoryResolver,
     protected fb: FormBuilder
   ) {
-    console.log('FormBuilder instance:', this.fb);
-    this.questionForm = this.fb.group({});
-    console.log('Initialized questionForm:', this.questionForm);
+    //if (typeof this.fb.group !== 'function') {
+    //  console.error('FormBuilder group method is not a function');  // Additional check
+    //} else {
+      this.questionForm = this.fb.group({});  // Initialize the form group here
+    //  console.log('Initialized questionForm:', this.questionForm);  // Debugging log to check form group initialization
+    //}
   }
 
   ngOnInit(): void {
+    console.log('ngOnInit BQC called'); 
     if (this.question) {
       this.optionsToDisplay = this.question.options;
       const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
