@@ -44,13 +44,11 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
 
   loadDynamicComponent(): void {
     console.log('Loading dynamic component');
-    const component = this.getComponentToLoad();
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
-    this.dynamicComponentContainer.clear();
-    const componentRef = this.dynamicComponentContainer.createComponent(componentFactory);
+    const componentRef = this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.multipleAnswer.value);
     componentRef.instance.questionForm = this.questionForm;
     componentRef.instance.question = this.question;
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+    console.log('Dynamic component loaded:', componentRef);
   }
 
   getComponentToLoad(): Type<any> {
