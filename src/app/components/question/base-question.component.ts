@@ -4,6 +4,8 @@ import { BehaviorSubject } from 'rxjs';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+import { MultipleAnswerComponent } from '../../components/question/question-type/multiple-answer/multiple-answer.component';
+import { SingleAnswerComponent } from '../../components/question/question-type/single-answer/single-answer.component';
 
 @Component({
   template: ''
@@ -29,7 +31,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    console.log('ngOnInit BQC called'); 
+    console.log('ngOnInit BQCcalled'); 
     if (this.question) {
       this.optionsToDisplay = this.question.options;
       const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
@@ -53,10 +55,17 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     console.log('Loading dynamic component with question:', this.question);
     const hasMultipleAnswers = this.multipleAnswer.value;
     console.log('Has multiple answers:', hasMultipleAnswers);
-    const componentRef = this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, hasMultipleAnswers);
+    const componentRef = this.loadComponent(this.dynamicComponentContainer, hasMultipleAnswers);
     console.log('Component ref:', componentRef);
     componentRef.instance.questionForm = this.questionForm;
     componentRef.instance.question = this.question;
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+  }
+
+  loadComponent(container: ViewContainerRef, multipleAnswer: boolean): any {
+    const component = multipleAnswer ? MultipleAnswerComponent : SingleAnswerComponent;
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
+    container.clear();
+    return container.createComponent(componentFactory);
   }
 }
