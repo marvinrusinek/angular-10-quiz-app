@@ -5,8 +5,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Component({
   selector: 'app-base-question',
-  templateUrl: './base-question.component.html',
-  styleUrls: ['./base-question.component.css']
+  templateUrl: './base-question.component.html'
 })
 export class BaseQuestionComponent implements OnInit {
   @Input() question!: QuizQuestion;
