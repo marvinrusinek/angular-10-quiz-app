@@ -39,12 +39,6 @@ export class FeedbackIconDirective implements OnChanges {
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log('ngOnChanges called:', changes);
-    this.updateIcon();
-  }
-
-
   ngOnDestroy(): void {
     this.resetIconSubscription?.unsubscribe();
   }
