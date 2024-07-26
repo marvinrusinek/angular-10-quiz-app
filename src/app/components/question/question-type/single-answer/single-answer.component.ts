@@ -1,4 +1,32 @@
-import {
+import { Component } from '@angular/core';
+import { BaseQuestionComponent } from '../../base-question.component';
+import { FormBuilder } from '@angular/forms';
+
+import { QuizService } from '../../../../shared/services/quiz.service';
+import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
+
+@Component({
+  selector: 'codelab-question-single-answer',
+  templateUrl: './single-answer.component.html',
+  styleUrls: ['./single-answer.component.scss']
+})
+export class SingleAnswerComponent extends BaseQuestionComponent {
+  constructor(
+    protected quizService: QuizService,
+    protected selectedOptionService: SelectedOptionService,
+    protected fb: FormBuilder
+  ) {
+    super(selectedOptionService, fb);
+  }
+
+  // Override onOptionClicked to handle single answers specific logic
+  onOptionClicked(option: Option, index: number): void {
+    super.onOptionClicked(option, index);
+  }
+}
+
+
+/* import {
   AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -151,10 +179,10 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     super.ngAfterViewInit();
   }
 
-  /* onOptionClicked(option: Option, index: number) {
+  // onOptionClicked(option: Option, index: number) {
     super.onOptionClicked(option, index);
     this.showFeedbackForOption[index] = true;
-  } */
+  //}
 
   onOptionClicked(option: SelectedOption, index: number): void {
     // super.handleOptionClick(option, index);
@@ -174,7 +202,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     return this.selectedOptionService.isSelectedOption(option);
   }
 
-  /* onOptionClick(option: SelectedOption, index: number, event?: MouseEvent): void {
+  // onOptionClick(option: SelectedOption, index: number, event?: MouseEvent): void {
     if (event) {
       event.stopPropagation();
     }
@@ -182,5 +210,5 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     super.onOptionClicked(option, index);
     this.selectedOption = option;
     this.showFeedback = true;
-  } */
-}
+  //}
+} */
