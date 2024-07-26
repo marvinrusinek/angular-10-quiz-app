@@ -1513,7 +1513,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   loadCurrentQuestion(): void {
     console.log('LOADCURRENTQUESTION CALLED');
-    console.log('Current Question Index:', this.currentQuestionIndex);
+    console.log('CURRENTQUESTIONINDEX:', this.currentQuestionIndex);
     this.question = this.quizService.getQuestion(this.currentQuestionIndex);
     if (this.question) {
       console.log('QUESTION DATA:', this.question);
