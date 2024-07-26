@@ -75,6 +75,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   routeSubscription: Subscription;
   routerSubscription: Subscription;
   private questionAndOptionsSubscription: Subscription;
+  private subscriptions: Subscription = new Subscription();
   resources: Resource[];
   answers = [];
   answered = false;
@@ -180,9 +181,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.totalQuestions = total;
     });
 
-    this.quizService.quizReset$.subscribe(() => {
-      this.refreshQuestionOnReset();
-    });
+    this.subscriptions.add(
+      this.quizService.quizReset$.subscribe(() => {
+        this.refreshQuestionOnReset();
+      })
+    );
   }
 
   @HostListener('window:focus', ['$event'])
