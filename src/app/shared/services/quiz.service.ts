@@ -169,6 +169,7 @@ export class QuizService implements OnDestroy {
   private nextExplanationTextSource = new BehaviorSubject<string>('');
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
+  private currentQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
   private quizResetSource = new Subject<void>();
   quizReset$ = this.quizResetSource.asObservable();
 
