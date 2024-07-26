@@ -168,6 +168,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements Af
   onOptionClicked(option: SelectedOption, index: number): void {
     // super.handleOptionClick(option, index);
     this.showFeedbackForOption[index] = true;
+    this.selectedOptionService.setAnsweredState(true);
   }
 
   initializeFeedbackForOptions() {

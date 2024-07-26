@@ -159,6 +159,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
   onOptionClicked(option: SelectedOption, index: number): void {
     // super.handleOptionClick(option, index);
     this.showFeedbackForOption[index] = true;
+    this.selectedOptionService.setAnsweredState(true);
   }
 
   initializeFeedbackForOptions() {
