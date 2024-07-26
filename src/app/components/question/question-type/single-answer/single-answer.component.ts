@@ -147,9 +147,15 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     super.ngAfterViewInit();
   }
 
-  onOptionClicked(option: Option, index: number) {
+  /* onOptionClicked(option: Option, index: number) {
     super.onOptionClicked(option, index);
     this.showFeedbackForOption[index] = true;
+  } */
+
+  onOptionClicked(option: SelectedOption, index: number): void {
+    //super.onOptionClicked(option, index);
+    //this.showFeedbackForOption[index] = true;
+    this.handleOptionClick(option, index);
   }
 
   initializeFeedbackForOptions() {
