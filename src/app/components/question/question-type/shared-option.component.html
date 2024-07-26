@@ -1,130 +1,54 @@
-<!--<ng-container *ngIf="optionsToDisplay">
-  <div
-    *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption"
-  >
-    <label class="options">
-      <ng-container [ngSwitch]="type">
-        <mat-checkbox *ngSwitchCase="'multiple'"
-          appHighlightOption
-          [appHighlightInputType]="'checkbox'"
-          [appHighlightReset]="shouldResetBackground"
-          [appResetBackground]="shouldResetBackground"
-          [shouldResetBackground]="shouldResetBackground"
-          [checked]="isSelectedOption(option)"
-          (click)="onOptionClicked(option, idx)"
-          [isCorrect]="option.correct"
-          [disabled]="option.selected"
-        >
-          <span>{{ idx + 1 }}.  {{ option?.text }}</span>
-          <span class="icon"
-            appFeedbackIcon
-            [option>]="option"
-            [index]="idx"
-            [selectedOption]="selectedOption"
-            [showFeedbackForOption]="showFeedbackForOption">
-          </span>
-        </mat-checkbox>
-        <mat-radio-button *ngSwitchCase="'single'"
-          appHighlightOption
-          [appHighlightInputType]="'radio'"
-          [appHighlightReset]="shouldResetBackground"
-          [appResetBackground]="shouldResetBackground"
-          [shouldResetBackground]="shouldResetBackground"
-          [checked]="isSelectedOption(option)"
-          (click)="onOptionClicked(option, idx)"
-          [isCorrect]="option.correct"
-          [disabled]="option.selected"
-        >
-          <span>{{ idx + 1 }}.  {{ option?.text }}</span>
-          <span class="icon"
-            appFeedbackIcon
-            [option]="option"
-            [index]="idx"
-            [selectedOption]="selectedOption"
-            [showFeedbackForOption]="showFeedbackForOption">
-          </span>
-        </mat-radio-button>
-      </ng-container>
-      <codelab-quiz-feedback
-        *ngIf="showFeedback && selectedOption === option"
-        [question]="currentQuestion"
-        [selectedOption]="selectedOption"
-        [correctMessage]="correctMessage"
-        [showFeedback]="showFeedback"
-        [options]="data?.options"
-      ></codelab-quiz-feedback>
-    </label>
-  </div>
-</ng-container>-->
-
 <ng-container *ngIf="optionsToDisplay">
-  <div
-    *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption"
-  >
+  <div *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption">
     <label class="options">
-      <ng-container [ngSwitch]="type">
-        <ng-container *ngSwitchCase="'multiple'">
-          <ng-container *ngTemplateOutlet="optionTemplate; context: {$implicit: 'checkbox', option: option, idx: idx}"></ng-container>
-        </ng-container>
-        <ng-container *ngSwitchCase="'single'">
-          <ng-container *ngTemplateOutlet="optionTemplate; context: {$implicit: 'radio', option: option, idx: idx}"></ng-container>
-        </ng-container>
-      </ng-container>
+      <mat-checkbox *ngIf="type === 'multiple'"
+        appHighlightOption
+        [appHighlightInputType]="'checkbox'"
+        [appHighlightReset]="shouldResetBackground"
+        [appResetBackground]="shouldResetBackground"
+        [shouldResetBackground]="shouldResetBackground"
+        [checked]="isSelectedOption(option)"
+        (click)="onOptionClicked(option, idx)"
+        [isCorrect]="option.correct"
+        [disabled]="option.selected">
+        <span>{{ idx + 1 }}.  {{ option?.text }}</span>
+        <span class="icon"
+          appFeedbackIcon
+          [option]="option"
+          [index]="idx"
+          [selectedOption]="selectedOption"
+          [showFeedbackForOption]="showFeedbackForOption">
+        </span>
+      </mat-checkbox>
+      
+      <mat-radio-button *ngIf="type === 'single'"
+        appHighlightOption
+        [appHighlightInputType]="'radio'"
+        [appHighlightReset]="shouldResetBackground"
+        [appResetBackground]="shouldResetBackground"
+        [shouldResetBackground]="shouldResetBackground"
+        [checked]="isSelectedOption(option)"
+        (click)="onOptionClicked(option, idx)"
+        [isCorrect]="option.correct"
+        [disabled]="option.selected">
+        <span>{{ idx + 1 }}.  {{ option?.text }}</span>
+        <span class="icon"
+          appFeedbackIcon
+          [option]="option"
+          [index]="idx"
+          [selectedOption]="selectedOption"
+          [showFeedbackForOption]="showFeedbackForOption">
+        </span>
+      </mat-radio-button>
+      
       <codelab-quiz-feedback
         *ngIf="showFeedback && selectedOption === option"
         [question]="currentQuestion"
         [selectedOption]="selectedOption"
         [correctMessage]="correctMessage"
         [showFeedback]="showFeedback"
-        [options]="data?.options"
-      ></codelab-quiz-feedback>
+        [options]="data?.options">
+      </codelab-quiz-feedback>
     </label>
   </div>
 </ng-container>
-
-<ng-template #optionTemplate let-type let-option="option" let-idx="idx">
-  <ng-container *ngIf="type === 'checkbox'">
-    <mat-checkbox
-      appHighlightOption
-      [appHighlightInputType]="'checkbox'"
-      [appHighlightReset]="shouldResetBackground"
-      [appResetBackground]="shouldResetBackground"
-      [shouldResetBackground]="shouldResetBackground"
-      [checked]="isSelectedOption(option)"
-      (click)="onOptionClicked(option, idx)"
-      [isCorrect]="option.correct"
-      [disabled]="option.selected"
-    >
-      <span>{{ idx + 1 }}.  {{ option?.text }}</span>
-      <span class="icon"
-        appFeedbackIcon
-        [option]="option"
-        [index]="idx"
-        [selectedOption]="selectedOption"
-        [showFeedbackForOption]="showFeedbackForOption">
-      </span>
-    </mat-checkbox>
-  </ng-container>
-  <ng-container *ngIf="type === 'radio'">
-    <mat-radio-button
-      appHighlightOption
-      [appHighlightInputType]="'radio'"
-      [appHighlightReset]="shouldResetBackground"
-      [appResetBackground]="shouldResetBackground"
-      [shouldResetBackground]="shouldResetBackground"
-      [checked]="isSelectedOption(option)"
-      (click)="onOptionClicked(option, idx)"
-      [isCorrect]="option.correct"
-      [disabled]="option.selected"
-    >
-      <span>{{ idx + 1 }}.  {{ option?.text }}</span>
-      <span class="icon"
-        appFeedbackIcon
-        [option]="option"
-        [index]="idx"
-        [selectedOption]="selectedOption"
-        [showFeedbackForOption]="showFeedbackForOption">
-      </span>
-    </mat-radio-button>
-  </ng-container>
-</ng-template>
