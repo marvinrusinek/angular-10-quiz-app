@@ -1,11 +1,12 @@
 import { Component, Input, ViewChild, ViewContainerRef, ComponentFactoryResolver, OnInit, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
+
 import { Option } from '../../shared/models/Option.model';
+import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
-import { MultipleAnswerComponent } from '../../components/question/question-type/multiple-answer/multiple-answer.component';
-import { SingleAnswerComponent } from '../../components/question/question-type/single-answer/single-answer.component';
+import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 
 @Component({
   template: ''
@@ -71,7 +72,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   protected initializeOptions(): void {
     if (this.question && this.question.options) {
       this.question.options.forEach(option => {
-        this.questionForm.addControl(option.optionText, this.fb.control(false));
+        this.questionForm.addControl(option.text, this.fb.control(false));
       });
     }
   }
@@ -85,10 +86,7 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
   }
 
   // Abstract method to be implemented in child components
-  onOptionClicked(option: SelectedOption, index: number): void {
-    this.showFeedback = true;
-    throw new Error('onOptionClicked method not implemented');
-  }
+  abstract onOptionClicked(option: SelectedOption, index: number): void;
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOptionService.isSelectedOption(option);
