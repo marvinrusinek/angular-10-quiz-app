@@ -26,6 +26,8 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
   onOptionClicked(option: SelectedOption, index: number): void {
     console.log('SingleAnswerComponent: Option clicked:', option, index);
     super.onOptionClicked(option, index);
+    this.showFeedbackForOption[option.optionId] = true;
+    this.selectedOption = option;
     this.showFeedback = true;
   }
 }

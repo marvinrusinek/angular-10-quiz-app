@@ -23,6 +23,8 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
   onOptionClicked(option: Option, index: number): void {
     console.log('MultipleAnswerComponent: Option clicked:', option, index);
     super.onOptionClicked(option, index);
+    this.showFeedbackForOption[option.optionId] = true;
+    this.selectedOption = option;
     this.showFeedback = true;
   }
 }
