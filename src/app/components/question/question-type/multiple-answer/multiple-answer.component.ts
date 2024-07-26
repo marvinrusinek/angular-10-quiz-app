@@ -116,6 +116,10 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements Af
     super.ngOnInit();
     this.initializeFeedbackForOptions();
 
+    this.question.options.forEach(option => {
+      this.questionForm.addControl(option.optionText, this.fb.control(false));
+    });
+
     if (!this.question) {
       console.error('MultipleAnswerComponent: question is undefined');
     }

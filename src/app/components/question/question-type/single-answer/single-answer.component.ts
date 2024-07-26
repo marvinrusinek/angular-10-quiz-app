@@ -124,6 +124,10 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     super.ngOnInit();
     this.initializeFeedbackForOptions();
 
+    this.question.options.forEach(option => {
+      this.questionForm.addControl(option.optionText, this.fb.control(false));
+    });
+
     if (!this.question) {
       console.error('SingleAnswerComponent: question is undefined');
     }
