@@ -64,4 +64,12 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     componentRef.instance.question = this.question;
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   }
+
+  handleOptionClick(option: SelectedOption, index: number): void {
+    if (this['onOptionClicked']) {
+      this['onOptionClicked'](option, index);
+    } else {
+      console.error('onOptionClicked method not found');
+    }
+  }
 }
