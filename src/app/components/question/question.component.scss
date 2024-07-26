@@ -4,11 +4,25 @@
   margin: 0 0 17.5px 6.5px;
   padding: 5px;
 
+  // Hide the default checkbox and radio button elements
+  .mat-checkbox .mat-checkbox-frame,
+  .mat-checkbox .mat-checkbox-background,
+  .mat-radio-button .mat-radio-outer-circle,
+  .mat-radio-button .mat-radio-inner-circle,
+  .mat-radio-button .mat-radio-label-content .mat-radio-container {
+    display: none !important;
+  }
+
+  .mat-checkbox-layout,
+  .mat-radio-layout {
+    display: block !important;
+  }
+
   mat-checkbox,
   mat-radio-button {
     cursor: pointer;
     display: inline-block;
-    width: 580px !important;
+    width: 630px;
     height: auto !important;
     font-family: $font-stack;
     font-size: 20px;
@@ -18,7 +32,7 @@
     padding: 10px 15px 0 30px;
     padding-bottom: 10px;
     margin-left: -5px !important;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     padding-left: -25px !important;
     overflow: unset !important;
 
@@ -37,13 +51,13 @@
     }
   }
 
-  input[type="radio"] {
-    display: none;
+  /* input[type="radio"] {
+    display: none !important;
   }
 
-  /* mat-radio-button .mat-radio-outer-circle,
+  mat-radio-button .mat-radio-outer-circle,
   mat-radio-button .mat-radio-inner-circle {
-    display: none;
+    display: none !important;
   }
 
   mat-radio-button .mat-radio-label-content {
@@ -52,14 +66,14 @@
 
   mat-checkbox .mat-checkbox-frame,
   mat-checkbox .mat-checkbox-background {
-    display: none;
+    display: none !important;
   }
 
   mat-checkbox .mat-checkbox-inner-container {
     margin-left: 0 !important;
   } */
 
-  .mat-checkbox-layout,
+  /* .mat-checkbox-layout,
   .mat-radio-layout {
     display: block !important;
   }
@@ -81,7 +95,7 @@
   .mat-checkbox .mat-checkbox-inner-container,
   .mat-radio-button .mat-radio-container {
     display: none !important;
-  }
+  } */
 
   .correct {
     background-color: $green;
