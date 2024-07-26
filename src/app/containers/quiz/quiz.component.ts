@@ -736,7 +736,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   } */
 
-  
+  refreshQuestionOnReset(): void {
+    this.quizService.quizReset$.pipe(
+      takeUntil(this.unsubscribe$)
+    ).subscribe(() => {
+      console.log('refreshQuestionOnReset called');
+      this.loadCurrentQuestion();
+    });
+  }
 
   checkAndDisplayCorrectAnswers(): void {
     const multipleAnswerQuestionIndex = this.findCurrentMultipleAnswerQuestionIndex();
