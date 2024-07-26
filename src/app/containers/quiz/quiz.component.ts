@@ -1512,7 +1512,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.optionsToDisplay = [...this.question.options];
       console.log('Loaded question:', this.question);
       console.log('Options to display:', this.optionsToDisplay);
-      this.cdRef.markForCheck();
       this.cdRef.detectChanges();
     } else {
       console.error('Failed to load question at index:', this.currentQuestionIndex);
@@ -1766,6 +1765,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Reset feedback text and other related properties
     this.resetFeedback();
+
+    this.cdRef.markForCheck();
   }
 
   resetFeedback(): void {
