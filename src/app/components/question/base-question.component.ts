@@ -65,16 +65,12 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   }
 
-  /* handleOptionClick(option: SelectedOption, index: number): void {
+  handleOptionClick(option: SelectedOption, index: number): void {
     if (this['onOptionClicked']) {
-      this['onOptionClicked'](option, index);
+      (this['onOptionClicked'] as any)(option, index);
     } else {
       console.error('onOptionClicked method not found');
     }
-  } */
-
-  handleOptionClick(option: SelectedOption, index: number): void {
-    this.onOptionClicked(option, index);
   }
 
   // Abstract method to be implemented in child components
