@@ -4,7 +4,7 @@ import { Option } from '../../../../shared/models/Option.model';
 @Component({
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
-  
+  styleUrls: ['../question.component.scss']
 })
 export class SharedOptionComponent {
   @Input() optionsToDisplay: Option[] = [];
