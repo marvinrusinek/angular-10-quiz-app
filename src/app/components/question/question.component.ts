@@ -1077,6 +1077,7 @@ export class QuizQuestionComponent
       this.updateSelectedOption(option);
       this.selectedOptionService.setOptionSelected(true);
       this.selectedOptionService.setSelectedOption(option);
+      this.selectedOptionService.setAnsweredState(true);
 
       // Fetch and process current question
       const currentQuestion = await this.fetchAndProcessCurrentQuestion();
