@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { Option } from '../../../../shared/models/Option.model';
 
 @Component({
@@ -6,7 +6,8 @@ import { Option } from '../../../../shared/models/Option.model';
   templateUrl: './shared-option.component.html',
   styleUrls: ['../question.component.scss']
 })
-export class SharedOptionComponent {
+export class SharedOptionComponent implements NgOnInit {
+  @Output() optionClicked = new EventEmitter<{ option: Option, index: number }>();
   @Input() optionsToDisplay: Option[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
   @Input() shouldResetBackground: boolean;
@@ -16,11 +17,16 @@ export class SharedOptionComponent {
   @Input() correctMessage: string;
   @Input() showFeedback: boolean;
 
-  @Output() optionClicked = new EventEmitter<{ option: Option, index: number }>();
+  ngOnInit(): void {
+    if (!this.showFeedbackForOption) {
+      this.showFeedbackForOption = [];
+    }
+  }
 
   isSelectedOption(option: Option): boolean {
     // Implement your logic to check if the option is selected
-    return false;
+    // return false;
+    return this.selectedOption && this.selectedOption.optionId === option.optionId;
   }
 
   onOptionClicked(option: Option, index: number): void {

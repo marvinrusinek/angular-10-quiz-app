@@ -48,19 +48,19 @@ export class FeedbackIconDirective implements OnChanges {
   
     // Check if option or optionId is undefined
     if (!this.option || this.option.optionId === undefined) {
-      console.log('Option or optionId is undefined');
+      console.error('Option or optionId is undefined', this.option);
       return;
     }
   
     // Ensure showFeedbackForOption is initialized
     if (!this.showFeedbackForOption) {
-      console.log('showFeedbackForOption is undefined');
+      console.error('showFeedbackForOption is undefined');
       this.showFeedbackForOption = [];
     }
   
     // Handle the case where the optionId might be out of bounds
     if (this.showFeedbackForOption[this.option.optionId] === undefined) {
-      console.log(`showFeedbackForOption[${this.option.optionId}] is undefined`);
+      console.warn(`showFeedbackForOption[${this.option.optionId}] is undefined`);
       this.showFeedbackForOption[this.option.optionId] = false;
     }
   
@@ -68,10 +68,17 @@ export class FeedbackIconDirective implements OnChanges {
     const isSelected = this.selectedOptionService.isSelectedOption(this.option);
     const showFeedback = this.showFeedbackForOption[this.option.optionId];
   
+    console.log('Option:', this.option);
+    console.log('isSelected:', isSelected);
+    console.log('showFeedback:', showFeedback);
+    console.log('showFeedbackForOption:', this.showFeedbackForOption);
+  
     if (isSelected && showFeedback) {
       const icon = this.option.correct ? '✔️' : '✖️';
+      console.log('Setting icon:', icon);
       this.renderer.setProperty(this.el.nativeElement, 'innerText', icon);
     } else {
+      console.log('Clearing icon');
       this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
     }
   }  
