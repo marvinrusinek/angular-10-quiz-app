@@ -8,7 +8,9 @@ import { SelectedOptionService } from '../../../../shared/services/selectedoptio
 @Component({
   selector: 'codelab-question-single-answer',
   templateUrl: './single-answer.component.html',
-  styleUrls: ['../shared-option.component.scss']
+  styleUrls: [
+    './single-answer.component.scss',
+    '../shared-option.component.scss']
 })
 export class SingleAnswerComponent extends BaseQuestionComponent {
   constructor(

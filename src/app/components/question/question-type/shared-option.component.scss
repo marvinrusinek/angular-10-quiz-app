@@ -18,7 +18,7 @@ div.mat-radio-inner-container {
   mat-radio-button {
     cursor: pointer;
     display: inline-block;
-    width: 590px;
+    width: 700px !important;
     height: auto;
     font-family: $font-stack;
     font-size: 20px;
@@ -27,7 +27,6 @@ div.mat-radio-inner-container {
     border: 2px solid $medium-gray;
     padding: 10px 5px 10px 30px;
     margin-left: -5px;
-    margin-bottom: 30px;
 
     &:hover {
       border: 2px solid $vivid-blue;
