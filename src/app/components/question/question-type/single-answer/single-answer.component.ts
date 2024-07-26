@@ -25,7 +25,8 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
   // Override onOptionClicked to handle single answers specific logic
   onOptionClicked(option: SelectedOption, index: number): void {
     console.log('SingleAnswerComponent: Option clicked:', option, index);
-    super.onOptionClicked(option, index);
+    // super.onOptionClicked(option, index);
+    super.handleOptionClick(option, index);
     this.showFeedbackForOption[option.optionId] = true;
     this.selectedOption = option;
     this.showFeedback = true;
