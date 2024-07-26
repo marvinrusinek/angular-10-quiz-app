@@ -153,8 +153,8 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
   } */
 
   onOptionClicked(option: SelectedOption, index: number): void {
-    //super.onOptionClicked(option, index);
-    //this.showFeedbackForOption[index] = true;
+    super.onOptionClicked(option, index);
+    this.showFeedbackForOption[index] = true;
     this.handleOptionClick(option, index);
   }
 
