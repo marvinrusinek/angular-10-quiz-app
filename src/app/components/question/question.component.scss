@@ -41,7 +41,7 @@
     display: none;
   }
 
-  mat-radio-button .mat-radio-outer-circle,
+  /* mat-radio-button .mat-radio-outer-circle,
   mat-radio-button .mat-radio-inner-circle {
     display: none;
   }
@@ -57,6 +57,30 @@
 
   mat-checkbox .mat-checkbox-inner-container {
     margin-left: 0 !important;
+  } */
+
+  .mat-checkbox-layout,
+  .mat-radio-layout {
+    display: block !important;
+  }
+
+  div.mat-checkbox-inner-container,
+  div.mat-radio-inner-container {
+    display: none;
+  }
+
+  .mat-checkbox .mat-checkbox-frame,
+  .mat-checkbox .mat-checkbox-background,
+  .mat-radio-button .mat-radio-outer-circle,
+  .mat-radio-button .mat-radio-inner-circle,
+  .mat-radio-button .mat-radio-container,
+  .mat-radio-button .mat-radio-label-content {
+    display: none !important;
+  }
+
+  .mat-checkbox .mat-checkbox-inner-container,
+  .mat-radio-button .mat-radio-container {
+    display: none !important;
   }
 
   .correct {
