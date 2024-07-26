@@ -1515,7 +1515,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('Loading question at index:', this.currentQuestionIndex);
     this.question = this.quizService.getQuestion(this.currentQuestionIndex);
     if (this.question) {
-      this.optionsToDisplay = [...this.question.options];
+      this.optionsToDisplay = this.quizService.getOptions(this.currentQuestionIndex) || [];
       console.log('Loaded question:', this.question);
       console.log('Options to display:', this.optionsToDisplay);
       this.ngZone.run(() => {
