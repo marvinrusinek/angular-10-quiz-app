@@ -721,7 +721,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  refreshQuestionOnReset(): void {
+  /* refreshQuestionOnReset(): void {
     this.quizService.setCurrentQuestion(0);
     this.quizService.getCurrentQuestion().pipe(
       takeUntil(this.unsubscribe$)
@@ -733,6 +733,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.ngZone.run(() => {
         this.cdRef.detectChanges();
       });
+    });
+  } */
+
+  refreshQuestionOnReset(): void {
+    this.quizService.quizReset$.pipe(
+      takeUntil(this.unsubscribe$)
+    ).subscribe(() => {
+      console.log('refreshQuestionOnReset called');
+      this.loadCurrentQuestion();
     });
   }
 
