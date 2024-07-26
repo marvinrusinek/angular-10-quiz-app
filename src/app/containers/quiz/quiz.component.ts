@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
@@ -46,7 +46,7 @@ type AnimationState = 'animationStarted' | 'none';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [QuizService, QuizDataService, QuizStateService, ResetStateService, ResetBackgroundService, ResetFeedbackIconService, HighlightOptionDirective, FeedbackIconDirective]
 })
-export class QuizComponent implements OnInit, OnDestroy {
+export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild(QuizQuestionComponent) quizQuestionComponent: QuizQuestionComponent;
   @Input() data: {
     questionText: string;
@@ -230,6 +230,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.routerSubscription?.unsubscribe();
     this.questionAndOptionsSubscription?.unsubscribe();
     this.timerService.stopTimer(null);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['currentQuestionIndex']) {
+      this.loadCurrentQuestion();
+    }
   }
 
   // Public getter methods for determining UI state based on current quiz and question data.
@@ -1537,9 +1543,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.selectedOptionService.setAnsweredState(isAnswered);
   
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-        this.loadCurrentQuestion();
-
         this.resetUI();
+        this.loadCurrentQuestion();
       } else {
         console.log('End of quiz reached.');
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
