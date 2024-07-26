@@ -344,6 +344,15 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  getOptions(index: number): Option[] | null {
+    const question = this.getQuestion(index);
+    if (question) {
+      return question.options;
+    } else {
+      return null;
+    }
+  }
+
   private loadData(): void {
     this.initializeQuizData();
     this.loadRouteParams();
