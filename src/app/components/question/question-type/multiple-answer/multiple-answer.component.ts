@@ -22,7 +22,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
   // Override onOptionClicked to handle multiple answers specific logic
   onOptionClicked(option: Option, index: number): void {
     super.onOptionClicked(option, index);
-    // Additional logic for multiple answers
+    this.showFeedback = true;
   }
 }
 
