@@ -46,16 +46,25 @@ export class FeedbackIconDirective implements OnChanges {
   private updateIcon(): void {
     this.isAnswered = true;
   
+    // Check if option or optionId is undefined
     if (!this.option || this.option.optionId === undefined) {
       console.log('Option or optionId is undefined');
       return;
     }
   
+    // Ensure showFeedbackForOption is initialized
     if (!this.showFeedbackForOption) {
       console.log('showFeedbackForOption is undefined');
-      this.showFeedbackForOption = []; // Initialize as an empty array if undefined
+      this.showFeedbackForOption = [];
     }
   
+    // Handle the case where the optionId might be out of bounds
+    if (this.showFeedbackForOption[this.option.optionId] === undefined) {
+      console.log(`showFeedbackForOption[${this.option.optionId}] is undefined`);
+      this.showFeedbackForOption[this.option.optionId] = false;
+    }
+  
+    // Check if the option is selected and feedback should be shown
     const isSelected = this.selectedOptionService.isSelectedOption(this.option);
     const showFeedback = this.showFeedbackForOption[this.option.optionId];
   
@@ -65,7 +74,7 @@ export class FeedbackIconDirective implements OnChanges {
     } else {
       this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
     }
-  }
+  }  
 
   public resetIcon(): void {
     this.isAnswered = false;
