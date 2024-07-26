@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { Option } from '../../../../shared/models/Option.model';
+
+import { Option } from '../../../../../shared/models/Option.model';
 
 @Component({
   selector: 'app-shared-option',
