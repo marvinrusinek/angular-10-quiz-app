@@ -719,11 +719,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   refreshQuestionOnReset(): void {
-    this.quizService.getCurrentQuestion().pipe( 
+    this.quizService.getCurrentQuestion().pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe((question: QuizQuestion) => {
-      this.currentQuestion = question;
-      this.options = question?.options || [];
+      console.log('refreshQuestionOnReset called');
+      console.log('New question data:', question);
+      this.question = question;
+      this.optionsToDisplay = question?.options || [];
+      this.ngZone.run(() => {
+        this.cdRef.detectChanges();
+      });
     });
   }
 
