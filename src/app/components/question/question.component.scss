@@ -8,11 +8,11 @@
   .mat-checkbox .mat-checkbox-frame,
   .mat-checkbox .mat-checkbox-background,
   .mat-radio-button .mat-radio-outer-circle,
-  .mat-radio-button .mat-radio-inner-circle,
-  .mat-radio-button .mat-radio-label-content .mat-radio-container {
+  .mat-radio-button .mat-radio-inner-circle {
     display: none !important;
   }
 
+  // Ensure the layout is correct
   .mat-checkbox-layout,
   .mat-radio-layout {
     display: block !important;
