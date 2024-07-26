@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
+import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 
@@ -22,8 +23,9 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
   }
 
   // Override onOptionClicked to handle single answers specific logic
-  onOptionClicked(option: Option, index: number): void {
+  onOptionClicked(option: SelectedOption, index: number): void {
     super.onOptionClicked(option, index);
+    this.showFeedback = true;
   }
 }
 
