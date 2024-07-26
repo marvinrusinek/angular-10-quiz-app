@@ -1752,6 +1752,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   // Reset UI immediately before navigating
   private resetUI(): void {
+    this.question = null;
+    this.optionsToDisplay = [];
+    this.ngZone.run(() => {
+      this.cdRef.detectChanges();
+    });
+
     console.log('QuizComponent - resetUI called');
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.resetFeedback();
@@ -1772,10 +1778,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Reset feedback text and other related properties
     this.resetFeedback();
-
-    this.ngZone.run(() => {
-      this.cdRef.detectChanges();
-    });
   }
 
   resetFeedback(): void {
