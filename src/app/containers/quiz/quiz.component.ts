@@ -1574,6 +1574,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
+  advanceToResults(): void {
+    this.quizService.resetAll();
+    this.timerService.stopTimer((elapsedTime: number) => {
+      this.elapsedTimeDisplay = elapsedTime;
+    });
+    this.timerService.resetTimer();
+
+    this.quizService.checkIfAnsweredCorrectly().then(() => {
+      this.quizService.navigateToResults();
+    }).catch(error => {
+      console.error("Error during checkIfAnsweredCorrectly:", error);
+    });
+  }
+
   // combined method for preparing question data and UI
   async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
     await this.fetchAndSetQuestionData(questionIndex);
@@ -1602,20 +1616,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.explanationToDisplay = '';
       this.quizService.shouldDisplayExplanation = false;
     }
-  }
-
-  advanceToResults(): void {
-    this.quizService.resetAll();
-    this.timerService.stopTimer((elapsedTime: number) => {
-      this.elapsedTimeDisplay = elapsedTime;
-    });
-    this.timerService.resetTimer();
-
-    this.quizService.checkIfAnsweredCorrectly().then(() => {
-      this.quizService.navigateToResults();
-    }).catch(error => {
-      console.error("Error during checkIfAnsweredCorrectly:", error);
-    });
   }
 
   updateNavigationAndExplanationState(): void {
