@@ -1505,6 +1505,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.updateSelectionMessage(isAnswered, isFirstQuestion);
   }
 
+  loadCurrentQuestion(): void {
+    this.question = this.quizService.getQuestion(this.currentQuestionIndex);
+    console.log('Loaded question:', this.question);
+    this.cdRef.detectChanges();
+  }
+
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     if (this.isNavigating) {
@@ -1522,6 +1528,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.selectedOptionService.setAnsweredState(isAnswered);
   
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+        this.loadCurrentQuestion();
 
         this.resetUI();
       } else {
