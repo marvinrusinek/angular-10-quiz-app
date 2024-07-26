@@ -191,6 +191,10 @@ export class SelectedOptionService {
     this.isAnsweredSubject.next(isAnswered);
   }
 
+  getAnsweredState(): boolean {
+    return this.isAnsweredSubject.value;
+  }
+
   // Expose the isAnswered observable
   get isAnswered$(): Observable<boolean> {
     return this.isAnsweredSubject.asObservable();
