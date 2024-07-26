@@ -51,8 +51,7 @@ export class FeedbackIconDirective implements OnChanges {
       console.error('Option or optionId is undefined', this.option);
       return;
     }
-  
-    // Ensure showFeedbackForOption is initialized
+
     if (!this.showFeedbackForOption) {
       console.error('showFeedbackForOption is undefined');
       this.showFeedbackForOption = [];
