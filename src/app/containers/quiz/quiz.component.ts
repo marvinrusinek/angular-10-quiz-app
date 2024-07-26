@@ -1768,7 +1768,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Reset feedback text and other related properties
     this.resetFeedback();
 
-    this.cdRef.markForCheck();
+    this.ngZone.run(() => {
+      this.cdRef.detectChanges();
+    });
   }
 
   resetFeedback(): void {
