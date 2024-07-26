@@ -334,7 +334,7 @@ export class QuizService implements OnDestroy {
     this.questionsSubject.next(questions);
   }
 
-  getQuestions(index: number) {
+  getQuestion(index: number) {
     console.log("Accessing questions at index:", index);
     if (this.questions && index >= 0 && index < this.questions.length) {
       return this.questions[index];
