@@ -39,6 +39,12 @@ export class FeedbackIconDirective implements OnChanges {
     }
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('ngOnChanges called:', changes);
+    this.updateIcon();
+  }
+
+
   ngOnDestroy(): void {
     this.resetIconSubscription?.unsubscribe();
   }
@@ -52,10 +58,10 @@ export class FeedbackIconDirective implements OnChanges {
       return;
     }
 
-    if (!this.showFeedbackForOption) {
+    /* if (!this.showFeedbackForOption) {
       console.error('showFeedbackForOption is undefined');
       this.showFeedbackForOption = [];
-    }
+    } */
   
     // Handle the case where the optionId might be out of bounds
     if (this.showFeedbackForOption[this.option.optionId] === undefined) {
@@ -81,7 +87,7 @@ export class FeedbackIconDirective implements OnChanges {
       console.log('Clearing icon');
       this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
     }
-  }  
+  }
 
   public resetIcon(): void {
     this.isAnswered = false;
