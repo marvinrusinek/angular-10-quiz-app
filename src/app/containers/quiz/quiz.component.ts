@@ -1512,17 +1512,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   loadCurrentQuestion(): void {
-    console.log('Loading question at index:', this.currentQuestionIndex);
+    console.log('LOADCURRENTQUESTION CALLED');
+    console.log('Current Question Index:', this.currentQuestionIndex);
     this.question = this.quizService.getQuestion(this.currentQuestionIndex);
     if (this.question) {
+      console.log('QUESTION DATA:', this.question);
       this.optionsToDisplay = this.quizService.getOptions(this.currentQuestionIndex) || [];
-      console.log('Loaded question:', this.question);
-      console.log('Options to display:', this.optionsToDisplay);
+      console.log('OPTIONS TO DISPLAY:', this.optionsToDisplay);
       this.ngZone.run(() => {
         this.cdRef.detectChanges();
       });
     } else {
-      console.error('Failed to load question at index:', this.currentQuestionIndex);
+      console.error('FAILED TO LOAD QUESTION AT INDEX:', this.currentQuestionIndex);
     }
   }
 
