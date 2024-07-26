@@ -11,9 +11,14 @@ import { Option } from '../../../../shared/models/Option.model';
         <label class="options">
           <ng-container [ngSwitch]="type">
             <mat-checkbox *ngSwitchCase="'multiple'"
-              [ngClass]="typeClass"
+              appHighlightOption
+              [appHighlightInputType]="'checkbox'"
+              [appHighlightReset]="shouldResetBackground"
+              [appResetBackground]="shouldResetBackground"
+              [shouldResetBackground]="shouldResetBackground"
               [checked]="isSelectedOption(option)"
               (click)="onOptionClicked(option, idx)"
+              [isCorrect]="option.correct"
               [disabled]="option.selected"
             >
               <span>{{ idx + 1 }}.  {{ option?.text }}</span>
@@ -26,9 +31,14 @@ import { Option } from '../../../../shared/models/Option.model';
               </span>
             </mat-checkbox>
             <mat-radio-button *ngSwitchCase="'single'"
-              [ngClass]="typeClass"
+              appHighlightOption
+              [appHighlightInputType]="'radio'"
+              [appHighlightReset]="shouldResetBackground"
+              [appResetBackground]="shouldResetBackground"
+              [shouldResetBackground]="shouldResetBackground"
               [checked]="isSelectedOption(option)"
               (click)="onOptionClicked(option, idx)"
+              [isCorrect]="option.correct"
               [disabled]="option.selected"
             >
               <span>{{ idx + 1 }}.  {{ option?.text }}</span>
@@ -64,10 +74,6 @@ export class SharedOptionComponent {
   @Input() showFeedback: boolean;
 
   @Output() optionClicked = new EventEmitter<{ option: Option, index: number }>();
-
-  get typeClass(): string {
-    return this.type === 'multiple' ? 'checkbox' : 'radio';
-  }
 
   isSelectedOption(option: Option): boolean {
     // Implement your logic to check if the option is selected
