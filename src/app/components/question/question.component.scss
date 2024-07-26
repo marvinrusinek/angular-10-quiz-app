@@ -5,10 +5,16 @@
   padding: 5px;
 
   // Hide the default checkbox and radio button elements
-  .mat-checkbox .mat-checkbox-frame,
-  .mat-checkbox .mat-checkbox-background,
-  .mat-radio-button .mat-radio-outer-circle,
-  .mat-radio-button .mat-radio-inner-circle {
+  ::ng-deep .mat-checkbox .mat-checkbox-frame,
+  ::ng-deep .mat-checkbox .mat-checkbox-background,
+  ::ng-deep .mat-radio-button .mat-radio-outer-circle,
+  ::ng-deep .mat-radio-button .mat-radio-inner-circle,
+  ::ng-deep .mat-radio-button .mat-radio-label-content .mat-radio-container {
+    display: none !important;
+  }
+
+  ::ng-deep .mat-checkbox-inner-container,
+  ::ng-deep .mat-radio-container {
     display: none !important;
   }
 
