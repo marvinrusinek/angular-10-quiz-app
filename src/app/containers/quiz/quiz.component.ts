@@ -1506,10 +1506,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadCurrentQuestion(): void {
-    this.question = this.quizService.getQuestion(this.currentQuestionIndex);
-    console.log('Loaded question:', this.question);
-    this.cdRef.detectChanges();
-  }
+    console.log('Loading question at index:', this.currentQuestionIndex);
+    const question = this.quizService.getQuestion(this.currentQuestionIndex);
+    if (question) {
+      this.question = question;
+      console.log('Loaded question:', this.question);
+      this.cdRef.detectChanges();
+    } else {
+      console.error('Failed to load question at index:', this.currentQuestionIndex);
+    }
+  }  
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
