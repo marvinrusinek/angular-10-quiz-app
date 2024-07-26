@@ -21,6 +21,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
 
   // Override onOptionClicked to handle multiple answers specific logic
   onOptionClicked(option: Option, index: number): void {
+    console.log('MultipleAnswerComponent: Option clicked:', option, index);
     super.onOptionClicked(option, index);
     this.showFeedback = true;
   }
