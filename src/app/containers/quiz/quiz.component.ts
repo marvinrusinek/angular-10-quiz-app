@@ -1512,7 +1512,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.optionsToDisplay = [...this.question.options];
       console.log('Loaded question:', this.question);
       console.log('Options to display:', this.optionsToDisplay);
-      this.cdRef.detectChanges();
+      this.ngZone.run(() => {
+        this.cdRef.detectChanges();
+      });
     } else {
       console.error('Failed to load question at index:', this.currentQuestionIndex);
     }
