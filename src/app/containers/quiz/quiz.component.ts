@@ -1509,9 +1509,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Loading question at index:', this.currentQuestionIndex);
     this.question = this.quizService.getQuestion(this.currentQuestionIndex);
     if (this.question) {
-      this.optionsToDisplay = this.question.options;
+      this.optionsToDisplay = [...this.question.options];
       console.log('Loaded question:', this.question);
       console.log('Options to display:', this.optionsToDisplay);
+      this.cdRef.markForCheck();
       this.cdRef.detectChanges();
     } else {
       console.error('Failed to load question at index:', this.currentQuestionIndex);
