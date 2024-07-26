@@ -34,8 +34,11 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     console.log('question input:', this.question);
+
     if (this.question) {
+      this.initializeOptions();
       this.optionsToDisplay = this.question.options;
+      
       const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
       this.multipleAnswer.next(hasMultipleAnswers);
     } else {
@@ -65,6 +68,14 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   }
 
+  protected initializeOptions(): void {
+    if (this.question && this.question.options) {
+      this.question.options.forEach(option => {
+        this.questionForm.addControl(option.optionText, this.fb.control(false));
+      });
+    }
+  }
+
   handleOptionClick(option: SelectedOption, index: number): void {
     if (this['onOptionClicked']) {
       (this['onOptionClicked'] as any)(option, index);
@@ -75,6 +86,11 @@ export class BaseQuestionComponent implements OnInit, AfterViewInit {
 
   // Abstract method to be implemented in child components
   onOptionClicked(option: SelectedOption, index: number): void {
+    this.showFeedback = true;
     throw new Error('onOptionClicked method not implemented');
+  }
+
+  isSelectedOption(option: Option): boolean {
+    return this.selectedOptionService.isSelectedOption(option);
   }
 }
