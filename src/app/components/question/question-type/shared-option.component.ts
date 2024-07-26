@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 
-import { Option } from '../../../../../shared/models/Option.model';
+import { Option } from '../../../../../../../shared/models/Option.model';
 
 @Component({
   selector: 'app-shared-option',
@@ -25,8 +25,6 @@ export class SharedOptionComponent implements NgOnInit {
   }
 
   isSelectedOption(option: Option): boolean {
-    // Implement your logic to check if the option is selected
-    // return false;
     return this.selectedOption && this.selectedOption.optionId === option.optionId;
   }
 
