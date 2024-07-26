@@ -20,6 +20,7 @@ export class SelectedOptionService {
   private isOptionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   private isAnsweredSubject = new BehaviorSubject<boolean>(false);
+  isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable();
 
   private showFeedbackForOptionSubject = new BehaviorSubject<{ [optionId: number]: boolean }>({});
   showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
@@ -193,11 +194,6 @@ export class SelectedOptionService {
 
   getAnsweredState(): boolean {
     return this.isAnsweredSubject.value;
-  }
-
-  // Expose the isAnswered observable
-  get isAnswered$(): Observable<boolean> {
-    return this.isAnsweredSubject.asObservable();
   }
 
   resetAnsweredState(): void {
