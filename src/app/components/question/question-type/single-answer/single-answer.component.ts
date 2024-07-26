@@ -27,9 +27,17 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     console.log('SingleAnswerComponent: Option clicked:', option, index);
     // super.onOptionClicked(option, index);
     super.handleOptionClick(option, index);
+
+    // Avoid unnecessary change detection cycles
+    this.cdr.detach();
+
     this.showFeedbackForOption[option.optionId] = true;
     this.selectedOption = option;
     this.showFeedback = true;
+
+    // Re-enable change detection
+    this.cdr.detectChanges();
+    this.cdr.reattach();
   }
 }
 
