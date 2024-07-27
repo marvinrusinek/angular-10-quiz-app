@@ -12,14 +12,16 @@
           (click)="onOptionClicked(option, idx)"
           [isCorrect]="option.correct"
           [disabled]="option.selected">
-          <span>{{ idx + 1 }}. {{ option?.text }}</span>
-          <span class="icon"
-            appFeedbackIcon
-            [option]="option"
-            [index]="idx"
-            [selectedOption]="selectedOption"
-            [showFeedbackForOption]="showFeedbackForOption">
-          </span>
+          <div class="option-content">
+            <span>{{ idx + 1 }}. {{ option?.text }}</span>
+            <span class="icon"
+              appFeedbackIcon
+              [option]="option"
+              [index]="idx"
+              [selectedOption]="selectedOption"
+              [showFeedbackForOption]="showFeedbackForOption">
+            </span>
+          </div>
         </mat-checkbox>
         
         <mat-radio-button *ngSwitchCase="'single'"
@@ -32,14 +34,16 @@
           (click)="onOptionClicked(option, idx)"
           [isCorrect]="option.correct"
           [disabled]="option.selected">
-          <span>{{ idx + 1 }}. {{ option?.text }}</span>
-          <span class="icon" style='float: right; position: relative;margin-right:-120px;font-size: 14px'
-            appFeedbackIcon
-            [option]="option"
-            [index]="idx"
-            [selectedOption]="selectedOption"
-            [showFeedbackForOption]="showFeedbackForOption">
-          </span>
+          <div class="option-content">
+            <span>{{ idx + 1 }}. {{ option?.text }}</span>
+            <span class="icon"
+              appFeedbackIcon
+              [option]="option"
+              [index]="idx"
+              [selectedOption]="selectedOption"
+              [showFeedbackForOption]="showFeedbackForOption">
+            </span>
+          </div>
         </mat-radio-button>
       </ng-container>
       

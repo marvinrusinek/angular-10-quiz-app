@@ -26,8 +26,10 @@
 
   mat-checkbox,
   mat-radio-button {
+    display: flex;  // Use flexbox for better alignment
+    align-items: center;  // Center items vertically
     cursor: pointer;
-    display: inline-block;
+    // display: inline-block;
     width: 630px;
     height: auto !important;
     font-family: $font-stack;
@@ -49,12 +51,16 @@
       margin-top: -25px;
     }
 
+    .option-content {
+      display: flex;
+      justify-content: space-between;  // Ensure space between text and icon
+      width: 100%;
+      white-space: normal;
+    }
+
     span.icon {
-      float: right !important;
-      margin-left: auto !important;
+      font-size: 14px;
       position: relative;
-      font-size: 20px;
-      top: calc(50% - 10px);
     }
   }
 
