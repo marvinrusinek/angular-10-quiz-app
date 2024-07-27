@@ -1098,6 +1098,7 @@ export class QuizQuestionComponent
   }
   
   private resetStateForNewQuestion(): void {
+    console.log('Resetting state for new question');
     this.showFeedbackForOption = {};
     this.showFeedback = false;
     this.correctMessage = '';
@@ -1181,6 +1182,8 @@ export class QuizQuestionComponent
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       }
       this.updateAnswerStateAndMessage(isAnswered);
+
+      this.cdRef.detectChanges();
   
       // Return the fetched current question
       return currentQuestion;
