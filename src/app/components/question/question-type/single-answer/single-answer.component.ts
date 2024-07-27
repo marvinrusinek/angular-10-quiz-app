@@ -16,11 +16,11 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 })
 export class SingleAnswerComponent extends BaseQuestionComponent {
   constructor(
+    @Optional() @Inject(forwardRef(() => QuizQuestionComponent)) protected quizQuestionComponent: QuizQuestionComponent,
     protected quizService: QuizService,
     protected selectedOptionService: SelectedOptionService,
     protected fb: FormBuilder,
-    protected cdRef: ChangeDetectorRef,
-    @Optional() @Inject(forwardRef(() => QuizQuestionComponent)) protected quizQuestionComponent: QuizQuestionComponent
+    protected cdRef: ChangeDetectorRef
   ) {
     super(selectedOptionService, fb);
   }
