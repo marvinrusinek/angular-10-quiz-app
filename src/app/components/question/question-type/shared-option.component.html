@@ -10,7 +10,7 @@
           [appResetBackground]="shouldResetBackground"
           [shouldResetBackground]="shouldResetBackground"
           [checked]="isSelectedOption(option)"
-          (click)="onOptionClicked(option, idx)"
+          (click)="handleOptionClick(option, idx)"
           [isCorrect]="option.correct"
           [disabled]="option.selected">
           <div class="option-content">
@@ -33,7 +33,7 @@
           [appResetBackground]="shouldResetBackground"
           [shouldResetBackground]="shouldResetBackground"
           [checked]="isSelectedOption(option)"
-          (click)="onOptionClicked(option, idx)"
+          (click)="handleOptionClick(option, idx)"
           [isCorrect]="option.correct"
           [disabled]="option.selected">
           <div class="option-content">
