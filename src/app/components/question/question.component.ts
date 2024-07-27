@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component,
-  EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef, ComponentFactoryResolver, Type } from '@angular/core';
+  ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef, ComponentFactoryResolver, Type } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom,Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
@@ -168,7 +168,8 @@ export class QuizQuestionComponent
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef,
     protected router: Router,
-    protected ngZone: NgZone
+    protected ngZone: NgZone,
+    protected el: ElementRef
   ) {
     super(componentFactoryResolver, fb, dynamicComponentService);
     this.quizService = quizService;
@@ -314,8 +315,12 @@ export class QuizQuestionComponent
 
   ngAfterViewInit(): void {
     console.log('QuizQuestionComponent ngAfterViewInit: dynamicComponentContainer', this.dynamicComponentContainer);
+    console.log('ElementRef:', this.el.nativeElement);
+    const dynamicContainer = this.el.nativeElement.querySelector('ng-template#dynamicComponentContainer');
+    console.log('Queried dynamicComponentContainer:', dynamicContainer);
+
     if (!this.dynamicComponentContainer) {
-      console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
+      console.error('dynamicComponentContainer is still undefined in QuizQuestionComponent ngAfterViewInit');
       return;
     }
     this.loadDynamicComponent();
