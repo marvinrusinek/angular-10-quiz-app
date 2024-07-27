@@ -29,6 +29,7 @@ export class SharedOptionComponent implements NgOnInit {
   }
 
   onOptionClicked(option: Option, index: number): void {
+    console.log('SharedOptionComponent: Option clicked:', option, idx);
     this.optionClicked.emit({ option, index });
   }
 
