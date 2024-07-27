@@ -4,6 +4,7 @@ import { FormBuilder } from '@angular/forms';
 
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
+import { QuizQuestionComponent } from '../../../../components/question/question.component';
 
 @Component({
   selector: 'codelab-question-multiple-answer',
