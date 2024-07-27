@@ -26,6 +26,12 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
   onOptionClicked(option: Option, index: number): void {
     console.log('SingleAnswerComponent: Option clicked:', option, index);
 
+    // Check if showFeedbackForOption is initialized
+    if (!this.showFeedbackForOption) {
+      console.error('showFeedbackForOption is not initialized');
+      this.showFeedbackForOption = {};
+    }
+
     this.showFeedbackForOption[option.optionId] = true;
     this.selectedOption = option;
     this.showFeedback = true;
