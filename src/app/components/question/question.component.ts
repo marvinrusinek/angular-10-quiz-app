@@ -1153,8 +1153,7 @@ export class QuizQuestionComponent
   
   private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
-      // Reset state before fetching new question
-      this.resetStateForNewQuestion();
+      this.resetStateForNewQuestion(); // Reset state before fetching new question
 
       // Attempt to fetch the current question
       const currentQuestion = await firstValueFrom(
