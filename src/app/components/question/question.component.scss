@@ -51,6 +51,14 @@
       margin-top: -25px;
     }
 
+    .mat-checkbox-inner-container,
+    .mat-radio-inner-container {
+      display: flex;
+      justify-content: space-between;  // Ensure space between text and icon
+      align-items: center;
+      width: 100%;
+    }
+
     .option-content {
       display: flex;
       justify-content: space-between;  // Ensure space between text and icon
@@ -61,14 +69,6 @@
     .option-text {
       flex-grow: 1;
       white-space: normal;
-    }
-
-    .icon {
-      font-size: 14px;
-      margin-left: auto;  // Ensure icon is pushed to the right
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
   }
 
