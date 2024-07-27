@@ -1098,7 +1098,12 @@ export class QuizQuestionComponent
   }
   
   private resetStateForNewQuestion(): void {
+    this.showFeedbackForOption = {};
+    this.showFeedback = false;
+    this.correctMessage = '';
+    this.selectedOption = null;
     this.isOptionSelected = false;
+    this.selectedOptionService.clearOptions();
     this.selectedOptionService.setOptionSelected(false);
     this.selectedOptionService.clearSelectedOption();
     this.selectedOptionService.resetAnsweredState();
