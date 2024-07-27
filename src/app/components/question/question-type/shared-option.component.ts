@@ -29,12 +29,10 @@ export class SharedOptionComponent implements OnInit {
   }
 
   onOptionClicked(option: Option, index: number): void {
-    console.log('SharedOptionComponent: Option clicked:', option, index);
     this.optionClicked.emit({ option, index });
   }
 
   handleOptionClick(option: Option, index: number): void {
-    console.log('SharedOptionComponent: Option clicked:', option, index);
     this.optionClicked.emit({ option, index });
   }
 
