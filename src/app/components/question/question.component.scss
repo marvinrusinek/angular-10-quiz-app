@@ -6,10 +6,9 @@
 
   mat-checkbox,
   mat-radio-button {
-    display: flex;  // Use flexbox for better alignment
-    align-items: center;  // Center items vertically
+    display: flex;
+    align-items: center;
     cursor: pointer;
-    // display: inline-block;
     width: 630px;
     height: auto !important;
     font-family: $font-stack;
