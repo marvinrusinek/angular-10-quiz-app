@@ -59,58 +59,10 @@
     .icon {
       font-size: 14px;
       position: relative;
-      margin-left: auto !important;  // Ensure icon is pushed to the right
+      margin-left: auto;  // Ensure icon is pushed to the right
       display: flex;
-      align-items: center;
-      justify-content: center;
     }
   }
-
-  /* input[type="radio"] {
-    display: none !important;
-  }
-
-  mat-radio-button .mat-radio-outer-circle,
-  mat-radio-button .mat-radio-inner-circle {
-    display: none !important;
-  }
-
-  mat-radio-button .mat-radio-label-content {
-    padding-left: 0 !important;
-  }
-
-  mat-checkbox .mat-checkbox-frame,
-  mat-checkbox .mat-checkbox-background {
-    display: none !important;
-  }
-
-  mat-checkbox .mat-checkbox-inner-container {
-    margin-left: 0 !important;
-  } */
-
-  /* .mat-checkbox-layout,
-  .mat-radio-layout {
-    display: block !important;
-  }
-
-  div.mat-checkbox-inner-container,
-  div.mat-radio-inner-container {
-    display: none;
-  }
-
-  .mat-checkbox .mat-checkbox-frame,
-  .mat-checkbox .mat-checkbox-background,
-  .mat-radio-button .mat-radio-outer-circle,
-  .mat-radio-button .mat-radio-inner-circle,
-  .mat-radio-button .mat-radio-container,
-  .mat-radio-button .mat-radio-label-content {
-    display: none !important;
-  }
-
-  .mat-checkbox .mat-checkbox-inner-container,
-  .mat-radio-button .mat-radio-container {
-    display: none !important;
-  } */
 
   .correct {
     background-color: $green;
