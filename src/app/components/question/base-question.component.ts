@@ -12,7 +12,7 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
   template: ''
 })
 export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
-  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: true }) dynamicComponentContainer!: ViewContainerRef;
+  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef }) dynamicComponentContainer!: ViewContainerRef;
 
   @Input() question!: QuizQuestion;
   multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -50,14 +50,14 @@ export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
+  async ngAfterViewInit(): Promise<void> {
+    setTimeout(async () => {
       console.log('ngAfterViewInit: dynamicComponentContainer', this.dynamicComponentContainer);
       if (!this.dynamicComponentContainer) {
         console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
         return;
       }
-      this.loadDynamicComponent();
+      await this.loadDynamicComponent();
     }, 0);
   }
 
