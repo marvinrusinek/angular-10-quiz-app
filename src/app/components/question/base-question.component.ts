@@ -28,8 +28,8 @@ export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
   constructor(
     protected componentFactoryResolver: ComponentFactoryResolver,
     protected fb: FormBuilder,
-    private dynamicComponentService: DynamicComponentService,
-    private selectedOptionService: SelectedOptionService
+    protected dynamicComponentService: DynamicComponentService,
+    protected selectedOptionService: SelectedOptionService
   ) {
     if (typeof this.fb.group !== 'function') {
       console.error('FormBuilder group method is not a function');  // Additional check
