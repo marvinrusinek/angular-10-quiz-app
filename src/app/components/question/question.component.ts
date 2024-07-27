@@ -308,12 +308,21 @@ export class QuizQuestionComponent
     }
   }
   
-  async ngAfterViewInit(): Promise<void> {
+  /* async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit();
     const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.multipleAnswer.value);
     componentRef.instance.questionForm = this.questionForm;
     componentRef.instance.question = this.question;
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+  } */
+
+  ngAfterViewInit(): void {
+    console.log('QuizQuestionComponent ngAfterViewInit: dynamicComponentContainer', this.dynamicComponentContainer);
+    if (!this.dynamicComponentContainer) {
+      console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
+      return;
+    }
+    this.loadDynamicComponent();
   }
   
   ngOnChanges(changes: SimpleChanges): void {
@@ -379,6 +388,17 @@ export class QuizQuestionComponent
     this.sharedVisibilitySubscription?.unsubscribe();
     this.resetFeedbackSubscription?.unsubscribe();
     this.resetStateSubscription?.unsubscribe();
+  }
+
+  loadDynamicComponent(): void {
+    console.log('QuizQuestionComponent: loadDynamicComponent called');
+    this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, true).then(componentRef => {
+      if (componentRef.instance) {
+        componentRef.instance.questionForm = this.questionForm;
+        componentRef.instance.question = this.question;
+        componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+      }
+    });
   }
   
   // Function to handle visibility changes
