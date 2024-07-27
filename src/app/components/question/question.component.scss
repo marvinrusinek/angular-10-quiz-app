@@ -4,26 +4,6 @@
   margin: 0 0 25px 6.5px;
   padding: 5px;
 
-  // Hide the default checkbox and radio button elements
-  ::ng-deep .mat-checkbox .mat-checkbox-frame,
-  ::ng-deep .mat-checkbox .mat-checkbox-background,
-  ::ng-deep .mat-radio-button .mat-radio-outer-circle,
-  ::ng-deep .mat-radio-button .mat-radio-inner-circle,
-  ::ng-deep .mat-radio-button .mat-radio-label-content .mat-radio-container {
-    display: none !important;
-  }
-
-  ::ng-deep .mat-checkbox-inner-container,
-  ::ng-deep .mat-radio-container {
-    display: none !important;
-  }
-
-  // Ensure the layout is correct
-  .mat-checkbox-layout,
-  .mat-radio-layout {
-    display: block !important;
-  }
-
   mat-checkbox,
   mat-radio-button {
     display: flex;  // Use flexbox for better alignment
@@ -89,4 +69,24 @@
     white-space: normal;
     margin-top: 5px;
   }
+}
+
+// Hide the default checkbox and radio button elements
+::ng-deep .mat-checkbox .mat-checkbox-frame,
+::ng-deep .mat-checkbox .mat-checkbox-background,
+::ng-deep .mat-radio-button .mat-radio-outer-circle,
+::ng-deep .mat-radio-button .mat-radio-inner-circle,
+::ng-deep .mat-radio-button .mat-radio-label-content .mat-radio-container {
+  display: none !important;
+}
+
+::ng-deep .mat-checkbox-inner-container,
+::ng-deep .mat-radio-container {
+  display: none !important;
+}
+
+// Ensure the layout is correct
+.mat-checkbox-layout,
+.mat-radio-layout {
+  display: block !important;
 }
