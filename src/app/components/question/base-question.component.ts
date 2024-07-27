@@ -27,8 +27,9 @@ export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
 
   constructor(
     protected componentFactoryResolver: ComponentFactoryResolver,
-    private fb: FormBuilder,
-    private dynamicComponentService: DynamicComponentService
+    protected fb: FormBuilder,
+    private dynamicComponentService: DynamicComponentService,
+    private selectedOptionService: SelectedOptionService
   ) {
     console.log('FormBuilder instance:', this.fb);  // Debugging log to check FormBuilder instance
     if (typeof this.fb.group !== 'function') {
