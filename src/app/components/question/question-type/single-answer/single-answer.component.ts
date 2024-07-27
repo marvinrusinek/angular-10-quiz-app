@@ -26,15 +26,12 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
   }
 
   onOptionClicked(option: Option, index: number): void {
-    console.log('SingleAnswerComponent: Option clicked:', option, index);
-
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.onOptionClicked(option, index);
     } else {
       console.error('QuizQuestionComponent is not available');
     }
 
-    // Check if showFeedbackForOption is initialized
     if (!this.showFeedbackForOption) {
       console.error('showFeedbackForOption is not initialized');
       this.showFeedbackForOption = {};
