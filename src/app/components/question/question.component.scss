@@ -51,13 +51,11 @@
       margin-top: -25px;
     }
 
-    .mat-checkbox-layout,
-    .mat-radio-layout {
+    .option-content {
       display: flex;
       justify-content: space-between;  // Ensure space between text and icon
       align-items: center;
       width: 100%;
-      background: rgba(255, 0, 0, 0.1); /* Debugging aid: Red background to visualize the container */
     }
 
     .option-text {
@@ -66,10 +64,12 @@
     }
 
     .icon {
-      margin-left: auto !important;  // Ensure icon is pushed to the right
       font-size: 14px;
       position: relative;
-      background: rgba(0, 255, 0, 0.1); /* Debugging aid: Green background to visualize the icon */
+      margin-left: auto !important;  // Ensure icon is pushed to the right
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
