@@ -84,6 +84,9 @@ export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
     }
   }
 
+  // Abstract method to be implemented in child components
+  abstract onOptionClicked(option: SelectedOption, index: number): void;
+
   handleOptionClick(option: SelectedOption, index: number): void {
     if (this['onOptionClicked']) {
       (this['onOptionClicked'] as any)(option, index);
@@ -91,9 +94,6 @@ export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
       console.error('onOptionClicked method not found');
     }
   }
-
-  // Abstract method to be implemented in child components
-  abstract onOptionClicked(option: SelectedOption, index: number): void;
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOptionService.isSelectedOption(option);
