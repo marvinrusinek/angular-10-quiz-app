@@ -18,7 +18,7 @@ export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
   multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   @Input() shouldResetBackground = false;
-  @Input() correctMessage: string = '';
+  @Input() correctMessage = '';
   @Input() showFeedback = false;
   @Input() type: 'single' | 'multiple' = 'single';
 
