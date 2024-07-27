@@ -393,6 +393,15 @@ export class QuizQuestionComponent
       });
     }
   }
+
+  loadDynamicComponent(): void {
+    console.log('QuizQuestionComponent: loadDynamicComponent called');
+    this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, true).then(componentRef => {
+      componentRef.instance.questionForm = this.questionForm;
+      componentRef.instance.question = this.question;
+      componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+    });
+  }
   
   getComponentToLoad(): Type<any> {
     return this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
