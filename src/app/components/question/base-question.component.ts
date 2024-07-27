@@ -62,7 +62,6 @@ export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
   }
 
   async loadDynamicComponent(): Promise<void> {
-    console.log('Loading dynamic component with question:', this.question);
     const hasMultipleAnswers = this.multipleAnswer.value;
     console.log('Has multiple answers:', hasMultipleAnswers);  // Debugging log
     const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, hasMultipleAnswers);
