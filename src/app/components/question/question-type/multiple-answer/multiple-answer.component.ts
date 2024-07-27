@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, Optional, Inject, forwardRef } from '@ang
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
+import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { QuizQuestionComponent } from '../../../../components/question/question.component';
@@ -22,7 +23,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
     super(selectedOptionService, fb);
   }
 
-  async onOptionClicked(option: Option, index: number): void {
+  async onOptionClicked(option: SelectedOption, index: number): void {
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.onOptionClicked(option, index);
     } else {
