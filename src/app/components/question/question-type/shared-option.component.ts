@@ -7,7 +7,7 @@ import { Option } from '../../../shared/models/Option.model';
   templateUrl: './shared-option.component.html',
   styleUrls: ['../question.component.scss']
 })
-export class SharedOptionComponent implements NgOnInit {
+export class SharedOptionComponent implements OnInit {
   @Output() optionClicked = new EventEmitter<{ option: Option, index: number }>();
   @Input() optionsToDisplay: Option[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
