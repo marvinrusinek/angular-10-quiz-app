@@ -51,7 +51,8 @@
       margin-top: -25px;
     }
 
-    .option-content {
+    .mat-checkbox-label-content,
+    .mat-radio-label-content {
       display: flex;
       justify-content: space-between;  // Ensure space between text and icon
       align-items: center;

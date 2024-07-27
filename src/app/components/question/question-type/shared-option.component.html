@@ -12,7 +12,7 @@
           (click)="onOptionClicked(option, idx)"
           [isCorrect]="option.correct"
           [disabled]="option.selected">
-          <div class="option-content">
+          <div class="mat-checkbox-label-content">
             <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>
             <span class="icon"
               appFeedbackIcon
@@ -34,7 +34,7 @@
           (click)="onOptionClicked(option, idx)"
           [isCorrect]="option.correct"
           [disabled]="option.selected">
-          <div class="option-content">
+          <div class="mat-radio-label-content">
             <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>
             <span class="icon"
               appFeedbackIcon
