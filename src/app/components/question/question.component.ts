@@ -37,11 +37,7 @@ export class QuizQuestionComponent
   extends BaseQuestionComponent
   implements OnInit, OnChanges, OnDestroy, AfterViewInit
 {
-  @ViewChild('dynamicComponentContainer', {
-    read: ViewContainerRef,
-    static: true
-  })
-  dynamicComponentContainer!: ViewContainerRef;
+  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef }) dynamicComponentContainer!: ViewContainerRef;
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() selectionChanged: EventEmitter<{
