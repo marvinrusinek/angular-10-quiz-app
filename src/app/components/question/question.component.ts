@@ -1009,7 +1009,7 @@ export class QuizQuestionComponent
   }
   
   // Call this method when an option is selected
-  protected async onOptionClicked(
+  async onOptionClicked(
     option: SelectedOption,
     index: number
   ): Promise<void> {
