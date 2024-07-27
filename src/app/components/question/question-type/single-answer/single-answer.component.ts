@@ -26,6 +26,8 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
   }
 
   onOptionClicked(option: Option, index: number): void {
+    super.handleOptionClick(option, index);
+
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.onOptionClicked(option, index);
     } else {
@@ -40,7 +42,6 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     this.showFeedbackForOption[option.optionId] = true;
     this.selectedOption = option;
     this.showFeedback = true;
-
     this.cdRef.markForCheck();
   }
 }
