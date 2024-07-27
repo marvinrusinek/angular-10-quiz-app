@@ -59,7 +59,16 @@ export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
     this.loadDynamicComponent();
   }
 
-  abstract loadDynamicComponent(): void;
+  // abstract loadDynamicComponent(): void;
+
+  loadDynamicComponent(): void {
+    console.log('QuizQuestionComponent: loadDynamicComponent called');
+    this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, true).then(componentRef => {
+      componentRef.instance.questionForm = this.questionForm;
+      componentRef.instance.question = this.question;
+      componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+    });
+  }
 
   protected initializeOptions(): void {
     if (this.question && this.question.options) {
