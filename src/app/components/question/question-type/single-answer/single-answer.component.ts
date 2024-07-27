@@ -20,7 +20,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     protected selectedOptionService: SelectedOptionService,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef,
-    @Optional() @Inject(forwardRef(() => QuizQuestionComponent)) private quizQuestionComponent: QuizQuestionComponent
+    @Optional() @Inject(forwardRef(() => QuizQuestionComponent)) protected quizQuestionComponent: QuizQuestionComponent
   ) {
     super(selectedOptionService, fb);
   }
