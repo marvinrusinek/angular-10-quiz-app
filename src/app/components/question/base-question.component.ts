@@ -55,8 +55,10 @@ export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
     if (!this.dynamicComponentContainer) {
       console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
       return;
+    } else {
+      console.log('dynamicComponentContainer is defined');
+      this.loadDynamicComponent();
     }
-    this.loadDynamicComponent();
   }
 
   // abstract loadDynamicComponent(): void;
