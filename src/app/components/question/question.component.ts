@@ -1164,6 +1164,13 @@ export class QuizQuestionComponent
         );
         return null;
       }
+
+      // Reset the state for the new question
+      this.resetStateForNewQuestion();
+
+      // Assign the fetched question to the relevant properties
+      this.currentQuestion = currentQuestion;
+      this.optionsToDisplay = currentQuestion.options;
   
       // Determine if the current question is answered
       const isAnswered = await this.isQuestionAnswered(
