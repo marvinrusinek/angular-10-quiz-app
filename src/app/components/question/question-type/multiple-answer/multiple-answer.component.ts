@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, Optional, Inject, forwardRef } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
@@ -15,7 +15,8 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
     protected quizService: QuizService,
     protected selectedOptionService: SelectedOptionService,
     protected fb: FormBuilder,
-    protected cdRef: ChangeDetectorRef
+    protected cdRef: ChangeDetectorRef,
+    @Optional() @Inject(forwardRef(() => QuizQuestionComponent)) private quizQuestionComponent: QuizQuestionComponent
   ) {
     super(selectedOptionService, fb);
   }
