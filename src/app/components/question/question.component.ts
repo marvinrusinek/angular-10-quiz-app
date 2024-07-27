@@ -1037,7 +1037,6 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component,
           'onOptionClicked - showFeedbackForOption:',
           this.showFeedbackForOption
         );
-        console.log('onOptionClicked - SelectedOption set:', this.selectedOption);
   
         // Update selected option in service
         this.updateSelectedOption(option);
