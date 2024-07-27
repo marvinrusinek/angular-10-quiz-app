@@ -61,7 +61,7 @@ export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
     }
   }
 
-  abstract loadDynamicComponent(): void;
+  protected abstract loadDynamicComponent(): void;
 
   protected initializeOptions(): void {
     if (this.question && this.question.options) {

@@ -386,7 +386,7 @@ export class QuizQuestionComponent
     this.resetStateSubscription?.unsubscribe();
   }
 
-  loadDynamicComponent(): void {
+  protected loadDynamicComponent(): void {
     console.log('QuizQuestionComponent: loadDynamicComponent called');
     this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, true).then(componentRef => {
       if (componentRef.instance) {
