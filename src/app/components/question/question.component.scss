@@ -51,6 +51,13 @@
       margin-top: -25px;
     }
 
+    .option-content {
+      display: flex;
+      justify-content: space-between;  // Ensure space between text and icon
+      align-items: center;
+      width: 100%;
+    }
+
     .option-text {
       flex-grow: 1;
       white-space: normal;
@@ -58,9 +65,10 @@
 
     .icon {
       font-size: 14px;
-      position: relative;
       margin-left: auto;  // Ensure icon is pushed to the right
       display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
