@@ -26,7 +26,7 @@ export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
   optionsToDisplay: Option[] = [];
 
   constructor(
-    private componentFactoryResolver: ComponentFactoryResolver,
+    protected componentFactoryResolver: ComponentFactoryResolver,
     private fb: FormBuilder,
     private dynamicComponentService: DynamicComponentService
   ) {
