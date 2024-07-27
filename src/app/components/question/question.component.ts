@@ -1153,6 +1153,9 @@ export class QuizQuestionComponent
   
   private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
+      // Reset state before fetching new question
+      this.resetStateForNewQuestion();
+
       // Attempt to fetch the current question
       const currentQuestion = await firstValueFrom(
         this.quizService.getCurrentQuestion()
@@ -1164,9 +1167,6 @@ export class QuizQuestionComponent
         );
         return null;
       }
-
-      // Reset the state for the new question
-      this.resetStateForNewQuestion();
 
       // Assign the fetched question to the relevant properties
       this.currentQuestion = currentQuestion;
