@@ -23,19 +23,13 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
   // Override onOptionClicked to handle multiple answers specific logic
   onOptionClicked(option: Option, index: number): void {
     console.log('MultipleAnswerComponent: Option clicked:', option, index);
-    // super.onOptionClicked(option, index);
-    super.handleOptionClick(option, index);
-
-    // Avoid unnecessary change detection cycles
-    this.cdRef.detach();
 
     this.showFeedbackForOption[option.optionId] = true;
     this.selectedOption = option;
     this.showFeedback = true;
 
-    // Re-enable change detection
-    this.cdRef.detectChanges();
-    this.cdRef.reattach();
+    // Mark for check instead of manually detaching and reattaching
+    this.cdRef.markForCheck();
   }
 }
 
