@@ -162,8 +162,6 @@ export class SelectedOptionService {
       return;
     }
   
-    console.log('Selected option:', option);
-  
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
