@@ -309,7 +309,7 @@ export class QuizQuestionComponent
   ngAfterViewInit(): void {
     super.ngAfterViewInit();
 
-    console.log('QuizQuestionComponent ngAfterViewInit: dynamicComponentContainer', this.dynamicComponentContainer);
+    /* console.log('QuizQuestionComponent ngAfterViewInit: dynamicComponentContainer', this.dynamicComponentContainer);
     console.log('ElementRef:', this.el.nativeElement);
     const dynamicContainer = this.el.nativeElement.querySelector('ng-template#dynamicComponentContainer');
     console.log('Queried dynamicComponentContainer:', dynamicContainer);
@@ -318,7 +318,7 @@ export class QuizQuestionComponent
       console.error('dynamicComponentContainer is still undefined in QuizQuestionComponent ngAfterViewInit');
       return;
     }
-    this.loadDynamicComponent();
+    this.loadDynamicComponent(); */
   }
   
   ngOnChanges(changes: SimpleChanges): void {
