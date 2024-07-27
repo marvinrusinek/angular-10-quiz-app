@@ -3,8 +3,8 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
 import { Option } from '../../shared/models/Option.model';
-import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 
