@@ -1056,7 +1056,7 @@ export class QuizQuestionComponent
     option: SelectedOption,
     index: number
   ): Promise<void> {
-    console.log('OPTION CLICKED:', option, index);
+    console.log('QuizQuestionComponent: OPTION CLICKED:', option, index);
 
     this.showFeedbackForOption[index] = true;
     try {
