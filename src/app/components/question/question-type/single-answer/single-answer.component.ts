@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
@@ -17,7 +17,8 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
   constructor(
     protected quizService: QuizService,
     protected selectedOptionService: SelectedOptionService,
-    protected fb: FormBuilder
+    protected fb: FormBuilder,
+    protected cdRef: ChangeDetectorRef
   ) {
     super(selectedOptionService, fb);
   }
@@ -29,15 +30,15 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     super.handleOptionClick(option, index);
 
     // Avoid unnecessary change detection cycles
-    this.cdr.detach();
+    this.cdRef.detach();
 
     this.showFeedbackForOption[option.optionId] = true;
     this.selectedOption = option;
     this.showFeedback = true;
 
     // Re-enable change detection
-    this.cdr.detectChanges();
-    this.cdr.reattach();
+    this.cdRef.detectChanges();
+    this.cdRef.reattach();
   }
 }
 
