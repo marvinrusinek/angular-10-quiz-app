@@ -1,10 +1,11 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, Optional, Inject } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
+import { QuizQuestionComponent } from '../../../../components/question/question.component';
 
 @Component({
   selector: 'codelab-question-single-answer',
@@ -18,14 +19,21 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     protected quizService: QuizService,
     protected selectedOptionService: SelectedOptionService,
     protected fb: FormBuilder,
-    protected cdRef: ChangeDetectorRef
+    protected cdRef: ChangeDetectorRef,
+    @Optional() @Inject(QuizQuestionComponent) private quizQuestionComponent: QuizQuestionComponent
   ) {
-    super(selectedOptionService, fb);
+    //super(selectedOptionService, fb);
+    super();
   }
 
-  async onOptionClicked(option: Option, index: number): void {
+  onOptionClicked(option: Option, index: number): void {
     console.log('SingleAnswerComponent: Option clicked:', option, index);
-    super.handleOptionClick(option, index);
+
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.onOptionClicked(option, index);
+    } else {
+      console.error('QuizQuestionComponent is not available');
+    }
 
     // Check if showFeedbackForOption is initialized
     if (!this.showFeedbackForOption) {
