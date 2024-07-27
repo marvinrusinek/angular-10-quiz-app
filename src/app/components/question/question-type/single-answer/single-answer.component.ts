@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Optional, Inject } from '@angular/core';
+import { ChangeDetectorRef, Component, Optional, Host, SkipSelf } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
@@ -20,10 +20,10 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     protected selectedOptionService: SelectedOptionService,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef,
-    @Optional() @Inject(QuizQuestionComponent) private quizQuestionComponent: QuizQuestionComponent
+    @Optional() @Host() @SkipSelf() private quizQuestionComponent: QuizQuestionComponent
   ) {
-    //super(selectedOptionService, fb);
-    super();
+    super(selectedOptionService, fb);
+    //super();
   }
 
   onOptionClicked(option: Option, index: number): void {
