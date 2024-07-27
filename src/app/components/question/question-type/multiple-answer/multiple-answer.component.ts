@@ -23,8 +23,12 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
   }
 
   async onOptionClicked(option: Option, index: number): void {
-    super.handleOptionClick(option, index);
-
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.onOptionClicked(option, index);
+    } else {
+      console.error('QuizQuestionComponent is not available');
+    }
+    
     if (!this.showFeedbackForOption) {
       console.error('showFeedbackForOption is not initialized');
       this.showFeedbackForOption = {};

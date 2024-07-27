@@ -26,8 +26,6 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
   }
 
   onOptionClicked(option: Option, index: number): void {
-    super.handleOptionClick(option, index);
-
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.onOptionClicked(option, index);
     } else {
