@@ -308,9 +308,9 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component,
       }
     }
   
-    ngAfterViewInit(): void {
+    async ngAfterViewInit(): Promise<void> {
       super.ngAfterViewInit();
-      const componentRef = this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.multipleAnswer.value);
+      const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.multipleAnswer.value);
       componentRef.instance.questionForm = this.questionForm;
       componentRef.instance.question = this.question;
       componentRef.instance.optionsToDisplay = this.optionsToDisplay;
