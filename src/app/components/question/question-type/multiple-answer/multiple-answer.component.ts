@@ -22,6 +22,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
 
   async onOptionClicked(option: Option, index: number): void {
     console.log('MultipleAnswerComponent: Option clicked:', option, index);
+    super.handleOptionClick(option, index);
 
     // Check if showFeedbackForOption is initialized
     if (!this.showFeedbackForOption) {
