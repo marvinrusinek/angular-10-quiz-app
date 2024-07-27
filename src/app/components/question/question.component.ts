@@ -219,12 +219,6 @@ export class QuizQuestionComponent
     const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
     this.multipleAnswer.next(hasMultipleAnswers);
   
-    // Load the dynamic component based on the multipleAnswer value
-    const component = this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
-    this.loadDynamicComponent();
-    const componentFactory =
-      this.componentFactoryResolver.resolveComponentFactory(component);
-  
     this.resetFeedbackSubscription =
       this.resetStateService.resetFeedback$.subscribe(() => {
         console.log('QuizQuestionComponent - Reset feedback triggered');
