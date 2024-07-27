@@ -4,7 +4,6 @@ import { Subscription } from 'rxjs';
 import { Option } from '../shared/models/Option.model';
 import { SelectedOption } from '../shared/models/SelectedOption.model';
 import { ResetFeedbackIconService } from '../shared/services/reset-feedback-icon.service';
-import { SelectedOptionService } from '../shared/services/selectedoption.service';
 
 @Directive({
   selector: '[appFeedbackIcon]'
@@ -20,8 +19,7 @@ export class FeedbackIconDirective implements OnChanges {
   constructor(
     private el: ElementRef,
     private renderer: Renderer2,
-    private resetFeedbackIconService: ResetFeedbackIconService,
-    private selectedOptionService: SelectedOptionService
+    private resetFeedbackIconService: ResetFeedbackIconService
   ) {
     this.resetIconSubscription = this.resetFeedbackIconService.shouldResetFeedback$.subscribe((shouldReset) => {
       if (shouldReset) {
@@ -64,7 +62,6 @@ export class FeedbackIconDirective implements OnChanges {
     }
   
     // Check if the option is selected and feedback should be shown
-    // const isSelected = this.selectedOptionService.isSelectedOption(this.option);
     const isSelected = this.selectedOption && this.selectedOption.optionId === this.option.optionId;
     const showFeedback = this.showFeedbackForOption[this.option.optionId];
   
