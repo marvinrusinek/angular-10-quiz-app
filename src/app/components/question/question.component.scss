@@ -49,8 +49,9 @@
       margin-top: -25px;
     }
 
-    .icon {
-      float: right;
+    span.icon {
+      float: right !important;
+      margin-left: auto !important;
       position: relative;
       font-size: 20px;
       top: calc(50% - 10px);
