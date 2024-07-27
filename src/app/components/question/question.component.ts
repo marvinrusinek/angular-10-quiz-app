@@ -226,7 +226,9 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component,
   
       // Load the dynamic component based on the multipleAnswer value
       const component = this.multipleAnswer.value ? MultipleAnswerComponent : SingleAnswerComponent;
-      this.loadDynamicComponent(component);
+      this.loadDynamicComponent();
+      const componentFactory =
+        this.componentFactoryResolver.resolveComponentFactory(component);
   
       this.resetFeedbackSubscription =
         this.resetStateService.resetFeedback$.subscribe(() => {
@@ -1889,23 +1891,6 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component,
       }).catch(error => {
         console.error('Playback failed:', error);
       });
-    } */
-  
-    /* loadDynamicComponent() {
-      console.log('Loading dynamic component');
-      const component = this.multipleAnswer
-        ? MultipleAnswerComponent
-        : SingleAnswerComponent;
-      const componentFactory =
-        this.componentFactoryResolver.resolveComponentFactory(component);
-      console.log('ComponentFactory:', componentFactory);
-      this.dynamicComponentContainer.clear();
-      const componentRef =
-        this.dynamicComponentContainer.createComponent(componentFactory);
-      console.log('ComponentRef:', componentRef);
-      componentRef.instance.questionForm = this.questionForm;
-      componentRef.instance.question = this.question;
-      componentRef.instance.optionsToDisplay = this.optionsToDisplay;
     } */
   }
   
