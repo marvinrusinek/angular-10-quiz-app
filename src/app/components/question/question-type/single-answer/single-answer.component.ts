@@ -15,6 +15,9 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
     '../shared-option.component.scss']
 })
 export class SingleAnswerComponent extends BaseQuestionComponent {
+  showFeedbackForOption: { [optionId: number]: boolean } = {};
+  selectedOption: SelectedOption | null = null;
+
   constructor(
     @Optional() @Inject(forwardRef(() => QuizQuestionComponent)) protected quizQuestionComponent: QuizQuestionComponent,
     protected quizService: QuizService,
