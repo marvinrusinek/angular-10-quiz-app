@@ -51,17 +51,9 @@
       margin-top: -25px;
     }
 
-    .mat-checkbox-inner-container,
-    .mat-radio-inner-container {
-      display: flex;
-      justify-content: space-between;  // Ensure space between text and icon
-      align-items: center;
-      width: 100%;
-    }
-
     .option-content {
       display: flex;
-      justify-content: space-between;  // Ensure space between text and icon
+      justify-content: space-between;
       align-items: center;
       width: 100%;
     }
@@ -69,6 +61,15 @@
     .option-text {
       flex-grow: 1;
       white-space: normal;
+    }
+
+    .icon {
+      font-size: 18px;
+      position: absolute;
+      right: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
