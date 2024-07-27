@@ -1009,10 +1009,7 @@ export class QuizQuestionComponent
   }
   
   // Call this method when an option is selected
-  async onOptionClicked(
-    option: SelectedOption,
-    index: number
-  ): Promise<void> {
+  async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     this.showFeedbackForOption[index] = true;
     try {
       // Set selected option and show feedback
