@@ -23,7 +23,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     super(selectedOptionService, fb);
   }
 
-  onOptionClicked(option: Option, index: number): void {
+  async onOptionClicked(option: Option, index: number): void {
     console.log('SingleAnswerComponent: Option clicked:', option, index);
 
     // Check if showFeedbackForOption is initialized
