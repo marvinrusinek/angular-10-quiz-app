@@ -23,7 +23,6 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     @Optional() @Inject(forwardRef(() => QuizQuestionComponent)) private quizQuestionComponent: QuizQuestionComponent
   ) {
     super(selectedOptionService, fb);
-    //super();
   }
 
   onOptionClicked(option: Option, index: number): void {
