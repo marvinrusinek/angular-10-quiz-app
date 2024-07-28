@@ -371,15 +371,19 @@ export class QuizQuestionComponent
   protected async loadDynamicComponent(): Promise<void> {
     console.log('QuizQuestionComponent: loadDynamicComponent called');
     this.dynamicComponentContainer.clear();
-    await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, true).then(componentRef => {
-      if (componentRef.instance) {
+
+    const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, true);
+    if (componentRef.instance) {
         componentRef.instance.questionForm = this.questionForm;
         componentRef.instance.question = this.question;
         componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
-        this.cdRef.detectChanges();
+
         console.log('Passed options to dynamic component:', this.optionsToDisplay);
-      }
-    });
+        
+        // Manually mark for check to ensure change detection runs
+        componentRef.changeDetectorRef.markForCheck();
+        this.cdRef.detectChanges();
+    }
   }
   
   // Function to handle visibility changes
