@@ -1118,6 +1118,7 @@ export class QuizQuestionComponent
     this.selectionMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
     this.selectionMessageService.resetMessage();
+    console.log('State reset for new question');
   }
   
   private updateSelectedOption(option: SelectedOption): void {
@@ -1179,7 +1180,7 @@ export class QuizQuestionComponent
       // Assign the fetched question to the relevant properties
       this.currentQuestion = currentQuestion;
       this.optionsToDisplay = [...currentQuestion.options];
-      console.log('Options to display after fetching question:', this.optionsToDisplay);
+      console.log('Options to display after fetching question:', this.optionsToD0isplay);
   
       // Determine if the current question is answered
       const isAnswered = await this.isQuestionAnswered(
@@ -1191,6 +1192,8 @@ export class QuizQuestionComponent
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       }
       this.updateAnswerStateAndMessage(isAnswered);
+
+      await this.loadDynamicComponent();
 
       // Return the fetched current question
       return currentQuestion;
