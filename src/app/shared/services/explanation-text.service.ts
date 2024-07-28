@@ -74,7 +74,6 @@ export class ExplanationTextService {
     console.log('Checking formatted explanations for index:', index);
     if (index in this.formattedExplanations) {
       const formattedExplanation = this.formattedExplanations[index];
-      console.log("Retrieved explanation for index", index, ":", formattedExplanation);
 
       if (formattedExplanation && formattedExplanation.explanation) {
         this.formattedExplanation$.next(formattedExplanation.explanation);

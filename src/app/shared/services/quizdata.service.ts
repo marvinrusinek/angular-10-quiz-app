@@ -258,8 +258,6 @@ export class QuizDataService implements OnDestroy {
   }
 
   setQuestionType(question: QuizQuestion): void {
-    console.log('Question object:', question);
-
     if (!question) {
       console.error('Question is undefined or null:', question);
       return;
