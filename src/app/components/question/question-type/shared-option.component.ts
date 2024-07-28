@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
 import { Option } from '../../../shared/models/Option.model';
+import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 
 @Component({
   selector: 'app-shared-option',
@@ -9,14 +10,14 @@ import { Option } from '../../../shared/models/Option.model';
 })
 export class SharedOptionComponent implements OnInit, OnChanges {
   @Output() optionClicked = new EventEmitter<{ option: Option, index: number }>();
+  @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
-  @Input() type: 'single' | 'multiple' = 'single';
-  @Input() shouldResetBackground: boolean;
-  @Input() selectedOption: any;
-  @Input() showFeedbackForOption: boolean[];
-  @Input() currentQuestion: any;
+  @Input() type: string;
+  @Input() selectedOption: Option;
+  @Input() showFeedbackForOption: { [optionId: number]: boolean };
   @Input() correctMessage: string;
   @Input() showFeedback: boolean;
+  @Input() shouldResetBackground: boolean;
 
   ngOnInit(): void {
     if (!this.showFeedbackForOption) {
