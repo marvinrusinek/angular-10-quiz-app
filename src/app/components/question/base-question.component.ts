@@ -71,8 +71,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       this.question.options.forEach(option => {
         this.questionForm.addControl(option.text, this.fb.control(false));
       });
+      this.optionsToDisplay = this.question.options || [];
+    } else {
+      console.error('Question or options are undefined');
     }
-  }
+  }  
 
   // Abstract method to be implemented in child components
   abstract onOptionClicked(option: SelectedOption, index: number): void;
