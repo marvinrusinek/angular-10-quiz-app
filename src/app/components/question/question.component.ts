@@ -368,7 +368,7 @@ export class QuizQuestionComponent
     this.resetStateSubscription?.unsubscribe();
   }
 
-  protected async loadDynamicComponent(): Promise<void> {
+  /* protected async loadDynamicComponent(): Promise<void> {
     console.log('QuizQuestionComponent: loadDynamicComponent called');
     this.dynamicComponentContainer.clear();
 
@@ -384,6 +384,23 @@ export class QuizQuestionComponent
       componentRef.changeDetectorRef.markForCheck();
       this.cdRef.detectChanges();
     }
+  } */
+
+  protected loadDynamicComponent(): void {
+    console.log('QuizQuestionComponent: loadDynamicComponent called');
+    this.dynamicComponentContainer.clear();
+
+    this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.quizStateService.isMultipleAnswerQuestion()).then(componentRef => {
+      if (componentRef.instance) {
+        componentRef.instance.questionForm = this.questionForm;
+        componentRef.instance.question = this.currentQuestion;
+        componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
+        console.log('Passed options to dynamic component:', this.optionsToDisplay);
+
+        componentRef.changeDetectorRef.markForCheck();
+        this.cdRef.detectChanges();
+      }
+    });
   }
   
   // Function to handle visibility changes
