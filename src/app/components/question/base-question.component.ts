@@ -9,6 +9,7 @@ import { DynamicComponentService } from '../../shared/services/dynamic-component
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 
 @Component({
+  selector: 'app-base-question',
   template: ''
 })
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterViewInit {
