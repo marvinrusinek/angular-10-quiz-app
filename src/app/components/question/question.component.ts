@@ -306,19 +306,9 @@ export class QuizQuestionComponent
     componentRef.instance.optionsToDisplay = this.optionsToDisplay;
   } */
 
-  ngAfterViewInit(): void {
+  async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit();
-
-    /* console.log('QuizQuestionComponent ngAfterViewInit: dynamicComponentContainer', this.dynamicComponentContainer);
-    console.log('ElementRef:', this.el.nativeElement);
-    const dynamicContainer = this.el.nativeElement.querySelector('ng-template#dynamicComponentContainer');
-    console.log('Queried dynamicComponentContainer:', dynamicContainer);
-
-    if (!this.dynamicComponentContainer) {
-      console.error('dynamicComponentContainer is still undefined in QuizQuestionComponent ngAfterViewInit');
-      return;
-    }
-    this.loadDynamicComponent(); */
+    await this.loadDynamicComponent();
   }
   
   ngOnChanges(changes: SimpleChanges): void {
