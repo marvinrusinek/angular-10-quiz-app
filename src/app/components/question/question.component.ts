@@ -368,10 +368,10 @@ export class QuizQuestionComponent
     this.resetStateSubscription?.unsubscribe();
   }
 
-  protected loadDynamicComponent(): void {
+  protected async loadDynamicComponent(): Promise<void> {
     console.log('QuizQuestionComponent: loadDynamicComponent called');
     this.dynamicComponentContainer.clear();
-    this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, true).then(componentRef => {
+    await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, true).then(componentRef => {
       if (componentRef.instance) {
         componentRef.instance.questionForm = this.questionForm;
         componentRef.instance.question = this.question;
