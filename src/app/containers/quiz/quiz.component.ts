@@ -1842,6 +1842,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.log('Calling resetUI after setTimeout in restartQuiz');
       this.resetUI();
     }, 0);
+    
+    this.quizQuestionComponent.fetchAndProcessCurrentQuestion()
+    .then(() => {
+      this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
+    })
+    .catch((error) => {
+      console.error('Error restarting the quiz:', error);
+    });
+
     this.resetStateService.triggerResetFeedback();
     this.resetStateService.triggerResetState(); // Trigger reset state in other component
     this.quizService.resetAll();
