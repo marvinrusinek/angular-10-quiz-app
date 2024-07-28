@@ -3,33 +3,18 @@
 
 <!--<ang-music-player [audioList]="audioList"></ang-music-player>-->
 
-<!--<form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
-  <ng-container *ngIf="shouldDisplayTextContent">
-    <ng-container *ngIf="shouldDisplayOptions; else noOptions">
-      <ng-container #dynamicComponentContainer></ng-container>
-    </ng-container>
-
-    <ng-template #noOptions>
-      <ng-container *ngIf="isLoading">
-        Loading options&hellip;
-      </ng-container>
-      <ng-container *ngIf="shouldRenderContainer">
-        No options found for the current question.
-      </ng-container>
-    </ng-template>
+<form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
+  <ng-container *ngIf="currentQuestion">
+    <app-base-question [question]="currentQuestion"></app-base-question>
   </ng-container>
-</form>-->
 
-<ng-container *ngIf="currentQuestion">
-  <app-base-question [question]="currentQuestion"></app-base-question>
-</ng-container>
+  <ng-container *ngIf="shouldRenderContainer">
+    <div *ngIf="isLoading" class="loading-spinner">
+      <!-- Add loading spinner here -->
+    </div>
 
-<ng-container *ngIf="shouldRenderContainer">
-  <div *ngIf="isLoading" class="loading-spinner">
-    <!-- Add loading spinner here -->
-  </div>
-
-  <div *ngIf="shouldDisplayOptions">
-    <ng-template #dynamicComponentContainer></ng-template>
-  </div>
-</ng-container>
+    <div *ngIf="shouldDisplayOptions">
+      <ng-template #dynamicComponentContainer></ng-template>
+    </div>
+  </ng-container>
+</form>
