@@ -297,14 +297,6 @@ export class QuizQuestionComponent
       console.error('Error in ngOnInit:', error);
     }
   }
-  
-  /* async ngAfterViewInit(): Promise<void> {
-    super.ngAfterViewInit();
-    const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.multipleAnswer.value);
-    componentRef.instance.questionForm = this.questionForm;
-    componentRef.instance.question = this.question;
-    componentRef.instance.optionsToDisplay = this.optionsToDisplay;
-  } */
 
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit();
