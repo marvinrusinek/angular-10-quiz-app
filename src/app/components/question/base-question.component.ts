@@ -38,7 +38,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   ngOnInit(): void {
     if (this.question) {
       this.initializeOptions();
-      this.optionsToDisplay = this.question.options;
       
       const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
       this.multipleAnswer.next(hasMultipleAnswers);
@@ -53,7 +52,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     }
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     console.log('BaseQuestionComponent ngAfterViewInit: dynamicComponentContainer', this.dynamicComponentContainer);
     if (!this.dynamicComponentContainer) {
       console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
