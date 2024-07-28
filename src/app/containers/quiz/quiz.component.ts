@@ -302,8 +302,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.correctAnswersTextSource.subscribe(text => {
       this.correctAnswersText = text;
-      console.log('Updated correct answers text:', this.correctAnswersText);
-    });
+    }); // todo: check if needed
 
     this.subscribeToCurrentQuestion();
   }
