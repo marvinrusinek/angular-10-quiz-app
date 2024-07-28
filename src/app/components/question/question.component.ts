@@ -391,10 +391,12 @@ export class QuizQuestionComponent
 
     const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion));
     const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, isMultipleAnswer);
+
     if (componentRef.instance) {
       componentRef.instance.questionForm = this.questionForm;
       componentRef.instance.question = this.currentQuestion;
       componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
+      
       console.log('Passed options to dynamic component:', this.optionsToDisplay);
 
       componentRef.changeDetectorRef.markForCheck();
@@ -1191,6 +1193,8 @@ export class QuizQuestionComponent
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       }
       this.updateAnswerStateAndMessage(isAnswered);
+
+      this.loadDynamicComponent();
 
       // Return the fetched current question
       return currentQuestion;
