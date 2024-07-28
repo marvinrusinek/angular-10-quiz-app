@@ -8,12 +8,12 @@
     <app-base-question [question]="currentQuestion"></app-base-question>
   </ng-container>
 
-  <ng-container *ngIf="(shouldRenderContainer$ | async)">
+  <ng-container *ngIf="shouldRenderContainer">
     <div *ngIf="isLoading" class="loading-spinner">
       <!-- Add loading spinner here -->
     </div>
 
-    <div *ngIf="(shouldDisplayOptions$ | async)">
+    <div *ngIf="shouldDisplayOptions">
       <ng-template #dynamicComponentContainer></ng-template>
     </div>
   </ng-container>

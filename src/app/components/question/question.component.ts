@@ -134,7 +134,7 @@ export class QuizQuestionComponent
   feedbackForOption: boolean;
   shouldRenderContainer = true;
 
-  optionsToDisplay$ = new BehaviorSubject<any[]>([]);
+  optionsToDisplay$ = new BehaviorSubject<Option[]>([]);
   isLoading$ = new BehaviorSubject<boolean>(true);
   shouldDisplayTextContent$ = new BehaviorSubject<boolean>(false);
   shouldDisplayOptions$ = new BehaviorSubject<boolean>(false);
@@ -1175,6 +1175,7 @@ export class QuizQuestionComponent
   }
   
   private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
+    
     try {
       this.resetStateForNewQuestion(); // Reset state before fetching new question
 
