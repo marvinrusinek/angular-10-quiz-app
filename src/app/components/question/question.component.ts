@@ -388,11 +388,13 @@ export class QuizQuestionComponent
 
   protected loadDynamicComponent(): void {
     console.log('QuizQuestionComponent: loadDynamicComponent called');
+    this.dynamicComponentContainer.clear();
     this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, true).then(componentRef => {
       if (componentRef.instance) {
         componentRef.instance.questionForm = this.questionForm;
         componentRef.instance.question = this.question;
         componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
+        this.cdRef.detectChanges();
         console.log('Passed options to dynamic component:', this.optionsToDisplay);
       }
     });
