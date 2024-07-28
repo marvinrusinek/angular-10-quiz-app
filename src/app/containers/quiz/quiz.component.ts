@@ -1562,6 +1562,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.selectedOptionService.setAnsweredState(isAnswered);
   
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+        
         this.resetUI();
         this.loadCurrentQuestion();
       } else {
