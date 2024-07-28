@@ -386,15 +386,20 @@ export class QuizQuestionComponent
     this.resetStateSubscription?.unsubscribe();
   }
 
-  protected loadDynamicComponent(): void {
+  private async loadDynamicComponent(): Promise<void> {
     console.log('QuizQuestionComponent: loadDynamicComponent called');
-    this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, true).then(componentRef => {
-      if (componentRef.instance) {
-        componentRef.instance.questionForm = this.questionForm;
-        componentRef.instance.question = this.question;
-        componentRef.instance.optionsToDisplay = this.optionsToDisplay;
-      }
-    });
+    const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.isMultipleAnswer());
+  
+    if (componentRef.instance) {
+      componentRef.instance.questionForm = this.questionForm;
+      componentRef.instance.question = this.currentQuestion;
+      componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+      console.log('Passed options to dynamic component:', this.optionsToDisplay);
+    } else {
+      console.error('Component instance is not created');
+    }
+  
+    this.cdRef.detectChanges();
   }
   
   // Function to handle visibility changes
