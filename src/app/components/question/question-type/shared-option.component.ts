@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
 import { Option } from '../../../shared/models/Option.model';
 
@@ -7,7 +7,7 @@ import { Option } from '../../../shared/models/Option.model';
   templateUrl: './shared-option.component.html',
   styleUrls: ['../question.component.scss']
 })
-export class SharedOptionComponent implements OnInit {
+export class SharedOptionComponent implements OnInit, OnChanges {
   @Output() optionClicked = new EventEmitter<{ option: Option, index: number }>();
   @Input() optionsToDisplay: Option[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
@@ -21,6 +21,12 @@ export class SharedOptionComponent implements OnInit {
   ngOnInit(): void {
     if (!this.showFeedbackForOption) {
       this.showFeedbackForOption = [];
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
+      console.log('SharedOptionComponent options to display (on changes):', this.optionsToDisplay);
     }
   }
 
