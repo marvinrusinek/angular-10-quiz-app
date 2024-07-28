@@ -1165,15 +1165,22 @@ export class QuizQuestionComponent
       //  this.quizService.getCurrentQuestion()
       //);
       const quizId = this.quizService.getCurrentQuizId(); // Assuming you have this method
-      const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex));
+      const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(quizId));
       console.log('Fetched current question:', currentQuestion);
   
-      if (!currentQuestion) {
+      /* if (!currentQuestion) {
         console.error(
           '[fetchAndProcessCurrentQuestion] Could not retrieve the current question.'
         );
         return null;
+      } */
+
+      if (!questions || this.currentQuestionIndex >= questions.length) {
+        console.error('[fetchAndProcessCurrentQuestion] Could not retrieve the current question.');
+        return null;
       }
+
+      const currentQuestion = questions[this.currentQuestionIndex];
 
       // Assign the fetched question to the relevant properties
       this.currentQuestion = currentQuestion;
