@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, ViewContainerRef, ComponentFactoryResolver, OnInit, AfterViewInit } from '@angular/core';
+import { AfterViewInit, Component, ComponentFactoryResolver, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
@@ -11,7 +11,7 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 @Component({
   template: ''
 })
-export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
+export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef }) dynamicComponentContainer!: ViewContainerRef;
   @Input() question!: QuizQuestion;
   @Input() correctMessage = '';
@@ -44,6 +44,12 @@ export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
       this.multipleAnswer.next(hasMultipleAnswers);
     } else {
       console.error('Question input is undefined');
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.question && changes.question.currentValue) {
+      this.initializeOptions();
     }
   }
 
