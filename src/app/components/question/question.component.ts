@@ -389,7 +389,8 @@ export class QuizQuestionComponent
     console.log('QuizQuestionComponent: loadDynamicComponent called');
     this.dynamicComponentContainer.clear();
 
-    const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.quizStateService.isMultipleAnswerQuestion());
+    const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion();
+    const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, isMultipleAnswer);
     if (componentRef.instance) {
       componentRef.instance.questionForm = this.questionForm;
       componentRef.instance.question = this.currentQuestion;
