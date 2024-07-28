@@ -1369,12 +1369,6 @@ export class QuizQuestionComponent
       );
     this.explanationTextService.setExplanationText(explanationText);
     this.explanationText = explanationText;
-    console.log(
-      'Explanation text for question',
-      this.currentQuestionIndex,
-      ':',
-      this.explanationText
-    );
   
     // Ensure showFeedback remains true
     this.showFeedback = true;
