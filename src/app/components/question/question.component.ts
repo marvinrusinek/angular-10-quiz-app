@@ -386,20 +386,15 @@ export class QuizQuestionComponent
     this.resetStateSubscription?.unsubscribe();
   }
 
-  private async loadDynamicComponent(): Promise<void> {
+  protected loadDynamicComponent(): void {
     console.log('QuizQuestionComponent: loadDynamicComponent called');
-    const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.isMultipleAnswer());
-  
-    if (componentRef.instance) {
-      componentRef.instance.questionForm = this.questionForm;
-      componentRef.instance.question = this.currentQuestion;
-      componentRef.instance.optionsToDisplay = this.optionsToDisplay;
-      console.log('Passed options to dynamic component:', this.optionsToDisplay);
-    } else {
-      console.error('Component instance is not created');
-    }
-  
-    this.cdRef.detectChanges();
+    this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, true).then(componentRef => {
+      if (componentRef.instance) {
+        componentRef.instance.questionForm = this.questionForm;
+        componentRef.instance.question = this.question;
+        componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+      }
+    });
   }
   
   // Function to handle visibility changes
@@ -1165,6 +1160,7 @@ export class QuizQuestionComponent
       const currentQuestion = await firstValueFrom(
         this.quizService.getCurrentQuestion()
       );
+      console.log('Fetched current question:', currentQuestion);
   
       if (!currentQuestion) {
         console.error(
