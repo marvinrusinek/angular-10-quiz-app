@@ -396,7 +396,7 @@ export class QuizQuestionComponent
       componentRef.instance.questionForm = this.questionForm;
       componentRef.instance.question = this.currentQuestion;
       componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
-      
+
       console.log('Passed options to dynamic component:', this.optionsToDisplay);
 
       componentRef.changeDetectorRef.markForCheck();
@@ -1193,8 +1193,6 @@ export class QuizQuestionComponent
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       }
       this.updateAnswerStateAndMessage(isAnswered);
-
-      this.loadDynamicComponent();
 
       // Return the fetched current question
       return currentQuestion;
