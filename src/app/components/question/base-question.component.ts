@@ -75,7 +75,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     } else {
       console.error('Question or options are undefined');
     }
-  }  
+  }   
 
   // Abstract method to be implemented in child components
   abstract onOptionClicked(option: SelectedOption, index: number): void;
