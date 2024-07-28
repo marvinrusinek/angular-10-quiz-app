@@ -1,4 +1,4 @@
-<ng-container *ngIf="optionsToDisplay">
+<ng-container *ngIf="optionsToDisplay.length > 0">
   <div *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption">
     <label class="options">
       <ng-container [ngSwitch]="type">

@@ -1175,11 +1175,6 @@ export class QuizQuestionComponent
   }
   
   private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
-    this.shouldDisplayTextContent = true;
-    this.shouldDisplayOptions = true;
-    this.isLoading = false;
-    this.shouldRenderContainer = !!this.currentQuestion;
-    
     try {
       this.resetStateForNewQuestion(); // Reset state before fetching new question
 
