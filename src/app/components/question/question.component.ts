@@ -1193,7 +1193,7 @@ export class QuizQuestionComponent
       }
       this.updateAnswerStateAndMessage(isAnswered);
 
-      await this.loadDynamicComponent();
+      // await this.loadDynamicComponent();
 
       // Return the fetched current question
       return currentQuestion;
