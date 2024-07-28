@@ -1191,17 +1191,9 @@ export class QuizQuestionComponent
         return null;
       }
 
-      if (currentQuestion) {
-        this.currentQuestion = currentQuestion;
-        this.optionsToDisplay = [...(currentQuestion.options || [])];
-        console.log('Options to display after fetching question:', this.optionsToDisplay);
-        this.optionsToDisplay$.next([...currentQuestion.options || []]);
-        this.shouldDisplayTextContent$.next(true);
-        this.shouldDisplayOptions$.next(true);
-        this.isLoading$.next(false);
-        this.shouldRenderContainer$.next(!!this.currentQuestion);
-        this.loadDynamicComponent();
-      }
+      this.currentQuestion = currentQuestion;
+      this.optionsToDisplay = [...(currentQuestion.options || [])];
+      console.log('Options to display after fetching question:', this.optionsToDisplay);
   
       // Determine if the current question is answered
       const isAnswered = await this.isQuestionAnswered(
