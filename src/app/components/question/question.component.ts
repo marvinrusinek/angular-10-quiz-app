@@ -1175,7 +1175,7 @@ export class QuizQuestionComponent
       // Assign the fetched question to the relevant properties
       this.currentQuestion = currentQuestion;
       this.optionsToDisplay = currentQuestion.options;
-      console.log('Options to display:::>>>', this.optionsToDisplay);
+      console.log('Options to display after fetching question:', this.optionsToDisplay);
   
       // Determine if the current question is answered
       const isAnswered = await this.isQuestionAnswered(

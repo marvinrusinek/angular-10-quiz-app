@@ -661,6 +661,7 @@ export class QuizService implements OnDestroy {
           ? this.currentQuestionIndex : 0;
 
         const currentQuestion = questions[currentQuestionIndex];
+        console.log("CQ:::>>>>>", currentQuestion);
         return currentQuestion;
       }),
       catchError((error: Error) => {
