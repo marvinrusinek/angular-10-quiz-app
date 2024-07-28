@@ -1157,6 +1157,8 @@ export class QuizQuestionComponent
     try {
       this.resetStateForNewQuestion(); // Reset state before fetching new question
 
+      console.log('fetchAndProcessCurrentQuestion: Called');
+
       // Fetch the current question
       const currentQuestion = await firstValueFrom(
         this.quizService.getCurrentQuestion()
