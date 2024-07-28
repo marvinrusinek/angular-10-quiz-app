@@ -1562,16 +1562,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.selectedOptionService.setAnsweredState(isAnswered);
   
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-
-        this.fetchAndProcessCurrentQuestion().then(() => {
-          this.updateSelectionMessage();
-          this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
-        }).catch((error) => {
-          console.error('Error advancing to the next question:', error);
-        });
+        this.advanceAndProcessNextQuestion();
         
         this.resetUI();
-        this.loadCurrentQuestion();
+        // this.loadCurrentQuestion();
       } else {
         console.log('End of quiz reached.');
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
@@ -1599,6 +1593,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
       // Combine fetching data and initializing question state into a single method
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+      this.advanceAndProcessNextQuestion();
             
       this.resetUI();
     } catch (error) {
@@ -1622,6 +1617,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.error("Error during checkIfAnsweredCorrectly:", error);
     });
   }
+
+  public advanceAndProcessNextQuestion(): void {
+    this.quizQuestionComponent.fetchAndProcessCurrentQuestion()
+      .then(() => {
+        this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
+      })
+      .catch((error) => {
+        console.error('Error advancing to the next question:', error);
+      });
+  }  
 
   // combined method for preparing question data and UI
   async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
