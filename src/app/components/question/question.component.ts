@@ -133,6 +133,12 @@ export class QuizQuestionComponent
   private initialized = false;
   feedbackForOption: boolean;
   shouldRenderContainer = true;
+
+  optionsToDisplay$ = new BehaviorSubject<any[]>([]);
+  isLoading$ = new BehaviorSubject<boolean>(true);
+  shouldDisplayTextContent$ = new BehaviorSubject<boolean>(false);
+  shouldDisplayOptions$ = new BehaviorSubject<boolean>(false);
+  shouldRenderContainer$ = new BehaviorSubject<boolean>(true);
   
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -1185,10 +1191,17 @@ export class QuizQuestionComponent
         return null;
       }
 
-      // Assign the fetched question to the relevant properties
-      this.currentQuestion = currentQuestion;
-      this.optionsToDisplay = [...(currentQuestion.options || [])];
-      console.log('Options to display after fetching question:', this.optionsToDisplay);
+      if (currentQuestion) {
+        this.currentQuestion = currentQuestion;
+        this.optionsToDisplay = [...(currentQuestion.options || [])];
+        console.log('Options to display after fetching question:', this.optionsToDisplay);
+        this.optionsToDisplay$.next([...currentQuestion.options || []]);
+        this.shouldDisplayTextContent$.next(true);
+        this.shouldDisplayOptions$.next(true);
+        this.isLoading$.next(false);
+        this.shouldRenderContainer$.next(!!this.currentQuestion);
+        this.loadDynamicComponent();
+      }
   
       // Determine if the current question is answered
       const isAnswered = await this.isQuestionAnswered(
