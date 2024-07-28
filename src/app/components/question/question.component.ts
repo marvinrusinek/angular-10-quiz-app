@@ -368,38 +368,21 @@ export class QuizQuestionComponent
     this.resetStateSubscription?.unsubscribe();
   }
 
-  /* protected async loadDynamicComponent(): Promise<void> {
+  protected loadDynamicComponent(): void {
     console.log('QuizQuestionComponent: loadDynamicComponent called');
     this.dynamicComponentContainer.clear();
 
-    const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.quizStateService.isMultipleAnswerQuestion());
-    if (componentRef.instance) {
-      componentRef.instance.questionForm = this.questionForm;
-      componentRef.instance.question = this.question;
-      componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
+    this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.quizStateService.isMultipleAnswerQuestion()).then(componentRef => {
+      if (componentRef.instance) {
+        componentRef.instance.questionForm = this.questionForm;
+        componentRef.instance.question = this.currentQuestion;
+        componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
+        console.log('Passed options to dynamic component:', this.optionsToDisplay);
 
-      console.log('Passed options to dynamic component:', this.optionsToDisplay);
-        
-      // Manually mark for check to ensure change detection runs
-      componentRef.changeDetectorRef.markForCheck();
-      this.cdRef.detectChanges();
-    }
-  } */
-
-  protected async loadDynamicComponent(): Promise<void> {
-    console.log('QuizQuestionComponent: loadDynamicComponent called');
-    this.dynamicComponentContainer.clear();
-
-    const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, this.quizStateServie.isMultipleAnswerQuestion());
-    if (componentRef.instance) {
-      componentRef.instance.questionForm = this.questionForm;
-      componentRef.instance.question = this.currentQuestion;
-      componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
-      console.log('Passed options to dynamic component:', this.optionsToDisplay);
-
-      componentRef.changeDetectorRef.markForCheck();
-      this.cdRef.detectChanges();
-    }
+        componentRef.changeDetectorRef.markForCheck();
+        this.cdRef.detectChanges();
+      }
+    });
   }
   
   // Function to handle visibility changes
