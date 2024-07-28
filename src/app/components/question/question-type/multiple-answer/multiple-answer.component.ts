@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Optional, Inject, forwardRef } from '@angular/core';
+import { ChangeDetectorRef, Component, Optional, Inject, forwardRef, OnChanges, SimpleChanges } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
@@ -12,7 +12,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
   templateUrl: './multiple-answer.component.html',
   styleUrls: ['../shared-option.component.scss']
 })
-export class MultipleAnswerComponent extends BaseQuestionComponent {
+export class MultipleAnswerComponent extends BaseQuestionComponent implements OnChanges {
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
 
@@ -25,6 +25,13 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
   ) {
     super(selectedOptionService, fb);
     console.log('MultipleAnswerComponent options to display:', this.optionsToDisplay);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
+      this.optionsToDisplay = changes.optionsToDisplay.currentValue;
+      console.log('MultipleAnswerComponent options to display (on changes):', this.optionsToDisplay);
+    }
   }
 
   async onOptionClicked(option: SelectedOption, index: number): void {
