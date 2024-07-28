@@ -24,6 +24,12 @@
   <app-base-question [question]="currentQuestion"></app-base-question>
 </ng-container>
 
-<div *ngIf="shouldDisplayOptions">
-  <ng-template #dynamicComponentContainer></ng-template>
-</div>
+<ng-container *ngIf="shouldRenderContainer">
+  <div *ngIf="isLoading" class="loading-spinner">
+    <!-- Add loading spinner here -->
+  </div>
+
+  <div *ngIf="shouldDisplayOptions">
+    <ng-template #dynamicComponentContainer></ng-template>
+  </div>
+</ng-container>
