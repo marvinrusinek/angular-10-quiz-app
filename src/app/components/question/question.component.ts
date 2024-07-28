@@ -393,6 +393,7 @@ export class QuizQuestionComponent
         componentRef.instance.questionForm = this.questionForm;
         componentRef.instance.question = this.question;
         componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
+        console.log('Passed options to dynamic component:', this.optionsToDisplay);
       }
     });
   }
