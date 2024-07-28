@@ -401,7 +401,6 @@ export class QuizQuestionComponent
       this.cdRef.detectChanges();
     }
   }
-
   
   // Function to handle visibility changes
   private onVisibilityChange(): void {
