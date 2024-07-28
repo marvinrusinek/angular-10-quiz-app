@@ -1175,7 +1175,7 @@ export class QuizQuestionComponent
       }
       this.updateAnswerStateAndMessage(isAnswered);
 
-      this.cdRef.detectChanges();
+      await this.loadDynamicComponent();
   
       // Return the fetched current question
       return currentQuestion;
