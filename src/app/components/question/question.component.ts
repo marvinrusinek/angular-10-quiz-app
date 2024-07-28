@@ -374,15 +374,15 @@ export class QuizQuestionComponent
 
     const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, true);
     if (componentRef.instance) {
-        componentRef.instance.questionForm = this.questionForm;
-        componentRef.instance.question = this.question;
-        componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
+      componentRef.instance.questionForm = this.questionForm;
+      componentRef.instance.question = this.question;
+      componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
 
-        console.log('Passed options to dynamic component:', this.optionsToDisplay);
+      console.log('Passed options to dynamic component:', this.optionsToDisplay);
         
-        // Manually mark for check to ensure change detection runs
-        componentRef.changeDetectorRef.markForCheck();
-        this.cdRef.detectChanges();
+      // Manually mark for check to ensure change detection runs
+      componentRef.changeDetectorRef.markForCheck();
+      this.cdRef.detectChanges();
     }
   }
   
