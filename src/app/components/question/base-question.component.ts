@@ -6,6 +6,7 @@ import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
+import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 
 @Component({
@@ -41,7 +42,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     if (this.question) {
       this.initializeOptions();
       
-      const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
+      // const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
+      const hasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(this.question);
       this.multipleAnswer.next(hasMultipleAnswers);
     } else {
       console.error('Question input is undefined');
