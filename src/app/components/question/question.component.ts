@@ -392,7 +392,7 @@ export class QuizQuestionComponent
       if (componentRef.instance) {
         componentRef.instance.questionForm = this.questionForm;
         componentRef.instance.question = this.question;
-        componentRef.instance.optionsToDisplay = this.optionsToDisplay;
+        componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
       }
     });
   }
@@ -1174,7 +1174,7 @@ export class QuizQuestionComponent
 
       // Assign the fetched question to the relevant properties
       this.currentQuestion = currentQuestion;
-      this.optionsToDisplay = currentQuestion.options;
+      this.optionsToDisplay = [...currentQuestion.options];
       console.log('Options to display after fetching question:', this.optionsToDisplay);
   
       // Determine if the current question is answered
