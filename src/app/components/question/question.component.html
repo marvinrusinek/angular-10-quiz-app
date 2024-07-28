@@ -24,4 +24,6 @@
   <app-base-question [question]="currentQuestion"></app-base-question>
 </ng-container>
 
-<ng-template #dynamicComponentContainer></ng-template>
+<div *ngIf="shouldDisplayOptions">
+  <ng-template #dynamicComponentContainer></ng-template>
+</div>
