@@ -26,6 +26,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     protected cdRef: ChangeDetectorRef
   ) {
     super(selectedOptionService, fb);
+    console.log('SingleAnswerComponent options to display:', this.optionsToDisplay);
   }
 
   onOptionClicked(option: SelectedOption, index: number): void {

@@ -15,7 +15,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 export class MultipleAnswerComponent extends BaseQuestionComponent {
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
-  
+
   constructor(
     @Optional() @Inject(forwardRef(() => QuizQuestionComponent)) protected quizQuestionComponent: QuizQuestionComponent,
     protected quizService: QuizService,
@@ -24,6 +24,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
     protected cdRef: ChangeDetectorRef
   ) {
     super(selectedOptionService, fb);
+    console.log('MultipleAnswerComponent options to display:', this.optionsToDisplay);
   }
 
   async onOptionClicked(option: SelectedOption, index: number): void {
