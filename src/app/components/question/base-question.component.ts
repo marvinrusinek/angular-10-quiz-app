@@ -13,16 +13,13 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 })
 export abstract class BaseQuestionComponent implements OnInit, AfterViewInit {
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef }) dynamicComponentContainer!: ViewContainerRef;
-
   @Input() question!: QuizQuestion;
-  multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-
-  @Input() shouldResetBackground = false;
   @Input() correctMessage = '';
   @Input() showFeedback = false;
+  @Input() shouldResetBackground = false;
   @Input() type: 'single' | 'multiple' = 'single';
-
   questionForm: FormGroup;
+  multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   optionsToDisplay: Option[] = [];
 
   constructor(
