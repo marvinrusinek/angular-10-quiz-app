@@ -1148,11 +1148,7 @@ export class QuizQuestionComponent
 
       console.log('fetchAndProcessCurrentQuestion: Called');
 
-      // Fetch the current question
-      // const currentQuestion = await firstValueFrom(
-      //  this.quizService.getCurrentQuestion()
-      //);
-      const quizId = this.quizService.getCurrentQuizId(); // Assuming you have this method
+      const quizId = this.quizService.getCurrentQuizId();
       const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex));
       console.log('Fetched current question:', currentQuestion);
   
