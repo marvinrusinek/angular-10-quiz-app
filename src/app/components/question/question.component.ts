@@ -1157,7 +1157,9 @@ export class QuizQuestionComponent
       this.resetStateForNewQuestion(); // Reset state before fetching new question
 
       const quizId = this.quizService.getCurrentQuizId();
-      const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex));
+      const currentQuestion = await firstValueFrom(
+        this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
+      );
   
       if (!currentQuestion) {
         console.error(
@@ -1170,9 +1172,7 @@ export class QuizQuestionComponent
       this.optionsToDisplay = [...(currentQuestion.options || [])];
   
       // Determine if the current question is answered
-      const isAnswered = await this.isQuestionAnswered(
-        this.currentQuestionIndex
-      );
+      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
   
       // Update the selection message based on the current state
       if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
