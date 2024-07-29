@@ -584,9 +584,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ensureExplanationsLoaded(): Observable<boolean> {
-    // Log to indicate the function's operation
-    console.log("Ensuring explanations are loaded...");
-
     // Check if explanations are already loaded
     if (Object.keys(this.explanationTextService.formattedExplanations).length > 0) {
       console.log("Explanations are already loaded.");
