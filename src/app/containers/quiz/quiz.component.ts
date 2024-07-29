@@ -1540,7 +1540,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   loadCurrentQuestion(): void {
-    this.question = this.quizService.getQuestion(this.currentQuestionIndex);
+    this.question = this.quizService.getCurrentQuestionByIndex(this.quizId, this.currentQuestionIndex);
     if (this.question) {
       console.log('QUESTION DATA:', this.question);
       this.optionsToDisplay = this.quizService.getOptions(this.currentQuestionIndex) || [];
