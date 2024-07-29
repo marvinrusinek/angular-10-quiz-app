@@ -19,7 +19,6 @@ export class QuizGuard implements CanActivate {
   private handleQuizValidation(quizId: string): Observable<boolean> {
     return this.quizDataService.isValidQuiz(quizId).pipe(
       map((isValid: boolean): boolean => {
-        console.log('Quiz validation result:', isValid);
         if (!isValid) {
           this.router.navigate(['/select']);
           return false;
@@ -77,13 +76,6 @@ export class QuizGuard implements CanActivate {
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
     const quizId: string = route.params['quizId'];
     const questionIndex: number = +route.params['questionIndex'];
-
-    console.log(
-      'Activating route for quiz ID:',
-      quizId,
-      'Question index:',
-      questionIndex
-    );
 
     return this.handleQuizValidation(quizId).pipe(
       switchMap((isValid: boolean): Observable<boolean> => {
