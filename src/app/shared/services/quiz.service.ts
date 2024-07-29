@@ -342,7 +342,7 @@ export class QuizService implements OnDestroy {
   }
 
   getOptions(index: number): Option[] | null {
-    const question = this.getQuestion(index);
+    const question = this.getCurrentQuestionByIndex(this.quizId, index);
     if (question) {
       return question.options;
     } else {
