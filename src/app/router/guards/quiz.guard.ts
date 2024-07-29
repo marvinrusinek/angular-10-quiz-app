@@ -13,6 +13,25 @@ export class QuizGuard implements CanActivate {
     private router: Router
   ) {}
 
+  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
+    const quizId: string = route.params['quizId'];
+    const questionIndex: number = +route.params['questionIndex'];
+
+    return this.handleQuizValidation(quizId).pipe(
+      switchMap((isValid: boolean): Observable<boolean> => {
+        if (!isValid) {
+          return of(false);
+        }
+        return this.handleQuizFetch(quizId, questionIndex);
+      }),
+      catchError((error: Error): Observable<boolean> => {
+        console.error('Error in canActivate:', error);
+        this.router.navigate(['/select']);
+        return of(false);
+      })
+    );
+  }
+
   private handleQuizValidation(quizId: string): Observable<boolean> {
     return this.quizDataService.isValidQuiz(quizId).pipe(
       map((isValid: boolean): boolean => {
@@ -61,26 +80,6 @@ export class QuizGuard implements CanActivate {
           'Error fetching quiz data for ID:', quizId,
           'Error:', error
         );
-        this.router.navigate(['/select']);
-        return of(false);
-      })
-    );
-  }
-
-  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
-    const quizId: string = route.params['quizId'];
-    const questionIndex: number = +route.params['questionIndex'];
-
-    return this.handleQuizValidation(quizId).pipe(
-      switchMap((isValid: boolean): Observable<boolean> => {
-        console.log('SwitchMap validation result:', isValid);
-        if (!isValid) {
-          return of(false);
-        }
-        return this.handleQuizFetch(quizId, questionIndex);
-      }),
-      catchError((error: Error): Observable<boolean> => {
-        console.error('Error in canActivate:', error);
         this.router.navigate(['/select']);
         return of(false);
       })
