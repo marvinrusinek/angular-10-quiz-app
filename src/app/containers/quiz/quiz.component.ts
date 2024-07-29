@@ -1855,6 +1855,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.router.navigate(['/question', this.quizId, 1]);
 
+    this.quizQuestionComponent.resetState();
+    this.quizQuestionComponent.resetStateForNewQuestion();
+
     // Reset any other relevant state, such as explanation visibility
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetExplanationText();  // Clears any existing explanation text
