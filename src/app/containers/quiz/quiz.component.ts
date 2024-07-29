@@ -47,7 +47,7 @@ type AnimationState = 'animationStarted' | 'none';
   providers: [QuizService, QuizDataService, QuizStateService, ResetStateService, ResetBackgroundService, ResetFeedbackIconService, HighlightOptionDirective, FeedbackIconDirective]
 })
 export class QuizComponent implements OnInit, OnDestroy, OnChanges {
-  @ViewChild(QuizQuestionComponent) quizQuestionComponent: QuizQuestionComponent;
+  @ViewChild(QuizQuestionComponent) quizQuestionComponent!: QuizQuestionComponent;
   @Input() data: {
     questionText: string;
     correctAnswersText?: string;
