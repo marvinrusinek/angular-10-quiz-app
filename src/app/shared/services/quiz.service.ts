@@ -439,7 +439,6 @@ export class QuizService implements OnDestroy {
           console.error(`No questions available or index out of bounds for quiz ID: ${quizId}`);
           throw new Error(`No questions available or index out of bounds for quiz ID: ${quizId}`);
         }
-        console.log("SQ question", selectedQuiz.questions[questionIndex]);
         return selectedQuiz.questions[questionIndex];
       }),
       catchError(error => {

@@ -360,8 +360,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       return of([[], []] as [QuizQuestion[], string[]]);
     }
   
-    console.log('Fetching data for quizId:', this.quizId);
-  
     return forkJoin([
       this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
         catchError(error => {
