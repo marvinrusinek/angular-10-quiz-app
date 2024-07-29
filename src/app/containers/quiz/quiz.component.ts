@@ -188,7 +188,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
 
     this.restartQuiz = this.restartQuiz.bind(this);
-  }
+  } 
 
   @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
