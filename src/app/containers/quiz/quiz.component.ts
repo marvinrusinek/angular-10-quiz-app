@@ -1882,7 +1882,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
 
   restartQuiz(): void { 
-    // Step 1: Reset services and states
+    // Reset all necessary services and states
     this.quizService.resetAll();
     this.quizStateService.createDefaultQuestionState();
     this.quizStateService.clearSelectedOptions();
@@ -1890,7 +1890,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetExplanationText();
 
-    // Step 2: Reset component states
+    // Reset component states
     this.resetStateService.triggerResetFeedback();
     this.resetStateService.triggerResetState(); 
     this.currentQuestionIndex = 0; 
@@ -1899,14 +1899,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.timerService.stopTimer();
     this.timerService.resetTimer();
 
-    // Step 3: Fetch and display the first question
-    this.fetchAndDisplayFirstQuestion().then(() => {
+    // Reset the current question index and fetch the first question
+    this.quizService.setCurrentQuestionIndex(0);
+    this.fetchAndDisplayFirstQuestion()
+      .then(() => {
         this.router.navigate(['/question', this.quizId, 1]).then(() => {
-            this.resetUI(); 
+          this.resetUI(); 
         }).catch(error => {
-            console.error('Error during quiz restart:', error);
+          console.error('Error during quiz restart:', error);
         });
-    });
+      })
+      .catch((error) => {
+        console.error('Error fetching and displaying the first question:', error);
+      });
   }
 
   setDisplayStateForExplanationsAfterRestart(): Promise<void> {
