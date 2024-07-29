@@ -70,9 +70,9 @@ export class QuizQuestionComponent
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[] = [];
   // optionsToDisplay: Option[] = this.question.options;
-  @Input() currentQuestion: QuizQuestion;
+  @Input() currentQuestion: QuizQuestion | null = null;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
-  @Input() currentQuestionIndex: number = 0;
+  @Input() currentQuestionIndex = 0;
   @Input() previousQuestionIndex: number;
   @Input() quizId: string | null | undefined = '';
   @Input() multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
