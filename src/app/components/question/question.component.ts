@@ -973,8 +973,11 @@ export class QuizQuestionComponent
   }
   
   private resetState(): void {
+    this.currentQuestionIndex = 0;
+    this.currentQuiz = null;
     this.resetFeedback();
     this.selectedOptionService.clearOptions();
+    this.quizStateService.resetState();
   }
   
   public resetFeedback(): void {
