@@ -1901,16 +1901,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Reset the current question index and fetch the first question
     this.quizService.setCurrentQuestionIndex(0);
-    this.fetchAndDisplayFirstQuestion()
-      .then(() => {
-        this.router.navigate(['/question', this.quizId, 1]).then(() => {
+
+    // Navigate to the first question and then fetch and display it
+    this.router.navigate(['/question', this.quizId, 1]).then(() => {
+      this.fetchAndDisplayFirstQuestion()
+        .then(() => {
           this.resetUI(); 
-        }).catch(error => {
-          console.error('Error during quiz restart:', error);
+        })
+        .catch((error) => {
+          console.error('Error restarting the quiz:', error);
         });
-      })
-      .catch((error) => {
-        console.error('Error fetching and displaying the first question:', error);
+      }).catch(error => {
+        console.error('Error during quiz restart:', error);
       });
   }
 
