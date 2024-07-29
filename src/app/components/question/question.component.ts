@@ -1156,11 +1156,8 @@ export class QuizQuestionComponent
     try {
       this.resetStateForNewQuestion(); // Reset state before fetching new question
 
-      console.log('fetchAndProcessCurrentQuestion: Called');
-
       const quizId = this.quizService.getCurrentQuizId();
       const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex));
-      console.log('Fetched current question:', currentQuestion);
   
       if (!currentQuestion) {
         console.error(
@@ -1171,7 +1168,6 @@ export class QuizQuestionComponent
 
       this.currentQuestion = currentQuestion;
       this.optionsToDisplay = [...(currentQuestion.options || [])];
-      console.log('Options to display after fetching question:', this.optionsToDisplay);
   
       // Determine if the current question is answered
       const isAnswered = await this.isQuestionAnswered(
