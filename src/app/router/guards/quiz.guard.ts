@@ -49,11 +49,7 @@ export class QuizGuard implements CanActivate {
     );
   }
 
-  private handleQuizFetch(
-    quizId: string,
-    questionIndex: number
-  ): Observable<boolean> {
-    console.log('Fetching quiz data for ID:', quizId);
+  private handleQuizFetch(quizId: string, questionIndex: number): Observable<boolean> {
     return this.quizDataService.getQuiz(quizId).pipe(
       map((quiz: Quiz | null): boolean => {
         if (!quiz || !quiz.questions) {
