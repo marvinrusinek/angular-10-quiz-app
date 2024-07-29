@@ -308,12 +308,14 @@ export class QuizQuestionComponent
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit();
   
-    // Check if dynamicComponentContainer is defined
-    if (this.dynamicComponentContainer) {
-      await this.loadDynamicComponent();
-    } else {
-      console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
-    }
+    setTimeout(() => {
+      // Check if dynamicComponentContainer is defined
+      if (this.dynamicComponentContainer) {
+        this.loadDynamicComponent();
+      } else {
+        console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
+      }
+    }, 0);
   }  
   
   ngOnChanges(changes: SimpleChanges): void {
