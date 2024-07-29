@@ -229,6 +229,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.destroy$.complete();
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+    this.subscriptions.unsubscribe();
     this.routeSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
     this.questionAndOptionsSubscription?.unsubscribe();
@@ -733,6 +734,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
 
   refreshQuestionOnReset(): void {
+    this.quizService.setCurrentQuestion(0);
     this.quizService.quizReset$.pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe(() => {
