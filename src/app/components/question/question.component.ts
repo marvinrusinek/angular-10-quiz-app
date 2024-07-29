@@ -386,6 +386,7 @@ export class QuizQuestionComponent
 
     const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion));
     const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, isMultipleAnswer);
+
     if (componentRef.instance) {
       componentRef.instance.questionForm = this.questionForm;
       componentRef.instance.question = this.currentQuestion;
@@ -973,11 +974,8 @@ export class QuizQuestionComponent
   }
   
   private resetState(): void {
-    this.currentQuestionIndex = 0;
-    this.currentQuiz = null;
     this.resetFeedback();
     this.selectedOptionService.clearOptions();
-    this.quizStateService.resetState();
   }
   
   public resetFeedback(): void {
@@ -1158,10 +1156,11 @@ export class QuizQuestionComponent
     try {
       this.resetStateForNewQuestion(); // Reset state before fetching new question
 
+      console.log('fetchAndProcessCurrentQuestion: Called');
+
       const quizId = this.quizService.getCurrentQuizId();
-      const currentQuestion = await firstValueFrom(
-        this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
-      );
+      const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex));
+      console.log('Fetched current question:', currentQuestion);
   
       if (!currentQuestion) {
         console.error(
@@ -1172,9 +1171,12 @@ export class QuizQuestionComponent
 
       this.currentQuestion = currentQuestion;
       this.optionsToDisplay = [...(currentQuestion.options || [])];
+      console.log('Options to display after fetching question:', this.optionsToDisplay);
   
       // Determine if the current question is answered
-      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+      const isAnswered = await this.isQuestionAnswered(
+        this.currentQuestionIndex
+      );
   
       // Update the selection message based on the current state
       if (this.shouldUpdateMessageOnAnswer(isAnswered)) {

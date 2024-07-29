@@ -1540,7 +1540,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   /************************ paging functions *********************/
-  public async advanceToNextQuestion(): Promise<void> {
+  async advanceToNextQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1556,8 +1556,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         this.selectedOptionService.setAnsweredState(isAnswered);
   
-        await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-        this.advanceAndProcessNextQuestion();
+        await this.prepareQuestionForDisplay(this.currentQuestionIndex);        
         this.resetUI();
       } else {
         console.log('End of quiz reached.');
@@ -1571,7 +1570,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  public async advanceToPreviousQuestion(): Promise<void> {
+  async advanceToPreviousQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1586,7 +1585,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
       // Combine fetching data and initializing question state into a single method
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-      this.advanceAndProcessNextQuestion();
       this.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
@@ -1596,7 +1594,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  public advanceToResults(): void {
+  advanceToResults(): void {
     this.quizService.resetAll();
     this.timerService.stopTimer((elapsedTime: number) => {
       this.elapsedTimeDisplay = elapsedTime;
@@ -1613,8 +1611,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   public advanceAndProcessNextQuestion(): void {
     this.quizQuestionComponent.fetchAndProcessCurrentQuestion()
       .then(() => {
-        // Ensure the dynamic component is reloaded with new options
-        this.quizQuestionComponent.loadDynamicComponent();
+        this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
       })
       .catch((error) => {
         console.error('Error advancing to the next question:', error);
@@ -1623,6 +1620,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   // combined method for preparing question data and UI
   async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
+    this.advanceAndProcessNextQuestion();
     await this.fetchAndSetQuestionData(questionIndex);
     this.initializeQuestionForDisplay(questionIndex);
     // this.updateQuestionDisplay(questionIndex);
@@ -1775,16 +1773,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  private fetchAndDisplayFirstQuestion(): void {
-    this.currentQuestionIndex = 0;
-    this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
-    this.quizQuestionComponent.fetchAndProcessCurrentQuestion().then(() => {
-      this.quizQuestionComponent.loadDynamicComponent();
-    }).catch((error) => {
-      console.error('Error fetching and displaying the first question:', error);
-    });
-  }
-
   // Reset UI immediately before navigating
   private resetUI(): void {
     this.question = null;
@@ -1839,6 +1827,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   restartQuiz(): void {
     this.quizQuestionComponent.resetStateForNewQuestion(); // Reset state before loading first question
+    this.quizQuestionComponent.fetchAndProcessCurrentQuestion()
+      .then(() => {
+        this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
+      })
+      .catch((error) => {
+        console.error('Error restarting the quiz:', error);
+      });
 
     // Initialize or clear question states at the beginning of the quiz restart
     this.quizStateService.createDefaultQuestionState();  // Initialize all question states
@@ -1859,7 +1854,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Reset the current question index to the first question
     this.quizService.setCurrentQuestionIndex(0);
-    this.fetchAndDisplayFirstQuestion();
+
     this.router.navigate(['/question', this.quizId, 1]);
 
     this.quizQuestionComponent.resetState();
