@@ -1098,7 +1098,6 @@ export class QuizQuestionComponent
   }
   
   private resetStateForNewQuestion(): void {
-    console.log('Resetting state for new question');
     this.optionsToDisplay = [];
     this.showFeedbackForOption = {};
     this.showFeedback = false;
@@ -1112,7 +1111,6 @@ export class QuizQuestionComponent
     this.selectionMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
     this.selectionMessageService.resetMessage();
-    console.log('State reset for new question');
   }
   
   private updateSelectedOption(option: SelectedOption): void {
