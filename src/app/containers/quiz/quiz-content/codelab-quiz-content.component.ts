@@ -376,19 +376,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         })
       )
     ]).pipe(
-      map(([questions, explanationTexts]) => {
-        if (!questions.length) {
-          console.warn('No questions found for the provided quizId:', this.quizId);
-        } else {
-          console.log('Questions fetched successfully:', questions);
-        }
-            
-        if (!explanationTexts.length) {
-          console.warn('No explanation texts found for the provided quizId:', this.quizId);
-        } else {
-          console.log('Explanation texts fetched successfully:', explanationTexts);
-        }
-  
+      map(([questions, explanationTexts]) => {  
         return [questions, explanationTexts] as [QuizQuestion[], string[]];
       })
     );
