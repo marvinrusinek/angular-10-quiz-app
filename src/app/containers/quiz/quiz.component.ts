@@ -1859,7 +1859,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Reset the current question index to the first question
     this.quizService.setCurrentQuestionIndex(0);
-    this.initializeFirstQuestion();
     this.fetchAndDisplayFirstQuestion();
     this.router.navigate(['/question', this.quizId, 1]);
 
@@ -1880,6 +1879,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.elapsedTimeDisplay = elapsedTime;
     });
     this.timerService.resetTimer();
+
+    this.initializeFirstQuestion();
 
     this.setDisplayStateForExplanationsAfterRestart().then(() => {
       // Navigate to the first question and reset UI only after all previous steps are complete
