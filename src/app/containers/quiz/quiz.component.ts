@@ -1540,7 +1540,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   /************************ paging functions *********************/
-  async advanceToNextQuestion(): Promise<void> {
+  public async advanceToNextQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1571,7 +1571,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  async advanceToPreviousQuestion(): Promise<void> {
+  public async advanceToPreviousQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1596,7 +1596,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  advanceToResults(): void {
+  public advanceToResults(): void {
     this.quizService.resetAll();
     this.timerService.stopTimer((elapsedTime: number) => {
       this.elapsedTimeDisplay = elapsedTime;
