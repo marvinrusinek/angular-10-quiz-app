@@ -12,7 +12,6 @@ export class QuizResolverService implements Resolve<Quiz | null> {
 
   resolve(route: ActivatedRouteSnapshot): Observable<Quiz> {
     const quizId = route.params['quizId'];
-    // console.log('Resolving data for quizId:', quizId);
 
     return this.quizDataService.getQuiz(quizId).pipe(
       tap(quiz => {
@@ -21,7 +20,6 @@ export class QuizResolverService implements Resolve<Quiz | null> {
           this.router.navigate(['/select']);
           throw new Error(`Quiz with ID ${quizId} not found.`);
         }
-        // console.log('QuizResolverService: Fetched quiz data:', quiz);
       }),
       map(quiz => quiz as Quiz),
       catchError(error => {
