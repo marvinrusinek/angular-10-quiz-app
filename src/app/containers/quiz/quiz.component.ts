@@ -1613,7 +1613,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   public advanceAndProcessNextQuestion(): void {
     this.quizQuestionComponent.fetchAndProcessCurrentQuestion()
       .then(() => {
-        this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
+        // Ensure the dynamic component is reloaded with new options
+        this.quizQuestionComponent.loadDynamicComponent();
       })
       .catch((error) => {
         console.error('Error advancing to the next question:', error);
