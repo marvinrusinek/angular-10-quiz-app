@@ -17,7 +17,6 @@ export class QuizGuard implements CanActivate {
   ) {}
 
   private handleQuizValidation(quizId: string): Observable<boolean> {
-    console.log('Validating quiz ID:', quizId);
     return this.quizDataService.isValidQuiz(quizId).pipe(
       map((isValid: boolean): boolean => {
         console.log('Quiz validation result:', isValid);
