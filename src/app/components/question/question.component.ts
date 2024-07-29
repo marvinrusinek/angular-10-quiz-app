@@ -386,7 +386,6 @@ export class QuizQuestionComponent
 
     const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion));
     const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, isMultipleAnswer);
-
     if (componentRef.instance) {
       componentRef.instance.questionForm = this.questionForm;
       componentRef.instance.question = this.currentQuestion;
