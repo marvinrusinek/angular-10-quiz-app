@@ -1248,6 +1248,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     try {
       const currentQuestion = await this.fetchAndProcessCurrentQuestion();
       if (currentQuestion) {
+        console.log('First question fetched:', currentQuestion);
         this.quizQuestionComponent.loadDynamicComponent();
       }
     } catch (error) {
