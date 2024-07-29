@@ -1885,8 +1885,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
 
   restartQuiz(): void {
-    console.log('Restarting Quiz');
-
     // Reset quiz-related services and states
     this.quizService.resetAll();
     this.quizStateService.createDefaultQuestionState();
