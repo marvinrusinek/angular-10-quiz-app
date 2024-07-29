@@ -1858,7 +1858,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Reset the current question index to the first question
     this.quizService.setCurrentQuestionIndex(0);
-    // this.fetchAndDisplayFirstQuestion();
+    this.fetchAndDisplayFirstQuestion();
     this.router.navigate(['/question', this.quizId, 1]);
 
     this.quizQuestionComponent.resetState();
