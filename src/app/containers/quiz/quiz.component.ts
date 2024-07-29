@@ -718,29 +718,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  /* refreshQuestionOnReset(): void {
-    this.quizService.setCurrentQuestion(0);
-    this.quizService.getCurrentQuestion().pipe(
-      takeUntil(this.unsubscribe$)
-    ).subscribe((question: QuizQuestion) => {
-      console.log('refreshQuestionOnReset called');
-      console.log('New question data:', question);
-      this.question = question;
-      this.optionsToDisplay = question?.options || [];
-      this.ngZone.run(() => {
-        this.cdRef.detectChanges();
-      });
-    });
-  } */
-
   refreshQuestionOnReset(): void {
     this.quizService.setCurrentQuestion(0);
-    this.quizService.quizReset$.pipe(
-      takeUntil(this.unsubscribe$)
-    ).subscribe(() => {
-      console.log('refreshQuestionOnReset called');
-      this.loadCurrentQuestion();
-    });
+    this.loadCurrentQuestion();
   }
 
   checkAndDisplayCorrectAnswers(): void {
