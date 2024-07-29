@@ -1258,6 +1258,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.handleQuestionsLoadingError();
       }
     });
+  }
+  
+  public async fetchAndDisplayFirstQuestion(): Promise<void> {
+    this.currentQuestionIndex = 0;
+    this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
+  
+    try {
+      const currentQuestion = await this.fetchAndProcessCurrentQuestion();
+      if (currentQuestion) {
+        this.quizQuestionComponent.loadDynamicComponent();
+      }
+    } catch (error) {
+      console.error('Error fetching and displaying the first question:', error);
+    }
   }  
   
   private async updateSelectionMessage(isAnswered: boolean, isFirstQuestion: boolean): Promise<void> {
