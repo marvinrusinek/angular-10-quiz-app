@@ -1597,7 +1597,7 @@ export class QuizService implements OnDestroy {
 
     return true;
   }
-  
+
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return isEqual(question1, question2);
   }
@@ -1620,12 +1620,12 @@ export class QuizService implements OnDestroy {
   }
 
   resetAll(): void {
-    this.quizResetSource.next();
     this.answers = null;
     // this.correctAnswersForEachQuestion = [];
     this.correctAnswerOptions = [];
     this.correctOptions = [];
     this.correctMessage = '';
     this.currentQuestionIndex = 0;
+    this.quizResetSource.next();
   }
 }
