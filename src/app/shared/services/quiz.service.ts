@@ -1626,6 +1626,7 @@ export class QuizService implements OnDestroy {
     this.correctOptions = [];
     this.correctMessage = '';
     this.currentQuestionIndex = 0;
+    this.questions = [];
     this.quizResetSource.next();
   }
 }
