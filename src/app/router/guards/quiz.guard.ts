@@ -79,7 +79,7 @@ export class QuizGuard implements CanActivate {
         }
         return this.handleQuizFetch(quizId, questionIndex);
       }),
-      catchError((error: any): Observable<boolean> => {
+      catchError((error: Error): Observable<boolean> => {
         console.error('Error in canActivate:', error);
         this.router.navigate(['/select']);
         return of(false);
