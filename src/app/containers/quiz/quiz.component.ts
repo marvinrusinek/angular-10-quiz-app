@@ -1825,7 +1825,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.explanationToDisplay = '';
   }
 
-  restartQuiz(): void {
+  restartQuiz(): void { 
     // this.quizService.resetQuizState();
     this.quizQuestionComponent.resetStateForNewQuestion(); // Reset state before loading first question
     this.quizQuestionComponent.fetchAndProcessCurrentQuestion()

@@ -1098,8 +1098,8 @@ export class QuizService implements OnDestroy {
   ): void {
     // Logic to update options based on the question
     if (question) {
-      options = question.options; // Assuming 'options' is a mutable array reference passed from the component
-      // Reset state logic here, if it's generic enough to be shared
+      options = question.options;
+      this.resetAll();
     }
 
     // Logic to mark options as selected based on selectedOptions array
