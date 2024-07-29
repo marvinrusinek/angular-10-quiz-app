@@ -382,7 +382,6 @@ export class QuizQuestionComponent
   }
 
   protected async loadDynamicComponent(): Promise<void> {
-    console.log('QuizQuestionComponent: loadDynamicComponent called');
     this.dynamicComponentContainer.clear();
 
     const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion));
