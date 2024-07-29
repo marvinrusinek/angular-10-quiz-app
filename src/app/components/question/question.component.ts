@@ -1154,7 +1154,7 @@ export class QuizQuestionComponent
     }
   }
   
-  private async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
+  async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
       this.resetStateForNewQuestion(); // Reset state before fetching new question
 
