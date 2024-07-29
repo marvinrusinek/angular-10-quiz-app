@@ -1556,11 +1556,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         this.selectedOptionService.setAnsweredState(isAnswered);
   
-        await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-        this.advanceAndProcessNextQuestion();
-        
+        await this.prepareQuestionForDisplay(this.currentQuestionIndex);        
         this.resetUI();
-        // this.loadCurrentQuestion();
       } else {
         console.log('End of quiz reached.');
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
@@ -1588,8 +1585,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
       // Combine fetching data and initializing question state into a single method
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-      this.advanceAndProcessNextQuestion();
-            
       this.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
@@ -1625,6 +1620,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   // combined method for preparing question data and UI
   async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
+    this.advanceAndProcessNextQuestion();
     await this.fetchAndSetQuestionData(questionIndex);
     this.initializeQuestionForDisplay(questionIndex);
     // this.updateQuestionDisplay(questionIndex);
