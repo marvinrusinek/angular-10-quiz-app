@@ -457,7 +457,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   
         if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
           this.correctAnswersTextSource.next(newCorrectAnswersText);
-          console.log('Updated correct answers text to:', newCorrectAnswersText);
         }
   
         const shouldDisplayCorrectAnswers = isMultipleAnswer && !explanationDisplayed;
