@@ -1818,7 +1818,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.explanationToDisplay = '';
   }
 
-  restartQuiz(): void { 
+  /* restartQuiz(): void { 
     // this.quizService.resetQuizState();
     this.quizQuestionComponent.resetStateForNewQuestion(); // Reset state before loading first question
     this.quizQuestionComponent.fetchAndProcessCurrentQuestion()
@@ -1875,6 +1875,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       // Navigate to the first question and reset UI only after all previous steps are complete
       return this.router.navigate(['/question', this.quizId, 1]);
     }).then(() => {
+      this.resetUI(); // Reset UI after successful navigation
+    }).catch(error => {
+      console.error('Error during quiz restart:', error);
+    });
+  } */
+
+  restartQuiz(): void { 
+    // Reset services and state
+    this.quizService.resetAll();
+    this.quizStateService.createDefaultQuestionState();
+    this.quizStateService.clearSelectedOptions();
+    this.selectionMessageService.resetMessage();
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.resetExplanationText();
+
+    // Reset component states
+    this.resetStateService.triggerResetFeedback();
+    this.resetStateService.triggerResetState(); // Trigger reset state in other components
+    this.currentQuestionIndex = 0;  // Reset to the first question's index
+    this.progressPercentage = 0; // Reset the progressPercentage to 0
+    this.score = 0; // Reset the score to 0
+    this.timerService.stopTimer();
+    this.timerService.resetTimer();
+    this.fetchAndDisplayFirstQuestion();
+
+    // Navigate to the first question and reset UI after navigation
+    this.router.navigate(['/question', this.quizId, 1]).then(() => {
       this.resetUI(); // Reset UI after successful navigation
     }).catch(error => {
       console.error('Error during quiz restart:', error);
