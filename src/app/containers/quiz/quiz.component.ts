@@ -1068,7 +1068,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     } else {
       // Clear the text if it's a single-answer question or the explanation is displayed
       this.correctAnswersTextSource.next('');
-      console.log('Clearing correct answers text.');
     }
   }
 
