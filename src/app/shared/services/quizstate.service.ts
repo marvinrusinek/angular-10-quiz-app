@@ -236,4 +236,9 @@ export class QuizStateService {
   getQuizQuestionCreated(): boolean {
     return this.quizQuestionCreated;
   }
+
+  resetState(): void {
+    this.currentQuestionIndex.next(0);
+    this.quizQuestionCreated = false;
+  }
 }
