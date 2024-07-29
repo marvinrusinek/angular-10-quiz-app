@@ -1881,8 +1881,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   } */
 
-  restartQuiz(): void { 
-    // Reset all necessary services and states
+  restartQuiz(): void {
+    console.log('Restarting Quiz');
+    
     this.quizService.resetAll();
     this.quizStateService.createDefaultQuestionState();
     this.quizStateService.clearSelectedOptions();
@@ -1890,7 +1891,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetExplanationText();
 
-    // Reset component states
     this.resetStateService.triggerResetFeedback();
     this.resetStateService.triggerResetState(); 
     this.currentQuestionIndex = 0; 
@@ -1899,21 +1899,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.timerService.stopTimer();
     this.timerService.resetTimer();
 
-    // Reset the current question index and fetch the first question
     this.quizService.setCurrentQuestionIndex(0);
 
-    // Navigate to the first question and then fetch and display it
+    console.log('Navigating to first question');
     this.router.navigate(['/question', this.quizId, 1]).then(() => {
-      this.fetchAndDisplayFirstQuestion()
-        .then(() => {
-          this.resetUI(); 
-        })
-        .catch((error) => {
-          console.error('Error restarting the quiz:', error);
-        });
-      }).catch(error => {
+        console.log('Fetching and displaying first question');
+        this.fetchAndDisplayFirstQuestion()
+            .then(() => {
+                console.log('First question fetched and displayed');
+                this.resetUI(); 
+            })
+            .catch((error) => {
+                console.error('Error restarting the quiz:', error);
+            });
+    }).catch(error => {
         console.error('Error during quiz restart:', error);
-      });
+    });
   }
 
   setDisplayStateForExplanationsAfterRestart(): Promise<void> {
