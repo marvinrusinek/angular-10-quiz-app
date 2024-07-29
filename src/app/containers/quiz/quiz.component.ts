@@ -186,6 +186,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.refreshQuestionOnReset();
       })
     );
+
+    this.fetchAndProcessCurrentQuestion = this.fetchAndProcessCurrentQuestion.bind(this);
   }
 
   @HostListener('window:focus', ['$event'])
