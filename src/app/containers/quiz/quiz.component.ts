@@ -1884,49 +1884,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   } */
 
-  restartQuiz(): void {
-    // Reset quiz-related services and states
-    this.quizService.resetAll();
-    this.quizStateService.createDefaultQuestionState();
-    this.quizStateService.clearSelectedOptions();
-    this.selectionMessageService.resetMessage();
-    this.explanationTextService.setShouldDisplayExplanation(false);
-    this.explanationTextService.resetExplanationText();
-  
-    // Trigger reset in various services
-    this.resetStateService.triggerResetFeedback();
-    this.resetStateService.triggerResetState(); 
-    this.currentQuestionIndex = 0; 
-    this.progressPercentage = 0; 
-    this.score = 0; 
-    this.timerService.stopTimer();
-    this.timerService.resetTimer();
-  
-    // Set the current question index to the first question
-    this.quizService.setCurrentQuestionIndex(0);
-  
-    // Navigate to the first question
-    this.router.navigate(['/question', this.quizId, 1]).then(() => {
-      console.log('Navigating to the first question');
-      if (this.quizQuestionComponent && typeof this.quizQuestionComponent.fetchAndProcessCurrentQuestion === 'function') {
-        this.quizQuestionComponent.fetchAndProcessCurrentQuestion()
-          .then(() => {
-            console.log('First question fetched and displayed');
-            this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
-            this.resetUI(); 
-          })
-          .catch((error) => {
-            console.error('Error fetching and displaying the first question:', error);
-          });
-      } else {
-        console.error('quizQuestionComponent or fetchAndProcessCurrentQuestion function not available');
-      }
-    }).catch(error => {
-      console.error('Error during quiz restart:', error);
-    });
+  public async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
+    try {
+        this.resetStateForNewQuestion(); // Reset state before fetching new question
+
+        const quizId = this.quizService.getCurrentQuizId();
+        const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex));
+        console.log('Fetched current question:', currentQuestion);
+
+        if (!currentQuestion) {
+            return null;
+        }
+
+        this.currentQuestion = currentQuestion;
+        this.optionsToDisplay = [...(currentQuestion.options || [])];
+        console.log('Options to display after fetching question:', this.optionsToDisplay);
+
+        // Determine if the current question is answered
+        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+
+        // Update the selection message based on the current state
+        if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
+            await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+        }
+        this.updateAnswerStateAndMessage(isAnswered);
+
+        // Return the fetched current question
+        return currentQuestion;
+    } catch (error) {
+        console.error('[fetchAndProcessCurrentQuestion] An error occurred while fetching the current question:', error);
+        return null;
+    }
   }
-  
-  
 
   setDisplayStateForExplanationsAfterRestart(): Promise<void> {
     return new Promise((resolve, reject) => {
