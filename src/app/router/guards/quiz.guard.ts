@@ -6,10 +6,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { Quiz } from '../../shared/models/quiz.model';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 
-
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class QuizGuard implements CanActivate {
   constructor(
     private quizDataService: QuizDataService,
@@ -40,7 +37,6 @@ export class QuizGuard implements CanActivate {
     console.log('Fetching quiz data for ID:', quizId);
     return this.quizDataService.getQuiz(quizId).pipe(
       map((quiz: Quiz | null): boolean => {
-        console.log('Fetched quiz data:', quiz);
         if (!quiz || !quiz.questions) {
           this.router.navigate(['/select']);
           return false;
@@ -62,10 +58,8 @@ export class QuizGuard implements CanActivate {
       }),
       catchError((error: any): Observable<boolean> => {
         console.error(
-          'Error fetching quiz data for ID:',
-          quizId,
-          'Error:',
-          error
+          'Error fetching quiz data for ID:', quizId,
+          'Error:', error
         );
         this.router.navigate(['/select']);
         return of(false);
