@@ -776,13 +776,13 @@ export class QuizService implements OnDestroy {
   
       const response: any = await firstValueFrom(this.getQuestionsForQuiz(this.quizId));
   
-      // Ensure response is properly structured
-      if (!response || !Array.isArray(response)) {
+      // Ensure response has a 'questions' property that is an array
+      if (!response || !Array.isArray(response.questions)) {
         console.error('Invalid format of questions response:', response);
         return;
       }
   
-      const questions = response;
+      const questions = response.questions;
       if (!questions || !Array.isArray(questions)) {
         console.error('Invalid format of questions array:', questions);
         return;
@@ -801,6 +801,7 @@ export class QuizService implements OnDestroy {
       console.error('Error setting current question index:', error);
     }
   }
+  
 
   getCurrentQuestionIndex(): number {
     const selectedQuiz = this.quizData.find(quiz => quiz.quizId === this.quizId);

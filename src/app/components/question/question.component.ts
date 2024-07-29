@@ -1154,12 +1154,12 @@ export class QuizQuestionComponent
     }
   }
   
-  async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
+  public async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
       this.resetStateForNewQuestion(); // Reset state before fetching new question
 
       const quizId = this.quizService.getCurrentQuizId();
-      const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex));
+      const currentQuestion = await this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex).toPromise();
       console.log('Fetched current question:', currentQuestion);
   
       if (!currentQuestion) {
@@ -1171,9 +1171,7 @@ export class QuizQuestionComponent
       console.log('Options to display after fetching question:', this.optionsToDisplay);
   
       // Determine if the current question is answered
-      const isAnswered = await this.isQuestionAnswered(
-        this.currentQuestionIndex
-      );
+      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
   
       // Update the selection message based on the current state
       if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
