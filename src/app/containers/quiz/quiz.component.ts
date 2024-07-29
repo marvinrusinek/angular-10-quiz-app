@@ -1777,8 +1777,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private fetchAndDisplayFirstQuestion(): void {
     this.currentQuestionIndex = 0;
     this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
-    this.fetchAndProcessCurrentQuestion().then(() => {
-      this.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
+    this.quizQuestionComponent.fetchAndProcessCurrentQuestion().then(() => {
+      this.quizQuestionComponent.loadDynamicComponent();
     }).catch((error) => {
       console.error('Error fetching and displaying the first question:', error);
     });
@@ -1858,7 +1858,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Reset the current question index to the first question
     this.quizService.setCurrentQuestionIndex(0);
-    this.fetchAndDisplayFirstQuestion();
+    // this.fetchAndDisplayFirstQuestion();
     this.router.navigate(['/question', this.quizId, 1]);
 
     this.quizQuestionComponent.resetState();
