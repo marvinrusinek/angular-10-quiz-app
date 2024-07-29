@@ -29,7 +29,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     protected componentFactoryResolver: ComponentFactoryResolver,
     protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
-    protected selectedOptionService: SelectedOptionService
+    protected selectedOptionService: SelectedOptionService,
+    protected quizStateService: QuizStateService
   ) {
     if (typeof this.fb.group !== 'function') {
       console.error('FormBuilder group method is not a function');  // Additional check
@@ -41,8 +42,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   ngOnInit(): void {
     if (this.question) {
       this.initializeOptions();
-      
-      // const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
       const hasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(this.question);
       this.multipleAnswer.next(hasMultipleAnswers);
     } else {
