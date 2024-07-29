@@ -465,7 +465,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
         }
   
-        console.log("Correct Answers Text for Display:", newCorrectAnswersText);
         console.log("Should Display Correct Answers:", shouldDisplayCorrectAnswers);
       }),
       map(() => void 0)
