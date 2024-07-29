@@ -1833,6 +1833,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   restartQuiz(): void {
+    this.quizQuestionComponent.resetStateForNewQuestion(); // Reset state before loading first question
+    this.quizQuestionComponent.fetchAndProcessCurrentQuestion()
+      .then(() => {
+        this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
+      })
+      .catch((error) => {
+        console.error('Error restarting the quiz:', error);
+      });
+
     // Initialize or clear question states at the beginning of the quiz restart
     this.quizStateService.createDefaultQuestionState();  // Initialize all question states
     this.quizStateService.clearSelectedOptions();  // Clear selected options for all questions
