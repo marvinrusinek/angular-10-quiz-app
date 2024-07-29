@@ -1774,6 +1774,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  private fetchAndDisplayFirstQuestion(): void {
+    this.currentQuestionIndex = 0;
+    this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
+    this.fetchAndProcessCurrentQuestion().then(() => {
+      this.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
+    }).catch((error) => {
+      console.error('Error fetching and displaying the first question:', error);
+    });
+  }
+
   // Reset UI immediately before navigating
   private resetUI(): void {
     this.question = null;
@@ -1828,13 +1838,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   restartQuiz(): void {
     this.quizQuestionComponent.resetStateForNewQuestion(); // Reset state before loading first question
-    this.quizQuestionComponent.fetchAndProcessCurrentQuestion()
-      .then(() => {
-        this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
-      })
-      .catch((error) => {
-        console.error('Error restarting the quiz:', error);
-      });
 
     // Initialize or clear question states at the beginning of the quiz restart
     this.quizStateService.createDefaultQuestionState();  // Initialize all question states
@@ -1855,7 +1858,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Reset the current question index to the first question
     this.quizService.setCurrentQuestionIndex(0);
-
+    this.fetchAndDisplayFirstQuestion();
     this.router.navigate(['/question', this.quizId, 1]);
 
     this.quizQuestionComponent.resetState();
