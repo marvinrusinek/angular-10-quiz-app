@@ -24,7 +24,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   questionForm: FormGroup;
   multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   optionsToDisplay: Option[] = [];
-  optionsToDisplay$ = new BehaviorSubject<any[]>([]);
 
   constructor(
     protected fb: FormBuilder,
@@ -41,7 +40,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   ngOnInit(): void {
     if (this.question) {
-      this.initializeOptions();
       const hasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(this.question);
       this.multipleAnswer.next(hasMultipleAnswers);
     } else {
@@ -76,7 +74,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
         this.questionForm.addControl(option.text, this.fb.control(false));
       });
       this.optionsToDisplay = this.question.options || [];
-      this.optionsToDisplay$.next(this.question.options || []);
     } else {
       console.error('Question or options are undefined');
     }
