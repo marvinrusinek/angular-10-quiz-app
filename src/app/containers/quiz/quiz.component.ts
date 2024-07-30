@@ -44,7 +44,7 @@ type AnimationState = 'animationStarted' | 'none';
   styleUrls: ['./quiz.component.scss'],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [QuizService, QuizDataService, QuizStateService]
+  providers: [QuizService, QuizDataService]
 })
 export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild(QuizQuestionComponent) quizQuestionComponent!: QuizQuestionComponent;
