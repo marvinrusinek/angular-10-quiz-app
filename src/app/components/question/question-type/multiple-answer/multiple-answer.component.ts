@@ -10,7 +10,10 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 @Component({
   selector: 'codelab-question-multiple-answer',
   templateUrl: './multiple-answer.component.html',
-  styleUrls: ['../shared-option.component.scss']
+  styleUrls: [
+    './multiple-answer.component.scss',
+    '../shared-option.component.scss'
+  ]
 })
 export class MultipleAnswerComponent extends BaseQuestionComponent {
   showFeedbackForOption: { [optionId: number]: boolean } = {};

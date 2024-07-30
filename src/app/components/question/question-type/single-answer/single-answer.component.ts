@@ -12,7 +12,8 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
   templateUrl: './single-answer.component.html',
   styleUrls: [
     './single-answer.component.scss',
-    '../shared-option.component.scss']
+    '../shared-option.component.scss'
+  ]
 })
 export class SingleAnswerComponent extends BaseQuestionComponent {
   showFeedbackForOption: { [optionId: number]: boolean } = {};
