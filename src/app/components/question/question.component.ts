@@ -183,6 +183,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   async ngOnInit(): Promise<void> {
+    super.ngOnInit();
+
     if (!this.question) {
       console.error('Question is not defined');
       return;
