@@ -25,8 +25,6 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
 import { TimerService } from '../../shared/services/timer.service';
-import { MultipleAnswerComponent } from './question-type/multiple-answer/multiple-answer.component';
-import { SingleAnswerComponent } from './question-type/single-answer/single-answer.component';
   
 @Component({
   selector: 'codelab-quiz-question',
