@@ -242,7 +242,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     if (changes['optionsToDisplay']) {
-      console.log('SharedOptionComponent options to display (on changes):', this.optionsToDisplay);
+      console.log('SharedOptionComponent options to display (on changes)::::::', this.optionsToDisplay);
+    } else {
+      console.log('SharedOptionComponent ngOnChanges called without optionsToDisplay change');
     }
   }
 
