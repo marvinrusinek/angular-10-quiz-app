@@ -57,7 +57,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
     if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
       this.optionsToDisplay = changes.optionsToDisplay.currentValue;
-      console.log('MultipleAnswerComponent options to display (on changes):', this.optionsToDisplay);
     }
   }
 
