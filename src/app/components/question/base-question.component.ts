@@ -24,6 +24,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   questionForm: FormGroup;
   multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   optionsToDisplay: Option[] = [];
+  showFeedbackForOption: { [optionId: number]: boolean } = {};
   protected optionsInitialized = false;
 
   constructor(
