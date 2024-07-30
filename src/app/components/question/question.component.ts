@@ -6,7 +6,7 @@ import { catchError, debounceTime, distinctUntilChanged, filter, map, take, take
   
 import { BaseQuestionComponent } from './base-question.component';
 import { Utils } from '../../shared/utils/utils';
-// import { AudioItem } from '../../shared/models/AudioItem.model';
+import { AudioItem } from '../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
