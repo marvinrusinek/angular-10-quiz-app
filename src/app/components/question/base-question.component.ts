@@ -30,7 +30,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
     protected quizStateService: QuizStateService,
-    protected selectedOptionService: SelectedOptionService,
+    protected selectedOptionService: SelectedOptionService
   ) {
     if (typeof this.fb.group !== 'function') {
       console.error('FormBuilder group method is not a function');  // Additional check
