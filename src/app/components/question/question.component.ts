@@ -42,18 +42,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     selectedOptions: Option[];
   }> = new EventEmitter();
   @Output() optionSelected: EventEmitter<boolean> = new EventEmitter<boolean>();
-  @Output() questionAnswered: EventEmitter<boolean> =
-    new EventEmitter<boolean>();
-  @Output() isAnswerSelectedChange: EventEmitter<boolean> =
-    new EventEmitter<boolean>();
-  @Output() explanationToDisplayChange: EventEmitter<string> =
-    new EventEmitter<string>();
-  @Output() showExplanationChange: EventEmitter<boolean> =
-    new EventEmitter<boolean>();
-  @Output() selectionMessageChange: EventEmitter<string> =
-    new EventEmitter<string>();
-  @Output() isAnsweredChange: EventEmitter<boolean> =
-    new EventEmitter<boolean>();
+  @Output() questionAnswered: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() isAnswerSelectedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() explanationToDisplayChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() showExplanationChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() selectionMessageChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() isAnsweredChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() isAnswered = false;
   @Input() data: {
     questionText: string;
@@ -67,14 +61,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   @Input() questions: Observable<QuizQuestion[]>;
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[] = [];
-  // optionsToDisplay: Option[] = this.question.options;
   @Input() currentQuestion: QuizQuestion | null = null;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
   @Input() currentQuestionIndex = 0;
   @Input() previousQuestionIndex: number;
   @Input() quizId: string | null | undefined = '';
   @Input() multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  // multipleAnswer = new BehaviorSubject<boolean>(false);
   @Input() explanationText: string | null;
   @Input() isOptionSelected = false;
   @Input() showFeedback = false;
@@ -131,12 +123,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private initialized = false;
   feedbackForOption: boolean;
   shouldRenderContainer = true;
-
-  optionsToDisplay$ = new BehaviorSubject<Option[]>([]);
-  isLoading$ = new BehaviorSubject<boolean>(true);
-  shouldDisplayTextContent$ = new BehaviorSubject<boolean>(false);
-  shouldDisplayOptions$ = new BehaviorSubject<boolean>(false);
-  shouldRenderContainer$ = new BehaviorSubject<boolean>(true);
   
   // Define audio list array
   audioList: AudioItem[] = [];
