@@ -71,8 +71,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     }
   }
 
-  protected abstract loadDynamicComponent(): void;
-
   protected initializeOptions(): void {
     if (this.question && this.question.options) {
       this.question.options.forEach(option => {
@@ -83,7 +81,9 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     } else {
       console.error('Question or options are undefined');
     }
-  }   
+  }
+
+  protected abstract loadDynamicComponent(): void;
 
   // Abstract method to be implemented in child components
   protected abstract onOptionClicked(option: SelectedOption, index: number): void {
