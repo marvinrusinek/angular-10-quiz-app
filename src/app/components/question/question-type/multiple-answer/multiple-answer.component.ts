@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Optional, Inject, forwardRef } from '@angular/core';
+import { ChangeDetectorRef, Component, forwardRef, Inject, Optional } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
