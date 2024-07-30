@@ -240,6 +240,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     if (changes['currentQuestionIndex']) {
       this.loadCurrentQuestion();
     }
+
+    if (changes['optionsToDisplay']) {
+      console.log('SharedOptionComponent options to display (on changes):', this.optionsToDisplay);
+    }
   }
 
   // Public getter methods for determining UI state based on current quiz and question data.
