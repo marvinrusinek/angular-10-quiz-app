@@ -1883,7 +1883,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
 
   restartQuiz(): void {
-    // Step 1: Reset quiz-related services and states
     this.quizService.resetAll();
     this.quizStateService.createDefaultQuestionState();
     this.quizStateService.clearSelectedOptions();
@@ -1891,7 +1890,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetExplanationText();
   
-    // Step 2: Trigger reset in various services
     this.resetStateService.triggerResetFeedback();
     this.resetStateService.triggerResetState();
     this.currentQuestionIndex = 0;
@@ -1900,17 +1898,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.timerService.stopTimer();
     this.timerService.resetTimer();
   
-    // Step 3: Ensure the current question index is set to the first question
-    this.quizService.setCurrentQuestionIndex(0);
-  
-    // Step 4: Navigate to the first question
+    // Navigate to the first question
     this.router.navigate(['/question', this.quizId, 1]).then(() => {
       console.log('Navigating to the first question');
       if (this.quizQuestionComponent && typeof this.quizQuestionComponent.fetchAndProcessCurrentQuestion === 'function') {
         this.quizQuestionComponent.fetchAndProcessCurrentQuestion()
           .then(() => {
             console.log('First question fetched and displayed');
-            this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
+            this.quizQuestionComponent.loadDynamicComponent();
             this.resetUI();
           })
           .catch((error) => {
@@ -1922,7 +1917,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }).catch(error => {
       console.error('Error during quiz restart:', error);
     });
-  }    
+  }
 
   public async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
