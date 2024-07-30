@@ -123,7 +123,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private initialized = false;
   feedbackForOption: boolean;
   shouldRenderContainer = true;
-  
+
   // Define audio list array
   audioList: AudioItem[] = [];
   
@@ -162,20 +162,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     protected el: ElementRef
   ) {
     super(componentFactoryResolver, fb, dynamicComponentService);
-    this.quizService = quizService;
-    this.quizDataService = quizDataService;
-    this.quizStateService = quizStateService;
-    this.quizQuestionManagerService = quizQuestionManagerService;
-    this.dynamicComponentService = dynamicComponentService;
-    this.explanationTextService = explanationTextService;
-    this.resetBackgroundService = resetBackgroundService;
-    this.resetFeedbackIconService = resetFeedbackIconService;
-    this.resetStateService = resetStateService;
-    this.selectedOptionService = selectedOptionService;
-    this.selectionMessageService = selectionMessageService;
-    this.sharedVisibilityService = sharedVisibilityService;
-    this.timerService = timerService;
-  
+
     this.questionForm = this.fb.group({});
   
     /* this.sharedVisibilitySubscription =
