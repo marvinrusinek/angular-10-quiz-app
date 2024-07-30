@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ComponentFactoryResolver, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
@@ -27,7 +27,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   optionsToDisplay$ = new BehaviorSubject<any[]>([]);
 
   constructor(
-    protected componentFactoryResolver: ComponentFactoryResolver,
+    //protected componentFactoryResolver: ComponentFactoryResolver,
     protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
     protected selectedOptionService: SelectedOptionService,
