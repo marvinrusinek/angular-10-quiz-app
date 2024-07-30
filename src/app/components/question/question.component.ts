@@ -1387,8 +1387,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   
     const questionState = this.quizStateService.getQuestionState(
-      this.quizId,
-      questionIndex
+      this.quizId, questionIndex
     );
   
     // Check if the question has been answered
@@ -1399,12 +1398,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           questionIndex
         );
       this.explanationTextService.setExplanationText(explanationText);
-      // this.explanationToDisplay = explanationText;
       this.explanationTextService.setShouldDisplayExplanation(true);
-      // this.showExplanation = true;
     } else {
       // If not answered, clear the explanation text and set the display flag to false
-      // this.explanationToDisplay = '';
       this.explanationTextService.setShouldDisplayExplanation(false);
       // this.showExplanation = false;
       console.log(`Conditions for showing explanation not met.`);
