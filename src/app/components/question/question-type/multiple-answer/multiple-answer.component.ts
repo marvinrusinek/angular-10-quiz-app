@@ -17,7 +17,8 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   selectedOption: SelectedOption | null = null;
 
   constructor(
-    @Optional() @Inject(forwardRef(() => QuizQuestionComponent)) protected quizQuestionComponent: QuizQuestionComponent,
+    @Optional() @Inject(forwardRef(() => QuizQuestionComponent))
+    protected quizQuestionComponent: QuizQuestionComponent,
     protected quizService: QuizService,
     protected selectedOptionService: SelectedOptionService,
     protected fb: FormBuilder,
