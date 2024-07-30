@@ -33,13 +33,13 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService
   ) {
-    /* if (typeof this.fb.group !== 'function') {
+    if (typeof this.fb.group !== 'function') {
       console.error('FormBuilder group method is not a function');  // Additional check
     } else {
       this.questionForm = this.fb.group({});
-    } */
-    // this.initializeOptions();
-    // this.questionForm = this.fb.group({});
+    }
+   // this.questionForm = this.fb.group({});
+    this.initializeOptions();
   }
 
   ngOnInit(): void {
@@ -80,7 +80,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
           this.questionForm.addControl(option.text, this.fb.control(false));
         }
       });
-      this.optionsToDisplay = this.question.options;
+      this.optionsToDisplay = this.question.options || [];
       console.log('Options initialized:', this.optionsToDisplay);
     } else {
       console.error('Question or options are undefined');
