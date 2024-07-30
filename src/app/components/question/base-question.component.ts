@@ -53,6 +53,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     if (changes.question && changes.question.currentValue) {
       this.initializeOptions();
     }
+
+    if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
+      this.optionsToDisplay = changes.optionsToDisplay.currentValue;
+      console.log('MultipleAnswerComponent options to display (on changes):', this.optionsToDisplay);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -81,7 +86,24 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }   
 
   // Abstract method to be implemented in child components
-  abstract onOptionClicked(option: SelectedOption, index: number): void;
+  //abstract onOptionClicked(option: SelectedOption, index: number): void;
+  async onOptionClicked(option: SelectedOption, index: number): void {
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.onOptionClicked(option, index);
+    } else {
+      console.error('QuizQuestionComponent is not available');
+    }
+
+    if (!this.showFeedbackForOption) {
+      console.error('showFeedbackForOption is not initialized');
+      this.showFeedbackForOption = {};
+    }
+
+    this.showFeedbackForOption[option.optionId] = true;
+    this.selectedOption = option;
+    this.showFeedback = true;
+    this.cdRef.markForCheck();
+  }
 
   handleOptionClick(option: SelectedOption, index: number): void {
     if (this['onOptionClicked']) {

@@ -27,24 +27,5 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     protected cdRef: ChangeDetectorRef
   ) {
     super(selectedOptionService, fb);
-    console.log('SingleAnswerComponent options to display:', this.optionsToDisplay);
-  }
-
-  onOptionClicked(option: SelectedOption, index: number): void {
-    if (this.quizQuestionComponent) {
-      this.quizQuestionComponent.onOptionClicked(option, index);
-    } else {
-      console.error('QuizQuestionComponent is not available');
-    }
-
-    if (!this.showFeedbackForOption) {
-      console.error('showFeedbackForOption is not initialized');
-      this.showFeedbackForOption = {};
-    }
-
-    this.showFeedbackForOption[option.optionId] = true;
-    this.selectedOption = option;
-    this.showFeedback = true;
-    this.cdRef.markForCheck();
   }
 }
