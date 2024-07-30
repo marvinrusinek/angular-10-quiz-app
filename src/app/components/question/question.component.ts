@@ -1411,10 +1411,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
-  handleOptionClicked(
-    currentQuestion: QuizQuestion,
-    optionIndex: number
-  ): void {
+  handleOptionClicked(currentQuestion: QuizQuestion, optionIndex: number): void {
     const selectedOptions = this.selectedOptionService.getSelectedOptionIndices(
       this.currentQuestionIndex
     );
@@ -1422,13 +1419,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     if (!isOptionSelected) {
       this.selectedOptionService.addSelectedOptionIndex(
-        this.currentQuestionIndex,
-        optionIndex
+        this.currentQuestionIndex, optionIndex
       );
     } else {
       this.selectedOptionService.removeSelectedOptionIndex(
-        this.currentQuestionIndex,
-        optionIndex
+        this.currentQuestionIndex, optionIndex
       );
     }
   
