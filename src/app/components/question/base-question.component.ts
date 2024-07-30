@@ -8,6 +8,7 @@ import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
+import { QuizQuestionComponent } from './question.component';
 
 @Component({
   selector: 'app-base-question',
