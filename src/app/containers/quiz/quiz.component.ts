@@ -1871,39 +1871,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
 
   restartQuiz(): void {
+    // Reset quiz-related services and states
     this.quizService.resetAll();
     this.quizStateService.createDefaultQuestionState();
     this.quizStateService.clearSelectedOptions();
     this.selectionMessageService.resetMessage();
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetExplanationText();
-  
     this.resetStateService.triggerResetFeedback();
     this.resetStateService.triggerResetState();
-    this.currentQuestionIndex = 0;
-    this.progressPercentage = 0;
-    this.score = 0;
+    this.currentQuestionIndex = 0; 
+    this.progressPercentage = 0; 
+    this.score = 0; 
     this.timerService.stopTimer();
     this.timerService.resetTimer();
-  
+    this.quizService.setCurrentQuestionIndex(0);
+
     // Navigate to the first question
     this.router.navigate(['/question', this.quizId, 1]).then(() => {
-      console.log('Navigating to the first question');
-      if (this.quizQuestionComponent && typeof this.quizQuestionComponent.fetchAndDisplayFirstQuestion === 'function') {
-        this.quizQuestionComponent.fetchAndProcessCurrentQuestion()
-          .then(() => {
-            console.log('First question fetched and displayed');
-            this.quizQuestionComponent.loadDynamicComponent();
-            this.resetUI();
-          })
-          .catch((error) => {
-            console.error('Error fetching and displaying the first question:', error);
-          });
-      } else {
-        console.error('quizQuestionComponent or fetchAndProcessCurrentQuestion function not available');
-      }
+        console.log('Navigating to the first question');
+        this.quizQuestionComponent.fetchAndDisplayFirstQuestion()
+            .then(() => {
+                console.log('First question fetched and displayed');
+                this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
+                this.resetUI(); 
+            })
+            .catch((error) => {
+                console.error('Error fetching and displaying the first question:', error);
+            });
     }).catch(error => {
-      console.error('Error during quiz restart:', error);
+        console.error('Error during quiz restart:', error);
     });
   }
 
