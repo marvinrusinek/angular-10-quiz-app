@@ -40,6 +40,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   ngOnInit(): void {
     if (this.question) {
+      this.initializeOptions();
       const hasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(this.question);
       this.multipleAnswer.next(hasMultipleAnswers);
     } else {
