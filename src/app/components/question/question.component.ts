@@ -1168,7 +1168,6 @@ export class QuizQuestionComponent
 
       this.currentQuestion = currentQuestion;
       this.optionsToDisplay = [...(currentQuestion.options || [])];
-      console.log('Options to display after fetching question:', this.optionsToDisplay);
   
       // Determine if the current question is answered
       const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
