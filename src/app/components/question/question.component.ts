@@ -20,7 +20,8 @@ import { QuizQuestionManagerService } from '../../shared/services/quizquestionmg
 import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 import { ResetBackgroundService } from '../../shared/services/reset-background.service';
-import { ResetFeedbackIconService } from '../../shared/services/reset-feedback-icon.service';  import { ResetStateService } from '../../shared/services/reset-state.service';
+import { ResetFeedbackIconService } from '../../shared/services/reset-feedback-icon.service';
+import { ResetStateService } from '../../shared/services/reset-state.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
@@ -31,11 +32,9 @@ import { SingleAnswerComponent } from './question-type/single-answer/single-answ
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class QuizQuestionComponent
-  extends BaseQuestionComponent
-  implements OnInit, OnChanges, OnDestroy, AfterViewInit
+export class QuizQuestionComponent extends BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit
 {
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
