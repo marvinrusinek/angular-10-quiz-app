@@ -86,7 +86,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }   
 
   // Abstract method to be implemented in child components
-  abstract onOptionClicked(option: SelectedOption, index: number): void {
+  protected abstract onOptionClicked(option: SelectedOption, index: number): void {
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.onOptionClicked(option, index);
     } else {
