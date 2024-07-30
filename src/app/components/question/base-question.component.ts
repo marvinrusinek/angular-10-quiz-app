@@ -38,7 +38,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       this.questionForm = this.fb.group({});
     } */
     // this.initializeOptions();
-    this.questionForm = this.fb.group({});
+    // this.questionForm = this.fb.group({});
   }
 
   ngOnInit(): void {
