@@ -41,7 +41,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   ngOnInit(): void {
     if (this.question) {
-      this.initializeOptions();
+      this.quizQuestionComponent.initializeOptions();
       this.optionsInitialized = true;
     } else {
       console.error('Question input is undefined');
@@ -50,7 +50,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue && !this.optionsInitialized) {
-      this.initializeOptions();
+      this.quizQuestionComponent.initializeOptions();
       this.optionsInitialized = true;
     }
 
@@ -67,18 +67,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     } else {
       console.log('dynamicComponentContainer is defined');
       this.loadDynamicComponent();
-    }
-  }
-
-  protected initializeOptions(): void {
-    if (this.question && this.question.options) {
-      this.question.options.forEach(option => {
-        this.questionForm.addControl(option.text, this.fb.control(false));
-      });
-      this.optionsToDisplay = this.question.options || [];
-      
-    } else {
-      console.error('Question or options are undefined');
     }
   }
 
