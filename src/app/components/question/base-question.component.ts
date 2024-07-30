@@ -27,7 +27,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   optionsToDisplay$ = new BehaviorSubject<any[]>([]);
 
   constructor(
-    //protected componentFactoryResolver: ComponentFactoryResolver,
     protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
     protected selectedOptionService: SelectedOptionService,
