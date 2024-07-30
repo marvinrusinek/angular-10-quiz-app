@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef, ComponentFactoryResolver, Type } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom,Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
   
 import { BaseQuestionComponent } from './base-question.component';
@@ -184,15 +184,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   async ngOnInit(): Promise<void> {
-    console.log('QuizQuestionComponent initialized');
-    console.log('ngOnInit:', this.dynamicComponentContainer);
-  
     if (!this.question) {
       console.error('Question is not defined');
       return;
     }
   
-    const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
+    const hasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(this.question);
     this.multipleAnswer.next(hasMultipleAnswers);
   
     this.resetFeedbackSubscription =
