@@ -8,7 +8,6 @@ import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
-import { QuizQuestionComponent } from './question.component';
 
 @Component({
   selector: 'app-base-question',
@@ -33,16 +32,16 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService
   ) {
-    /* if (typeof this.fb.group !== 'function') {
+    if (typeof this.fb.group !== 'function') {
       console.error('FormBuilder group method is not a function');  // Additional check
     } else {
       this.questionForm = this.fb.group({});
-    } */
+    }
   }
 
   ngOnInit(): void {
     if (this.question) {
-      this.quizQuestionComponent.initializeOptions();
+      this.initializeOptions();
       this.optionsInitialized = true;
     } else {
       console.error('Question input is undefined');
@@ -51,7 +50,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue && !this.optionsInitialized) {
-      this.quizQuestionComponent.initializeOptions();
+      this.initializeOptions();
       this.optionsInitialized = true;
     }
 
@@ -68,6 +67,18 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     } else {
       console.log('dynamicComponentContainer is defined');
       this.loadDynamicComponent();
+    }
+  }
+
+  protected initializeOptions(): void {
+    if (this.question && this.question.options) {
+      this.question.options.forEach(option => {
+        this.questionForm.addControl(option.text, this.fb.control(false));
+      });
+      this.optionsToDisplay = this.question.options || [];
+      
+    } else {
+      console.error('Question or options are undefined');
     }
   }
 
