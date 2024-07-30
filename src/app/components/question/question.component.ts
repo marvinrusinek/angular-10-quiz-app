@@ -982,24 +982,11 @@ export class QuizQuestionComponent
   }
   
   public resetFeedback(): void {
-    console.log('QuizQuestionComponent - resetFeedback - Before reset:', {
-      correctMessage: this.correctMessage,
-      showFeedback: this.showFeedback,
-      selectedOption: this.selectedOption,
-      showFeedbackForOption: this.showFeedbackForOption,
-    });
-  
     this.correctMessage = '';
     this.showFeedback = false;
     this.selectedOption = null;
     this.showFeedbackForOption = {};
-  
-    console.log('QuizQuestionComponent - resetFeedback - After reset:', {
-      correctMessage: this.correctMessage,
-      showFeedback: this.showFeedback,
-      selectedOption: this.selectedOption,
-      showFeedbackForOption: this.showFeedbackForOption,
-    });
+    this.feedback = '';
   }
   
   setCorrectMessage(correctOptions: Option[]): string {
