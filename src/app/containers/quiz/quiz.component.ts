@@ -32,8 +32,6 @@ import { ResetStateService } from '../../shared/services/reset-state.service';
 import { ResetBackgroundService } from '../../shared/services/reset-background.service';
 import { ResetFeedbackIconService } from '../../shared/services/reset-feedback-icon.service';
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
-import { FeedbackIconDirective } from '../../directives/feedback-icon.directive';
-import { HighlightOptionDirective } from '../../directives/highlight-option.directive';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
 type AnimationState = 'animationStarted' | 'none';
