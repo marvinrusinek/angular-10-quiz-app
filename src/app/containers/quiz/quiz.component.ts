@@ -1925,39 +1925,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  public async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
-    try {
-      this.resetStateForNewQuestion(); // Reset state before fetching new question
-
-      const quizId = this.quizService.getCurrentQuizId();
-      const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex));
-      console.log('Fetched current question:', currentQuestion);
-
-      if (!currentQuestion) {
-        return null;
-      }
-
-      this.currentQuestion = currentQuestion;
-      this.optionsToDisplay = [...(currentQuestion.options || [])];
-      console.log('Options to display after fetching question:', this.optionsToDisplay);
-
-      // Determine if the current question is answered
-      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-
-      // Update the selection message based on the current state
-      if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
-        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-      }
-      this.updateAnswerStateAndMessage(isAnswered);
-
-      // Return the fetched current question
-      return currentQuestion;
-    } catch (error) {
-      console.error('[fetchAndProcessCurrentQuestion] An error occurred while fetching the current question:', error);
-      return null;
-    }
-  }
-
   setDisplayStateForExplanationsAfterRestart(): Promise<void> {
     return new Promise((resolve, reject) => {
       const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
