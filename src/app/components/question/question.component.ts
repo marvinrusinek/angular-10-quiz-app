@@ -159,7 +159,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     protected ngZone: NgZone,
     protected el: ElementRef
   ) {
-    super(componentFactoryResolver, fb, dynamicComponentService);
+   // super(componentFactoryResolver, fb, dynamicComponentService);
+   super(fb, dynamicComponentService, selectedOptionService, quizStateService, cdRef);
 
     this.questionForm = this.fb.group({});
   
@@ -984,7 +985,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   // Call this method when an option is selected
-  async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  /* async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     this.showFeedbackForOption[index] = true;
     try {
       // Set selected option and show feedback
@@ -1036,7 +1037,62 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           error
       );
     }
+  } */
+
+  protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+    this.showFeedbackForOption[index] = true;
+    try {
+      // Set selected option and show feedback
+      this.selectedOptions = [
+        { ...option, questionIndex: this.currentQuestionIndex },
+      ];
+      this.selectedOption = { ...option, optionId: index + 1 };
+      this.showFeedback = true;
+      this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
+      this.updateFeedbackForOption(option);
+
+      console.log(
+        'onOptionClicked - showFeedbackForOption:',
+        this.showFeedbackForOption
+      );
+
+      // Update selected option in service
+      this.updateSelectedOption(option);
+      this.selectedOptionService.setOptionSelected(true);
+      this.selectedOptionService.setSelectedOption(option);
+      this.selectedOptionService.setAnsweredState(true);
+
+      // Fetch and process current question
+      const currentQuestion = await this.fetchAndProcessCurrentQuestion();
+      if (!currentQuestion) {
+        console.error('Could not retrieve the current question.');
+        return;
+      }
+      this.selectOption(currentQuestion, option, index);
+
+      // Update selection message based on answer state
+      const isAnswered = true;
+      if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
+        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      }
+
+      this.cdRef.detectChanges();
+
+      // Process state changes
+      this.processCurrentQuestionState(currentQuestion, option, index);
+      const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
+      this.correctMessage = this.setCorrectMessage(correctOptions);
+
+      // Handle correctness and timer
+      await this.handleCorrectnessAndTimer();
+    } catch (error) {
+      console.error(
+        'An error occurred while processing the option click:',
+        error
+      );
+    }
   }
+
   
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
