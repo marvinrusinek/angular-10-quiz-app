@@ -12,12 +12,12 @@ export class SharedOptionComponent implements OnInit {
   @Output() optionClicked = new EventEmitter<{ option: Option, index: number }>();
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
-  @Input() type: string;
+  @Input() type: 'single' | 'multiple' = 'single';
   @Input() selectedOption: Option;
   @Input() showFeedbackForOption: { [optionId: number]: boolean };
-  @Input() correctMessage: string;
+  @Input() correctMessage = '';
   @Input() showFeedback: boolean;
-  @Input() shouldResetBackground: boolean;
+  @Input() shouldResetBackground = false;
 
   ngOnInit(): void {
     if (!this.showFeedbackForOption) {
