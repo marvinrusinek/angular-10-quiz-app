@@ -129,12 +129,14 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   } */
 
   protected initializeOptions(currentQuestion: QuizQuestion): void {
+    console.log("TEST");
     if (currentQuestion && currentQuestion.options) {
       console.log('initializeOptions - Question:', currentQuestion);
       this.questionForm = this.fb.group({});
       currentQuestion.options.forEach(option => {
         if (!this.questionForm.contains(option.text)) {
           this.questionForm.addControl(option.text, this.fb.control(false));
+          console.log('Added control for option:', option.text);
         }
       });
       this.optionsToDisplay = currentQuestion.options || [];
