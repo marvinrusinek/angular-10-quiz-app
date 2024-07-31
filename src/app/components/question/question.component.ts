@@ -351,7 +351,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.resetStateSubscription?.unsubscribe();
   }
 
-  protected async loadDynamicComponent(): Promise<void> {
+  async loadDynamicComponent(): Promise<void> {
     this.dynamicComponentContainer.clear();
 
     const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion));
