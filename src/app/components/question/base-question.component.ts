@@ -72,9 +72,9 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
-      this.question = changes.question.currentValue;
-      this.initializeOptions(this.question);
-      this.optionsInitialized = true;
+      // this.question = changes.question.currentValue;
+      this.initializeOptions(changes.question.currentValue);
+      // this.optionsInitialized = true;
     } else {
       console.error('ngOnChanges - Question or options are undefined:', changes.question);
     }
@@ -95,7 +95,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     }
   }
 
-  protected initializeOptions(currentQuestion: QuizQuestion): void {
+  /* protected initializeOptions(currentQuestion: QuizQuestion): void {
     if (currentQuestion) {
       console.log('initializeOptions - Question:', currentQuestion);
       if (currentQuestion.options) {
@@ -111,6 +111,21 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       }
     } else {
       console.error('initializeOptions - Question is undefined');
+    }
+  } */
+
+  protected initializeOptions(currentQuestion: QuizQuestion): void {
+    if (currentQuestion && currentQuestion.options) {
+      this.questionForm = this.fb.group({});
+      currentQuestion.options.forEach(option => {
+        if (!this.questionForm.contains(option.text)) {
+          this.questionForm.addControl(option.text, this.fb.control(false));
+        }
+      });
+      this.optionsToDisplay = currentQuestion.options || [];
+      console.log('initializeOptions - Options initialized:', this.optionsToDisplay);
+    } else {
+      console.error('initializeOptions - Question or options are undefined', { question: currentQuestion });
     }
   }
 
