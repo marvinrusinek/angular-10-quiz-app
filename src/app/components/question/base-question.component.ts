@@ -43,8 +43,10 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   ngOnInit(): void {
     if (this.question) {
-      this.initializeOptions(this.quizStateService.currentQuestionIndex);
       this.optionsInitialized = true;
+      this.quizService.currentQuestionIndex$.subscribe(index => {
+        this.initializeOptions(index);
+      });
     } else {
       console.error('Question input is undefined');
     }
@@ -53,7 +55,9 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
       this.question = changes.question.currentValue;
-      this.initializeOptions(this.quizStateService.currentQuestionIndex);
+      this.quizService.currentQuestionIndex$.subscribe(index => {
+        this.initializeOptions(index);
+      });
       this.optionsInitialized = true;
     } else {
       console.error('ngOnChanges - Question or options are undefined:', changes.question);
