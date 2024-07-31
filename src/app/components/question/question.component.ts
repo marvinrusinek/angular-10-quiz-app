@@ -1119,7 +1119,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.resetStateForNewQuestion(); // Reset state before fetching new question
 
       const quizId = this.quizService.getCurrentQuizId();
-      const currentQuestion = await this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex).toPromise();
+      const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex));
       console.log('Fetched current question:', currentQuestion);
   
       if (!currentQuestion) {
