@@ -190,7 +190,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       return;
     }
   
-    const hasMultipleAnswers = this.quizStateService.isMultipleAnswerQuestion(this.question);
+    const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
     this.multipleAnswer.next(hasMultipleAnswers);
   
     this.resetFeedbackSubscription =
