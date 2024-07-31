@@ -5,7 +5,7 @@
 
 <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
   <ng-container *ngIf="currentQuestion">
-    <app-base-question [question]="currentQuestion" [optionsToDisplay]="optionsToDisplay"></app-base-question>
+    <app-base-question [question]="currentQuestion"></app-base-question>
   </ng-container>
 
   <ng-container *ngIf="shouldRenderContainer">
