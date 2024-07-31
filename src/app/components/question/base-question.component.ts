@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -34,7 +34,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     protected dynamicComponentService: DynamicComponentService,
     protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
-    protected quizService: QuizService
+    protected quizService: QuizService,
+    protected cdRef: ChangeDetectorRef
   ) {
     if (!this.fb || typeof this.fb.group !== 'function') {
       console.error('FormBuilder group method is not a function or FormBuilder is not instantiated properly:', this.fb);
@@ -46,6 +47,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   ngOnInit(): void {
     if (this.question) {
       this.optionsInitialized = true;
+      console.log('Initial question is provided:', this.question);
     } else {
       console.error('Question input is undefined');
     }
@@ -70,6 +72,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
             console.log('Fetched question:', currentQuestion);
             this.question = currentQuestion;
             this.initializeOptions(currentQuestion);
+            this.cdRef.detectChanges();
           } else {
             console.error('initializeOptions - Question is undefined');
           }
