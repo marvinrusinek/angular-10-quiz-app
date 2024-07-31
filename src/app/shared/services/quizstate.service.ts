@@ -36,11 +36,6 @@ export class QuizStateService {
     this.questionStates = new Map<number, QuestionState>();
   }
 
-  // Method to get an observable for the current question index
-  getCurrentQuestionIndex$() {
-    return this.currentQuestionIndex.asObservable(); // Return the observable for subscribers
-  }
-
   setCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestionSubject.next(question);
   }
