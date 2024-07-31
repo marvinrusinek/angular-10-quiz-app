@@ -10,6 +10,7 @@ import { DynamicComponentService } from '../../shared/services/dynamic-component
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
+import { QuizQuestionComponent } from './question.component';
 
 @Component({
   selector: 'app-base-question',
@@ -34,7 +35,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     protected dynamicComponentService: DynamicComponentService,
     protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
-    protected quizService: QuizService
+    protected quizService: QuizService,
+    protected quizQuestionComponent: QuizQuestionComponent
   ) {
     if (!this.fb || typeof this.fb.group !== 'function') {
       console.error('FormBuilder group method is not a function or FormBuilder is not instantiated properly:', this.fb);
@@ -72,7 +74,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
       this.question = changes.question.currentValue;
-      this.initializeOptions();
+      this.initializeOptions(this.question);
       this.optionsInitialized = true;
     } else {
       console.error('ngOnChanges - Question or options are undefined:', changes.question);
@@ -95,18 +97,18 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }
 
   protected initializeOptions(currentQuestion: QuizQuestion): void {
-    if (this.question) {
-      console.log('initializeOptions - Question:', this.question);
-      if (this.question.options) {
-        this.question.options.forEach(option => {
+    if (currentQuestion) {
+      console.log('initializeOptions - Question:', currentQuestion);
+      if (currentQuestion.options) {
+        currentQuestion.options.forEach(option => {
           if (!this.questionForm.contains(option.text)) {
             this.questionForm.addControl(option.text, this.fb.control(false));
           }
         });
-        this.optionsToDisplay = this.question.options || [];
+        this.optionsToDisplay = currentQuestion.options || [];
         console.log('initializeOptions - Options initialized:', this.optionsToDisplay);
       } else {
-        console.error('initializeOptions - Options are undefined', { question: this.question });
+        console.error('initializeOptions - Options are undefined', { question: currentQuestion });
       }
     } else {
       console.error('initializeOptions - Question is undefined');
