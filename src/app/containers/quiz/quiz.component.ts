@@ -1885,21 +1885,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Navigate to the first question
     this.router.navigate(['/question', this.quizId, 1]).then(async () => {
-        console.log('Navigating to the first question');
-        if (this.quizQuestionComponent && typeof this.quizQuestionComponent.fetchAndProcessCurrentQuestion === 'function') {
-            try {
-                await this.quizQuestionComponent.fetchAndProcessCurrentQuestion();
-                console.log('First question fetched and displayed');
-                this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
-                this.resetUI(); 
-            } catch (error) {
-                console.error('Error fetching and displaying the first question:', error);
-            }
-        } else {
-            console.error('quizQuestionComponent or fetchAndProcessCurrentQuestion function not available');
+      console.log('Navigating to the first question');
+      if (this.quizQuestionComponent && typeof this.quizQuestionComponent.fetchAndProcessCurrentQuestion === 'function') {
+        try {
+          await this.quizQuestionComponent.fetchAndProcessCurrentQuestion();
+          console.log('First question fetched and displayed');
+          this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
+          this.resetUI(); 
+        } catch (error) {
+          console.error('Error fetching and displaying the first question:', error);
         }
+      } else {
+        console.error('quizQuestionComponent or fetchAndProcessCurrentQuestion function not available');
+      }
     }).catch(error => {
-        console.error('Error during quiz restart:', error);
+      console.error('Error during quiz restart:', error);
     });
   }
 
