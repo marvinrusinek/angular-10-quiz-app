@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -41,30 +40,22 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     } else {
       this.questionForm = this.fb.group({});
     }
-    this.initializeOptions(this.quizStateService.currentQuestionIndex);
+    this.initializeOptions();
   }
 
   ngOnInit(): void {
     if (this.question) {
+      this.initializeOptions();
       this.optionsInitialized = true;
     } else {
       console.error('Question input is undefined');
     }
-
-    this.quizStateService.currentQuestionIndex$.pipe(
-      switchMap(index => this.quizService.getCurrentQuestionByIndex(this.quizService.quizId, index))
-    ).subscribe(currentQuestion => {
-      if (currentQuestion) {
-        this.initializeOptions(currentQuestion);
-      } else {
-        console.error('initializeOptions - Question is undefined');
-      }
-    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
       this.question = changes.question.currentValue;
+      this.initializeOptions();
       this.optionsInitialized = true;
     } else {
       console.error('ngOnChanges - Question or options are undefined:', changes.question);
@@ -86,19 +77,19 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     }
   }
 
-  protected initializeOptions(currentQuestion: QuizQuestion): void {
-    if (currentQuestion) {
-      console.log('initializeOptions - Question:', currentQuestion);
-      if (currentQuestion.options) {
-        currentQuestion.options.forEach(option => {
+  protected initializeOptions(): void {
+    if (this.question) {
+      console.log('initializeOptions - Question:', this.question);
+      if (this.question.options) {
+        this.question.options.forEach(option => {
           if (!this.questionForm.contains(option.text)) {
             this.questionForm.addControl(option.text, this.fb.control(false));
           }
         });
-        this.optionsToDisplay = currentQuestion.options || [];
+        this.optionsToDisplay = this.question.options || [];
         console.log('initializeOptions - Options initialized:', this.optionsToDisplay);
       } else {
-        console.error('initializeOptions - Options are undefined', { question: currentQuestion });
+        console.error('initializeOptions - Options are undefined', { question: this.question });
       }
     } else {
       console.error('initializeOptions - Question is undefined');
