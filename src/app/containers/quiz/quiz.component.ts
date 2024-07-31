@@ -1799,69 +1799,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.explanationToDisplay = '';
   }
 
-  /* restartQuiz(): void { 
-    // this.quizService.resetQuizState();
-    this.quizQuestionComponent.resetStateForNewQuestion(); // Reset state before loading first question
-    this.quizQuestionComponent.fetchAndProcessCurrentQuestion()
-      .then(() => {
-        this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
-      })
-      .catch((error) => {
-        console.error('Error restarting the quiz:', error);
-      });
-
-    // Initialize or clear question states at the beginning of the quiz restart
-    this.quizStateService.createDefaultQuestionState();  // Initialize all question states
-    this.quizStateService.clearSelectedOptions();  // Clear selected options for all questions
-
-    // Step 1: Reset quiz-specific states and services
-    setTimeout(() => {
-      console.log('Calling resetUI after setTimeout in restartQuiz');
-      this.resetUI();
-    }, 0);
-
-    this.resetStateService.triggerResetFeedback();
-    this.resetStateService.triggerResetState(); // Trigger reset state in other component
-    this.quizService.resetAll();
-    this.currentQuestionIndex = 0;  // Reset to the first question's index
-    this.progressPercentage = 0; // Reset the progressPercentage to 0
-    this.score = 0; // Reset the score to 0
-
-    // Reset the current question index to the first question
-    this.quizService.setCurrentQuestionIndex(0);
-    this.fetchAndDisplayFirstQuestion();
-    this.router.navigate(['/question', this.quizId, 1]);
-
-    this.quizQuestionComponent.resetState();
-    this.quizQuestionComponent.resetStateForNewQuestion();
-
-    // Reset any other relevant state, such as explanation visibility
-    this.explanationTextService.setShouldDisplayExplanation(false);
-    this.explanationTextService.resetExplanationText();  // Clears any existing explanation text
-
-    this.selectionMessageService.resetMessage();
-
-    // Update the badge text for badge question ID 1 with the total number of questions
-    this.quizService.updateBadgeText(1, this.totalQuestions);
-
-    // Step 2: Reset the timer synchronously
-    this.timerService.stopTimer((elapsedTime: number) => {
-      this.elapsedTimeDisplay = elapsedTime;
-    });
-    this.timerService.resetTimer();
-
-    this.initializeFirstQuestion();
-
-    this.setDisplayStateForExplanationsAfterRestart().then(() => {
-      // Navigate to the first question and reset UI only after all previous steps are complete
-      return this.router.navigate(['/question', this.quizId, 1]);
-    }).then(() => {
-      this.resetUI(); // Reset UI after successful navigation
-    }).catch(error => {
-      console.error('Error during quiz restart:', error);
-    });
-  } */
-
   restartQuiz(): void {
     // Reset quiz-related services and states
     this.quizService.resetAll();
@@ -1900,7 +1837,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }
       this.initializeFirstQuestion();
       this.quizService.updateBadgeText(1, this.totalQuestions);
-      this.setDisplayStateForExplanationsAfterRestart();
     }).catch(error => {
       console.error('Error during quiz restart:', error);
     });
