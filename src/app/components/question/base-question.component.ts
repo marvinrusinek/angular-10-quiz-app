@@ -141,6 +141,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       });
       this.optionsToDisplay = currentQuestion.options || [];
       console.log('initializeOptions - Options initialized:', this.optionsToDisplay);
+      console.log('Current Form Group:', this.questionForm.value);
       this.cdRef.detectChanges();
     } else {
       console.error('initializeOptions - Question or options are undefined', { question: currentQuestion });
