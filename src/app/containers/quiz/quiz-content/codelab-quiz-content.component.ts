@@ -742,8 +742,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.nextQuestion$.pipe(startWith(null)),
       this.previousQuestion$.pipe(startWith(null)),
       this.explanationTextService.formattedExplanation$.pipe(startWith('')),
-      this.explanationTextService.shouldDisplayExplanation$,
-      this.quizStateService.currentQuestionIndex$.pipe(startWith(0))
+      this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
+      this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
       switchMap(params => this.determineTextToDisplay(params)),
       distinctUntilChanged(),
