@@ -1,11 +1,13 @@
 import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
+import { QuizService } from '../../shared/services/quiz.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 
@@ -31,7 +33,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
     protected quizStateService: QuizStateService,
-    protected selectedOptionService: SelectedOptionService
+    protected selectedOptionService: SelectedOptionService,
+    protected quizService: QuizService
   ) {
     if (!this.fb || typeof this.fb.group !== 'function') {
       console.error('FormBuilder group method is not a function or FormBuilder is not instantiated properly:', this.fb);
@@ -44,12 +47,19 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   ngOnInit(): void {
     if (this.question) {
       this.optionsInitialized = true;
-      this.quizStateService.currentQuestionIndex.subscribe(index => {
-        this.initializeOptions(index);
-      });
     } else {
       console.error('Question input is undefined');
     }
+
+    this.quizStateService.currentQuestionIndex$.pipe(
+      switchMap(index => this.quizService.getCurrentQuestionByIndex(this.quizService.quizId, index))
+    ).subscribe(currentQuestion => {
+      if (currentQuestion) {
+        this.initializeOptions(currentQuestion);
+      } else {
+        console.error('initializeOptions - Question is undefined');
+      }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -80,7 +90,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }
 
   protected initializeOptions(index: number): void {
-    const currentQuestion = this.quizService.getCurrentQuestionByIndex(index);
+    const currentQuestion = this.quizService.getCurrentQuestionByIndex(this.quizService.quizId, index);
     if (currentQuestion) {
       console.log('initializeOptions - Question:', currentQuestion);
       if (currentQuestion.options) {
