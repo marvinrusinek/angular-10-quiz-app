@@ -54,6 +54,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue && !this.optionsInitialized) {
       console.log('ngOnChanges - Question changed:', changes.question.currentValue);
+      this.question = changes.question.currentValue;
       this.initializeOptions();
       this.optionsInitialized = true;
     }
