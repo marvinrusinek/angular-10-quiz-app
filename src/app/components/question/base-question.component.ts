@@ -55,20 +55,25 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       return;
     }
 
-    this.quizStateService.currentQuestionIndex
+    this.quizStateService.currentQuestionIndex$
       .pipe(
         switchMap(index => {
           console.log('Fetching question for index:', index);
           return this.quizService.getCurrentQuestionByIndex(this.quizService.quizId, index);
         })
       )
-      .subscribe(currentQuestion => {
-        if (currentQuestion) {
-          console.log('Fetched question:', currentQuestion);
-          this.question = currentQuestion;
-          this.initializeOptions(currentQuestion);
-        } else {
-          console.error('initializeOptions - Question is undefined');
+      .subscribe({
+        next: (currentQuestion) => {
+          if (currentQuestion) {
+            console.log('Fetched question:', currentQuestion);
+            this.question = currentQuestion;
+            this.initializeOptions(currentQuestion);
+          } else {
+            console.error('initializeOptions - Question is undefined');
+          }
+        },
+        error: (err) => {
+          console.error('Error subscribing to currentQuestionIndex:', err);
         }
       });
   }
