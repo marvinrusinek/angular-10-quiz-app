@@ -190,8 +190,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       return;
     }
   
-    const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
-    this.multipleAnswer.next(hasMultipleAnswers);
+    if (this.question && this.question.options) {
+      const hasMultipleAnswers = this.question.options.filter(option => option.correct).length > 1;
+      this.multipleAnswer.next(hasMultipleAnswers);
+    } else {
+      console.error('Question or options are undefined in QuizQuestionComponent ngOnInit');
+    }
   
     this.resetFeedbackSubscription =
       this.resetStateService.resetFeedback$.subscribe(() => {
