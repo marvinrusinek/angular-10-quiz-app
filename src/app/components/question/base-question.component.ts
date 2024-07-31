@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -45,11 +46,27 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   ngOnInit(): void {
     if (this.question) {
-      this.initializeOptions();
       this.optionsInitialized = true;
     } else {
       console.error('Question input is undefined');
     }
+
+    if (!this.quizService.quizId) {
+      console.error('Quiz ID is not defined');
+      return;
+    }
+
+    this.quizStateService.currentQuestionIndex
+      .pipe(
+        switchMap(index => this.quizService.getCurrentQuestionByIndex(this.quizService.quizId, index))
+      )
+      .subscribe(currentQuestion => {
+        if (currentQuestion) {
+          this.initializeOptions(currentQuestion);
+        } else {
+          console.error('initializeOptions - Question is undefined');
+        }
+      });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -77,7 +94,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     }
   }
 
-  protected initializeOptions(): void {
+  protected initializeOptions(currentQuestion: QuizQuestion): void {
     if (this.question) {
       console.log('initializeOptions - Question:', this.question);
       if (this.question.options) {
