@@ -82,7 +82,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
         }
       });
       this.optionsToDisplay = this.question.options || [];
-      console.log('Options initialized:', this.optionsToDisplay);
     } else {
       console.error('Question or options are undefined');
     }
