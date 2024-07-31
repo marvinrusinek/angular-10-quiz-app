@@ -44,7 +44,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   ngOnInit(): void {
     if (this.question) {
       this.optionsInitialized = true;
-      this.quizService.currentQuestionIndex$.subscribe(index => {
+      this.quizStateService.currentQuestionIndex.subscribe(index => {
         this.initializeOptions(index);
       });
     } else {
@@ -55,7 +55,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
       this.question = changes.question.currentValue;
-      this.quizService.currentQuestionIndex$.subscribe(index => {
+      this.quizStateService.currentQuestionIndex.subscribe(index => {
         this.initializeOptions(index);
       });
       this.optionsInitialized = true;
