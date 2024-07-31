@@ -277,16 +277,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
+  /* async ngAfterViewInit(): Promise<void> {
+    super.ngAfterViewInit();
+    console.log('QuizQuestionComponent ngAfterViewInit: dynamicComponentContainer', this.dynamicComponentContainer);
+    if (!this.dynamicComponentContainer) {
+      console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
+      return;
+    }
+    this.loadDynamicComponent();
+  } */
+
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit();
   
     setTimeout(() => {
       // Check if dynamicComponentContainer is defined
-      if (this.dynamicComponentContainer) {
-        this.loadDynamicComponent();
-      } else {
+      if (!this.dynamicComponentContainer) {
         console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
+        return;
       }
+      this.loadDynamicComponent();
     }, 0);
   }  
   
