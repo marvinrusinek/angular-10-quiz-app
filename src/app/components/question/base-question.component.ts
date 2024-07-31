@@ -37,12 +37,12 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     protected quizService: QuizService,
     protected cdRef: ChangeDetectorRef
   ) {
-    /* if (!this.fb || typeof this.fb.group !== 'function') {
+    if (!this.fb || typeof this.fb.group !== 'function') {
       console.error('FormBuilder group method is not a function or FormBuilder is not instantiated properly:', this.fb);
     } else {
       this.questionForm = this.fb.group({});
-    } */
-    this.questionForm = this.fb.group({});
+    }
+    console.log('BaseQuestionComponent instantiated');
   }
 
   ngOnInit(): void {
