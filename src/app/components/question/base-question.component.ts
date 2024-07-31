@@ -75,19 +75,20 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     }
   }
 
-  protected initializeOptions(): void {
-    if (this.question) {
-      console.log('initializeOptions - Question:', this.question);
-      if (this.question.options) {
-        this.question.options.forEach(option => {
+  protected initializeOptions(index: number): void {
+    const currentQuestion = this.quizService.getCurrentQuestionByIndex(index);
+    if (currentQuestion) {
+      console.log('initializeOptions - Question:', currentQuestion);
+      if (currentQuestion.options) {
+        currentQuestion.options.forEach(option => {
           if (!this.questionForm.contains(option.text)) {
             this.questionForm.addControl(option.text, this.fb.control(false));
           }
         });
-        this.optionsToDisplay = this.question.options || [];
+        this.optionsToDisplay = currentQuestion.options || [];
         console.log('initializeOptions - Options initialized:', this.optionsToDisplay);
       } else {
-        console.error('initializeOptions - Options are undefined', { question: this.question });
+        console.error('initializeOptions - Options are undefined', { question: currentQuestion });
       }
     } else {
       console.error('initializeOptions - Question is undefined');
