@@ -10,9 +10,11 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 export class QuizStateService { 
   currentQuestion: BehaviorSubject<QuizQuestion | null>
     = new BehaviorSubject<QuizQuestion | null>(null);
+
   private currentQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestion$: Observable<QuizQuestion> = this.currentQuestionSubject.asObservable();
-  currentQuestionIndex = new BehaviorSubject<number>(0);
+
+  private currentQuestionIndex = new BehaviorSubject<number>(0);
   currentQuestionIndex$ = this.currentQuestionIndex.asObservable();
 
   currentOptionsSubject = new BehaviorSubject<Option[]>([]);
