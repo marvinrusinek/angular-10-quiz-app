@@ -41,7 +41,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     } else {
       this.questionForm = this.fb.group({});
     }
-    this.initializeOptions();
   }
 
   ngOnInit(): void {
@@ -56,7 +55,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       return;
     }
 
-    this.quizStateService.currentQuestionIndex$
+    this.quizStateService.currentQuestionIndex
       .pipe(
         switchMap(index => {
           console.log('Fetching question for index:', index);
