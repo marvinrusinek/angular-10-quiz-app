@@ -55,6 +55,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       return;
     }
 
+    console.log('Subscribing to currentQuestionIndex$');
+
     this.quizStateService.currentQuestionIndex$
       .pipe(
         switchMap(index => {
