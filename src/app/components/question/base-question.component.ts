@@ -17,13 +17,13 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef })
   dynamicComponentContainer!: ViewContainerRef;
   @Input() question!: QuizQuestion;
+  @Input() optionsToDisplay!: Option[] = [];
   @Input() correctMessage = '';
   @Input() showFeedback = false;
   @Input() shouldResetBackground = false;
   @Input() type: 'single' | 'multiple' = 'single';
   questionForm: FormGroup;
   multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  optionsToDisplay: Option[] = [];
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   protected optionsInitialized = false;
 
