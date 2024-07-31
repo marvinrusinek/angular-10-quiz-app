@@ -371,17 +371,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.cdRef.detectChanges();
     }
   }
-
-  protected initializeOptions(): void {
-    if (this.currentQuestion && this.currentQuestion.options) {
-      this.currentQuestion.options.forEach(option => {
-        this.questionForm.addControl(option.text, this.fb.control(false));
-      });
-      this.optionsToDisplay = this.currentQuestion.options || [];
-    } else {
-      console.error('Question or options are undefined');
-    }
-  }
   
   // Function to handle visibility changes
   private onVisibilityChange(): void {
