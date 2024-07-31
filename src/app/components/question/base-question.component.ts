@@ -52,7 +52,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
-      console.log('ngOnChanges - Question changed:', changes.question.currentValue);
       this.question = changes.question.currentValue;
       this.initializeOptions();
       this.optionsInitialized = true;
@@ -62,7 +61,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
     if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
       this.optionsToDisplay = changes.optionsToDisplay.currentValue;
-      console.log("OTD", this.optionsToDisplay);
     }
   }
 
