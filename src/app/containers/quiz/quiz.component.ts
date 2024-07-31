@@ -1822,12 +1822,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     // Navigate to the first question
     this.router.navigate(['/question', this.quizId, 1]).then(async () => {
-      console.log('Navigating to the first question');
-      if (this.quizQuestionComponent && typeof this.quizQuestionComponent.fetchAndProcessCurrentQuestion === 'function') {
+      if (this.quizQuestionComponent && 
+          typeof this.quizQuestionComponent.fetchAndProcessCurrentQuestion === 'function') {
         try {
           await this.quizQuestionComponent.fetchAndProcessCurrentQuestion();
-          console.log('First question fetched and displayed');
-          this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
+          // Ensure the dynamic component is reloaded with new options
+          this.quizQuestionComponent.loadDynamicComponent();
           this.resetUI(); 
         } catch (error) {
           console.error('Error fetching and displaying the first question:', error);
@@ -1842,7 +1842,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
   
-
   setDisplayStateForExplanationsAfterRestart(): Promise<void> {
     return new Promise((resolve, reject) => {
       const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
