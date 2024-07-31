@@ -1822,8 +1822,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     // Navigate to the first question
     this.router.navigate(['/question', this.quizId, 1]).then(async () => {
-      if (this.quizQuestionComponent && 
-          typeof this.quizQuestionComponent.fetchAndProcessCurrentQuestion === 'function') {
+      if (this.quizQuestionComponent) {
         try {
           await this.quizQuestionComponent.fetchAndProcessCurrentQuestion();
           // Ensure the dynamic component is reloaded with new options
