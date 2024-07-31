@@ -56,12 +56,16 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       return;
     }
 
-    this.quizStateService.currentQuestionIndex
+    this.quizStateService.currentQuestionIndex$
       .pipe(
-        switchMap(index => this.quizService.getCurrentQuestionByIndex(this.quizService.quizId, index))
+        switchMap(index => {
+          console.log('Fetching question for index:', index);
+          return this.quizService.getCurrentQuestionByIndex(this.quizService.quizId, index);
+        })
       )
       .subscribe(currentQuestion => {
         if (currentQuestion) {
+          console.log('Fetched question:', currentQuestion);
           this.question = currentQuestion;
           this.initializeOptions(currentQuestion);
         } else {
@@ -116,6 +120,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   protected initializeOptions(currentQuestion: QuizQuestion): void {
     if (currentQuestion && currentQuestion.options) {
+      console.log('initializeOptions - Question:', currentQuestion);
       this.questionForm = this.fb.group({});
       currentQuestion.options.forEach(option => {
         if (!this.questionForm.contains(option.text)) {
