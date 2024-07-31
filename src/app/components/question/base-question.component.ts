@@ -127,7 +127,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     }
   } */
 
-  protected initializeOptions(currentQuestion: QuizQuestion): void {
+  /* protected initializeOptions(currentQuestion: QuizQuestion): void {
     if (currentQuestion && currentQuestion.options) {
       console.log('initializeOptions - Question:', currentQuestion);
       this.questionForm = this.fb.group({});
@@ -139,6 +139,17 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       this.optionsToDisplay = currentQuestion.options || [];
       console.log('initializeOptions - Options initialized:', this.optionsToDisplay);
       this.cdRef.detectChanges();
+    } else {
+      console.error('initializeOptions - Question or options are undefined', { question: currentQuestion });
+    }
+  } */
+
+  protected initializeOptions(currentQuestion: QuizQuestion): void {
+    if (currentQuestion && currentQuestion.options) {
+      console.log('initializeOptions - Question:', currentQuestion);
+      this.optionsToDisplay = currentQuestion.options;
+      console.log('initializeOptions - Options initialized:', this.optionsToDisplay);
+      this.cdRef.detectChanges(); // Ensure change detection
     } else {
       console.error('initializeOptions - Question or options are undefined', { question: currentQuestion });
     }
