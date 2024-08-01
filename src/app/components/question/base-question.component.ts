@@ -26,6 +26,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   @Input() shouldResetBackground = false;
   @Input() type: 'single' | 'multiple' = 'single';
   questionForm: FormGroup;
+  selectedOption: Option;
   multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
@@ -69,7 +70,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
         })
       )
       .subscribe({
-        next: (currentQuestion) => {
+        next: (currentQuestion: QuizQuestion) => {
           if (currentQuestion) {
             console.log('Fetched question:', currentQuestion);
             this.question = currentQuestion;
