@@ -69,6 +69,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
+      this.question = changes.question.currentValue;
       this.optionsInitialized = true;
       this.initializeOptions();
     } else {
@@ -91,19 +92,19 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }
 
   protected initializeOptions(): void {
-    if (this.question) {
-      if (this.question.options) {
-        this.question.options.forEach(option => {
-          if (!this.questionForm.contains(option.text)) {
-            this.questionForm.addControl(option.text, this.fb.control(false));
-          }
-        });
-        this.optionsToDisplay = this.question.options || [];
-      } else {
-        console.error('initializeOptions - Options are undefined', { question: this.question });
-      }
+    if (this.question && this.question.options) {
+      console.log('initializeOptions - Question:', this.question);
+      this.questionForm = this.fb.group({});
+      this.question.options.forEach(option => {
+        if (!this.questionForm.contains(option.text)) {
+          this.questionForm.addControl(option.text, this.fb.control(false));
+        }
+      });
+      this.optionsToDisplay = this.question.options;
+      console.log('initializeOptions - Options initialized:', this.optionsToDisplay);
+      this.cdRef.detectChanges();
     } else {
-      console.error('initializeOptions - Question is undefined');
+      console.error('initializeOptions - Question or options are undefined', { question: this.question });
     }
   }
 
