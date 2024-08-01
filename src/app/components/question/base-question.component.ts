@@ -20,7 +20,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef })
   dynamicComponentContainer!: ViewContainerRef;
   @Input() question!: QuizQuestion;
-  @Input() optionsToDisplay!: Option[] = [];
+  @Input() optionsToDisplay: Option[] = [];
   @Input() correctMessage = '';
   @Input() showFeedback = false;
   @Input() shouldResetBackground = false;
