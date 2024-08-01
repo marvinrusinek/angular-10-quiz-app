@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
@@ -24,6 +24,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   @Input() shouldResetBackground = false;
   @Input() type: 'single' | 'multiple' = 'single';
   questionForm: FormGroup;
+  selectedOption!: SelectedOption;
   multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
@@ -32,7 +33,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
     protected quizStateService: QuizStateService,
-    protected selectedOptionService: SelectedOptionService
+    protected selectedOptionService: SelectedOptionService,
+    protected cdRef: ChangeDetectorRef
   ) {
     if (!this.fb || typeof this.fb.group !== 'function') {
       console.error('FormBuilder group method is not a function or FormBuilder is not instantiated properly:', this.fb);
