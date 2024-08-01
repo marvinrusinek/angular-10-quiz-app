@@ -15,7 +15,7 @@ export class QuizStateService {
   currentQuestion$: Observable<QuizQuestion> = this.currentQuestionSubject.asObservable();
 
   private currentQuestionIndexSubject = new BehaviorSubject<number>(0);
-  currentQuestionIndex$: Observable<number> = this.currentQuestionIndex.asObservable();
+  currentQuestionIndex$: Observable<number> = this.currentQuestionIndexSubject.asObservable();
 
   private currentOptionsSubject = new BehaviorSubject<Option[]>([]);
   currentOptions$: Observable<Option[]> = this.currentOptionsSubject.asObservable();
