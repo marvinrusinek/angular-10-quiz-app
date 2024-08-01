@@ -53,12 +53,13 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     this.quizStateService.currentQuestion$
       .subscribe({
         next: (currentQuestion) => {
+          console.log('Received currentQuestion:', currentQuestion);
           if (currentQuestion) {
-            console.log('Fetched question:', currentQuestion);
             this.question = currentQuestion;
+            console.log('Set question in ngOnInit:', this.question);
             this.initializeOptions();
           } else {
-            console.error('initializeOptions - Question is undefined');
+            console.error('Received undefined currentQuestion');
           }
         },
         error: (err) => {
@@ -100,7 +101,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
           this.questionForm.addControl(option.text, this.fb.control(false));
         }
       });
-      this.optionsToDisplay = this.question.options;
+      this.optionsToDisplay = this.question.options || [];
       console.log('initializeOptions - Options initialized:', this.optionsToDisplay);
       this.cdRef.detectChanges();
     } else {
