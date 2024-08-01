@@ -56,7 +56,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
           if (currentQuestion) {
             console.log('Fetched question:', currentQuestion);
             this.question = currentQuestion;
-            this.initializeOptions(currentQuestion);
+            this.initializeOptions();
           } else {
             console.error('initializeOptions - Question is undefined');
           }
