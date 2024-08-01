@@ -3,7 +3,6 @@
     <label class="options">
       <ng-container [ngSwitch]="type">
         <mat-checkbox *ngSwitchCase="'multiple'"
-          class="flex-container"
           appHighlightOption
           [appHighlightInputType]="'checkbox'"
           [appHighlightReset]="shouldResetBackground"
@@ -26,7 +25,6 @@
         </mat-checkbox>
         
         <mat-radio-button *ngSwitchCase="'single'"
-          class="flex-container"
           appHighlightOption
           [appHighlightInputType]="'radio'"
           [appHighlightReset]="shouldResetBackground"
