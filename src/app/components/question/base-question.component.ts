@@ -135,7 +135,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   protected abstract loadDynamicComponent(): void;
 
   // Abstract method to be implemented in child components
-  protected abstract onOptionClicked(option: SelectedOption, index: number): void {
+  protected onOptionClicked(option: SelectedOption, index: number): void {
     console.log("OOC - Option clicked:", option, "at index:", index);
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.onOptionClicked(option, index);
