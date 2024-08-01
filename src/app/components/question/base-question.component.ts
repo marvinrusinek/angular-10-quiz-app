@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
@@ -11,7 +11,8 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 
 @Component({
   selector: 'app-base-question',
-  template: ''
+  template: '',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef })
