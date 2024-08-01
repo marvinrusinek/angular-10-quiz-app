@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -6,7 +6,8 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 @Component({
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
-  styleUrls: ['../question.component.scss']
+  styleUrls: ['../question.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SharedOptionComponent implements OnInit {
   @Output() optionClicked = new EventEmitter<{ option: Option, index: number }>();
