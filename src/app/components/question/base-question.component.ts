@@ -98,7 +98,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   protected initializeOptions(): void {
     console.log('initializeOptions called with question:', this.question);
-    if (this.question && this.question.options) {
+    if (this.question && this.question?.options) {
       console.log('initializeOptions - Question:', this.question);
       this.questionForm = this.fb.group({});
       this.question.options.forEach(option => {
