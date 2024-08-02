@@ -69,6 +69,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }
 
   ngAfterViewInit(): void {
+    console.log('BaseQuestionComponent ngAfterViewInit: dynamicComponentContainer', this.dynamicComponentContainer);
     if (!this.dynamicComponentContainer) {
       console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
       return;
