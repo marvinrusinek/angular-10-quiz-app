@@ -53,6 +53,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       this.question = changes.question.currentValue;
       this.quizStateService.setCurrentQuestion(this.question);
       this.initializeOptions();
+      this.optionsInitialized = true;
     } else if (changes.question) {
       console.error('ngOnChanges - Received undefined question:', changes.question);
     }
