@@ -129,7 +129,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   protected abstract loadDynamicComponent(): void;
 
   protected abstract onOptionClicked(option: SelectedOption, index: number): void {
-    if (this.quizQuestionComponent) {
+    /* if (this.quizQuestionComponent) {
       this.quizQuestionComponent.onOptionClicked(option, index);
     } else {
       console.error('QuizQuestionComponent is not available');
@@ -143,7 +143,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     this.showFeedbackForOption[option.optionId] = true;
     this.selectedOption = option;
     this.showFeedback = true;
-    this.cdRef.markForCheck();
+    this.cdRef.markForCheck(); */
   }
 
   handleOptionClick(option: SelectedOption, index: number): void {
