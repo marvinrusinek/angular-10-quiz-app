@@ -987,7 +987,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   // Call this method when an option is selected
-  protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  /* protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     this.showFeedbackForOption[index] = true;
     try {
       // Set selected option and show feedback
@@ -1039,7 +1039,56 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         error
       );
     }
+  } */
+
+  protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+    this.showFeedbackForOption[index] = true;
+    try {
+      this.selectedOptions = [
+        { ...option, questionIndex: this.currentQuestionIndex },
+      ];
+      this.selectedOption = { ...option, optionId: index + 1 };
+      this.showFeedback = true;
+      this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
+      this.updateFeedbackForOption(option);
+
+      console.log(
+        'onOptionClicked - showFeedbackForOption:',
+        this.showFeedbackForOption
+      );
+
+      this.updateSelectedOption(option);
+      this.selectedOptionService.setOptionSelected(true);
+      this.selectedOptionService.setSelectedOption(option);
+      this.selectedOptionService.setAnsweredState(true);
+
+      const currentQuestion = await this.fetchAndProcessCurrentQuestion();
+      if (!currentQuestion) {
+        console.error('Could not retrieve the current question.');
+        return;
+      }
+      this.selectOption(currentQuestion, option, index);
+
+      const isAnswered = true;
+      if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
+        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      }
+
+      this.cdRef.detectChanges();
+
+      this.processCurrentQuestionState(currentQuestion, option, index);
+      const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
+      this.correctMessage = this.setCorrectMessage(correctOptions);
+
+      await this.handleCorrectnessAndTimer();
+    } catch (error) {
+      console.error(
+        'An error occurred while processing the option click:',
+        error
+      );
+    }
   }
+
 
   
   // Helper method to update feedback for options
