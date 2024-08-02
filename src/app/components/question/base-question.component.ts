@@ -115,6 +115,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }
 
   protected initializeOptions(): void {
+    if (!this.question) {
+      console.error('initializeOptions - Question is undefined when called');
+      return;
+    }
+
     console.log('initializeOptions called with question:', this.question);
     if (this.question && this.question?.options) {
       console.log('initializeOptions - Question:', this.question);
