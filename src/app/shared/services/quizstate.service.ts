@@ -8,8 +8,8 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuizStateService { 
-  currentQuestion: BehaviorSubject<QuizQuestion | null>
-    = new BehaviorSubject<QuizQuestion | null>(null);
+  // currentQuestion: BehaviorSubject<QuizQuestion | null>
+  //  = new BehaviorSubject<QuizQuestion | null>(null);
 
   private currentQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestion$: Observable<QuizQuestion | null> = this.currentQuestionSubject.asObservable();
