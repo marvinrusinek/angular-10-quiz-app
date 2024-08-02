@@ -25,7 +25,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
-  private initialized = false;
 
   constructor(
     protected fb: FormBuilder,
@@ -39,34 +38,12 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     } else {
       this.questionForm = this.fb.group({});
     }
-    this.initializeOptions();
   }
 
   ngOnInit(): void {
     console.log('ngOnInit called');
-    if (this.question) {
-      console.log('Initial question in ngOnInit:', this.question);
-      this.initializeOptions();
-      this.optionsInitialized = true;
-    } else {
-      console.error('Initial question input is undefined in ngOnInit');
-    }
-    
-    this.quizStateService.currentQuestion$.subscribe({
-      next: (currentQuestion) => {
-        console.log('Received currentQuestion in ngOnInit:', currentQuestion);
-        if (currentQuestion) {
-          this.question = currentQuestion;
-          console.log('Set question in ngOnInit:', this.question);
-          this.initializeOptions();
-        } else {
-          console.error('Received undefined currentQuestion in ngOnInit');
-        }
-      },
-      error: (err) => {
-        console.error('Error subscribing to currentQuestion in ngOnInit:', err);
-      }
-    });
+    this.initializeQuestion();
+    this.subscribeToQuestionChanges();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -96,6 +73,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }
 
   protected initializeOptions(): void {
+    console.log("MYQ", this.question);
     if (!this.question) {
       console.error('initializeOptions - Question is undefined when called');
       return;
@@ -118,6 +96,34 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     } else {
       console.error('initializeOptions - Question or options are undefined', { question: this.question });
     }
+  }
+
+  protected initializeQuestion(): void {
+    if (this.question) {
+      console.log('Initial question in ngOnInit:', this.question);
+      this.initializeOptions();
+      this.optionsInitialized = true;
+    } else {
+      console.error('Initial question input is undefined in ngOnInit');
+    }
+  }
+
+  protected subscribeToQuestionChanges(): void {
+    this.quizStateService.currentQuestion$.subscribe({
+      next: (currentQuestion) => {
+        console.log('Received currentQuestion in ngOnInit:', currentQuestion);
+        if (currentQuestion) {
+          this.question = currentQuestion;
+          console.log('Set question in ngOnInit:', this.question);
+          this.initializeOptions();
+        } else {
+          console.error('Received undefined currentQuestion in ngOnInit');
+        }
+      },
+      error: (err) => {
+        console.error('Error subscribing to currentQuestion in ngOnInit:', err);
+      }
+    });
   }
 
   protected abstract loadDynamicComponent(): void;
