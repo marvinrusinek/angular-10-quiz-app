@@ -1,6 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, OnChanges, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
+import { isEmpty } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -72,25 +73,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     }
   }
 
-  protected initializeOptions(): void {
-    if (!this.question) {
-      console.error('initializeOptions - Question is undefined when called');
-      return;
-    }
-
-    if (this.question && this.question.options) {
-      this.questionForm = this.fb.group({});
-      this.question.options.forEach(option => {
-        if (!this.questionForm.contains(option.text)) {
-          this.questionForm.addControl(option.text, this.fb.control(false));
-        }
-      });
-      this.optionsToDisplay = this.question.options || [];
-    } else {
-      console.error('initializeOptions - Question or options are undefined', { question: this.question });
-    }
-  }
-
   protected initializeQuestion(): void {
     if (this.question) {
       this.initializeOptions();
@@ -102,7 +84,17 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   protected subscribeToQuestionChanges(): void {
     console.log('Subscribing to currentQuestion$');
-    if (this.quizStateService.currentQuestion$ && this.quizStateService.currentQuestion$ !== 'undefined') {
+    
+    /* if (!this.quizStateService) {
+      console.error('QuizStateService is not defined');
+      return;
+    }
+    if (!this.quizStateService.currentQuestion$) {
+      console.error('currentQuestion$ is undefined in subscribeToQuestionChanges');
+      return;
+    } */
+
+    if (this.quizStateService.currentQuestion$) {
       this.quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
           console.log('Received currentQuestion:', currentQuestion);
@@ -119,6 +111,25 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       });
     } else {
       console.error('currentQuestion$ is undefined in subscribeToQuestionChanges');
+    }
+  }
+
+  protected initializeOptions(): void {
+    if (!this.question) {
+      console.error('initializeOptions - Question is undefined when called');
+      return;
+    }
+
+    if (this.question && this.question.options) {
+      this.questionForm = this.fb.group({});
+      this.question.options.forEach(option => {
+        if (!this.questionForm.contains(option.text)) {
+          this.questionForm.addControl(option.text, this.fb.control(false));
+        }
+      });
+      this.optionsToDisplay = this.question.options || [];
+    } else {
+      console.error('initializeOptions - Question or options are undefined', { question: this.question });
     }
   }
 
