@@ -33,6 +33,7 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class QuizQuestionComponent extends BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit
 {
+
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() selectionChanged: EventEmitter<{
