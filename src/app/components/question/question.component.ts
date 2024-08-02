@@ -159,7 +159,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     protected ngZone: NgZone,
     protected el: ElementRef
   ) {
-   super(fb, dynamicComponentService, quizStateService, selectedOptionService);
+   super(fb, dynamicComponentService, quizStateService, selectedOptionService, cdRef);
 
     this.questionForm = this.fb.group({});
   
