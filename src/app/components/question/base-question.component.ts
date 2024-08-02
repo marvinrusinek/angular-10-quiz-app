@@ -1,6 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, OnChanges, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
+
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
@@ -48,10 +49,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('ngOnChanges called with changes:', changes);
     if (changes.question && changes.question.currentValue) {
       this.question = changes.question.currentValue;
-      console.log('Set question in ngOnChanges:', this.question);
       this.initializeOptions();
       this.cdRef.detectChanges();
     } else if (changes.question) {
@@ -64,7 +63,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }
 
   ngAfterViewInit(): void {
-    console.log('ngAfterViewInit called');
     if (!this.dynamicComponentContainer) {
       console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
       return;
@@ -74,25 +72,19 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }
 
   protected initializeOptions(): void {
-    console.log("MYQ", this.question);
     if (!this.question) {
       console.error('initializeOptions - Question is undefined when called');
       return;
     }
 
-    console.log('initializeOptions called with question:', this.question);
     if (this.question && this.question.options) {
-      console.log('initializeOptions - Question:', this.question);
       this.questionForm = this.fb.group({});
       this.question.options.forEach(option => {
         if (!this.questionForm.contains(option.text)) {
           this.questionForm.addControl(option.text, this.fb.control(false));
-          console.log('Added control for option:', option.text);
         }
       });
       this.optionsToDisplay = this.question.options || [];
-      console.log('initializeOptions - Options initialized:', this.optionsToDisplay);
-      console.log('Current Form Group:', this.questionForm.value);
       this.cdRef.detectChanges();
     } else {
       console.error('initializeOptions - Question or options are undefined', { question: this.question });
@@ -101,7 +93,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   protected initializeQuestion(): void {
     if (this.question) {
-      console.log('Initial question in ngOnInit:', this.question);
       this.initializeOptions();
       this.optionsInitialized = true;
     } else {
@@ -112,10 +103,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   protected subscribeToQuestionChanges(): void {
     this.quizStateService.currentQuestion$.subscribe({
       next: (currentQuestion) => {
-        console.log('Received currentQuestion in ngOnInit:', currentQuestion);
         if (currentQuestion) {
           this.question = currentQuestion;
-          console.log('Set question in ngOnInit:', this.question);
           this.initializeOptions();
         } else {
           console.error('Received undefined currentQuestion in ngOnInit');
