@@ -16,7 +16,7 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterViewInit {
-  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef })
+  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: true })
   dynamicComponentContainer!: ViewContainerRef;
   @Input() question!: QuizQuestion;
   @Input() optionsToDisplay!: Option[] = [];
