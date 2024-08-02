@@ -51,6 +51,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
       this.question = changes.question.currentValue;
+      this.quizStateService.setCurrentQuestion(this.question);
       this.initializeOptions();
     } else if (changes.question) {
       console.error('ngOnChanges - Received undefined question:', changes.question);
@@ -100,7 +101,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   protected subscribeToQuestionChanges(): void {
     console.log('Subscribing to currentQuestion$');
-    if (this.quizStateService.currentQuestion$) {
+    if (this.quizStateService.currentQuestion$ && this.quizStateService.currentQuestion$ !== 'undefined') {
       this.quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
           console.log('Received currentQuestion:', currentQuestion);
