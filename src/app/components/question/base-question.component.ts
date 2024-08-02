@@ -86,6 +86,25 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     }
   }
 
+  protected initializeOptions(): void {
+    if (!this.question) {
+      console.error('initializeOptions - Question is undefined when called');
+      return;
+    }
+
+    if (this.question && this.question.options) {
+      this.questionForm = this.fb.group({});
+      this.question.options.forEach(option => {
+        if (!this.questionForm.contains(option.text)) {
+          this.questionForm.addControl(option.text, this.fb.control(false));
+        }
+      });
+      this.optionsToDisplay = this.question.options || [];
+    } else {
+      console.error('initializeOptions - Question or options are undefined', { question: this.question });
+    }
+  }
+
   protected subscribeToQuestionChanges(): void {
     if (this.quizStateService.currentQuestion$) {
       this.quizStateService.currentQuestion$.subscribe({
@@ -104,25 +123,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       });
     } else {
       console.error('currentQuestion$ is undefined in subscribeToQuestionChanges');
-    }
-  }
-
-  protected initializeOptions(): void {
-    if (!this.question) {
-      console.error('initializeOptions - Question is undefined when called');
-      return;
-    }
-
-    if (this.question && this.question.options) {
-      this.questionForm = this.fb.group({});
-      this.question.options.forEach(option => {
-        if (!this.questionForm.contains(option.text)) {
-          this.questionForm.addControl(option.text, this.fb.control(false));
-        }
-      });
-      this.optionsToDisplay = this.question.options || [];
-    } else {
-      console.error('initializeOptions - Question or options are undefined', { question: this.question });
     }
   }
 
