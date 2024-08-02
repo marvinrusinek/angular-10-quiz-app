@@ -281,14 +281,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit();
   
-    setTimeout(() => {
+    /* setTimeout(() => {
       // Check if dynamicComponentContainer is defined
       if (!this.dynamicComponentContainer) {
         console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
         return;
       }
       this.loadDynamicComponent();
-    }, 0);
+    }, 0); */
   }  
   
   ngOnChanges(changes: SimpleChanges): void {
