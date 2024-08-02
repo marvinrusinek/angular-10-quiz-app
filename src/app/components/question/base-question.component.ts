@@ -75,6 +75,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   protected initializeQuestion(): void {
     if (this.question) {
+      this.quizStateService.setCurrentQuestion(this.question);
       this.initializeOptions();
       this.optionsInitialized = true;
     } else {
@@ -85,14 +86,14 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   protected subscribeToQuestionChanges(): void {
     console.log('Subscribing to currentQuestion$');
     
-    /* if (!this.quizStateService) {
+    if (!this.quizStateService) {
       console.error('QuizStateService is not defined');
       return;
     }
     if (!this.quizStateService.currentQuestion$) {
       console.error('currentQuestion$ is undefined in subscribeToQuestionChanges');
       return;
-    } */
+    }
 
     if (this.quizStateService.currentQuestion$) {
       this.quizStateService.currentQuestion$.subscribe({
