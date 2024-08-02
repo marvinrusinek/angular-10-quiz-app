@@ -18,7 +18,7 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: true }) dynamicComponentContainer!: ViewContainerRef;
   @Input() question!: QuizQuestion;
-  @Input() optionsToDisplay!: Option[] = [];
+  @Input() optionsToDisplay: Option[] = [];
   @Input() correctMessage = '';
   @Input() showFeedback = false;
   @Input() shouldResetBackground = false;
