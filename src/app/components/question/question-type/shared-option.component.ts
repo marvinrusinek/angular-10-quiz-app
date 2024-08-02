@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
+import { SelectedOption } from '../../../shared/services/SelectedOption.model';
 
 @Component({
   selector: 'app-shared-option',
@@ -34,7 +35,7 @@ export class SharedOptionComponent implements OnInit {
     this.optionClicked.emit({ option, index });
   }
 
-  handleOptionClick(option: Option, index: number): void {
+  handleOptionClick(option: SelectedOption, index: number): void {
     this.optionClicked.emit({ option, index });
   }
 
