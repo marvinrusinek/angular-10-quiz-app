@@ -1,4 +1,4 @@
-<ng-container *ngIf="optionsToDisplay.length > 0">
+<ng-container *ngIf="optionsToDisplay && optionsToDisplay.length > 0; else noOptions">
   <div *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption">
     <label class="options">
       <ng-container [ngSwitch]="type">
@@ -58,3 +58,7 @@
     </label>
   </div>
 </ng-container>
+
+<ng-template #noOptions>
+  <div>No options available</div>
+</ng-template>
