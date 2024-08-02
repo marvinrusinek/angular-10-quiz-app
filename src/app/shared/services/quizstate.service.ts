@@ -35,6 +35,7 @@ export class QuizStateService {
   private quizQuestionCreated = false;
 
   constructor() {
+    console.log('QuizStateService instantiated');
     this.questionStates = new Map<number, QuestionState>();
   }
 
