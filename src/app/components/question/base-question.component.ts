@@ -99,19 +99,23 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }
 
   protected subscribeToQuestionChanges(): void {
-    this.quizStateService.currentQuestion$.subscribe({
-      next: (currentQuestion) => {
-        if (currentQuestion) {
-          this.question = currentQuestion;
-          this.initializeOptions();
-        } else {
-          console.error('Received undefined currentQuestion in ngOnInit');
+    if (this.quizStateService.currentQuestion$) {
+      this.quizStateService.currentQuestion$.subscribe({
+        next: (currentQuestion) => {
+          if (currentQuestion) {
+            this.question = currentQuestion;
+            this.initializeOptions();
+          } else {
+            console.error('Received undefined currentQuestion in ngOnInit');
+          }
+        },
+        error: (err) => {
+          console.error('Error subscribing to currentQuestion in ngOnInit:', err);
         }
-      },
-      error: (err) => {
-        console.error('Error subscribing to currentQuestion in ngOnInit:', err);
-      }
-    });
+      });
+    } else {
+      console.error('currentQuestion$ is undefined in subscribeToQuestionChanges');
+    }
   }
 
   protected abstract loadDynamicComponent(): void;
