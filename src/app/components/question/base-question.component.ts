@@ -99,7 +99,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }
 
   protected subscribeToQuestionChanges(): void {
-    if (this.quizStateService.currentQuestion$) {
+    if (this.quizStateService && this.quizStateService.currentQuestion$) {
       this.quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
           if (currentQuestion) {
