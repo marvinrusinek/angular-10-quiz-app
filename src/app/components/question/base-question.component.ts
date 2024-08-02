@@ -28,6 +28,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
+  initialized = false;
 
   constructor(
     protected fb: FormBuilder,
@@ -115,10 +116,15 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }
 
   protected initializeOptions(): void {
-    /* if (!this.question) {
+    if (this.initialized) {
+      console.log('initializeOptions - Already initialized, skipping...');
+      return;
+    }
+
+    if (!this.question) {
       console.error('initializeOptions --- Question is undefined when called');
       return;
-    } */
+    }
 
     console.log('initializeOptions called with question:', this.question);
     if (this.question && this.question?.options) {
