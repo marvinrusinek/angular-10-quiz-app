@@ -25,6 +25,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
+  private initialized = false;
 
   constructor(
     protected fb: FormBuilder,
@@ -33,7 +34,12 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     protected selectedOptionService: SelectedOptionService,
     protected cdRef: ChangeDetectorRef
   ) {
-    this.questionForm = this.fb.group({});
+    if (!this.fb || typeof this.fb.group !== 'function') {
+      console.error('FormBuilder group method is not a function or FormBuilder is not instantiated properly:', this.fb);
+    } else {
+      this.questionForm = this.fb.group({});
+    }
+    this.initializeOptions();
   }
 
   ngOnInit(): void {
@@ -133,6 +139,9 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     return this.selectedOptionService.isSelectedOption(option);
   }
 }
+
+
+
 
 
 /* import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
