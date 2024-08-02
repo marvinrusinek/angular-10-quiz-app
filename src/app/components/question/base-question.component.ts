@@ -90,7 +90,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
           console.log('Added control for option:', option.text);
         }
       });
-      this.optionsToDisplay = this.question.options;
+      this.optionsToDisplay = this.question.options || [];
       console.log('initializeOptions - Options initialized:', this.optionsToDisplay);
       console.log('Current Form Group:', this.questionForm.value);
       this.cdRef.detectChanges();
