@@ -1,7 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, OnChanges, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { isEmpty } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -47,6 +46,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     console.log('ngOnInit called');
     this.initializeQuestion();
     this.subscribeToQuestionChanges();
+    this.quizStateService.setCurrentQuestion(this.question);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -75,7 +75,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   protected initializeQuestion(): void {
     if (this.question) {
-      this.quizStateService.setCurrentQuestion(this.question);
       this.initializeOptions();
       this.optionsInitialized = true;
     } else {
