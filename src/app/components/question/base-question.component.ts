@@ -16,7 +16,7 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterViewInit {
-  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false }) dynamicComponentContainer!: ViewContainerRef;
+  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef }) dynamicComponentContainer!: ViewContainerRef;
   @Input() question!: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
   @Input() correctMessage = '';
@@ -69,14 +69,13 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   ngAfterViewInit(): void {
     console.log('BaseQuestionComponent ngAfterViewInit: dynamicComponentContainer', this.dynamicComponentContainer);
-    setTimeout(() => {
-      if (!this.dynamicComponentContainer) {
-        console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
-      } else {
-        this.loadDynamicComponent();
-      }
-    });
+    if (this.dynamicComponentContainer) {
+      this.loadDynamicComponent();
+    } else {
+      console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
+    }
   }
+
 
   protected initializeQuestion(): void {
     if (this.question) {
