@@ -278,7 +278,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   async ngAfterViewInit(): Promise<void> {
-    super.ngAfterViewInit();
+    await super.ngAfterViewInit();
   }
   
   ngOnChanges(changes: SimpleChanges): void {
