@@ -68,7 +68,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
           if (currentQuestion) {
             this.question = currentQuestion;
             console.log('Set question in ngOnInit:', this.question);
-            this.initializeOptions();
+            this.safeInitializeOptions();
           } else {
             console.error('Received undefined currentQuestion');
           }
@@ -81,10 +81,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   private safeInitializeOptions(): void {
     console.log('safeInitializeOptions called with question:', this.question);
-    if (this.question) {
+    if (this.question && this.question.options) {
+      console.log('safeInitializeOptions - Calling initializeOptions');
       this.initializeOptions();
     } else {
-      console.error('safeInitializeOptions - Question is undefined');
+      console.error('safeInitializeOptions - Question is undefined or has no options', { question: this.question });
     }
   }
 
@@ -121,6 +122,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       this.question.options.forEach(option => {
         if (!this.questionForm.contains(option.text)) {
           this.questionForm.addControl(option.text, this.fb.control(false));
+          console.log('Added control for option:', option.text);
         }
       });
       this.optionsToDisplay = this.question.options || [];
