@@ -52,7 +52,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     if (changes.question && changes.question.currentValue) {
       this.question = changes.question.currentValue;
       this.initializeOptions();
-      this.cdRef.detectChanges();
     } else if (changes.question) {
       console.error('ngOnChanges - Received undefined question:', changes.question);
     }
@@ -85,7 +84,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
         }
       });
       this.optionsToDisplay = this.question.options || [];
-      this.cdRef.detectChanges();
     } else {
       console.error('initializeOptions - Question or options are undefined', { question: this.question });
     }
