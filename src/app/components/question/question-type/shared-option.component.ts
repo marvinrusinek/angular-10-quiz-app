@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
-import { SelectedOption } from '../../../shared/services/SelectedOption.model';
+import { SelectedOption } from '../../../shared/models/SelectedOption.model';
 
 @Component({
   selector: 'app-shared-option',
