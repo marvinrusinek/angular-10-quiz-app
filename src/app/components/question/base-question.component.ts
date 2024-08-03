@@ -16,7 +16,8 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterViewInit {
-  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false }) dynamicComponentContainer!: ViewContainerRef;
+  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef
+   }) dynamicComponentContainer!: ViewContainerRef;
   @Input() question!: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
   @Input() correctMessage = '';
@@ -109,7 +110,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     if (this.quizStateService.currentQuestion$) {
       this.quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
-          console.log('Received currentQuestion:', currentQuestion);
           if (currentQuestion) {
             this.question = currentQuestion;
             this.initializeOptions();
