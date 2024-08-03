@@ -1065,6 +1065,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       }
 
+      // const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+      // this.updateExplanationText(explanationText);
+
       this.cdRef.detectChanges();
 
       this.processCurrentQuestionState(currentQuestion, option, index);
