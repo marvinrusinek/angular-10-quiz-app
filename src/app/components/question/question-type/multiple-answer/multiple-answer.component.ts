@@ -16,7 +16,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
   ]
 })
 export class MultipleAnswerComponent extends BaseQuestionComponent {
-  @Input() quizQuestionComponent: QuizQuestionComponent;
+  // @Input() quizQuestionComponent: QuizQuestionComponent;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
 
