@@ -126,7 +126,7 @@ export class QuizService implements OnDestroy {
   nextQuestionText = '';
 
   correctMessage: string;
-  correctOptions: string[] = [];
+  correctOptions: Option[] = [];
   selectedOption$ = new BehaviorSubject<string>(null);
 
   userAnswers = [];
@@ -1203,6 +1203,10 @@ export class QuizService implements OnDestroy {
       }
     });
   } */
+
+  setCorrectOptions(options: Option[]): void {
+    this.correctOptions = options.filter(option => option.isCorrect);
+  }
 
   setCorrectAnswers(
     question: QuizQuestion,
