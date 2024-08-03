@@ -33,7 +33,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
 
   loadDynamicComponent(): void {}
 
-  onOptionClicked(option: Option): void {
-    super.onOptionClicked(option); // Call the inherited method
+  onOptionClicked(option: Option, index: number): void {
+    super.onOptionClicked(option, index); // Call the inherited method
   }
 }
