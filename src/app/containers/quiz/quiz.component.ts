@@ -1530,7 +1530,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             this.cdRef.detectChanges();
           });
         } else {
-          console.error('FAILED TO LOAD QUESTION AT INDEX:', this.currentQuestionIndex);
+          console.error('Failed to load question at index:', this.currentQuestionIndex);
         }
       },
       (error) => {
