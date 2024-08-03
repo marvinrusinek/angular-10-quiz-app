@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, forwardRef, Inject, Optional } from '@angular/core';
+import { ChangeDetectorRef, Component, forwardRef, Inject, Input, Optional } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
@@ -16,6 +16,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
   ]
 })
 export class SingleAnswerComponent extends BaseQuestionComponent {
+  @Input() quizQuestionComponent: QuizQuestionComponent;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
 

@@ -1,7 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, OnChanges, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { isEmpty } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -13,10 +12,10 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 @Component({
   selector: 'app-base-question',
   template: '',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.Default
 })
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterViewInit {
-  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef })
+  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
   dynamicComponentContainer!: ViewContainerRef;
 
   @Input() question!: QuizQuestion;
