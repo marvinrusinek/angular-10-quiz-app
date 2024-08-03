@@ -197,6 +197,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     } else {
       console.error('Question or options are undefined in QuizQuestionComponent ngOnInit');
     }
+
+    // Set correct options in the quiz service
+    this.quizService.setCorrectOptions(this.question.options);
   
     this.resetFeedbackSubscription =
       this.resetStateService.resetFeedback$.subscribe(() => {
@@ -399,8 +402,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       ...option,
       optionId: index,
     }));
-    // Set correct options in the quiz service
-    this.quizService.setCorrectOptions(this.options);
   
     this.displayOptions = this.getDisplayOptions();
     this.showFeedbackForOption = this.displayOptions.reduce((acc, option) => {
