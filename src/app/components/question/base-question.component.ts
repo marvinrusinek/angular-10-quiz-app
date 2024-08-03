@@ -12,7 +12,7 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 @Component({
   selector: 'app-base-question',
   template: '',
-  changeDetection: ChangeDetectionStrategy.Default
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
