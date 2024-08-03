@@ -30,4 +30,10 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
   ) {
     super(quizQuestionComponent, quizService, selectedOptionService, fb, cdRef);
   }
+
+  loadDynamicComponent(): void {}
+
+  onOptionClicked(option: Option): void {
+    super.onOptionClicked(option); // Call the inherited method
+  }
 }

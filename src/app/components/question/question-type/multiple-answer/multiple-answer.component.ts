@@ -28,6 +28,12 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
   ) {
-    super(selectedOptionService, fb);
+    super(quizQuestionComponent, quizService, selectedOptionService, fb, cdRef);
+  }
+
+  loadDynamicComponent(): void {}
+
+  onOptionClicked(option: Option): void {
+    super.onOptionClicked(option); // Call the inherited method
   }
 }
