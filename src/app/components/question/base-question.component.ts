@@ -29,6 +29,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   selectedOption!: SelectedOption;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
+  correctMessage = '';
 
   constructor(
     protected fb: FormBuilder,
@@ -143,6 +144,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     this.showFeedbackForOption[option.optionId] = true;
     this.selectedOption = option;
     this.showFeedback = true;
+    this.correctMessage = this.quizService.setCorrectMessage(this.optionsToDisplay);
     this.cdRef.markForCheck();
   }
 
