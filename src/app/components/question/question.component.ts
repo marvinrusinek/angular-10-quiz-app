@@ -1047,7 +1047,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.showFeedback = true;
       this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
       this.updateFeedbackForOption(option);
-      this.correctMessage = this.setCorrectMessage();
 
       console.log(
         'onOptionClicked - showFeedbackForOption:',
