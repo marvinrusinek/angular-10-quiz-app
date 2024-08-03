@@ -93,7 +93,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   totalQuestions: number;
   currentOptions: Option[] | undefined;
   correctAnswers: number[] | undefined;
-  correctMessage: string;
+  correctMessage = '';
   alreadyAnswered = false;
   optionChecked: { [optionId: number]: boolean } = {};
   answers: any[] = [];
