@@ -1,11 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  forwardRef,
-  Inject,
-  Input,
-  Optional,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, forwardRef, Inject, Input, Optional } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
@@ -19,8 +12,8 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
   templateUrl: './multiple-answer.component.html',
   styleUrls: [
     './multiple-answer.component.scss',
-    '../shared-option.component.scss',
-  ],
+    '../shared-option.component.scss'
+  ]
 })
 export class MultipleAnswerComponent extends BaseQuestionComponent {
   @Input() quizQuestionComponent: QuizQuestionComponent;
@@ -28,8 +21,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
   selectedOption: SelectedOption | null = null;
 
   constructor(
-    @Optional()
-    @Inject(forwardRef(() => QuizQuestionComponent))
+    @Optional() @Inject(forwardRef(() => QuizQuestionComponent))
     protected quizQuestionComponent: QuizQuestionComponent,
     protected quizService: QuizService,
     protected selectedOptionService: SelectedOptionService,
