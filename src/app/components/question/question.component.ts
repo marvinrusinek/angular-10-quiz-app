@@ -266,7 +266,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.initializeQuizQuestion();
       await this.handleQuestionState();
       this.loadOptions();
-      this.setCorrectMessage([]);
+      this.quizService.setCorrectMessage([]);
       document.addEventListener(
         'visibilitychange',
         this.onVisibilityChange.bind(this)
@@ -293,7 +293,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     ) {
       if (this.currentQuestion) {
         this.getCorrectAnswers();
-        this.correctMessage = this.setCorrectMessage(
+        this.correctMessage = this.quizService.setCorrectMessage(
           this.quizService.correctAnswerOptions
         );
       } else {
@@ -1000,7 +1000,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Process state changes
       this.processCurrentQuestionState(currentQuestion, option, index);
       const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
-      this.correctMessage = this.setCorrectMessage(correctOptions);
+      this.correctMessage = this.quizService.setCorrectMessage(correctOptions);
 
       // Handle correctness and timer
       await this.handleCorrectnessAndTimer();
@@ -1022,7 +1022,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.showFeedback = true;
       this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
       this.updateFeedbackForOption(option);
-      this.correctMessage = this.setCorrectMessage();
+      this.correctMessage = this.quizService.setCorrectMessage();
 
       console.log(
         'onOptionClicked - showFeedbackForOption:',
@@ -1053,7 +1053,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       this.processCurrentQuestionState(currentQuestion, option, index);
       const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
-      this.correctMessage = this.setCorrectMessage(correctOptions);
+      this.correctMessage = this.quizService.setCorrectMessage(correctOptions);
 
       await this.handleCorrectnessAndTimer();
     } catch (error) {
@@ -1571,7 +1571,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     // Retrieve correct answers and set correct message
     const correctAnswers = this.optionsToDisplay.filter((opt) => opt.correct);
-    this.setCorrectMessage(correctAnswers);
+    this.quizService.setCorrectMessage(correctAnswers);
   }
   
   unselectOption(): void {
