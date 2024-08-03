@@ -35,5 +35,6 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
 
   onOptionClicked(option: Option): void {
     super.onOptionClicked(option); // Call the inherited method
+    this.correctMessage = this.quizService.setCorrectMessage(this.optionsToDisplay);
   }
 }
