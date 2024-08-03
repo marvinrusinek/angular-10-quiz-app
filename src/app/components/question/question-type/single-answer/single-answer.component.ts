@@ -28,6 +28,6 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
   ) {
-    super(selectedOptionService, fb);
+    super(quizQuestionComponent, quizService, selectedOptionService, fb, cdRef);
   }
 }

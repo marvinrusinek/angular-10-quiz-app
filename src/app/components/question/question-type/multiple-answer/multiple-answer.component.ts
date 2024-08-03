@@ -30,8 +30,4 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
   ) {
     super(selectedOptionService, fb);
   }
-
-  onOptionClicked({ option, index }: { option: Option, index: number }): void {
-    super.onOptionClicked(option); // Call the inherited method
-  }
 }
