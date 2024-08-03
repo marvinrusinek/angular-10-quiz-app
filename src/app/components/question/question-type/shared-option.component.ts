@@ -17,7 +17,7 @@ export class SharedOptionComponent implements OnInit {
   @Input() type: 'single' | 'multiple' = 'single';
   @Input() selectedOption: Option;
   @Input() showFeedbackForOption: { [optionId: number]: boolean };
-  @Input() correctMessage = '';
+  @Input() correctMessage: string;
   @Input() showFeedback: boolean;
   @Input() shouldResetBackground = false;
 
