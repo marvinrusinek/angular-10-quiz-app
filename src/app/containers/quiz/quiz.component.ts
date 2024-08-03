@@ -1521,16 +1521,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   loadCurrentQuestion(): void {
-    this.question = this.quizService.getCurrentQuestionByIndex(this.quizId, this.currentQuestionIndex);
-    if (this.question) {
-      this.optionsToDisplay = this.quizService.getOptions(this.currentQuestionIndex) || [];
-      this.ngZone.run(() => {
-        this.cdRef.detectChanges();
-      });
-    } else {
-      console.error('FAILED TO LOAD QUESTION AT INDEX:', this.currentQuestionIndex);
-    }
+    this.quizService.getCurrentQuestionByIndex(this.quizId, this.currentQuestionIndex).subscribe(
+      (question: QuizQuestion) => {
+        this.question = question;
+        if (this.question) {
+          this.optionsToDisplay = this.quizService.getOptions(this.currentQuestionIndex) || [];
+          this.ngZone.run(() => {
+            this.cdRef.detectChanges();
+          });
+        } else {
+          console.error('FAILED TO LOAD QUESTION AT INDEX:', this.currentQuestionIndex);
+        }
+      },
+      (error) => {
+        console.error('Error fetching question:', error);
+      }
+    );
   }
+  
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
