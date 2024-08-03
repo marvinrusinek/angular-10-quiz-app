@@ -144,7 +144,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     this.showFeedbackForOption[option.optionId] = true;
     this.selectedOption = option;
     this.showFeedback = true;
-    this.correctMessage = this.quizService.setCorrectMessage(this.optionsToDisplay);
+    this.correctMessage = this.setCorrectMessage(this.quizService.correctOptions);
     this.cdRef.markForCheck();
   }
 
