@@ -348,20 +348,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   protected async loadDynamicComponent(): Promise<void> {
-    console.log("Loading dynamic component in QuizQuestionComponent");
-    this.dynamicComponentContainer.clear();
+    console.log('Loading dynamic component in QuizQuestionComponent');
+    if (this.dynamicComponentContainer) {
+      this.dynamicComponentContainer.clear();
 
-    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion));
-    const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, isMultipleAnswer);
+      const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(this.question));
+      const componentRef = await this.dynamicComponentService.loadComponent(this.dynamicComponentContainer, isMultipleAnswer);
 
-    if (componentRef.instance) {
-      componentRef.instance.questionForm = this.questionForm;
-      componentRef.instance.question = this.currentQuestion;
-      componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
-      console.log('Passed options to dynamic component:', this.optionsToDisplay);
+      if (componentRef.instance) {
+        componentRef.instance.questionForm = this.questionForm;
+        componentRef.instance.question = this.question;
+        componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
+        console.log('Passed options to dynamic component:', this.optionsToDisplay);
 
-      componentRef.changeDetectorRef.markForCheck();
-      this.cdRef.detectChanges();
+        componentRef.changeDetectorRef.markForCheck();
+        this.cdRef.detectChanges();
+      }
+    } else {
+      console.error('dynamicComponentContainer is still undefined in QuizQuestionComponent');
     }
   }
   
