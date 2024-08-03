@@ -44,7 +44,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }
 
   ngOnInit(): void {
-    console.log('ngOnInit called');
     this.initializeQuestion();
     this.subscribeToQuestionChanges();
     if (this.question) {
@@ -68,7 +67,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   }
 
   ngAfterViewInit(): void {
-    //console.log('BaseQuestionComponent ngAfterViewInit: dynamicComponentContainer', this.dynamicComponentContainer);
+    console.log('BaseQuestionComponent ngAfterViewInit: dynamicComponentContainer', this.dynamicComponentContainer);
     if (this.dynamicComponentContainer) {
       this.dynamicComponentContainer.clear();
       this.loadDynamicComponent();
