@@ -399,6 +399,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       ...option,
       optionId: index,
     }));
+    this.quizService.setCorrectOptions(this.options);
   
     this.displayOptions = this.getDisplayOptions();
     this.showFeedbackForOption = this.displayOptions.reduce((acc, option) => {
