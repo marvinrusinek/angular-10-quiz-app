@@ -6,6 +6,7 @@ import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
+import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
@@ -34,6 +35,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   constructor(
     protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
+    protected explanationTextService: ExplanationTextService,
     protected quizService: QuizService,
     protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
