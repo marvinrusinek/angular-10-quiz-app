@@ -259,4 +259,5 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     console.log('Correct Message:', correctMessage); // Debugging statement
     return correctMessage;
   }
+  
 }

@@ -232,7 +232,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
               return;
             }
   
-            this.loadQuestion();
+            // this.loadQuestion();
             this.selectedOptionService.selectedOption$.subscribe(
               (selectedOption) => {
                 this.selectedOption = selectedOption;
@@ -382,7 +382,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
-  loadQuestion(): void {
+  /* loadQuestion(): void {
+    console.log('loadQuestion() called');
     this.resetState();
   
     if (!this.questionsArray || this.questionsArray.length === 0) {
@@ -418,7 +419,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     if (this.isQuestionAnswered(this.currentQuestionIndex)) {
       this.explanationTextService.updateExplanationText(currentQuestion);
     }
-  }
+  } */
   
   // Load options and set displayOptions
   loadOptions(): void {
