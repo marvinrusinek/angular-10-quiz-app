@@ -146,6 +146,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     this.showFeedbackForOption[option.optionId] = true;
     this.selectedOption = option;
     this.showFeedback = true;
+    // this.correctMessage = this.setCorrectMessage(this.quizService.correctOptions);
     this.correctMessage = this.setCorrectMessage(this.quizService.correctOptions);
     this.cdRef.markForCheck();
   }
@@ -257,5 +258,5 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
     console.log('Correct Message:', correctMessage); // Debugging statement
     return correctMessage;
-  }   
+  }
 }
