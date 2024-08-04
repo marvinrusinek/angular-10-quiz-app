@@ -402,6 +402,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     // Set correct options in the quiz service
     this.quizService.setCorrectOptions(this.options);
+
+    // Ensure optionsToDisplay is correctly set
+    this.optionsToDisplay = this.options;
   
     this.displayOptions = this.getDisplayOptions();
     this.showFeedbackForOption = this.displayOptions.reduce((acc, option) => {
