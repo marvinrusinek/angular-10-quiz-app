@@ -87,7 +87,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     this.currentQuestionSubscription?.unsubscribe();
   }
 
-
   protected initializeQuestion(): void {
     if (this.question) {
       this.initializeOptions();
@@ -121,7 +120,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
           if (currentQuestion) {
-            console.log('Received currentQuestion:', currentQuestion);
             this.question = currentQuestion;
             this.initializeOptions();
           } else {
