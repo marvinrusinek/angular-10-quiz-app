@@ -258,6 +258,5 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
     console.log('Correct Message:', correctMessage); // Debugging statement
     return correctMessage;
-  }
-  
+  }  
 }
