@@ -152,16 +152,18 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       // Pass the correct options to setCorrectMessage
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
       console.log('Correct Options to setCorrectMessage:', correctOptions); // Debugging statement
-  
-      const isCorrect = correctOptions.some(opt => opt.optionId === option.optionId);
       this.correctMessage = this.setCorrectMessage(correctOptions);
   
       // Set the final feedback message
-      if (isCorrect) {
-        this.feedback = `You're right! ${this.correctMessage}`;
+      if (correctOptions.length === 0) {
+        this.feedback = 'No correct answers found for the current question.';
+      } else if (correctOptions.some(opt => opt.optionId === option.optionId)) {
+        this.feedback = "You're right! ";
       } else {
-        this.feedback = `That's wrong. ${this.correctMessage}`;
+        this.feedback = "That's wrong. ";
       }
+  
+      this.feedback += this.correctMessage;
   
       // Set correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
