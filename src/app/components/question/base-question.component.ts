@@ -190,9 +190,9 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   
       this.cdRef.markForCheck();
     } catch (error) {
-      console.error('An error occurred while processing the option click:', error);
+      console.error('An error occurred while processing the option click:::>>', error);
     }
-  }  
+  }
   
   handleOptionClick(option: SelectedOption, index: number): void {
     this.onOptionClicked(option, index);
