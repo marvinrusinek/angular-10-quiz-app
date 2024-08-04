@@ -1174,11 +1174,6 @@ export class QuizService implements OnDestroy {
       })
     );
   }
-  
-  
-  
-  
-  
 
   /* setCorrectAnswers(
     question: QuizQuestion,
