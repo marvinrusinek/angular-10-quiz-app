@@ -31,6 +31,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   selectedOption!: SelectedOption;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
+  feedback = '';
 
   constructor(
     protected fb: FormBuilder,
