@@ -127,7 +127,7 @@ export class ExplanationTextService {
     console.log('Explanations updated notification sent.');
   }
 
-  formatExplanationText(question: QuizQuestion, questionIndex: number): Observable<{ questionIndex: number, explanation: string }> {
+  /* formatExplanationText(question: QuizQuestion, questionIndex: number): Observable<{ questionIndex: number, explanation: string }> {
     if (!this.isQuestionValid(question) || !this.isCurrentQuestion(question)) {
       return of({ questionIndex, explanation: '' });
     }
@@ -143,6 +143,17 @@ export class ExplanationTextService {
     const questionKey = JSON.stringify(question);
     this.processedQuestions.add(questionKey);
 
+    return of({ questionIndex, explanation: formattedExplanation });
+  } */
+
+  formatExplanationText(question: QuizQuestion, questionIndex: number): Observable<{ questionIndex: number, explanation: string }> {
+    const correctOptionIndices = question.options
+      .map((option, index) => option.correct ? index + 1 : -1)
+      .filter(index => index !== -1);
+
+    const formattedExplanation = this.formatExplanation(question, correctOptionIndices, question.explanation || '');
+    console.log('Formatted explanation for question index:', questionIndex, ':', formattedExplanation);
+    
     return of({ questionIndex, explanation: formattedExplanation });
   }
 
