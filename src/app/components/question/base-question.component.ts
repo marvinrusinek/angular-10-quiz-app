@@ -159,8 +159,13 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       } else {
         this.feedback = "That's wrong. ";
       }
-  
       this.feedback += this.correctMessage;
+
+      // Get and set the explanation text
+      const explanation = option.explanation || 'No explanation available for this option.';
+      const formattedExplanation = this.explanationTextService.formatExplanation(this.currentQuestion, [option.optionId], explanation);
+      this.explanationTextService.storeExplanation(this.currentQuestionIndex, formattedExplanation);
+      this.explanationText = formattedExplanation;
   
       // Set correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
