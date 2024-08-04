@@ -171,20 +171,21 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       }
       this.feedback += this.correctMessage;
 
+      if (typeof this.explanationTextService.formatExplanationText === 'function') {
+        // Get and set the explanation text
+        this.explanationTextService.formatExplanationText(this.currentQuestion, this.quizService.currentQuestionIndex)
+          .subscribe({
+            next: ({ explanation }) => {
+              console.log('Emitting explanation:::', explanation);
+              this.explanationText = explanation;
+              this.explanationToDisplayChange.emit(this.explanationText);
+            },
+            error: (err) => {
+              console.error('Error in formatExplanationText subscription:', err);
+            }
+          });
+      }
 
-      // Get and set the explanation text
-      this.explanationTextService.formatExplanationText(this.currentQuestion, this.currentQuestionIndex)
-        .subscribe({
-          next: ({ explanation }) => {
-            console.log('Emitting explanation:::', explanation);
-            this.explanationText = explanation;
-            this.explanationToDisplayChange.emit(this.explanationText);
-          },
-          error: (err) => {
-            console.error('Error in formatExplanationText subscription:', err);
-          }
-        });
-  
       // Set correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
   
