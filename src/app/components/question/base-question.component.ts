@@ -183,11 +183,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   setCorrectMessage(correctOptions: Option[]): string {
     console.log('Correct Options Passed to setCorrectMessage:', correctOptions); // Debugging statement
-
+  
     if (!correctOptions || correctOptions.length === 0) {
       return 'No correct answers found for the current question.';
     }
-
+  
     const correctOptionIndices = correctOptions.map((correctOption) => {
       const originalIndex = this.optionsToDisplay.findIndex(
         (option) => option.text === correctOption.text
@@ -195,12 +195,12 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       console.log(`Option text: ${correctOption.text}, Found Index: ${originalIndex}`); // Debugging statement
       return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 to make it 1-based index for display
     });
-
+  
     const uniqueIndices = [...new Set(correctOptionIndices.filter(index => index !== undefined))]; // Remove duplicates and undefined
     if (uniqueIndices.length === 0) {
       return 'No correct answers found for the current question.';
     }
-
+  
     const optionsText =
       uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
     const optionStrings =
@@ -209,9 +209,9 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
           ' and ' +
           uniqueIndices.slice(-1)
         : `${uniqueIndices[0]}`;
-
+  
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
     console.log('Correct Message:', correctMessage); // Debugging statement
     return correctMessage;
-  }
+  } 
 }
