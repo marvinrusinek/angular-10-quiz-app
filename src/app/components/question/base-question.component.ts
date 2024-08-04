@@ -79,7 +79,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     }
   }
 
-
   protected initializeQuestion(): void {
     if (this.question) {
       this.initializeOptions();
@@ -164,36 +163,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   isSelectedOption(option: Option): boolean {
     return this.selectedOptionService.isSelectedOption(option);
   }
-
-  /* setCorrectMessage(correctOptions: Option[]): string {
-    // if (!correctOptions || correctOptions.length === 0) {
-    //  return 'No correct answers found for the current question.';
-    //}
   
-    const correctOptionIndices = correctOptions.map((correctOption) => {
-      const originalIndex = this.optionsToDisplay.findIndex(
-        (option) => option.text === correctOption.text
-      );
-      return originalIndex + 1; // +1 to make it 1-based index for display
-    });
-  
-    const uniqueIndices = [...new Set(correctOptionIndices)]; // Remove duplicates if any
-    const optionsText =
-      uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings =
-      uniqueIndices.length > 1
-        ? uniqueIndices.slice(0, -1).join(', ') +
-          ' and ' +
-          uniqueIndices.slice(-1)
-        : `${uniqueIndices[0]}`;
-  
-    return `The correct ${optionsText} ${optionStrings}.`;
-  } */
-
-  /* setCorrectMessage(correctOptions: Option[]): string {
-    console.log('Correct Options Passed to setCorrectMessage:', correctOptions); // Debugging statement
-    console.log('Options to Display in setCorrectMessage:::::::::::::', this.optionsToDisplay); // Debugging statement
-  
+  setCorrectMessage(correctOptions: Option[]): string {  
     if (!correctOptions || correctOptions.length === 0) {
       return 'No correct answers found for the current question.';
     }
@@ -202,51 +173,10 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       const originalIndex = this.optionsToDisplay.findIndex(
         (option) => option.text.trim() === correctOption.text.trim()
       );
-      console.log(`Option text: ${correctOption.text}, Found Index: ${originalIndex}`); // Debugging statement
       return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 to make it 1-based index for display
     });
   
-    console.log('Correct Option Indices:', correctOptionIndices); // Debugging statement
-  
     const uniqueIndices = [...new Set(correctOptionIndices.filter(index => index !== undefined))]; // Remove duplicates and undefined
-    if (uniqueIndices.length === 0) {
-      return 'No correct answers found for the current question.';
-    }
-  
-    const optionsText =
-      uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings =
-      uniqueIndices.length > 1
-        ? uniqueIndices.slice(0, -1).join(', ') +
-          ' and ' +
-          uniqueIndices.slice(-1)
-        : `${uniqueIndices[0]}`;
-  
-    const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
-    console.log('Correct Message:', correctMessage); // Debugging statement
-    return correctMessage;
-  } */
-  
-  setCorrectMessage(correctOptions: Option[]): string {
-    console.log('Correct Options Passed to setCorrectMessage:', correctOptions); // Debugging statement
-    console.log('Options to Display in setCorrectMessage:', this.optionsToDisplay); // Debugging statement
-  
-    if (!correctOptions || correctOptions.length === 0) {
-      return 'No correct answers found for the current question.';
-    }
-  
-    const correctOptionIndices = correctOptions.map((correctOption) => {
-      const originalIndex = this.optionsToDisplay.findIndex(
-        (option) => option.text.trim() === correctOption.text.trim()
-      );
-      console.log(`Mapping Option text: ${correctOption.text}, Found Index: ${originalIndex}`); // Debugging statement
-      return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 to make it 1-based index for display
-    });
-  
-    console.log('Correct Option Indices:', correctOptionIndices); // Debugging statement
-  
-    const uniqueIndices = [...new Set(correctOptionIndices.filter(index => index !== undefined))]; // Remove duplicates and undefined
-    console.log('Unique Indices:', uniqueIndices); // Debugging statement
   
     if (uniqueIndices.length === 0) {
       return 'No correct answers found for the current question.';
@@ -262,7 +192,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
         : `${uniqueIndices[0]}`;
   
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
-    console.log('Correct Message:', correctMessage); // Debugging statement
     return correctMessage;
   }  
 }
