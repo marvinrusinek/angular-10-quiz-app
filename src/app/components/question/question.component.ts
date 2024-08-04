@@ -185,6 +185,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
 
+    // Ensure optionsToDisplay is correctly set
+    this.optionsToDisplay = this.options;
+      
+    // Set correct options in the quiz service
+    this.quizService.setCorrectOptions(this.optionsToDisplay);
+
+    console.log('Options to Display:::::>>>>>>', this.optionsToDisplay); // Debugging statement
+
     if (!this.question) {
       console.error('Question is not defined');
       return;
@@ -1019,17 +1027,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
       this.updateFeedbackForOption(option);
 
-      // Ensure optionsToDisplay is correctly set
-      // this.optionsToDisplay = this.options;
-
       this.correctMessage = super.setCorrectMessage(this.optionsToDisplay);
       
-      // Set correct options in the quiz service
-      this.quizService.setCorrectOptions(this.optionsToDisplay);
-
-      console.log('Options to Display:::::>>>>>>', this.optionsToDisplay); // Debugging statement
-      
-
       console.log(
         'onOptionClicked - showFeedbackForOption:',
         this.showFeedbackForOption

@@ -147,7 +147,19 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     this.selectedOption = option;
     this.showFeedback = true;
     // this.correctMessage = this.setCorrectMessage(this.quizService.correctOptions);
-    this.correctMessage = this.setCorrectMessage(this.quizService.correctOptions);
+
+    console.log('Options to Display before setting correct message:', this.optionsToDisplay); // Debugging statement
+
+    // Pass the correct options to setCorrectMessage
+    const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
+    this.correctMessage = super.setCorrectMessage(correctOptions);
+
+    // Set correct options in the quiz service
+    this.quizService.setCorrectOptions(this.optionsToDisplay);
+
+    console.log('Options to Display after setting correct message:', this.optionsToDisplay); // Debugging statement
+    console.log('Correct Message:', this.correctMessage); // Debugging statement
+
     this.cdRef.markForCheck();
   }
 
