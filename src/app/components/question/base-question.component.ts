@@ -173,7 +173,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       this.explanationTextService.storeExplanation(this.currentQuestionIndex, formattedExplanation);
       this.explanationText = formattedExplanation;
 
-      console.log('Explanation Text::>>', this.explanationText);
+      console.log('Explanation Text::>>', this.explanationText); // Debugging statement
 
       // Emit the explanation text
       this.explanationToDisplayChange.emit(this.explanationText);
