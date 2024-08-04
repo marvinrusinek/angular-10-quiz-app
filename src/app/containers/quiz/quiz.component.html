@@ -11,7 +11,7 @@
 
       <ng-container *ngIf="shouldDisplayContent">
         <!-- the question and options -->
-        <codelab-quiz-content-component
+        <codelab-quiz-content
           [combinedQuestionData$]="combinedQuestionData$"
           [questions]="questions"
           [question]="questionToDisplay"
@@ -22,7 +22,7 @@
           [shouldDisplayCorrectAnswers]="shouldDisplayCorrectAnswersFlag"
           (explanationToDisplayChange)="onExplanationToDisplayChange($event)"
         >
-        </codelab-quiz-content-component> 
+        </codelab-quiz-content> 
         <ng-content select="[question-content]"></ng-content>
 
         <ng-container *ngIf="optionsToDisplay">
