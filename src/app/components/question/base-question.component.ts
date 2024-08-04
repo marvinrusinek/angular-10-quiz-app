@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, OnChanges, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
@@ -19,7 +19,7 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
   dynamicComponentContainer!: ViewContainerRef;
-
+  @Output() explanationToDisplayChange = new EventEmitter<string>();
   @Input() question!: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
   @Input() correctMessage = '';
@@ -172,11 +172,14 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       console.log('Formatted Explanation:', formattedExplanation); // Debugging statement
       this.explanationTextService.storeExplanation(this.currentQuestionIndex, formattedExplanation);
       this.explanationText = formattedExplanation;
+
+      console.log('Explanation Text::>>', this.explanationText);
+
+      // Emit the explanation text
+      this.explanationToDisplayChange.emit(this.explanationText);
   
       // Set correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
-
-      console.log('Explanation Text::>>', this.explanationText);
   
       this.cdRef.markForCheck();
     } catch (error) {
