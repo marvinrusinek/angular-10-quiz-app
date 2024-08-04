@@ -166,6 +166,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       // Get and set the explanation text
       const explanation = option.explanation || 'No explanation available for this option.';
       const formattedExplanation = this.explanationTextService.formatExplanation(this.currentQuestion, [option.optionId], explanation);
+      console.log('Formatted Explanation::>>', formattedExplanation);
       this.explanationTextService.storeExplanation(this.currentQuestionIndex, formattedExplanation);
       this.explanationText = formattedExplanation;
   
