@@ -87,7 +87,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   quiz: Quiz;
   questionsArray: QuizQuestion[] = [];
   questionsObservableSubscription: Subscription;
-  currentQuestionSubscription: Subscription;
   questionForm: FormGroup = new FormGroup({});
   selectedQuiz = new ReplaySubject<Quiz>(1);
   totalQuestions: number;
@@ -265,7 +264,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
       this.initializeQuizQuestion();
       await this.handleQuestionState();
-      this.loadOptions();
+      // this.loadOptions();
       super.setCorrectMessage([]);
       document.addEventListener(
         'visibilitychange',
@@ -340,7 +339,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.destroy$.next();
     this.destroy$.complete();
     this.questionsObservableSubscription?.unsubscribe();
-    this.currentQuestionSubscription?.unsubscribe();
     this.optionSelectionSubscription?.unsubscribe();
     this.sharedVisibilitySubscription?.unsubscribe();
     this.resetFeedbackSubscription?.unsubscribe();
@@ -422,7 +420,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   } */
   
   // Load options and set displayOptions
-  loadOptions(): void {
+  /* loadOptions(): void {
     if (
       !this.quiz ||
       !this.quiz.questions ||
@@ -442,6 +440,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       ...option,
       optionId: index,
     }));
+    // Set correct options in the quiz service
+    this.quizService.setCorrectOptions(this.options);
+
+    // Ensure optionsToDisplay is correctly set
+    this.optionsToDisplay = this.options;
+    console.log('Options to Display:::::>>>>>>', this.optionsToDisplay); // Debugging statement
+    
   
     this.displayOptions = this.getDisplayOptions();
     this.showFeedbackForOption = this.displayOptions.reduce((acc, option) => {
@@ -450,7 +455,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }, {} as { [optionId: number]: boolean });
   
     console.log('Initial showFeedbackForOption:', this.showFeedbackForOption);
-  }
+  } */
   
   isSelectedOption(option: Option): boolean {
     const isOptionSelected =
@@ -853,23 +858,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     return this.currentQuestionIndex === this.previousQuestionIndex
       ? this.optionsToDisplay
       : this.data?.options;
-  }
-  
-  subscriptionToQuestion(): void {
-    this.currentQuestionSubscription = this.quizStateService.currentQuestion$
-      .pipe(
-        tap((question: QuizQuestion | null) => {
-          if (question) {
-            this.currentQuestion = question;
-            this.options = question.options;
-          }
-        }),
-        catchError((error: Error) => {
-          console.error('Error in currentQuestion$ subscription:', error);
-          return of(null);
-        })
-      )
-      .subscribe();
   }
   
   public getCorrectAnswers(): number[] {
