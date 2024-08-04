@@ -128,27 +128,21 @@ export class ExplanationTextService {
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): Observable<{ questionIndex: number, explanation: string }> {
-    // Early return for invalid or non-current question
     if (!this.isQuestionValid(question) || !this.isCurrentQuestion(question)) {
       return of({ questionIndex, explanation: '' });
     }
-  
-    const correctOptionIndices = this.getCorrectOptionIndices(question); // Get correct option indices
-    const formattedExplanation = this.formatExplanation(question, correctOptionIndices, question.explanation); // Pass the explanation as a parameter
-  
-    // Log formatted explanation
+
+    const correctOptionIndices = this.getCorrectOptionIndices(question);
+    const formattedExplanation = this.formatExplanation(question, correctOptionIndices, question.explanation);
     console.log('Formatted explanation for question index:', questionIndex, ':', formattedExplanation);
-    
-    // Store the formatted explanation
+
     this.storeFormattedExplanation(questionIndex, formattedExplanation, question);
-  
     this.syncFormattedExplanationState(questionIndex, formattedExplanation);
     this.setFormattedExplanation(formattedExplanation);
-  
-    // Processing valid and current question
+
     const questionKey = JSON.stringify(question);
     this.processedQuestions.add(questionKey);
-  
+
     return of({ questionIndex, explanation: formattedExplanation });
   }
 
