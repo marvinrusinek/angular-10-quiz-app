@@ -146,7 +146,7 @@ export class ExplanationTextService {
     return of({ questionIndex, explanation: formattedExplanation });
   } */
 
-  formatExplanationText(question: QuizQuestion, questionIndex: number): Observable<{ questionIndex: number, explanation: string }> {
+  /* formatExplanationText(question: QuizQuestion, questionIndex: number): Observable<{ questionIndex: number, explanation: string }> {
     console.log('formatExplanationText called');
     const correctOptionIndices = question.options
       .map((option, index) => option.correct ? index + 1 : -1)
@@ -156,6 +156,18 @@ export class ExplanationTextService {
     console.log('Formatted explanation for question index:', questionIndex, ':', formattedExplanation);
     
     return of({ questionIndex, explanation: formattedExplanation });
+  } */
+
+  formatExplanationText(question: QuizQuestion, questionIndex: number): Observable<{ explanation: string }> {
+    console.log('formatExplanationText called');
+    const correctOptionIndices = question.options
+      .map((option, index) => option.correct ? index + 1 : -1)
+      .filter(index => index !== -1);
+
+    const formattedExplanation = this.formatExplanation(question, correctOptionIndices, question.explanation || '');
+    console.log('Formatted explanation for question index:', questionIndex, ':', formattedExplanation);
+
+    return of({ explanation: formattedExplanation });
   }
 
   // Method to sanitize explanation text
