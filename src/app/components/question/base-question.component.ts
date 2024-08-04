@@ -228,14 +228,10 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       return 'No correct answers found for the current question.';
     }
   
-    const optionsText =
-      uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings =
-      uniqueIndices.length > 1
-        ? uniqueIndices.slice(0, -1).join(', ') +
-          ' and ' +
-          uniqueIndices.slice(-1)
-        : `${uniqueIndices[0]}`;
+    const optionsText = uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
+    const optionStrings = uniqueIndices.length > 1
+      ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
+      : `${uniqueIndices[0]}`;
   
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
     console.log('Correct Message:', correctMessage); // Debugging statement
