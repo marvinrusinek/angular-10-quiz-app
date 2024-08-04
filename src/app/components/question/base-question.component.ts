@@ -117,7 +117,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   protected subscribeToQuestionChanges(): void {
-    if (this.quizStateService.currentQuestion$ === 'undefined') {
+    if (this.quizStateService.currentQuestion$) {
       this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
           if (currentQuestion) {
@@ -151,10 +151,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         this.showFeedbackForOption = {};
       }
   
+      const displayIndex = index + 1;
       this.showFeedbackForOption[option.optionId] = true;
       this.selectedOption = option;
       this.showFeedback = true;
-      this.showFeedbackForOption = { [option.optionId]: true };
+      this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
   
       // Pass the correct options to setCorrectMessage
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
@@ -169,10 +170,10 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         this.feedback = "That's wrong. ";
       }
       this.feedback += this.correctMessage;
-  
-      // Get and set the explanation text
+
       if (typeof this.explanationTextService.formatExplanationText === 'function') {
-        this.explanationTextService.formatExplanationText(this.currentQuestion, this.currentQuestionIndex)
+        // Get and set the explanation text
+        this.explanationTextService.formatExplanationText(this.currentQuestion, this.quizService.currentQuestionIndex)
           .subscribe({
             next: ({ explanation }) => {
               console.log('Emitting explanation:::', explanation);
@@ -184,16 +185,15 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
             }
           });
       }
-  
+
       // Set correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
   
       this.cdRef.markForCheck();
     } catch (error) {
-      console.error('An error occurred while processing the option click:', error);
+      console.error('An error occurred while processing the option click:::>>', error);
     }
   }
-  
   
   handleOptionClick(option: SelectedOption, index: number): void {
     this.onOptionClicked(option, index);
@@ -203,10 +203,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     return this.selectedOptionService.isSelectedOption(option);
   }
   
-  setCorrectMessage(correctOptions: Option[]): string {
-    console.log('Correct Options Passed to setCorrectMessage:', correctOptions); // Debugging statement
-    console.log('Options to Display in setCorrectMessage:', this.optionsToDisplay); // Debugging statement
-  
+  setCorrectMessage(correctOptions: Option[]): string {  
     if (!correctOptions || correctOptions.length === 0) {
       return 'No correct answers found for the current question.';
     }
@@ -215,26 +212,25 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       const originalIndex = this.optionsToDisplay.findIndex(
         (option) => option.text.trim() === correctOption.text.trim()
       );
-      console.log(`Option text: ${correctOption.text}, Found Index: ${originalIndex}`); // Debugging statement
       return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 to make it 1-based index for display
     });
   
-    console.log('Correct Option Indices:', correctOptionIndices); // Debugging statement
-  
     const uniqueIndices = [...new Set(correctOptionIndices.filter(index => index !== undefined))]; // Remove duplicates and undefined
-    console.log('Unique Indices:', uniqueIndices); // Debugging statement
   
     if (uniqueIndices.length === 0) {
       return 'No correct answers found for the current question.';
     }
   
-    const optionsText = uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings = uniqueIndices.length > 1
-      ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
-      : `${uniqueIndices[0]}`;
+    const optionsText =
+      uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
+    const optionStrings =
+      uniqueIndices.length > 1
+        ? uniqueIndices.slice(0, -1).join(', ') +
+          ' and ' +
+          uniqueIndices.slice(-1)
+        : `${uniqueIndices[0]}`;
   
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
-    console.log('Correct Message:', correctMessage); // Debugging statement
     return correctMessage;
   }  
 }
