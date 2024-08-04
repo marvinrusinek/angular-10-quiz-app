@@ -117,7 +117,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   protected subscribeToQuestionChanges(): void {
-    if (this.quizStateService.currentQuestion$) {
+    if (this.quizStateService.currentQuestion$ === 'undefined') {
       this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
           if (currentQuestion) {
