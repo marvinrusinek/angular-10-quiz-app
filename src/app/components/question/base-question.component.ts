@@ -129,7 +129,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   protected abstract loadDynamicComponent(): void;
 
-  protected abstract onOptionClicked(option: SelectedOption, index: number): void {
+  protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
       if (this.quizQuestionComponent) {
         this.quizQuestionComponent.onOptionClicked(option, index);
@@ -152,7 +152,16 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       // Pass the correct options to setCorrectMessage
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
       console.log('Correct Options to setCorrectMessage:', correctOptions); // Debugging statement
+  
+      const isCorrect = correctOptions.some(opt => opt.optionId === option.optionId);
       this.correctMessage = this.setCorrectMessage(correctOptions);
+  
+      // Set the final feedback message
+      if (isCorrect) {
+        this.feedback = `You're right! ${this.correctMessage}`;
+      } else {
+        this.feedback = `That's wrong. ${this.correctMessage}`;
+      }
   
       // Set correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
@@ -164,7 +173,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
-  }
+  }  
   
   handleOptionClick(option: SelectedOption, index: number): void {
     this.onOptionClicked(option, index);
