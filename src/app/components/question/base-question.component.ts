@@ -173,7 +173,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
       console.log('Calling formatExplanationText');
       if (typeof this.explanationTextService.formatExplanationText === 'function') {
-        this.explanationTextService.formatExplanationText(this.currentQuestion, this.currentQuestionIndex)
+        console.log('formatExplanationText is recognized as a function');
+        this.explanationTextService.formatExplanationText(this.question, this.quizService.currentQuestionIndex)
           .subscribe({
             next: ({ explanation }) => {
               console.log('Emitting explanation:::', explanation);
@@ -182,9 +183,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
             },
             error: (err) => {
               console.error('Error in formatExplanationText subscription:', err);
-            },
-            complete: () => {
-              console.log('Explanation text subscription complete');
             }
           });
       } else {
