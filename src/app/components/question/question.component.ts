@@ -405,6 +405,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     // Ensure optionsToDisplay is correctly set
     this.optionsToDisplay = this.options;
+    console.log('Options to Display:::::>>>>>>', this.optionsToDisplay); // Debugging statement
   
     this.displayOptions = this.getDisplayOptions();
     this.showFeedbackForOption = this.displayOptions.reduce((acc, option) => {
