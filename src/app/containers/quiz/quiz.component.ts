@@ -240,6 +240,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  onExplanationToDisplayChange(explanation: string): void {
+    this.explanationToDisplay = explanation;
+  }
+
   // Public getter methods for determining UI state based on current quiz and question data.
   public get isContentAvailable(): boolean {
     return !!this.data?.questionText || !!this.data?.correctAnswersText;
