@@ -173,11 +173,16 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
 
       // Get and set the explanation text
-      this.explanationTextService.formatExplanationText(this.question, this.currentQuestionIndex)
-        .subscribe(({ explanation }) => {
-          console.log('Emitting explanation:::', explanation);
-          this.explanationText = explanation;
-          this.explanationToDisplayChange.emit(this.explanationText);
+      this.explanationTextService.formatExplanationText(this.currentQuestion, this.currentQuestionIndex)
+        .subscribe({
+          next: ({ explanation }) => {
+            console.log('Emitting explanation:::', explanation);
+            this.explanationText = explanation;
+            this.explanationToDisplayChange.emit(this.explanationText);
+          },
+          error: (err) => {
+            console.error('Error in formatExplanationText subscription:', err);
+          }
         });
   
       // Set correct options in the quiz service
