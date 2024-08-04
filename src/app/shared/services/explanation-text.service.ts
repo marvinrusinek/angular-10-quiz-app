@@ -147,6 +147,7 @@ export class ExplanationTextService {
   } */
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): Observable<{ questionIndex: number, explanation: string }> {
+    console.log('formatExplanationText called');
     const correctOptionIndices = question.options
       .map((option, index) => option.correct ? index + 1 : -1)
       .filter(index => index !== -1);
