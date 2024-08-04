@@ -232,7 +232,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       const originalIndex = this.optionsToDisplay.findIndex(
         (option) => option.text.trim() === correctOption.text.trim()
       );
-      console.log(`Option text: ${correctOption.text}, Found Index: ${originalIndex}`); // Debugging statement
+      console.log(`Mapping Option text: ${correctOption.text}, Found Index: ${originalIndex}`); // Debugging statement
       return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 to make it 1-based index for display
     });
   
@@ -257,5 +257,5 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
     console.log('Correct Message:', correctMessage); // Debugging statement
     return correctMessage;
-  }  
+  }   
 }
