@@ -144,6 +144,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
         this.showFeedbackForOption = {};
       }
   
+      const displayIndex = index + 1;
       this.showFeedbackForOption[option.optionId] = true;
       this.selectedOption = option;
       this.showFeedback = true;
@@ -163,10 +164,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       }
       this.feedback += this.correctMessage;
 
+
       // Get and set the explanation text
-      console.log('Calling formatExplanation with:', this.currentQuestion, [option.optionId], option.explanation); // Debugging statement
+      console.log('Calling formatExplanation with:', this.currentQuestion, [option.optionId], option.explanation);
       const explanation = option.explanation || 'No explanation available for this option.';
-      const formattedExplanation = this.explanationTextService.formatExplanation(this.currentQuestion, [option.optionId], explanation);
+      const formattedExplanation = this.explanationTextService.formatExplanation(this.currentQuestion, [option.optionId + 1], explanation);
       console.log('Formatted Explanation:', formattedExplanation); // Debugging statement
       this.explanationTextService.storeExplanation(this.currentQuestionIndex, formattedExplanation);
       this.explanationText = formattedExplanation;
