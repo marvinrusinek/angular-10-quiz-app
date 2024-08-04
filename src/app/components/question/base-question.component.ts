@@ -1,6 +1,6 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -16,7 +16,7 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterViewInit {
+export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
   dynamicComponentContainer!: ViewContainerRef;
   @Output() explanationToDisplayChange = new EventEmitter<string>();
@@ -32,6 +32,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
   feedback = '';
+  currentQuestionSubscription: Subscription;
 
   constructor(
     protected fb: FormBuilder,
@@ -82,6 +83,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
     }
   }
 
+  ngOnDestroy(): void {
+    this.currentQuestionSubscription?.unsubscribe();
+  }
+
+
   protected initializeQuestion(): void {
     if (this.question) {
       this.initializeOptions();
@@ -112,9 +118,10 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
 
   protected subscribeToQuestionChanges(): void {
     if (this.quizStateService.currentQuestion$) {
-      this.quizStateService.currentQuestion$.subscribe({
+      this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
           if (currentQuestion) {
+            console.log('Received currentQuestion:', currentQuestion);
             this.question = currentQuestion;
             this.initializeOptions();
           } else {
