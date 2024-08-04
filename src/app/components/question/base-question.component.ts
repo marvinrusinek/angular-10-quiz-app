@@ -32,6 +32,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
   feedback = '';
+  explanationText: string; 
   currentQuestionSubscription: Subscription;
 
   constructor(
