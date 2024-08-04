@@ -203,7 +203,10 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     return this.selectedOptionService.isSelectedOption(option);
   }
   
-  setCorrectMessage(correctOptions: Option[]): string {  
+  setCorrectMessage(correctOptions: Option[]): string {
+    console.log('Correct Options Passed to setCorrectMessage:', correctOptions); // Debugging statement
+    console.log('Options to Display in setCorrectMessage:', this.optionsToDisplay); // Debugging statement
+  
     if (!correctOptions || correctOptions.length === 0) {
       return 'No correct answers found for the current question.';
     }
@@ -212,10 +215,14 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       const originalIndex = this.optionsToDisplay.findIndex(
         (option) => option.text.trim() === correctOption.text.trim()
       );
+      console.log(`Option text: ${correctOption.text}, Found Index: ${originalIndex}`); // Debugging statement
       return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 to make it 1-based index for display
     });
   
+    console.log('Correct Option Indices:', correctOptionIndices); // Debugging statement
+  
     const uniqueIndices = [...new Set(correctOptionIndices.filter(index => index !== undefined))]; // Remove duplicates and undefined
+    console.log('Unique Indices:', uniqueIndices); // Debugging statement
   
     if (uniqueIndices.length === 0) {
       return 'No correct answers found for the current question.';
@@ -231,6 +238,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         : `${uniqueIndices[0]}`;
   
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
+    console.log('Correct Message:', correctMessage); // Debugging statement
     return correctMessage;
   }  
 }
