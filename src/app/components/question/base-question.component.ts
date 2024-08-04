@@ -32,7 +32,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
   feedback = '';
-  explanationText: string; 
+  explanationText: string;
+  explanationToDisplay: string;
   currentQuestionSubscription: Subscription;
 
   constructor(
@@ -183,6 +184,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
             next: ({ explanation }) => {
               console.log('Emitting explanation:::', explanation);
               this.explanationText = explanation;
+              this.explanationToDisplay = explanation;
               this.explanationToDisplayChange.emit(this.explanationText);
             },
             error: (err) => {
