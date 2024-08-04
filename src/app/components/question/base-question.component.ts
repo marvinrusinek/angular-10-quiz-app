@@ -168,6 +168,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       // Get and set the explanation text
       this.explanationTextService.formatExplanationText(this.currentQuestion, this.currentQuestionIndex)
         .subscribe(({ explanation }) => {
+          console.log('Emitting explanation:', explanation);
           this.explanationText = explanation;
           this.explanationToDisplayChange.emit(this.explanationText);
         });
