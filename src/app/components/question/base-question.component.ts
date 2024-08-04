@@ -130,32 +130,42 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   protected abstract loadDynamicComponent(): void;
 
   protected abstract onOptionClicked(option: SelectedOption, index: number): void {
-    if (this.quizQuestionComponent) {
-      this.quizQuestionComponent.onOptionClicked(option, index);
-    } else {
-      console.error('QuizQuestionComponent is not available');
+    try {
+      if (this.quizQuestionComponent) {
+        this.quizQuestionComponent.onOptionClicked(option, index);
+      } else {
+        console.error('QuizQuestionComponent is not available');
+      }
+  
+      if (!this.showFeedbackForOption) {
+        console.error('showFeedbackForOption is not initialized');
+        this.showFeedbackForOption = {};
+      }
+  
+      this.showFeedbackForOption[option.optionId] = true;
+      this.selectedOption = option;
+      this.showFeedback = true;
+      this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
+  
+      console.log('Options to Display before setting correct message:', this.optionsToDisplay); // Debugging statement
+  
+      // Pass the correct options to setCorrectMessage
+      const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
+      console.log('Correct Options to setCorrectMessage:', correctOptions); // Debugging statement
+      this.correctMessage = this.setCorrectMessage(correctOptions);
+  
+      // Set correct options in the quiz service
+      this.quizService.setCorrectOptions(correctOptions);
+  
+      console.log('Options to Display after setting correct message:', this.optionsToDisplay); // Debugging statement
+      console.log('Correct Message:', this.correctMessage); // Debugging statement
+  
+      this.cdRef.markForCheck();
+    } catch (error) {
+      console.error('An error occurred while processing the option click:', error);
     }
-
-    if (!this.showFeedbackForOption) {
-      console.error('showFeedbackForOption is not initialized');
-      this.showFeedbackForOption = {};
-    }
-
-    this.showFeedbackForOption[option.optionId] = true;
-    this.selectedOption = option;
-    this.showFeedback = true;
-    this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
-
-    // Pass the correct options to setCorrectMessage
-    const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
-    this.correctMessage = this.setCorrectMessage(correctOptions);
-
-    // Set correct options in QuizService
-    this.quizService.setCorrectOptions(correctOptions);
-
-    this.cdRef.markForCheck();
   }
-
+  
   handleOptionClick(option: SelectedOption, index: number): void {
     this.onOptionClicked(option, index);
   }
