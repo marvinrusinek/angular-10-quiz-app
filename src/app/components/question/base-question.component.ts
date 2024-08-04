@@ -164,6 +164,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
       this.feedback += this.correctMessage;
 
       // Get and set the explanation text
+      console.log('Calling formatExplanation with:', this.currentQuestion, [option.optionId], option.explanation); // Debugging statement
       const explanation = option.explanation || 'No explanation available for this option.';
       const formattedExplanation = this.explanationTextService.formatExplanation(this.currentQuestion, [option.optionId], explanation);
       console.log('Formatted Explanation:', formattedExplanation); // Debugging statement
@@ -172,6 +173,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, AfterV
   
       // Set correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
+
+      console.log('Explanation Text::>>', this.explanationText);
   
       this.cdRef.markForCheck();
     } catch (error) {
