@@ -15,7 +15,7 @@ import { ExplanationTextService } from '../../../shared/services/explanation-tex
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 
 @Component({
-  selector: 'codelab-quiz-content-component',
+  selector: 'codelab-quiz-content',
   templateUrl: './codelab-quiz-content.component.html',
   styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
