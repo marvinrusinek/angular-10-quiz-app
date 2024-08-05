@@ -961,7 +961,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.showFeedbackForOption = {};
   }
 
-  /* protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     this.showFeedbackForOption[index] = true;
     const adjustedIndex = index + 1; 
     try {
@@ -1010,9 +1010,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         error
       );
     }
-  } */
+  }
   
-  protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  /* protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     const adjustedIndex = index + 1; // Adjust the index by 1
     this.showFeedbackForOption[adjustedIndex] = true;
 
@@ -1062,7 +1062,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             error
         );
     }
-  }
+  } */
 
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
