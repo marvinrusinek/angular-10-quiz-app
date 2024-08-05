@@ -961,7 +961,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.showFeedbackForOption = {};
   }
 
-  protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  /* protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     this.showFeedbackForOption[index] = true;
     const adjustedIndex = index + 1; 
     try {
@@ -1010,7 +1010,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         error
       );
     }
-  }
+  } */
   
   /* protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     const adjustedIndex = index + 1; // Adjust the index by 1
@@ -1063,6 +1063,52 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         );
     }
   } */
+
+  protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+    const adjustedIndex = index + 1; // Adjust the index by 1
+    this.showFeedbackForOption[adjustedIndex] = true;
+    console.log('onOptionClicked called:', option, adjustedIndex);
+
+    try {
+        this.selectedOptions = [
+            { ...option, questionIndex: this.currentQuestionIndex },
+        ];
+        this.selectedOption = { ...option, optionId: adjustedIndex };
+        this.showFeedback = true;
+        this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
+        this.updateFeedbackForOption(option);
+
+        const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
+        this.correctMessage = super.setCorrectMessage(correctOptions);
+
+        console.log('showFeedbackForOption:', this.showFeedbackForOption);
+        console.log('correctMessage:', this.correctMessage);
+
+        this.updateSelectedOption(option);
+        this.selectedOptionService.setOptionSelected(true);
+        this.selectedOptionService.setSelectedOption(option);
+        this.selectedOptionService.setAnsweredState(true);
+
+        const currentQuestion = await this.fetchAndProcessCurrentQuestion();
+        if (!currentQuestion) {
+            console.error('Could not retrieve the current question.');
+            return;
+        }
+        this.selectOption(currentQuestion, option, adjustedIndex);
+
+        const isAnswered = true;
+        if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
+            await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+        }
+
+        this.cdRef.detectChanges();
+
+        this.processCurrentQuestionState(currentQuestion, option, adjustedIndex);
+        await this.handleCorrectnessAndTimer();
+    } catch (error) {
+        console.error('An error occurred while processing the option click:', error);
+    }
+  }
 
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
