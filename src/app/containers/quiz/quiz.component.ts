@@ -241,7 +241,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   onExplanationToDisplayChange(explanation: string): void {
-    console.log('Received explanation:::', explanation);
     this.explanationToDisplay = explanation;
   }
 
