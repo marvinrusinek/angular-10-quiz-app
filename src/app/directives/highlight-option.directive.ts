@@ -1,11 +1,11 @@
-import { Directive, ElementRef, EventEmitter, HostListener, Input, Output, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 
 @Directive({
   selector: '[appHighlightOption]'
 })
-export class HighlightOptionDirective {
+export class HighlightOptionDirective implements OnChanges {
   @Output() resetBackground = new EventEmitter<boolean>();
   @Input() option: Option;
   @Input() isCorrect: boolean;
@@ -14,6 +14,12 @@ export class HighlightOptionDirective {
   constructor(
     private el: ElementRef, 
     private renderer: Renderer2) {
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.option || changes.isCorrect) {
+      this.applyHighlight();
+    }
   }
 
   @HostListener('click') onClick() {
