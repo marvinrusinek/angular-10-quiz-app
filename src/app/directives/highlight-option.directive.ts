@@ -16,9 +16,9 @@ export class HighlightOptionDirective implements OnChanges {
     private renderer: Renderer2) {
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     this.updateHighlight();
-  }
+  } */
 
   @HostListener('click') onClick(): void {
     this.isAnswered = true;
