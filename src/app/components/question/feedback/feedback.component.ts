@@ -38,10 +38,6 @@ export class FeedbackComponent implements OnChanges {
     }
   }
 
-  determineFeedbackMessageClass(): string {
-    return this.selectedOption && this.selectedOption.correct ? 'correct-message' : 'wrong-message';
-  }
-
   displayFeedbackMessage(): string {
     if (!this.selectedOption) {
       return '';
@@ -49,5 +45,11 @@ export class FeedbackComponent implements OnChanges {
     return this.selectedOption.correct
       ? "You're right! " + this.correctMessage 
       : "That's wrong. " + this.correctMessage;
+  }
+
+  determineFeedbackMessageClass(): string {
+    return this.selectedOption && this.selectedOption.correct 
+      ? 'correct-message' 
+      : 'wrong-message';
   }
 }
