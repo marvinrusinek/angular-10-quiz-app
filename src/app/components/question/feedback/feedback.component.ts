@@ -12,8 +12,8 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
 export class FeedbackComponent implements OnChanges {
   @Input() correctMessage: string;
   @Input() selectedOption: Option & { correct: boolean };
-  @Input() showFeedback: boolean = false;
-  @Input() feedback: string = '';
+  @Input() showFeedback = false;
+  @Input() feedback = '';
   feedbackMessageClass: string;
 
   constructor(private selectedOptionService: SelectedOptionService) {
@@ -21,20 +21,12 @@ export class FeedbackComponent implements OnChanges {
     this.selectedOption = option 
       ? { ...option, correct: !!option.correct } 
       : { text: '', correct: false, optionId: -1 };
-
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.selectedOption || changes.correctMessage || changes.showFeedback) {
       this.feedbackMessageClass = this.determineFeedbackMessageClass();
       this.feedback = this.displayFeedbackMessage();
-      console.log('FeedbackComponent changes:', {
-        selectedOption: this.selectedOption,
-        feedback: this.feedback,
-        feedbackMessageClass: this.feedbackMessageClass,
-        correctMessage: this.correctMessage,
-        showFeedback: this.showFeedback
-      });
     }
   }
 
