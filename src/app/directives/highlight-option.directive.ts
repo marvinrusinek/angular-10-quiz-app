@@ -17,9 +17,7 @@ export class HighlightOptionDirective implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.selectedOption || changes.showFeedbackForOption) {
-      this.updateHighlight();
-    }
+    this.updateHighlight();
   }
 
   @HostListener('click') onClick(): void {
