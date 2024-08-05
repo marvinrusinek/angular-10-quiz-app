@@ -21,6 +21,7 @@ export class FeedbackComponent implements OnChanges {
     this.selectedOption = option 
       ? { ...option, correct: !!option.correct } 
       : { text: '', correct: false, optionId: -1 };
+
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -45,6 +46,6 @@ export class FeedbackComponent implements OnChanges {
     if (!this.selectedOption) {
       return '';
     }
-    return this.selectedOption.correct ? "You're right! " : "That's wrong. ";
+    return this.selectedOption.correct ? "You're right! " + this.correctMessage : "That's wrong. " + this.correctMessage;
   }
 }
