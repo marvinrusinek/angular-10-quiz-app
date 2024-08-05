@@ -2,7 +2,7 @@
   <div class="feedback-message" [ngClass]="feedbackMessageClass">
     <ng-template #correctIcon>
       <i class="material-icons" *ngIf="selectedOption?.correct; else wrongIcon">
-      sentiment_very_satisfied
+        sentiment_very_satisfied
       </i>
     </ng-template>
     <ng-template #wrongIcon>
@@ -10,6 +10,6 @@
         sentiment_very_dissatisfied
       </i>
     </ng-template>
-    <span>{{ feedback }}</span>
+    {{ feedback }}
   </div>
 </section>
