@@ -184,8 +184,10 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
             next: ({ explanation }) => {
               console.log('Emitting explanation:::', explanation);
               this.explanationText = explanation;
-              this.explanationToDisplay = explanation;
-              this.explanationToDisplayChange.emit(this.explanationText);
+              if (this.explanationToDisplay !== explanation) {
+                this.explanationToDisplay = explanation; // Set explanation to display
+                this.explanationToDisplayChange.emit(this.explanationToDisplay);
+              }
             },
             error: (err) => {
               console.error('Error in formatExplanationText subscription:', err);
