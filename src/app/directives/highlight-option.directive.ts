@@ -17,8 +17,8 @@ export class HighlightOptionDirective implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.option || changes.isCorrect) {
-      this.applyHighlight();
+    if (changes.selectedOption || changes.showFeedbackForOption) {
+      this.updateHighlight();
     }
   }
 
@@ -29,7 +29,7 @@ export class HighlightOptionDirective implements OnChanges {
   }
 
   private applyHighlight() {
-    if (this.isAnswered) {
+    if (this.isAnswered || (this.showFeedbackForOption && this.showFeedbackForOption[this.option.optionId])) {
       // Set the color based on whether the answer is correct
       const color = this.isCorrect ? '#43f756' : '#ff0000';
   
