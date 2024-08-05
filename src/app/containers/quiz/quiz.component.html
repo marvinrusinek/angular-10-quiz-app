@@ -17,10 +17,10 @@
           [question]="questionToDisplay"
           [questionToDisplay]="questionToDisplay"
           [explanationToDisplay]="explanationToDisplay"
+          (explanationToDisplayChange)="onExplanationToDisplayChange($event)"
           [options]="optionsToDisplay"         
           [correctAnswersText]="correctAnswersText"
           [shouldDisplayCorrectAnswers]="shouldDisplayCorrectAnswersFlag"
-          (explanationToDisplayChange)="onExplanationToDisplayChange($event)"
         >
         </codelab-quiz-content> 
         <ng-content select="[question-content]"></ng-content>
