@@ -27,8 +27,7 @@ export class HighlightOptionDirective implements OnChanges {
   }
 
   private applyHighlight(): void {
-    const optionId = this.option.optionId;
-    if (this.showFeedbackForOption && this.showFeedbackForOption[optionId]) {
+    if (this.isAnswered) {
       // Set the color based on whether the answer is correct
       const color = this.isCorrect ? '#43f756' : '#ff0000';
   
