@@ -140,8 +140,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   protected abstract loadDynamicComponent(): void;
 
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    console.log('onOptionClicked called');
-    
     try {
       if (this.quizQuestionComponent) {
         this.quizQuestionComponent.onOptionClicked(option, index);
@@ -154,7 +152,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         this.showFeedbackForOption = {};
       }
   
-      const displayIndex = index + 1;
+      // const displayIndex = index + 1; // might need this for highlighting the first option
       this.showFeedbackForOption[option.optionId] = true;
       this.selectedOption = option;
       this.showFeedback = true;
