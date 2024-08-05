@@ -1,11 +1,11 @@
-import { Directive, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, EventEmitter, HostListener, Input, Output, Renderer2 } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 
 @Directive({
   selector: '[appHighlightOption]'
 })
-export class HighlightOptionDirective implements OnChanges {
+export class HighlightOptionDirective {
   @Output() resetBackground = new EventEmitter<boolean>();
   @Input() option: Option;
   @Input() isCorrect: boolean;
@@ -16,17 +16,13 @@ export class HighlightOptionDirective implements OnChanges {
     private renderer: Renderer2) {
   }
 
-  /* ngOnChanges(changes: SimpleChanges): void {
-    this.updateHighlight();
-  } */
-
-  @HostListener('click') onClick(): void {
+  @HostListener('click') onClick() {
     this.isAnswered = true;
     this.applyHighlight();
     this.resetBackground.emit(true);
   }
 
-  private applyHighlight(): void {
+  private applyHighlight() {
     if (this.isAnswered) {
       // Set the color based on whether the answer is correct
       const color = this.isCorrect ? '#43f756' : '#ff0000';
