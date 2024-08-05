@@ -22,7 +22,7 @@ export class HighlightOptionDirective implements OnChanges {
     }
   }
 
-  @HostListener('click') onClick() {
+  @HostListener('click') onClick(): void {
     this.isAnswered = true;
     this.applyHighlight();
     this.resetBackground.emit(true);
