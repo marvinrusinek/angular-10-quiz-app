@@ -1,15 +1,15 @@
 <section class="message" *ngIf="showFeedback">
-  <div class="feedback-message" 
-    [ngClass]="feedbackMessageClass">
-    <i class="material-icons" 
-       *ngIf="selectedOption?.correct; else wrongIcon">
+  <div class="feedback-message" [ngClass]="feedbackMessageClass">
+    <ng-template #correctIcon>
+      <i class="material-icons" *ngIf="selectedOption?.correct; else wrongIcon">
       sentiment_very_satisfied
-    </i>
+      </i>
+    </ng-template>
     <ng-template #wrongIcon>
       <i class="material-icons wrong-icon">
         sentiment_very_dissatisfied
       </i>
     </ng-template>
-    {{ feedback }}
+    <span>{{ feedback }}</span>
   </div>
 </section>
