@@ -177,7 +177,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       console.log('Calling formatExplanationText');
       console.log(this.explanationTextService); // Check if the service is properly instantiated
       console.log(this.explanationTextService.formatExplanationText); // Check if the method exists
-      if (typeof this.explanationTextService.formatExplanationText === 'function') {
+      if (typeof this.explanationTextService.formatExplanationText !== 'function') {
         console.log('formatExplanationText is recognized as a function');
         this.explanationTextService.formatExplanationText(this.question, this.quizService.currentQuestionIndex)
           .subscribe({
