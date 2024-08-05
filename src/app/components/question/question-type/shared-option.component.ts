@@ -36,6 +36,7 @@ export class SharedOptionComponent implements OnInit {
   }
 
   handleOptionClick(option: SelectedOption, index: number): void {
+    console.log('handleOptionClick called in SharedOptionComponent', option, index);
     this.optionClicked.emit({ option, index });
   }
 
