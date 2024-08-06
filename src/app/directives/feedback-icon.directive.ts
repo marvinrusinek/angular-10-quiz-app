@@ -1,33 +1,80 @@
-🚀 <b>Welcome to the Angular Codelab Quiz App!</b> 🧠
+import { Directive, ElementRef, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
+import { Subscription } from 'rxjs';
 
-Embark on an exhilarating journey through the Angular framework with this dynamic <a href="[https://stackblitz.com/edit/angular-10-quiz-app](https://angular-10-quiz-app.stackblitz.io/)">Quiz App</a>. Designed to challenge and expand your understanding of Angular, the app is the perfect companion for learners at every level.
+import { Option } from '../shared/models/Option.model';
+import { SelectedOption } from '../shared/models/SelectedOption.model';
+import { ResetFeedbackIconService } from '../shared/services/reset-feedback-icon.service';
 
-🎯 <b>Aim of the App</b>
+@Directive({
+  selector: '[appFeedbackIcon]'
+})
+export class FeedbackIconDirective implements OnChanges {
+  @Input() option!: Option;
+  @Input() index: number;
+  @Input() selectedOption!: SelectedOption | null;
+  @Input() showFeedbackForOption!: { [optionId: number]: boolean };
+  isAnswered = false;
+  private resetIconSubscription: Subscription;
 
-This <a href="https://angular-10-quiz-app.stackblitz.io/">Angular Quiz App</a> is more than just a quiz; it's your interactive portal to master Angular. Tailored for both novices and seasoned developers, it blends learning and fun, testing your knowledge while encouraging growth.
+  constructor(
+    private el: ElementRef,
+    private renderer: Renderer2,
+    private resetFeedbackIconService: ResetFeedbackIconService
+  ) {
+    this.resetIconSubscription = this.resetFeedbackIconService.shouldResetFeedback$.subscribe((shouldReset) => {
+      if (shouldReset) {
+        this.resetIcon();
+      }
+    });
+  }
 
-🛠️ <b>Powered by the Latest in Web Technology</b>
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.option && this.option) {
+      this.option.optionId = this.option.optionId ?? this.index;
+    }
+    if (changes['selectedOption'] || changes['showFeedbackForOption']) {
+      this.updateIcon();
+    }
+  }
 
-Experience the cutting edge of web development:
+  ngOnDestroy(): void {
+    this.resetIconSubscription?.unsubscribe();
+  }
 
-<b>Angular:</b> Dive into dynamic and responsive user interfaces.
+  private updateIcon(): void {
+    this.isAnswered = true;
+  
+    // Check if option or optionId is undefined
+    if (!this.option || this.option.optionId === undefined) {
+      console.error('Option or optionId is undefined', this.option);
+      return;
+    }
 
-<b>TypeScript:</b> Enjoy the robustness of typed JavaScript, ensuring a smooth development experience.
+    if (!this.showFeedbackForOption) {
+      console.error('showFeedbackForOption is undefined');
+      this.showFeedbackForOption = [];
+    }
+  
+    // Handle the case where the optionId might be out of bounds
+    if (this.showFeedbackForOption[this.option.optionId] === undefined) {
+      console.warn(`showFeedbackForOption[${this.option.optionId}] is undefined`);
+      this.showFeedbackForOption[this.option.optionId] = false;
+    }
+  
+    // Check if the option is selected and feedback should be shown
+    const isSelected = this.selectedOption && this.selectedOption.optionId === this.option.optionId;
+    const showFeedback = this.showFeedbackForOption[this.option.optionId];
+  
+    if (isSelected && showFeedback) {
+      const icon = this.option.correct ? '✔️' : '✖️';
+      this.renderer.setProperty(this.el.nativeElement, 'innerText', icon);
+    } else {
+      this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
+    }
+  }
 
-<b>RxJS:</b> Harness the power of reactive programming to manage data streams and propagation of change.
-
-<b>Angular Material:</b> Utilizing modern UI components that elevate the app's aesthetics and usability.
-
-🌟 <b>What's in Store</b>
-
-The <a href="[https://stackblitz.com/edit/angular-10-quiz-app](https://angular-10-quiz-app.stackblitz.io/)">Angular Quiz App</a> is a living project, evolving with new features and updates to enrich your learning journey. Stay tuned for the latest enhancements that promise to keep the experience engaging and educational.
-
-🎉 <b>Dive In!</b>
-
-Start your adventure by visiting the Angular Codelab website. Click below and take the first step towards Angular mastery:
-
-🔗 <b><a href="https://www.codelab.fun">codelab.fun</a></b>
-
-Prepare to elevate your Angular skills, enjoy every challenge, and most importantly — have fun along the way!
-
-Tags: #angular #quizapp #learning #typescript #rxjs #angularmaterial
+  public resetIcon(): void {
+    this.isAnswered = false;
+    this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
+  }
+}
