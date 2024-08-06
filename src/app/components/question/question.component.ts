@@ -25,7 +25,7 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
 import { TimerService } from '../../shared/services/timer.service';
-  
+
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
@@ -997,12 +997,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       }
 
-      // const explanationText = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-      // this.updateExplanationText(explanationText);
-
       this.cdRef.detectChanges();
 
       this.processCurrentQuestionState(currentQuestion, option, index);
+      
       const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
       this.correctMessage = super.setCorrectMessage(correctOptions);
 
