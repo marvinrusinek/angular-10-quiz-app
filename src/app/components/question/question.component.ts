@@ -33,7 +33,6 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class QuizQuestionComponent extends BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit
 {
-  @ViewChild(BaseQuestionComponent) baseQuestionComponent: BaseQuestionComponent;
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() selectionChanged: EventEmitter<{
@@ -288,10 +287,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   async ngAfterViewInit(): Promise<void> {
     await super.ngAfterViewInit();
-
-    this.baseQuestionComponent.optionClicked.subscribe(({ option, index }) => {
-      this.handleOptionClicked(option, index);
-    });
   }
   
   ngOnChanges(changes: SimpleChanges): void {
