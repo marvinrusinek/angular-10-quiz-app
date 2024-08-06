@@ -17,15 +17,15 @@ export class HighlightOptionDirective {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    //console.log('ngOnChanges called with changes:', changes);
-    //if (changes['option']) {
-    //  console.log('Option change detected:', changes['option'].currentValue);
-    //}
-    //if (this.option) {
+    console.log('ngOnChanges called with changes:', changes);
+    if (changes['option']) {
+      console.log('Option change detected:', changes['option'].currentValue);
+    }
+    if (this.option) {
       this.updateHighlight();
-    //} else {
-    //  console.error('Option is undefined in ngOnChanges');
-    //}
+    } else {
+      console.error('Option is undefined in ngOnChanges');
+    }
   }
 
   @HostListener('click') onClick(): void {
