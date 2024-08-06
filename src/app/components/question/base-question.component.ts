@@ -26,14 +26,14 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   @Input() showFeedback = false;
   @Input() shouldResetBackground = false;
   @Input() type: 'single' | 'multiple' = 'single';
-  questionForm: FormGroup;
+  currentQuestionSubscription: Subscription;
+  explanationToDisplay: string;
+  feedback = '';
   multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  optionsInitialized = false;
+  questionForm: FormGroup;
   selectedOption!: SelectedOption;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
-  optionsInitialized = false;
-  feedback = '';
-  explanationToDisplay: string;
-  currentQuestionSubscription: Subscription;
 
   constructor(
     protected fb: FormBuilder,
