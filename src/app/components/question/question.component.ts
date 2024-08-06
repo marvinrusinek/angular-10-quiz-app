@@ -287,11 +287,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   async ngAfterViewInit(): Promise<void> {
     await super.ngAfterViewInit();
-
-    // Subscribe to the event emitted by BaseQuestionComponent
-    this.optionClicked.subscribe(({ option, index }) => {
-      this.handleOptionClicked(option, index);
-    });
   }
   
   ngOnChanges(changes: SimpleChanges): void {
