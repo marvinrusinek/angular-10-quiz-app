@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentFactoryResolver, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, Type } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentFactoryResolver, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, Type, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
@@ -33,6 +33,7 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class QuizQuestionComponent extends BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit
 {
+  @ViewChild(BaseQuestionComponent) baseQuestionComponent: BaseQuestionComponent;
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() selectionChanged: EventEmitter<{
@@ -287,6 +288,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   async ngAfterViewInit(): Promise<void> {
     await super.ngAfterViewInit();
+
+    this.baseQuestionComponent.optionClicked.subscribe(({ option, index }) => {
+      this.onOptionClicked(option, index);
+    });
   }
   
   ngOnChanges(changes: SimpleChanges): void {
