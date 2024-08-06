@@ -969,7 +969,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       ];
       this.selectedOption = { ...option, optionId: index + 1 };
       this.showFeedback = true;
-      this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
+      // this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
+      this.showFeedbackForOption = { ...this.showFeedbackForOption, [option.optionId]: true };
       this.updateFeedbackForOption(option);
 
       this.correctMessage = super.setCorrectMessage(this.optionsToDisplay);
