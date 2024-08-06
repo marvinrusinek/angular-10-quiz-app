@@ -20,7 +20,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
   dynamicComponentContainer!: ViewContainerRef;
   @Output() explanationToDisplayChange = new EventEmitter<string>();
-  @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number }>();
   @Input() question!: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
   @Input() correctMessage = '';
@@ -142,8 +141,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       } else {
         console.error('QuizQuestionComponent is not available');
       }
-      //this.optionClicked.emit({ option, index });
-      //this.selectedOption = option;
   
       if (!this.showFeedbackForOption) {
         console.error('showFeedbackForOption is not initialized');
