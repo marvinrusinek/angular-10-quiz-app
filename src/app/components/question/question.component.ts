@@ -306,7 +306,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       if (this.currentQuestion) {
         this.getCorrectAnswers();
         this.correctMessage = super.setCorrectMessage(
-          this.quizService.correctAnswerOptions
+          this.quizService.correctAnswerOptions, this.optionsToDisplay
         );
       } else {
         console.warn(
