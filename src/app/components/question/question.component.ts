@@ -964,6 +964,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     this.showFeedbackForOption[index] = true;
     try {
+      if (!option) {
+        console.error('Option is undefined');
+        return;
+      }
+
       this.selectedOptions = [
         { ...option, questionIndex: this.currentQuestionIndex },
       ];
@@ -1000,7 +1005,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.cdRef.detectChanges();
 
       this.processCurrentQuestionState(currentQuestion, option, index);
-      
+
       const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
       this.correctMessage = super.setCorrectMessage(correctOptions);
 
