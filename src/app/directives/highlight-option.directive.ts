@@ -48,4 +48,4 @@ export class HighlightOptionDirective {
     this.isAnswered = false;
     this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
   }
-}
+} 
