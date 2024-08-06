@@ -32,7 +32,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
   feedback = '';
-  explanationText: string;
   explanationToDisplay: string;
   currentQuestionSubscription: Subscription;
 
@@ -163,14 +162,14 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.correctMessage = this.setCorrectMessage(correctOptions);
   
       // Set the final feedback message
-      if (correctOptions.length === 0) {
+      /* if (correctOptions.length === 0) {
         this.feedback = 'No correct answers found for the current question.';
       } else if (correctOptions.some(opt => opt.optionId === option.optionId)) {
         this.feedback = "You're right! ";
       } else {
         this.feedback = "That's wrong. ";
       }
-      this.feedback += this.correctMessage;
+      this.feedback += this.correctMessage; */
 
       console.log('Calling formatExplanationText');
       console.log("ETS", this.explanationTextService); // Check if the service is properly instantiated
@@ -181,7 +180,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
           .subscribe({
             next: ({ explanation }) => {
               console.log('Emitting explanation:::', explanation);
-              this.explanationText = explanation;
               if (this.explanationToDisplay !== explanation) {
                 this.explanationToDisplay = explanation; // Set explanation to display
                 this.explanationToDisplayChange.emit(this.explanationToDisplay);
