@@ -290,7 +290,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     await super.ngAfterViewInit();
 
     this.baseQuestionComponent.optionClicked.subscribe(({ option, index }) => {
-      this.onOptionClicked(option, index);
+      this.handleOptionClicked(option, index);
     });
   }
   
