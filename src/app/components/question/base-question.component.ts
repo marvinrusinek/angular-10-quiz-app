@@ -139,13 +139,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
-      /* if (this.quizQuestionComponent) {
+      if (this.quizQuestionComponent) {
         this.quizQuestionComponent.onOptionClicked(option, index);
       } else {
         console.error('QuizQuestionComponent is not available');
-      } */
-      // Emit the event for external handling
-      this.optionClicked.emit({ option, index });
+      }
   
       if (!this.showFeedbackForOption) {
         console.error('showFeedbackForOption is not initialized');
