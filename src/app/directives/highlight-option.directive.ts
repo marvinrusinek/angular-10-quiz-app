@@ -16,31 +16,28 @@ export class HighlightOptionDirective {
     private renderer: Renderer2) {
   }
 
-  @HostListener('click') onClick(): void {
-    this.isAnswered = true;
-    this.applyHighlight();
-    this.resetBackground.emit(true);
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('ngOnChanges called with changes:', changes);
+    this.updateHighlight();
   }
 
-  private applyHighlight(): void {
-    if (this.isAnswered) {
-      // Set the color based on whether the answer is correct
-      const color = this.isCorrect ? '#43f756' : '#ff0000';
-  
-      // Apply background color to the element
-      this.renderer.setStyle(
-        this.el.nativeElement,
-        'background-color',
-        color
-      );
-    } else {
-      // Reset the background color to white when not answered
-      this.renderer.setStyle(
-        this.el.nativeElement,
-        'background-color',
-        'white'
-      );
+  @HostListener('click') onClick(): void {
+    console.log('onClick called for option:', this.option);
+    this.updateHighlight(true);
+  }
+
+  private updateHighlight(isAnswered: boolean = false): void {
+    if (!this.option) {
+      console.error('Option is undefined');
+      return;
     }
+
+    const optionId = this.option.optionId;
+    const shouldHighlight = isAnswered || (this.showFeedbackForOption && this.showFeedbackForOption[optionId]);
+    const color = shouldHighlight ? (this.isCorrect ? '#43f756' : '#ff0000') : 'white';
+
+    console.log(`Applying color ${color} to option ${optionId}`);
+    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
 
   // Reset the state in-between questions
