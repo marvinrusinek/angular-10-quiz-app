@@ -17,6 +17,7 @@ export class HighlightOptionDirective {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log('ngOnChanges called with changes:', changes);
     if (this.option) {
       this.updateHighlight();
     } else {
@@ -25,6 +26,7 @@ export class HighlightOptionDirective {
   }
 
   @HostListener('click') onClick(): void {
+    console.log('onClick called for option:', this.option);
     if (this.option) {
       this.updateHighlight(true);
     } else {
@@ -42,6 +44,7 @@ export class HighlightOptionDirective {
     const shouldHighlight = isAnswered || (this.showFeedbackForOption && this.showFeedbackForOption[optionId]);
     const color = shouldHighlight ? (this.isCorrect ? '#43f756' : '#ff0000') : 'white';
 
+    console.log(`Applying color ${color} to option ${optionId}`);
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
 
