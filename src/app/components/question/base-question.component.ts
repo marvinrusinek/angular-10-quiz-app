@@ -20,20 +20,21 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
   dynamicComponentContainer!: ViewContainerRef;
   @Output() explanationToDisplayChange = new EventEmitter<string>();
+  @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number }>();
   @Input() question!: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
   @Input() correctMessage = '';
   @Input() showFeedback = false;
   @Input() shouldResetBackground = false;
   @Input() type: 'single' | 'multiple' = 'single';
-  currentQuestionSubscription: Subscription;
-  explanationToDisplay: string;
-  feedback = '';
-  multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  optionsInitialized = false;
   questionForm: FormGroup;
-  selectedOption!: SelectedOption | null = null;
+  multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  selectedOption!: SelectedOption;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
+  optionsInitialized = false;
+  feedback = '';
+  explanationToDisplay: string;
+  currentQuestionSubscription: Subscription;
 
   constructor(
     protected fb: FormBuilder,
@@ -61,6 +62,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.question = changes.question.currentValue;
       this.quizStateService.setCurrentQuestion(this.question);
       this.initializeOptions();
+      this.optionsInitialized = true;
     } else if (changes.question) {
       console.error('ngOnChanges - Received undefined question:', changes.question);
     }
@@ -88,6 +90,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     if (this.question) {
       this.initializeOptions();
       this.optionsInitialized = true;
+      this.quizStateService.setCurrentQuestion(this.question);
     } else {
       console.error('Initial question input is undefined in ngOnInit');
     }
@@ -195,14 +198,14 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   isSelectedOption(option: Option): boolean {
     return this.selectedOptionService.isSelectedOption(option);
   }
-
+  
   setCorrectMessage(correctOptions: Option[]): string {  
     if (!correctOptions || correctOptions.length === 0) {
       return 'No correct answers found for the current question.';
     }
   
     const correctOptionIndices = correctOptions.map((correctOption) => {
-      const originalIndex = optionsToDisplay.findIndex(
+      const originalIndex = this.optionsToDisplay.findIndex(
         (option) => option.text.trim() === correctOption.text.trim()
       );
       return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 to make it 1-based index for display
@@ -225,5 +228,5 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
     return correctMessage;
-  }
+  }  
 }
