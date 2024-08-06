@@ -16,13 +16,13 @@ export class HighlightOptionDirective {
     private renderer: Renderer2) {
   }
 
-  @HostListener('click') onClick() {
+  @HostListener('click') onClick(): void {
     this.isAnswered = true;
     this.applyHighlight();
     this.resetBackground.emit(true);
   }
 
-  private applyHighlight() {
+  private applyHighlight(): void {
     if (this.isAnswered) {
       // Set the color based on whether the answer is correct
       const color = this.isCorrect ? '#43f756' : '#ff0000';
