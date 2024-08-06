@@ -54,9 +54,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   ngOnInit(): void {
     this.initializeQuestion();
     this.subscribeToQuestionChanges();
-    if (this.question) {
-      this.quizStateService.setCurrentQuestion(this.question);
-    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -92,6 +89,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     if (this.question) {
       this.initializeOptions();
       this.optionsInitialized = true;
+      this.quizStateService.setCurrentQuestion(this.question);
     } else {
       console.error('Initial question input is undefined in ngOnInit');
     }
