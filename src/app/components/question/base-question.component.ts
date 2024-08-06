@@ -160,16 +160,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       // Pass the correct options to setCorrectMessage
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
       this.correctMessage = this.setCorrectMessage(correctOptions);
-  
-      // Set the final feedback message
-      /* if (correctOptions.length === 0) {
-        this.feedback = 'No correct answers found for the current question.';
-      } else if (correctOptions.some(opt => opt.optionId === option.optionId)) {
-        this.feedback = "You're right! ";
-      } else {
-        this.feedback = "That's wrong. ";
-      }
-      this.feedback += this.correctMessage; */
 
       console.log('Calling formatExplanationText');
       console.log("ETS", this.explanationTextService); // Check if the service is properly instantiated
