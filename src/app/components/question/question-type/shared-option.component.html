@@ -11,6 +11,8 @@
           [checked]="isSelectedOption(option)"
           (click)="handleOptionClick(option, idx)"
           [isCorrect]="option.correct"
+          [selectedOption]="selectedOption"
+          [option]="option"
           [disabled]="option.selected">
           <div class="option-content">
             <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>
@@ -33,6 +35,8 @@
           [checked]="isSelectedOption(option)"
           (click)="handleOptionClick(option, idx)"
           [isCorrect]="option.correct"
+          [selectedOption]="selectedOption"
+          [option]="option"
           [disabled]="option.selected">
           <div class="option-content">
             <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>

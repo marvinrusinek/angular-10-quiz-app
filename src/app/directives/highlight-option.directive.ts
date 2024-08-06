@@ -17,18 +17,29 @@ export class HighlightOptionDirective {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('ngOnChanges called with changes:', changes);
-    this.updateHighlight();
+    //console.log('ngOnChanges called with changes:', changes);
+    //if (changes['option']) {
+    //  console.log('Option change detected:', changes['option'].currentValue);
+    //}
+    //if (this.option) {
+      this.updateHighlight();
+    //} else {
+    //  console.error('Option is undefined in ngOnChanges');
+    //}
   }
 
   @HostListener('click') onClick(): void {
     console.log('onClick called for option:', this.option);
-    this.updateHighlight(true);
+    if (this.option) {
+      this.updateHighlight(true);
+    } else {
+      console.error('Option is undefined on click');
+    }
   }
 
   private updateHighlight(isAnswered: boolean = false): void {
     if (!this.option) {
-      console.error('Option is undefined');
+      console.error('Option is undefined in updateHighlight');
       return;
     }
 
