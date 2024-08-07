@@ -32,7 +32,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
 
   loadDynamicComponent(): void {}
 
-  onOptionClicked(option: Option, index: number): void {
+  onOptionClicked(option: SelectedOption, index: number): void {
     super.onOptionClicked(option, index); // Call the inherited method
   }
 }
