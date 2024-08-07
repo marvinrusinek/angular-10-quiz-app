@@ -28,7 +28,15 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
   ) {
-    super(quizQuestionComponent, quizService, selectedOptionService, fb, cdRef);
+    super(
+      fb,
+      dynamicComponentService,
+      explanationTextService,
+      quizService,
+      quizStateService,
+      selectedOptionService,
+      cdRef
+    );
   }
 
   loadDynamicComponent(): void {}
