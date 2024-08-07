@@ -161,8 +161,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.correctMessage = this.setCorrectMessage(correctOptions);
   
       console.log('Calling formatExplanationText');
-      console.log('ExplanationTextService instance:', this.explanationTextService);
-      console.log('Methods on ExplanationTextService:', Object.getOwnPropertyNames(Object.getPrototypeOf(this.explanationTextService)));
+      console.log('ExplanationTextService:', this.explanationTextService);
       console.log('Type of formatExplanationText:', typeof this.explanationTextService.formatExplanationText);
 
       if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {

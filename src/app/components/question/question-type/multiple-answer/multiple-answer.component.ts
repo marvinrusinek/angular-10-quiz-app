@@ -16,6 +16,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
   ]
 })
 export class MultipleAnswerComponent extends BaseQuestionComponent {
+  // @Input() quizQuestionComponent: QuizQuestionComponent;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
 
@@ -27,15 +28,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
   ) {
-    super(
-      fb,
-      dynamicComponentService,
-      explanationTextService,
-      quizService,
-      quizStateService,
-      selectedOptionService,
-      cdRef
-    );
+    super(quizQuestionComponent, quizService, selectedOptionService, fb, cdRef);
   }
 
   loadDynamicComponent(): void {}
