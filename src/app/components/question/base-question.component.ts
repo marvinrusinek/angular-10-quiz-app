@@ -155,19 +155,19 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.showFeedback = true;
       this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
   
-      // Pass the correct options to setCorrectMessage
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
       this.correctMessage = this.setCorrectMessage(correctOptions);
   
       console.log('Calling formatExplanationText');
-      console.log("ETS", this.explanationTextService); // Check if the service is properly instantiated
+      console.log('ExplanationTextService:', this.explanationTextService);
+  
       if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
         this.explanationTextService.formatExplanationText(this.question, this.quizService.currentQuestionIndex)
           .subscribe({
             next: ({ explanation }) => {
-              console.log('Emitting explanation:::', explanation);
+              console.log('Emitting explanation:', explanation);
               if (this.explanationToDisplay !== explanation) {
-                this.explanationToDisplay = explanation; // Set explanation to display
+                this.explanationToDisplay = explanation;
                 this.explanationToDisplayChange.emit(this.explanationToDisplay);
               }
             },
@@ -179,15 +179,13 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         console.error('formatExplanationText is not a function');
       }
   
-      // Set correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
   
       this.cdRef.markForCheck();
     } catch (error) {
-      console.error('An error occurred while processing the option click:::>>', error);
+      console.error('An error occurred while processing the option click:', error);
     }
   }
-  
   
   handleOptionClick(option: SelectedOption, index: number): void {
     this.onOptionClicked(option, index);
