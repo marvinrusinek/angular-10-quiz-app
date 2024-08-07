@@ -45,6 +45,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     protected selectedOptionService: SelectedOptionService,
     protected cdRef: ChangeDetectorRef
   ) {
+    console.log('Constructor - ExplanationTextService:', this.explanationTextService);
     if (!this.fb || typeof this.fb.group !== 'function') {
       console.error('FormBuilder group method is not a function or FormBuilder is not instantiated properly:', this.fb);
     } else {
@@ -53,6 +54,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   ngOnInit(): void {
+    console.log('ngOnInit - ExplanationTextService:', this.explanationTextService);
     this.initializeQuestion();
     this.subscribeToQuestionChanges();
   }
