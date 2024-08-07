@@ -40,7 +40,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
 
   loadDynamicComponent(): void {}
 
-  protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    await super.onOptionClicked(option, index); // call the inherited method
+  onOptionClicked(option: Option, index: number): void {
+    super.onOptionClicked(option, index); // Call the inherited method
   }
 }
