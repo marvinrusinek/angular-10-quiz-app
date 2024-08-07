@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, forwardRef, Inject, Input, Optional } fro
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
-import { Option } from '../../../../shared/models/Option.model';
+import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { QuizQuestionComponent } from '../../../../components/question/question.component';
@@ -16,7 +16,6 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
   ]
 })
 export class MultipleAnswerComponent extends BaseQuestionComponent {
-  // @Input() quizQuestionComponent: QuizQuestionComponent;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
 
@@ -41,7 +40,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
 
   loadDynamicComponent(): void {}
 
-  onOptionClicked(option: Option, index: number): void {
-    super.onOptionClicked(option, index); // Call the inherited method
+  protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+    await super.onOptionClicked(option, index); // call the inherited method
   }
 }

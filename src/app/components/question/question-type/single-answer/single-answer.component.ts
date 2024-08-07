@@ -16,7 +16,6 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
   ]
 })
 export class SingleAnswerComponent extends BaseQuestionComponent {
-  // @Input() quizQuestionComponent: QuizQuestionComponent;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
 
@@ -42,6 +41,6 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
   loadDynamicComponent(): void {}
 
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    await super.onOptionClicked(option, index);
+    await super.onOptionClicked(option, index); // call the inherited method
   }
 }
