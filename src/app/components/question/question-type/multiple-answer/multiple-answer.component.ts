@@ -22,18 +22,13 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
   constructor(
     @Optional() @Inject(forwardRef(() => QuizQuestionComponent))
     protected quizQuestionComponent: QuizQuestionComponent,
-    fb: FormBuilder,
-    dynamicComponentService: DynamicComponentService,
-    explanationTextService: ExplanationTextService,
-    quizService: QuizService,
-    quizStateService: QuizStateService,
-    selectedOptionService: SelectedOptionService,
-    cdRef: ChangeDetectorRef
+    protected quizService: QuizService,
+    protected selectedOptionService: SelectedOptionService,
+    protected fb: FormBuilder,
+    protected cdRef: ChangeDetectorRef
   ) {
-    // super(quizQuestionComponent, quizService, selectedOptionService, fb, cdRef);
-    super(fb, dynamicComponentService, explanationTextService, quizService, quizStateService, selectedOptionService, cdRef);
+    super(quizQuestionComponent, quizService, selectedOptionService, fb, cdRef);
   }
-
 
   loadDynamicComponent(): void {}
 
