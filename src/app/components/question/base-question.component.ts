@@ -150,7 +150,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         this.showFeedbackForOption = {};
       }
   
-      // const displayIndex = index + 1; // might need this for highlighting the first option
       this.showFeedbackForOption[option.optionId] = true;
       this.selectedOption = option;
       this.showFeedback = true;
@@ -159,12 +158,10 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       // Pass the correct options to setCorrectMessage
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
       this.correctMessage = this.setCorrectMessage(correctOptions);
-
+  
       console.log('Calling formatExplanationText');
       console.log("ETS", this.explanationTextService); // Check if the service is properly instantiated
-      console.log("ETS FET exists:", this.explanationTextService.formatExplanationText); // Check if the method exists
-      if (typeof this.explanationTextService.formatExplanationText !== 'function') {
-        console.log('formatExplanationText is recognized as a function');
+      if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
         this.explanationTextService.formatExplanationText(this.question, this.quizService.currentQuestionIndex)
           .subscribe({
             next: ({ explanation }) => {
@@ -181,7 +178,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       } else {
         console.error('formatExplanationText is not a function');
       }
-
+  
       // Set correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
   
@@ -190,6 +187,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       console.error('An error occurred while processing the option click:::>>', error);
     }
   }
+  
   
   handleOptionClick(option: SelectedOption, index: number): void {
     this.onOptionClicked(option, index);
