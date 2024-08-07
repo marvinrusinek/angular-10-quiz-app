@@ -22,12 +22,16 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
   constructor(
     @Optional() @Inject(forwardRef(() => QuizQuestionComponent))
     protected quizQuestionComponent: QuizQuestionComponent,
-    protected quizService: QuizService,
-    protected selectedOptionService: SelectedOptionService,
-    protected fb: FormBuilder,
-    protected cdRef: ChangeDetectorRef
+    fb: FormBuilder,
+    dynamicComponentService: DynamicComponentService,
+    explanationTextService: ExplanationTextService,
+    quizService: QuizService,
+    quizStateService: QuizStateService,
+    selectedOptionService: SelectedOptionService,
+    cdRef: ChangeDetectorRef
   ) {
-    super(quizQuestionComponent, quizService, selectedOptionService, fb, cdRef);
+    // super(quizQuestionComponent, quizService, selectedOptionService, fb, cdRef);
+    super(fb, dynamicComponentService, explanationTextService, quizService, quizStateService, selectedOptionService, cdRef);
   }
 
   loadDynamicComponent(): void {}
