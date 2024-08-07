@@ -160,7 +160,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   
       console.log('Calling formatExplanationText');
       console.log('ExplanationTextService:', this.explanationTextService);
-  
+      console.log('Type of formatExplanationText:', typeof this.explanationTextService.formatExplanationText);
+
       if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
         this.explanationTextService.formatExplanationText(this.question, this.quizService.currentQuestionIndex)
           .subscribe({
