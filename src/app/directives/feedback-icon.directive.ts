@@ -1,4 +1,29 @@
-import { Directive, ElementRef, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, Input, Renderer2, OnChanges } from '@angular/core';
+
+@Directive({
+  selector: '[appFeedbackIcon]'
+})
+export class FeedbackIconDirective implements OnChanges {
+  @Input() optionId: number;
+  @Input() showFeedbackForOption: { [key: number]: boolean };
+
+  constructor(private el: ElementRef, private renderer: Renderer2) {}
+
+  ngOnChanges(): void {
+    this.applyFeedback();
+  }
+
+  private applyFeedback(): void {
+    if (this.showFeedbackForOption && this.showFeedbackForOption[this.optionId]) {
+      this.renderer.setProperty(this.el.nativeElement, 'innerHTML', '✓'); // Add checkmark for feedback
+    } else {
+      this.renderer.setProperty(this.el.nativeElement, 'innerHTML', ''); // Remove feedback if not applicable
+    }
+  }
+}
+
+
+/* import { Directive, ElementRef, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { Option } from '../shared/models/Option.model';
@@ -77,4 +102,4 @@ export class FeedbackIconDirective implements OnChanges {
     this.isAnswered = false;
     this.renderer.setProperty(this.el.nativeElement, 'innerText', '');
   }
-}
+} */

@@ -1,4 +1,21 @@
-import { Directive, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, HostListener, Input, Renderer2 } from '@angular/core';
+
+@Directive({
+  selector: '[appHighlightOption]'
+})
+export class HighlightOptionDirective {
+  @Input() isCorrect: boolean;
+
+  constructor(private el: ElementRef, private renderer: Renderer2) {}
+
+  @HostListener('click') onClick(): void {
+    const color = this.isCorrect ? '#43f756' : '#ff0000';
+    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+  }
+}
+
+
+/* import { Directive, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 
@@ -63,4 +80,4 @@ export class HighlightOptionDirective {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
     this.resetBackground.emit(true); // Emit event to notify the reset
   }
-} 
+} */
