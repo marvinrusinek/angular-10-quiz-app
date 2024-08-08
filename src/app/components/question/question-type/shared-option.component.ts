@@ -27,6 +27,13 @@ export class SharedOptionComponent implements OnInit {
     }
   }
 
+  getFeedbackIcon(option: any, idx: number): string {
+    if (this.showFeedbackForOption[idx]) {
+      return option.correct ? '✓' : '✗';
+    }
+    return '';
+  }
+
   isSelectedOption(option: Option): boolean {
     return this.selectedOption && this.selectedOption.optionId === option.optionId;
   }

@@ -16,13 +16,7 @@
           [disabled]="option.selected">
           <div class="option-content">
             <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>
-            <span class="icon"
-              appFeedbackIcon
-              [option]="option"
-              [index]="idx"
-              [selectedOption]="selectedOption"
-              [showFeedbackForOption]="showFeedbackForOption">
-            </span>
+            <span class="feedback-icon">{{ getFeedbackIcon(option, idx) }}</span>
           </div>
         </mat-checkbox>
         
@@ -40,13 +34,7 @@
           [disabled]="option.selected">
           <div class="option-content">
             <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>
-            <span class="icon"
-              appFeedbackIcon
-              [option]="option"
-              [index]="idx"
-              [selectedOption]="selectedOption"
-              [showFeedbackForOption]="showFeedbackForOption">
-            </span>
+            <span class="feedback-icon">{{ getFeedbackIcon(option, idx) }}</span>
           </div>
         </mat-radio-button>
       </ng-container>
