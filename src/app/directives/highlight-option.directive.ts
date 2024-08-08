@@ -1,4 +1,4 @@
-import { Directive, ElementRef, EventEmitter, HostListener, Input, Output, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 
@@ -9,7 +9,9 @@ export class HighlightOptionDirective {
   @Output() resetBackground = new EventEmitter<boolean>();
   @Input() option: Option;
   @Input() isCorrect: boolean;
+  @Input() showFeedbackForOption: { [key: number]: boolean }; 
   private isAnswered = false;
+  
 
   constructor(
     private el: ElementRef, 
@@ -26,14 +28,15 @@ export class HighlightOptionDirective {
   }
 
   @HostListener('click') onClick(): void {
-    console.log('onClick called for option:', this.option);
+    /* console.log('onClick called for option:', this.option);
     if (this.option) {
       this.isAnswered = true; // Mark as answered
       console.log('Option is marked as answered:', this.isAnswered);
       this.updateHighlight(true); // Update the highlight with answered state
     } else {
       console.error('Option is undefined on click');
-    }
+    } */
+    this.updateHighlight(true);
   }  
 
   private updateHighlight(isAnswered: boolean = false): void {
