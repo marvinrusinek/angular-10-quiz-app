@@ -1,4 +1,4 @@
-import { Directive, ElementRef, HostListener, Input, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, HostListener, Input, Renderer2, ChangeDetectorRef } from '@angular/core';
 
 @Directive({
   selector: '[appHighlightFeedback]'
@@ -8,15 +8,22 @@ export class HighlightFeedbackDirective {
   @Input() optionId: number;
   @Input() showFeedbackForOption: { [key: number]: boolean };
 
-  constructor(private el: ElementRef, private renderer: Renderer2) {}
+  constructor(private el: ElementRef, private renderer: Renderer2, private cdRef: ChangeDetectorRef) {}
 
   @HostListener('click') onClick(): void {
     console.log('HighlightFeedbackDirective onClick triggered for option ID:', this.optionId);
+    this.applyHighlight();
+    this.applyFeedback();
+    this.cdRef.detectChanges(); // Ensure Angular change detection
+  }
+
+  private applyHighlight(): void {
     const color = this.isCorrect ? '#43f756' : '#ff0000';
     this.el.nativeElement.style.backgroundColor = color;
     console.log('HighlightFeedbackDirective color applied:', color);
+  }
 
-    // Display feedback icon
+  private applyFeedback(): void {
     if (this.showFeedbackForOption && this.showFeedbackForOption[this.optionId]) {
       const iconElement = this.el.nativeElement.querySelector('.feedback-icon');
       if (iconElement) {
