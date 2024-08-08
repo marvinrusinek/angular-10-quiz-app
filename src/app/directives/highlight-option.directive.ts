@@ -28,11 +28,12 @@ export class HighlightOptionDirective {
   @HostListener('click') onClick(): void {
     console.log('onClick called for option:', this.option);
     if (this.option) {
-      this.updateHighlight(true);
+      this.isAnswered = true; // Mark as answered
+      this.updateHighlight(true); // Update the highlight with answered state
     } else {
       console.error('Option is undefined on click');
     }
-  }
+  }  
 
   private updateHighlight(isAnswered: boolean = false): void {
     if (!this.option) {
@@ -52,5 +53,6 @@ export class HighlightOptionDirective {
   public reset(): void {
     this.isAnswered = false;
     this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
+    this.resetBackground.emit(true); // Emit event to notify the reset
   }
 } 
