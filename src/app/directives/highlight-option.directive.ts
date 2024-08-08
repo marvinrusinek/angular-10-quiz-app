@@ -9,10 +9,13 @@ export class HighlightOptionDirective {
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
   @HostListener('click') onClick(): void {
+    console.log('HighlightOptionDirective onClick triggered');
     const color = this.isCorrect ? '#43f756' : '#ff0000';
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+    console.log('Highlight color applied:', color);
   }
 }
+
 
 
 /* import { Directive, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';

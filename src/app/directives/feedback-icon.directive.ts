@@ -10,17 +10,21 @@ export class FeedbackIconDirective implements OnChanges {
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
   ngOnChanges(): void {
+    console.log('FeedbackIconDirective ngOnChanges called for option ID:', this.optionId);
     this.applyFeedback();
   }
 
   private applyFeedback(): void {
     if (this.showFeedbackForOption && this.showFeedbackForOption[this.optionId]) {
       this.renderer.setProperty(this.el.nativeElement, 'innerHTML', '✓'); // Add checkmark for feedback
+      console.log('Feedback icon applied for option ID:', this.optionId);
     } else {
       this.renderer.setProperty(this.el.nativeElement, 'innerHTML', ''); // Remove feedback if not applicable
+      console.log('No feedback to show for option ID:', this.optionId);
     }
   }
 }
+
 
 
 /* import { Directive, ElementRef, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
