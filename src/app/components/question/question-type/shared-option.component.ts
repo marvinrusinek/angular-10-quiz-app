@@ -28,10 +28,10 @@ export class SharedOptionComponent implements OnInit {
   }
 
   getFeedbackIcon(option: any, idx: number): string {
-    if (this.showFeedbackForOption[idx]) {
-      return option.correct ? '✓' : '✗';
-    }
-    return '';
+    const feedbackVisible = this.showFeedbackForOption[idx];
+    const icon = feedbackVisible ? (option.correct ? '✓' : '✗') : '';
+    console.log(`getFeedbackIcon called for option ID: ${idx}, feedbackVisible: ${feedbackVisible}, returning icon: "${icon}"`);
+    return icon;
   }
 
   isSelectedOption(option: Option): boolean {
