@@ -16,7 +16,9 @@
           [disabled]="option.selected">
           <div class="option-content">
             <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>
-            <span class="feedback-icon">{{ getFeedbackIcon(option, idx) }}</span>
+            <mat-icon *ngIf="showFeedbackForOption[idx]" [ngClass]="{'correct-icon': option.correct, 'incorrect-icon': !option.correct}">
+              {{ option.correct ? 'check_circle' : 'cancel' }}
+            </mat-icon>
           </div>
         </mat-checkbox>
         
@@ -34,7 +36,9 @@
           [disabled]="option.selected">
           <div class="option-content">
             <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>
-            <span class="feedback-icon">{{ getFeedbackIcon(option, idx) }}</span>
+            <mat-icon *ngIf="showFeedbackForOption[idx]" [ngClass]="{'correct-icon': option.correct, 'incorrect-icon': !option.correct}">
+              {{ option.correct ? 'check_circle' : 'cancel' }}
+            </mat-icon>
           </div>
         </mat-radio-button>
       </ng-container>
