@@ -42,7 +42,7 @@ export class HighlightOptionDirective {
     }
 
     const optionId = this.option.optionId;
-    const shouldHighlight = isAnswered || (this.showFeedbackForOption && this.showFeedbackForOption[optionId]);
+    const shouldHighlight = isAnswered || this.isAnswered || (this.showFeedbackForOption && this.showFeedbackForOption[optionId]);
     const color = shouldHighlight ? (this.isCorrect ? '#43f756' : '#ff0000') : 'white';
 
     console.log(`Applying color ${color} to option ${optionId}`);
