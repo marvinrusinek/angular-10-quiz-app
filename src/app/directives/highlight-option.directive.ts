@@ -49,6 +49,10 @@ export class HighlightOptionDirective {
 
     console.log(`Applying color ${color} to option ${optionId}`);
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+
+    // Debug: Log the current background color
+    const currentColor = window.getComputedStyle(this.el.nativeElement).backgroundColor;
+    console.log(`Current background color of option ${optionId}: ${currentColor}`);
   }
 
   // Reset the state in-between questions
