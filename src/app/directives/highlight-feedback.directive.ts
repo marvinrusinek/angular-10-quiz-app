@@ -24,12 +24,17 @@ export class HighlightFeedbackDirective {
   }
 
   private applyFeedback(): void {
+    console.log('Applying feedback for option ID:', this.optionId);
     if (this.showFeedbackForOption && this.showFeedbackForOption[this.optionId]) {
       const iconElement = this.el.nativeElement.querySelector('.feedback-icon');
       if (iconElement) {
         this.renderer.setProperty(iconElement, 'innerHTML', '✓'); // Add checkmark for feedback
-        console.log('HighlightFeedbackDirective feedback icon applied for option ID:', this.optionId);
+        console.log('Feedback icon applied for option ID:', this.optionId);
+      } else {
+        console.error('Feedback icon element not found for option ID:', this.optionId);
       }
+    } else {
+      console.log('No feedback to show for option ID:', this.optionId);
     }
   }
 }
