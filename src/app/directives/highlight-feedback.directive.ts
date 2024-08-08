@@ -18,8 +18,11 @@ export class HighlightFeedbackDirective {
 
     // Display feedback icon
     if (this.showFeedbackForOption && this.showFeedbackForOption[this.optionId]) {
-      this.renderer.setProperty(this.el.nativeElement, 'innerHTML', this.el.nativeElement.innerHTML + ' ✓'); // Add checkmark for feedback
-      console.log('HighlightFeedbackDirective feedback icon applied for option ID:', this.optionId);
+      const iconElement = this.el.nativeElement.querySelector('.feedback-icon');
+      if (iconElement) {
+        this.renderer.setProperty(iconElement, 'innerHTML', '✓'); // Add checkmark for feedback
+        console.log('HighlightFeedbackDirective feedback icon applied for option ID:', this.optionId);
+      }
     }
   }
 }
