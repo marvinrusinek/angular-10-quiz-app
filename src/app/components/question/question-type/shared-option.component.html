@@ -1,4 +1,4 @@
-<!--<ng-container *ngIf="optionsToDisplay && optionsToDisplay.length > 0; else noOptions">
+<ng-container *ngIf="optionsToDisplay && optionsToDisplay.length > 0; else noOptions">
   <div *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption">
     <label class="options">
       <ng-container [ngSwitch]="type">
@@ -45,60 +45,6 @@
               [option]="option"
               [index]="idx"
               [selectedOption]="selectedOption"
-              [showFeedbackForOption]="showFeedbackForOption">
-            </span>
-          </div>
-        </mat-radio-button>
-      </ng-container>
-      
-      <codelab-quiz-feedback
-        *ngIf="showFeedback && selectedOption === option"
-        [question]="currentQuestion"
-        [selectedOption]="selectedOption"
-        [correctMessage]="correctMessage"
-        [showFeedback]="showFeedback"
-        [feedback]="feedback"
-        [options]="data?.options">
-      </codelab-quiz-feedback>
-    </label>
-  </div>
-</ng-container>
-
-<ng-template #noOptions>
-  <span>No options available</span>
-</ng-template>-->
-
-<ng-container *ngIf="optionsToDisplay && optionsToDisplay.length > 0; else noOptions">
-  <div *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption">
-    <label class="options">
-      <ng-container [ngSwitch]="type">
-        <mat-checkbox *ngSwitchCase="'multiple'"
-          appHighlightOption
-          [isCorrect]="option.correct"
-          (click)="handleOptionClick(option, idx)"
-          [checked]="isSelectedOption(option)"
-          [disabled]="option.selected">
-          <div class="option-content">
-            <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>
-            <span class="icon"
-              appFeedbackIcon
-              [optionId]="idx"
-              [showFeedbackForOption]="showFeedbackForOption">
-            </span>
-          </div>
-        </mat-checkbox>
-        
-        <mat-radio-button *ngSwitchCase="'single'"
-          appHighlightOption
-          [isCorrect]="option.correct"
-          (click)="handleOptionClick(option, idx)"
-          [checked]="isSelectedOption(option)"
-          [disabled]="option.selected">
-          <div class="option-content">
-            <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>
-            <span class="icon"
-              appFeedbackIcon
-              [optionId]="idx"
               [showFeedbackForOption]="showFeedbackForOption">
             </span>
           </div>
