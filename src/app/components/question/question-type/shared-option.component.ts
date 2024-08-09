@@ -20,7 +20,8 @@ export class SharedOptionComponent implements OnInit {
   @Input() correctMessage: string;
   @Input() showFeedback: boolean;
   @Input() shouldResetBackground = false;
-  optionIcon: string;
+  iconName: string;
+  iconClass: string;
 
   ngOnInit(): void {
     if (!this.showFeedbackForOption) {
@@ -60,7 +61,9 @@ export class SharedOptionComponent implements OnInit {
     this.selectedOption = option;
     this.optionClicked.emit({ option, index });
     this.showFeedbackForOption[idx] = true;
-    this.optionClass[idx] = option.correct ? 'correct-icon' : 'incorrect-icon'; // Set the appropriate class based on correctness
+    // this.optionClass[idx] = option.correct ? 'correct-icon' : 'incorrect-icon'; // Set the appropriate class based on correctness
+    this.iconName = option.correct ? 'check' : 'close'; // Store the icon name in a variable
+    this.iconClass = option.correct ? 'correct-icon' : 'incorrect-icon'; // Store the icon class in a variable
   }
 
   trackByOption(index: number, item: Option): number {
