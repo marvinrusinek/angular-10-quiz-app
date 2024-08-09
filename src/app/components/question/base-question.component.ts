@@ -57,8 +57,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   ngOnInit(): void {
     console.log('ngOnInit - ExplanationTextService:', this.explanationTextService);
-    // this.initializeQuestion();
-    this.subscribeToQuestionChanges();
+    if (this.question) {
+      this.initializeQuestion();
+    } else {
+      this.subscribeToQuestionChanges();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -130,7 +133,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   protected subscribeToQuestionChanges(): void {
-    if (this.quizStateService.currentQuestion$) {
+    if (this.quizStateService.currentQuestion$ === undefined) {
       this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
           if (currentQuestion) {
