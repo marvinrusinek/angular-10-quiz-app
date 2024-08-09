@@ -68,17 +68,15 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
       this.question = changes.question.currentValue;
-      this.quizStateService.setCurrentQuestion(this.question);
-      this.initializeQuestion();
-      this.optionsInitialized = true;
+      this.initializeQuestion(this.question);
     } else if (changes.question) {
       console.error('ngOnChanges - Received undefined question:', changes.question);
     }
-
+  
     if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
       this.optionsToDisplay = changes.optionsToDisplay.currentValue;
     }
-  }
+  }  
 
   ngAfterViewInit(): void {
     console.log('dynamicComponentContainer:::', this.dynamicComponentContainer);
@@ -104,11 +102,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     this.currentQuestionSubscription?.unsubscribe();
   }
 
-  protected initializeQuestion(): void {
-    if (this.question) {
+  protected initializeQuestion(question: QuizQuestion): void {
+    if (question) {
       this.initializeOptions();
       this.optionsInitialized = true;
-      this.quizStateService.setCurrentQuestion(this.question);
+      this.quizStateService.setCurrentQuestion(question);
     } else {
       console.error('Initial question input is undefined in ngOnInit');
     }
