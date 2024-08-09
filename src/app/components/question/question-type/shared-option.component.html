@@ -41,13 +41,11 @@
           [disabled]="option.selected">
           <div class="option-content">
             <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>
-            <mat-icon *ngIf="option.selected && option.correct" class="material-icons correct-icon">
+            <mat-icon *ngIf="option.selected && option.correct" class="material-icons icon correct-icon">
               check_circle
-              <span style="display: none;">Correct icon should be displayed</span>
             </mat-icon>
-            <mat-icon *ngIf="option.selected && !option.correct" class="material-icons incorrect-icon">
+            <mat-icon *ngIf="option.selected && !option.correct" class="material-icons icon incorrect-icon">
               cancel
-              <span style="display: none;">Incorrect icon should be displayed</span>
             </mat-icon>
           </div>
         </mat-radio-button>
