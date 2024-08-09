@@ -57,13 +57,28 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   ngOnInit(): void {
     console.log('ngOnInit - ExplanationTextService:', this.explanationTextService);
-    if (this.question) {
-      this.quizStateService.setCurrentQuestion(this.question);
-      this.initializeQuestion();
-    }
+  
+    // Fetch questions and set the first question
+    this.quizDataService.getQuestionsForQuiz(this.quizService.quizId).subscribe({
+      next: (questions: QuizQuestion[]) => {
+        if (questions && questions.length > 0) {
+          console.log('Fetched questions:', questions);
+          this.quizStateService.setCurrentQuestion(questions[0]); // Set the first question
+          this.initializeQuestion(); // Initialize question after it's set
+        } else {
+          console.warn('No questions returned from getQuestionsForQuiz');
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching questions:', err);
+      }
+    });
+  
+    // Subscribe to changes in the current question
     this.subscribeToQuestionChanges();
     console.log('ngOnInit - currentQuestion after setting:', this.quizStateService.currentQuestion$);
   }
+  
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
@@ -142,7 +157,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
           if (currentQuestion) {
-            console.log('Question received in subscription:', currentQuestion);
             this.question = currentQuestion;
             this.initializeOptions();
           } else {
