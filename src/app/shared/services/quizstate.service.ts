@@ -36,6 +36,7 @@ export class QuizStateService {
 
   constructor() {
     this.questionStates = new Map<number, QuestionState>();
+    console.log('QuizStateService initialized - currentQuestion$: ', this.currentQuestion$);
   }
 
   setCurrentQuestion(question: QuizQuestion): void {
