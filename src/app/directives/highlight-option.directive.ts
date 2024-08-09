@@ -32,7 +32,7 @@ export class HighlightOptionDirective {
     } else {
       console.error('Option is undefined on click');
     }
-  }  
+  }
 
   private updateHighlight(isAnswered: boolean = false): void {
     if (!this.option) {
