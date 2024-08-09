@@ -32,10 +32,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   explanationToDisplay: string;
   feedback = '';
   multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  optionsInitialized = false;
   questionForm: FormGroup;
   selectedOption!: SelectedOption;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
+  optionsInitialized = false;
+  private containerInitialized = false;
 
   constructor(
     protected fb: FormBuilder,
@@ -83,6 +84,15 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.loadDynamicComponent();
     } else {
       console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
+    }
+  }
+
+  ngAfterViewChecked(): void {
+    if (!this.containerInitialized && this.dynamicComponentContainer) {
+      console.log('ngAfterViewChecked - dynamicComponentContainer:', this.dynamicComponentContainer);
+      this.dynamicComponentContainer.clear();
+      this.loadDynamicComponent();
+      this.containerInitialized = true; // Prevents further executions
     }
   }
 
