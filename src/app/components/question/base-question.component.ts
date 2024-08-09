@@ -19,6 +19,10 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
   dynamicComponentContainer!: ViewContainerRef;
+
+  @ViewChild('simpleContainer', { read: ViewContainerRef, static: false })
+  simpleContainer!: ViewContainerRef;
+
   @Output() explanationToDisplayChange = new EventEmitter<string>();
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number }>();
   @Input() question!: QuizQuestion;
@@ -74,7 +78,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
 
-  ngAfterViewInit(): void {
+  /* ngAfterViewInit(): void {
     console.log('BaseQuestionComponent ngAfterViewInit: dynamicComponentContainer', this.dynamicComponentContainer);
     if (this.dynamicComponentContainer) {
       this.dynamicComponentContainer.clear();
@@ -82,7 +86,30 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     } else {
       console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
     }
+  } */
+
+  ngAfterViewInit(): void {
+    console.log('simpleContainer:', this.simpleContainer);
+    setTimeout(() => {
+      if (this.dynamicComponentContainer) {
+        this.dynamicComponentContainer.clear();
+        this.loadDynamicComponent();
+      } else {
+        console.error('dynamicComponentContainer is still undefined after timeout in ngAfterViewInit');
+      }
+    }, 100); // Adjust the delay as necessary
   }
+  
+
+  /* ngAfterViewChecked(): void {
+    if (this.dynamicComponentContainer && !this.containerInitialized) {
+      this.containerInitialized = true;
+      this.dynamicComponentContainer.clear();
+      this.loadDynamicComponent();
+    } else if (!this.dynamicComponentContainer) {
+      console.error('dynamicComponentContainer is still undefined in ngAfterViewChecked');
+    }
+  } */
 
   ngOnDestroy(): void {
     this.currentQuestionSubscription?.unsubscribe();

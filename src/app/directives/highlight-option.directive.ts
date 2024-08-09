@@ -11,7 +11,6 @@ export class HighlightOptionDirective {
   @Input() isCorrect: boolean;
   @Input() showFeedbackForOption: { [key: number]: boolean }; 
   private isAnswered = false;
-  
 
   constructor(
     private el: ElementRef, 
@@ -31,7 +30,6 @@ export class HighlightOptionDirective {
     console.log('onClick called for option:', this.option);
     if (this.option) {
       this.isAnswered = true; // Mark as answered
-      console.log('Option is marked as answered:', this.isAnswered);
       this.updateHighlight(true); // Update the highlight with answered state
     } else {
       console.error('Option is undefined on click');
@@ -47,14 +45,8 @@ export class HighlightOptionDirective {
     const optionId = this.option.optionId;
     const shouldHighlight = isAnswered || this.isAnswered || 
       (this.showFeedbackForOption && this.showFeedbackForOption[optionId]);
-    const color = shouldHighlight ? (this.isCorrect ? '#43f756' : '#ff0000') : 'white';
-
-    console.log(`Applying color ${color} to option ${optionId}`);
+    const color = shouldHighlight ? (this.isCorrect ? '#43f756' : '#ff0000') : 'white';;
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
-
-    // Debug: Log the current background color
-    const currentColor = window.getComputedStyle(this.el.nativeElement).backgroundColor;
-    console.log(`Current background color of option ${optionId}: ${currentColor}`);
   }
 
   // Reset the state in-between questions
