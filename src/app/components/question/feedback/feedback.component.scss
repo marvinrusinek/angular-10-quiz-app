@@ -13,12 +13,12 @@
     font-weight: 700;
     padding-left: 10px;
     
-    i {
+    mat-icon {
       font-size: 30px;
       color: $light-yellow;
       position: relative;
       top: 10px;
-      left: 5px;
+      right: 5px;
     }
   }
 
