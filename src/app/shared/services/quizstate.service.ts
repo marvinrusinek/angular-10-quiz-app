@@ -36,16 +36,6 @@ export class QuizStateService {
 
   constructor() {
     this.questionStates = new Map<number, QuestionState>();
-    // console.log('QuizStateService initialized - currentQuestion$: ', this.currentQuestion$);
-
-    this.currentQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
-    this.currentQuestion$ = this.currentQuestionSubject.asObservable();
-    console.log('QuizStateService initialized - currentQuestion$:', this.currentQuestion$);
-    // Manually setting currentQuestion$
-    if (!this.currentQuestion$) {
-      this.currentQuestion$ = this.currentQuestionSubject.asObservable();
-      console.log('Manually set currentQuestion$:', this.currentQuestion$);
-    }
   }
 
   setCurrentQuestion(question: QuizQuestion): void {
