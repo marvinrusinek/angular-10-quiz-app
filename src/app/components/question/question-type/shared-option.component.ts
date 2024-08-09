@@ -58,7 +58,7 @@ export class SharedOptionComponent implements OnInit {
     option.selected = true;
     this.selectedOption = option;
     this.optionClicked.emit({ option, index });
-    this.showFeedbackForOption[idx] = true;
+    this.showFeedbackForOption[index] = true;
     // this.optionClass[idx] = option.correct ? 'correct-icon' : 'incorrect-icon'; // Set the appropriate class based on correctness
   }
 
