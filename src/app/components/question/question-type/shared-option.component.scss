@@ -11,9 +11,6 @@ div.mat-radio-inner-container {
 }
 
 .options {
-  margin: 0 0 17.5px 6.5px;
-  padding: 5px;
-
   mat-checkbox,
   mat-radio-button {
     cursor: pointer;
@@ -31,11 +28,6 @@ div.mat-radio-inner-container {
     &:hover {
       border: 2px solid $vivid-blue;
     }
-  }
-
-  span {
-    white-space: normal;
-    margin-top: 5px;
   }
 }
 
