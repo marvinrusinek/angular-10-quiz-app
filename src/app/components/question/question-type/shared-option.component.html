@@ -16,11 +16,8 @@
           [disabled]="option.selected">
           <div class="option-content">
             <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>
-            <mat-icon *ngIf="option.selected && option.correct" class="material-icons icon correct-icon">
-              ✓
-            </mat-icon>
-            <mat-icon *ngIf="option.selected && !option.correct" class="material-icons icon incorrect-icon">
-              ✗
+            <mat-icon *ngIf="isIconVisible(option)" class="material-icons icon" [ngClass]="{ 'correct-icon': option.correct, 'incorrect-icon': !option.correct }">
+              {{ getOptionIcon(option) }}
             </mat-icon>
           </div>
         </mat-checkbox>
@@ -39,11 +36,8 @@
           [disabled]="option.selected">
           <div class="option-content">
             <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>
-            <mat-icon *ngIf="option.selected && option.correct" class="material-icons icon correct-icon">
-              ✓
-            </mat-icon>
-            <mat-icon *ngIf="option.selected && !option.correct" class="material-icons icon incorrect-icon">
-              ✗
+            <mat-icon *ngIf="isIconVisible(option)" class="material-icons icon" [ngClass]="{ 'correct-icon': option.correct, 'incorrect-icon': !option.correct }">
+              {{ getOptionIcon(option) }}
             </mat-icon>
           </div>
         </mat-radio-button>
