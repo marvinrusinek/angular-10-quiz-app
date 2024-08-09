@@ -18,7 +18,6 @@ export class HighlightOptionDirective {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('ngOnChanges called with changes:', changes);
     if (this.option) {
       this.updateHighlight();
     } else {
@@ -27,7 +26,6 @@ export class HighlightOptionDirective {
   }
  
   @HostListener('click') onClick(): void {
-    console.log('onClick called for option:', this.option);
     if (this.option) {
       this.isAnswered = true; // Mark as answered
       this.updateHighlight(true); // Update the highlight with answered state
