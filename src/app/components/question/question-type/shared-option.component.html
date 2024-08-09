@@ -16,8 +16,14 @@
           [disabled]="option.selected">
           <div class="option-content">
             <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>
-            <i *ngIf="showFeedbackForOption[idx] && option.correct" class="correct-icon">check_circle</i>
-            <i *ngIf="showFeedbackForOption[idx] && !option.correct" class="incorrect-icon">cancel</i>
+            <mat-icon *ngIf="option.selected && option.correct" class="material-icons correct-icon">
+              check_circle
+              <span style="display: none;">Correct icon should be displayed</span>
+            </mat-icon>
+            <mat-icon *ngIf="option.selected && !option.correct" class="material-icons incorrect-icon">
+              cancel
+              <span style="display: none;">Incorrect icon should be displayed</span>
+            </mat-icon>
           </div>
         </mat-checkbox>
         
@@ -35,8 +41,14 @@
           [disabled]="option.selected">
           <div class="option-content">
             <span class="option-text">{{ idx + 1 }}. {{ option?.text }}</span>
-            <mat-icon *ngIf="option.selected && option.correct" class="material-icons correct-icon">check_circle</mat-icon>
-            <mat-icon *ngIf="option.selected && !option.correct" class="material-icons incorrect-icon">cancel</mat-icon>
+            <mat-icon *ngIf="option.selected && option.correct" class="material-icons correct-icon">
+              check_circle
+              <span style="display: none;">Correct icon should be displayed</span>
+            </mat-icon>
+            <mat-icon *ngIf="option.selected && !option.correct" class="material-icons incorrect-icon">
+              cancel
+              <span style="display: none;">Incorrect icon should be displayed</span>
+            </mat-icon>
           </div>
         </mat-radio-button>
       </ng-container>
