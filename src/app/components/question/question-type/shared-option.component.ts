@@ -21,9 +21,9 @@ export class SharedOptionComponent implements OnInit {
   @Input() showFeedback: boolean;
   @Input() shouldResetBackground = false;
 
-  /* textStyle = {
+  optionTextStyle = {
     color: 'black'
-  }; */
+  };
 
   ngOnInit(): void {
     if (!this.showFeedbackForOption) {
