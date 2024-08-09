@@ -47,6 +47,7 @@ export class SharedOptionComponent implements OnInit {
     this.optionClicked.emit({ option, index });
     this.selectedOption = option;
     this.showFeedbackForOption[idx] = true;
+    option.selected = true;
   }
 
   trackByOption(index: number, item: Option): number {
