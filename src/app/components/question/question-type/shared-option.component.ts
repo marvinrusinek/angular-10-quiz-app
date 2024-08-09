@@ -20,6 +20,7 @@ export class SharedOptionComponent implements OnInit {
   @Input() correctMessage: string;
   @Input() showFeedback: boolean;
   @Input() shouldResetBackground = false;
+  optionIcon: string;
 
   ngOnInit(): void {
     if (!this.showFeedbackForOption) {
