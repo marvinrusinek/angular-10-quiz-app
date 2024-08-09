@@ -61,16 +61,12 @@ div.mat-radio-inner-container {
 }
 
 
-.feedback-icon {
-  margin-left: 10px;
-  font-size: 1.5em;
-  vertical-align: middle;
-}
-
-.option-content .feedback-icon.correct {
+.correct-icon {
   color: green;
+  margin-left: 10px;
 }
 
-.option-content .feedback-icon.incorrect {
+.incorrect-icon {
   color: red;
+  margin-left: 10px;
 }
