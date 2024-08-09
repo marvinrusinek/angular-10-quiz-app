@@ -43,9 +43,7 @@ import { SummaryStatsComponent } from './containers/results/summary-report/summa
 import { ChallengeComponent } from './containers/results/challenge/challenge.component';
 import { CodelabQuizContentComponent } from './containers/quiz/quiz-content/codelab-quiz-content.component';
 import { CodelabQuizHeaderComponent } from './containers/quiz/quiz-header/quiz-header.component';
-import { FeedbackIconDirective } from './directives/feedback-icon.directive';
 import { HighlightOptionDirective } from './directives/highlight-option.directive';
-import { HighlightFeedbackDirective } from './directives/highlight-feedback.directive';
 import { ResetBackgroundDirective } from './directives/reset-background.directive';
 import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
@@ -91,9 +89,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     ChallengeComponent,
     CodelabQuizContentComponent,
     CodelabQuizHeaderComponent,
-    FeedbackIconDirective,
     HighlightOptionDirective,
-    HighlightFeedbackDirective,
     ResetBackgroundDirective,
     JoinPipe
   ],
@@ -120,7 +116,6 @@ import { QuizGuard } from './router/guards/quiz.guard';
     IonicModule.forRoot()
   ],
   exports: [
-    FeedbackIconDirective,
     HighlightOptionDirective,
     ResetBackgroundDirective,
     MatExpansionModule
