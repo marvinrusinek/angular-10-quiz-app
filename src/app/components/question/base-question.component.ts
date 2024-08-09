@@ -90,6 +90,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   ngAfterViewInit(): void {
     console.log('simpleContainer:', this.simpleContainer);
+    this.cdRef.detectChanges();
     setTimeout(() => {
       if (this.dynamicComponentContainer) {
         this.dynamicComponentContainer.clear();
