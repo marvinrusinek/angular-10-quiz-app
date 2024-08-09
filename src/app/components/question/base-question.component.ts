@@ -88,18 +88,30 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   } */
 
-  ngAfterViewInit(): void {
+  /* ngAfterViewInit(): void {
     console.log('simpleContainer:', this.simpleContainer);
     this.cdRef.detectChanges();
     setTimeout(() => {
-      if (this.dynamicComponentContainer) {
+      if (this.dynamicComponentContainer !== 'undefined') {
         this.dynamicComponentContainer.clear();
         this.loadDynamicComponent();
       } else {
         console.error('dynamicComponentContainer is still undefined after timeout in ngAfterViewInit');
       }
     }, 100); // Adjust the delay as necessary
+  } */
+
+  async ngAfterViewInit(): Promise<void> {
+    // await this.someAsyncOperation();
+    
+    if (this.dynamicComponentContainer) {
+      this.dynamicComponentContainer.clear();
+      this.loadDynamicComponent();
+    } else {
+      console.error('dynamicComponentContainer is still undefined after async operation');
+    }
   }
+  
   
 
   /* ngAfterViewChecked(): void {

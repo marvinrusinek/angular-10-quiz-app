@@ -20,8 +20,8 @@
     <app-base-question [question]="currentQuestion"></app-base-question>
   </ng-container>
   <span #simpleContainer>Simple Container</span>
-  <!-- Move the container outside the *ngIf -->
-  <ng-template #dynamicComponentContainer></ng-template>
+
+  <ng-container #dynamicComponentContainer></ng-container>
 
   <ng-container *ngIf="shouldRenderContainer">
     <div *ngIf="isLoading" class="loading-spinner"></div>
