@@ -78,51 +78,15 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
 
-  /* ngAfterViewInit(): void {
-    console.log('BaseQuestionComponent ngAfterViewInit: dynamicComponentContainer', this.dynamicComponentContainer);
+  ngAfterViewInit(): void {
     if (this.dynamicComponentContainer) {
+      console.log('dynamicComponentContainer is defined:', this.dynamicComponentContainer);
       this.dynamicComponentContainer.clear();
       this.loadDynamicComponent();
     } else {
       console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
     }
-  } */
-
-  /* ngAfterViewInit(): void {
-    console.log('simpleContainer:', this.simpleContainer);
-    this.cdRef.detectChanges();
-    setTimeout(() => {
-      if (this.dynamicComponentContainer !== 'undefined') {
-        this.dynamicComponentContainer.clear();
-        this.loadDynamicComponent();
-      } else {
-        console.error('dynamicComponentContainer is still undefined after timeout in ngAfterViewInit');
-      }
-    }, 100); // Adjust the delay as necessary
-  } */
-
-  async ngAfterViewInit(): Promise<void> {
-    // await this.someAsyncOperation();
-    
-    if (this.dynamicComponentContainer) {
-      this.dynamicComponentContainer.clear();
-      this.loadDynamicComponent();
-    } else {
-      console.error('dynamicComponentContainer is still undefined after async operation');
-    }
   }
-  
-  
-
-  /* ngAfterViewChecked(): void {
-    if (this.dynamicComponentContainer && !this.containerInitialized) {
-      this.containerInitialized = true;
-      this.dynamicComponentContainer.clear();
-      this.loadDynamicComponent();
-    } else if (!this.dynamicComponentContainer) {
-      console.error('dynamicComponentContainer is still undefined in ngAfterViewChecked');
-    }
-  } */
 
   ngOnDestroy(): void {
     this.currentQuestionSubscription?.unsubscribe();
