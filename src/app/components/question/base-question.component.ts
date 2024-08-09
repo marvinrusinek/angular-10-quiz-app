@@ -57,10 +57,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   ngOnInit(): void {
     console.log('ngOnInit - ExplanationTextService:', this.explanationTextService);
-    //if (this.question) {
-    //  this.quizStateService.setCurrentQuestion(this.question);
+    /* if (this.question) {
+      this.quizStateService.setCurrentQuestion(this.question);
       this.initializeQuestion();
-    //}
+    } */
+    this.initializeQuestion();
     this.subscribeToQuestionChanges();
   }
 
