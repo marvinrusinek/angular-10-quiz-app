@@ -21,6 +21,8 @@ export class SharedOptionComponent implements OnInit {
   @Input() showFeedback: boolean;
   @Input() shouldResetBackground = false;
 
+  iconVisibility: boolean[] = []; // Array to store visibility state of icons
+
   optionTextStyle = {
     color: 'black'
   };
@@ -49,6 +51,10 @@ export class SharedOptionComponent implements OnInit {
     return option.selected;
   }
 
+  resetIcons(): void {
+    this.iconVisibility = this.optionsToDisplay.map(() => false); // Reset all icons to not visible
+  }
+
   isSelectedOption(option: Option): boolean {
     return this.selectedOption && this.selectedOption.optionId === option.optionId;
   }
@@ -63,6 +69,7 @@ export class SharedOptionComponent implements OnInit {
     this.selectedOption = option;
     this.optionClicked.emit({ option, index });
     this.showFeedbackForOption[index] = true;
+    this.iconVisibility[index] = true;
   }
 
   trackByOption(index: number, item: Option): number {
