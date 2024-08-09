@@ -79,6 +79,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     console.log('ngOnInit - currentQuestion after setting:', this.quizStateService.currentQuestion$);
   }
   
+  
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
@@ -149,6 +150,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   protected subscribeToQuestionChanges(): void {
+    console.log('Question received in subscription:', currentQuestion);
     if (!this.quizStateService) {
       console.error('QuizStateService is not injected correctly');
     }
