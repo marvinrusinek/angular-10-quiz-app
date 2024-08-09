@@ -33,6 +33,13 @@ export class SharedOptionComponent implements OnInit {
     }
     return option.correct ? 'check' : 'close'; // Return 'check' for correct, 'close' for incorrect
   }
+
+  getOptionIconClass(option: any): string {
+    if (!option.selected) {
+      return ''; // No class if the option is not selected
+    }
+    return option.correct ? 'correct-icon' : 'incorrect-icon'; // Return the correct class name
+  }  
   
   isIconVisible(option: any): boolean {
     return option.selected;
@@ -52,6 +59,7 @@ export class SharedOptionComponent implements OnInit {
     this.selectedOption = option;
     this.optionClicked.emit({ option, index });
     this.showFeedbackForOption[idx] = true;
+    this.optionClass[idx] = option.correct ? 'correct-icon' : 'incorrect-icon'; // Set the appropriate class based on correctness
   }
 
   trackByOption(index: number, item: Option): number {
