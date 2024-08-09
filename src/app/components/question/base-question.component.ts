@@ -8,7 +8,6 @@ import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 import { QuizService } from '../../shared/services/quiz.service';
-import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 
@@ -44,7 +43,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     protected dynamicComponentService: DynamicComponentService,
     protected explanationTextService: ExplanationTextService,
     protected quizService: QuizService,
-    protected quizDataService: QuizDataService,
     protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
     protected cdRef: ChangeDetectorRef
@@ -59,29 +57,12 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   ngOnInit(): void {
     console.log('ngOnInit - ExplanationTextService:', this.explanationTextService);
-  
-    // Fetch questions and set the first question
-    this.quizDataService.getQuestionsForQuiz(this.quizService.quizId).subscribe({
-      next: (questions: QuizQuestion[]) => {
-        if (questions && questions.length > 0) {
-          console.log('Fetched questions:', questions);
-          this.quizStateService.setCurrentQuestion(questions[0]); // Set the first question
-          this.initializeQuestion(); // Initialize question after it's set
-        } else {
-          console.warn('No questions returned from getQuestionsForQuiz');
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching questions:', err);
-      }
-    });
-  
-    // Subscribe to changes in the current question
+    //if (this.question) {
+    //  this.quizStateService.setCurrentQuestion(this.question);
+      this.initializeQuestion();
+    //}
     this.subscribeToQuestionChanges();
-    console.log('ngOnInit - currentQuestion after setting:', this.quizStateService.currentQuestion$);
   }
-  
-  
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question && changes.question.currentValue) {
@@ -152,11 +133,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   protected subscribeToQuestionChanges(): void {
-    console.log('Question received in subscription:', currentQuestion);
-    if (!this.quizStateService) {
-      console.error('QuizStateService is not injected correctly');
-    }
-
     if (this.quizStateService.currentQuestion$) {
       this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
