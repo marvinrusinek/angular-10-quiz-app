@@ -365,7 +365,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         componentRef.instance.questionForm = this.questionForm;
         componentRef.instance.question = this.question;
         componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
-        console.log('Passed options to dynamic component:', this.optionsToDisplay);
 
         componentRef.changeDetectorRef.markForCheck();
         this.cdRef.detectChanges();
