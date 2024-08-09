@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -10,7 +10,7 @@ import { SelectedOption } from '../../../shared/models/SelectedOption.model';
   styleUrls: ['../question.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SharedOptionComponent implements OnInit {
+export class SharedOptionComponent implements OnInit, OnChanges {
   @Output() optionClicked = new EventEmitter<{ option: Option, index: number }>();
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
@@ -30,6 +30,13 @@ export class SharedOptionComponent implements OnInit {
   ngOnInit(): void {
     if (!this.showFeedbackForOption) {
       this.showFeedbackForOption = [];
+    }
+    this.resetIcons();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.currentQuestion) {
+      this.resetIcons();
     }
   }
 
