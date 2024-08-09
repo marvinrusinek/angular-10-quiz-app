@@ -40,21 +40,21 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  getOptionIcon(option: any): string {
+  getOptionIcon(option: Option): string {
     if (!option.selected) {
       return ''; // No icon if the option is not selected
     }
     return option.correct ? 'check' : 'close'; // Return 'check' for correct, 'close' for incorrect
   }
 
-  getOptionIconClass(option: any): string {
+  getOptionIconClass(option: Option): string {
     if (!option.selected) {
       return ''; // No class if the option is not selected
     }
     return option.correct ? 'correct-icon' : 'incorrect-icon'; // Return the correct class name
   }  
   
-  isIconVisible(option: any): boolean {
+  isIconVisible(option: Option): boolean {
     return option.selected;
   }
 
