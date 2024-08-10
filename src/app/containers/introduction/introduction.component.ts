@@ -25,6 +25,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   shuffledQuestions: QuizQuestion[];
   shouldShuffleOptions = false;
 
+  highlightCorrectAfterIncorrect = false;
+
   questionLabel = '';
   introImg = '';
   imagePath = '../../../assets/images/milestones/';
@@ -145,6 +147,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     console.log('Checkbox change event:', event);
     this.isCheckedSubject.next(event.checked);
     this.quizService.setCheckedShuffle(event.checked);
+    this.highlightCorrectAfterIncorrect = event.checked;
   }
 
   onStartQuiz(quizId: string): void {
