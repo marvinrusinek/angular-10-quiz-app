@@ -1036,6 +1036,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
+  private highlightCorrectOptionsManually(): void {
+    this.optionsToDisplay.forEach(option => {
+      if (option.correct) {
+        const element = document.querySelector(`[data-option-id="${option.optionId}"]`);
+        if (element) {
+          console.log('Manually highlighting correct option:', option.text);
+          (element as HTMLElement).style.backgroundColor = '#43f756'; // Highlight correct option in green
+        }
+      }
+    });
+  }
+
   private highlightCorrectAnswers(): void {
     console.log('Highlighting all correct answers');
   
