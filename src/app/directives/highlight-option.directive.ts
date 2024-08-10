@@ -41,6 +41,7 @@ export class HighlightOptionDirective {
       this.isAnswered = true; // Mark as answered
       this.updateHighlight(true); // Update the highlight with answered state
 
+      // Check user preference and highlight correct answers if needed
       if (!this.isCorrect && this.userPreferenceService.getHighlightPreference()) {
         this.highlightCorrectAnswers(); // Automatically highlight correct answers
       }
