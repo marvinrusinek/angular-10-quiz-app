@@ -997,7 +997,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Check user preference before highlighting correct answers
         if (this.userPreferenceService.getHighlightPreference()) {
           console.log('User preference set to highlight correct answers, calling highlightCorrectAnswers()');
-          this.highlightCorrectAnswers();
+          // this.highlightCorrectAnswers();
+          this.highlightCorrectOptionsManually();
         } else {
           console.log('User preference not set to highlight correct answers');
         }
