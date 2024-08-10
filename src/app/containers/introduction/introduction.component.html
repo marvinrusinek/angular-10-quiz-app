@@ -49,7 +49,11 @@
     <mat-card-actions>
       <mat-checkbox (change)="onCheckboxChange($event)" disableRipple="true" capture>
         Shuffle Questions and Answers
-      </mat-checkbox> 
+      </mat-checkbox>
+      
+      <mat-checkbox [(ngModel)="highlightCorrectAfterIncorrect">
+        Highlight correct answers after an incorrect selection
+      </mat-checkbox>
 
       <mat-button
         *ngIf="selectedQuiz"
