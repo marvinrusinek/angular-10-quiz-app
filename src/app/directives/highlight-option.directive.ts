@@ -11,6 +11,7 @@ export class HighlightOptionDirective {
   @Input() option: Option;
   @Input() isCorrect: boolean;
   @Input() showFeedbackForOption: { [key: number]: boolean }; 
+  @Input() highlightCorrectAfterIncorrect: boolean;
   private isAnswered = false;
 
   constructor(
@@ -27,7 +28,7 @@ export class HighlightOptionDirective {
     }
   }
 
-  @HostListener('click') onClick(): void {
+  /* @HostListener('click') onClick(): void {
     console.log('Option clicked:', this.option.text);
 
     if (this.option) {
@@ -36,6 +37,25 @@ export class HighlightOptionDirective {
 
       // Check user preference and highlight correct answers if needed
       if (!this.isCorrect && this.userPreferenceService.getHighlightPreference()) {
+        console.log('Incorrect answer selected, highlighting correct answers');
+        this.highlightCorrectAnswers(); // Automatically highlight correct answers
+      } else {
+        console.log('Correct option selected or highlighting preference not enabled');
+      }
+    } else {
+      console.error('Option is undefined on click');
+    }
+  } */
+
+  @HostListener('click') onClick(): void {
+    console.log('Option clicked:', this.option.text);
+
+    if (this.option) {
+      this.isAnswered = true; // Mark as answered
+      this.updateHighlight(true); // Update the highlight with answered state
+
+      // Check user preference and highlight correct answers if needed
+      if (!this.isCorrect && this.highlightCorrectAfterIncorrect) {
         console.log('Incorrect answer selected, highlighting correct answers');
         this.highlightCorrectAnswers(); // Automatically highlight correct answers
       } else {
@@ -59,13 +79,25 @@ export class HighlightOptionDirective {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
 
-  private highlightCorrectAnswers(): void {
+  /* private highlightCorrectAnswers(): void {
     console.log('Highlighting correct answers');
 
     if (option.correct) {
       this.showFeedbackForOption[option.optionId] = true;
       this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
     }
+  } */
+
+  private highlightCorrectAnswers(): void {
+    console.log('Highlighting correct answers');
+    const allOptions = this.option.options;
+
+    allOptions.forEach(opt => {
+      if (opt.correct) {
+        this.showFeedbackForOption[opt.optionId] = true;
+        this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
+      }
+    });
   }
 
   // Reset the state in-between questions
