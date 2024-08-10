@@ -26,7 +26,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   shuffledQuestions: QuizQuestion[];
   shouldShuffleOptions = false;
 
-  highlightCorrectAfterIncorrect = false;
+  highlightPreference = false;
 
   questionLabel = '';
   introImg = '';
@@ -153,7 +153,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
     this.isCheckedSubject.next(event.checked);
     this.quizService.setCheckedShuffle(event.checked);
-    this.highlightCorrectAfterIncorrect = event.checked;
+    this.highlightPreference = event.checked;
   }
 
   onStartQuiz(quizId: string): void {
