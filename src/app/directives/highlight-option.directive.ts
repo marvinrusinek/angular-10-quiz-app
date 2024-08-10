@@ -1,6 +1,7 @@
 import { Directive, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
+import { UserPreferenceService } from '../shared/services/user-preference.service';
 
 @Directive({
   selector: '[appHighlightOption]'
@@ -14,7 +15,8 @@ export class HighlightOptionDirective {
 
   constructor(
     private el: ElementRef, 
-    private renderer: Renderer2) {
+    private renderer: Renderer2,
+    private userPreferenceService: UserPreferenceService) {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -25,10 +27,23 @@ export class HighlightOptionDirective {
     }
   }
  
+  /* @HostListener('click') onClick(): void {
+    if (this.option) {
+      this.isAnswered = true; // Mark as answered
+      this.updateHighlight(true); // Update the highlight with answered state
+    } else {
+      console.error('Option is undefined on click');
+    }
+  } */
+
   @HostListener('click') onClick(): void {
     if (this.option) {
       this.isAnswered = true; // Mark as answered
       this.updateHighlight(true); // Update the highlight with answered state
+
+      if (!this.isCorrect && this.userPreferenceService.getHighlightPreference()) {
+        this.highlightCorrectAnswers(); // Automatically highlight correct answers
+      }
     } else {
       console.error('Option is undefined on click');
     }
@@ -45,6 +60,15 @@ export class HighlightOptionDirective {
       (this.showFeedbackForOption && this.showFeedbackForOption[optionId]);
     const color = shouldHighlight ? (this.isCorrect ? '#43f756' : '#ff0000') : 'white';;
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+  }
+
+  private highlightCorrectAnswers(): void {
+    // Assume showFeedbackForOption contains all options with their feedback state
+    Object.keys(this.showFeedbackForOption).forEach(optionId => {
+      if (this.showFeedbackForOption[optionId] && this.option.correct) {
+        this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
+      }
+    });
   }
 
   // Reset the state in-between questions
