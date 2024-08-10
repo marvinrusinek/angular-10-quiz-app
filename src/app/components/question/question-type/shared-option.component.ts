@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnI
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../shared/models/SelectedOption.model';
+import { UserPreferenceService } from '../../../shared/services/user-preference.service';
 
 @Component({
   selector: 'app-shared-option',
@@ -26,6 +27,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   optionTextStyle = {
     color: 'black'
   };
+
+  constructor(private userPreferenceService: UserPreferenceService) {}
 
   ngOnInit(): void {
     if (!this.showFeedbackForOption) {
@@ -55,7 +58,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }  
   
   isIconVisible(option: Option): boolean {
-    return option.selected;
+    const highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
+
+    if (highlightCorrectAfterIncorrect && option.correct) {
+      return true; // Show icon if the user preference is set and the option is correct
+    }
+
+    return option.selected; // Default to showing the icon if the option is selected
   }
 
   resetIcons(): void {
