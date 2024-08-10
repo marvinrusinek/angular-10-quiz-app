@@ -4,10 +4,10 @@ import { Injectable, ComponentFactoryResolver, ViewContainerRef, Type } from '@a
 export class DynamicComponentService {
   constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
 
-  async loadComponent(container: ViewContainerRef, multipleAnswer: boolean): Promise<any> {
+  async loadComponent<T>(container: ViewContainerRef, multipleAnswer: boolean): Promise<ComponentRef<T>> {
     const component = multipleAnswer
-      ? (await this.importComponent('multiple')).MultipleAnswerComponent
-      : (await this.importComponent('single')).SingleAnswerComponent;
+      ? (await this.importComponent('multiple')).MultipleAnswerComponent as Type<T>
+      : (await this.importComponent('single')).SingleAnswerComponent as Type<T>;
 
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     container.clear();
