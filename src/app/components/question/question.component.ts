@@ -989,17 +989,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       );
 
       if (option.correct) {
+        console.log('Correct option selected.');
         this.showFeedbackForOption[option.optionId] = true;
       } else {
-        // Mark the incorrect answer
+        console.log('Incorrect option selected.');
         this.showFeedbackForOption[option.optionId] = true;
-
+    
         // Check user preference before highlighting correct answers
-        if (this.userPreferenceService.getHighlightPreference()) {
-          console.log('User preference set to highlight correct answers, calling highlightCorrectAnswers()');
-          this.highlightCorrectAnswers();          
-        } else {
-          console.log('User preference not set to highlight correct answers');
+        const highlightPreference = this.userPreferenceService.getHighlightPreference();
+        console.log('Highlight preference:', highlightPreference);
+    
+        if (highlightPreference) {
+          console.log('User preference set to highlight correct answers.');
+          this.highlightCorrectAnswers();
         }
       }
 
