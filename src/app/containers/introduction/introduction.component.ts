@@ -7,6 +7,7 @@ import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
+import { UserPreferenceService } from '../../shared/services/user-preference.service';
 
 @Component({
   selector: 'codelab-quiz-intro',
@@ -36,6 +37,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
+    private userPreferenceService: UserPreferenceService, 
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private cdRef: ChangeDetectorRef
