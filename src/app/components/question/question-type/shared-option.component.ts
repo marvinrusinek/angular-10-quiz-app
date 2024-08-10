@@ -44,17 +44,35 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getOptionIcon(option: Option): string {
-    if (!option.selected) {
-      return ''; // No icon if the option is not selected
+    const highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
+    
+    // Show the correct icon if the option is correct and user preference allows it
+    if (highlightCorrectAfterIncorrect && option.correct) {
+      return 'check';
     }
-    return option.correct ? 'check' : 'close'; // Return 'check' for correct, 'close' for incorrect
-  }
+  
+    // Show the incorrect icon if the option is incorrect and selected
+    if (option.selected) {
+      return option.correct ? 'check' : 'close';
+    }
+  
+    return ''; // No icon if the option is not selected or does not meet the conditions above
+  }  
 
   getOptionIconClass(option: Option): string {
-    if (!option.selected) {
-      return ''; // No class if the option is not selected
+    const highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
+  
+    // Apply the correct icon class if the user preference is set and the option is correct
+    if (highlightCorrectAfterIncorrect && option.correct) {
+      return 'correct-icon';
     }
-    return option.correct ? 'correct-icon' : 'incorrect-icon'; // Return the correct class name
+  
+    // Apply the incorrect icon class if the option is incorrect and selected
+    if (option.selected) {
+      return option.correct ? 'correct-icon' : 'incorrect-icon';
+    }
+  
+    return ''; // No class if the option is not selected or does not meet the conditions above
   }  
   
   isIconVisible(option: Option): boolean {
