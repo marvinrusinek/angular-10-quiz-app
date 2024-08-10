@@ -76,9 +76,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }  
   
   isIconVisible(option: Option): boolean {
-    const highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
+    const highlightPreference = this.userPreferenceService.getHighlightPreference();
 
-    if (highlightCorrectAfterIncorrect && option.correct) {
+    if (highlightPreference && option.correct) {
       return true; // Show icon if the user preference is set and the option is correct
     }
 
