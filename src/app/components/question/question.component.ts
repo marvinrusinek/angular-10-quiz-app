@@ -984,6 +984,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.showFeedbackForOption
       );
 
+      if (option.correct) {
+        this.showFeedbackForOption[option.optionId] = true;
+      } else {
+        // Mark the incorrect answer
+        this.showFeedbackForOption[option.optionId] = true;
+    
+        // Check user preference before highlighting correct answers
+        if (this.userPreferenceService.getHighlightPreference()) {
+          this.highlightCorrectAnswers();
+        }
+      }
+
       this.updateSelectedOption(option);
       this.selectedOptionService.setOptionSelected(true);
       this.selectedOptionService.setSelectedOption(option);
@@ -1017,7 +1029,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
-
+  private highlightCorrectAnswers(): void {
+    console.log('Highlighting all correct answers');
+  
+    this.optionsToDisplay.forEach(option => {
+      if (option.correct) {
+        // Notify the directive to highlight itself by updating showFeedbackForOption
+        this.showFeedbackForOption[option.optionId] = true;
+      }
+    });
+  
+    // Trigger change detection if necessary
+    this.cdRef.detectChanges();
+  }
   
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
