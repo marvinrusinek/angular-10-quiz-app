@@ -29,6 +29,7 @@ import { ResetStateService } from '../../shared/services/reset-state.service';
 import { ResetBackgroundService } from '../../shared/services/reset-background.service';
 import { ResetFeedbackIconService } from '../../shared/services/reset-feedback-icon.service';
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
+import { UserPreferenceService } from '../../shared/services/user-preference.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
 type AnimationState = 'animationStarted' | 'none';
@@ -39,7 +40,7 @@ type AnimationState = 'animationStarted' | 'none';
   styleUrls: ['./quiz.component.scss'],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [QuizService, QuizDataService, QuizStateService, ExplanationTextService]
+  providers: [QuizService, QuizDataService, QuizStateService, ExplanationTextService, UserPreferenceService]
 })
 export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild(QuizQuestionComponent) quizQuestionComponent!: QuizQuestionComponent;
