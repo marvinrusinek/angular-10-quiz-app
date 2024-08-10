@@ -82,11 +82,17 @@ export class HighlightOptionDirective {
     });
   } */
 
-  private highlightCorrectAnswers(): void {
+  /* private highlightCorrectAnswers(): void {
     console.log('Highlighting correct answer:', this.option.text);
     if (this.isCorrect) {
       this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
     }
+  } */
+
+  private highlightCorrectAnswers(): void {
+    // Ensure that all correct options are highlighted
+    this.showFeedbackForOption[this.option.optionId] = true;
+    this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
   }
   
 
