@@ -1006,11 +1006,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
       } */
 
-      if (!option.correct) {
+      /* if (!option.correct) {
         console.log('Incorrect option selected.');
 
         // Bypass user preference and directly highlight correct options
         this.highlightCorrectAnswers();
+      } */
+
+      if (!option.correct) {
+        console.log('Incorrect option selected.');
+
+        // Directly highlight all correct options
+        this.optionsToDisplay.forEach(opt => {
+          if (opt.correct) {
+            this.showFeedbackForOption[opt.optionId] = true;
+          }
+        });
+
+        console.log('Updated showFeedbackForOption after highlighting correct answers:', this.showFeedbackForOption);
       }
 
       this.updateSelectedOption(option);
