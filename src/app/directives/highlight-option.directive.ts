@@ -96,7 +96,14 @@ export class HighlightOptionDirective {
   private highlightCorrectAnswers(): void {
     // Ensure that all correct options are highlighted
     // this.showFeedbackForOption[this.option.optionId] = true;
-    this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
+    // this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
+
+    console.log('Highlighting correct answers');
+
+    if (option.correct) {
+      this.showFeedbackForOption[option.optionId] = true;
+      this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
+    }
   }
   
 
