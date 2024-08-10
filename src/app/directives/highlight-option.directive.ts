@@ -12,6 +12,7 @@ export class HighlightOptionDirective {
   @Input() isCorrect: boolean;
   @Input() showFeedbackForOption: { [key: number]: boolean }; 
   @Input() highlightCorrectAfterIncorrect: boolean;
+  @Input() allOptions: Option[]; // To access all options directly
   private isAnswered = false;
 
   constructor(
@@ -90,12 +91,15 @@ export class HighlightOptionDirective {
 
   private highlightCorrectAnswers(): void {
     console.log('Highlighting correct answers');
-    const allOptions = this.option.options;
-
-    allOptions.forEach(opt => {
+    
+    this.allOptions.forEach(opt => {
       if (opt.correct) {
+        console.log('Correct option found:', opt.text);
         this.showFeedbackForOption[opt.optionId] = true;
-        this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
+        // Apply the highlight only if this is the element corresponding to the correct option
+        if (opt.optionId === this.option.optionId) {
+          this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
+        }
       }
     });
   }
