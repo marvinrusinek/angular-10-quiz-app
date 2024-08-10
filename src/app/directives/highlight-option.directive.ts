@@ -72,13 +72,20 @@ export class HighlightOptionDirective {
     });
   } */
 
-  private highlightCorrectAnswers(): void {
+  /* private highlightCorrectAnswers(): void {
     Object.keys(this.showFeedbackForOption).forEach(optionId => {
       // Find the correct option by ID and highlight it
       if (this.option.optionId === +optionId && this.isCorrect) {
         this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
       }
     });
+  } */
+
+  private highlightCorrectAnswers(): void {
+    console.log('Highlighting correct answer:', this.option.text);
+    if (this.isCorrect) {
+      this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
+    }
   }
   
 
