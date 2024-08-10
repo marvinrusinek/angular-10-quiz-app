@@ -37,6 +37,8 @@ export class HighlightOptionDirective {
   } */
 
   @HostListener('click') onClick(): void {
+    console.log('Option clicked:', this.option.text);
+    
     if (this.option) {
       this.isAnswered = true; // Mark as answered
       this.updateHighlight(true); // Update the highlight with answered state
@@ -45,6 +47,8 @@ export class HighlightOptionDirective {
       if (!this.isCorrect && this.userPreferenceService.getHighlightPreference()) {
         console.log('Incorrect answer selected, highlighting correct answers');
         this.highlightCorrectAnswers(); // Automatically highlight correct answers
+      } else {
+        console.log('Correct option selected or highlighting preference not enabled');
       }
     } else {
       console.error('Option is undefined on click');
