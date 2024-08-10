@@ -62,14 +62,24 @@ export class HighlightOptionDirective {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
 
-  private highlightCorrectAnswers(): void {
-    // Assume showFeedbackForOption contains all options with their feedback state
+  /* private highlightCorrectAnswers(): void {
+    // Assuming `this.option` is an array of all options, we iterate over them
     Object.keys(this.showFeedbackForOption).forEach(optionId => {
       if (this.showFeedbackForOption[optionId] && this.option.correct) {
         this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
       }
     });
+  } */
+
+  private highlightCorrectAnswers(): void {
+    Object.keys(this.showFeedbackForOption).forEach(optionId => {
+      // Find the correct option by ID and highlight it
+      if (this.option.optionId === +optionId && this.isCorrect) {
+        this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
+      }
+    });
   }
+  
 
   // Reset the state in-between questions
   public reset(): void {
