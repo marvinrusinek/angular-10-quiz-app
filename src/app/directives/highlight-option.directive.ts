@@ -43,6 +43,7 @@ export class HighlightOptionDirective {
 
       // Check user preference and highlight correct answers if needed
       if (!this.isCorrect && this.userPreferenceService.getHighlightPreference()) {
+        console.log('Incorrect answer selected, highlighting correct answers');
         this.highlightCorrectAnswers(); // Automatically highlight correct answers
       }
     } else {
