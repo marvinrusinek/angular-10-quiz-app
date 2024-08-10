@@ -50,8 +50,11 @@
       <mat-checkbox (change)="onCheckboxChange($event)" disableRipple="true" capture>
         Shuffle Questions and Answers
       </mat-checkbox>
-      
-      <mat-checkbox [(ngModel)="highlightCorrectAfterIncorrect">
+      <br />
+      <mat-checkbox 
+        (change)="onCheckboxChange($event)" 
+        [checked]="highlightCorrectAfterIncorrect"
+        disableRipple="true">
         Highlight correct answers after an incorrect selection
       </mat-checkbox>
 
