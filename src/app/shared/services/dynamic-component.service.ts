@@ -1,8 +1,6 @@
 import { Injectable, ComponentFactoryResolver, ViewContainerRef, Type } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class DynamicComponentService {
   constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
 
