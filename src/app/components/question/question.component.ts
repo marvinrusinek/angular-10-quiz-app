@@ -997,8 +997,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Check user preference before highlighting correct answers
         if (this.userPreferenceService.getHighlightPreference()) {
           console.log('User preference set to highlight correct answers, calling highlightCorrectAnswers()');
-          // this.highlightCorrectAnswers();
-          this.highlightCorrectOptionsManually();
+          this.highlightCorrectAnswers();          
         } else {
           console.log('User preference not set to highlight correct answers');
         }
@@ -1035,18 +1034,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         error
       );
     }
-  }
-
-  private highlightCorrectOptionsManually(): void {
-    this.optionsToDisplay.forEach(option => {
-      if (option.correct) {
-        const element = document.querySelector(`[data-option-id="${option.optionId}"]`);
-        if (element) {
-          console.log('Manually highlighting correct option:', option.text);
-          (element as HTMLElement).style.backgroundColor = '#43f756'; // Highlight correct option in green
-        }
-      }
-    });
   }
 
   private highlightCorrectAnswers(): void {
