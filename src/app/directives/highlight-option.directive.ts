@@ -59,36 +59,7 @@ export class HighlightOptionDirective {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
 
-  /* private highlightCorrectAnswers(): void {
-    // Assuming `this.option` is an array of all options, we iterate over them
-    Object.keys(this.showFeedbackForOption).forEach(optionId => {
-      if (this.showFeedbackForOption[optionId] && this.option.correct) {
-        this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
-      }
-    });
-  } */
-
-  /* private highlightCorrectAnswers(): void {
-    Object.keys(this.showFeedbackForOption).forEach(optionId => {
-      // Find the correct option by ID and highlight it
-      if (this.option.optionId === +optionId && this.isCorrect) {
-        this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
-      }
-    });
-  } */
-
-  /* private highlightCorrectAnswers(): void {
-    console.log('Highlighting correct answer:', this.option.text);
-    if (this.isCorrect) {
-      this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
-    }
-  } */
-
   private highlightCorrectAnswers(): void {
-    // Ensure that all correct options are highlighted
-    // this.showFeedbackForOption[this.option.optionId] = true;
-    // this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
-
     console.log('Highlighting correct answers');
 
     if (option.correct) {
@@ -96,7 +67,6 @@ export class HighlightOptionDirective {
       this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
     }
   }
-  
 
   // Reset the state in-between questions
   public reset(): void {
