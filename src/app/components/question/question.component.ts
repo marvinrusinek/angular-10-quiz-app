@@ -975,10 +975,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       ];
       this.selectedOption = { ...option, optionId: index + 1 };
       this.showFeedback = true;
-      this.showFeedbackForOption = { 
+      /* this.showFeedbackForOption = { 
         ...this.showFeedbackForOption, 
         [option.optionId]: true 
-      };
+      }; */
+      this.showFeedbackForOption[option.optionId] = true;
       this.updateFeedbackForOption(option);
 
       this.correctMessage = super.setCorrectMessage(this.optionsToDisplay);
@@ -988,7 +989,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.showFeedbackForOption
       );
 
-      if (option.correct) {
+      /* if (option.correct) {
         console.log('Correct option selected.');
         this.showFeedbackForOption[option.optionId] = true;
       } else {
@@ -1003,6 +1004,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           console.log('User preference set to highlight correct answers.');
           this.highlightCorrectAnswers();
         }
+      } */
+
+      if (!option.correct) {
+        console.log('Incorrect option selected.');
+
+        // Bypass user preference and directly highlight correct options
+        this.highlightCorrectAnswers();
       }
 
       this.updateSelectedOption(option);
