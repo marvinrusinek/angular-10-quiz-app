@@ -38,7 +38,7 @@ export class HighlightOptionDirective {
 
   @HostListener('click') onClick(): void {
     console.log('Option clicked:', this.option.text);
-    
+
     if (this.option) {
       this.isAnswered = true; // Mark as answered
       this.updateHighlight(true); // Update the highlight with answered state
@@ -95,7 +95,7 @@ export class HighlightOptionDirective {
 
   private highlightCorrectAnswers(): void {
     // Ensure that all correct options are highlighted
-    this.showFeedbackForOption[this.option.optionId] = true;
+    // this.showFeedbackForOption[this.option.optionId] = true;
     this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
   }
   

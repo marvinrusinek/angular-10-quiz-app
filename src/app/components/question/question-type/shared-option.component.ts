@@ -64,7 +64,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return true; // Show icon if the user preference is set and the option is correct
     }
 
-    return option.selected; // Default to showing the icon if the option is selected
+    const visibility = option.selected;
+    console.log('Icon visibility based on selection:', visibility);
+    return visibility; // Default to showing the icon if the option is selected
   }
 
   resetIcons(): void {
