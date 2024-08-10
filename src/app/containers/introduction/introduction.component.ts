@@ -161,6 +161,10 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('No quiz selected');
       return;
     }
+
+    const highlightPreference = this.userPreferenceService.getHighlightPreference();
+    console.log('Highlight preference when starting quiz:', highlightPreference);
+
     this.router.navigate(['/question', quizId, 1], { state: { shouldShuffleOptions: this.shouldShuffleOptions } })
       .then(success => {
         // console.log('Navigation promise resolved:', success);
