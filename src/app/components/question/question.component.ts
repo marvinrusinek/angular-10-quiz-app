@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
-  
+
 import { BaseQuestionComponent } from './base-question.component';
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
@@ -975,8 +975,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       ];
       this.selectedOption = { ...option, optionId: index + 1 };
       this.showFeedback = true;
-      // this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
-      this.showFeedbackForOption = { ...this.showFeedbackForOption, [option.optionId]: true };
+      this.showFeedbackForOption = { 
+        ...this.showFeedbackForOption, 
+        [option.optionId]: true 
+      };
       this.updateFeedbackForOption(option);
 
       this.correctMessage = super.setCorrectMessage(this.optionsToDisplay);
@@ -994,7 +996,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         // Check user preference before highlighting correct answers
         if (this.userPreferenceService.getHighlightPreference()) {
+          console.log('User preference set to highlight correct answers, calling highlightCorrectAnswers()');
           this.highlightCorrectAnswers();
+        } else {
+          console.log('User preference not set to highlight correct answers');
         }
       }
 
