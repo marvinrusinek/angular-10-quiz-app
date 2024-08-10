@@ -25,6 +25,7 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
 import { TimerService } from '../../shared/services/timer.service';
+import { UserPreferenceService } from '../../shared/services/user-preference.service';
 
 @Component({
   selector: 'codelab-quiz-question',
@@ -150,6 +151,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     protected selectionMessageService: SelectionMessageService,
     protected sharedVisibilityService: SharedVisibilityService,
     protected timerService: TimerService,
+    protected userPreferenceService: UserPreferenceService,
     protected componentFactoryResolver: ComponentFactoryResolver,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder,
@@ -989,7 +991,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       } else {
         // Mark the incorrect answer
         this.showFeedbackForOption[option.optionId] = true;
-    
+
         // Check user preference before highlighting correct answers
         if (this.userPreferenceService.getHighlightPreference()) {
           this.highlightCorrectAnswers();
