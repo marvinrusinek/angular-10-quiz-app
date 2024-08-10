@@ -1,5 +1,8 @@
 import { Injectable, ComponentFactoryResolver, ViewContainerRef, Type } from '@angular/core';
 
+import { MultipleAnswerComponent } from '../../components/question/question-type/multiple-answer/multiple-answer.component';
+import { SingleAnswerComponent } from '../../components/question/question-type/single-answer/single-answer.component';
+
 @Injectable({ providedIn: 'root' })
 export class DynamicComponentService {
   constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
@@ -14,11 +17,17 @@ export class DynamicComponentService {
     return container.createComponent(componentFactory);
   }
 
-  private async importComponent(type: string): Promise<{ MultipleAnswerComponent?: Type<any>; SingleAnswerComponent?: Type<any>; }> {
+  private async importComponent(type: string): Promise<{ MultipleAnswerComponent?: Type<MultipleAnswerComponent>; SingleAnswerComponent?: Type<SingleAnswerComponent>; }> {
     if (type === 'multiple') {
-      return import('../../components/question/question-type/multiple-answer/multiple-answer.component');
+      return {
+        MultipleAnswerComponent: 
+        (await import('../../components/question/question-type/multiple-answer/multiple-answer.component')).MultipleAnswerComponent as Type<MultipleAnswerComponent>
+      };
     } else {
-      return import('../../components/question/question-type/single-answer/single-answer.component');
+      return {
+        SingleAnswerComponent: 
+        (await import('../../components/question/question-type/single-answer/single-answer.component')).SingleAnswerComponent as Type<SingleAnswerComponent>
+      };
     }
   }
 }
