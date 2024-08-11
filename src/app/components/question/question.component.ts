@@ -277,10 +277,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // this.loadOptions();
       super.setCorrectMessage([]);
 
+      /* this.selectionMessageService.selectionMessage$.subscribe(message => {
+        this.selectionMessage = message;
+      });
+      this.selectionMessageService.resetMessage(); */
+
+      // Subscribe to selectionMessage$
       this.selectionMessageService.selectionMessage$.subscribe(message => {
         this.selectionMessage = message;
       });
-      this.selectionMessageService.resetMessage();
+
+      // Initialize the message after a brief delay to ensure the question is fully loaded
+      setTimeout(() => {
+        if (this.currentQuestionIndex === 0) {
+          this.selectionMessageService.resetMessage();
+        } else {
+          const message = this.selectionMessageService.determineSelectionMessage(
+            this.currentQuestionIndex,
+            this.totalQuestions,
+            false
+          );
+          this.selectionMessageService.updateSelectionMessage(message);
+        }
+      }, 300);
+
 
       document.addEventListener(
         'visibilitychange',
