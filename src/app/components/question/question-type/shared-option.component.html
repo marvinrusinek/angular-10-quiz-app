@@ -16,8 +16,12 @@
           [option]="option"
           [disabled]="option.selected">
           <div class="option-content">
-            <span class="option-text" [ngStyle]="optionTextStyle">{{ idx + 1 }}. {{ option?.text }}</span>
-            <mat-icon *ngIf="isIconVisible(option)" class="material-icons icon" [ngClass]="getOptionIconClass(option)">
+            <span class="option-text" 
+              [ngStyle]="optionTextStyle">{{ idx + 1 }}. {{ option?.text }}
+            </span>
+            <mat-icon *ngIf="isIconVisible(option)"
+              class="material-icons icon" 
+              [ngClass]="getOptionIconClass(option)">
               {{ getOptionIcon(option) }}
             </mat-icon>
           </div>
@@ -37,8 +41,12 @@
           [option]="option"
           [disabled]="option.selected">
           <div class="option-content">
-            <span class="option-text" [ngStyle]="optionTextStyle">{{ idx + 1 }}. {{ option?.text }}</span>
-            <mat-icon *ngIf="isIconVisible(option)" class="material-icons icon" [ngClass]="getOptionIconClass(option)">
+            <span class="option-text" 
+              [ngStyle]="optionTextStyle">{{ idx + 1 }}. {{ option?.text }}
+            </span>
+            <mat-icon *ngIf="isIconVisible(option)"
+              class="material-icons icon" 
+              [ngClass]="getOptionIconClass(option)">
               {{ getOptionIcon(option) }}
             </mat-icon>
           </div>
