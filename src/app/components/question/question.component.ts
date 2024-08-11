@@ -401,17 +401,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private setInitialMessage(): void {
-    const isAnswered = false; // Initial state is not answered
-  
-    setTimeout(() => {
-      const initialMessage = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        isAnswered
-      );
-      console.log('Initial message being set:', initialMessage);
+    if (this.currentQuestionIndex === 0) {
+      // Set the message for the first question before answering
+      const initialMessage = 'Please start the quiz by selecting an option.';
+      console.log('Setting initial message for the first question:', initialMessage);
       this.selectionMessageService.updateSelectionMessage(initialMessage);
-    }, 100);
+    } else {
+      // For other questions, set the generic message
+      this.updateSelectionMessage(false); // Assume not answered
+    }
+  }
+
+  private updateSelectionMessage(isAnswered: boolean): void {
+    const message = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered
+    );
+    console.log('Updating selection message to:', message);
+    this.selectionMessageService.updateSelectionMessage(message);
   }
 
   private loadQuestion(): void {
@@ -1117,6 +1125,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.selectOption(currentQuestion, option, index);
 
       const isAnswered = true;
+      this.updateSelectionMessage(isAnswered);
       await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       /* if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
