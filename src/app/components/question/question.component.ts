@@ -401,7 +401,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private setInitialMessage(): void {
-    if (this.currentQuestionIndex === 0) {
+    const initialMessage = 'Please start the quiz by selecting an option.';
+    console.log('Setting initial message for the first question:', initialMessage);
+    this.selectionMessageService.updateSelectionMessage(initialMessage);
+    /* if (this.currentQuestionIndex === 0) {
       // Set the message for the first question before answering
       const initialMessage = 'Please start the quiz by selecting an option.';
       console.log('Setting initial message for the first question:', initialMessage);
@@ -409,7 +412,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     } else {
       // For other questions, set the generic message
       this.updateSelectionMessage(false); // Assume not answered
-    }
+    } */
   }
 
   private updateSelectionMessage(isAnswered: boolean): void {
