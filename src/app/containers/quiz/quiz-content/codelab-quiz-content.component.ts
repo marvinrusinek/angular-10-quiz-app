@@ -1,4 +1,4 @@
-import { AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -20,7 +20,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
   styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewInit, AfterViewChecked {
+export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked {
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() explanationToDisplay: string;
@@ -135,27 +135,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.initializeSubscriptions();
     this.setupCombinedTextObservable();
     this.configureDisplayLogic();
-
-
-    // Combining the logic to determine if the correct answers text should be displayed
-    this.shouldDisplayCorrectAnswers$ = combineLatest([
-      this.shouldDisplayCorrectAnswers$,
-      this.isExplanationDisplayed$
-    ]).pipe(
-      map(([shouldDisplayCorrectAnswers, isExplanationDisplayed]) =>
-        shouldDisplayCorrectAnswers && !isExplanationDisplayed
-      )
-    );
-
-    // Display correctAnswersText only if the above conditions are met
-    this.displayCorrectAnswersText$ = this.shouldDisplayCorrectAnswers$.pipe(
-      switchMap(shouldDisplay => 
-        shouldDisplay ? this.correctAnswersText$ : of(null)
-      )
-    );
+    this.setupCorrectAnswersTextDisplay();
   }
-
-  ngAfterViewInit(): void {}
 
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
@@ -799,12 +780,22 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     );
   }
-    
-  isCurrentQuestionMultipleAnswer(): Observable<boolean> {
-    return this.currentQuestion.pipe(
-      take(1), // Take the first value emitted and then complete
-      switchMap((question: QuizQuestion) =>
-        question ? this.quizStateService.isMultipleAnswerQuestion(question) : of(false)
+
+  private setupCorrectAnswersTextDisplay(): void {
+    // Combining the logic to determine if the correct answers text should be displayed
+    this.shouldDisplayCorrectAnswers$ = combineLatest([
+      this.shouldDisplayCorrectAnswers$,
+      this.isExplanationDisplayed$
+    ]).pipe(
+      map(([shouldDisplayCorrectAnswers, isExplanationDisplayed]) =>
+        shouldDisplayCorrectAnswers && !isExplanationDisplayed
+      )
+    );
+  
+    // Display correctAnswersText only if the above conditions are met
+    this.displayCorrectAnswersText$ = this.shouldDisplayCorrectAnswers$.pipe(
+      switchMap(shouldDisplay => 
+        shouldDisplay ? this.correctAnswersText$ : of(null)
       )
     );
   }
@@ -812,6 +803,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   // Helper function to check if it's a single-answer question with an explanation
   private isSingleAnswerWithExplanation(isMultipleAnswer: boolean, isExplanationDisplayed: boolean): boolean {
     return !isMultipleAnswer && isExplanationDisplayed;
+  }
+
+  isCurrentQuestionMultipleAnswer(): Observable<boolean> {
+    return this.currentQuestion.pipe(
+      take(1), // Take the first value emitted and then complete
+      switchMap((question: QuizQuestion) =>
+        question ? this.quizStateService.isMultipleAnswerQuestion(question) : of(false)
+      )
+    );
   }
 
   private initializeQuizId(): void {
