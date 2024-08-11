@@ -1257,7 +1257,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       const quizId = this.quizService.getCurrentQuizId();
       const currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex));
-      console.log('Fetched current question::::::>>>>>>', currentQuestion);
   
       if (!currentQuestion) {
         return null;
