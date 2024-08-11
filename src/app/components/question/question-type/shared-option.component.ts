@@ -34,12 +34,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (!this.showFeedbackForOption) {
       this.showFeedbackForOption = [];
     }
-    this.resetIcons();
+    if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
+      this.quizService.resetIcons(this.optionsToDisplay);
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.currentQuestion) {
-      this.resetIcons();
+    if (changes.currentQuestion && this.optionsToDisplay && this.optionsToDisplay.length > 0) {
+      this.quizService.resetIcons(this.optionsToDisplay);
     }
   }
 
@@ -85,10 +87,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     const visibility = option.selected;
     console.log('Icon visibility based on selection:', visibility);
     return visibility || false; // Default to showing the icon if the option is selected
-  }
-
-  resetIcons(): void {
-    this.iconVisibility = this.optionsToDisplay.map(() => false); // Reset all icons to not visible
   }
 
   isSelectedOption(option: Option): boolean {
