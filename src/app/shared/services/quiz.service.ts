@@ -1648,7 +1648,12 @@ export class QuizService implements OnDestroy {
       this.quizData = null;
       this.questions = [];
     }
-  } 
+  }
+
+
+  resetIcons(options: Option[]): boolean[] {
+    return options.map(() => false);
+  }
 
   resetUserSelection(): void {
     this.selectedOption$.next('');
