@@ -559,20 +559,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   private async initializeQuiz(): Promise<void> {
+    if (this.initialized) return; // Prevent re-initialization
     this.initialized = true;
+  
     console.log('Quiz initialization started.');
   
+    // Initialize selected quiz and questions
     this.initializeSelectedQuiz();
-    console.log('Selected quiz initialized.');
-  
     await this.initializeQuizQuestionsAndAnswers();
+  
     console.log('Quiz questions and answers initialized.');
   
+    // Load the first question
     this.loadQuestion();
     console.log('First question loaded.');
   
-    this.setInitialMessage();
-    console.log('Initial message set.');
+    // Set the initial message after the question is fully loaded
+    setTimeout(() => {
+      this.setInitialMessage();
+      console.log('Initial message set.');
+    }, 100); // Delay might be necessary; adjust as needed
   }
   
   // might need later
