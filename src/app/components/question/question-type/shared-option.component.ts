@@ -35,13 +35,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.showFeedbackForOption = [];
     }
     if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-      this.quizService.resetIcons(this.optionsToDisplay);
+      this.resetIconVisibility();
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.currentQuestion && this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-      this.quizService.resetIcons(this.optionsToDisplay);
+      this.resetIconVisibility();
     }
   }
 
