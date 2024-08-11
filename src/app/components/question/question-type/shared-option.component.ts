@@ -47,10 +47,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   private resetOptionState(): void {
     if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
       this.optionsToDisplay.forEach(option => {
-        option.selected = false; // Reset the selected state for each option
-        // Optionally reset other states if necessary, such as option.correct
+        option.selected = false;
       });
-      console.log('Option states reset:', this.optionsToDisplay); // Debugging
     }
   }  
 
