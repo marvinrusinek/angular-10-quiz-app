@@ -588,7 +588,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // Set the initial message after the question is fully loaded
     setTimeout(() => {
       console.log('Setting initial message.');
-      this.updateSelectionMessage(false);
+      this.setInitialMessage();
     }, 100); // Adjust the delay as needed
   }
   
