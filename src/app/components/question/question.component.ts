@@ -306,7 +306,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     await super.ngAfterViewInit();
 
     // Set the initial message after the view is fully initialized
-    this.loadInitialMessage();
+    this.setInitialMessage();
   }
   
   ngOnChanges(changes: SimpleChanges): void {
@@ -407,7 +407,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
-  private loadInitialMessage(): void {
+  private setInitialMessage(): void {
     const isAnswered = false; // Initial state is not answered
   
     setTimeout(() => {
