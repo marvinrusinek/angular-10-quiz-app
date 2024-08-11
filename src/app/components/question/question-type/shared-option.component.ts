@@ -31,6 +31,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   constructor(private userPreferenceService: UserPreferenceService) {}
 
   ngOnInit(): void {
+    this.resetOptionState(); // Reset option states on initialization
+
     if (!this.showFeedbackForOption) {
       this.showFeedbackForOption = [];
     }
@@ -40,8 +42,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.currentQuestion && this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-      this.resetIconVisibility();
+    if (changes.currentQuestion) {
+      this.resetOptionState(); // Reset option states when the question changes
     }
   }
 
