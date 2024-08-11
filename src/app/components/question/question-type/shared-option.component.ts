@@ -45,13 +45,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  private resetIconVisibility(): void {
+  private resetOptionState(): void {
     if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-      this.feedbackIcons = this.optionsToDisplay.map(() => false); // Reset feedback icons
-      this.selectedOptions = this.optionsToDisplay.map(() => false); // Reset selected options if applicable
-      console.log('Feedback and selection reset:', this.feedbackIcons, this.selectedOptions); // Debugging
+      this.optionsToDisplay.forEach(option => {
+        option.selected = false; // Reset the selected state for each option
+        // Optionally reset other states if necessary, such as option.correct
+      });
+      console.log('Option states reset:', this.optionsToDisplay); // Debugging
     }
-  }
+  }  
 
   getOptionIcon(option: Option): string {
     const highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
