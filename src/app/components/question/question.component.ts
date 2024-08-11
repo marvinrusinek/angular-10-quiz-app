@@ -426,19 +426,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private loadQuestion(): void {
-    // Only set the initial message once, to avoid flashing
-    const isAnswered = false;
-    const message = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      isAnswered
-    );
+    console.log('Loading question for index:', this.currentQuestionIndex);
   
-    // Update the selection message if it's not already set
-    if (this.selectionMessage !== message) {
-      this.selectionMessageService.updateSelectionMessage(message);
+    this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+    this.optionsToDisplay = this.currentQuestion.options;
+  
+    console.log('Question Loaded:', this.currentQuestion);
+  
+    // Set the selection message based on whether the question is answered or not
+    if (this.currentQuestionIndex === 0) {
+      // Set the initial message for the first question
+      const initialMessage = 'Please start the quiz by selecting an option.';
+      if (this.selectionMessage !== initialMessage) {
+        this.selectionMessageService.updateSelectionMessage(initialMessage);
+      }
+    } else {
+      // For subsequent questions, use the standard message logic
+      this.updateSelectionMessage(false);
     }
-  }  
+  }
 
   /* private loadQuestion(): void {
     // Ensure the question and options are loaded properly
