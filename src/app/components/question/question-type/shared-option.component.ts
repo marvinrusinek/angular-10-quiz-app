@@ -65,7 +65,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return option.correct ? 'check' : 'close';
     }
   
-    return ''; // No icon if the option is not selected or does not meet the conditions above
+    // No icon if the option is not selected or does not meet the conditions above
+    return '';
   }  
 
   getOptionIconClass(option: Option): string {
