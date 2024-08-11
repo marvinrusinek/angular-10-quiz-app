@@ -745,6 +745,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.totalQuestions,
       isAnswered
     );
+
+    console.log('Determined new message:', newMessage);
+    console.log('Current selection message:', this.selectionMessage);
+
     return this.selectionMessage !== newMessage;
   }
   
