@@ -722,51 +722,6 @@ export class QuizService implements OnDestroy {
     return this.currentQuestion.asObservable();
   }
 
-  /* async setCurrentQuestionIndex(index: number): Promise<void> {
-    try {
-      if (!this.quizId) {
-        console.error('Quiz ID is not available.');
-        return;
-      }
-
-      const response: any = await firstValueFrom(this.getQuestionsForQuiz(this.quizId));
-
-      // Check if response has 'questions' property and is an array
-      if (
-        !response ||
-        !response.questions ||
-        !Array.isArray(response.questions)
-      ) {
-        console.error('Invalid format of questions response:', response);
-        return;
-      }
-
-      // Check if 'questions' property is defined and is an array
-      const questions = response.questions[0]?.questions;
-      if (!questions || !Array.isArray(questions)) {
-        console.error('Invalid format of questions array:', questions);
-        return;
-      }
-
-      const zeroBasedQuestionIndex = Math.max(0, index - 1);
-
-      // Validate the index
-      if (
-        zeroBasedQuestionIndex >= 0 &&
-        zeroBasedQuestionIndex <= questions.length - 1
-      ) {
-        this.currentQuestionIndex = zeroBasedQuestionIndex;
-        this.currentQuestionIndexSource.next(zeroBasedQuestionIndex);
-      } else {
-        console.error(
-          `Invalid question index: ${index}. Total questions available: ${questions.length}`
-        );
-      }
-    } catch (error) {
-      console.error('Error setting current question index:', error);
-    }
-  } */
-
   async setCurrentQuestionIndex(index: number): Promise<void> {
     try {
       if (!this.quizId) {
@@ -801,7 +756,6 @@ export class QuizService implements OnDestroy {
       console.error('Error setting current question index:', error);
     }
   }
-  
 
   getCurrentQuestionIndex(): number {
     const selectedQuiz = this.quizData.find(quiz => quiz.quizId === this.quizId);
