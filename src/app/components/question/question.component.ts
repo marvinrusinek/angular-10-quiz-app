@@ -1141,10 +1141,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.totalQuestions,
         isAnswered
       );
+
+      console.log('Updating selection message. New message:', newMessage);
   
       if (this.selectionMessage !== newMessage) {
         this.selectionMessage = newMessage;
         this.selectionMessageService.updateSelectionMessage(newMessage);
+        console.log('Selection message updated to:', newMessage);
       } else {
         console.log(
           '[updateSelectionMessageBasedOnCurrentState] No message update required'
