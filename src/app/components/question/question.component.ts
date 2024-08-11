@@ -408,13 +408,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private updateSelectionMessage(isAnswered: boolean): void {
-    const message = this.selectionMessageService.determineSelectionMessage(
+    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       isAnswered
     );
-    console.log('Updating selection message to:', message);
-    this.selectionMessageService.updateSelectionMessage(message);
+  
+    // Only update the message if it's actually changing to avoid unnecessary re-renders
+    if (currentMessage !== newMessage) {
+      console.log('Updating selection message to:', newMessage);
+      this.selectionMessageService.updateSelectionMessage(newMessage);
+    } else {
+      console.log('Selection message remains the same, no update needed.');
+    }
   }
 
   private loadQuestion(): void {
