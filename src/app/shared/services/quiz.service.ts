@@ -1650,7 +1650,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-
   resetIcons(options: Option[]): boolean[] {
     return options.map(() => false);
   }
