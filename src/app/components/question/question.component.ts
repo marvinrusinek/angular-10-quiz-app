@@ -402,17 +402,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
-    console.log('Setting initial message for the first question:', initialMessage);
-    this.selectionMessageService.updateSelectionMessage(initialMessage);
-    /* if (this.currentQuestionIndex === 0) {
-      // Set the message for the first question before answering
-      const initialMessage = 'Please start the quiz by selecting an option.';
-      console.log('Setting initial message for the first question:', initialMessage);
+    if (this.selectionMessage !== initialMessage) {
       this.selectionMessageService.updateSelectionMessage(initialMessage);
-    } else {
-      // For other questions, set the generic message
-      this.updateSelectionMessage(false); // Assume not answered
-    } */
+    }
   }
 
   private updateSelectionMessage(isAnswered: boolean): void {
@@ -433,16 +425,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     console.log('Question Loaded:', this.currentQuestion);
   
-    // Set the selection message based on whether the question is answered or not
     if (this.currentQuestionIndex === 0) {
-      // Set the initial message for the first question
-      const initialMessage = 'Please start the quiz by selecting an option.';
-      if (this.selectionMessage !== initialMessage) {
-        this.selectionMessageService.updateSelectionMessage(initialMessage);
+      // Set the initial message for the first question, ensure it's set once
+      this.setInitialMessage();
+    } else {
+      // For subsequent questions, ensure the message is set correctly without flashing
+      if (!this.selectionMessageService.selectionMessageSubject.getValue().includes('Please click')) {
+        this.updateSelectionMessage(false);
       }
-    } else if (!this.selectionMessageService.selectionMessageSubject.getValue().includes('Please click')) {
-      // For subsequent questions, ensure we don't change to "Please click..." too early
-      this.updateSelectionMessage(false);
     }
   }
 
