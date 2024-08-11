@@ -1,4 +1,4 @@
-<ng-container *ngIf="combinedQuestionData$ | async as combinedData">
+<ng-container *ngIf="combinedQuestionData$ | async">
   <section id="question">
     <h3 question-content>
       <span *ngIf="combinedText$ | async as combinedText; else questionDisplay">
