@@ -74,6 +74,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
 
+  shouldDisplayNumberCorrectText$: Observable<boolean>;
+
   questionRendered: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false); // Use BehaviorSubject
 
   combinedText$: Observable<string>;
@@ -133,6 +135,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.initializeSubscriptions();
     this.setupCombinedTextObservable();
     this.configureDisplayLogic();
+
+
+    // Combining the logic to determine if the correct answers text should be displayed
+    this.shouldDisplayCorrectAnswers$ = combineLatest([
+      this.shouldDisplayCorrectAnswers$,
+      this.isExplanationDisplayed$
+    ]).pipe(
+      map(([shouldDisplayCorrectAnswers, isExplanationDisplayed]) =>
+        shouldDisplayCorrectAnswers && !isExplanationDisplayed
+      )
+    );
+
+    // Display correctAnswersText only if the above conditions are met
+    this.displayCorrectAnswersText$ = this.shouldDisplayCorrectAnswers$.pipe(
+      switchMap(shouldDisplay => 
+        shouldDisplay ? this.correctAnswersText$ : of(null)
+      )
+    );
   }
 
   ngAfterViewInit(): void {}
