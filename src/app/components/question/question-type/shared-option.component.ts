@@ -47,8 +47,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   private resetIconVisibility(): void {
     if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-      this.showFeedbackForOption = this.optionsToDisplay.map(() => false); // Reset all icons to not visible
-      console.log('Icons reset:', this.showFeedbackForOption); // Debugging
+      this.feedbackIcons = this.optionsToDisplay.map(() => false); // Reset feedback icons
+      this.selectedOptions = this.optionsToDisplay.map(() => false); // Reset selected options if applicable
+      console.log('Feedback and selection reset:', this.feedbackIcons, this.selectedOptions); // Debugging
     }
   }
 
