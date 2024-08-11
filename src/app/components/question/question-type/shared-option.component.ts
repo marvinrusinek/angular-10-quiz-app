@@ -36,9 +36,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (!this.showFeedbackForOption) {
       this.showFeedbackForOption = [];
     }
-    if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-      this.resetIconVisibility();
-    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
