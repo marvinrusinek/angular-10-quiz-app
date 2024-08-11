@@ -91,17 +91,16 @@ export class HighlightOptionDirective {
 
   private highlightCorrectAnswers(): void {
     console.log('Highlighting correct answers');
-    
-    this.allOptions.forEach(opt => {
-      if (opt.correct) {
-        console.log('Correct option found:', opt.text);
-        this.showFeedbackForOption[opt.optionId] = true;
-        // Apply the highlight only if this is the element corresponding to the correct option
-        if (opt.optionId === this.option.optionId) {
+
+    if (this.allOptions) {
+      this.allOptions.forEach(opt => {
+        if (opt.correct) {
           this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
         }
-      }
-    });
+      });
+    } else {
+      console.error('All options are not defined');
+    }
   }
 
   // Reset the state in-between questions
