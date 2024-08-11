@@ -282,25 +282,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       });
       this.selectionMessageService.resetMessage(); */
 
-      // Subscribe to selectionMessage$
+      // Subscribe to selectionMessage$ to update the message displayed in the template
       this.selectionMessageService.selectionMessage$.subscribe(message => {
         this.selectionMessage = message;
       });
 
-      // Initialize the message after a brief delay to ensure the question is fully loaded
-      setTimeout(() => {
-        if (this.currentQuestionIndex === 0) {
-          this.selectionMessageService.resetMessage();
-        } else {
-          const message = this.selectionMessageService.determineSelectionMessage(
-            this.currentQuestionIndex,
-            this.totalQuestions,
-            false
-          );
-          this.selectionMessageService.updateSelectionMessage(message);
-        }
-      }, 300);
-
+      // Ensure the message is set when the question is loaded
+      this.loadQuestion();
 
       document.addEventListener(
         'visibilitychange',
@@ -412,6 +400,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         );
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       });
+    }
+  }
+
+  private loadQuestion(): void {
+    // Ensure the question and options are loaded properly
+    // Example: Assuming you're loading the question from a service or input binding
+    if (this.currentQuestionIndex === 0) {
+      // For the first question
+      this.selectionMessageService.resetMessage();
+    } else {
+      // For subsequent questions, set the initial message
+      const message = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        false // Assuming the question is not answered initially
+      );
+      this.selectionMessageService.updateSelectionMessage(message);
     }
   }
   
