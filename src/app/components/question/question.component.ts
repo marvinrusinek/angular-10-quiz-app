@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil } from 'rxjs/operators';
 
-import { BaseQuestionComponent } from './base-question.component';
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -26,6 +25,7 @@ import { SelectionMessageService } from '../../shared/services/selection-message
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
 import { TimerService } from '../../shared/services/timer.service';
 import { UserPreferenceService } from '../../shared/services/user-preference.service';
+import { BaseQuestionComponent } from './base-question.component';
 
 @Component({
   selector: 'codelab-quiz-question',
