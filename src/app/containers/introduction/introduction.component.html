@@ -47,14 +47,15 @@
     </mat-card-content>
 
     <mat-card-actions>
-      <mat-checkbox (change)="onCheckboxChange($event)" disableRipple="true" capture>
+      <mat-checkbox
+        (change)="onCheckboxChange($event)" disableRipple="true" capture>
         Shuffle questions and answers
       </mat-checkbox>
       <br />
       <mat-checkbox 
         (change)="onCheckboxChange($event)" 
         [checked]="highlightPreference"
-        disableRipple="true">
+        disableRipple="true" capture>
         Get immediate feedback!
       </mat-checkbox>
 
