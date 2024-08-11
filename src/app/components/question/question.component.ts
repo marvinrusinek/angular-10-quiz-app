@@ -287,10 +287,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.selectionMessage = message;
       });
 
-      // Ensure the message is set when the question is loaded
-      // Load the question first
-      this.loadQuestion();
-
       document.addEventListener(
         'visibilitychange',
         this.onVisibilityChange.bind(this)
@@ -304,9 +300,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   async ngAfterViewInit(): Promise<void> {
     await super.ngAfterViewInit();
-
-    // Set the initial message after the view is fully initialized
-    this.setInitialMessage();
   }
   
   ngOnChanges(changes: SimpleChanges): void {
@@ -567,8 +560,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   private async initializeQuiz(): Promise<void> {
     this.initialized = true;
+    console.log('Quiz initialization started.');
+  
     this.initializeSelectedQuiz();
+    console.log('Selected quiz initialized.');
+  
     await this.initializeQuizQuestionsAndAnswers();
+    console.log('Quiz questions and answers initialized.');
+  
+    this.loadQuestion();
+    console.log('First question loaded.');
+  
+    this.setInitialMessage();
+    console.log('Initial message set.');
   }
   
   // might need later
