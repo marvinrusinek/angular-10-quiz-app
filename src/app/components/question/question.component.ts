@@ -405,7 +405,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   private loadQuestion(): void {
     // Ensure the question and options are loaded properly
-    // Example: Assuming you're loading the question from a service or input binding
     if (this.currentQuestionIndex === 0) {
       // For the first question
       this.selectionMessageService.resetMessage();
@@ -414,7 +413,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       const message = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
         this.totalQuestions,
-        false // Assuming the question is not answered initially
+        false
       );
       this.selectionMessageService.updateSelectionMessage(message);
     }
