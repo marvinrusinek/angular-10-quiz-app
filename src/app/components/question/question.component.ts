@@ -290,9 +290,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Ensure the message is set when the question is loaded
       // Load the question first
       this.loadQuestion();
-      
-      // After the question is loaded, set the initial message
-      this.loadInitialMessage();
 
       document.addEventListener(
         'visibilitychange',
@@ -307,6 +304,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   async ngAfterViewInit(): Promise<void> {
     await super.ngAfterViewInit();
+
+    // Set the initial message after the view is fully initialized
+    this.loadInitialMessage();
   }
   
   ngOnChanges(changes: SimpleChanges): void {
