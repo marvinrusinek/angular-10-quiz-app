@@ -570,15 +570,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     console.log('Quiz questions and answers initialized.');
   
-    // Load the first question
-    this.loadQuestion();
-    console.log('First question loaded.');
+    // Load the first question and then set the initial message
+    this.loadQuestionAndSetMessage();
+  }
+
+  private loadQuestionAndSetMessage(): void {
+    this.loadQuestion(); // Load the question first
   
-    // Set the initial message after the question is fully loaded
     setTimeout(() => {
       this.setInitialMessage();
-      console.log('Initial message set.');
-    }, 100); // Delay might be necessary; adjust as needed
+    }, 100); // Ensure everything is loaded before setting the message
   }
   
   // might need later
