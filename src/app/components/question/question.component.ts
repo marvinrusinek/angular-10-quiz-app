@@ -440,8 +440,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       if (this.selectionMessage !== initialMessage) {
         this.selectionMessageService.updateSelectionMessage(initialMessage);
       }
-    } else {
-      // For subsequent questions, use the standard message logic
+    } else if (!this.selectionMessageService.selectionMessageSubject.getValue().includes('Please click')) {
+      // For subsequent questions, ensure we don't change to "Please click..." too early
       this.updateSelectionMessage(false);
     }
   }
