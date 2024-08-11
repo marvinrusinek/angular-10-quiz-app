@@ -1174,6 +1174,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Update the selection message based on the current state
       if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+      } else {
+        console.log('No update required for the selection message.');
       }
       this.updateAnswerStateAndMessage(isAnswered);
 
