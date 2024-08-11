@@ -95,7 +95,12 @@ export class HighlightOptionDirective {
     if (this.allOptions) {
       this.allOptions.forEach(opt => {
         if (opt.correct) {
-          this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
+          console.log('Correct option found:', opt.text, ' - Option ID:', opt.optionId);
+          this.showFeedbackForOption[opt.optionId] = true;
+          // Apply the highlight only if this is the element corresponding to the correct option
+          if (opt.optionId === this.option.optionId) {
+            this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
+          }
         }
       });
     } else {
