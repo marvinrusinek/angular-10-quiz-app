@@ -288,7 +288,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       });
 
       // Ensure the message is set when the question is loaded
+      // Load the question first
       this.loadQuestion();
+      
+      // After the question is loaded, set the initial message
+      this.loadInitialMessage();
 
       document.addEventListener(
         'visibilitychange',
@@ -403,7 +407,36 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
+  private loadInitialMessage(): void {
+    const isAnswered = false; // Initial state is not answered
+  
+    setTimeout(() => {
+      const initialMessage = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        isAnswered
+      );
+      console.log('Initial message being set:', initialMessage);
+      this.selectionMessageService.updateSelectionMessage(initialMessage);
+    }, 100);
+  }
+
   private loadQuestion(): void {
+    // Only set the initial message once, to avoid flashing
+    const isAnswered = false;
+    const message = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered
+    );
+  
+    // Update the selection message if it's not already set
+    if (this.selectionMessage !== message) {
+      this.selectionMessageService.updateSelectionMessage(message);
+    }
+  }  
+
+  /* private loadQuestion(): void {
     // Ensure the question and options are loaded properly
     if (this.currentQuestionIndex === 0) {
       // For the first question
@@ -417,7 +450,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       );
       this.selectionMessageService.updateSelectionMessage(message);
     }
-  }
+  } */
   
   /* loadQuestion(): void {
     console.log('loadQuestion() called');
