@@ -276,6 +276,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       await this.handleQuestionState();
       // this.loadOptions();
       super.setCorrectMessage([]);
+
+      this.selectionMessageService.selectionMessage$.subscribe(message => {
+        this.selectionMessage = message;
+      });
+      this.selectionMessageService.resetMessage();
+
       document.addEventListener(
         'visibilitychange',
         this.onVisibilityChange.bind(this)
