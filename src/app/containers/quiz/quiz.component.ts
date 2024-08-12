@@ -1801,7 +1801,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.quizService.resetAll();
     this.quizStateService.createDefaultQuestionState();
     this.quizStateService.clearSelectedOptions();
-    this.selectionMessageService.resetMessage();
+    this.selectionMessageService.resetMessageUpdateState();
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetExplanationText();
     this.selectionMessageService.resetMessageUpdateState();

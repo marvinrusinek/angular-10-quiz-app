@@ -280,7 +280,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       /* this.selectionMessageService.selectionMessage$.subscribe(message => {
         this.selectionMessage = message;
       });
-      this.selectionMessageService.resetMessage(); */
+      this.selectionMessageService.resetMessageUpdateState(); */
 
       // Subscribe to selectionMessage$ to update the message displayed in the template
       this.selectionMessageService.selectionMessage$.subscribe(message => {
@@ -494,7 +494,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // Ensure the question and options are loaded properly
     if (this.currentQuestionIndex === 0) {
       // For the first question
-      this.selectionMessageService.resetMessage();
+      this.selectionMessageService.resetMessageUpdateState();
     } else {
       // For subsequent questions, set the initial message
       const message = this.selectionMessageService.determineSelectionMessage(
@@ -1227,7 +1227,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   private resetMessages(): void {
-    this.selectionMessageService.resetMessage();
+    this.selectionMessageService.resetMessageUpdateState();
     const initialMessage = 'Please start the quiz by selecting an option.';
     if (this.selectionMessage !== initialMessage) {
       this.selectionMessage = initialMessage;
@@ -1250,7 +1250,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.selectedOptionService.resetAnsweredState();
     this.selectionMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
-    this.selectionMessageService.resetMessage();
+    this.selectionMessageService.resetMessageUpdateState();
   }
   
   private updateSelectedOption(option: SelectedOption): void {
