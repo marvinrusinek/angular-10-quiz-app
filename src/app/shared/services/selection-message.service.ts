@@ -6,6 +6,8 @@ export class SelectionMessageService {
   selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to start the quiz.');
   optionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
+  private hasUpdatedMessageForQuestion = new Map<number, boolean>();
+
   // Method to get the current message as an observable
   get selectionMessage$(): Observable<string> {
     return this.selectionMessageSubject.asObservable();
@@ -43,10 +45,18 @@ export class SelectionMessageService {
       console.log('[updateSelectionMessage] No update required, message unchanged');
     }
   } */
-  updateSelectionMessage(newMessage: string): void {
+  /* updateSelectionMessage(newMessage: string): void {
     if (this.selectionMessageSubject.getValue() !== newMessage) {
       console.log('[SelectionMessageService] Updating message to:', newMessage);
       this.selectionMessageSubject.next(newMessage);
+    } else {
+      console.log('[updateSelectionMessage] No update required, message unchanged');
+    }
+  } */
+  updateSelectionMessage(currentQuestionIndex: number, newMessage: string): void {
+    if (!this.hasUpdatedMessageForQuestion.get(currentQuestionIndex) || this.selectionMessageSubject.value !== newMessage) {
+      this.selectionMessageSubject.next(newMessage);
+      this.hasUpdatedMessageForQuestion.set(currentQuestionIndex, true);
     } else {
       console.log('[updateSelectionMessage] No update required, message unchanged');
     }
@@ -56,5 +66,6 @@ export class SelectionMessageService {
     const initialMessage = 'Please select an option to continue...';
     this.selectionMessageSubject.next(initialMessage);
     this.optionSelectedSubject.next(false);
+    this.hasUpdatedMessageForQuestion.clear();
   }
 }
