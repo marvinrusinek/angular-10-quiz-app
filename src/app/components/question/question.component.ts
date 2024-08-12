@@ -404,7 +404,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     const initialMessage = 'Please start the quiz by selecting an option.';
     const currentMessage = this.selectionMessageService.selectionMessageSubject.value;
 
-    // Only set the initial message if it hasn't been set already
     if (currentMessage !== initialMessage) {
         console.log('Setting initial message:', initialMessage);
         this.selectionMessageService.updateSelectionMessage(initialMessage);
@@ -418,10 +417,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.totalQuestions,
         isAnswered
     );
-
-    console.log(`Current Message: ${currentMessage}`);
-    console.log(`New Message: ${newMessage}`);
-    console.log(`Is Answered: ${isAnswered}`);
 
     if (currentMessage !== newMessage) {
         console.log('Updating selection message to:', newMessage);
@@ -439,23 +434,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     console.log('Question Loaded:', this.currentQuestion);
 
-    if (this.currentQuestionIndex === 0) {
-        // Set the initial message only once for the first question
-        this.setInitialMessage();
-    } else {
-        // For subsequent questions, ensure the message is set correctly without flashing
-        const currentMessage = this.selectionMessageService.selectionMessageSubject.value;
-        const expectedMessage = this.selectionMessageService.determineSelectionMessage(
-            this.currentQuestionIndex,
-            this.totalQuestions,
-            false // Not answered yet
-        );
+    const currentMessage = this.selectionMessageService.selectionMessageSubject.value;
+    const expectedMessage = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        false // Not answered yet
+    );
 
-        if (currentMessage !== expectedMessage) {
-            this.selectionMessageService.updateSelectionMessage(expectedMessage);
-        }
+    // Only update if the message hasn't been set or has changed
+    if (currentMessage !== expectedMessage) {
+        this.selectionMessageService.updateSelectionMessage(expectedMessage);
     }
   }
+
 
   /* private loadQuestion(): void {
     // Ensure the question and options are loaded properly
