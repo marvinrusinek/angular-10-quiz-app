@@ -408,39 +408,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private updateSelectionMessage(isAnswered: boolean): void {
     const currentMessage = this.selectionMessageService.selectionMessageSubject.value;
     const newMessage = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      isAnswered
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        isAnswered
     );
-  
+
     console.log(`Current Message: ${currentMessage}`);
     console.log(`New Message: ${newMessage}`);
     console.log(`Is Answered: ${isAnswered}`);
-  
+
     if (currentMessage !== newMessage) {
-      console.log('Updating selection message to:', newMessage);
-      this.selectionMessageService.updateSelectionMessage(this.currentQuestionIndex, newMessage);
+        console.log('Updating selection message to:', newMessage);
+        this.selectionMessageService.updateSelectionMessage(newMessage);
     } else {
-      console.log('Selection message remains the same, no update needed.');
+        console.log('Selection message remains the same, no update needed.');
     }
   }
+
   
   
   private loadQuestion(): void {
     console.log('Loading question for index:', this.currentQuestionIndex);
-  
+
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
     this.optionsToDisplay = this.currentQuestion.options;
-  
+
     console.log('Question Loaded:', this.currentQuestion);
-  
+
     if (this.currentQuestionIndex === 0) {
-      this.setInitialMessage();
+        // Set the initial message only once for the first question
+        this.setInitialMessage();
     } else {
-      // Update the message to ensure it doesn't flash
-      this.updateSelectionMessage(false);
+        // Ensure the message is set correctly for subsequent questions
+        this.updateSelectionMessage(false); // Ensure the message doesn't flash
     }
   }
+
   
   
 
