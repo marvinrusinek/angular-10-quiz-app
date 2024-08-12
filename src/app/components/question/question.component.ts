@@ -413,6 +413,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       isAnswered
     );
   
+    console.log(`Current Message: ${currentMessage}`);
+    console.log(`New Message: ${newMessage}`);
+    console.log(`Is Answered: ${isAnswered}`);
+  
     if (currentMessage !== newMessage) {
       console.log('Updating selection message to:', newMessage);
       this.selectionMessageService.updateSelectionMessage(this.currentQuestionIndex, newMessage);
@@ -420,6 +424,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log('Selection message remains the same, no update needed.');
     }
   }
+  
   
   private loadQuestion(): void {
     console.log('Loading question for index:', this.currentQuestionIndex);
@@ -432,9 +437,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     if (this.currentQuestionIndex === 0) {
       this.setInitialMessage();
     } else {
+      // Update the message to ensure it doesn't flash
       this.updateSelectionMessage(false);
     }
   }
+  
   
 
   /* private loadQuestion(): void {
