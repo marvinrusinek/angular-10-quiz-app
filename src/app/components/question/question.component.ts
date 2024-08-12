@@ -280,7 +280,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       /* this.selectionMessageService.selectionMessage$.subscribe(message => {
         this.selectionMessage = message;
       });
-      this.selectionMessageService.resetMessageUpdateState(); */
+      this.selectionMessageService.resetMessage(); */
 
       // Subscribe to selectionMessage$ to update the message displayed in the template
       this.selectionMessageService.selectionMessage$.subscribe(message => {
@@ -400,86 +400,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
-  /* private setInitialMessage(): void {
-    const initialMessage = 'Please start the quiz by selecting an option.';
-    console.log('[setInitialMessage] Setting initial message:', initialMessage);
-
-    if (this.selectionMessageService.selectionMessageSubject.getValue() !== initialMessage) {
-        console.log('[setInitialMessage] Message is different, updating...');
-        this.selectionMessageService.updateSelectionMessage(initialMessage);
-    } else {
-        console.log('[setInitialMessage] Message is the same, no update needed.');
-    }
-  } */
-
-  /* private setInitialMessage(): void {
-    const initialMessage = 'Please start the quiz by selecting an option.';
-    this.selectionMessageService.updateSelectionMessage(this.currentQuestionIndex, initialMessage);
-    console.log('Initial message set:', initialMessage);
-  } */
-
   private setInitialMessage(): void {
-    const initialMessage = 'Please start the quiz by selecting an option.';
-    if (!this.selectionMessageService.selectionMessageSubject.value.includes('start the quiz')) {
-      console.log('Setting initial message:', initialMessage);
-      this.selectionMessageService.updateSelectionMessage(this.currentQuestionIndex, initialMessage);
-    }
-  }
-  
-  
-
-  /* private updateSelectionMessage(isAnswered: boolean): void {
-    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
-    const newMessage = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        isAnswered
-    );
-
-    if (currentMessage !== newMessage) {
-        console.log('Updating selection message to:', newMessage);
-        this.selectionMessageService.updateSelectionMessage(newMessage);
-    } else {
-        console.log('Selection message remains the same, no update needed.');
-    }
-  } */
+    setTimeout(() => {
+      const initialMessage = 'Please start the quiz by selecting an option.';
+      if (this.selectionMessage !== initialMessage) {
+        console.log('Setting initial message:', initialMessage);
+        this.selectionMessageService.updateSelectionMessage(initialMessage);
+      }
+    }, 100);
+  }  
 
   private updateSelectionMessage(isAnswered: boolean): void {
-    const currentMessage = this.selectionMessageService.selectionMessageSubject.value;
+    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       isAnswered
     );
   
+    // Only update the message if it's actually changing to avoid unnecessary re-renders
     if (currentMessage !== newMessage) {
       console.log('Updating selection message to:', newMessage);
-      this.selectionMessageService.updateSelectionMessage(this.currentQuestionIndex, newMessage);
+      this.selectionMessageService.updateSelectionMessage(newMessage);
     } else {
       console.log('Selection message remains the same, no update needed.');
     }
   }
-  
-  
-  /* private loadQuestion(): void {
-    console.log('Loading question for index:', this.currentQuestionIndex);
-  
-    this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-    this.optionsToDisplay = this.currentQuestion.options;
-  
-    console.log('Question Loaded:', this.currentQuestion);
-  
-    // Reset message state for the new question
-    this.selectionMessageService.resetMessageState();
-  
-    // Set the initial message only if it's the first question
-    if (this.currentQuestionIndex === 0) {
-      this.setInitialMessage();
-    } else {
-      // Ensure the message is set correctly for subsequent questions
-      this.updateSelectionMessage(false);
-    }
-  } */
+
   private loadQuestion(): void {
     console.log('Loading question for index:', this.currentQuestionIndex);
   
@@ -489,42 +436,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log('Question Loaded:', this.currentQuestion);
   
     if (this.currentQuestionIndex === 0) {
+      // Set the initial message for the first question, ensure it's set once
       this.setInitialMessage();
     } else {
-      this.updateSelectionMessage(false);
+      // For subsequent questions, ensure the message is set correctly without flashing
+      if (!this.selectionMessageService.selectionMessageSubject.getValue().includes('Please click')) {
+        this.updateSelectionMessage(false);
+      }
     }
   }
-  
- 
- /* private loadQuestion(): void {
-  console.log('Loading question for index:', this.currentQuestionIndex);
-
-  this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-  this.optionsToDisplay = this.currentQuestion.options;
-
-  console.log('Question Loaded:', this.currentQuestion);
-
-  if (this.currentQuestionIndex === 0) {
-    // Set the initial message only once for the first question
-    this.setInitialMessage();
-  } else {
-    // Ensure the message is set correctly for subsequent questions
-    const newMessage = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      false // Since the question is not yet answered
-    );
-
-    // Only update if the message actually changes
-    this.selectionMessageService.updateSelectionMessage(newMessage);
-  }
-  } */
 
   /* private loadQuestion(): void {
     // Ensure the question and options are loaded properly
     if (this.currentQuestionIndex === 0) {
       // For the first question
-      this.selectionMessageService.resetMessageUpdateState();
+      this.selectionMessageService.resetMessage();
     } else {
       // For subsequent questions, set the initial message
       const message = this.selectionMessageService.determineSelectionMessage(
@@ -1257,7 +1183,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   private resetMessages(): void {
-    this.selectionMessageService.resetMessageUpdateState();
+    this.selectionMessageService.resetMessage();
     const initialMessage = 'Please start the quiz by selecting an option.';
     if (this.selectionMessage !== initialMessage) {
       this.selectionMessage = initialMessage;
@@ -1280,7 +1206,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.selectedOptionService.resetAnsweredState();
     this.selectionMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
-    this.selectionMessageService.resetMessageUpdateState();
+    this.selectionMessageService.resetMessage();
   }
   
   private updateSelectedOption(option: SelectedOption): void {
