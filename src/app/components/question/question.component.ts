@@ -402,8 +402,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
-    this.selectionMessageService.updateSelectionMessage(this.currentQuestionIndex, initialMessage);
-  }    
+    const currentMessage = this.selectionMessageService.selectionMessageSubject.value;
+
+    // Only set the initial message if it hasn't been set already
+    if (currentMessage !== initialMessage) {
+        console.log('Setting initial message:', initialMessage);
+        this.selectionMessageService.updateSelectionMessage(initialMessage);
+    }
+  }
 
   private updateSelectionMessage(isAnswered: boolean): void {
     const currentMessage = this.selectionMessageService.selectionMessageSubject.value;
@@ -424,7 +430,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('Selection message remains the same, no update needed.');
     }
   }
-  
+
   private loadQuestion(): void {
     console.log('Loading question for index:', this.currentQuestionIndex);
 
@@ -437,13 +443,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Set the initial message only once for the first question
         this.setInitialMessage();
     } else {
-        // Ensure the message is set correctly for subsequent questions
-        this.updateSelectionMessage(false); // Ensure the message doesn't flash
+        // For subsequent questions, ensure the message is set correctly without flashing
+        const currentMessage = this.selectionMessageService.selectionMessageSubject.value;
+        const expectedMessage = this.selectionMessageService.determineSelectionMessage(
+            this.currentQuestionIndex,
+            this.totalQuestions,
+            false // Not answered yet
+        );
+
+        if (currentMessage !== expectedMessage) {
+            this.selectionMessageService.updateSelectionMessage(expectedMessage);
+        }
     }
   }
-
-  
-  
 
   /* private loadQuestion(): void {
     // Ensure the question and options are loaded properly
