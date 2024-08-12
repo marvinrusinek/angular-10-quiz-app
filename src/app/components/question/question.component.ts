@@ -401,32 +401,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private setInitialMessage(): void {
-    setTimeout(() => {
-      const initialMessage = 'Please start the quiz by selecting an option.';
-      if (this.selectionMessage !== initialMessage) {
-        console.log('Setting initial message:', initialMessage);
-        this.selectionMessageService.updateSelectionMessage(initialMessage);
-      }
-    }, 100);
-  }  
+    const initialMessage = 'Please start the quiz by selecting an option.';
+    this.selectionMessageService.updateSelectionMessage(this.currentQuestionIndex, initialMessage);
+  }    
 
   private updateSelectionMessage(isAnswered: boolean): void {
-    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+    const currentMessage = this.selectionMessageService.selectionMessageSubject.value;
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       isAnswered
     );
   
-    // Only update the message if it's actually changing to avoid unnecessary re-renders
     if (currentMessage !== newMessage) {
       console.log('Updating selection message to:', newMessage);
-      this.selectionMessageService.updateSelectionMessage(newMessage);
+      this.selectionMessageService.updateSelectionMessage(this.currentQuestionIndex, newMessage);
     } else {
       console.log('Selection message remains the same, no update needed.');
     }
   }
-
+  
   private loadQuestion(): void {
     console.log('Loading question for index:', this.currentQuestionIndex);
   
@@ -436,15 +430,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log('Question Loaded:', this.currentQuestion);
   
     if (this.currentQuestionIndex === 0) {
-      // Set the initial message for the first question, ensure it's set once
       this.setInitialMessage();
     } else {
-      // For subsequent questions, ensure the message is set correctly without flashing
-      if (!this.selectionMessageService.selectionMessageSubject.getValue().includes('Please click')) {
-        this.updateSelectionMessage(false);
-      }
+      this.updateSelectionMessage(false);
     }
   }
+  
 
   /* private loadQuestion(): void {
     // Ensure the question and options are loaded properly
