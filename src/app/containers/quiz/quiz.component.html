@@ -31,14 +31,11 @@
             (answer)="selectedAnswer($event)"
             [selectedOption]="selectedOption$ | async"          
             [currentQuestion]="currentQuestion"
-            [currentQuestion$]="currentQuestion$ | async"
             [currentQuestionIndex]="currentQuestionIndex"            
             [multipleAnswer]="multipleAnswer"
             (answersChange)="checkIfAnsweredCorrectly()"
             [showFeedback]="showFeedback"
             [selectionMessage]="selectionMessage"
-            (selectionMessageChange)="onSelectionMessageChange($event)"
-            (isAnsweredChange)="onIsAnsweredChange($event)"
           ></codelab-quiz-question>
         </ng-container>
       </ng-container>
