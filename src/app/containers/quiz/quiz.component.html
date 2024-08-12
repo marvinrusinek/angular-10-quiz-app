@@ -13,14 +13,8 @@
         <!-- the question and options -->
         <codelab-quiz-content
           [combinedQuestionData$]="combinedQuestionData$"
-          [questions]="questions"
-          [question]="questionToDisplay"
           [questionToDisplay]="questionToDisplay"
           [explanationToDisplay]="explanationToDisplay"
-          (explanationToDisplayChange)="onExplanationToDisplayChange($event)"
-          [options]="optionsToDisplay"         
-          [correctAnswersText]="correctAnswersText"
-          [shouldDisplayCorrectAnswers]="shouldDisplayCorrectAnswersFlag"
         >
         </codelab-quiz-content> 
         <ng-content></ng-content>
