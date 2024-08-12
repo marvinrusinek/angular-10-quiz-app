@@ -402,13 +402,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
+    console.log('[setInitialMessage] Setting initial message:', initialMessage);
+
     if (this.selectionMessageService.selectionMessageSubject.getValue() !== initialMessage) {
-        console.log('Setting initial message:', initialMessage);
+        console.log('[setInitialMessage] Message is different, updating...');
         this.selectionMessageService.updateSelectionMessage(initialMessage);
+    } else {
+        console.log('[setInitialMessage] Message is the same, no update needed.');
     }
   }
 
-  private updateSelectionMessage(isAnswered: boolean): void {
+  /* private updateSelectionMessage(isAnswered: boolean): void {
     const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
     const newMessage = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
@@ -422,21 +426,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     } else {
         console.log('Selection message remains the same, no update needed.');
     }
-  }
+  } */
 
+  private updateSelectionMessage(isAnswered: boolean): void {
+    const newMessage = isAnswered
+        ? 'Please click the next button to continue...'
+        : 'Please select an option to continue...';
+ 
+    console.log('[updateSelectionMessage] Updating to:', newMessage);
+    this.selectionMessageService.updateSelectionMessage(newMessage);
+ }
+ 
   private loadQuestion(): void {
-    console.log('Loading question for index:', this.currentQuestionIndex);
+    console.log('[loadQuestion] Loading question for index:', this.currentQuestionIndex);
 
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
     this.optionsToDisplay = this.currentQuestion.options;
 
-    console.log('Question Loaded:', this.currentQuestion);
+    console.log('[loadQuestion] Question Loaded:', this.currentQuestion);
 
     if (this.currentQuestionIndex === 0) {
-        // Set the initial message only once for the first question
+        console.log('[loadQuestion] First question, setting initial message');
         this.setInitialMessage();
     } else {
-        // Ensure the message is set correctly for subsequent questions
+        console.log('[loadQuestion] Setting message for subsequent question');
         const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
         const newMessage = this.selectionMessageService.determineSelectionMessage(
             this.currentQuestionIndex,
@@ -444,9 +457,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             false
         );
 
-        // Only update if the message actually changes
         if (currentMessage !== newMessage) {
+            console.log('[loadQuestion] Updating message to:', newMessage);
             this.selectionMessageService.updateSelectionMessage(newMessage);
+        } else {
+            console.log('[loadQuestion] Message is the same, no update needed.');
         }
     }
   }
