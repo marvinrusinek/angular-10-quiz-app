@@ -414,7 +414,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
-    console.log('[QuizComponent] Setting initial message:', initialMessage);
+    console.log('[setInitialMessage] Setting initial message:', initialMessage);
+  
     this.selectionMessageService.updateSelectionMessage(initialMessage);
   }
 
@@ -435,15 +436,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   } */
 
   private updateSelectionMessage(isAnswered: boolean): void {
-    const newMessage = isAnswered
-        ? 'Please click the next button to continue...'
-        : 'Please select an option to continue...';
- 
-    console.log('[updateSelectionMessage] Updating to:', newMessage);
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered
+    );
+  
+    // Directly update the message without additional checks
     this.selectionMessageService.updateSelectionMessage(newMessage);
- }
+  }
+  
+  private loadQuestion(): void {
+    console.log('Loading question for index:', this.currentQuestionIndex);
+  
+    this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+    this.optionsToDisplay = this.currentQuestion.options;
+  
+    console.log('Question Loaded:', this.currentQuestion);
+  
+    if (this.currentQuestionIndex === 0) {
+      this.setInitialMessage();
+    } else {
+      this.updateSelectionMessage(false);
+    }
+  }
+  
  
- private loadQuestion(): void {
+ /* private loadQuestion(): void {
   console.log('Loading question for index:', this.currentQuestionIndex);
 
   this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
@@ -465,7 +484,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // Only update if the message actually changes
     this.selectionMessageService.updateSelectionMessage(newMessage);
   }
-}
+  } */
 
   /* private loadQuestion(): void {
     // Ensure the question and options are loaded properly
