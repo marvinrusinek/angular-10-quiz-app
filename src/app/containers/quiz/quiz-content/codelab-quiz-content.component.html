@@ -5,7 +5,12 @@
         {{ combinedText }}
       </ng-container>
       <ng-template #fallback>
-        <span>No question available.</span>
+        <span *ngIf="!question; else noExplanation">
+          No question available.
+        </span>
+        <ng-template #noExplanation>
+          <span *ngIf="!explanationText">No explanation available.</span>
+        </ng-template>
       </ng-template>
 
       <ng-container *ngIf="correctAnswersText$ | async as correctText">

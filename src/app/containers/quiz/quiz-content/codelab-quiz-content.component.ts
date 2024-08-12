@@ -69,7 +69,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   explanationText$ = this.explanationTextSource.asObservable();
   explanationText: string | null = null;
   explanationTexts: string[] = [];
-  explanationSubscription: Subscription;
 
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
