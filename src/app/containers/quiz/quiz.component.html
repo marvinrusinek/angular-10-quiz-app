@@ -46,7 +46,8 @@
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- instructions message -->
       <h5 class="instructions-message">
-        {{ selectionMessage }}
+        <!--{{ selectionMessage }}-->
+        {{ selectionMessageService.selectionMessageSubject | async }}
       </h5>
 
       <!-- paging -->
