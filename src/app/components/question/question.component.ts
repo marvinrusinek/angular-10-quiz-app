@@ -441,8 +441,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.totalQuestions,
       isAnswered
     );
-  
-    // Directly update the message without additional checks
+    
+    // Directly update the message, but only if it actually changes
     this.selectionMessageService.updateSelectionMessage(newMessage);
   }
   
@@ -454,10 +454,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     console.log('Question Loaded:', this.currentQuestion);
   
+    this.selectionMessageService.resetMessageState();
+  
     if (this.currentQuestionIndex === 0) {
-      this.setInitialMessage(); // Only set this once
+      this.setInitialMessage(); // Set initial message only once for the first question
     } else {
-      this.updateSelectionMessage(false); // Update for subsequent questions
+      this.updateSelectionMessage(false); // Ensure message is correct for subsequent questions
     }
   }
   
