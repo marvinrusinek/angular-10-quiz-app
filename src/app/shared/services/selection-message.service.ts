@@ -54,14 +54,18 @@ export class SelectionMessageService {
     }
   } */
   updateSelectionMessage(currentQuestionIndex: number, newMessage: string): void {
-    if (!this.hasUpdatedMessageForQuestion.get(currentQuestionIndex) || this.selectionMessageSubject.value !== newMessage) {
-        console.log(`Updating message for question index ${currentQuestionIndex}:`, newMessage);
-        this.selectionMessageSubject.next(newMessage);
-        this.hasUpdatedMessageForQuestion.set(currentQuestionIndex, true);
+    const hasUpdated = this.hasUpdatedMessageForQuestion.get(currentQuestionIndex);
+    const currentMessage = this.selectionMessageSubject.value;
+
+    if (!hasUpdated || currentMessage !== newMessage) {
+      console.log(`Updating message for question index ${currentQuestionIndex}:`, newMessage);
+      this.selectionMessageSubject.next(newMessage);
+      this.hasUpdatedMessageForQuestion.set(currentQuestionIndex, true);
     } else {
-        console.log(`[updateSelectionMessage] No update required for question index ${currentQuestionIndex}, message unchanged`);
+      console.log(`[updateSelectionMessage] No update required for question index ${currentQuestionIndex}, message unchanged`);
     }
   }
+
 
   resetMessageUpdateState(): void {
     const initialMessage = 'Please select an option to continue...';
