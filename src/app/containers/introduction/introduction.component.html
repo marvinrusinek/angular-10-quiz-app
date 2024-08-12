@@ -48,15 +48,10 @@
 
     <mat-card-actions>
       <mat-checkbox
-        (change)="onCheckboxChange($event)" disableRipple="true" capture>
-        Shuffle questions and answers
-      </mat-checkbox>
-      <br />
-      <mat-checkbox 
-        (change)="onCheckboxChange($event)" 
+        (change)="onCheckboxChange($event)"
         [checked]="highlightPreference"
         disableRipple="true" capture>
-        Get immediate feedback!
+        <strong>Shuffle questions and answers,<br />get immediate feedback!</strong>
       </mat-checkbox>
 
       <mat-button
