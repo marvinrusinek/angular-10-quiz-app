@@ -417,8 +417,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.totalQuestions,
       isAnswered
     );
-  
-    // Only update the message if it's actually changing to avoid unnecessary re-renders
+
+    // Only update if the message has changed
     if (currentMessage !== newMessage) {
       console.log('Updating selection message to:', newMessage);
       this.selectionMessageService.updateSelectionMessage(newMessage);
@@ -436,12 +436,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log('Question Loaded:', this.currentQuestion);
   
     if (this.currentQuestionIndex === 0) {
-      // Set the initial message for the first question, ensure it's set once
+      // Set the initial message only once for the first question
       this.setInitialMessage();
     } else {
-      // For subsequent questions, ensure the message is set correctly without flashing
-      if (!this.selectionMessageService.selectionMessageSubject.getValue().includes('Please click')) {
-        this.updateSelectionMessage(false);
+      // Ensure the message is set correctly for subsequent questions
+      const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+      const newMessage = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        false
+      );
+  
+      // Only update if the message actually changes
+      if (currentMessage !== newMessage) {
+        this.selectionMessageService.updateSelectionMessage(newMessage);
       }
     }
   }
