@@ -5,7 +5,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class SelectionMessageService {
   selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to start the quiz.');
   optionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-
+  private currentQuestionIndex = -1;
   private hasUpdatedMessageForQuestion = new Map<number, boolean>();
 
   // Method to get the current message as an observable
@@ -55,10 +55,11 @@ export class SelectionMessageService {
   } */
   updateSelectionMessage(currentQuestionIndex: number, newMessage: string): void {
     if (!this.hasUpdatedMessageForQuestion.get(currentQuestionIndex) || this.selectionMessageSubject.value !== newMessage) {
-      this.selectionMessageSubject.next(newMessage);
-      this.hasUpdatedMessageForQuestion.set(currentQuestionIndex, true);
+        console.log(`Updating message for question index ${currentQuestionIndex}:`, newMessage);
+        this.selectionMessageSubject.next(newMessage);
+        this.hasUpdatedMessageForQuestion.set(currentQuestionIndex, true);
     } else {
-      console.log('[updateSelectionMessage] No update required, message unchanged');
+        console.log(`[updateSelectionMessage] No update required for question index ${currentQuestionIndex}, message unchanged`);
     }
   }
 
