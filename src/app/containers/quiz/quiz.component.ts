@@ -1804,6 +1804,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.selectionMessageService.resetMessage();
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetExplanationText();
+    this.selectionMessageService.resetMessageUpdateState();
   
     // Trigger reset in various services
     this.resetStateService.triggerResetFeedback();
