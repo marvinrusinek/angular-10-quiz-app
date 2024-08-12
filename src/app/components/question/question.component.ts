@@ -400,7 +400,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
-  private setInitialMessage(): void {
+  /* private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
     console.log('[setInitialMessage] Setting initial message:', initialMessage);
 
@@ -410,6 +410,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     } else {
         console.log('[setInitialMessage] Message is the same, no update needed.');
     }
+  } */
+
+  private setInitialMessage(): void {
+    const initialMessage = 'Please start the quiz by selecting an option.';
+    console.log('[QuizComponent] Setting initial message:', initialMessage);
+    this.selectionMessageService.updateSelectionMessage(initialMessage);
   }
 
   /* private updateSelectionMessage(isAnswered: boolean): void {
@@ -437,34 +443,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.selectionMessageService.updateSelectionMessage(newMessage);
  }
  
-  private loadQuestion(): void {
-    console.log('[loadQuestion] Loading question for index:', this.currentQuestionIndex);
+ private loadQuestion(): void {
+  console.log('Loading question for index:', this.currentQuestionIndex);
 
-    this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-    this.optionsToDisplay = this.currentQuestion.options;
+  this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+  this.optionsToDisplay = this.currentQuestion.options;
 
-    console.log('[loadQuestion] Question Loaded:', this.currentQuestion);
+  console.log('Question Loaded:', this.currentQuestion);
 
-    if (this.currentQuestionIndex === 0) {
-        console.log('[loadQuestion] First question, setting initial message');
-        this.setInitialMessage();
-    } else {
-        console.log('[loadQuestion] Setting message for subsequent question');
-        const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
-        const newMessage = this.selectionMessageService.determineSelectionMessage(
-            this.currentQuestionIndex,
-            this.totalQuestions,
-            false
-        );
+  if (this.currentQuestionIndex === 0) {
+    // Set the initial message only once for the first question
+    this.setInitialMessage();
+  } else {
+    // Ensure the message is set correctly for subsequent questions
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      false // Since the question is not yet answered
+    );
 
-        if (currentMessage !== newMessage) {
-            console.log('[loadQuestion] Updating message to:', newMessage);
-            this.selectionMessageService.updateSelectionMessage(newMessage);
-        } else {
-            console.log('[loadQuestion] Message is the same, no update needed.');
-        }
-    }
+    // Only update if the message actually changes
+    this.selectionMessageService.updateSelectionMessage(newMessage);
   }
+}
 
   /* private loadQuestion(): void {
     // Ensure the question and options are loaded properly
