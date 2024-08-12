@@ -51,6 +51,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   isExplanationDisplayed = false;
   isExplanationTextDisplayed = false;
   isExplanationTextDisplayed$: Observable<boolean>;
+  private isExplanationDisplayed$ = new BehaviorSubject<boolean>(false);
   nextExplanationText = '';
   formattedExplanation = '';
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -64,6 +65,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   correctAnswersTextSource: BehaviorSubject<string> = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
+
+  public displayCorrectAnswersText$: Observable<string | null>;
 
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
@@ -153,7 +156,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.explanationSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
   }
-  
+
   private initializeExplanationTextObservable(): void {
     combineLatest([
       this.quizStateService.currentQuestion$,
