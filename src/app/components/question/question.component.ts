@@ -414,10 +414,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
-    console.log('[setInitialMessage] Setting initial message:', initialMessage);
-  
     this.selectionMessageService.updateSelectionMessage(initialMessage);
+    console.log('Initial message set:', initialMessage);
   }
+  
 
   /* private updateSelectionMessage(isAnswered: boolean): void {
     const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
@@ -455,11 +455,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log('Question Loaded:', this.currentQuestion);
   
     if (this.currentQuestionIndex === 0) {
-      this.setInitialMessage();
+      this.setInitialMessage(); // Only set this once
     } else {
-      this.updateSelectionMessage(false);
+      this.updateSelectionMessage(false); // Update for subsequent questions
     }
   }
+  
   
  
  /* private loadQuestion(): void {
