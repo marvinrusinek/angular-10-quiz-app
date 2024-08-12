@@ -414,7 +414,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
-    this.selectionMessageService.updateSelectionMessage(initialMessage);
+    this.selectionMessageService.updateSelectionMessage(this.currentQuestionIndex, initialMessage);
     console.log('Initial message set:', initialMessage);
   }
   
@@ -441,9 +441,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.totalQuestions,
       isAnswered
     );
-    
-    // Directly update the message, but only if it actually changes
-    this.selectionMessageService.updateSelectionMessage(newMessage);
+  
+    // Only update the message if it actually needs to be changed
+    this.selectionMessageService.updateSelectionMessage(this.currentQuestionIndex, newMessage);
   }
   
   private loadQuestion(): void {
@@ -454,16 +454,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     console.log('Question Loaded:', this.currentQuestion);
   
+    // Reset message state for the new question
     this.selectionMessageService.resetMessageState();
   
+    // Set the initial message only if it's the first question
     if (this.currentQuestionIndex === 0) {
-      this.setInitialMessage(); // Set initial message only once for the first question
+      this.setInitialMessage();
     } else {
-      this.updateSelectionMessage(false); // Ensure message is correct for subsequent questions
+      // Ensure the message is set correctly for subsequent questions
+      this.updateSelectionMessage(false);
     }
   }
-  
-  
  
  /* private loadQuestion(): void {
   console.log('Loading question for index:', this.currentQuestionIndex);
