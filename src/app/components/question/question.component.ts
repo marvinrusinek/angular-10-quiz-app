@@ -402,6 +402,47 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private setInitialMessage(): void {
+    const initialMessage = 'Please start the quiz by selecting an option.';
+    console.log('Setting initial message:', initialMessage);
+    this.selectionMessageService.updateSelectionMessage(initialMessage);
+  }
+
+  private updateSelectionMessage(isAnswered: boolean): void {
+      const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+      const newMessage = this.selectionMessageService.determineSelectionMessage(
+          this.currentQuestionIndex,
+          this.totalQuestions,
+          isAnswered
+      );
+
+      // Update the message only if it has changed
+      if (currentMessage !== newMessage) {
+          console.log('Updating selection message to:', newMessage);
+          this.selectionMessageService.updateSelectionMessage(newMessage);
+      } else {
+          console.log('Selection message remains the same, no update needed.');
+      }
+  }
+
+  private loadQuestion(): void {
+      console.log('Loading question for index:', this.currentQuestionIndex);
+
+      this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+      this.optionsToDisplay = this.currentQuestion.options;
+
+      console.log('Question Loaded:', this.currentQuestion);
+
+      if (this.currentQuestionIndex === 0) {
+          // Set the initial message immediately for the first question
+          this.setInitialMessage();
+      } else {
+          // For subsequent questions, ensure the message is set correctly without flashing
+          this.updateSelectionMessage(false);
+      }
+  }
+
+
+  /* private setInitialMessage(): void {
     setTimeout(() => {
       const initialMessage = 'Please start the quiz by selecting an option.';
       if (this.selectionMessage !== initialMessage) {
@@ -445,7 +486,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.updateSelectionMessage(false);
       }
     }
-  }
+  } */
 
   /* private loadQuestion(): void {
     // Ensure the question and options are loaded properly
