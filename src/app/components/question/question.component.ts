@@ -406,7 +406,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log('[setInitialMessage] Setting initial message:', initialMessage);
     this.selectionMessageService.updateSelectionMessage(initialMessage);
   } */
-  private setInitialMessage(): void {
+  /* private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
     const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
   
@@ -417,7 +417,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     } else {
       console.log('[setInitialMessage] Initial message already set, no update needed.');
     }
+  } */
+  private setInitialMessage(): void {
+    const initialMessage = 'Please start the quiz by selecting an option.';
+    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+  
+    // Only set the initial message if it's different from the current message
+    if (currentMessage !== initialMessage) {
+      console.log('[setInitialMessage] Setting initial message:', initialMessage);
+      this.selectionMessageService.updateSelectionMessage(initialMessage);
+    }
   }
+  
 
   /* private updateSelectionMessage(isAnswered: boolean): void {
     const newMessage = this.selectionMessageService.determineSelectionMessage(
@@ -428,7 +439,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log(`[updateSelectionMessage] Determined message for question ${this.currentQuestionIndex}: "${newMessage}"`);
     this.selectionMessageService.updateSelectionMessage(newMessage);
   } */
-  private updateSelectionMessage(isAnswered: boolean): void {
+  /* private updateSelectionMessage(isAnswered: boolean): void {
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
@@ -438,9 +449,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log(`[updateSelectionMessage] Updating message for question ${this.currentQuestionIndex}: "${newMessage}"`);
     
     this.selectionMessageService.updateSelectionMessage(newMessage);
+  } */
+  private updateSelectionMessage(isAnswered: boolean): void {
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered
+    );
+  
+    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+  
+    // Only update the message if it actually needs to change
+    if (currentMessage !== newMessage) {
+      console.log(`[updateSelectionMessage] Updating message for question ${this.currentQuestionIndex}: "${newMessage}"`);
+      this.selectionMessageService.updateSelectionMessage(newMessage);
+    }
   }
+  
 
   private loadQuestion(): void {
+    console.log('[loadQuestion] Loading question for index:', this.currentQuestionIndex);
+  
+    this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+    this.optionsToDisplay = this.currentQuestion.options;
+  
+    console.log('[loadQuestion] Question Loaded:', this.currentQuestion);
+  
+    if (this.currentQuestionIndex === 0) {
+      // Set the initial message for the first question only
+      this.setInitialMessage();
+    } else {
+      // For subsequent questions, avoid flashing by only updating when needed
+      this.updateSelectionMessage(false);
+    }
+  }
+  
+
+  /* private loadQuestion(): void {
     console.log('[loadQuestion] Loading question for index:', this.currentQuestionIndex);
   
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
@@ -455,7 +500,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // For subsequent questions, only update if the question is not answered yet
       this.updateSelectionMessage(false);
     }
-  }
+  } */
 
   /* private loadQuestion(): void {
     console.log('[loadQuestion] Loading question for index:', this.currentQuestionIndex);
