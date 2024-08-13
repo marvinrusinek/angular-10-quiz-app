@@ -596,6 +596,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   } */
   private loadQuestion(): void {
     console.log('Loading question for index:', this.currentQuestionIndex);
+
+    // Reset the message to avoid flashing or unnecessary transitions
+    this.selectionMessageService.resetMessage();
   
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
     this.optionsToDisplay = this.currentQuestion.options;
