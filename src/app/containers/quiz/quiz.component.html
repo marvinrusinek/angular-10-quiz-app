@@ -37,6 +37,8 @@
             (answersChange)="checkIfAnsweredCorrectly()"
             [showFeedback]="showFeedback"
             [selectionMessage]="selectionMessage"
+            (selectionMessageChange)="onSelectionMessageChange($event)"
+            (isAnsweredChange)="onIsAnsweredChange($event)"
           ></codelab-quiz-question>
         </ng-container>
       </ng-container>
