@@ -291,6 +291,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           this.selectionMessage = message;
         });
       this.selectionMessageService.resetMessage();
+      this.setInitialMessage();
 
       document.addEventListener(
         'visibilitychange',
@@ -305,9 +306,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   async ngAfterViewInit(): Promise<void> {
     await super.ngAfterViewInit();
+    this.updateSelectionMessage(this.isAnswered);
   }
   
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes.currentQuestionIndex || changes.isAnswered) {
+      this.updateSelectionMessage(this.isAnswered);
+    }
+
     const isSubsequentChange = (change: SimpleChange) =>
       change && !change.firstChange;
   
@@ -409,13 +415,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     const initialMessage = 'Please start the quiz by selecting an option.';
     this.selectionMessageService.updateSelectionMessage(initialMessage);
   } */
-  private setInitialMessage(): void {
+  /* private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
     // Update only if the current message isn't the initial message
     if (this.selectionMessageService.selectionMessageSubject.getValue() !== initialMessage) {
         console.log('Setting initial message:', initialMessage);
         this.selectionMessageService.updateSelectionMessage(initialMessage);
     }
+  } */
+  private setInitialMessage(): void {
+    const initialMessage = 'Please start the quiz by selecting an option.';
+    this.selectionMessageService.updateSelectionMessage(initialMessage);
   }
 
   /* private updateSelectionMessage(isAnswered: boolean): void {
@@ -430,7 +440,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.selectionMessageService.updateSelectionMessage(newMessage);
     }
   } */
-  private updateSelectionMessage(isAnswered: boolean): void {
+  /* private updateSelectionMessage(isAnswered: boolean): void {
     const newMessage = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
         this.totalQuestions,
@@ -446,6 +456,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     } else {
         console.log('Selection message remains the same, no update needed.');
     }
+  } */
+  private updateSelectionMessage(isAnswered: boolean): void {
+    const message = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered
+    );
+    this.selectionMessageService.updateSelectionMessage(message);
   }
 
   
