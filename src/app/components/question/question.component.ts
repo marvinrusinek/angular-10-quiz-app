@@ -446,9 +446,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
     }, 300);  // Added a delay to prevent flashing
   } */
-  private setInitialMessage(): void {
+  /* private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
     this.selectionMessageService.updateSelectionMessage(initialMessage);
+  } */
+  private setInitialMessage(): void {
+    const initialMessage = 'Please start the quiz by selecting an option.';
+    if (this.selectionMessageService.selectionMessageSubject.getValue() !== initialMessage) {
+      this.selectionMessageService.updateSelectionMessage(initialMessage);
+    }
   }
 
   /* private updateSelectionMessage(isAnswered: boolean): void {
@@ -566,7 +572,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }, 300);  // Delay to avoid flashing
   } */
-  private loadQuestion(): void {
+  /* private loadQuestion(): void {
     console.log('Loading question for index:', this.currentQuestionIndex);
   
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
@@ -587,6 +593,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.selectionMessageService.updateSelectionMessage(newMessage);
       }
     }, 100);  // Small delay to prevent flashing
+  } */
+  private loadQuestion(): void {
+    console.log('Loading question for index:', this.currentQuestionIndex);
+  
+    this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+    this.optionsToDisplay = this.currentQuestion.options;
+  
+    console.log('Question Loaded:', this.currentQuestion);
+  
+    if (this.currentQuestionIndex === 0) {
+      this.setInitialMessage();
+    } else {
+      this.updateSelectionMessage(false);
+    }
   }
   
   
