@@ -448,16 +448,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
     }
   } */
-  private setInitialMessage(): void {
+  /* private setInitialMessage(): void {
     if (!this.hasSetInitialMessage) {
       const initialMessage = 'Please start the quiz by selecting an option.';
       this.selectionMessageService.updateSelectionMessage(initialMessage);
       this.hasSetInitialMessage = true;
     }
+  } */
+  private setInitialMessage(): void {
+    const initialMessage = 'Please start the quiz by selecting an option.';
+    this.selectionMessageService.updateSelectionMessage(initialMessage);
   }
-  
-  
-  
 
   /* private updateSelectionMessage(isAnswered: boolean): void {
     const newMessage = this.selectionMessageService.determineSelectionMessage(
@@ -516,7 +517,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.selectionMessageService.updateSelectionMessage(newMessage);
     }, 200); // Adjust the timeout duration as needed
   } */
-  private updateSelectionMessage(): void {
+  /* private updateSelectionMessage(): void {
     const isAnswered = this.hasAnsweredCurrentQuestion(); // Determine if the current question is answered
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
@@ -527,6 +528,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // Only update if the message has changed
     if (this.selectionMessageService.selectionMessageSubject.getValue() !== newMessage) {
       this.selectionMessageService.updateSelectionMessage(newMessage);
+    }
+  } */
+  private updateSelectionMessage(isAnswered: boolean): void {
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        isAnswered
+    );
+
+    if (this.selectionMessageService.selectionMessageSubject.getValue() !== newMessage) {
+        console.log('Updating selection message to:', newMessage);
+        this.selectionMessageService.updateSelectionMessage(newMessage);
     }
   }
   
@@ -550,7 +563,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.updateSelectionMessage(false);
     }
   } */
-  private loadQuestion(): void {
+  /* private loadQuestion(): void {
     console.log('Loading question for index:', this.currentQuestionIndex);
   
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
@@ -559,6 +572,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log('Question Loaded:', this.currentQuestion);
   
     this.updateSelectionMessage(); // Update the selection message based on the loaded question
+  } */
+  private loadQuestion(): void {
+    console.log('Loading question for index:', this.currentQuestionIndex);
+
+    this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+    this.optionsToDisplay = this.currentQuestion.options;
+
+    console.log('Question Loaded:', this.currentQuestion);
+
+    if (this.currentQuestionIndex === 0) {
+        this.setInitialMessage(); // Set initial message only for the first question
+    } else {
+        this.updateSelectionMessage(false); // Update message for other questions
+    }
   }
   
 
