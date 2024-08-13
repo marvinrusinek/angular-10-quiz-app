@@ -459,13 +459,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   } */
   private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
+    console.log('Setting initial message:', initialMessage);
 
-    // Only set the initial message if no other message is set
-    if (!this.selectionMessageService.selectionMessageSubject.getValue()) {
-        console.log('Setting initial message:', initialMessage);
+    // Ensure the message is only updated if no other message exists
+    if (this.selectionMessageService.selectionMessageSubject.getValue() === '') {
         this.selectionMessageService.updateSelectionMessage(initialMessage);
     } else {
-        console.log('Initial message already set, no update needed.');
+        console.log('Initial message already set, skipping update.');
     }
   }
 
@@ -531,10 +531,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('Updating selection message to:', newMessage);
         this.selectionMessageService.updateSelectionMessage(newMessage);
     } else {
-        console.log('Selection message unchanged, no update needed.');
+        console.log('Selection message unchanged, skipping update.');
     }
   }
-
 
   
   /* private loadQuestion(): void {
