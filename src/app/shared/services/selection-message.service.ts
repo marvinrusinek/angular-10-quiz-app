@@ -51,9 +51,7 @@ export class SelectionMessageService {
   }
 
   resetMessage(): void {
-    // this.selectionMessageSubject.next('');
-    const initialMessage = 'Please select an option to continue...';
-    this.selectionMessageSubject.next(initialMessage);
+    this.selectionMessageSubject.next('');
     this.optionSelectedSubject.next(false);
   }
 }
