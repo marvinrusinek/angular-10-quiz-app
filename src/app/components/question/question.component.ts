@@ -289,6 +289,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         .subscribe(message => {
           this.selectionMessage = message;
         });
+      this.selectionMessageService.resetMessage();
 
       document.addEventListener(
         'visibilitychange',
