@@ -418,7 +418,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log('[setInitialMessage] Initial message already set, no update needed.');
     }
   } */
-  private setInitialMessage(): void {
+  /* private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
     const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
   
@@ -427,7 +427,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log('[setInitialMessage] Setting initial message:', initialMessage);
       this.selectionMessageService.updateSelectionMessage(initialMessage);
     }
+  } */
+  private setInitialMessage(): void {
+    setTimeout(() => {
+      const initialMessage = 'Please start the quiz by selecting an option.';
+      this.selectionMessageService.updateSelectionMessage(initialMessage);
+    }, 300); // Slightly increased delay to allow UI to settle
   }
+  
   
 
   /* private updateSelectionMessage(isAnswered: boolean): void {
@@ -450,7 +457,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     
     this.selectionMessageService.updateSelectionMessage(newMessage);
   } */
-  private updateSelectionMessage(isAnswered: boolean): void {
+  /* private updateSelectionMessage(isAnswered: boolean): void {
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
@@ -464,7 +471,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log(`[updateSelectionMessage] Updating message for question ${this.currentQuestionIndex}: "${newMessage}"`);
       this.selectionMessageService.updateSelectionMessage(newMessage);
     }
+  } */
+  private updateSelectionMessage(isAnswered: boolean): void {
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered
+    );
+    console.log('Current Message:', this.selectionMessageService.selectionMessageSubject.getValue());
+    console.log('New Message:', newMessage);
+    this.selectionMessageService.updateSelectionMessage(newMessage);
   }
+  
   
 
   private loadQuestion(): void {

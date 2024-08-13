@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
@@ -7,9 +8,13 @@ export class SelectionMessageService {
   optionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   // Method to get the current message as an observable
-  get selectionMessage$(): Observable<string> {
+  /* get selectionMessage$(): Observable<string> {
     return this.selectionMessageSubject.asObservable();
-  } // not being called, potentially remove
+  } // not being called, potentially remove */
+
+  selectionMessage$: Observable<string> = this.selectionMessageSubject
+  .asObservable()
+  .pipe(distinctUntilChanged(), debounceTime(100));
 
   // Message Determination Function
   determineSelectionMessage(
