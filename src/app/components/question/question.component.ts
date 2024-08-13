@@ -403,6 +403,39 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
+    console.log('[setInitialMessage] Setting initial message:', initialMessage);
+    this.selectionMessageService.updateSelectionMessage(initialMessage);
+  }
+
+  private updateSelectionMessage(isAnswered: boolean): void {
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered
+    );
+    console.log(`[updateSelectionMessage] Determined message for question ${this.currentQuestionIndex}: "${newMessage}"`);
+    this.selectionMessageService.updateSelectionMessage(newMessage);
+  }
+
+  private loadQuestion(): void {
+    console.log('[loadQuestion] Loading question for index:', this.currentQuestionIndex);
+
+    this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+    this.optionsToDisplay = this.currentQuestion.options;
+
+    console.log('[loadQuestion] Question Loaded:', this.currentQuestion);
+
+    if (this.currentQuestionIndex === 0) {
+      console.log('[loadQuestion] First question detected, setting initial message.');
+      this.setInitialMessage();
+    } else {
+      console.log('[loadQuestion] Subsequent question detected, updating selection message.');
+      this.updateSelectionMessage(false);
+    }
+  }
+
+  /* private setInitialMessage(): void {
+    const initialMessage = 'Please start the quiz by selecting an option.';
     console.log('Setting initial message:', initialMessage);
     this.selectionMessageService.updateSelectionMessage(initialMessage);
   }
@@ -439,7 +472,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           // For subsequent questions, ensure the message is set correctly without flashing
           this.updateSelectionMessage(false);
       }
-  }
+  } */
 
 
   /* private setInitialMessage(): void {
@@ -1605,6 +1638,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       );
     }
   
+    this.updateSelectionMessage(true);
     this.handleMultipleAnswer(currentQuestion);
   
     // Ensure Angular change detection picks up state changes
