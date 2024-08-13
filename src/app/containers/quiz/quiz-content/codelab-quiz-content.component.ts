@@ -115,10 +115,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.log('Explanation is not displayed, current correct answers text:', this.correctAnswersTextSource.getValue());
       }
     });
-
-    this.shouldDisplayCorrectAnswers$ = this.quizStateService.explanationDisplayed$.pipe(
-      map((isDisplayed: boolean) => !isDisplayed)
-    );
   }
 
   ngOnInit(): void {
