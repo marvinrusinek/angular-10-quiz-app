@@ -51,10 +51,7 @@ export class SelectionMessageService {
   }
 
   resetMessage(): void {
-    // Only reset if the current message isn't already empty
-    if (this.selectionMessageService.selectionMessageSubject.getValue()) {
-      this.selectionMessageSubject.next('');
-      this.optionSelectedSubject.next(false);
-    }
+    this.selectionMessageSubject.next('');
+    this.optionSelectedSubject.next(false);
   }
 }
