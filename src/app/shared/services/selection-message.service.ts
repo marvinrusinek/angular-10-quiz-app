@@ -51,7 +51,7 @@ export class SelectionMessageService {
   }
 
   resetMessage(): void {
-    this.selectionMessageSubject.next('');
+    this.selectionMessageSubject.next(''); // clear the message
     this.optionSelectedSubject.next(false);
   }
 }
