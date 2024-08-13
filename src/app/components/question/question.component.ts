@@ -450,13 +450,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     const initialMessage = 'Please start the quiz by selecting an option.';
     this.selectionMessageService.updateSelectionMessage(initialMessage);
   } */
-  private setInitialMessage(): void {
+  /* private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
     if (this.selectionMessageService.selectionMessageSubject.getValue() === '') {
       console.log('Setting initial message:', initialMessage);
       this.selectionMessageService.updateSelectionMessage(initialMessage);
     }
+  } */
+  private setInitialMessage(): void {
+    const initialMessage = 'Please start the quiz by selecting an option.';
+    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+
+    // Set the initial message only if it's not already set
+    if (currentMessage === '' || currentMessage === null) {
+        console.log('Setting initial message:', initialMessage);
+        this.selectionMessageService.updateSelectionMessage(initialMessage);
+    } else {
+        console.log('Initial message already set, no update needed.');
+    }
   }
+
 
   /* private updateSelectionMessage(isAnswered: boolean): void {
     const newMessage = this.selectionMessageService.determineSelectionMessage(
@@ -495,7 +508,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     );
     this.selectionMessageService.updateSelectionMessage(message);
   } */
-  private updateSelectionMessage(isAnswered: boolean): void {
+  /* private updateSelectionMessage(isAnswered: boolean): void {
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
@@ -506,7 +519,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log('Updating selection message to:', newMessage);
       this.selectionMessageService.updateSelectionMessage(newMessage);
     }
+  } */
+  private updateSelectionMessage(isAnswered: boolean): void {
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        isAnswered
+    );
+
+    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+
+    if (currentMessage !== newMessage) {
+        console.log('Updating selection message to:', newMessage);
+        this.selectionMessageService.updateSelectionMessage(newMessage);
+    } else {
+        console.log('Selection message unchanged, no update needed.');
+    }
   }
+
 
   
   /* private loadQuestion(): void {
@@ -611,7 +641,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log('Loading question for index:', this.currentQuestionIndex);
 
     // Reset the message to avoid flashing or unnecessary transitions
-    this.selectionMessageService.resetMessage();
+    // this.selectionMessageService.resetMessage();
   
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
     this.optionsToDisplay = this.currentQuestion.options;
