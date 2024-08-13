@@ -606,8 +606,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log('Question Loaded:', this.currentQuestion);
   
     if (this.currentQuestionIndex === 0) {
+      // Set the initial message for the first question only once
       this.setInitialMessage();
     } else {
+      // Update the message for subsequent questions
       this.updateSelectionMessage(false);
     }
   }
