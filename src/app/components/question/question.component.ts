@@ -685,36 +685,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log('Loading question for index:', this.currentQuestionIndex);
   
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-    
-    if (!this.currentQuestion) {
-      console.error(`Question not found for index: ${this.currentQuestionIndex}`);
-      return;
-    }
-
-    this.optionsToDisplay = this.currentQuestion.options;
+    this.optionsToDisplay = this.currentQuestion?.options || [];
+  
     console.log('Question Loaded:', this.currentQuestion);
   
-    if (this.currentQuestionIndex === 0) {
+    // Set the initial message only for the first question and only once
+    if (this.currentQuestionIndex === 0 && !this.selectionMessageService.selectionMessageSubject.getValue()) {
       this.setInitialMessage();
     } else {
-      const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
-      const newMessage = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        false
-      );
-  
-      if (currentMessage !== newMessage) {
-        this.selectionMessageService.updateSelectionMessage(newMessage);
-      }
+      // For subsequent questions, update the message if necessary
+      this.updateSelectionMessage(false);
     }
   
-    this.cdRef.detectChanges();  // Ensure the UI is updated with the restored state
+    // Ensure Angular's change detection picks up the changes
+    this.cdRef.detectChanges();
   }
-
-  
-  
-  
   
   private updateSelectionMessage(isAnswered: boolean): void {
     const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
