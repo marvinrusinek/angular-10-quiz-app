@@ -279,11 +279,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // this.loadOptions();
       super.setCorrectMessage([]);
 
-      /* this.selectionMessageService.selectionMessage$.subscribe(message => {
-        this.selectionMessage = message;
-      });
-      this.selectionMessageService.resetMessage(); */
-
       // Subscribe to selectionMessage$ to update the message displayed in the template
       this.selectionMessageService.selectionMessage$
         .pipe(debounceTime(200))
