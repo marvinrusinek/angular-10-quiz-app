@@ -308,7 +308,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   async ngAfterViewInit(): Promise<void> {
     await super.ngAfterViewInit();
     // this.updateSelectionMessage(this.isAnswered);
-    this.setInitialMessage();
+    // this.setInitialMessage();
+    setTimeout(() => {
+      this.setInitialMessage();
+    }, 100);
   }
   
   ngOnChanges(changes: SimpleChanges): void {
@@ -457,7 +460,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.selectionMessageService.updateSelectionMessage(initialMessage);
     }
   } */
-  private setInitialMessage(): void {
+  /* private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
     console.log('Setting initial message:', initialMessage);
 
@@ -467,6 +470,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     } else {
         console.log('Initial message already set, skipping update.');
     }
+  } */
+  private setInitialMessage(): void {
+    const initialMessage = 'Please start the quiz by selecting an option.';
+    console.log('Setting initial message:', initialMessage);
+    this.selectionMessageService.updateSelectionMessage(initialMessage);
   }
 
   /* private updateSelectionMessage(isAnswered: boolean): void {
