@@ -472,10 +472,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   } */
   private setInitialMessage(): void {
-    const initialMessage = 'Please start the quiz by selecting an option.';
-    console.log('Setting initial message:', initialMessage);
-    this.selectionMessageService.updateSelectionMessage(initialMessage);
+    setTimeout(() => {
+      const initialMessage = this.currentQuestionIndex === 0
+        ? 'Please start the quiz by selecting an option.'
+        : 'Please select an option to continue...';
+
+      console.log('Setting initial message:', initialMessage);
+      this.selectionMessageService.updateSelectionMessage(initialMessage);
+    }, 100);
   }
+
 
   /* private updateSelectionMessage(isAnswered: boolean): void {
     const newMessage = this.selectionMessageService.determineSelectionMessage(
