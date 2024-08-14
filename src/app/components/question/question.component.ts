@@ -379,12 +379,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.resetStateSubscription?.unsubscribe();
   }
 
+  @HostListener('window:beforeunload', ['$event'])
+  beforeUnloadHandler(event: Event): void {
+    // Save the current state, like currentQuestionIndex, options, etc.
+    localStorage.setItem('currentQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+    localStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
+  }
+
   @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
-    // Ensure the correct question and options are displayed when the tab is focused
+    // Restore the current state
+    const savedQuestionIndex = JSON.parse(localStorage.getItem('currentQuestionIndex'));
+    const savedOptions = JSON.parse(localStorage.getItem('optionsToDisplay'));
+  
+    if (savedQuestionIndex !== null) {
+      this.currentQuestionIndex = savedQuestionIndex;
+    }
+  
+    if (savedOptions !== null) {
+      this.optionsToDisplay = savedOptions;
+    }
+  
+    // Reload the question and options based on the restored state
     this.loadQuestion();
-    this.cdRef.detectChanges();
+    this.cdRef.detectChanges();  // Force Angular to detect changes
   }
+  
 
   protected async loadDynamicComponent(): Promise<void> {
     console.log('Loading dynamic component in QuizQuestionComponent');
@@ -654,29 +674,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private loadQuestion(): void {
     console.log('Loading question for index:', this.currentQuestionIndex);
   
-    // this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-    // this.optionsToDisplay = this.currentQuestion.options;
+    this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+    this.optionsToDisplay = this.currentQuestion.options;
   
     console.log('Question Loaded:', this.currentQuestion);
   
-    setTimeout(() => {
-      if (this.currentQuestionIndex === 0) {
-        this.setInitialMessage();
-      } else {
-        const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
-        const newMessage = this.selectionMessageService.determineSelectionMessage(
-          this.currentQuestionIndex,
-          this.totalQuestions,
-          false
-        );
+    if (this.currentQuestionIndex === 0) {
+      this.setInitialMessage();
+    } else {
+      const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+      const newMessage = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        false
+      );
   
-        if (currentMessage !== newMessage) {
-          this.selectionMessageService.updateSelectionMessage(newMessage);
-          this.cdRef.detectChanges();  // Force Angular to detect changes
-        }
+      if (currentMessage !== newMessage) {
+        this.selectionMessageService.updateSelectionMessage(newMessage);
       }
-    }, 200);
+    }
+  
+    this.cdRef.detectChanges();  // Ensure the UI is updated with the restored state
   }
+  
   
   
   
