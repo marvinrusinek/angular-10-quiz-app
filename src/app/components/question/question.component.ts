@@ -379,31 +379,41 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.resetStateSubscription?.unsubscribe();
   }
 
-  @HostListener('window:beforeunload', ['$event'])
-  beforeUnloadHandler(event: Event): void {
-    // Save the current state, like currentQuestionIndex, options, etc.
-    localStorage.setItem('currentQuestionIndex', JSON.stringify(this.currentQuestionIndex));
-    localStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
+  // Listen for the visibility change event
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    if (document.hidden) {
+      this.saveQuizState();
+    } else {
+      this.restoreQuizState();
+    }
   }
 
-  @HostListener('window:focus', ['$event'])
-  onFocus(event: FocusEvent): void {
-    // Restore the current state
-    const savedQuestionIndex = JSON.parse(localStorage.getItem('currentQuestionIndex'));
-    const savedOptions = JSON.parse(localStorage.getItem('optionsToDisplay'));
-  
-    if (savedQuestionIndex !== null) {
-      this.currentQuestionIndex = savedQuestionIndex;
-    }
-  
-    if (savedOptions !== null) {
-      this.optionsToDisplay = savedOptions;
-    }
-  
-    // Reload the question and options based on the restored state
-    this.loadQuestion();
-    this.cdRef.detectChanges();  // Force Angular to detect changes
+  private saveQuizState(): void {
+    // Save the current state of the quiz, such as the current question index
+    sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
+    sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
+    sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
   }
+
+  private restoreQuizState(): void {
+    // Restore the state from session storage
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedOptions = sessionStorage.getItem('optionsToDisplay');
+
+    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
+      this.currentQuestionIndex = +storedIndex;
+      this.currentQuestion = JSON.parse(storedQuestion);
+      this.optionsToDisplay = JSON.parse(storedOptions);
+
+      // Manually trigger change detection to update the view
+      this.cdRef.detectChanges();
+    } else {
+      this.loadQuestion();
+    }
+  }
+
   
 
   protected async loadDynamicComponent(): Promise<void> {
@@ -675,8 +685,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log('Loading question for index:', this.currentQuestionIndex);
   
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+    
+    if (!this.currentQuestion) {
+      console.error(`Question not found for index: ${this.currentQuestionIndex}`);
+      return;
+    }
+
     this.optionsToDisplay = this.currentQuestion.options;
-  
     console.log('Question Loaded:', this.currentQuestion);
   
     if (this.currentQuestionIndex === 0) {
@@ -696,6 +711,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     this.cdRef.detectChanges();  // Ensure the UI is updated with the restored state
   }
+
   
   
   
