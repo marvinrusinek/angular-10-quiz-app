@@ -287,6 +287,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         });
       this.selectionMessageService.resetMessage();
 
+      this.initializeComponent();
       this.loadInitialQuestionAndMessage();
 
       document.addEventListener(
@@ -409,7 +410,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
+  private initializeComponent(): void {
+    // Load the first question or current question
+    this.loadQuestion();
   
+    // Set the initial message for the first question
+    if (this.currentQuestionIndex === 0) {
+      this.setInitialMessage();
+    }
+  }
 
   protected async loadDynamicComponent(): Promise<void> {
     console.log('Loading dynamic component in QuizQuestionComponent');
@@ -453,7 +462,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.setInitialMessage();;
   }
 
-  private setInitialMessage(): void {
+  /* private setInitialMessage(): void {
     const initialMessage = 'Please start the quiz by selecting an option.';
     const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
   
@@ -463,6 +472,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.selectionMessageService.updateSelectionMessage(initialMessage);
     } else {
       console.log('Initial message already set, no need to update.');
+    }
+  } */
+  private setInitialMessage(): void {
+    const initialMessage = 'Please start the quiz by selecting an option.';
+    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+  
+    // Only set the message if it's not already set or if it's empty
+    if (!currentMessage || currentMessage === '') {
+      console.log('Setting initial message:', initialMessage);
+      this.selectionMessageService.updateSelectionMessage(initialMessage);
+    } else {
+      console.log('Initial message already set, skipping update.');
     }
   }
   
@@ -483,7 +504,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
-  private loadQuestion(): void {
+  /* private loadQuestion(): void {
     console.log('Loading question for index:', this.currentQuestionIndex);
   
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
@@ -501,7 +522,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     // Ensure Angular's change detection picks up the changes
     this.cdRef.detectChanges();
+  } */
+  private loadQuestion(): void {
+    console.log('Loading question for index:', this.currentQuestionIndex);
+  
+    this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+    this.optionsToDisplay = this.currentQuestion?.options || [];
+  
+    console.log('Question Loaded:', this.currentQuestion);
+  
+    // Set the initial message only if it's the first question
+    if (this.currentQuestionIndex === 0) {
+      this.setInitialMessage();
+    } else {
+      // Only update the message if necessary
+      this.updateSelectionMessage(false);
+    }
+  
+    this.cdRef.detectChanges();
   }
+  
+
   
   private updateSelectionMessage(isAnswered: boolean): void {
     const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
