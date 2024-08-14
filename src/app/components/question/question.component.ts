@@ -469,13 +469,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   } */
   private setInitialMessage(): void {
-    const initialMessage = this.currentQuestionIndex === 0
-        ? 'Please start the quiz by selecting an option.'
-        : 'Please select an option to continue...';
-
-    console.log('Setting initial message:', initialMessage);
-    this.selectionMessageService.updateSelectionMessage(initialMessage);
+    setTimeout(() => {
+      const initialMessage = 'Please start the quiz by selecting an option.';
+      if (this.selectionMessageService.selectionMessageSubject.getValue() !== initialMessage) {
+        console.log('Setting initial message:', initialMessage);
+        this.selectionMessageService.updateSelectionMessage(initialMessage);
+      }
+    }, 200); // Delay slightly to prevent flashing
   }
+  
 
   /* private updateSelectionMessage(isAnswered: boolean): void {
     const newMessage = this.selectionMessageService.determineSelectionMessage(
@@ -650,14 +652,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     console.log('Question Loaded:', this.currentQuestion);
   
-    if (this.currentQuestionIndex === 0) {
-      // Set the initial message for the first question only once
-      this.setInitialMessage();
-    } else {
-      // Update the message for subsequent questions
-      this.updateSelectionMessage(false);
-    }
+    setTimeout(() => {
+      if (this.currentQuestionIndex === 0) {
+        // Set the initial message only once for the first question
+        this.setInitialMessage();
+      } else {
+        // Ensure the message is set correctly for subsequent questions
+        const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+        const newMessage = this.selectionMessageService.determineSelectionMessage(
+          this.currentQuestionIndex,
+          this.totalQuestions,
+          false
+        );
+  
+        // Only update if the message actually changes
+        if (currentMessage !== newMessage) {
+          this.selectionMessageService.updateSelectionMessage(newMessage);
+        }
+      }
+    }, 200); // Delay slightly to prevent flashing
   }
+  
   
   
   private updateSelectionMessage(isAnswered: boolean): void {
