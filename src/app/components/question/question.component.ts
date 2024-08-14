@@ -506,14 +506,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   } */
   private setInitialMessage(): void {
-    setTimeout(() => {
-      const initialMessage = 'Please start the quiz by selecting an option.';
-      if (this.selectionMessageService.selectionMessageSubject.getValue() !== initialMessage) {
-        console.log('Setting initial message:', initialMessage);
-        this.selectionMessageService.updateSelectionMessage(initialMessage);
-        this.cdRef.detectChanges();
-      }
-    }, 200);
+    const initialMessage = 'Please start the quiz by selecting an option.';
+    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+  
+    // Only set the initial message if it's not already set
+    if (!currentMessage) {
+      console.log('Setting initial message:', initialMessage);
+      this.selectionMessageService.updateSelectionMessage(initialMessage);
+    } else {
+      console.log('Initial message already set, no need to update.');
+    }
   }
   
   /* private updateSelectionMessage(isAnswered: boolean): void {
@@ -566,21 +568,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   } */
   private updateSelectionMessage(isAnswered: boolean): void {
+    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       isAnswered
     );
-
-    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
-
+  
+    // Only update the message if it has changed
     if (currentMessage !== newMessage) {
       console.log('Updating selection message to:', newMessage);
       this.selectionMessageService.updateSelectionMessage(newMessage);
     } else {
-      console.log('Selection message unchanged, skipping update.');
+      console.log('Selection message remains the same, no update needed.');
     }
   }
+  
 
   
   /* private loadQuestion(): void {
