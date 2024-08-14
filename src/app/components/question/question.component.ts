@@ -654,8 +654,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private loadQuestion(): void {
     console.log('Loading question for index:', this.currentQuestionIndex);
   
-    this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-    this.optionsToDisplay = this.currentQuestion.options;
+    // this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+    // this.optionsToDisplay = this.currentQuestion.options;
   
     console.log('Question Loaded:', this.currentQuestion);
   
