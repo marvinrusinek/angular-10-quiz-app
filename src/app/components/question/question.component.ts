@@ -308,10 +308,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   async ngAfterViewInit(): Promise<void> {
     await super.ngAfterViewInit();
     // this.updateSelectionMessage(this.isAnswered);
-    // this.setInitialMessage();
-    setTimeout(() => {
-      this.setInitialMessage();
-    }, 100);
+    this.setInitialMessage();
   }
   
   ngOnChanges(changes: SimpleChanges): void {
