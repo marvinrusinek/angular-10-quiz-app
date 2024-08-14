@@ -379,6 +379,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.resetStateSubscription?.unsubscribe();
   }
 
+  @HostListener('window:focus', ['$event'])
+  onFocus(event: FocusEvent): void {
+    // Ensure the correct question and options are displayed when the tab is focused
+    this.loadQuestion();
+    this.cdRef.detectChanges();
+  }
+
   protected async loadDynamicComponent(): Promise<void> {
     console.log('Loading dynamic component in QuizQuestionComponent');
     if (this.dynamicComponentContainer) {
@@ -399,14 +406,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error('dynamicComponentContainer is still undefined in QuizQuestionComponent');
     }
   }
-
-  @HostListener('window:focus', ['$event'])
-  onFocus(event: FocusEvent): void {
-    // Ensure the correct question and options are displayed when the tab is focused
-    this.loadQuestion();
-    this.cdRef.detectChanges();  // Force Angular to detect changes
-  }
-
   
   // Function to handle visibility changes
   private onVisibilityChange(): void {
