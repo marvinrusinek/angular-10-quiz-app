@@ -1,5 +1,5 @@
 
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentFactoryResolver, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentFactoryResolver, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
@@ -399,6 +399,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error('dynamicComponentContainer is still undefined in QuizQuestionComponent');
     }
   }
+
+  @HostListener('window:focus', ['$event'])
+  onFocus(event: FocusEvent): void {
+    // Ensure the correct question and options are displayed when the tab is focused
+    this.loadQuestion();
+    this.cdRef.detectChanges();  // Force Angular to detect changes
+  }
+
   
   // Function to handle visibility changes
   private onVisibilityChange(): void {
@@ -474,11 +482,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       if (this.selectionMessageService.selectionMessageSubject.getValue() !== initialMessage) {
         console.log('Setting initial message:', initialMessage);
         this.selectionMessageService.updateSelectionMessage(initialMessage);
+        this.cdRef.detectChanges();
       }
-    }, 200); // Delay slightly to prevent flashing
+    }, 200);
   }
   
-
   /* private updateSelectionMessage(isAnswered: boolean): void {
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
@@ -654,10 +662,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     setTimeout(() => {
       if (this.currentQuestionIndex === 0) {
-        // Set the initial message only once for the first question
         this.setInitialMessage();
       } else {
-        // Ensure the message is set correctly for subsequent questions
         const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
         const newMessage = this.selectionMessageService.determineSelectionMessage(
           this.currentQuestionIndex,
@@ -665,12 +671,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           false
         );
   
-        // Only update if the message actually changes
         if (currentMessage !== newMessage) {
           this.selectionMessageService.updateSelectionMessage(newMessage);
+          this.cdRef.detectChanges();  // Force Angular to detect changes
         }
       }
-    }, 200); // Delay slightly to prevent flashing
+    }, 200);
   }
   
   
