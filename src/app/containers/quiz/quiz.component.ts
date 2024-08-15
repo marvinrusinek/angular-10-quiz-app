@@ -1781,7 +1781,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.timerService.startTimer(30);
 
     this.resetBackgroundService.setShouldResetBackground(true);
-    this.resetFeedbackIconService.setShouldResetFeedback(true);
 
     this.resetStateService.triggerResetFeedback();
     this.resetStateService.triggerResetState();
