@@ -1741,23 +1741,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
-    // Prevent multiple quick navigations
     if (this.debounceNavigation) return;
 
-    // Enable debouncing and set timeout to reset it
+    // Enable debouncing to prevent multiple quick navigations
     this.debounceNavigation = true;
     const debounceTimeout = 300; // Adjust the delay as needed
     setTimeout(() => {
-      this.debounceNavigation = false;
+        this.debounceNavigation = false;
     }, debounceTimeout);
+
+    // Set loading state before navigating
+    this.isLoading = true;
 
     // Reset explanation text before navigating
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
 
     if (questionIndex < 0 || questionIndex === undefined) {
-      console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
-      return;
+        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        return;
     }
 
     // Adjust for one-based URL index
@@ -1765,11 +1767,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
 
     try {
-      this.ngZone.run(() => {
-        this.router.navigateByUrl(newUrl);
-      });
+        this.ngZone.run(() => {
+            this.router.navigateByUrl(newUrl);
+        });
     } catch (error) {
-      console.error(`Error navigating to URL: ${newUrl}:`, error);
+        console.error(`Error navigating to URL: ${newUrl}:`, error);
     }
   }
 

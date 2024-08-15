@@ -492,16 +492,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private async loadQuestion(): Promise<void> {
     console.log('Loading question for index:', this.currentQuestionIndex);
 
-    // Clear previous options
+    // Clear previous options to avoid lingering state
     this.optionsToDisplay = [];
-    this.currentQuestion = null;
 
-    // Simulate async operation with a delay
-    await new Promise(resolve => setTimeout(resolve, 200));
+    // Introduce a small delay to simulate asynchronous loading
+    await new Promise(resolve => setTimeout(resolve, 50));
 
-    // Fetch the current question and its options
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-    this.optionsToDisplay = this.currentQuestion?.options || [];
+    this.optionsToDisplay = this.currentQuestion.options;
+
+    console.log('Question Loaded:', this.currentQuestion);
+    console.log('Options Loaded:', this.optionsToDisplay);
+
+    // Exit loading state once question and options are loaded
+    this.isLoading = false;
 
     if (this.currentQuestionIndex === 0) {
       this.setInitialMessage();
