@@ -183,10 +183,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
+    console.log('Window regained focus:', event);
+
+    // Restore the question and options if the current question is not answered
     if (!this.isQuestionAnswered(this.currentQuestionIndex)) {
       this.checkAndDisplayCorrectAnswers();
     }
+
+    // Ensure that the correct question, options, and explanation are displayed
+    if (this.currentQuestionIndex !== undefined) {
+      this.loadQuestion(); // Ensure the current question and options are correctly loaded
+      this.fetchFormattedExplanationText(this.currentQuestionIndex); // Fetch and display the explanation text for the current question
+    } else {
+      console.warn('Current question index is undefined.');
+    }
+
+    this.cdRef.detectChanges(); // Ensure the UI is updated with the restored state
   }
+
 
   async ngOnInit(): Promise<void> {
     this.activatedRoute.paramMap.subscribe(params => {
