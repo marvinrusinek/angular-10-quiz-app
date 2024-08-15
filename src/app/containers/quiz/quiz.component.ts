@@ -124,9 +124,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   explanationToDisplay = '';
   isExplanationVisible = false;
 
-  isQuizDataLoaded = false;
+  private isLoading = false;
+  private isQuizDataLoaded = false;
   private debounceNavigation = false;
-  private debounceTimeout: any;
 
   previousIndex: number | null = null;
   isQuestionIndexChanged = false;
