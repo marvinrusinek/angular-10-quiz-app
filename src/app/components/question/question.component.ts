@@ -541,7 +541,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     this.cdRef.detectChanges();
   } */
-  private loadQuestion(): void {
+  /* private loadQuestion(): void {
     console.log('Loading question for index:', this.currentQuestionIndex);
 
     // Fetch the correct question based on the current index
@@ -572,7 +572,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     this.cdRef.detectChanges();  // Ensure the UI is updated with the restored state
+  } */
+  private loadQuestion(): void {
+    console.log('Loading question for index:', this.currentQuestionIndex);
+
+    // Retrieve the current question based on the currentQuestionIndex
+    this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+
+    if (this.currentQuestion) {
+      // Load options for the current question
+      this.optionsToDisplay = this.currentQuestion.options;
+      console.log('Question Loaded:', this.currentQuestion);
+
+      // Handle selection message
+      if (this.currentQuestionIndex === 0) {
+        this.setInitialMessage();
+      } else {
+        const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+        const newMessage = this.selectionMessageService.determineSelectionMessage(
+          this.currentQuestionIndex,
+          this.totalQuestions,
+          false
+        );
+
+        if (currentMessage !== newMessage) {
+          this.selectionMessageService.updateSelectionMessage(newMessage);
+        }
+      }
+    } else {
+      console.error('No question found for the current index:', this.currentQuestionIndex);
+      // Handle the error case where the question is undefined (optional)
+      this.optionsToDisplay = []; // Clear the options to avoid displaying incorrect ones
+    }
+
+    // Ensure the UI is updated with the restored state
+    this.cdRef.detectChanges();
   }
+
   
   private updateSelectionMessage(isAnswered: boolean): void {
     const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
