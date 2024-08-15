@@ -490,42 +490,45 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   private async loadQuestion(): Promise<void> {
+    // Set loading state to true
+    this.isLoading = true;
+
     console.log('Loading question for index:', this.currentQuestionIndex);
 
-    // Clear previous options to avoid lingering state
+    // Clear previous options and question data to avoid lingering state
     this.optionsToDisplay = [];
+    this.currentQuestion = null;
+    this.explanationToDisplay = '';
 
     // Introduce a small delay to simulate asynchronous loading
     await new Promise(resolve => setTimeout(resolve, 50));
 
-    this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-    this.optionsToDisplay = this.currentQuestion.options || [];
-
-    console.log('Question Loaded:', this.currentQuestion);
-    console.log('Options Loaded:', this.optionsToDisplay);
-
-    // Exit loading state once question and options are loaded
-    this.isLoading = false;
-
-    if (this.currentQuestionIndex === 0) {
-      this.setInitialMessage();
-    } else {
-      const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
-      const newMessage = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        false
-      );
-
-      if (currentMessage !== newMessage) {
-        this.selectionMessageService.updateSelectionMessage(newMessage);
+    try {
+      // Fetch and set the question data
+      this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+      if (!this.currentQuestion) {
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
       }
+
+      this.optionsToDisplay = this.currentQuestion.options || [];
+
+      console.log('Question Loaded:', this.currentQuestion);
+      console.log('Options Loaded:', this.optionsToDisplay);
+
+      // Fetch and display the explanation text for the current question
+      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+
+      // Update the selection message
+      this.updateSelectionMessage(false);
+    } catch (error) {
+      console.error('Error loading question:', error);
+    } finally {
+      // Set loading state to false after question and options are loaded
+      this.isLoading = false;
+
+      // Ensure the UI is updated with the restored state
+      this.cdRef.detectChanges();
     }
-
-    // Fetch and display the explanation text for the current question
-    await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-
-    this.cdRef.detectChanges();  // Ensure the UI is updated with the restored state
   }
   
   isSelectedOption(option: Option): boolean {
