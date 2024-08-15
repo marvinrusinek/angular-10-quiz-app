@@ -126,6 +126,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   isQuizDataLoaded = false;
   private debounceNavigation = false;
+  private debounceTimeout: any;
 
   previousIndex: number | null = null;
   isQuestionIndexChanged = false;
@@ -1740,34 +1741,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
-      if (this.debounceNavigation) return;
+    // Prevent multiple quick navigations
+    if (this.debounceNavigation) return;
 
-      // Enable debouncing to prevent multiple quick navigations
-      this.debounceNavigation = true;
-      setTimeout(() => {
-        this.debounceNavigation = false;
-      }, 300); // Adjust the delay as needed
+    // Enable debouncing and set timeout to reset it
+    this.debounceNavigation = true;
+    const debounceTimeout = 300; // Adjust the delay as needed
+    setTimeout(() => {
+      this.debounceNavigation = false;
+    }, debounceTimeout);
 
-      // Reset explanation text before navigating
-      this.explanationTextService.setShouldDisplayExplanation(false);
-      this.explanationTextService.resetStateBetweenQuestions();
+    // Reset explanation text before navigating
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.resetStateBetweenQuestions();
 
-      if (questionIndex < 0 || questionIndex === undefined) {
-        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
-        return;
-      }
+    if (questionIndex < 0 || questionIndex === undefined) {
+      console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+      return;
+    }
 
-      // Adjust for one-based URL index
-      const adjustedIndexForUrl = questionIndex + 1;
-      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
+    // Adjust for one-based URL index
+    const adjustedIndexForUrl = questionIndex + 1;
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
 
-      try {
-        this.ngZone.run(() => {
-          this.router.navigateByUrl(newUrl);
-        });
-      } catch (error) {
-        console.error(`Error navigating to URL: ${newUrl}:`, error);
-      }
+    try {
+      this.ngZone.run(() => {
+        this.router.navigateByUrl(newUrl);
+      });
+    } catch (error) {
+      console.error(`Error navigating to URL: ${newUrl}:`, error);
+    }
   }
 
   // Reset UI immediately before navigating
