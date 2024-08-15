@@ -607,40 +607,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   } */
   private loadQuestion(): void {
     console.log('Loading question for index:', this.currentQuestionIndex);
-    
-    if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.totalQuestions) {
-      console.error('Invalid question index:', this.currentQuestionIndex);
-      return;
-    }
 
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-
-    if (!this.currentQuestion || !this.currentQuestion.options || this.currentQuestion.options.length === 0) {
-      console.error('Failed to load question or options for index:', this.currentQuestionIndex);
-      return;
-    }
-
     this.optionsToDisplay = this.currentQuestion.options;
 
     console.log('Question Loaded:', this.currentQuestion);
+    console.log('Options Loaded:', this.optionsToDisplay);
 
-    // Reset any previous state if necessary
-    this.selectionMessageService.resetMessage();
+    if (this.currentQuestionIndex === 0) {
+        this.setInitialMessage();
+    } else {
+        const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+        const newMessage = this.selectionMessageService.determineSelectionMessage(
+            this.currentQuestionIndex,
+            this.totalQuestions,
+            false
+        );
 
-    // Update the selection message for the current question
-    const isAnswered = false;
-    const message = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      isAnswered
-    );
+        if (currentMessage !== newMessage) {
+            this.selectionMessageService.updateSelectionMessage(newMessage);
+        }
+    }
 
-    this.selectionMessageService.updateSelectionMessage(message);
-
-    this.cdRef.detectChanges(); // Ensure the UI is updated with the restored state
+    this.cdRef.detectChanges();  // Ensure the UI is updated with the restored state
   }
-
-
   
   private updateSelectionMessage(isAnswered: boolean): void {
     const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
