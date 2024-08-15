@@ -631,14 +631,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     this.cdRef.detectChanges();  // Ensure the UI is updated with the restored state
   } */
-  private loadQuestion(): void {
+  private async loadQuestion(): Promise<void> {
     console.log('Loading question for index:', this.currentQuestionIndex);
 
     // Clear previous options to avoid lingering state
     this.optionsToDisplay = [];
+    this.currentQuestion = null;
 
+    // Simulate async operation with a delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    // Fetch the current question and its options
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-    this.optionsToDisplay = this.currentQuestion.options;
+    this.optionsToDisplay = this.currentQuestion?.options || [];
 
     console.log('Question Loaded:', this.currentQuestion);
     console.log('Options Loaded:', this.optionsToDisplay);
@@ -660,6 +665,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     this.cdRef.detectChanges();  // Ensure the UI is updated with the restored state
   }
+
 
   
   private updateSelectionMessage(isAnswered: boolean): void {

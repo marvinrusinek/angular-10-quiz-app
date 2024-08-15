@@ -1745,7 +1745,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       // Enable debouncing to prevent multiple quick navigations
       this.debounceNavigation = true;
       setTimeout(() => {
-          this.debounceNavigation = false;
+        this.debounceNavigation = false;
       }, 300); // Adjust the delay as needed
 
       // Reset explanation text before navigating
