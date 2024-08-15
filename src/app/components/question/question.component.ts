@@ -490,12 +490,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   private latestQuestionIndex: number = -1;
+private currentLoadQuestionToken: any = null;
 
-  private async loadQuestion(): Promise<void> {
+private async loadQuestion(): Promise<void> {
     // Set loading state to true
     this.isLoading = true;
 
     // Update the latest question index being processed
+    const loadToken = {};
+    this.currentLoadQuestionToken = loadToken;
     this.latestQuestionIndex = this.currentQuestionIndex;
 
     console.log('Loading question for index:', this.currentQuestionIndex);
@@ -516,8 +519,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
 
         // Check if this is still the latest question to be processed
-        if (this.latestQuestionIndex !== this.currentQuestionIndex) {
-            console.log('Aborted loading due to outdated index:', this.currentQuestionIndex);
+        if (this.currentLoadQuestionToken !== loadToken) {
+            console.log('Aborted loading due to a new request:', this.currentQuestionIndex);
             return;
         }
 
