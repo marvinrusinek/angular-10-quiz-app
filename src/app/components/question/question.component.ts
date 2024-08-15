@@ -499,7 +499,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     await new Promise(resolve => setTimeout(resolve, 50));
 
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-    this.optionsToDisplay = this.currentQuestion.options;
+    this.optionsToDisplay = this.currentQuestion.options || [];
 
     console.log('Question Loaded:', this.currentQuestion);
     console.log('Options Loaded:', this.optionsToDisplay);
@@ -521,6 +521,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.selectionMessageService.updateSelectionMessage(newMessage);
       }
     }
+
+    // Fetch and display the explanation text for the current question
+    await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
     this.cdRef.detectChanges();  // Ensure the UI is updated with the restored state
   }
