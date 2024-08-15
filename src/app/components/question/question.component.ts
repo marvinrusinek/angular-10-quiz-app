@@ -471,7 +471,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log('Initial message already set, skipping update.');
     }
   }
-  
+
   private updateSelectionMessage(isAnswered: boolean): void {
     const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
     const newMessage = this.selectionMessageService.determineSelectionMessage(
@@ -479,8 +479,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.totalQuestions,
       isAnswered
     );
-  
-    // Only update the message if it has changed
+
+    // Update the message only if it has changed
     if (currentMessage !== newMessage) {
       console.log('Updating selection message to:', newMessage);
       this.selectionMessageService.updateSelectionMessage(newMessage);
@@ -523,23 +523,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     this.cdRef.detectChanges();  // Ensure the UI is updated with the restored state
-  }
-
-  private updateSelectionMessage(isAnswered: boolean): void {
-    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
-    const newMessage = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      isAnswered
-    );
-
-    // Update the message only if it has changed
-    if (currentMessage !== newMessage) {
-      console.log('Updating selection message to:', newMessage);
-      this.selectionMessageService.updateSelectionMessage(newMessage);
-    } else {
-      console.log('Selection message remains the same, no update needed.');
-    }
   }
   
   isSelectedOption(option: Option): boolean {
