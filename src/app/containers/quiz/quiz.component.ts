@@ -27,7 +27,6 @@ import { SelectionMessageService } from '../../shared/services/selection-message
 import { TimerService } from '../../shared/services/timer.service';
 import { ResetStateService } from '../../shared/services/reset-state.service';
 import { ResetBackgroundService } from '../../shared/services/reset-background.service';
-import { ResetFeedbackIconService } from '../../shared/services/reset-feedback-icon.service';
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
 import { UserPreferenceService } from '../../shared/services/user-preference.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
@@ -153,7 +152,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     private selectedOptionService: SelectedOptionService,
     private resetStateService: ResetStateService,
     private resetBackgroundService: ResetBackgroundService,
-    private resetFeedbackIconService: ResetFeedbackIconService,
     private sharedVisibilityService: SharedVisibilityService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
