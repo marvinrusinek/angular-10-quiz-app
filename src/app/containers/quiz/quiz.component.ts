@@ -1762,7 +1762,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.debounceNavigation = true;
     const debounceTimeout = 300;
     setTimeout(() => {
-      this.debounceNavigation = false;
+        this.debounceNavigation = false;
     }, debounceTimeout);
 
     // Set loading state before navigating
@@ -1774,9 +1774,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Check for valid question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-      console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
-      this.isLoading = false; // Reset loading state in case of invalid index
-      return;
+        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        this.isLoading = false; // Reset loading state in case of invalid index
+        return;
     }
 
     // Adjust for one-based URL index
@@ -1785,13 +1785,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     try {
         // Run the navigation within Angular's zone to trigger change detection
-        await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
-
-        // Ensure the correct question is loaded after navigation
-        await this.loadQuestion();
-
-        // Ensure loading state is reset after navigation is complete
-        this.isLoading = false;
+        this.ngZone.run(() => {
+            this.router.navigateByUrl(newUrl).then(() => {
+                // Ensure loading state is reset after navigation is complete
+                this.isLoading = false;
+            });
+        });
     } catch (error) {
         console.error(`Error navigating to URL: ${newUrl}:`, error);
         this.isLoading = false; // Reset loading state in case of error
