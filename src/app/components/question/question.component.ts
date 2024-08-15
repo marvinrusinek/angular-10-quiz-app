@@ -500,10 +500,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.currentQuestion = null;
     this.explanationToDisplay = '';
 
-    // Introduce a small delay to simulate asynchronous loading
+    // Optional: Introduce a small delay to simulate asynchronous loading
     await new Promise(resolve => setTimeout(resolve, 50));
 
     try {
+      // Check that currentQuestionIndex is valid
+      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.totalQuestions) {
+        throw new Error(`Invalid question index: ${this.currentQuestionIndex}`);
+      }
+
       // Fetch and set the question data
       this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
       if (!this.currentQuestion) {
