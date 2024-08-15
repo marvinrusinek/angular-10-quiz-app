@@ -492,7 +492,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private async loadQuestion(): Promise<void> {
     console.log('Loading question for index:', this.currentQuestionIndex);
 
-    // Clear previous options to avoid lingering state
+    // Clear previous options
     this.optionsToDisplay = [];
     this.currentQuestion = null;
 
@@ -502,9 +502,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // Fetch the current question and its options
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
     this.optionsToDisplay = this.currentQuestion?.options || [];
-
-    console.log('Question Loaded:', this.currentQuestion);
-    console.log('Options Loaded:', this.optionsToDisplay);
 
     if (this.currentQuestionIndex === 0) {
       this.setInitialMessage();
@@ -524,8 +521,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.cdRef.detectChanges();  // Ensure the UI is updated with the restored state
   }
 
-
-  
   private updateSelectionMessage(isAnswered: boolean): void {
     const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
     const newMessage = this.selectionMessageService.determineSelectionMessage(
