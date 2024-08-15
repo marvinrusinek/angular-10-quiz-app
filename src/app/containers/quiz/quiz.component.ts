@@ -1755,11 +1755,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
+    // Prevent navigation if the system is already loading or debouncing
     if (this.isLoading || this.debounceNavigation) return;
 
     // Enable debouncing to prevent multiple quick navigations
     this.debounceNavigation = true;
-    const debounceTimeout = 300; // Adjust the delay as needed
+    const debounceTimeout = 300;
     setTimeout(() => {
       this.debounceNavigation = false;
     }, debounceTimeout);
@@ -1771,9 +1772,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
 
-    if (questionIndex < 0 || questionIndex === undefined) {
+    // Check for valid question index
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
       console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
-      this.isLoading = false;
+      this.isLoading = false; // Reset loading state in case of invalid index
       return;
     }
 
@@ -1782,20 +1784,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
 
     try {
+      // Run the navigation within Angular's zone to trigger change detection
       this.ngZone.run(() => {
         this.router.navigateByUrl(newUrl).then(() => {
-          // Ensure the question is loaded correctly after navigation
-          this.loadQuestion().then(() => {
-            this.isLoading = false;
-          }).catch(error => {
-            console.error('Error loading question:', error);
-            this.isLoading = false;
-          });
+          // Ensure loading state is reset after navigation is complete
+          this.isLoading = false;
         });
       });
     } catch (error) {
       console.error(`Error navigating to URL: ${newUrl}:`, error);
-      this.isLoading = false;
+      this.isLoading = false; // Reset loading state in case of error
     }
   }
 
