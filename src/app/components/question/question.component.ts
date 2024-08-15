@@ -500,39 +500,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.currentQuestion = null;
     this.explanationToDisplay = '';
 
-    // Optional: Introduce a small delay to simulate asynchronous loading
+    // Introduce a small delay to simulate asynchronous loading
     await new Promise(resolve => setTimeout(resolve, 50));
 
     try {
-      // Check that currentQuestionIndex is valid
-      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.totalQuestions) {
-        throw new Error(`Invalid question index: ${this.currentQuestionIndex}`);
-      }
+        // Fetch and set the question data
+        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+        if (!this.currentQuestion) {
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        }
 
-      // Fetch and set the question data
-      this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-      if (!this.currentQuestion) {
-        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-      }
+        this.optionsToDisplay = this.currentQuestion.options || [];
 
-      this.optionsToDisplay = this.currentQuestion.options || [];
+        console.log('Question Loaded:', this.currentQuestion);
+        console.log('Options Loaded:', this.optionsToDisplay);
 
-      console.log('Question Loaded:', this.currentQuestion);
-      console.log('Options Loaded:', this.optionsToDisplay);
+        // Fetch and display the explanation text for the current question
+        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
-      // Fetch and display the explanation text for the current question
-      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-
-      // Update the selection message
-      this.updateSelectionMessage(false);
+        // Update the selection message
+        this.updateSelectionMessage(false);
     } catch (error) {
-      console.error('Error loading question:', error);
+        console.error('Error loading question:', error);
     } finally {
-      // Set loading state to false after question and options are loaded
-      this.isLoading = false;
+        // Set loading state to false after question and options are loaded
+        this.isLoading = false;
 
-      // Ensure the UI is updated with the restored state
-      this.cdRef.detectChanges();
+        // Ensure the UI is updated with the restored state
+        this.cdRef.detectChanges();
     }
   }
   

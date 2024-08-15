@@ -1784,16 +1784,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
 
     try {
-      // Run the navigation within Angular's zone to trigger change detection
-      this.ngZone.run(() => {
-        this.router.navigateByUrl(newUrl).then(() => {
-          // Ensure loading state is reset after navigation is complete
-          this.isLoading = false;
-        });
-      });
+        // Run the navigation within Angular's zone to trigger change detection
+        await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
+
+        // Ensure the correct question is loaded after navigation
+        await this.loadQuestion();
+
+        // Ensure loading state is reset after navigation is complete
+        this.isLoading = false;
     } catch (error) {
-      console.error(`Error navigating to URL: ${newUrl}:`, error);
-      this.isLoading = false; // Reset loading state in case of error
+        console.error(`Error navigating to URL: ${newUrl}:`, error);
+        this.isLoading = false; // Reset loading state in case of error
     }
   }
 
