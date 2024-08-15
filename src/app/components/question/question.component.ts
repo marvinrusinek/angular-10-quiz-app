@@ -605,7 +605,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // Ensure the UI is updated with the restored state
     this.cdRef.detectChanges();
   } */
-  private loadQuestion(): void {
+  /* private loadQuestion(): void {
     console.log('Loading question for index:', this.currentQuestionIndex);
 
     this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
@@ -630,7 +630,37 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     this.cdRef.detectChanges();  // Ensure the UI is updated with the restored state
+  } */
+  private loadQuestion(): void {
+    console.log('Loading question for index:', this.currentQuestionIndex);
+
+    // Clear previous options to avoid lingering state
+    this.optionsToDisplay = [];
+
+    this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+    this.optionsToDisplay = this.currentQuestion.options;
+
+    console.log('Question Loaded:', this.currentQuestion);
+    console.log('Options Loaded:', this.optionsToDisplay);
+
+    if (this.currentQuestionIndex === 0) {
+      this.setInitialMessage();
+    } else {
+      const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+      const newMessage = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        false
+      );
+
+      if (currentMessage !== newMessage) {
+        this.selectionMessageService.updateSelectionMessage(newMessage);
+      }
+    }
+
+    this.cdRef.detectChanges();  // Ensure the UI is updated with the restored state
   }
+
   
   private updateSelectionMessage(isAnswered: boolean): void {
     const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();

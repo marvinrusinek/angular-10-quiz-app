@@ -125,6 +125,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   isExplanationVisible = false;
 
   isQuizDataLoaded = false;
+  private debounceNavigation = false;
 
   previousIndex: number | null = null;
   isQuestionIndexChanged = false;
@@ -1739,26 +1740,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
-    // Reset explanation text before navigating
-    this.explanationTextService.setShouldDisplayExplanation(false);
-    this.explanationTextService.resetStateBetweenQuestions();
+      if (this.debounceNavigation) return;
 
-    if (questionIndex < 0 || questionIndex === undefined) {
-      console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
-      return;
-    }
+      // Enable debouncing to prevent multiple quick navigations
+      this.debounceNavigation = true;
+      setTimeout(() => {
+          this.debounceNavigation = false;
+      }, 300); // Adjust the delay as needed
 
-    // Adjust for one-based URL index
-    const adjustedIndexForUrl = questionIndex + 1;
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
+      // Reset explanation text before navigating
+      this.explanationTextService.setShouldDisplayExplanation(false);
+      this.explanationTextService.resetStateBetweenQuestions();
 
-    try {
-      this.ngZone.run(() => {
-        this.router.navigateByUrl(newUrl);
-      });
-    } catch (error) {
-      console.error(`Error navigating to URL: ${newUrl}:`, error);
-    }
+      if (questionIndex < 0 || questionIndex === undefined) {
+        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        return;
+      }
+
+      // Adjust for one-based URL index
+      const adjustedIndexForUrl = questionIndex + 1;
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
+
+      try {
+        this.ngZone.run(() => {
+          this.router.navigateByUrl(newUrl);
+        });
+      } catch (error) {
+        console.error(`Error navigating to URL: ${newUrl}:`, error);
+      }
   }
 
   // Reset UI immediately before navigating
