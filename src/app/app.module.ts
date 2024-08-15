@@ -58,7 +58,6 @@ import { TimerService } from './shared/services/timer.service';
 import { CountdownService } from './shared/services/countdown.service';
 import { StopwatchService } from './shared/services/stopwatch.service';
 import { ResetBackgroundService } from './shared/services/reset-background.service';
-import { ResetFeedbackIconService } from './shared/services/reset-feedback-icon.service';
 import { ResetStateService } from './shared/services/reset-state.service';
 import { SharedVisibilityService } from './shared/services/shared-visibility.service';
 import { JoinPipe } from './pipes/join.pipe';
@@ -135,7 +134,6 @@ import { QuizGuard } from './router/guards/quiz.guard';
     DynamicComponentService,
     ExplanationTextService,
     ResetBackgroundService,
-    ResetFeedbackIconService,
     ResetStateService,
     SelectedOptionService,
     SelectionMessageService,
