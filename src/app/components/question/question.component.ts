@@ -489,9 +489,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
+  private latestQuestionIndex: number = -1;
+
   private async loadQuestion(): Promise<void> {
     // Set loading state to true
     this.isLoading = true;
+
+    // Update the latest question index being processed
+    this.latestQuestionIndex = this.currentQuestionIndex;
 
     console.log('Loading question for index:', this.currentQuestionIndex);
 
@@ -505,12 +510,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     try {
         // Fetch and set the question data
-        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-        if (!this.currentQuestion) {
+        const question = this.quizService.getQuestion(this.currentQuestionIndex);
+        if (!question) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
 
-        this.optionsToDisplay = this.currentQuestion.options || [];
+        // Check if this is still the latest question to be processed
+        if (this.latestQuestionIndex !== this.currentQuestionIndex) {
+            console.log('Aborted loading due to outdated index:', this.currentQuestionIndex);
+            return;
+        }
+
+        this.currentQuestion = question;
+        this.optionsToDisplay = question.options || [];
 
         console.log('Question Loaded:', this.currentQuestion);
         console.log('Options Loaded:', this.optionsToDisplay);
