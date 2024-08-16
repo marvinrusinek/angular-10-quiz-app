@@ -131,6 +131,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   previousIndex: number | null = null;
   isQuestionIndexChanged = false;
   private isNavigatedByUrl = false;
+  private currentNavigationToken = 0;
   isAnswered$: Observable<boolean>;
   nextButtonTooltip$: Observable<string>;
 
@@ -1753,8 +1754,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.explanationTextService.resetStateBetweenQuestions();
     await this.navigateToQuestion(questionIndex);
   }
-
-  private currentNavigationToken: number = 0;
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
     const navigationToken = ++this.currentNavigationToken;
