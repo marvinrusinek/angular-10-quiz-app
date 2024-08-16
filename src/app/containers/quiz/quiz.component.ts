@@ -1784,6 +1784,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
 
+    // Update the currentQuestionIndex before navigating
+    this.currentQuestionIndex = questionIndex;
+
     // Adjust for one-based URL index
     const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
