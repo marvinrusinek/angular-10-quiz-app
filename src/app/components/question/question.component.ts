@@ -633,9 +633,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     console.log('Loading question for index:', questionIndex);
 
+    // Fully clear previous state to avoid lingering state issues
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
+    
+    // Clear any previous dynamic components if applicable
+    if (this.dynamicComponentContainer) {
+        this.dynamicComponentContainer.clear();
+    }
 
     await new Promise(resolve => setTimeout(resolve, 50)); // Simulate async delay
 
@@ -651,8 +657,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('Question Loaded:', this.currentQuestion);
         console.log('Options Loaded:', this.optionsToDisplay);
 
+        // Dynamically load components if needed
+        if (this.dynamicComponentContainer && !signal.aborted) {
+            await this.loadDynamicComponent();
+        }
+
+        // Fetch and display the explanation text for the current question
         await this.prepareAndSetExplanationText(questionIndex);
 
+        // Update the selection message
         this.updateSelectionMessage(false);
 
     } catch (error) {
@@ -666,6 +679,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.cdRef.detectChanges();
     }
   }
+
   
   isSelectedOption(option: Option): boolean {
     const isOptionSelected =

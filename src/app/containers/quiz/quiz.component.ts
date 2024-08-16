@@ -1949,13 +1949,14 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
         if (this.quizQuestionComponent) {
             await this.quizQuestionComponent.loadQuestion(signal, questionIndex);
         }
+
+        this.isLoading = false;
     } catch (error) {
         if (signal.aborted) {
             console.log('Navigation was cancelled.');
         } else {
             console.error(`Error navigating to URL: ${newUrl}:`, error);
         }
-    } finally {
         this.isLoading = false;
     }
   }
