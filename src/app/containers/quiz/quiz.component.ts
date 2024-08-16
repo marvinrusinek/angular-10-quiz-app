@@ -1850,7 +1850,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.isLoading = false;
     }
   } */
-  async navigateToQuestion(questionIndex: number): Promise<void> {
+  private currentNavigationToken: any = null;
+
+async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation) return;
 
     // Set a unique token for this navigation
@@ -1889,6 +1891,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         // Check if the current navigation is still valid
         if (this.currentNavigationToken !== navigationToken) {
             console.warn('Navigation aborted due to a newer request.');
+            this.isLoading = false;
             return;
         }
 
@@ -1904,7 +1907,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.isLoading = false; // Reset loading state in case of error
     }
   }
-
 
   // Reset UI immediately before navigating
   private resetUI(): void {

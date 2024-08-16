@@ -533,7 +533,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   } */
   private loadQuestionToken: number = 0;
 
-  async loadQuestion(): Promise<void> {
+  /* async loadQuestion(): Promise<void> {
     this.isLoading = true;
     this.loadQuestionToken++;
     const currentToken = this.loadQuestionToken;
@@ -581,7 +581,49 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.cdRef.detectChanges();
       }
     }
+  } */
+  private async loadQuestion(): Promise<void> {
+    // Set loading state to true
+    this.isLoading = true;
+
+    console.log('Loading question for index:', this.currentQuestionIndex);
+
+    // Clear previous options and question data to avoid lingering state
+    this.optionsToDisplay = [];
+    this.currentQuestion = null;
+    this.explanationToDisplay = '';
+
+    // Introduce a small delay to simulate asynchronous loading
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    try {
+        // Fetch and set the question data
+        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+        if (!this.currentQuestion) {
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        }
+
+        this.optionsToDisplay = this.currentQuestion.options || [];
+
+        console.log('Question Loaded:', this.currentQuestion);
+        console.log('Options Loaded:', this.optionsToDisplay);
+
+        // Fetch and display the explanation text for the current question
+        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+
+        // Update the selection message
+        this.updateSelectionMessage(false);
+    } catch (error) {
+        console.error('Error loading question:', error);
+    } finally {
+        // Set loading state to false after question and options are loaded
+        this.isLoading = false;
+
+        // Ensure the UI is updated with the restored state
+        this.cdRef.detectChanges();
+    }
   }
+
 
 
 
