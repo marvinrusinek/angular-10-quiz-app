@@ -1759,6 +1759,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation || !this.isQuestionLoaded) return;
 
+    // Update the currentQuestionIndex before any asynchronous operations
+    this.currentQuestionIndex = questionIndex;
+
     this.debounceNavigation = true;
     const debounceTimeout = 300;
     setTimeout(() => {
@@ -1775,9 +1778,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isLoading = true;
     this.isQuestionLoaded = false; // Reset the loaded state
 
-    // Ensure currentQuestionIndex is set correctly before navigation
-    this.currentQuestionIndex = questionIndex;
+    // Immediately update the question number in the UI
+    this.cdRef.detectChanges();
 
+    // Reset explanation text and other states before navigating
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
 
@@ -1799,6 +1803,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return;
         }
 
+        // After navigation, load the question and ensure the correct question number is shown
         if (this.quizQuestionComponent) {
             this.quizQuestionComponent.clearState();  // Clear state before loading
             await this.quizQuestionComponent.loadQuestion(signal);
@@ -1813,6 +1818,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             console.error(`Error navigating to URL: ${newUrl}:`, error);
         }
         this.isLoading = false;
+    } finally {
+        // Ensure the UI is updated to reflect the current question number
+        this.cdRef.detectChanges();
     }
   }
 
