@@ -623,34 +623,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.cdRef.detectChanges();
     }
   } */
-  private async loadQuestion(signal: AbortSignal): Promise<void> {
-    // Start loading process
+  private async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.isLoading = true;
 
     console.log('Loading question for index:', this.currentQuestionIndex);
 
-    // Comprehensive cleanup of previous data
+    // Clear previous data
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
-    this.cdRef.detectChanges();  // Immediate UI update to clear old state
+    this.cdRef.detectChanges();
 
-    // Introduce a small delay to simulate asynchronous loading
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     try {
-        if (signal.aborted) {
+        if (signal?.aborted) {
             console.log('Loading aborted.');
             return;
         }
 
-        // Fetch and set the question data
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
 
-        if (signal.aborted) {
+        if (signal?.aborted) {
             console.log('Loading aborted.');
             return;
         }
@@ -660,29 +657,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('Question Loaded:', this.currentQuestion);
         console.log('Options Loaded:', this.optionsToDisplay);
 
-        if (signal.aborted) {
+        if (signal?.aborted) {
             console.log('Loading aborted before explanation text was set.');
             return;
         }
 
         await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
-        if (signal.aborted) {
+        if (signal?.aborted) {
             console.log('Loading aborted before updating selection message.');
             return;
         }
 
         this.updateSelectionMessage(false);
     } catch (error) {
-        if (signal.aborted) {
+        if (signal?.aborted) {
             console.log('Loading was cancelled.');
         } else {
             console.error('Error loading question:', error);
         }
     } finally {
-        // Finalize the loading process
         this.isLoading = false;
-        this.cdRef.detectChanges();  // Ensure the UI is updated with the correct state
+        this.cdRef.detectChanges();
     }
   }
   
