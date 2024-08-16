@@ -623,13 +623,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.cdRef.detectChanges();
     }
   } */
-  async loadQuestion(signal?: AbortSignal): Promise<void> {
-    if (signal.aborted) {
-        console.log(`Load aborted for questionIndex ${this.currentQuestionIndex}`);
-        return;
-    }
-
+  
+  private async loadQuestion(signal?: AbortSignal): Promise<void> {
+    // Set loading state to true
     this.isLoading = true;
+
+    console.log('Loading question for index:', this.currentQuestionIndex);
+
+    // Clear previous options and question data to avoid lingering state
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
@@ -637,45 +638,48 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // Introduce a small delay to simulate asynchronous loading
     await new Promise(resolve => setTimeout(resolve, 50));
 
+    // Abort if the signal is triggered
+    if (signal.aborted) {
+        console.log('Loading aborted');
+        this.isLoading = false;
+        return;
+    }
+
     try {
-        const fetchedQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-        if (!fetchedQuestion || signal.aborted) {
-            throw new Error(`No question found for index ${this.currentQuestionIndex} or load aborted`);
+        // Fetch and set the question data
+        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+        if (!this.currentQuestion) {
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
 
-        // Setting the question and options
-        this.currentQuestion = fetchedQuestion;
-        this.optionsToDisplay = [...this.currentQuestion.options];
+        this.optionsToDisplay = this.currentQuestion.options || [];
 
         console.log('Question Loaded:', this.currentQuestion);
         console.log('Options Loaded:', this.optionsToDisplay);
 
-        // Clear dynamic components and load the relevant one if applicable
-        if (this.dynamicComponentContainer) {
-            this.dynamicComponentContainer.clear();
-            if (!signal.aborted) {
-                await this.loadDynamicComponent();
-            }
-        }
-
         // Fetch and display the explanation text for the current question
-        if (!signal.aborted) {
-            await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-        }
+        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
-        // Update the selection message if not aborted
-        if (!signal.aborted) {
-            this.updateSelectionMessage(false);
-        }
+        // Update the selection message
+        this.updateSelectionMessage(false);
 
+        // Abort if the signal is triggered
+        if (signal.aborted) {
+            console.log('Loading aborted');
+            this.isLoading = false;
+            return;
+        }
     } catch (error) {
         if (signal.aborted) {
-            console.log('Loading was cancelled due to navigation abort.');
+            console.log('Loading was cancelled.');
         } else {
             console.error('Error loading question:', error);
         }
     } finally {
+        // Set loading state to false after question and options are loaded
         this.isLoading = false;
+
+        // Ensure the UI is updated with the restored state
         this.cdRef.detectChanges();
     }
   }
