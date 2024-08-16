@@ -624,18 +624,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   } */
   private async loadQuestion(signal: AbortSignal): Promise<void> {
+    // Start loading process
     this.isLoading = true;
 
     console.log('Loading question for index:', this.currentQuestionIndex);
 
-    // Clear previous options and question data to avoid lingering state
+    // Comprehensive cleanup of previous data
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
     this.cdRef.detectChanges();  // Immediate UI update to clear old state
 
     // Introduce a small delay to simulate asynchronous loading
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
         if (signal.aborted) {
@@ -679,8 +680,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             console.error('Error loading question:', error);
         }
     } finally {
+        // Finalize the loading process
         this.isLoading = false;
-        this.cdRef.detectChanges();  // Final UI update to ensure everything is in sync
+        this.cdRef.detectChanges();  // Ensure the UI is updated with the correct state
     }
   }
   
