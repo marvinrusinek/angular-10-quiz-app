@@ -1755,15 +1755,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private latestNavigationIndex: number = -1;
-private currentNavigationToken: any = null;
+  private currentNavigationToken: any = null;
 
-async navigateToQuestion(questionIndex: number): Promise<void> {
+  async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation) return;
 
     this.debounceNavigation = true;
     const debounceTimeout = 300;
     setTimeout(() => {
-        this.debounceNavigation = false;
+      this.debounceNavigation = false;
     }, debounceTimeout);
 
     this.isLoading = true;
@@ -1776,32 +1776,33 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
     this.explanationTextService.resetStateBetweenQuestions();
 
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
-        this.isLoading = false;
-        return;
+      console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+      this.isLoading = false;
+      return;
     }
 
     const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
 
     try {
-        await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
+      await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
 
-        if (this.currentNavigationToken !== navigationToken) {
-            console.log('Aborted navigation due to a new request:', questionIndex);
-            return;
-        }
+      if (this.currentNavigationToken !== navigationToken) {
+        console.log('Aborted navigation due to a new request:', questionIndex);
+        return;
+      }
 
-        await this.loadQuestion();  // Wait for the correct question to load
+      // Trigger the loadQuestion method in the QuizQuestionComponent
+      if (this.quizQuestionComponent) {
+        await this.quizQuestionComponent.loadQuestion(); // Wait for the correct question to load
+      }
     } catch (error) {
-        console.error(`Error navigating to URL: ${newUrl}:`, error);
-        this.isLoading = false;
+      console.error(`Error navigating to URL: ${newUrl}:`, error);
+      this.isLoading = false;
     } finally {
-        this.isLoading = false;
+      this.isLoading = false;
     }
   }
-
-
 
   // Reset UI immediately before navigating
   private resetUI(): void {
