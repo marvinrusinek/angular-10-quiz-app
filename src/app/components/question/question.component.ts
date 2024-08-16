@@ -488,25 +488,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
-  private async loadQuestion(signal?: AbortSignal): Promise<void> {
+  async loadQuestion(signal?: AbortSignal): Promise<void> {
+    if (signal.aborted) {
+      console.log('loadQuestion aborted.');
+      return;
+    }
+
     this.isLoading = true;
+    console.log('Loading question for index:', this.currentQuestionIndex);
 
-    console.log('Starting to load question for index:', this.currentQuestionIndex);
-
-    // Clear previous data
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
 
     await new Promise(resolve => setTimeout(resolve, 50));
 
-    if (signal.aborted) {
-      console.log('Loading aborted after initial delay');
-      this.isLoading = false;
-      return;
-    }
-
     try {
+      if (signal.aborted) {
+        console.log('Loading aborted before fetching the question.');
+        return;
+      }
+
       this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
       if (!this.currentQuestion) {
         throw new Error(`No question found for index ${this.currentQuestionIndex}`);
@@ -518,25 +520,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log('Options Loaded:', this.optionsToDisplay);
 
       if (signal.aborted) {
-        console.log('Loading aborted before setting explanation');
-        this.isLoading = false;
+        console.log('Loading aborted after fetching the question.');
         return;
       }
 
       await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-      this.updateSelectionMessage(false);
 
-      if (signal.aborted) {
-        console.log('Loading aborted after setting explanation');
-        this.isLoading = false;
-        return;
-      }
+      this.updateSelectionMessage(false);
     } catch (error) {
-      if (signal.aborted) {
-        console.log('Loading was cancelled.');
-      } else {
-        console.error('Error loading question:', error);
-      }
+      console.error('Error loading question:', error);
     } finally {
       this.isLoading = false;
       this.cdRef.detectChanges();
