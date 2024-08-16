@@ -1759,9 +1759,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation || !this.isQuestionLoaded) return;
 
-    // Update the currentQuestionIndex before any asynchronous operations
-    this.currentQuestionIndex = questionIndex;
-
     this.debounceNavigation = true;
     const debounceTimeout = 300;
     setTimeout(() => {
@@ -1775,10 +1772,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.navigationAbortController = new AbortController();
     const { signal } = this.navigationAbortController;
 
+    // Set the correct question index before starting the loading process
+    this.currentQuestionIndex = questionIndex;
+
     this.isLoading = true;
     this.isQuestionLoaded = false; // Reset the loaded state
 
-    // Immediately update the question number in the UI
+    // Update UI immediately to reflect the new question index
     this.cdRef.detectChanges();
 
     // Reset explanation text and other states before navigating
@@ -1803,14 +1803,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return;
         }
 
-        // After navigation, load the question and ensure the correct question number is shown
+        // Load the question after navigation
         if (this.quizQuestionComponent) {
             this.quizQuestionComponent.clearState();  // Clear state before loading
-            await this.quizQuestionComponent.loadQuestion(signal);
+            await this.quizQuestionComponent.loadQuestion(signal, questionIndex);
         }
 
         this.isQuestionLoaded = true; // Mark as fully loaded
         this.isLoading = false;
+
+        // Ensure the UI reflects the updated question number
+        this.cdRef.detectChanges();
     } catch (error) {
         if (signal.aborted) {
             console.log('Navigation was cancelled.');
