@@ -488,7 +488,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
-  async loadQuestion(signal?: AbortSignal): Promise<void> {
+  async loadQuestion(signal: AbortSignal): Promise<void> {
     if (signal.aborted) {
         console.log('loadQuestion aborted.');
         return;
@@ -497,10 +497,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.isLoading = true;
     console.log('Loading question for index:', this.currentQuestionIndex);
 
-    this.optionsToDisplay = [];
-    this.currentQuestion = null;
-    this.explanationToDisplay = '';
+    // Clear the state before loading the new question
+    this.clearState();
 
+    // Introduce a small delay to simulate asynchronous loading
     await new Promise(resolve => setTimeout(resolve, 50));
 
     try {

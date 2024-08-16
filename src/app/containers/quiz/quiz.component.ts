@@ -1795,7 +1795,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return;
         }
 
+        // Clear the state before loading the new question
         if (this.quizQuestionComponent) {
+            this.quizQuestionComponent.clearState();  // Clear state before loading
             await this.quizQuestionComponent.loadQuestion(signal);
         }
 
