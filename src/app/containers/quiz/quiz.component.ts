@@ -1913,7 +1913,7 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
     this.debounceNavigation = true;
     const debounceTimeout = 300;
     setTimeout(() => {
-      this.debounceNavigation = false;
+        this.debounceNavigation = false;
     }, debounceTimeout);
 
     if (this.navigationAbortController) {
@@ -1949,18 +1949,16 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
         if (this.quizQuestionComponent) {
             await this.quizQuestionComponent.loadQuestion(signal);
         }
-
-        this.isLoading = false;
     } catch (error) {
         if (signal.aborted) {
             console.log('Navigation was cancelled.');
         } else {
             console.error(`Error navigating to URL: ${newUrl}:`, error);
         }
+    } finally {
         this.isLoading = false;
     }
   }
-
 
   // Reset UI immediately before navigating
   private resetUI(): void {
