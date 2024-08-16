@@ -1755,7 +1755,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     await this.navigateToQuestion(questionIndex);
   }
 
-  async navigateToQuestion(questionIndex: number): Promise<void> {
+  /* async navigateToQuestion(questionIndex: number): Promise<void> {
     const navigationToken = ++this.currentNavigationToken;
 
     if (this.isLoading || this.debounceNavigation) return;
@@ -1804,7 +1804,53 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.error(`Error navigating to URL: ${newUrl}:`, error);
       this.isLoading = false;
     }
+  } */
+  async navigateToQuestion(questionIndex: number): Promise<void> {
+    if (this.isLoading || this.debounceNavigation) return;
+
+    // Enable debouncing to prevent multiple quick navigations
+    this.debounceNavigation = true;
+    const debounceTimeout = 300;
+    setTimeout(() => {
+      this.debounceNavigation = false;
+    }, debounceTimeout);
+
+    // Set loading state before navigating
+    this.isLoading = true;
+
+    // Reset explanation text before navigating
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.resetStateBetweenQuestions();
+
+    // Check for valid question index
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+      console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+      this.isLoading = false;
+      return;
+    }
+
+    this.currentQuestionIndex = questionIndex;
+
+    const adjustedIndexForUrl = questionIndex + 1;
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
+
+    try {
+      // Run the navigation within Angular's zone to trigger change detection
+      await this.ngZone.run(async () => {
+        await this.router.navigateByUrl(newUrl);
+
+        if (this.quizQuestionComponent) {
+          await this.quizQuestionComponent.loadQuestion();
+        }
+
+        this.isLoading = false;
+      });
+    } catch (error) {
+      console.error(`Error navigating to URL: ${newUrl}:`, error);
+      this.isLoading = false;
+    }
   }
+
 
   // Reset UI immediately before navigating
   private resetUI(): void {
