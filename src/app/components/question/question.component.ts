@@ -632,6 +632,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
+    this.cdRef.detectChanges();  // Immediate UI update to clear old state
 
     // Introduce a small delay to simulate asynchronous loading
     await new Promise(resolve => setTimeout(resolve, 50));
@@ -658,7 +659,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('Question Loaded:', this.currentQuestion);
         console.log('Options Loaded:', this.optionsToDisplay);
 
+        if (signal.aborted) {
+            console.log('Loading aborted before explanation text was set.');
+            return;
+        }
+
         await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+
+        if (signal.aborted) {
+            console.log('Loading aborted before updating selection message.');
+            return;
+        }
 
         this.updateSelectionMessage(false);
     } catch (error) {
@@ -669,7 +680,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     } finally {
         this.isLoading = false;
-        this.cdRef.detectChanges();
+        this.cdRef.detectChanges();  // Final UI update to ensure everything is in sync
     }
   }
   
