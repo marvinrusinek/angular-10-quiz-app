@@ -491,7 +491,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private async loadQuestion(signal?: AbortSignal): Promise<void> {
     if (signal.aborted) return;
 
-    // Set loading state
     this.isLoading = true;
 
     // Clear previous data
@@ -501,10 +500,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.correctAnswersText = '';  // Clear correct answers text
 
     try {
-        // Simulate async loading
         await new Promise(resolve => setTimeout(resolve, 50));
 
-        // Fetch and set the question data based on currentQuestionIndex
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
@@ -512,18 +509,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Fetch and display the explanation text for the current question
         await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
-        // Display the correct answers if applicable
-        this.displayCorrectAnswers();
+        // Check if the current question is a multiple-answer question
+        if (this.currentQuestion.type === 'multiple') {
+            this.displayCorrectAnswers();
+        }
 
         this.isQuestionLoaded = true;
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
         this.isLoading = false;
-        this.cdRef.detectChanges();  // Ensure the UI is updated with the restored state
+        this.cdRef.detectChanges();
     }
   }
   

@@ -1757,7 +1757,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
-    if (this.isLoading || this.debounceNavigation || !this.isQuestionLoaded) return;
+    if (this.isLoading || this.debounceNavigation) return;
 
     this.debounceNavigation = true;
     const debounceTimeout = 300;
@@ -1772,16 +1772,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.navigationAbortController = new AbortController();
     const { signal } = this.navigationAbortController;
 
-    // Set the correct question index before starting the loading process
+    // Update the current question index
     this.currentQuestionIndex = questionIndex;
 
     this.isLoading = true;
-    this.isQuestionLoaded = false; // Reset the loaded state
 
-    // Update UI immediately to reflect the new question index
-    this.cdRef.detectChanges();
-
-    // Reset explanation text and other states before navigating
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
 
@@ -1803,17 +1798,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return;
         }
 
-        // Load the question after navigation
         if (this.quizQuestionComponent) {
-            this.quizQuestionComponent.clearState();  // Clear state before loading
-            await this.quizQuestionComponent.loadQuestion(signal, questionIndex);
+            await this.quizQuestionComponent.loadQuestion(signal);
         }
 
-        this.isQuestionLoaded = true; // Mark as fully loaded
-        this.isLoading = false;
+        // Update question number display
+        this.updateQuestionNumber();
 
-        // Ensure the UI reflects the updated question number
-        this.cdRef.detectChanges();
+        this.isLoading = false;
     } catch (error) {
         if (signal.aborted) {
             console.log('Navigation was cancelled.');
@@ -1821,9 +1813,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             console.error(`Error navigating to URL: ${newUrl}:`, error);
         }
         this.isLoading = false;
-    } finally {
-        // Ensure the UI is updated to reflect the current question number
-        this.cdRef.detectChanges();
     }
   }
 
