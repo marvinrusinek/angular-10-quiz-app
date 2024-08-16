@@ -1760,51 +1760,42 @@ private currentNavigationToken: any = null;
 async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation) return;
 
-    // Enable debouncing to prevent multiple quick navigations
     this.debounceNavigation = true;
-    const debounceTimeout = 300; // Adjust the delay as needed
+    const debounceTimeout = 300;
     setTimeout(() => {
         this.debounceNavigation = false;
     }, debounceTimeout);
 
-    // Set loading state before navigating
     this.isLoading = true;
 
-    // Track the latest navigation request
     const navigationToken = {};
     this.currentNavigationToken = navigationToken;
     this.latestNavigationIndex = questionIndex;
 
-    // Reset explanation text before navigating
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
 
-    // Check for valid question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
         console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
         this.isLoading = false;
         return;
     }
 
-    // Adjust for one-based URL index
     const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
 
     try {
-        // Run the navigation within Angular's zone to trigger change detection
         await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
 
-        // If a new navigation request comes in before this one finishes, abort
         if (this.currentNavigationToken !== navigationToken) {
             console.log('Aborted navigation due to a new request:', questionIndex);
             return;
         }
 
-        // Once navigation is complete, load the question
-        await this.loadQuestion();
+        await this.loadQuestion();  // Wait for the correct question to load
     } catch (error) {
         console.error(`Error navigating to URL: ${newUrl}:`, error);
-        this.isLoading = false; // Reset loading state in case of error
+        this.isLoading = false;
     } finally {
         this.isLoading = false;
     }
