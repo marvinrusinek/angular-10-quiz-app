@@ -490,8 +490,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   async loadQuestion(signal?: AbortSignal): Promise<void> {
     if (signal.aborted) {
-      console.log('loadQuestion aborted.');
-      return;
+        console.log('loadQuestion aborted.');
+        return;
     }
 
     this.isLoading = true;
@@ -504,34 +504,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     await new Promise(resolve => setTimeout(resolve, 50));
 
     try {
-      if (signal.aborted) {
-        console.log('Loading aborted before fetching the question.');
-        return;
-      }
+        if (signal.aborted) {
+            console.log('Loading aborted before fetching the question.');
+            return;
+        }
 
-      this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-      if (!this.currentQuestion) {
-        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-      }
+        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+        if (!this.currentQuestion) {
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        }
 
-      this.optionsToDisplay = this.currentQuestion.options || [];
+        this.optionsToDisplay = this.currentQuestion.options || [];
 
-      console.log('Question Loaded:', this.currentQuestion);
-      console.log('Options Loaded:', this.optionsToDisplay);
+        console.log('Question Loaded:', this.currentQuestion);
+        console.log('Options Loaded:', this.optionsToDisplay);
 
-      if (signal.aborted) {
-        console.log('Loading aborted after fetching the question.');
-        return;
-      }
+        if (signal.aborted) {
+            console.log('Loading aborted after fetching the question.');
+            return;
+        }
 
-      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
-      this.updateSelectionMessage(false);
+        this.updateSelectionMessage(false);
     } catch (error) {
-      console.error('Error loading question:', error);
+        console.error('Error loading question:', error);
     } finally {
-      this.isLoading = false;
-      this.cdRef.detectChanges();
+        this.isLoading = false;
+        this.cdRef.detectChanges();
     }
   }
   
