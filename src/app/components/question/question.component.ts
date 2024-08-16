@@ -625,28 +625,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   } */
   
   private async loadQuestion(signal?: AbortSignal): Promise<void> {
-    // Set loading state to true
     this.isLoading = true;
 
-    console.log('Loading question for index:', this.currentQuestionIndex);
+    console.log('Starting to load question for index:', this.currentQuestionIndex);
 
-    // Clear previous options and question data to avoid lingering state
+    // Clear previous data
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
 
-    // Introduce a small delay to simulate asynchronous loading
     await new Promise(resolve => setTimeout(resolve, 50));
 
-    // Abort if the signal is triggered
     if (signal.aborted) {
-        console.log('Loading aborted');
+        console.log('Loading aborted after initial delay');
         this.isLoading = false;
         return;
     }
 
     try {
-        // Fetch and set the question data
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
@@ -657,15 +653,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('Question Loaded:', this.currentQuestion);
         console.log('Options Loaded:', this.optionsToDisplay);
 
-        // Fetch and display the explanation text for the current question
-        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+        if (signal.aborted) {
+            console.log('Loading aborted before setting explanation');
+            this.isLoading = false;
+            return;
+        }
 
-        // Update the selection message
+        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
         this.updateSelectionMessage(false);
 
-        // Abort if the signal is triggered
         if (signal.aborted) {
-            console.log('Loading aborted');
+            console.log('Loading aborted after setting explanation');
             this.isLoading = false;
             return;
         }
@@ -676,15 +674,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             console.error('Error loading question:', error);
         }
     } finally {
-        // Set loading state to false after question and options are loaded
         this.isLoading = false;
-
-        // Ensure the UI is updated with the restored state
         this.cdRef.detectChanges();
     }
   }
-
-
   
   isSelectedOption(option: Option): boolean {
     const isOptionSelected =

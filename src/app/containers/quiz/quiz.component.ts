@@ -1908,7 +1908,10 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
     }
   } */
   async navigateToQuestion(questionIndex: number): Promise<void> {
-    if (this.isLoading || this.debounceNavigation) return;
+    if (this.isLoading || this.debounceNavigation) {
+        console.warn('Navigation blocked due to ongoing operation or debounce.');
+        return;
+    }
 
     this.debounceNavigation = true;
     const debounceTimeout = 300;
@@ -1916,8 +1919,9 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
         this.debounceNavigation = false;
     }, debounceTimeout);
 
-    // Abort any ongoing navigation
+    console.log(`Navigating to question index: ${questionIndex}`);
     if (this.navigationAbortController) {
+        console.warn('Aborting previous navigation');
         this.navigationAbortController.abort();
     }
 
@@ -1940,6 +1944,7 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
 
     try {
         await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
+        console.log(`Successfully navigated to ${newUrl}`);
 
         if (signal.aborted) {
             console.log('Navigation aborted.');
@@ -1948,6 +1953,7 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
         }
 
         if (this.quizQuestionComponent) {
+            console.log(`Calling loadQuestion for questionIndex: ${questionIndex}`);
             await this.quizQuestionComponent.loadQuestion(signal);
         }
 
