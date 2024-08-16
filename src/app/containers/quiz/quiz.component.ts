@@ -1757,10 +1757,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
-    if (this.isLoading || this.debounceNavigation) {
-        console.warn('Navigation blocked due to ongoing operation or debounce.');
-        return;
-    }
+    if (this.isLoading || this.debounceNavigation) return;
 
     this.debounceNavigation = true;
     const debounceTimeout = 300;
@@ -1768,10 +1765,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.debounceNavigation = false;
     }, debounceTimeout);
 
-    console.log(`Navigating to question index: ${questionIndex}`);
     if (this.navigationAbortController) {
-      console.warn('Aborting previous navigation');
-      this.navigationAbortController.abort();
+        this.navigationAbortController.abort();
     }
 
     this.navigationAbortController = new AbortController();
@@ -1783,37 +1778,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.explanationTextService.resetStateBetweenQuestions();
 
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-      console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
-      this.isLoading = false;
-      return;
+        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        this.isLoading = false;
+        return;
     }
 
     const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
 
     try {
-      await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
-      console.log(`Successfully navigated to ${newUrl}`);
+        await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
 
-      if (signal.aborted) {
-        console.log('Navigation aborted.');
+        if (signal.aborted) {
+            console.log('Navigation aborted.');
+            this.isLoading = false;
+            return;
+        }
+
+        if (this.quizQuestionComponent) {
+            await this.quizQuestionComponent.loadQuestion(signal);
+        }
+
         this.isLoading = false;
-        return;
-      }
-
-      if (this.quizQuestionComponent) {
-        console.log(`Calling loadQuestion for questionIndex: ${questionIndex}`);
-        await this.quizQuestionComponent.loadQuestion(signal);
-      }
-
-      this.isLoading = false;
     } catch (error) {
-      if (signal.aborted) {
-        console.log('Navigation was cancelled.');
-      } else {
-        console.error(`Error navigating to URL: ${newUrl}:`, error);
-      }
-      this.isLoading = false;
+        if (signal.aborted) {
+            console.log('Navigation was cancelled.');
+        } else {
+            console.error(`Error navigating to URL: ${newUrl}:`, error);
+        }
+        this.isLoading = false;
     }
   }
 
