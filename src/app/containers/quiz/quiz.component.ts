@@ -1916,6 +1916,7 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
         this.debounceNavigation = false;
     }, debounceTimeout);
 
+    // Abort any ongoing navigation
     if (this.navigationAbortController) {
         this.navigationAbortController.abort();
     }
@@ -1933,9 +1934,6 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
         this.isLoading = false;
         return;
     }
-
-    // Update the currentQuestionIndex before loading
-    this.currentQuestionIndex = questionIndex;
 
     const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
@@ -1963,7 +1961,6 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
         this.isLoading = false;
     }
   }
-
 
   // Reset UI immediately before navigating
   private resetUI(): void {
