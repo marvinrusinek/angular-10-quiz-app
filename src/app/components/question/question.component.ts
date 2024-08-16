@@ -240,7 +240,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
               return;
             }
   
-            // this.loadQuestion();
             this.selectedOptionService.selectedOption$.subscribe(
               (selectedOption) => {
                 this.selectedOption = selectedOption;
@@ -502,45 +501,45 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     await new Promise(resolve => setTimeout(resolve, 50));
 
     if (signal.aborted) {
-        console.log('Loading aborted after initial delay');
-        this.isLoading = false;
-        return;
+      console.log('Loading aborted after initial delay');
+      this.isLoading = false;
+      return;
     }
 
     try {
-        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-        if (!this.currentQuestion) {
-            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-        }
+      this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+      if (!this.currentQuestion) {
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
 
-        this.optionsToDisplay = this.currentQuestion.options || [];
+      this.optionsToDisplay = this.currentQuestion.options || [];
 
-        console.log('Question Loaded:', this.currentQuestion);
-        console.log('Options Loaded:', this.optionsToDisplay);
+      console.log('Question Loaded:', this.currentQuestion);
+      console.log('Options Loaded:', this.optionsToDisplay);
 
-        if (signal.aborted) {
-            console.log('Loading aborted before setting explanation');
-            this.isLoading = false;
-            return;
-        }
-
-        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-        this.updateSelectionMessage(false);
-
-        if (signal.aborted) {
-            console.log('Loading aborted after setting explanation');
-            this.isLoading = false;
-            return;
-        }
-    } catch (error) {
-        if (signal.aborted) {
-            console.log('Loading was cancelled.');
-        } else {
-            console.error('Error loading question:', error);
-        }
-    } finally {
+      if (signal.aborted) {
+        console.log('Loading aborted before setting explanation');
         this.isLoading = false;
-        this.cdRef.detectChanges();
+        return;
+      }
+
+      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+      this.updateSelectionMessage(false);
+
+      if (signal.aborted) {
+        console.log('Loading aborted after setting explanation');
+        this.isLoading = false;
+        return;
+      }
+    } catch (error) {
+      if (signal.aborted) {
+        console.log('Loading was cancelled.');
+      } else {
+        console.error('Error loading question:', error);
+      }
+    } finally {
+      this.isLoading = false;
+      this.cdRef.detectChanges();
     }
   }
   
