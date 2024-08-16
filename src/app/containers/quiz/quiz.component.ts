@@ -1762,7 +1762,7 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
 
     // Enable debouncing to prevent multiple quick navigations
     this.debounceNavigation = true;
-    const debounceTimeout = 300;
+    const debounceTimeout = 300; // Adjust the delay as needed
     setTimeout(() => {
         this.debounceNavigation = false;
     }, debounceTimeout);
@@ -1782,7 +1782,7 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
     // Check for valid question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
         console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
-        this.isLoading = false; // Reset loading state in case of invalid index
+        this.isLoading = false;
         return;
     }
 
@@ -1806,10 +1806,10 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
         console.error(`Error navigating to URL: ${newUrl}:`, error);
         this.isLoading = false; // Reset loading state in case of error
     } finally {
-        // Reset loading state after processing is complete
         this.isLoading = false;
     }
   }
+
 
 
   // Reset UI immediately before navigating
