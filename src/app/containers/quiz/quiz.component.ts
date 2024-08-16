@@ -1818,26 +1818,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation) return;
 
-    // Enable debouncing to prevent multiple quick navigations
     this.debounceNavigation = true;
     const debounceTimeout = 300;
     setTimeout(() => {
         this.debounceNavigation = false;
     }, debounceTimeout);
 
-    // Abort any ongoing navigation and cancel loading
     if (this.navigationAbortController) {
         this.navigationAbortController.abort();
     }
 
-    // Create a new AbortController for the current navigation
     this.navigationAbortController = new AbortController();
     const { signal } = this.navigationAbortController;
 
-    // Update the current question index
-    this.currentQuestionIndex = questionIndex;
-
-    // Set loading state before navigating
     this.isLoading = true;
 
     this.explanationTextService.setShouldDisplayExplanation(false);
@@ -1848,6 +1841,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.isLoading = false;
         return;
     }
+
+    // Update the current question index before navigating
+    this.currentQuestionIndex = questionIndex;
 
     const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
@@ -1861,10 +1857,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return;
         }
 
-        // Lock to ensure no new navigation starts until this one finishes
-        await this.quizQuestionComponent?.loadQuestion(signal);
-
-        this.updateQuestionNumber();
+        if (this.quizQuestionComponent) {
+            await this.quizQuestionComponent.loadQuestion(signal);
+        }
     } catch (error) {
         if (signal.aborted) {
             console.log('Navigation was cancelled.');

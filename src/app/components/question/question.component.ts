@@ -493,7 +493,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     this.isLoading = true;
 
-    // Clear previous data to prevent lingering states
+    // Clear previous options and question data to prevent lingering state
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
