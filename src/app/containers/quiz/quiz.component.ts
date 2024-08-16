@@ -1825,7 +1825,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.debounceNavigation = false;
     }, debounceTimeout);
 
-    // Abort any ongoing navigation
+    // Abort any ongoing navigation and cancel loading
     if (this.navigationAbortController) {
         this.navigationAbortController.abort();
     }
@@ -1861,10 +1861,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return;
         }
 
-        // Call loadQuestion on the QuizQuestionComponent
-        if (this.quizQuestionComponent) {
-            await this.quizQuestionComponent.loadQuestion(signal);
-        }
+        // Lock to ensure no new navigation starts until this one finishes
+        await this.quizQuestionComponent?.loadQuestion(signal);
 
         this.updateQuestionNumber();
     } catch (error) {
