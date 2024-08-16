@@ -623,50 +623,50 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.cdRef.detectChanges();
     }
   } */
-  async loadQuestion(signal: AbortSignal, questionIndex: number): Promise<void> {
+  async loadQuestion(signal?: AbortSignal): Promise<void> {
     if (signal.aborted) {
-        console.log(`Load aborted for questionIndex ${questionIndex}`);
+        console.log(`Load aborted for questionIndex ${this.currentQuestionIndex}`);
         return;
     }
 
     this.isLoading = true;
-
-    console.log('Loading question for index:', questionIndex);
-
-    // Fully clear previous state to avoid lingering state issues
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
-    
-    // Clear any previous dynamic components if applicable
-    if (this.dynamicComponentContainer) {
-        this.dynamicComponentContainer.clear();
-    }
 
-    await new Promise(resolve => setTimeout(resolve, 50)); // Simulate async delay
+    // Introduce a small delay to simulate asynchronous loading
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     try {
-        const fetchedQuestion = this.quizService.getQuestion(questionIndex);
+        const fetchedQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
         if (!fetchedQuestion || signal.aborted) {
-            throw new Error(`No question found for index ${questionIndex} or load aborted`);
+            throw new Error(`No question found for index ${this.currentQuestionIndex} or load aborted`);
         }
 
+        // Setting the question and options
         this.currentQuestion = fetchedQuestion;
-        this.optionsToDisplay = this.currentQuestion.options || [];
+        this.optionsToDisplay = [...this.currentQuestion.options];
 
         console.log('Question Loaded:', this.currentQuestion);
         console.log('Options Loaded:', this.optionsToDisplay);
 
-        // Dynamically load components if needed
-        if (this.dynamicComponentContainer && !signal.aborted) {
-            await this.loadDynamicComponent();
+        // Clear dynamic components and load the relevant one if applicable
+        if (this.dynamicComponentContainer) {
+            this.dynamicComponentContainer.clear();
+            if (!signal.aborted) {
+                await this.loadDynamicComponent();
+            }
         }
 
         // Fetch and display the explanation text for the current question
-        await this.prepareAndSetExplanationText(questionIndex);
+        if (!signal.aborted) {
+            await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+        }
 
-        // Update the selection message
-        this.updateSelectionMessage(false);
+        // Update the selection message if not aborted
+        if (!signal.aborted) {
+            this.updateSelectionMessage(false);
+        }
 
     } catch (error) {
         if (signal.aborted) {
@@ -679,6 +679,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.cdRef.detectChanges();
     }
   }
+
 
   
   isSelectedOption(option: Option): boolean {

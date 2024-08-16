@@ -1934,6 +1934,9 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
         return;
     }
 
+    // Update the currentQuestionIndex before loading
+    this.currentQuestionIndex = questionIndex;
+
     const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
 
@@ -1947,7 +1950,7 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
         }
 
         if (this.quizQuestionComponent) {
-            await this.quizQuestionComponent.loadQuestion(signal, questionIndex);
+            await this.quizQuestionComponent.loadQuestion(signal);
         }
 
         this.isLoading = false;
@@ -1960,6 +1963,7 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
         this.isLoading = false;
     }
   }
+
 
   // Reset UI immediately before navigating
   private resetUI(): void {
