@@ -1757,61 +1757,53 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private currentNavigationToken: number = 0;
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
-    // Increment the navigation token
     const navigationToken = ++this.currentNavigationToken;
 
-    // Prevent navigation if the system is already loading or debouncing
     if (this.isLoading || this.debounceNavigation) return;
 
-    // Enable debouncing to prevent multiple quick navigations
     this.debounceNavigation = true;
     const debounceTimeout = 300;
     setTimeout(() => {
       this.debounceNavigation = false;
     }, debounceTimeout);
 
-    // Set loading state before navigating
     this.isLoading = true;
 
-    // Reset explanation text before navigating
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
 
-    // Check for valid question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
       console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
-      this.isLoading = false; // Reset loading state in case of invalid index
+      this.isLoading = false;
       return;
     }
 
-    // Update the currentQuestionIndex before navigating
-    this.currentQuestionIndex = questionIndex;
-
-    // Adjust for one-based URL index
     const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
 
     try {
-      // Run the navigation within Angular's zone to trigger change detection
-      this.ngZone.run(async () => {
+      await this.ngZone.run(async () => {
         await this.router.navigateByUrl(newUrl);
 
-        // Check if the current token is still the most recent one
         if (this.currentNavigationToken !== navigationToken) {
           console.warn('Outdated navigation detected, aborting...');
           this.isLoading = false;
           return;
         }
 
-        // Call loadQuestion only if the token is still valid
-        await this.loadQuestion();
+        // Call the loadQuestion method on the QuizQuestionComponent instance
+        if (this.quizQuestionComponent) {
+          await this.quizQuestionComponent.loadQuestion();
+        } else {
+          console.error('QuizQuestionComponent is not available');
+        }
 
-        // Ensure loading state is reset after navigation is complete
+        this.currentQuestionIndex = questionIndex;
         this.isLoading = false;
       });
     } catch (error) {
       console.error(`Error navigating to URL: ${newUrl}:`, error);
-      this.isLoading = false; // Reset loading state in case of error
+      this.isLoading = false;
     }
   }
 
