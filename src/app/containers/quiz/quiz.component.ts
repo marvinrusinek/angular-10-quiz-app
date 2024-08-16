@@ -193,7 +193,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Ensure that the correct question, options, and explanation are displayed
     if (this.currentQuestionIndex !== undefined) {
-      this.loadQuestion();
+      this.quizQuestionComponent.loadQuestion();
       this.fetchFormattedExplanationText(this.currentQuestionIndex);
     } else {
       console.warn('Current question index is undefined.');
