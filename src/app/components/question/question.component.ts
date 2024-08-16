@@ -488,16 +488,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
-  async loadQuestion(signal: AbortSignal): Promise<void> {
+  async loadQuestion(signal?: AbortSignal): Promise<void> {
     if (signal.aborted) {
         console.log('loadQuestion aborted.');
         return;
     }
 
     this.isLoading = true;
+    this.isQuestionLoaded = false; // Mark as not loaded
+
     console.log('Loading question for index:', this.currentQuestionIndex);
 
-    // Clear the state before loading the new question
+    // Clear previous options and question data to avoid lingering state
     this.clearState();
 
     // Introduce a small delay to simulate asynchronous loading
@@ -531,6 +533,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.error('Error loading question:', error);
     } finally {
         this.isLoading = false;
+        this.isQuestionLoaded = true; // Mark as fully loaded
         this.cdRef.detectChanges();
     }
   }

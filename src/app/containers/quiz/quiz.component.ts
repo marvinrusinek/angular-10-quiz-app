@@ -1757,7 +1757,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
-    if (this.isLoading || this.debounceNavigation) return;
+    if (this.isLoading || this.debounceNavigation || !this.isQuestionLoaded) return;
 
     this.debounceNavigation = true;
     const debounceTimeout = 300;
@@ -1773,6 +1773,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     const { signal } = this.navigationAbortController;
 
     this.isLoading = true;
+    this.isQuestionLoaded = false; // Reset the loaded state
 
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
@@ -1795,12 +1796,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return;
         }
 
-        // Clear the state before loading the new question
         if (this.quizQuestionComponent) {
             this.quizQuestionComponent.clearState();  // Clear state before loading
             await this.quizQuestionComponent.loadQuestion(signal);
         }
 
+        this.isQuestionLoaded = true; // Mark as fully loaded
         this.isLoading = false;
     } catch (error) {
         if (signal.aborted) {
