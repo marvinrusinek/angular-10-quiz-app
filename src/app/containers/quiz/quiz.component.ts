@@ -1775,6 +1775,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isLoading = true;
     this.isQuestionLoaded = false; // Reset the loaded state
 
+    // Ensure currentQuestionIndex is set correctly before navigation
+    this.currentQuestionIndex = questionIndex;
+
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
 
