@@ -489,7 +489,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
-  private async loadQuestion(): Promise<void> {
+  /* private async loadQuestion(): Promise<void> {
     this.isLoading = true;
 
     const loadToken = {};
@@ -530,7 +530,61 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.isLoading = false;
       this.cdRef.detectChanges();
     }
+  } */
+  private loadQuestionToken: number = 0;
+
+  async loadQuestion(): Promise<void> {
+    this.isLoading = true;
+    this.loadQuestionToken++;
+    const currentToken = this.loadQuestionToken;
+
+    console.log('Loading question for index:', this.currentQuestionIndex);
+
+    // Clear previous options and question data to avoid lingering state
+    this.optionsToDisplay = [];
+    this.currentQuestion = null;
+    this.explanationToDisplay = '';
+
+    // Introduce a small delay to simulate asynchronous loading
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    try {
+      // Fetch and set the question data
+      const question = this.quizService.getQuestion(this.currentQuestionIndex);
+      if (!question) {
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
+
+      // Check if another loadQuestion has been triggered before this one finishes
+      if (currentToken !== this.loadQuestionToken) {
+        console.warn('Aborted outdated loadQuestion call');
+        return;
+      }
+
+      this.currentQuestion = question;
+      this.optionsToDisplay = this.currentQuestion.options || [];
+
+      console.log('Question Loaded:', this.currentQuestion);
+      console.log('Options Loaded:', this.optionsToDisplay);
+
+      // Fetch and display the explanation text for the current question
+      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+
+      // Update the selection message
+      this.updateSelectionMessage(false);
+    } catch (error) {
+      console.error('Error loading question:', error);
+    } finally {
+      // Only reset isLoading if this is the last loadQuestion call
+      if (currentToken === this.loadQuestionToken) {
+        this.isLoading = false;
+        this.cdRef.detectChanges();
+      }
+    }
   }
+
+
+
   
   isSelectedOption(option: Option): boolean {
     const isOptionSelected =
