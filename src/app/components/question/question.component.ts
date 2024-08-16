@@ -623,56 +623,41 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.cdRef.detectChanges();
     }
   } */
-  private async loadQuestion(signal?: AbortSignal): Promise<void> {
+  async loadQuestion(signal: AbortSignal, questionIndex: number): Promise<void> {
+    if (signal.aborted) {
+        console.log(`Load aborted for questionIndex ${questionIndex}`);
+        return;
+    }
+
     this.isLoading = true;
 
-    console.log('Loading question for index:', this.currentQuestionIndex);
+    console.log('Loading question for index:', questionIndex);
 
-    // Clear previous data
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
-    this.cdRef.detectChanges();
 
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise(resolve => setTimeout(resolve, 50)); // Simulate async delay
 
     try {
-        if (signal?.aborted) {
-            console.log('Loading aborted.');
-            return;
+        const fetchedQuestion = this.quizService.getQuestion(questionIndex);
+        if (!fetchedQuestion || signal.aborted) {
+            throw new Error(`No question found for index ${questionIndex} or load aborted`);
         }
 
-        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-        if (!this.currentQuestion) {
-            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-        }
-
-        if (signal?.aborted) {
-            console.log('Loading aborted.');
-            return;
-        }
-
+        this.currentQuestion = fetchedQuestion;
         this.optionsToDisplay = this.currentQuestion.options || [];
 
         console.log('Question Loaded:', this.currentQuestion);
         console.log('Options Loaded:', this.optionsToDisplay);
 
-        if (signal?.aborted) {
-            console.log('Loading aborted before explanation text was set.');
-            return;
-        }
-
-        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-
-        if (signal?.aborted) {
-            console.log('Loading aborted before updating selection message.');
-            return;
-        }
+        await this.prepareAndSetExplanationText(questionIndex);
 
         this.updateSelectionMessage(false);
+
     } catch (error) {
-        if (signal?.aborted) {
-            console.log('Loading was cancelled.');
+        if (signal.aborted) {
+            console.log('Loading was cancelled due to navigation abort.');
         } else {
             console.error('Error loading question:', error);
         }

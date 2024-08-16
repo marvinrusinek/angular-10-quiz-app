@@ -1947,7 +1947,7 @@ async navigateToQuestion(questionIndex: number): Promise<void> {
         }
 
         if (this.quizQuestionComponent) {
-            await this.quizQuestionComponent.loadQuestion(signal);
+            await this.quizQuestionComponent.loadQuestion(signal, questionIndex);
         }
     } catch (error) {
         if (signal.aborted) {
