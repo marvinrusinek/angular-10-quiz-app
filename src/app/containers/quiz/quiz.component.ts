@@ -1756,7 +1756,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     await this.navigateToQuestion(questionIndex);
   }
 
-  async navigateToQuestion(questionIndex: number): Promise<void> {
+  /* async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation) return;
 
     this.debounceNavigation = true;
@@ -1812,6 +1812,68 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         } else {
             console.error(`Error navigating to URL: ${newUrl}:`, error);
         }
+        this.isLoading = false;
+    }
+  } */
+  async navigateToQuestion(questionIndex: number): Promise<void> {
+    if (this.isLoading || this.debounceNavigation) return;
+
+    // Enable debouncing to prevent multiple quick navigations
+    this.debounceNavigation = true;
+    const debounceTimeout = 300;
+    setTimeout(() => {
+        this.debounceNavigation = false;
+    }, debounceTimeout);
+
+    // Abort any ongoing navigation
+    if (this.navigationAbortController) {
+        this.navigationAbortController.abort();
+    }
+
+    // Create a new AbortController for the current navigation
+    this.navigationAbortController = new AbortController();
+    const { signal } = this.navigationAbortController;
+
+    // Update the current question index
+    this.currentQuestionIndex = questionIndex;
+
+    // Set loading state before navigating
+    this.isLoading = true;
+
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.resetStateBetweenQuestions();
+
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        this.isLoading = false;
+        return;
+    }
+
+    const adjustedIndexForUrl = questionIndex + 1;
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
+
+    try {
+        await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
+
+        if (signal.aborted) {
+            console.log('Navigation aborted.');
+            this.isLoading = false;
+            return;
+        }
+
+        // Call loadQuestion on the QuizQuestionComponent
+        if (this.quizQuestionComponent) {
+            await this.quizQuestionComponent.loadQuestion(signal);
+        }
+
+        this.updateQuestionNumber();
+    } catch (error) {
+        if (signal.aborted) {
+            console.log('Navigation was cancelled.');
+        } else {
+            console.error(`Error navigating to URL: ${newUrl}:`, error);
+        }
+    } finally {
         this.isLoading = false;
     }
   }
