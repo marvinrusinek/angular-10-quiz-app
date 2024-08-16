@@ -582,7 +582,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
     }
   } */
-  private async loadQuestion(): Promise<void> {
+  /* private async loadQuestion(): Promise<void> {
     // Set loading state to true
     this.isLoading = true;
 
@@ -622,11 +622,56 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Ensure the UI is updated with the restored state
         this.cdRef.detectChanges();
     }
+  } */
+  private async loadQuestion(signal: AbortSignal): Promise<void> {
+    this.isLoading = true;
+
+    console.log('Loading question for index:', this.currentQuestionIndex);
+
+    // Clear previous options and question data to avoid lingering state
+    this.optionsToDisplay = [];
+    this.currentQuestion = null;
+    this.explanationToDisplay = '';
+
+    // Introduce a small delay to simulate asynchronous loading
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    try {
+        if (signal.aborted) {
+            console.log('Loading aborted.');
+            return;
+        }
+
+        // Fetch and set the question data
+        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+        if (!this.currentQuestion) {
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        }
+
+        if (signal.aborted) {
+            console.log('Loading aborted.');
+            return;
+        }
+
+        this.optionsToDisplay = this.currentQuestion.options || [];
+
+        console.log('Question Loaded:', this.currentQuestion);
+        console.log('Options Loaded:', this.optionsToDisplay);
+
+        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+
+        this.updateSelectionMessage(false);
+    } catch (error) {
+        if (signal.aborted) {
+            console.log('Loading was cancelled.');
+        } else {
+            console.error('Error loading question:', error);
+        }
+    } finally {
+        this.isLoading = false;
+        this.cdRef.detectChanges();
+    }
   }
-
-
-
-
   
   isSelectedOption(option: Option): boolean {
     const isOptionSelected =
