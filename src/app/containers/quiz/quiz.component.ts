@@ -1754,19 +1754,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     await this.navigateToQuestion(questionIndex);
   }
 
-  async navigateToQuestion(questionIndex: number): Promise<void> {
-    // Prevent navigation if the system is already loading or debouncing
+  private latestNavigationIndex: number = -1;
+private currentNavigationToken: any = null;
+
+async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation) return;
 
     // Enable debouncing to prevent multiple quick navigations
     this.debounceNavigation = true;
     const debounceTimeout = 300;
     setTimeout(() => {
-      this.debounceNavigation = false;
+        this.debounceNavigation = false;
     }, debounceTimeout);
 
     // Set loading state before navigating
     this.isLoading = true;
+
+    // Track the latest navigation request
+    const navigationToken = {};
+    this.currentNavigationToken = navigationToken;
+    this.latestNavigationIndex = questionIndex;
 
     // Reset explanation text before navigating
     this.explanationTextService.setShouldDisplayExplanation(false);
@@ -1774,9 +1781,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Check for valid question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-      console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
-      this.isLoading = false; // Reset loading state in case of invalid index
-      return;
+        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        this.isLoading = false; // Reset loading state in case of invalid index
+        return;
     }
 
     // Adjust for one-based URL index
@@ -1784,18 +1791,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
 
     try {
-      // Run the navigation within Angular's zone to trigger change detection
-      this.ngZone.run(() => {
-        this.router.navigateByUrl(newUrl).then(() => {
-          // Ensure loading state is reset after navigation is complete
-          this.isLoading = false;
-        });
-      });
+        // Run the navigation within Angular's zone to trigger change detection
+        await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
+
+        // If a new navigation request comes in before this one finishes, abort
+        if (this.currentNavigationToken !== navigationToken) {
+            console.log('Aborted navigation due to a new request:', questionIndex);
+            return;
+        }
+
+        // Once navigation is complete, load the question
+        await this.loadQuestion();
     } catch (error) {
-      console.error(`Error navigating to URL: ${newUrl}:`, error);
-      this.isLoading = false; // Reset loading state in case of error
+        console.error(`Error navigating to URL: ${newUrl}:`, error);
+        this.isLoading = false; // Reset loading state in case of error
+    } finally {
+        // Reset loading state after processing is complete
+        this.isLoading = false;
     }
   }
+
 
   // Reset UI immediately before navigating
   private resetUI(): void {
