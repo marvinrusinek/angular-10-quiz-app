@@ -493,15 +493,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     this.isLoading = true;
 
-    // Clear previous data
+    // Clear previous data to prevent lingering states
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
     this.correctAnswersText = '';  // Clear correct answers text
 
     try {
+        // Introduce a small delay to simulate asynchronous loading
         await new Promise(resolve => setTimeout(resolve, 50));
 
+        if (signal.aborted) {
+            console.log('Loading was aborted.');
+            return;
+        }
+
+        // Fetch and set the question data
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
@@ -509,6 +516,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
+        if (signal.aborted) return; // Check if loading was aborted before continuing
+
+        // Fetch and display the explanation text for the current question
         await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
         // Check if the current question is a multiple-answer question
@@ -518,7 +528,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.isQuestionLoaded = true;
     } catch (error) {
-        console.error('Error loading question:', error);
+        if (signal.aborted) {
+            console.log('Loading was aborted.');
+        } else {
+            console.error('Error loading question:', error);
+        }
     } finally {
         this.isLoading = false;
         this.cdRef.detectChanges();
