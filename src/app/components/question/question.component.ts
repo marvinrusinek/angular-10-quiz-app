@@ -505,30 +505,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     await new Promise(resolve => setTimeout(resolve, 50));
 
     try {
-        const question = this.quizService.getQuestion(this.currentQuestionIndex);
-        if (!question) {
-            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-        }
+      const question = this.quizService.getQuestion(this.currentQuestionIndex);
+      if (!question) {
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
 
-        if (this.currentLoadQuestionToken !== loadToken) {
-            console.log('Aborted loading due to a new request:', this.currentQuestionIndex);
-            return;
-        }
+      if (this.currentLoadQuestionToken !== loadToken) {
+        console.log('Aborted loading due to a new request:', this.currentQuestionIndex);
+        return;
+      }
 
-        this.currentQuestion = question;
-        this.optionsToDisplay = question.options || [];
+      this.currentQuestion = question;
+      this.optionsToDisplay = question.options || [];
 
-        console.log('Question Loaded:', this.currentQuestion);
-        console.log('Options Loaded:', this.optionsToDisplay);
+      console.log('Question Loaded:', this.currentQuestion);
+      console.log('Options Loaded:', this.optionsToDisplay);
 
-        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
-        this.updateSelectionMessage(false);
+      this.updateSelectionMessage(false);
     } catch (error) {
-        console.error('Error loading question:', error);
+      console.error('Error loading question:', error);
     } finally {
-        this.isLoading = false;
-        this.cdRef.detectChanges();
+      this.isLoading = false;
+      this.cdRef.detectChanges();
     }
   }
   
