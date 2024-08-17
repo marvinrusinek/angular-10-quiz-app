@@ -488,47 +488,47 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
-  private async loadQuestion(signal?: AbortSignal): Promise<void> {
+  async loadQuestion(signal?: AbortSignal): Promise<void> {
+    // Set loading state to true
     this.isLoading = true;
-    this.optionsToDisplay = [];
+
+    // Reset state before loading the new question
     this.currentQuestion = null;
+    this.optionsToDisplay = [];
     this.explanationToDisplay = '';
 
+    // Introduce a delay to simulate async loading
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    if (signal.aborted) {
+        console.log('Load question operation aborted.');
+        return;
+    }
+
     try {
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        if (signal.aborted) {
-            console.log('Loading aborted.');
-            return;
-        }
-
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
-
-        if (signal.aborted) return;
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
         console.log('Question Loaded:', this.currentQuestion);
         console.log('Options Loaded:', this.optionsToDisplay);
 
-        if (signal.aborted) return;
-
         await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
-        if (signal.aborted) return;
-
         this.updateSelectionMessage(false);
-
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
-        this.isLoading = false;
-        this.cdRef.detectChanges();
+        if (!signal.aborted) {
+            this.isLoading = false;
+            this.cdRef.detectChanges();
+        }
     }
   }
+
   
   isSelectedOption(option: Option): boolean {
     const isOptionSelected =

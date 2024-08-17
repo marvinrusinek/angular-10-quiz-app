@@ -1820,9 +1820,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     if (this.isLoading || this.debounceNavigation) return;
 
     this.debounceNavigation = true;
+    const debounceTimeout = 500; // Increase the debounce time
     setTimeout(() => {
         this.debounceNavigation = false;
-    }, 300);
+    }, debounceTimeout);
 
     if (this.navigationAbortController) {
         this.navigationAbortController.abort();
@@ -1858,13 +1859,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             await this.quizQuestionComponent.loadQuestion(signal);
         }
 
+        this.isLoading = false;
     } catch (error) {
         if (signal.aborted) {
             console.log('Navigation was cancelled.');
         } else {
             console.error(`Error navigating to URL: ${newUrl}:`, error);
         }
-    } finally {
         this.isLoading = false;
     }
   }
