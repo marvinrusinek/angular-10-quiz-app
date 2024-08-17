@@ -522,9 +522,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Fetch explanation and feedback texts
-        const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-        const feedbackText = this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct));
+        // Combine asynchronous operations for explanation and feedback
+        const [explanationText, feedbackText] = await Promise.all([
+            this.prepareAndSetExplanationText(this.currentQuestionIndex),
+            this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
+        ]);
 
         // Set both texts at the same time
         this.explanationToDisplay = explanationText;
@@ -538,7 +540,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Ensure the selection message is updated
         this.updateSelectionMessage(false);
 
-        this.cdRef.detectChanges(); // Ensure UI is updated with the new data
+        // Use setTimeout to ensure the UI is fully rendered after texts are set
+        setTimeout(() => {
+            this.cdRef.detectChanges(); // Ensure UI is updated with the new data
+        }, 0);
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
