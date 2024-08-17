@@ -1815,15 +1815,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.isLoading = false;
     }
   } */
+  
   async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation) return;
 
-    // Throttle mechanism: Prevent navigation for a certain time after it's triggered
     this.debounceNavigation = true;
-    const throttleTimeout = 1000; // Increase the delay to prevent multiple quick navigations
+    const debounceTimeout = 300;
     setTimeout(() => {
         this.debounceNavigation = false;
-    }, throttleTimeout);
+    }, debounceTimeout);
 
     if (this.navigationAbortController) {
         this.navigationAbortController.abort();
@@ -1859,13 +1859,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             await this.quizQuestionComponent.loadQuestion(signal);
         }
 
-        this.isLoading = false;
     } catch (error) {
         if (signal.aborted) {
             console.log('Navigation was cancelled.');
         } else {
             console.error(`Error navigating to URL: ${newUrl}:`, error);
         }
+    } finally {
         this.isLoading = false;
     }
   }
