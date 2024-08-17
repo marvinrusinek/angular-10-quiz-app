@@ -628,17 +628,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.currentQuestion = questionData;
         this.optionsToDisplay = questionData.options || [];
 
-        // Fetch and set the explanation text
-        const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-
-        // Set feedback text using the setCorrectMessage method
-        const correctOptions = questionData.options.filter(option => option.correct);
-        const feedbackText = this.setCorrectMessage(correctOptions);
-
-        // Wait until both texts are fetched and then update UI
-        await Promise.all([
-            explanationText,
-            feedbackText
+        // Fetch and set both explanation and feedback text
+        const [explanationText, feedbackText] = await Promise.all([
+            this.prepareAndSetExplanationText(this.currentQuestionIndex),
+            this.prepareAndSetFeedbackText(this.currentQuestion)  // New method to prepare feedback text
         ]);
 
         this.explanationToDisplay = explanationText;
@@ -661,6 +654,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
+  async prepareAndSetFeedbackText(question: QuizQuestion): Promise<string> {
+    if (!question) {
+        throw new Error('No question provided for feedback text.');
+    }
+
+    const correctOptions = question.options.filter(option => option.correct);
+    return this.setCorrectMessage(correctOptions);
+  }
 
   private async getFeedbackText(question: QuizQuestion): Promise<string> {
     const correctOptions = question.options.filter(option => option.correct);
