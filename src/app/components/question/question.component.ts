@@ -383,28 +383,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.hidden) {
-      // Save the quiz state when the document becomes hidden
       this.saveQuizState();
     } else {
-      // Restore the quiz state and perform additional operations when the document becomes visible
       this.restoreQuizState();
 
-      // Run the additional operations inside Angular's zone to ensure proper change detection
       this.ngZone.run(async () => {
-        // Fetch and process quiz questions based on the current quiz ID
         await this.fetchAndProcessQuizQuestions(this.quizId);
 
-        // Determine if the current question has already been answered
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-
-        // Update the selection message based on the current state of the question
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       });
     }
   }
 
   private saveQuizState(): void {
-    // Save the current state of the quiz, such as the current question index
     sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
     sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
     sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
