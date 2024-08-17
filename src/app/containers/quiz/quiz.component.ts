@@ -1818,12 +1818,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation) return;
 
-    // Enable debouncing to prevent multiple quick navigations
+    // Throttle mechanism: Prevent navigation for a certain time after it's triggered
     this.debounceNavigation = true;
-    const debounceTimeout = 500; // Increase the delay to allow for smoother transitions
+    const throttleTimeout = 1000; // Increase the delay to prevent multiple quick navigations
     setTimeout(() => {
         this.debounceNavigation = false;
-    }, debounceTimeout);
+    }, throttleTimeout);
 
     if (this.navigationAbortController) {
         this.navigationAbortController.abort();
@@ -1855,12 +1855,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return;
         }
 
-        requestAnimationFrame(async () => {
-            if (this.quizQuestionComponent) {
-                await this.quizQuestionComponent.loadQuestion(signal);
-            }
-            this.isLoading = false;
-        });
+        if (this.quizQuestionComponent) {
+            await this.quizQuestionComponent.loadQuestion(signal);
+        }
+
+        this.isLoading = false;
     } catch (error) {
         if (signal.aborted) {
             console.log('Navigation was cancelled.');
