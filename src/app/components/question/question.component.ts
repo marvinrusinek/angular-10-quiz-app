@@ -514,14 +514,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
-        // Start timing the operations
-        console.log('Start loading question...');
-        console.time('Total Load Question Time');
-
         // Fetch the current question data synchronously
-        console.time('Fetch Question');
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-        console.timeEnd('Fetch Question');
 
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
@@ -529,16 +523,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        console.time('Prepare Explanation Text');
-        // Prepare and set explanation text
-        const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-        console.timeEnd('Prepare Explanation Text');
-
-        console.time('Prepare Feedback Text');
-        // Set feedback text using the setCorrectMessage method
-        const correctOptions = this.currentQuestion.options.filter(option => option.correct);
-        const feedbackText = this.setCorrectMessage(correctOptions);
-        console.timeEnd('Prepare Feedback Text');
+        // Prepare the explanation and feedback texts
+        const [explanationText, feedbackText] = await Promise.all([
+            this.prepareAndSetExplanationText(this.currentQuestionIndex),
+            this.getFeedbackText(this.currentQuestion)
+        ]);
 
         // Set both texts simultaneously
         this.explanationToDisplay = explanationText;
@@ -547,15 +536,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Trigger a single change detection cycle
         this.cdRef.detectChanges();
 
-        console.log('Explanation and feedback texts set simultaneously:', {
-            explanationText,
-            feedbackText,
-        });
-
         // Update the selection message
         this.updateSelectionMessage(false);
-
-        console.timeEnd('Total Load Question Time');
 
     } catch (error) {
         console.error('Error loading question:', error);
