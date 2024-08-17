@@ -499,7 +499,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.explanationToDisplay = '';
 
     try {
-        await new Promise(resolve => setTimeout(resolve, 100)); // Increased delay to 100ms
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         if (signal?.aborted) {
             console.log('Load question aborted.');
@@ -535,7 +535,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     } finally {
         this.isLoading = false;
 
-        // Force a UI refresh
         requestAnimationFrame(() => {
             this.cdRef.detectChanges();
         });
