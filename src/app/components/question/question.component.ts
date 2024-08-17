@@ -498,67 +498,64 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
-  
+
     this.isLoading = true;
-  
+
     // Clear previous question data and UI states
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
-  
+    this.feedbackText = ''; // Initialize feedbackText variable
+
     if (signal?.aborted) {
-      console.log('Load question operation aborted before delay.');
-      this.isLoading = false;
-      return;
-    }
-  
-    try {
-      // Introduce a small delay to simulate asynchronous loading
-      await new Promise(resolve => setTimeout(resolve, 100)); // Slightly increased delay
-  
-      if (signal?.aborted) {
-        console.log('Load question operation aborted after delay.');
+        console.log('Load question operation aborted before delay.');
         this.isLoading = false;
         return;
-      }
-  
-      // Fetch the current question data
-      this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-      if (!this.currentQuestion) {
-        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-      }
-  
-      this.optionsToDisplay = this.currentQuestion.options || [];
-  
-      // Prepare and set explanation text
-      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-  
-      // Set the correct message based on the loaded question
-      this.setCorrectMessage(this.currentQuestion);
-  
-      // Get feedback text
-      const feedbackText = this.getFeedbackText(this.currentQuestion);
-  
-      // Get selection message
-      const selectionMessage = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        false
-      );
-  
-      // Update subjects with the fetched data
-      this.explanationTextSubject.next(this.explanationToDisplay);
-      this.feedbackTextSubject.next(feedbackText);
-      this.selectionMessageSubject.next(selectionMessage);
-  
-      this.cdRef.detectChanges(); // Ensure UI is updated with the new data
+    }
+
+    try {
+        // Introduce a small delay to simulate asynchronous loading
+        await new Promise(resolve => setTimeout(resolve, 100)); // Slightly increased delay
+
+        if (signal?.aborted) {
+            console.log('Load question operation aborted after delay.');
+            this.isLoading = false;
+            return;
+        }
+
+        // Fetch the current question data
+        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+        if (!this.currentQuestion) {
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        }
+
+        this.optionsToDisplay = this.currentQuestion.options || [];
+
+        // Prepare and set explanation text
+        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+
+        // Set the correct message based on the loaded question
+        this.setCorrectMessage(this.currentQuestion);
+
+        // Get feedback text and explanation text
+        const feedbackText = this.getFeedbackText(this.currentQuestion);
+        const explanationText = this.explanationTextService.getExplanationText(this.currentQuestionIndex);
+
+        // Set the texts simultaneously
+        this.feedbackText = feedbackText;
+        this.explanationToDisplay = explanationText;
+
+        // Ensure the selection message is updated
+        this.updateSelectionMessage(false);
+
+        this.cdRef.detectChanges(); // Ensure UI is updated with the new data
     } catch (error) {
-      console.error('Error loading question:', error);
+        console.error('Error loading question:', error);
     } finally {
-      if (!signal?.aborted) {
-        this.isLoading = false;
-        this.cdRef.detectChanges();
-      }
+        if (!signal?.aborted) {
+            this.isLoading = false;
+            this.cdRef.detectChanges();
+        }
     }
   }
   
