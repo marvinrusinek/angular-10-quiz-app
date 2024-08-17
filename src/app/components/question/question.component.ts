@@ -1619,7 +1619,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         if (selectedOptions.length > 0) {
           this.fetchQuestionsArray(currentQuestion);
         } else {
-          this.explanationText$.next('');
+          this.explanationTextService.explanationText$.next('');
         }
       },
       error: (error) => {
@@ -1806,7 +1806,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     questionIndex: number,
     explanationText: string
   ): void {
-    this.explanationText$.next(explanationText);
+    this.explanationTextService.explanationText$.next(explanationText);
     this.updateCombinedQuestionData(
       this.questions[questionIndex],
       explanationText
