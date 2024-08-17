@@ -489,47 +489,44 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   private async loadQuestion(signal?: AbortSignal): Promise<void> {
-    console.log('Loading question for index:', this.currentQuestionIndex);
-
-    // Immediately reset all relevant states
     this.isLoading = true;
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
 
     try {
-        // Simulate async operation and allow for state reset
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        // Check if the loading process has been aborted
         if (signal.aborted) {
             console.log('Loading aborted.');
             return;
         }
 
-        // Fetch the current question data
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
+
+        if (signal.aborted) return;
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
         console.log('Question Loaded:', this.currentQuestion);
         console.log('Options Loaded:', this.optionsToDisplay);
 
-        // Fetch and set the explanation text
+        if (signal.aborted) return;
+
         await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
-        // Update the selection message
+        if (signal.aborted) return;
+
         this.updateSelectionMessage(false);
 
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
-        // Mark loading as complete
         this.isLoading = false;
-        this.cdRef.detectChanges(); // Ensure the UI is updated
+        this.cdRef.detectChanges();
     }
   }
   

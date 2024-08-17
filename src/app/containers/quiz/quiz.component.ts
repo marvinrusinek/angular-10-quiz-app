@@ -1833,7 +1833,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.isLoading = true;
 
-    // Clear any existing state related to the previous question
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
 
