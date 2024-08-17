@@ -532,7 +532,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.explanationToDisplay = explanationText;
         this.feedbackText = feedbackText;
 
-        // Update the selection message
+        // Ensure the selection message is updated
         this.updateSelectionMessage(false);
     } catch (error) {
         console.error('Error loading question:', error);
