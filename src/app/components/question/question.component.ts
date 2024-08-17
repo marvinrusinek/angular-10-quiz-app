@@ -500,42 +500,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.correctAnswersText = '';  // Clear correct answers text
 
     try {
-        // Introduce a small delay to simulate asynchronous loading
-        await new Promise(resolve => setTimeout(resolve, 50));
+      // Introduce a small delay to simulate asynchronous loading
+      await new Promise(resolve => setTimeout(resolve, 50));
 
-        if (signal.aborted) {
-            console.log('Loading was aborted.');
-            return;
-        }
+      if (signal.aborted) {
+        console.log('Loading was aborted.');
+        return;
+      }
 
-        // Fetch and set the question data
-        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-        if (!this.currentQuestion) {
-            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-        }
+      // Fetch and set the question data
+      this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+      if (!this.currentQuestion) {
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
 
-        this.optionsToDisplay = this.currentQuestion.options || [];
+      this.optionsToDisplay = this.currentQuestion.options || [];
 
-        if (signal.aborted) return; // Check if loading was aborted before continuing
+      if (signal.aborted) return; // Check if loading was aborted before continuing
 
-        // Fetch and display the explanation text for the current question
-        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+      // Fetch and display the explanation text for the current question
+      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
-        // Check if the current question is a multiple-answer question
-        if (this.currentQuestion.type === 'multiple') {
-            this.displayCorrectAnswers();
-        }
+      // Check if the current question is a multiple-answer question
+      if (this.currentQuestion.type === 'multiple') {
+        this.displayCorrectAnswers();
+      }
 
-        this.isQuestionLoaded = true;
+      this.isQuestionLoaded = true;
     } catch (error) {
-        if (signal.aborted) {
-            console.log('Loading was aborted.');
-        } else {
-            console.error('Error loading question:', error);
-        }
+      if (signal.aborted) {
+        console.log('Loading was aborted.');
+      } else {
+        console.error('Error loading question:', error);
+      }
     } finally {
-        this.isLoading = false;
-        this.cdRef.detectChanges();
+      this.isLoading = false;
+      this.cdRef.detectChanges();
     }
   }
   
