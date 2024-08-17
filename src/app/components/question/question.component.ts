@@ -531,15 +531,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Fetch explanation and feedback text simultaneously
-        const [explanationText, feedbackText] = await Promise.all([
-            this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            this.generateFeedbackText(this.currentQuestion)
-        ]);
-
-        // Set both texts simultaneously
-        this.explanationToDisplay = explanationText;
-        this.feedbackText = feedbackText;
+        // Fetch and set explanation and feedback text
+        await this.fetchExplanationAndFeedbackText();
 
         // Ensure the selection message is updated
         this.updateSelectionMessage(false);
@@ -553,6 +546,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             this.cdRef.detectChanges();
         }
     }
+  }
+
+  private async fetchExplanationAndFeedbackText(): Promise<void> {
+      try {
+          const explanationTextPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex);
+          const feedbackTextPromise = this.generateFeedbackText(this.currentQuestion);
+
+          // Fetch both texts in parallel
+          const [explanationText, feedbackText] = await Promise.all([explanationTextPromise, feedbackTextPromise]);
+
+          // Set both texts
+          this.explanationToDisplay = explanationText;
+          this.feedbackText = feedbackText;
+
+          console.log('Explanation and feedback texts set simultaneously:', {
+              explanationText,
+              feedbackText,
+          });
+      } catch (error) {
+          console.error('Error fetching explanation and feedback text:', error);
+      }
   }
 
   private async generateFeedbackText(question: QuizQuestion): Promise<string> {
