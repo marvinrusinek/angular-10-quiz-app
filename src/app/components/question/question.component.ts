@@ -287,7 +287,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.selectionMessageService.selectionMessage$
         .pipe(debounceTime(200))
         .subscribe(message => {
-          this.selectionMessage = message;
+          this.selectionMessage = message as string;
         });
       this.selectionMessageService.resetMessage();
 

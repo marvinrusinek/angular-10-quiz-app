@@ -7,14 +7,12 @@ export class SelectionMessageService {
   selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to start the quiz.');
   optionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  // Method to get the current message as an observable
-  /* get selectionMessage$(): Observable<string> {
-    return this.selectionMessageSubject.asObservable();
-  } // not being called, potentially remove */
-
   selectionMessage$: Observable<string> = this.selectionMessageSubject
   .asObservable()
-  .pipe(distinctUntilChanged(), debounceTime(100));
+  .pipe<string>(
+    distinctUntilChanged(),
+    debounceTime(100)
+  );
 
   // Message Determination Function
   determineSelectionMessage(
