@@ -501,7 +501,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         return;
     }
 
-    await new Promise(resolve => setTimeout(resolve, 100)); // Slight delay
+    await new Promise(resolve => setTimeout(resolve, 100)); // Slightly increased delay
 
     if (signal.aborted) {
         console.log('Load question operation aborted after delay.');
@@ -529,6 +529,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   }
+
   
   isSelectedOption(option: Option): boolean {
     const isOptionSelected =

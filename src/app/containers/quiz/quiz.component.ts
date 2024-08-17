@@ -1820,7 +1820,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     if (this.isLoading || this.debounceNavigation) return;
 
     this.debounceNavigation = true;
-    const debounceTimeout = 500; // Adjust the debounce delay as needed
+    const debounceTimeout = 600; // Increased debounce time
     setTimeout(() => {
         this.debounceNavigation = false;
     }, debounceTimeout);
@@ -1855,11 +1855,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return;
         }
 
+        // Reset states more aggressively
         if (this.quizQuestionComponent) {
             await this.quizQuestionComponent.loadQuestion(signal);
         }
 
-        this.updateSelectionMessage(false); // Ensure selection message updates after question loads
+        this.updateSelectionMessage(false); 
         this.isLoading = false;
     } catch (error) {
         if (signal.aborted) {
@@ -1870,7 +1871,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.isLoading = false;
     }
   }
-
+  
   // Reset UI immediately before navigating
   private resetUI(): void {
     this.question = null;
