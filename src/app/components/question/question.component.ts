@@ -122,6 +122,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   shouldRenderContainer = true;
   private hasSetInitialMessage = false;
 
+  explanationTextSubject = new BehaviorSubject<string>('');
+  feedbackTextSubject = new BehaviorSubject<string>('');
+  selectionMessageSubject = new BehaviorSubject<string>('');
+
+  explanationText$ = this.explanationTextSubject.asObservable();
+  feedbackText$ = this.feedbackTextSubject.asObservable();
+  selectionMessage$ = this.selectionMessageSubject.asObservable();
+
   // Define audio list array
   audioList: AudioItem[] = [];
   
@@ -489,6 +497,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   async loadQuestion(signal?: AbortSignal): Promise<void> {
+    this.resetTexts();
+
     this.isLoading = true;
 
     this.currentQuestion = null;
@@ -500,6 +510,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.isLoading = false;
       return;
     }
+
+    const explanationText = await this.explanationTextService.explanationSubject;
+    const feedbackText = this.getFeedbackText(this.currentQuestion);
+    const selectionMessage = this.selectionMessageService.selectionMessageSubject;
 
     await new Promise(resolve => setTimeout(resolve, 100)); // Slightly increased delay
 
@@ -529,6 +543,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
     }
   }
+
+  private resetTexts(): void {
+    this.explanationTextSubject.next('');
+    this.feedbackTextSubject.next('');
+    this.selectionMessageSubject.next('');
+  }
+
   
   isSelectedOption(option: Option): boolean {
     const isOptionSelected =
