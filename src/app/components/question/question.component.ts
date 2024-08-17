@@ -498,9 +498,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
+
     this.isLoading = true;
 
-    // Clear previous data
+    // Clear previous question data and UI states
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
@@ -521,15 +522,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Fetch both explanation and feedback texts synchronously
-        const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-        const feedbackText = this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct));
+        // Prepare and set both explanation and feedback texts
+        const [explanationText, feedbackText] = await Promise.all([
+            this.prepareAndSetExplanationText(this.currentQuestionIndex),
+            this.prepareFeedbackText(this.currentQuestion)
+        ]);
 
         // Set both texts simultaneously
         this.explanationToDisplay = explanationText;
         this.feedbackText = feedbackText;
 
-        // Trigger change detection after setting both texts
+        // Trigger a single change detection cycle
         this.cdRef.detectChanges();
 
         console.log('Explanation and feedback texts set simultaneously:', {
@@ -537,7 +540,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             feedbackText,
         });
 
-        // Update selection message
+        // Update the selection message
         this.updateSelectionMessage(false);
 
     } catch (error) {
@@ -548,6 +551,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             this.cdRef.detectChanges();
         }
     }
+  }
+
+  private async prepareFeedbackText(question: QuizQuestion): Promise<string> {
+    // Process the correct options to generate feedback text
+    const correctOptions = question.options.filter(option => option.correct);
+    return this.setCorrectMessage(correctOptions);
   }
 
   private async fetchExplanationAndFeedbackText(): Promise<void> {
