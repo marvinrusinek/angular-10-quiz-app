@@ -495,6 +495,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log('Selection message remains the same, no update needed.');
     }
   }
+  
   async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
 
@@ -507,39 +508,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.feedbackText = '';
 
     if (signal?.aborted) {
-        console.log('Load question operation aborted.');
+        console.log('Load question operation aborted before delay.');
         this.isLoading = false;
         return;
     }
 
     try {
-        // Fetch the current question data synchronously
-        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+        // Introduce a small delay to simulate asynchronous loading
+        await new Promise(resolve => setTimeout(resolve, 100));
 
+        if (signal?.aborted) {
+            console.log('Load question operation aborted after delay.');
+            this.isLoading = false;
+            return;
+        }
+
+        // Fetch the current question data
+        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Initiate fetching explanation and feedback in parallel
-        const explanationPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex);
-        const feedbackPromise = Promise.resolve(
+        // Fetch and prepare the explanation and feedback texts concurrently
+        const [explanationText, feedbackText] = await Promise.all([
+            this.explanationTextService.getExplanationText(this.currentQuestionIndex),
             this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
-        );
+        ]);
 
-        // Await both promises simultaneously
-        const [explanation, feedback] = await Promise.all([explanationPromise, feedbackPromise]);
+        // Set the explanation and feedback texts
+        this.explanationToDisplay = explanationText;
+        this.feedbackText = feedbackText;
 
-        // Set explanation and feedback texts
-        this.explanationToDisplay = explanation;
-        this.feedbackText = feedback;
-
-        // Update the selection message
+        // Ensure the selection message is updated
         this.updateSelectionMessage(false);
 
-        this.cdRef.detectChanges(); // Trigger UI update
-
+        this.cdRef.detectChanges(); // Ensure UI is updated with the new data
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
@@ -549,8 +554,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   }
-
-  
 
   private async getFeedbackText(question: QuizQuestion): Promise<string> {
     const correctOptions = question.options.filter(option => option.correct);
