@@ -496,7 +496,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
-  async loadQuestion(signal?: AbortSignal): Promise<void> {
+  /* async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
 
     this.isLoading = true;
@@ -534,6 +534,61 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         // Ensure the selection message is updated
         this.updateSelectionMessage(false);
+    } catch (error) {
+        console.error('Error loading question:', error);
+    } finally {
+        if (!signal?.aborted) {
+            this.isLoading = false;
+            this.cdRef.detectChanges();
+        }
+    }
+  } */
+  async loadQuestion(signal?: AbortSignal): Promise<void> {
+    this.resetTexts();
+
+    this.isLoading = true;
+
+    // Clear previous question data and UI states
+    this.currentQuestion = null;
+    this.optionsToDisplay = [];
+    this.explanationToDisplay = '';
+    this.feedbackText = '';
+
+    if (signal?.aborted) {
+        console.log('Load question operation aborted.');
+        this.isLoading = false;
+        return;
+    }
+
+    try {
+        // Introduce a small delay to simulate asynchronous loading and help with UI updates
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Fetch the current question data
+        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+        if (!this.currentQuestion) {
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        }
+
+        this.optionsToDisplay = this.currentQuestion.options || [];
+
+        // Fetch both the explanation and feedback texts concurrently
+        const [explanationText, feedbackText] = await Promise.all([
+            this.prepareAndSetExplanationText(this.currentQuestionIndex),
+            this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
+        ]);
+
+        // Update UI with both texts simultaneously
+        this.explanationToDisplay = explanationText;
+        this.feedbackText = feedbackText;
+
+        // Ensure the selection message is updated
+        this.updateSelectionMessage(false);
+
+        // Small delay to ensure UI updates smoothly
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        this.cdRef.detectChanges();
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
