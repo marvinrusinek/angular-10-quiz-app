@@ -1818,10 +1818,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation) return;
 
+    // Enable debouncing to prevent multiple quick navigations
     this.debounceNavigation = true;
-    const debounceTimeout = 300;
+    const debounceTimeout = 500; // Increase the delay to allow for smoother transitions
     setTimeout(() => {
-      this.debounceNavigation = false;
+        this.debounceNavigation = false;
     }, debounceTimeout);
 
     if (this.navigationAbortController) {
@@ -1854,11 +1855,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return;
         }
 
-        if (this.quizQuestionComponent) {
-            await this.quizQuestionComponent.loadQuestion(signal);
-        }
-
-        this.isLoading = false;
+        requestAnimationFrame(async () => {
+            if (this.quizQuestionComponent) {
+                await this.quizQuestionComponent.loadQuestion(signal);
+            }
+            this.isLoading = false;
+        });
     } catch (error) {
         if (signal.aborted) {
             console.log('Navigation was cancelled.');
@@ -1868,6 +1870,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.isLoading = false;
     }
   }
+
 
   // Reset UI immediately before navigating
   private resetUI(): void {

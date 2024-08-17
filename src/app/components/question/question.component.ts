@@ -494,14 +494,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     console.log('Loading question for index:', this.currentQuestionIndex);
 
-    // Clear previous options and question data to avoid lingering state
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
 
     try {
-        // Introduce a small delay to simulate asynchronous loading
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 100)); // Increased delay to 100ms
 
         if (signal?.aborted) {
             console.log('Load question aborted.');
@@ -536,7 +534,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     } finally {
         this.isLoading = false;
-        this.cdRef.detectChanges();
+
+        // Force a UI refresh
+        requestAnimationFrame(() => {
+            this.cdRef.detectChanges();
+        });
     }
   }
   
