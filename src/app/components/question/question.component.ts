@@ -523,21 +523,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Prepare the explanation and feedback texts
-        const [explanationText, feedbackText] = await Promise.all([
-            this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            this.getFeedbackText(this.currentQuestion)
-        ]);
+        // Prepare the explanation and feedback texts concurrently
+        const explanationTextPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex);
+        const feedbackTextPromise = Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)));
+
+        // Await both promises simultaneously
+        const [explanationText, feedbackText] = await Promise.all([explanationTextPromise, feedbackTextPromise]);
 
         // Set both texts simultaneously
         this.explanationToDisplay = explanationText;
         this.feedbackText = feedbackText;
 
-        // Trigger a single change detection cycle
-        this.cdRef.detectChanges();
-
-        // Update the selection message
+        // Ensure the selection message is updated
         this.updateSelectionMessage(false);
+
+        this.cdRef.detectChanges(); // Trigger UI update
 
     } catch (error) {
         console.error('Error loading question:', error);
