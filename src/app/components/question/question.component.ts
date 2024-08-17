@@ -496,40 +496,39 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.explanationToDisplay = '';
 
     if (signal.aborted) {
-        console.log('Load question operation aborted before delay.');
-        this.isLoading = false;
-        return;
+      console.log('Load question operation aborted before delay.');
+      this.isLoading = false;
+      return;
     }
 
     await new Promise(resolve => setTimeout(resolve, 100)); // Slightly increased delay
 
     if (signal.aborted) {
-        console.log('Load question operation aborted after delay.');
-        this.isLoading = false;
-        return;
+      console.log('Load question operation aborted after delay.');
+      this.isLoading = false;
+      return;
     }
 
     try {
-        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-        if (!this.currentQuestion) {
-            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-        }
+      this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+      if (!this.currentQuestion) {
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
 
-        this.optionsToDisplay = this.currentQuestion.options || [];
+      this.optionsToDisplay = this.currentQuestion.options || [];
 
-        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
-        this.updateSelectionMessage(false);
+      this.updateSelectionMessage(false);
     } catch (error) {
-        console.error('Error loading question:', error);
+      console.error('Error loading question:', error);
     } finally {
-        if (!signal.aborted) {
-            this.isLoading = false;
-            this.cdRef.detectChanges();
-        }
+      if (!signal.aborted) {
+        this.isLoading = false;
+        this.cdRef.detectChanges();
+      }
     }
   }
-
   
   isSelectedOption(option: Option): boolean {
     const isOptionSelected =
