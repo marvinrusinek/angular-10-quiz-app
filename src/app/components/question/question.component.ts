@@ -498,14 +498,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
-
     this.isLoading = true;
 
     // Clear previous question data and UI states
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
-    this.feedbackText = ''; // Initialize feedbackText variable
+    this.feedbackText = '';
 
     if (signal?.aborted) {
         console.log('Load question operation aborted before delay.');
@@ -514,15 +513,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
-        // Introduce a small delay to simulate asynchronous loading
-        await new Promise(resolve => setTimeout(resolve, 100)); // Slightly increased delay
-
-        if (signal?.aborted) {
-            console.log('Load question operation aborted after delay.');
-            this.isLoading = false;
-            return;
-        }
-
         // Fetch the current question data
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
         if (!this.currentQuestion) {
@@ -531,19 +521,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Prepare and set explanation text
-        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+        // Prepare explanation and feedback texts in parallel
+        const [explanationText, feedbackText] = await Promise.all([
+            this.prepareAndGetExplanationText(this.currentQuestionIndex),
+            this.getFeedbackText(this.currentQuestion)
+        ]);
 
-        // Set the correct message based on the loaded question
-        this.setCorrectMessage(this.currentQuestion);
+        if (signal?.aborted) {
+            console.log('Load question operation aborted after fetching texts.');
+            this.isLoading = false;
+            return;
+        }
 
-        // Get feedback text and explanation text
-        const feedbackText = this.getFeedbackText(this.currentQuestion);
-        const explanationText = this.explanationTextService.getExplanationText(this.currentQuestionIndex);
-
-        // Set the texts simultaneously
-        this.feedbackText = feedbackText;
+        // Set both texts at the same time
         this.explanationToDisplay = explanationText;
+        this.feedbackText = feedbackText;
 
         // Ensure the selection message is updated
         this.updateSelectionMessage(false);
@@ -557,6 +549,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             this.cdRef.detectChanges();
         }
     }
+  }
+
+  private async getCorrectMessageForFeedback(question: QuizQuestion): Promise<string> {
+      const correctOptions = question.options.filter(option => option.correct);
+      return this.setCorrectMessage(correctOptions);
   }
   
   private resetTexts(): void {
