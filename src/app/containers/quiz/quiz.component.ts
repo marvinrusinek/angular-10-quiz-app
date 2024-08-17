@@ -1820,7 +1820,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     if (this.isLoading || this.debounceNavigation) return;
 
     this.debounceNavigation = true;
-    const debounceTimeout = 500; // Increase the debounce time
+    const debounceTimeout = 500; // Further increasing the debounce time
     setTimeout(() => {
         this.debounceNavigation = false;
     }, debounceTimeout);

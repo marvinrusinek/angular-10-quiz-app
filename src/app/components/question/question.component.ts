@@ -492,16 +492,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // Set loading state to true
     this.isLoading = true;
 
-    // Reset state before loading the new question
+    // Clear previous question and options data
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
 
-    // Introduce a delay to simulate async loading
-    await new Promise(resolve => setTimeout(resolve, 50));
+    if (signal.aborted) {
+        console.log('Load question operation aborted before delay.');
+        this.isLoading = false;
+        return;
+    }
+
+    // Introduce a small delay to simulate async loading
+    await new Promise(resolve => setTimeout(resolve, 100)); // Increased delay to further prevent race conditions
 
     if (signal.aborted) {
-        console.log('Load question operation aborted.');
+        console.log('Load question operation aborted after delay.');
+        this.isLoading = false;
         return;
     }
 
@@ -528,6 +535,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   }
+
 
   
   isSelectedOption(option: Option): boolean {
