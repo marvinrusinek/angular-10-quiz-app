@@ -543,7 +543,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   } */
-  async loadQuestion(signal?: AbortSignal): Promise<void> {
+  /* async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
 
     this.isLoading = true;
@@ -597,7 +597,62 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             this.cdRef.detectChanges();
         }
     }
+  } */
+  async loadQuestion(signal?: AbortSignal): Promise<void> {
+    this.resetTexts();
+
+    this.isLoading = true;
+
+    // Clear previous question data and UI states
+    this.currentQuestion = null;
+    this.optionsToDisplay = [];
+    this.explanationToDisplay = '';
+    this.feedbackText = '';
+
+    if (signal?.aborted) {
+        console.log('Load question operation aborted.');
+        this.isLoading = false;
+        return;
+    }
+
+    try {
+        // Introduce a small delay to simulate asynchronous loading and help with UI updates
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        // Fetch the current question data
+        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+        if (!this.currentQuestion) {
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        }
+
+        this.optionsToDisplay = this.currentQuestion.options || [];
+
+        // Fetch and set the explanation text and feedback text together
+        const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+        const correctOptions = this.currentQuestion.options.filter(option => option.correct);
+        const feedbackText = this.setCorrectMessage(correctOptions);
+
+        // Update UI with both texts simultaneously
+        this.explanationToDisplay = explanationText;
+        this.feedbackText = feedbackText;
+
+        // Ensure the selection message is updated
+        this.updateSelectionMessage(false);
+
+        // Small delay to ensure UI updates smoothly
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        this.cdRef.detectChanges();
+    } catch (error) {
+        console.error('Error loading question:', error);
+    } finally {
+        if (!signal?.aborted) {
+            this.isLoading = false;
+            this.cdRef.detectChanges();
+        }
+    }
   }
+
 
   private async getFeedbackText(question: QuizQuestion): Promise<string> {
     const correctOptions = question.options.filter(option => option.correct);
