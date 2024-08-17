@@ -508,48 +508,56 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.feedbackText = '';
 
     if (signal?.aborted) {
-      console.log('Load question operation aborted before delay.');
-      this.isLoading = false;
-      return;
+        console.log('Load question operation aborted before delay.');
+        this.isLoading = false;
+        return;
     }
 
     try {
-      // Introduce a small delay to simulate asynchronous loading
-      await new Promise(resolve => setTimeout(resolve, 100));
+        // Introduce a small delay to simulate asynchronous loading
+        await new Promise(resolve => setTimeout(resolve, 100));
 
-      if (signal?.aborted) {
-        console.log('Load question operation aborted after delay.');
-        this.isLoading = false;
-        return;
-      }
+        if (signal?.aborted) {
+            console.log('Load question operation aborted after delay.');
+            this.isLoading = false;
+            return;
+        }
 
-      // Fetch the current question data
-      this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-      if (!this.currentQuestion) {
-        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-      }
+        // Fetch the current question data
+        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+        if (!this.currentQuestion) {
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        }
 
-      this.optionsToDisplay = this.currentQuestion.options || [];
+        this.optionsToDisplay = this.currentQuestion.options || [];
 
-      // Prepare and set explanation text
-      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+        // Fetch explanation and feedback text simultaneously
+        const [explanationText, feedbackText] = await Promise.all([
+            this.prepareAndSetExplanationText(this.currentQuestionIndex),
+            this.generateFeedbackText(this.currentQuestion)
+        ]);
 
-      // Set feedback text using the setCorrectMessage method
-      const correctOptions = this.currentQuestion.options.filter(option => option.correct);
-      this.feedbackText = this.setCorrectMessage(correctOptions);
+        // Set both texts simultaneously
+        this.explanationToDisplay = explanationText;
+        this.feedbackText = feedbackText;
 
-      // Ensure the selection message is updated
-      this.updateSelectionMessage(false);
+        // Ensure the selection message is updated
+        this.updateSelectionMessage(false);
 
-      this.cdRef.detectChanges(); // Ensure UI is updated with the new data
+        this.cdRef.detectChanges(); // Ensure UI is updated with the new data
     } catch (error) {
-      console.error('Error loading question:', error);
+        console.error('Error loading question:', error);
     } finally {
-      if (!signal?.aborted) {
-        this.isLoading = false;
-        this.cdRef.detectChanges();
-      }
+        if (!signal?.aborted) {
+            this.isLoading = false;
+            this.cdRef.detectChanges();
+        }
     }
+  }
+
+  private async generateFeedbackText(question: QuizQuestion): Promise<string> {
+    const correctOptions = question.options.filter(option => option.correct);
+    return this.setCorrectMessage(correctOptions);
   }
   
   private resetTexts(): void {
