@@ -514,6 +514,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
+        // Start timing the operations
+        console.time('Load Question Total Time');
+        
         // Fetch the current question data synchronously
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
         if (!this.currentQuestion) {
@@ -522,11 +525,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Prepare and set both explanation and feedback texts
-        const [explanationText, feedbackText] = await Promise.all([
-            this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            this.prepareFeedbackText(this.currentQuestion)
-        ]);
+        // Log timing for question fetching
+        console.timeEnd('Load Question Total Time');
+        console.time('Prepare Explanation Text');
+
+        // Prepare and set explanation text
+        const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+
+        console.timeEnd('Prepare Explanation Text');
+        console.time('Prepare Feedback Text');
+
+        // Set feedback text using the setCorrectMessage method
+        const correctOptions = this.currentQuestion.options.filter(option => option.correct);
+        const feedbackText = this.setCorrectMessage(correctOptions);
+        
+        console.timeEnd('Prepare Feedback Text');
 
         // Set both texts simultaneously
         this.explanationToDisplay = explanationText;
