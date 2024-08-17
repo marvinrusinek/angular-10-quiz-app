@@ -498,6 +498,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
+
     this.isLoading = true;
 
     // Clear previous question data and UI states
@@ -507,53 +508,48 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.feedbackText = '';
 
     if (signal?.aborted) {
-        console.log('Load question operation aborted before delay.');
-        this.isLoading = false;
-        return;
+      console.log('Load question operation aborted before delay.');
+      this.isLoading = false;
+      return;
     }
 
     try {
-        // Fetch the current question data
-        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-        if (!this.currentQuestion) {
-            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-        }
+      // Introduce a small delay to simulate asynchronous loading
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-        this.optionsToDisplay = this.currentQuestion.options || [];
+      if (signal?.aborted) {
+        console.log('Load question operation aborted after delay.');
+        this.isLoading = false;
+        return;
+      }
 
-        // Prepare explanation and feedback texts in parallel
-        const [explanationText, feedbackText] = await Promise.all([
-            this.prepareAndGetExplanationText(this.currentQuestionIndex),
-            this.getFeedbackText(this.currentQuestion)
-        ]);
+      // Fetch the current question data
+      this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+      if (!this.currentQuestion) {
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
 
-        if (signal?.aborted) {
-            console.log('Load question operation aborted after fetching texts.');
-            this.isLoading = false;
-            return;
-        }
+      this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Set both texts at the same time
-        this.explanationToDisplay = explanationText;
-        this.feedbackText = feedbackText;
+      // Prepare and set explanation text
+      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
-        // Ensure the selection message is updated
-        this.updateSelectionMessage(false);
+      // Set feedback text using the setCorrectMessage method
+      const correctOptions = this.currentQuestion.options.filter(option => option.correct);
+      this.feedbackText = this.setCorrectMessage(correctOptions);
 
-        this.cdRef.detectChanges(); // Ensure UI is updated with the new data
+      // Ensure the selection message is updated
+      this.updateSelectionMessage(false);
+
+      this.cdRef.detectChanges(); // Ensure UI is updated with the new data
     } catch (error) {
-        console.error('Error loading question:', error);
+      console.error('Error loading question:', error);
     } finally {
-        if (!signal?.aborted) {
-            this.isLoading = false;
-            this.cdRef.detectChanges();
-        }
+      if (!signal?.aborted) {
+        this.isLoading = false;
+        this.cdRef.detectChanges();
+      }
     }
-  }
-
-  private async getCorrectMessageForFeedback(question: QuizQuestion): Promise<string> {
-      const correctOptions = question.options.filter(option => option.correct);
-      return this.setCorrectMessage(correctOptions);
   }
   
   private resetTexts(): void {
