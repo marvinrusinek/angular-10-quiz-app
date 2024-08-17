@@ -1820,7 +1820,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     if (this.isLoading || this.debounceNavigation) return;
 
     this.debounceNavigation = true;
-    const debounceTimeout = 500; // Further increasing the debounce time
+    const debounceTimeout = 500; // Adjust the debounce delay as needed
     setTimeout(() => {
         this.debounceNavigation = false;
     }, debounceTimeout);
@@ -1859,6 +1859,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             await this.quizQuestionComponent.loadQuestion(signal);
         }
 
+        this.updateSelectionMessage(false); // Ensure selection message updates after question loads
         this.isLoading = false;
     } catch (error) {
         if (signal.aborted) {
