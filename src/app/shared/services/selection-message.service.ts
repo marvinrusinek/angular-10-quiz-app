@@ -8,11 +8,11 @@ export class SelectionMessageService {
   optionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   selectionMessage$: Observable<string> = this.selectionMessageSubject
-  .asObservable()
-  .pipe<string>(
-    distinctUntilChanged(),
-    debounceTime(100)
-  );
+    .asObservable()
+    .pipe<string>(
+      distinctUntilChanged(),
+      debounceTime(100)
+    );
 
   // Message Determination Function
   determineSelectionMessage(
