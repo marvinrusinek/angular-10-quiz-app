@@ -549,6 +549,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
+  private async getFeedbackText(question: QuizQuestion): Promise<string> {
+    const correctOptions = question.options.filter(option => option.correct);
+    return this.setCorrectMessage(correctOptions);
+  }
+
   private async prepareFeedbackText(question: QuizQuestion): Promise<string> {
     // Process the correct options to generate feedback text
     const correctOptions = question.options.filter(option => option.correct);
