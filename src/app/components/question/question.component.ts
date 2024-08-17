@@ -498,10 +498,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
-
     this.isLoading = true;
 
-    // Clear previous question data and UI states
+    // Clear previous data
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
@@ -522,28 +521,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Combine asynchronous operations for explanation and feedback
-        const [explanationText, feedbackText] = await Promise.all([
-            this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
-        ]);
+        // Fetch both explanation and feedback texts synchronously
+        const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+        const feedbackText = this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct));
 
-        // Set both texts at the same time
+        // Set both texts simultaneously
         this.explanationToDisplay = explanationText;
         this.feedbackText = feedbackText;
+
+        // Trigger change detection after setting both texts
+        this.cdRef.detectChanges();
 
         console.log('Explanation and feedback texts set simultaneously:', {
             explanationText,
             feedbackText,
         });
 
-        // Ensure the selection message is updated
+        // Update selection message
         this.updateSelectionMessage(false);
 
-        // Use setTimeout to ensure the UI is fully rendered after texts are set
-        setTimeout(() => {
-            this.cdRef.detectChanges(); // Ensure UI is updated with the new data
-        }, 0);
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
