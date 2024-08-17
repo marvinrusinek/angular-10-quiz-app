@@ -620,19 +620,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         await new Promise(resolve => setTimeout(resolve, 50));
 
         // Fetch the current question data
-        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-        if (!this.currentQuestion) {
+        const questionData = this.quizService.getQuestion(this.currentQuestionIndex);
+        if (!questionData) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
 
-        this.optionsToDisplay = this.currentQuestion.options || [];
+        this.currentQuestion = questionData;
+        this.optionsToDisplay = questionData.options || [];
 
-        // Fetch and set the explanation text and feedback text together
+        // Fetch and set the explanation text
         const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-        const correctOptions = this.currentQuestion.options.filter(option => option.correct);
+
+        // Set feedback text using the setCorrectMessage method
+        const correctOptions = questionData.options.filter(option => option.correct);
         const feedbackText = this.setCorrectMessage(correctOptions);
 
-        // Update UI with both texts simultaneously
+        // Wait until both texts are fetched and then update UI
+        await Promise.all([
+            explanationText,
+            feedbackText
+        ]);
+
         this.explanationToDisplay = explanationText;
         this.feedbackText = feedbackText;
 
