@@ -495,7 +495,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log('Selection message remains the same, no update needed.');
     }
   }
-  
   async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
 
@@ -523,28 +522,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Fetch the explanation text and calculate the feedback text concurrently
+        // Initiate fetching explanation and feedback in parallel
         const explanationPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex);
         const feedbackPromise = Promise.resolve(
             this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
         );
 
-        // Use Promise.allSettled to ensure both promises resolve, even if one fails
-        const [explanationResult, feedbackResult] = await Promise.allSettled([explanationPromise, feedbackPromise]);
+        // Await both promises simultaneously
+        const [explanation, feedback] = await Promise.all([explanationPromise, feedbackPromise]);
 
-        if (explanationResult.status === 'fulfilled') {
-            this.explanationToDisplay = explanationResult.value;
-        } else {
-            console.error('Failed to load explanation text:', explanationResult.reason);
-        }
+        // Set explanation and feedback texts
+        this.explanationToDisplay = explanation;
+        this.feedbackText = feedback;
 
-        if (feedbackResult.status === 'fulfilled') {
-            this.feedbackText = feedbackResult.value;
-        } else {
-            console.error('Failed to set feedback text:', feedbackResult.reason);
-        }
-
-        // Ensure the selection message is updated
+        // Update the selection message
         this.updateSelectionMessage(false);
 
         this.cdRef.detectChanges(); // Trigger UI update
@@ -558,6 +549,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   }
+
+  
 
   private async getFeedbackText(question: QuizQuestion): Promise<string> {
     const correctOptions = question.options.filter(option => option.correct);
