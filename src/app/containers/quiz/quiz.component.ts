@@ -1820,10 +1820,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     if (this.isLoading || this.debounceNavigation) return;
 
     this.debounceNavigation = true;
-    const debounceTimeout = 300;
     setTimeout(() => {
         this.debounceNavigation = false;
-    }, debounceTimeout);
+    }, 300);
 
     if (this.navigationAbortController) {
         this.navigationAbortController.abort();
@@ -1834,6 +1833,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.isLoading = true;
 
+    // Clear any existing state related to the previous question
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
 
@@ -1869,7 +1869,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.isLoading = false;
     }
   }
-
 
   // Reset UI immediately before navigating
   private resetUI(): void {

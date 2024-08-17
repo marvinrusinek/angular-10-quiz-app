@@ -488,28 +488,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
-  private async loadQuestion(signal: AbortSignal): Promise<void> {
-    // Set loading state to true
-    this.isLoading = true;
-
+  private async loadQuestion(signal?: AbortSignal): Promise<void> {
     console.log('Loading question for index:', this.currentQuestionIndex);
 
-    // Clear previous options and question data to avoid lingering state
+    // Immediately reset all relevant states
+    this.isLoading = true;
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
 
     try {
-        // Introduce a small delay to simulate asynchronous loading
-        await new Promise(resolve => setTimeout(resolve, 50));
+        // Simulate async operation and allow for state reset
+        await new Promise(resolve => setTimeout(resolve, 100));
 
-        // Check if the signal has been aborted before proceeding
+        // Check if the loading process has been aborted
         if (signal.aborted) {
-            console.log('Question loading aborted.');
+            console.log('Loading aborted.');
             return;
         }
 
-        // Fetch and set the question data
+        // Fetch the current question data
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
@@ -520,7 +518,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('Question Loaded:', this.currentQuestion);
         console.log('Options Loaded:', this.optionsToDisplay);
 
-        // Fetch and display the explanation text for the current question
+        // Fetch and set the explanation text
         await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
         // Update the selection message
@@ -529,11 +527,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
-        // Set loading state to false after question and options are loaded
+        // Mark loading as complete
         this.isLoading = false;
-
-        // Ensure the UI is updated with the restored state
-        this.cdRef.detectChanges();
+        this.cdRef.detectChanges(); // Ensure the UI is updated
     }
   }
   
