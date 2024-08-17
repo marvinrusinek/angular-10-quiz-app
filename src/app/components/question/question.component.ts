@@ -500,43 +500,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.explanationToDisplay = '';
 
     try {
-        // Introduce a small delay to simulate asynchronous loading
-        await new Promise(resolve => setTimeout(resolve, 50));
+      // Introduce a small delay to simulate asynchronous loading
+      await new Promise(resolve => setTimeout(resolve, 50));
 
-        if (signal?.aborted) {
-            console.log('Load question aborted.');
-            this.isLoading = false;
-            return;
-        }
-
-        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-        if (!this.currentQuestion) {
-            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-        }
-
-        this.optionsToDisplay = this.currentQuestion.options || [];
-
-        console.log('Question Loaded:', this.currentQuestion);
-        console.log('Options Loaded:', this.optionsToDisplay);
-
-        if (signal?.aborted) {
-            console.log('Load question aborted after fetching question.');
-            this.isLoading = false;
-            return;
-        }
-
-        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-
-        this.updateSelectionMessage(false);
-    } catch (error) {
-        if (signal?.aborted) {
-            console.log('Load question was cancelled.');
-        } else {
-            console.error('Error loading question:', error);
-        }
-    } finally {
+      if (signal?.aborted) {
+        console.log('Load question aborted.');
         this.isLoading = false;
-        this.cdRef.detectChanges();
+        return;
+      }
+
+      this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+      if (!this.currentQuestion) {
+          throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
+
+      this.optionsToDisplay = this.currentQuestion.options || [];
+
+      console.log('Question Loaded:', this.currentQuestion);
+      console.log('Options Loaded:', this.optionsToDisplay);
+
+      if (signal?.aborted) {
+        console.log('Load question aborted after fetching question.');
+        this.isLoading = false;
+        return;
+      }
+
+      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+
+      this.updateSelectionMessage(false);
+    } catch (error) {
+      if (signal?.aborted) {
+        console.log('Load question was cancelled.');
+      } else {
+        console.error('Error loading question:', error);
+      }
+    } finally {
+      this.isLoading = false;
+      this.cdRef.detectChanges();
     }
   }
   
