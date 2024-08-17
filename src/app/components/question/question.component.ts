@@ -508,22 +508,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.feedbackText = '';
 
     if (signal?.aborted) {
-        console.log('Load question operation aborted before delay.');
+        console.log('Load question operation aborted.');
         this.isLoading = false;
         return;
     }
 
     try {
-        // Introduce a small delay to simulate asynchronous loading
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        if (signal?.aborted) {
-            console.log('Load question operation aborted after delay.');
-            this.isLoading = false;
-            return;
-        }
-
-        // Fetch the current question data
+        // Fetch the current question data synchronously
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
@@ -531,8 +522,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Fetch and set explanation and feedback text
-        await this.fetchExplanationAndFeedbackText();
+        // Fetch explanation and feedback texts
+        const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+        const feedbackText = this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct));
+
+        // Set both texts at the same time
+        this.explanationToDisplay = explanationText;
+        this.feedbackText = feedbackText;
+
+        console.log('Explanation and feedback texts set simultaneously:', {
+            explanationText,
+            feedbackText,
+        });
 
         // Ensure the selection message is updated
         this.updateSelectionMessage(false);
