@@ -508,21 +508,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.feedbackText = '';
 
     if (signal?.aborted) {
-        console.log('Load question operation aborted before delay.');
+        console.log('Load question operation aborted.');
         this.isLoading = false;
         return;
     }
 
     try {
-        // Introduce a small delay to simulate asynchronous loading
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        if (signal?.aborted) {
-            console.log('Load question operation aborted after delay.');
-            this.isLoading = false;
-            return;
-        }
-
         // Fetch the current question data
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
         if (!this.currentQuestion) {
@@ -531,24 +522,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Fetch and prepare the explanation and feedback texts concurrently
+        // Fetch both the explanation and feedback texts concurrently
         const [explanationText, feedbackText] = await Promise.all([
             this.prepareAndSetExplanationText(this.currentQuestionIndex),
             this.prepareFeedbackText(this.currentQuestion)
         ]);
 
-        // Batch UI updates within Angular's zone for better performance
-        this.ngZone.run(() => {
-            // Set the explanation and feedback texts
-            this.explanationToDisplay = explanationText;
-            this.feedbackText = feedbackText;
+        // Update UI with both texts simultaneously
+        this.explanationToDisplay = explanationText;
+        this.feedbackText = feedbackText;
 
-            // Ensure the selection message is updated
-            this.updateSelectionMessage(false);
-
-            // Trigger change detection manually
-            this.cdRef.detectChanges(); // Ensure UI is updated with the new data
-        });
+        // Update the selection message
+        this.updateSelectionMessage(false);
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
@@ -564,12 +549,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     return this.setCorrectMessage(correctOptions);
   }
 
-  private async prepareFeedbackText(question: QuizQuestion): Promise<string> {
-    // Simulate async operation if needed
-    await new Promise(resolve => setTimeout(resolve, 50));
-    const correctOptions = question.options.filter(option => option.correct);
-    return this.setCorrectMessage(correctOptions);
-  }
+  async prepareFeedbackText(question: QuizQuestion): Promise<string> {
+    try {
+        const correctOptions = question.options.filter(option => option.correct);
+        return this.setCorrectMessage(correctOptions);
+    } catch (error) {
+        console.error('Error in preparing feedback text:', error);
+        return 'Error generating feedback.';
+    }
+  }  
 
   private async fetchExplanationAndFeedbackText(): Promise<void> {
       try {
@@ -1776,18 +1764,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.quizQuestionManagerService.setExplanationText(null);
   }
   
-  async prepareAndSetExplanationText(questionIndex: number): Promise<void> {
+  async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     if (document.hidden) {
-      return;
+        return 'Explanation text not available when document is hidden.';
     }
-  
-    const questionData = await this.quizService.getNextQuestion(
-      this.currentQuestionIndex
-    );
-    if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
-      await this.processExplanationText(questionData, questionIndex);
-    } else {
-      console.error('Error: questionData or explanation is undefined');
+
+    try {
+        const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
+        if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
+            await this.processExplanationText(questionData, questionIndex);
+
+            // Assuming processExplanationText properly updates the explanation text
+            return this.explanationTextService.getExplanationText(questionIndex);
+        } else {
+            console.error('Error: questionData or explanation is undefined');
+            return 'No explanation available.';
+        }
+    } catch (error) {
+        console.error('Error in fetching explanation text:', error);
+        return 'Error fetching explanation.';
     }
   }
   
