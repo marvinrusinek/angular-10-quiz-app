@@ -1766,23 +1766,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     if (document.hidden) {
-        return 'Explanation text not available when document is hidden.';
+      return 'Explanation text not available when document is hidden.';
     }
 
     try {
-        const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
-        if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
-            await this.processExplanationText(questionData, questionIndex);
-
-            // Assuming processExplanationText properly updates the explanation text
-            return this.explanationTextService.getExplanationText(questionIndex);
-        } else {
-            console.error('Error: questionData or explanation is undefined');
-            return 'No explanation available.';
-        }
+      const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
+      if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
+        await this.processExplanationText(questionData, questionIndex);
+        return this.explanationTextService.getExplanationText(questionIndex);
+      } else {
+        console.error('Error: questionData or explanation is undefined');
+        return 'No explanation available.';
+      }
     } catch (error) {
-        console.error('Error in fetching explanation text:', error);
-        return 'Error fetching explanation.';
+      console.error('Error in fetching explanation text:', error);
+      return 'Error fetching explanation.';
     }
   }
   
