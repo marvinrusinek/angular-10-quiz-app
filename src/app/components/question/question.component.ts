@@ -488,54 +488,55 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
-  private async loadQuestion(signal?: AbortSignal): Promise<void> {
-    if (signal.aborted) return;
-
+  async loadQuestion(signal?: AbortSignal): Promise<void> {
+    if (this.isLoading) return;
     this.isLoading = true;
 
-    // Clear previous options and question data to prevent lingering state
+    console.log('Loading question for index:', this.currentQuestionIndex);
+
+    // Clear previous options and question data to avoid lingering state
     this.optionsToDisplay = [];
     this.currentQuestion = null;
     this.explanationToDisplay = '';
-    this.correctAnswersText = '';  // Clear correct answers text
 
     try {
-      // Introduce a small delay to simulate asynchronous loading
-      await new Promise(resolve => setTimeout(resolve, 50));
+        // Introduce a small delay to simulate asynchronous loading
+        await new Promise(resolve => setTimeout(resolve, 50));
 
-      if (signal.aborted) {
-        console.log('Loading was aborted.');
-        return;
-      }
+        if (signal?.aborted) {
+            console.log('Load question aborted.');
+            this.isLoading = false;
+            return;
+        }
 
-      // Fetch and set the question data
-      this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-      if (!this.currentQuestion) {
-        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-      }
+        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+        if (!this.currentQuestion) {
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        }
 
-      this.optionsToDisplay = this.currentQuestion.options || [];
+        this.optionsToDisplay = this.currentQuestion.options || [];
 
-      if (signal.aborted) return; // Check if loading was aborted before continuing
+        console.log('Question Loaded:', this.currentQuestion);
+        console.log('Options Loaded:', this.optionsToDisplay);
 
-      // Fetch and display the explanation text for the current question
-      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+        if (signal?.aborted) {
+            console.log('Load question aborted after fetching question.');
+            this.isLoading = false;
+            return;
+        }
 
-      // Check if the current question is a multiple-answer question
-      if (this.currentQuestion.type === 'multiple') {
-        this.displayCorrectAnswers();
-      }
+        await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
-      this.isQuestionLoaded = true;
+        this.updateSelectionMessage(false);
     } catch (error) {
-      if (signal.aborted) {
-        console.log('Loading was aborted.');
-      } else {
-        console.error('Error loading question:', error);
-      }
+        if (signal?.aborted) {
+            console.log('Load question was cancelled.');
+        } else {
+            console.error('Error loading question:', error);
+        }
     } finally {
-      this.isLoading = false;
-      this.cdRef.detectChanges();
+        this.isLoading = false;
+        this.cdRef.detectChanges();
     }
   }
   
