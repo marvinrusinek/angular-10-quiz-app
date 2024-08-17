@@ -533,7 +533,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         // Fetch and prepare the explanation and feedback texts concurrently
         const [explanationText, feedbackText] = await Promise.all([
-            this.explanationTextService.getExplanationText(this.currentQuestionIndex),
+            this.prepareAndSetExplanationText(this.currentQuestionIndex),
             this.prepareFeedbackText(this.currentQuestion)
         ]);
 
