@@ -1,4 +1,4 @@
-import { Directive, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, Renderer2 } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 import { UserPreferenceService } from '../shared/services/user-preference.service';
@@ -6,13 +6,13 @@ import { UserPreferenceService } from '../shared/services/user-preference.servic
 @Directive({
   selector: '[appHighlightOption]'
 })
-export class HighlightOptionDirective {
+export class HighlightOptionDirective implements OnChanges {
   @Output() resetBackground = new EventEmitter<boolean>();
   @Input() option: Option;
   @Input() isCorrect: boolean;
   @Input() showFeedbackForOption: { [key: number]: boolean }; 
   @Input() highlightCorrectAfterIncorrect: boolean;
-  @Input() allOptions: Option[]; // To access all options directly
+  @Input() allOptions: Option[]; // to access all options directly
   private isAnswered = false;
 
   constructor(
@@ -21,7 +21,7 @@ export class HighlightOptionDirective {
     private userPreferenceService: UserPreferenceService) {
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(): void {
     if (this.option) {
       this.updateHighlight();
     } else {
@@ -79,15 +79,6 @@ export class HighlightOptionDirective {
     const color = shouldHighlight ? (this.isCorrect ? '#43f756' : '#ff0000') : 'white';
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
-
-  /* private highlightCorrectAnswers(): void {
-    console.log('Highlighting correct answers');
-
-    if (option.correct) {
-      this.showFeedbackForOption[option.optionId] = true;
-      this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
-    }
-  } */
 
   private highlightCorrectAnswers(): void {
     console.log('Highlighting correct answers');
