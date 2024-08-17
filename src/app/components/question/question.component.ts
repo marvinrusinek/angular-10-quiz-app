@@ -534,7 +534,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Fetch and prepare the explanation and feedback texts concurrently
         const [explanationText, feedbackText] = await Promise.all([
             this.explanationTextService.getExplanationText(this.currentQuestionIndex),
-            Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
+            this.prepareFeedbackText(this.currentQuestion)
         ]);
 
         // Batch UI updates within Angular's zone for better performance
@@ -565,13 +565,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private async prepareFeedbackText(question: QuizQuestion): Promise<string> {
-    // Process the correct options to generate feedback text
+    // Simulate async operation if needed
+    await new Promise(resolve => setTimeout(resolve, 50));
     const correctOptions = question.options.filter(option => option.correct);
     return this.setCorrectMessage(correctOptions);
   }
 
   private async fetchExplanationAndFeedbackText(): Promise<void> {
       try {
+        // Simulate async operation if needed
+        await new Promise(resolve => setTimeout(resolve, 50));
           const explanationTextPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex);
           const feedbackTextPromise = this.generateFeedbackText(this.currentQuestion);
 
