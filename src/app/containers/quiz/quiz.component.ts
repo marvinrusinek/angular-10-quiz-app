@@ -138,6 +138,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   shouldDisplayCorrectAnswers = false;
 
+  explanationTextSubject = new BehaviorSubject<string>('');
+  feedbackTextSubject = new BehaviorSubject<string>('');
+  selectionMessageSubject = new BehaviorSubject<string>('');
+
+  explanationText$ = this.explanationTextSubject.asObservable();
+  feedbackText$ = this.feedbackTextSubject.asObservable();
+  selectionMessage$ = this.selectionMessageSubject.asObservable();
+
+  allTextsReady$ = combineLatest([
+    this.explanationText$,
+    this.feedbackText$,
+    this.selectionMessage$
+  ]).pipe(
+    map(([explanation, feedback, selection]) => explanation && feedback && selection)
+  );
+
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
