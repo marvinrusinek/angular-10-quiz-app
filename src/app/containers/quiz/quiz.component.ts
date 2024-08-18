@@ -1756,7 +1756,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     await this.navigateToQuestion(questionIndex);
   }
   
-  async navigateToQuestion(questionIndex: number): Promise<void> {
+  /* async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation) return;
 
     this.debounceNavigation = true;
@@ -1808,6 +1808,59 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         console.error(`Error navigating to URL: ${newUrl}:`, error);
       }
       this.isLoading = false;
+    }
+  } */
+  async navigateToQuestion(questionIndex: number): Promise<void> {
+    if (this.isLoading || this.debounceNavigation) return;
+
+    this.debounceNavigation = true;
+    const debounceTimeout = 300;
+    setTimeout(() => {
+        this.debounceNavigation = false;
+    }, debounceTimeout);
+
+    if (this.navigationAbortController) {
+        this.navigationAbortController.abort();
+    }
+
+    this.navigationAbortController = new AbortController();
+    const { signal } = this.navigationAbortController;
+
+    this.isLoading = true;
+
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.resetStateBetweenQuestions();
+
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        this.isLoading = false;
+        return;
+    }
+
+    const adjustedIndexForUrl = questionIndex + 1;
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
+
+    try {
+        await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
+
+        if (signal.aborted) {
+            console.log('Navigation aborted.');
+            this.isLoading = false;
+            return;
+        }
+
+        if (this.quizQuestionComponent) {
+            await this.quizQuestionComponent.loadQuestion(signal);
+        }
+
+        this.isLoading = false;
+    } catch (error) {
+        if (signal.aborted) {
+            console.log('Navigation was cancelled.');
+        } else {
+            console.error(`Error navigating to URL: ${newUrl}:`, error);
+        }
+        this.isLoading = false;
     }
   }
   
