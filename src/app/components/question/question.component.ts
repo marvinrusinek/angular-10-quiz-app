@@ -1023,11 +1023,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.resetTexts();
     this.isLoading = true;
     
-    // Clear previous data
+    // Clear previous question data to avoid UI flickering
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
     this.feedbackText = '';
+
+    // Reset the selection message to avoid flashing
     this.selectionMessageService.resetMessage();
 
     if (signal?.aborted) {
