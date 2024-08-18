@@ -397,6 +397,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
+  @HostListener('window:focus', ['$event'])
+  onFocus(event: FocusEvent): void {
+    clearTimeout(this.focusTimeout);
+    this.focusTimeout = setTimeout(() => {
+      if (this.currentQuestionIndex === 0) {
+        const initialMessage = 'Please start the quiz by selecting an option.';
+        const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+
+        if (currentMessage !== initialMessage) {
+          this.selectionMessageService.updateSelectionMessage(initialMessage);
+        }
+      }
+    }, 100);
+  }
+
   private saveQuizState(): void {
     sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
     sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
