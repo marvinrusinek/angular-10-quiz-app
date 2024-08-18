@@ -879,7 +879,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   } */
-  
   async loadQuestion(signal?: AbortSignal): Promise<void> {
     console.log('Starting to load question...');
     this.resetTexts();
@@ -945,6 +944,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   }
+
+  
 
 
  
