@@ -1,8 +1,8 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentFactoryResolver, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil } from 'rxjs/operators';
+import { BehaviorSubject, firstValueFrom, forkJoin, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, finalize, map, switchMap, take, takeUntil } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
@@ -490,7 +490,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
-  async loadQuestion(signal?: AbortSignal): Promise<void> {
+  /* async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
 
     this.isLoading = true;
@@ -519,18 +519,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.optionsToDisplay = this.currentQuestion.options || [];
         console.log('Options fetched:', this.optionsToDisplay);
 
-        // Fetch both explanation and feedback concurrently
+        // Fetch both explanation and feedback concurrently without delay
         const [explanationText, feedbackText] = await Promise.all([
             this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
+            this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
         ]);
-
-        console.log('Explanation text:', explanationText);
-        console.log('Feedback text:', feedbackText);
 
         // Set explanation and feedback texts together
         this.explanationToDisplay = explanationText || 'No explanation available';
         this.feedbackText = feedbackText || 'No feedback available';
+
+        console.log('Explanation and feedback texts set:', this.explanationToDisplay, this.feedbackText);
 
         // Update the selection message once both texts are ready
         this.updateSelectionMessage(false);
@@ -545,6 +544,70 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             this.cdRef.detectChanges(); // Ensure UI is fully updated
         }
         console.log('Finished loading question.');
+    }
+  } */
+  async loadQuestionWithRxJS(signal?: AbortSignal): Promise<void> {
+    console.log('Starting to load question with RxJS...');
+    this.resetTexts();
+  
+    this.isLoading = true;
+    this.currentQuestion = null;
+    this.optionsToDisplay = [];
+    this.explanationToDisplay = '';
+    this.feedbackText = '';
+  
+    if (signal?.aborted) {
+      console.log('Load question operation aborted.');
+      this.isLoading = false;
+      return;
+    }
+  
+    try {
+      const questionObservable = of(this.quizService.getQuestion(this.currentQuestionIndex));
+      const explanationObservable = questionObservable.pipe(
+        switchMap((question) => {
+          if (!question) {
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+          }
+          this.currentQuestion = question;
+          this.optionsToDisplay = question.options || [];
+          return this.prepareAndSetExplanationText(this.currentQuestionIndex);
+        })
+      );
+  
+      const feedbackObservable = questionObservable.pipe(
+        switchMap((question) => {
+          const correctOptions = question.options.filter(option => option.correct);
+          return of(this.setCorrectMessage(correctOptions));
+        })
+      );
+  
+      // Use forkJoin to wait for both explanation and feedback to complete
+      const result = await forkJoin({
+        explanationText: explanationObservable,
+        feedbackText: feedbackObservable,
+      }).pipe(
+        catchError(error => {
+          console.error('Error in loading data:', error);
+          return of({ explanationText: 'No explanation available', feedbackText: 'No feedback available' });
+        }),
+        finalize(() => {
+          this.isLoading = false;
+          this.cdRef.detectChanges(); // Trigger UI update
+        })
+      ).toPromise();
+  
+      // Set the explanation and feedback texts from the results
+      this.explanationToDisplay = result.explanationText || 'No explanation available';
+      this.feedbackText = result.feedbackText || 'No feedback available';
+  
+      console.log('Explanation and feedback texts set:', this.explanationToDisplay, this.feedbackText);
+  
+      // Ensure the selection message is updated
+      this.updateSelectionMessage(false);
+  
+    } catch (error) {
+      console.error('Error loading question:', error);
     }
   }
 
