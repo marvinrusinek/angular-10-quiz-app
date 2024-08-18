@@ -121,6 +121,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   feedbackForOption: boolean;
   shouldRenderContainer = true;
   private hasSetInitialMessage = false;
+  feedbackText = '';
 
   explanationTextSubject = new BehaviorSubject<string>('');
   feedbackTextSubject = new BehaviorSubject<string>('');
