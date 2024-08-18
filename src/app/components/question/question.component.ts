@@ -593,7 +593,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   } */
   async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
-
     this.isLoading = true;
 
     // Clear previous question data and UI states
@@ -603,40 +602,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.feedbackText = '';
 
     if (signal?.aborted) {
-        console.log('Load question operation aborted.');
+        console.log('Load question operation aborted before delay.');
         this.isLoading = false;
         return;
     }
 
     try {
-        // Introduce a small delay to simulate asynchronous loading and help with UI updates
-        await new Promise(resolve => setTimeout(resolve, 50));
+        // Introduce a small delay to simulate asynchronous loading
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        if (signal?.aborted) {
+            console.log('Load question operation aborted after delay.');
+            this.isLoading = false;
+            return;
+        }
 
         // Fetch the current question data
-        const questionData = this.quizService.getQuestion(this.currentQuestionIndex);
-        if (!questionData) {
+        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+        if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
 
-        this.currentQuestion = questionData;
-        this.optionsToDisplay = questionData.options || [];
+        this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Fetch and set both explanation and feedback text
+        // Prepare both feedback and explanation texts in parallel
         const [explanationText, feedbackText] = await Promise.all([
             this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            this.prepareAndSetFeedbackText(this.currentQuestion)  // New method to prepare feedback text
+            this.getFeedbackText(this.currentQuestion)
         ]);
 
+        // Set the texts once both are ready
         this.explanationToDisplay = explanationText;
         this.feedbackText = feedbackText;
 
         // Ensure the selection message is updated
         this.updateSelectionMessage(false);
 
-        // Small delay to ensure UI updates smoothly
-        await new Promise(resolve => setTimeout(resolve, 50));
-
-        this.cdRef.detectChanges();
+        this.cdRef.detectChanges(); // Ensure UI is updated with the new data
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
@@ -647,16 +649,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
+  async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
+    if (document.hidden) {
+        return '';
+    }
+
+    const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
+    if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
+        const formattedExplanation = await this.getFormattedExplanation(questionData, questionIndex);
+        return formattedExplanation.explanation || 'No explanation available';
+    } else {
+        console.error('Error: questionData or explanation is undefined');
+        return 'No explanation available';
+    }
+  }
+
+  async getFeedbackText(currentQuestion: QuizQuestion): Promise<string> {
+    const correctOptions = currentQuestion.options.filter(option => option.correct);
+    return this.setCorrectMessage(correctOptions);
+  }
+
   async prepareAndSetFeedbackText(question: QuizQuestion): Promise<string> {
     if (!question) {
         throw new Error('No question provided for feedback text.');
     }
 
-    const correctOptions = question.options.filter(option => option.correct);
-    return this.setCorrectMessage(correctOptions);
-  }
-
-  private async getFeedbackText(question: QuizQuestion): Promise<string> {
     const correctOptions = question.options.filter(option => option.correct);
     return this.setCorrectMessage(correctOptions);
   }
