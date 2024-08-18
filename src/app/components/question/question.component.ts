@@ -879,7 +879,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   } */
-  async loadQuestion(signal?: AbortSignal): Promise<void> {
+  /* loadQuestion(signal?: AbortSignal): Promise<void> {
     console.log('Starting to load question...');
     this.resetTexts();
 
@@ -929,6 +929,81 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.explanationToDisplay = explanationResult || 'No explanation available';
         this.feedbackText = feedbackResult || 'No feedback available';
+
+        console.log('Explanation and feedback texts set:', this.explanationToDisplay, this.feedbackText);
+
+        // Ensure the selection message is updated
+        this.updateSelectionMessage(false);
+
+    } catch (error) {
+        console.error('Error loading question:', error);
+    } finally {
+        if (!signal?.aborted) {
+            this.isLoading = false;
+            this.cdRef.detectChanges(); // Trigger UI update
+        }
+    }
+  } */
+  async loadQuestion(signal?: AbortSignal): Promise<void> {
+    console.log('Starting to load question...');
+    this.resetTexts();
+
+    this.isLoading = true;
+    this.currentQuestion = null;
+    this.optionsToDisplay = [];
+    this.explanationToDisplay = '';
+    this.feedbackText = '';
+
+    if (signal?.aborted) {
+        console.log('Load question operation aborted.');
+        this.isLoading = false;
+        return;
+    }
+
+    try {
+        // Introduce a slight delay to simulate real-world loading, if needed
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        if (signal?.aborted) {
+            console.log('Load question operation aborted after delay.');
+            this.isLoading = false;
+            return;
+        }
+
+        console.log('Fetching current question...');
+        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+
+        if (!this.currentQuestion) {
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        }
+
+        this.optionsToDisplay = this.currentQuestion.options || [];
+        console.log('Fetched question and options:', this.currentQuestion, this.optionsToDisplay);
+
+        // Prepare promises for explanation and feedback
+        const explanationPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex).toPromise();
+        const feedbackPromise = Promise.resolve(
+            this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
+        );
+
+        // Resolve both promises concurrently
+        const [explanationResult, feedbackResult] = await Promise.allSettled([
+            explanationPromise,
+            feedbackPromise
+        ]);
+
+        // Handle results
+        if (explanationResult.status === 'fulfilled') {
+            this.explanationToDisplay = explanationResult.value || 'No explanation available';
+        } else {
+            console.error('Failed to load explanation text:', explanationResult.reason);
+        }
+
+        if (feedbackResult.status === 'fulfilled') {
+            this.feedbackText = feedbackResult.value || 'No feedback available';
+        } else {
+            console.error('Failed to set feedback text:', feedbackResult.reason);
+        }
 
         console.log('Explanation and feedback texts set:', this.explanationToDisplay, this.feedbackText);
 
