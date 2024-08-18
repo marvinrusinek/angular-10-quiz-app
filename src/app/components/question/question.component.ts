@@ -546,7 +546,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('Finished loading question.');
     }
   } */
-  async loadQuestionWithRxJS(signal?: AbortSignal): Promise<void> {
+  /* async loadQuestion(signal?: AbortSignal): Promise<void> {
     console.log('Starting to load question with RxJS...');
     this.resetTexts();
   
@@ -608,6 +608,62 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     } catch (error) {
       console.error('Error loading question:', error);
+    }
+  } */
+
+  async loadQuestion(signal?: AbortSignal): Promise<void> {
+    console.log('Starting to load question with RxJS...');
+    this.resetTexts();
+
+    this.isLoading = true;
+    this.currentQuestion = null;
+    this.optionsToDisplay = [];
+    this.explanationToDisplay = '';
+    this.feedbackText = '';
+
+    if (signal?.aborted) {
+      console.log('Load question operation aborted.');
+      this.isLoading = false;
+      return;
+    }
+
+    try {
+      // Fetch the current question data
+      const question = this.quizService.getQuestion(this.currentQuestionIndex);
+      if (!question) {
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
+
+      this.currentQuestion = question;
+      this.optionsToDisplay = question.options || [];
+
+      // Initiate fetching of explanation and feedback texts in parallel
+      const explanationPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex);
+      const feedbackTextPromise = Promise.resolve(
+        this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
+      );
+
+      // Wait for both promises to resolve
+      const [explanationText, feedbackText] = await Promise.all([explanationPromise, feedbackTextPromise]);
+
+      // Set the explanation and feedback texts
+      this.explanationToDisplay = explanationText || 'No explanation available';
+      this.feedbackText = feedbackText || 'No feedback available';
+
+      console.log('Explanation and feedback texts set:', this.explanationToDisplay, this.feedbackText);
+
+      // Ensure the selection message is updated
+      this.updateSelectionMessage(false);
+
+      this.cdRef.detectChanges(); // Trigger UI update
+
+    } catch (error) {
+      console.error('Error loading question:', error);
+    } finally {
+      if (!signal?.aborted) {
+        this.isLoading = false;
+        this.cdRef.detectChanges();
+      }
     }
   }
 
