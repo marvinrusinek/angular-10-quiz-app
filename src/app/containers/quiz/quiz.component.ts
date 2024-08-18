@@ -1812,11 +1812,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.debounceNavigation = true;
     const debounceTimeout = 300;
     setTimeout(() => {
-        this.debounceNavigation = false;
+      this.debounceNavigation = false;
     }, debounceTimeout);
 
     if (this.navigationAbortController) {
-        this.navigationAbortController.abort(); // Cancel ongoing operations
+      this.navigationAbortController.abort(); // Cancel ongoing operations
     }
 
     this.navigationAbortController = new AbortController();
