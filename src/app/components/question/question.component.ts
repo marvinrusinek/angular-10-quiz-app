@@ -506,7 +506,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
-        // Start fetching current question immediately
+        // Fetch the current question immediately
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
 
         if (!this.currentQuestion) {
@@ -516,36 +516,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.optionsToDisplay = this.currentQuestion.options || [];
 
         // Fetch both explanation and feedback concurrently
-        const [explanationResult, feedbackResult] = await Promise.allSettled([
+        const [explanationText, feedbackText] = await Promise.all([
             this.prepareAndSetExplanationText(this.currentQuestionIndex),
             Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
         ]);
 
-        // Handle the explanation text result
-        if (explanationResult.status === 'fulfilled') {
-            this.explanationToDisplay = explanationResult.value || 'No explanation available';
-        } else {
-            console.error('Failed to load explanation text:', explanationResult.reason);
-            this.explanationToDisplay = 'No explanation available due to an error.';
-        }
-
-        // Handle the feedback text result
-        if (feedbackResult.status === 'fulfilled') {
-            this.feedbackText = feedbackResult.value || 'No feedback available';
-        } else {
-            console.error('Failed to set feedback text:', feedbackResult.reason);
-            this.feedbackText = 'No feedback available due to an error.';
-        }
+        // Set explanation and feedback texts
+        this.explanationToDisplay = explanationText || 'No explanation available';
+        this.feedbackText = feedbackText || 'No feedback available';
 
         // Ensure the selection message is updated
         this.updateSelectionMessage(false);
 
+        this.cdRef.detectChanges(); // Ensure UI update
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
         if (!signal?.aborted) {
             this.isLoading = false;
-            this.cdRef.detectChanges(); // Ensure UI update
+            this.cdRef.detectChanges(); // Final UI update
         }
     }
   }
