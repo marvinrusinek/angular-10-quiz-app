@@ -397,7 +397,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
-  @HostListener('window:focus', ['$event'])
+  /* @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
     clearTimeout(this.focusTimeout);
     this.focusTimeout = setTimeout(() => {
@@ -410,7 +410,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
       }
     }, 100);
+  } */
+  @HostListener('window:focus', ['$event'])
+  onFocus(event: FocusEvent): void {
+    clearTimeout(this.focusTimeout);
+    this.focusTimeout = setTimeout(() => {
+      const isAnswered = false; // Assuming that on focus, the question hasn't been answered yet
+      const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+      
+      // Use determineSelectionMessage to get the correct message based on the current question index
+      const newMessage = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        isAnswered
+      );
+
+      // Update the selection message if it has changed
+      if (currentMessage !== newMessage) {
+        this.selectionMessageService.updateSelectionMessage(newMessage);
+      }
+    }, 100);
   }
+
 
   private saveQuizState(): void {
     sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
