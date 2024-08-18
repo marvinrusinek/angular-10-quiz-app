@@ -789,13 +789,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Concurrently fetch explanation and feedback texts
-        const [explanationResult, feedbackText] = await Promise.all([
+        // Fetch the explanation and feedback text in parallel
+        const [explanationText, feedbackText] = await Promise.all([
             this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            this.getFeedbackText(this.currentQuestion)
+            Promise.resolve(this.getFeedbackText(this.currentQuestion))
         ]);
 
-        this.explanationToDisplay = explanationResult || 'No explanation available';
+        this.explanationToDisplay = explanationText || 'No explanation available';
         this.feedbackText = feedbackText || 'No feedback available';
 
         // Update the selection message
