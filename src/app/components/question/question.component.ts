@@ -804,7 +804,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Fetch the explanation text and calculate the feedback text concurrently
         const [explanationResult, feedbackText] = await Promise.all([
             this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
+            Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
         ]);
 
         // Update the explanation and feedback texts
