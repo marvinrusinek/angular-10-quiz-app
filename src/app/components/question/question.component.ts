@@ -767,9 +767,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   } */
   async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
-    this.isLoading = true;
 
-    // Clear previous question data and UI states
+    this.isLoading = true;
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
@@ -782,32 +781,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
-        // Fetch the current question data synchronously
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Fetch the explanation text and calculate the feedback text together
+        // Fetch both the explanation text and feedback text simultaneously
         const [explanationResult, feedbackResult] = await Promise.all([
             this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
+            Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
         ]);
 
         this.explanationToDisplay = explanationResult;
         this.feedbackText = feedbackResult;
 
-        // Ensure the selection message is updated
         this.updateSelectionMessage(false);
 
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
-        if (!signal?.aborted) {
-            this.isLoading = false;
-            this.cdRef.detectChanges(); // Trigger UI update after all content is ready
-        }
+        this.isLoading = false;
+        this.cdRef.detectChanges();
     }
   }
 
