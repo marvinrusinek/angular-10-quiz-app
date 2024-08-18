@@ -767,7 +767,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   } */
   async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
-
     this.isLoading = true;
 
     // Clear previous question data and UI states
@@ -785,23 +784,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     try {
         // Fetch the current question data synchronously
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
-
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Fetch the explanation text and calculate the feedback text concurrently
-        const explanationPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex);
-        const feedbackPromise = Promise.resolve(
-            this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
-        );
-
-        // Wait for both explanation and feedback texts to be ready
+        // Fetch the explanation text and calculate the feedback text together
         const [explanationResult, feedbackResult] = await Promise.all([
-            explanationPromise,
-            feedbackPromise
+            this.prepareAndSetExplanationText(this.currentQuestionIndex),
+            this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
         ]);
 
         this.explanationToDisplay = explanationResult;
@@ -810,18 +801,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Ensure the selection message is updated
         this.updateSelectionMessage(false);
 
-        this.cdRef.detectChanges(); // Trigger UI update
-
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
         if (!signal?.aborted) {
             this.isLoading = false;
-            this.cdRef.detectChanges();
+            this.cdRef.detectChanges(); // Trigger UI update after all content is ready
         }
     }
   }
-
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     if (document.hidden) {
