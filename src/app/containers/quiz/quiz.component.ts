@@ -1816,20 +1816,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.debounceNavigation = true;
     const debounceTimeout = 300;
     setTimeout(() => {
-      this.debounceNavigation = false;
+        this.debounceNavigation = false;
     }, debounceTimeout);
 
     if (this.navigationAbortController) {
-        this.navigationAbortController.abort();
+        this.navigationAbortController.abort(); // Abort any ongoing operation
     }
 
     this.navigationAbortController = new AbortController();
     const { signal } = this.navigationAbortController;
 
     this.isLoading = true;
-
-    this.explanationTextService.setShouldDisplayExplanation(false);
-    this.explanationTextService.resetStateBetweenQuestions();
 
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
         console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
