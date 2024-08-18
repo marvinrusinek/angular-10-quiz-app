@@ -505,21 +505,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         return;
     }
 
+    console.log('Starting to load question...');
+
     try {
         // Fetch the current question synchronously
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+        console.log('Current question fetched:', this.currentQuestion);
 
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
 
         this.optionsToDisplay = this.currentQuestion.options || [];
+        console.log('Options fetched:', this.optionsToDisplay);
 
         // Fetch both explanation and feedback concurrently
         const [explanationText, feedbackText] = await Promise.all([
             this.prepareAndSetExplanationText(this.currentQuestionIndex),
             Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
         ]);
+
+        console.log('Explanation text:', explanationText);
+        console.log('Feedback text:', feedbackText);
 
         // Set explanation and feedback texts together
         this.explanationToDisplay = explanationText || 'No explanation available';
@@ -537,6 +544,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             this.isLoading = false;
             this.cdRef.detectChanges(); // Ensure UI is fully updated
         }
+        console.log('Finished loading question.');
     }
   }
 
