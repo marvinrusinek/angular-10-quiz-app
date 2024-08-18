@@ -1020,10 +1020,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   } */
   async loadQuestion(signal?: AbortSignal): Promise<void> {
-    console.log('Starting to load question...');
     this.resetTexts();
-
     this.isLoading = true;
+    
+    // Clear previous data
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
@@ -1036,10 +1036,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
-        console.time('FetchQuestionData'); // Start timer
-
-        // Simulate slight delay for loading
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Slight delay to simulate async loading
+        await new Promise(resolve => setTimeout(resolve, 50));
 
         if (signal?.aborted) {
             console.log('Load question operation aborted after delay.');
@@ -1047,47 +1045,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             return;
         }
 
-        console.log('Fetching current question...');
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
 
         this.optionsToDisplay = this.currentQuestion.options || [];
-        console.log('Fetched question and options:', this.currentQuestion, this.optionsToDisplay);
 
-        // Prepare promises for explanation and feedback
-        const explanationPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex).toPromise();
-        const feedbackPromise = Promise.resolve(
-            this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
-        );
-
-        // Use Promise.allSettled to resolve both promises
-        const [explanationResult, feedbackResult] = await Promise.allSettled([
-            explanationPromise,
-            feedbackPromise
+        // Simultaneously fetch explanation and feedback
+        const [explanationResult, feedbackResult] = await Promise.all([
+            this.prepareAndSetExplanationText(this.currentQuestionIndex),
+            Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
         ]);
 
-        console.timeEnd('FetchQuestionData'); // End timer
-
-        // Handle results
-        if (explanationResult.status === 'fulfilled') {
-            this.explanationToDisplay = explanationResult.value || 'No explanation available';
-            console.log('Explanation Text:', this.explanationToDisplay);
-        } else {
-            console.error('Failed to load explanation text:', explanationResult.reason);
+        if (signal?.aborted) {
+            console.log('Load question operation aborted before setting texts.');
+            this.isLoading = false;
+            return;
         }
 
-        if (feedbackResult.status === 'fulfilled') {
-            this.feedbackText = feedbackResult.value || 'No feedback available';
-            console.log('Feedback Text:', this.feedbackText);
-        } else {
-            console.error('Failed to set feedback text:', feedbackResult.reason);
-        }
+        this.explanationToDisplay = explanationResult || 'No explanation available';
+        this.feedbackText = feedbackResult || 'No feedback available';
 
         // Update the selection message
         this.updateSelectionMessage(false);
+
         this.cdRef.detectChanges(); // Trigger UI update
 
     } catch (error) {
@@ -1099,11 +1081,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   }
-
-
-  
-
-
  
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     if (document.hidden) {
