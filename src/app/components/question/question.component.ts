@@ -1019,7 +1019,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   } */
-  async loadQuestion(signal?: AbortSignal): Promise<void> {
+  private async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
     this.isLoading = true;
     
@@ -1028,6 +1028,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
     this.feedbackText = '';
+    this.selectionMessageService.resetMessage();
 
     if (signal?.aborted) {
         console.log('Load question operation aborted.');
