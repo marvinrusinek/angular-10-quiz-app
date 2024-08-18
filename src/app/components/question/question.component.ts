@@ -783,6 +783,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
+        // Introduce a small delay to simulate asynchronous loading
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        if (signal?.aborted) {
+            console.log('Load question operation aborted after delay.');
+            this.isLoading = false;
+            return;
+        }
+
         // Fetch the current question data synchronously
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
 
