@@ -766,10 +766,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   } */
   async loadQuestion(signal?: AbortSignal): Promise<void> {
+    console.log('Starting to load question...');
     this.resetTexts();
-    this.isLoading = true;
 
-    // Clear previous question data and UI states
+    this.isLoading = true;
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
@@ -782,7 +782,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
-        // Fetch the current question data synchronously
+        // Introduce a slight delay to simulate real-world loading, if needed
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        if (signal?.aborted) {
+            console.log('Load question operation aborted after delay.');
+            this.isLoading = false;
+            return;
+        }
+
+        console.log('Fetching current question...');
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
 
         if (!this.currentQuestion) {
@@ -790,17 +799,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
 
         this.optionsToDisplay = this.currentQuestion.options || [];
+        console.log('Fetched question and options:', this.currentQuestion, this.optionsToDisplay);
 
         // Fetch the explanation text and calculate the feedback text concurrently
-        const explanationPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex);
-        const feedbackTextPromise = Promise.resolve(
+        const [explanationResult, feedbackText] = await Promise.all([
+            this.prepareAndSetExplanationText(this.currentQuestionIndex),
             this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
-        );
+        ]);
 
-        // Use Promise.all to ensure both promises resolve together
-        const [explanationText, feedbackText] = await Promise.all([explanationPromise, feedbackTextPromise]);
-
-        this.explanationToDisplay = explanationText || 'No explanation available';
+        // Update the explanation and feedback texts
+        this.explanationToDisplay = explanationResult || 'No explanation available';
         this.feedbackText = feedbackText || 'No feedback available';
 
         console.log('Explanation and feedback texts set:', this.explanationToDisplay, this.feedbackText);
