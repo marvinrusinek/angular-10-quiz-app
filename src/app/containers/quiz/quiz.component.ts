@@ -1820,7 +1820,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }, debounceTimeout);
 
     if (this.navigationAbortController) {
-        this.navigationAbortController.abort();
+        this.navigationAbortController.abort(); // Cancel any ongoing navigation
     }
 
     this.navigationAbortController = new AbortController();
@@ -1850,7 +1850,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         }
 
         if (this.quizQuestionComponent) {
-            await this.quizQuestionComponent.loadQuestion(signal);
+            await this.quizQuestionComponent.loadQuestion(signal); // Pass the signal to loadQuestion
         }
 
         this.isLoading = false;
