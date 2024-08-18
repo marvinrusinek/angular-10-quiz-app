@@ -766,7 +766,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   } */
   async loadQuestion(signal?: AbortSignal): Promise<void> {
-    console.log('Starting to load question...');
     this.resetTexts();
 
     this.isLoading = true;
@@ -776,22 +775,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.feedbackText = '';
 
     if (signal?.aborted) {
-        console.log('Load question operation aborted.');
         this.isLoading = false;
         return;
     }
 
     try {
-        // Introduce a slight delay to simulate real-world loading, if needed
-        await new Promise(resolve => setTimeout(resolve, 50)); // Reduced delay
-
-        if (signal?.aborted) {
-            console.log('Load question operation aborted after delay.');
-            this.isLoading = false;
-            return;
-        }
-
-        console.log('Fetching current question...');
+        // Fetch the current question synchronously
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
 
         if (!this.currentQuestion) {
@@ -799,31 +788,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
 
         this.optionsToDisplay = this.currentQuestion.options || [];
-        console.log('Fetched question and options:', this.currentQuestion, this.optionsToDisplay);
 
-        // Fetch the explanation text and calculate the feedback text concurrently
-        const explanationPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex);
-        const feedbackPromise = Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)));
+        // Concurrently fetch explanation and feedback texts
+        const [explanationResult, feedbackText] = await Promise.all([
+            this.prepareAndSetExplanationText(this.currentQuestionIndex),
+            this.getFeedbackText(this.currentQuestion)
+        ]);
 
-        const [explanationResult, feedbackText] = await Promise.allSettled([explanationPromise, feedbackPromise]);
+        this.explanationToDisplay = explanationResult || 'No explanation available';
+        this.feedbackText = feedbackText || 'No feedback available';
 
-        if (explanationResult.status === 'fulfilled') {
-            this.explanationToDisplay = explanationResult.value || 'No explanation available';
-        } else {
-            console.error('Failed to load explanation text:', explanationResult.reason);
-        }
-
-        if (feedbackText.status === 'fulfilled') {
-            this.feedbackText = feedbackText.value || 'No feedback available';
-        } else {
-            console.error('Failed to set feedback text:', feedbackText.reason);
-        }
-
-        console.log('Explanation and feedback texts set:', this.explanationToDisplay, this.feedbackText);
-
-        // Ensure the selection message is updated
+        // Update the selection message
         this.updateSelectionMessage(false);
 
+        this.cdRef.detectChanges();
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
