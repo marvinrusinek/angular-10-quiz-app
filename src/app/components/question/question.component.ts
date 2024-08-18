@@ -782,6 +782,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
+        // Introduce a slight delay to simulate real-world loading, if needed
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        if (signal?.aborted) {
+            console.log('Load question operation aborted after delay.');
+            this.isLoading = false;
+            return;
+        }
+
         console.log('Fetching current question...');
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
 
@@ -792,23 +801,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.optionsToDisplay = this.currentQuestion.options || [];
         console.log('Fetched question and options:', this.currentQuestion, this.optionsToDisplay);
 
+        // Fetch the explanation text and calculate the feedback text concurrently
         const [explanationResult, feedbackText] = await Promise.all([
             this.prepareAndSetExplanationText(this.currentQuestionIndex),
             this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
         ]);
 
-        this.explanationToDisplay = explanationResult;
-        this.feedbackText = feedbackText;
+        // Update the explanation and feedback texts
+        this.explanationToDisplay = explanationResult || 'No explanation available';
+        this.feedbackText = feedbackText || 'No feedback available';
 
         console.log('Explanation and feedback texts set:', this.explanationToDisplay, this.feedbackText);
 
+        // Ensure the selection message is updated
         this.updateSelectionMessage(false);
 
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
-        this.isLoading = false;
-        this.cdRef.detectChanges();
+        if (!signal?.aborted) {
+            this.isLoading = false;
+            this.cdRef.detectChanges(); // Trigger UI update
+        }
     }
   }
 
