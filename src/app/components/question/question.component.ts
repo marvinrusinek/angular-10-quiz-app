@@ -506,7 +506,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
-        // Fetch the current question immediately
+        // Fetch the current question synchronously
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
 
         if (!this.currentQuestion) {
@@ -521,20 +521,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
         ]);
 
-        // Set explanation and feedback texts
+        // Set explanation and feedback texts together
         this.explanationToDisplay = explanationText || 'No explanation available';
         this.feedbackText = feedbackText || 'No feedback available';
 
-        // Ensure the selection message is updated
+        // Update the selection message once both texts are ready
         this.updateSelectionMessage(false);
 
-        this.cdRef.detectChanges(); // Ensure UI update
+        // Force a UI update after setting both texts
+        this.cdRef.detectChanges();
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
         if (!signal?.aborted) {
             this.isLoading = false;
-            this.cdRef.detectChanges(); // Final UI update
+            this.cdRef.detectChanges(); // Ensure UI is fully updated
         }
     }
   }
