@@ -792,18 +792,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Fetch the explanation text and feedback text concurrently
-        const [explanation, feedback] = await Promise.all([
-            this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
-        ]);
+        // Concurrently fetch both the explanation text and feedback text
+        const explanationPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex);
+        const feedbackPromise = Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)));
 
-        // Set the explanation and feedback texts together
+        const [explanation, feedback] = await Promise.all([explanationPromise, feedbackPromise]);
+
+        // Set both texts together
         this.explanationToDisplay = explanation || 'No explanation available';
         this.feedbackText = feedback || 'No correct answers found for the current question.';
 
-        // Introduce a short delay to ensure both texts are displayed together
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Introduce a short delay to synchronize their display
+        await new Promise(resolve => setTimeout(resolve, 50));
 
         // Ensure the selection message is updated
         this.updateSelectionMessage(false);
