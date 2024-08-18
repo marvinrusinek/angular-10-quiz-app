@@ -782,8 +782,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
-        // Introduce a slight delay to simulate real-world loading
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Introduce a slight delay to simulate real-world loading, if needed
+        await new Promise(resolve => setTimeout(resolve, 50)); // Reduced delay
 
         if (signal?.aborted) {
             console.log('Load question operation aborted after delay.');
@@ -802,10 +802,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('Fetched question and options:', this.currentQuestion, this.optionsToDisplay);
 
         // Fetch the explanation text and calculate the feedback text concurrently
-        const [explanationResult, feedbackText] = await Promise.allSettled([
-            this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
-        ]);
+        const explanationPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex);
+        const feedbackPromise = Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)));
+
+        const [explanationResult, feedbackText] = await Promise.allSettled([explanationPromise, feedbackPromise]);
 
         if (explanationResult.status === 'fulfilled') {
             this.explanationToDisplay = explanationResult.value || 'No explanation available';
