@@ -766,6 +766,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   } */
   async loadQuestion(signal?: AbortSignal): Promise<void> {
+    console.log('Starting to load question...');
     this.resetTexts();
 
     this.isLoading = true;
@@ -781,20 +782,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
+        console.log('Fetching current question...');
         this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+
         if (!this.currentQuestion) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
-        this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Fetch both the explanation text and feedback text simultaneously
-        const [explanationResult, feedbackResult] = await Promise.all([
+        this.optionsToDisplay = this.currentQuestion.options || [];
+        console.log('Fetched question and options:', this.currentQuestion, this.optionsToDisplay);
+
+        const [explanationResult, feedbackText] = await Promise.all([
             this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
+            this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
         ]);
 
         this.explanationToDisplay = explanationResult;
-        this.feedbackText = feedbackResult;
+        this.feedbackText = feedbackText;
+
+        console.log('Explanation and feedback texts set:', this.explanationToDisplay, this.feedbackText);
 
         this.updateSelectionMessage(false);
 
