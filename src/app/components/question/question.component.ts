@@ -1068,7 +1068,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.feedbackText = feedbackResult || 'No feedback available';
 
         // Update the selection message
-        this.updateSelectionMessage(false);
+        if (this.currentQuestionIndex === 0) {
+          this.setInitialMessage();
+        } else {
+          this.updateSelectionMessage(false);
+        }
 
         this.cdRef.detectChanges(); // Trigger UI update
 
