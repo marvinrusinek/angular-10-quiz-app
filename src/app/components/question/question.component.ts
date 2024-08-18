@@ -782,7 +782,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
-        // Introduce a slight delay to simulate real-world loading, if needed
+        // Introduce a slight delay to simulate real-world loading
         await new Promise(resolve => setTimeout(resolve, 100));
 
         if (signal?.aborted) {
@@ -802,14 +802,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('Fetched question and options:', this.currentQuestion, this.optionsToDisplay);
 
         // Fetch the explanation text and calculate the feedback text concurrently
-        const [explanationResult, feedbackText] = await Promise.all([
+        const [explanationResult, feedbackText] = await Promise.allSettled([
             this.prepareAndSetExplanationText(this.currentQuestionIndex),
             Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
         ]);
 
-        // Update the explanation and feedback texts
-        this.explanationToDisplay = explanationResult || 'No explanation available';
-        this.feedbackText = feedbackText || 'No feedback available';
+        if (explanationResult.status === 'fulfilled') {
+            this.explanationToDisplay = explanationResult.value || 'No explanation available';
+        } else {
+            console.error('Failed to load explanation text:', explanationResult.reason);
+        }
+
+        if (feedbackText.status === 'fulfilled') {
+            this.feedbackText = feedbackText.value || 'No feedback available';
+        } else {
+            console.error('Failed to set feedback text:', feedbackText.reason);
+        }
 
         console.log('Explanation and feedback texts set:', this.explanationToDisplay, this.feedbackText);
 
