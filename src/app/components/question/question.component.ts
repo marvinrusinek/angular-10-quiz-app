@@ -794,17 +794,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         // Fetch the explanation text and calculate the feedback text concurrently
         const explanationPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex);
-        const feedbackText = this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct));
+        const feedbackPromise = Promise.resolve(
+            this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
+        );
 
-        await explanationPromise; // Wait for the explanation text to be ready
+        // Wait for both explanation and feedback texts to be ready
+        const [explanationResult, feedbackResult] = await Promise.all([
+            explanationPromise,
+            feedbackPromise
+        ]);
 
-        this.feedbackText = feedbackText; // Set the feedback text directly after
+        this.explanationToDisplay = explanationResult;
+        this.feedbackText = feedbackResult;
 
         // Ensure the selection message is updated
         this.updateSelectionMessage(false);
 
-        // Update UI after setting texts
-        this.cdRef.detectChanges();
+        this.cdRef.detectChanges(); // Trigger UI update
 
     } catch (error) {
         console.error('Error loading question:', error);
