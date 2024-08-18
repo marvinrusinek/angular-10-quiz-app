@@ -602,65 +602,65 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.feedbackText = '';
 
     if (signal?.aborted) {
-        console.log('Load question operation aborted before delay.');
-        this.isLoading = false;
-        return;
+      console.log('Load question operation aborted before delay.');
+      this.isLoading = false;
+      return;
     }
 
     try {
-        // Introduce a small delay to simulate asynchronous loading
-        await new Promise(resolve => setTimeout(resolve, 100));
+      // Introduce a small delay to simulate asynchronous loading
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-        if (signal?.aborted) {
-            console.log('Load question operation aborted after delay.');
-            this.isLoading = false;
-            return;
-        }
+      if (signal?.aborted) {
+        console.log('Load question operation aborted after delay.');
+        this.isLoading = false;
+        return;
+      }
 
-        // Fetch the current question data
-        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-        if (!this.currentQuestion) {
-            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-        }
+      // Fetch the current question data
+      this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+      if (!this.currentQuestion) {
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
 
-        this.optionsToDisplay = this.currentQuestion.options || [];
+      this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Prepare both feedback and explanation texts in parallel
-        const [explanationText, feedbackText] = await Promise.all([
-            this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            this.getFeedbackText(this.currentQuestion)
-        ]);
+      // Prepare both feedback and explanation texts in parallel
+      const [explanationText, feedbackText] = await Promise.all([
+        this.prepareAndSetExplanationText(this.currentQuestionIndex),
+        this.getFeedbackText(this.currentQuestion)
+      ]);
 
-        // Set the texts once both are ready
-        this.explanationToDisplay = explanationText;
-        this.feedbackText = feedbackText;
+      // Set the texts once both are ready
+      this.explanationToDisplay = explanationText;
+      this.feedbackText = feedbackText;
 
-        // Ensure the selection message is updated
-        this.updateSelectionMessage(false);
+      // Ensure the selection message is updated
+      this.updateSelectionMessage(false);
 
-        this.cdRef.detectChanges(); // Ensure UI is updated with the new data
+      this.cdRef.detectChanges(); // Ensure UI is updated with the new data
     } catch (error) {
-        console.error('Error loading question:', error);
+      console.error('Error loading question:', error);
     } finally {
-        if (!signal?.aborted) {
-            this.isLoading = false;
-            this.cdRef.detectChanges();
-        }
+      if (!signal?.aborted) {
+        this.isLoading = false;
+        this.cdRef.detectChanges();
+      }
     }
   }
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     if (document.hidden) {
-        return '';
+      return '';
     }
 
     const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
     if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
-        const formattedExplanation = await this.getFormattedExplanation(questionData, questionIndex);
-        return formattedExplanation.explanation || 'No explanation available';
+      const formattedExplanation = await this.getFormattedExplanation(questionData, questionIndex);
+      return formattedExplanation.explanation || 'No explanation available';
     } else {
-        console.error('Error: questionData or explanation is undefined');
-        return 'No explanation available';
+      console.error('Error: questionData or explanation is undefined');
+      return 'No explanation available';
     }
   }
 
