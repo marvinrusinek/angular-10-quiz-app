@@ -508,78 +508,69 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
-  private async loadQuestion(signal?: AbortSignal): Promise<void> {
-    this.resetTexts();
+  async navigateToQuestion(questionIndex: number): Promise<void> {
+    if (this.isLoading || this.debounceNavigation) return;
+
+    // Set debounce to prevent rapid navigation
+    this.debounceNavigation = true;
+    const debounceTimeout = 500; // Slightly increased debounce time
+    setTimeout(() => {
+        this.debounceNavigation = false;
+    }, debounceTimeout);
+
+    // Abort any previous navigation operations
+    if (this.navigationAbortController) {
+        this.navigationAbortController.abort();
+    }
+
+    // Create a new abort controller for the new navigation operation
+    this.navigationAbortController = new AbortController();
+    const { signal } = this.navigationAbortController;
+
     this.isLoading = true;
 
-    // Show loading indicator
-    this.optionsToDisplay = []; // Clear options to prevent display lag
-    this.cdRef.detectChanges(); // Ensure UI updates immediately
-
-    if (signal?.aborted) {
-        console.log('Load question operation aborted.');
+    // Validate the question index
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
         this.isLoading = false;
         return;
     }
 
+    // Prepare to navigate to the new question
+    const adjustedIndexForUrl = questionIndex + 1;
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
+
     try {
-        // Slight delay to simulate async loading
-        await new Promise(resolve => setTimeout(resolve, 50));
+        // Clear current question data before navigation
+        if (this.quizQuestionComponent) {
+            this.quizQuestionComponent.resetTexts();
+            this.quizQuestionComponent.currentQuestion = null;
+            this.quizQuestionComponent.optionsToDisplay = [];
+            this.quizQuestionComponent.isLoading = true; // Set loading to true
+        }
 
-        if (signal?.aborted) {
-            console.log('Load question operation aborted after delay.');
+        // Navigate to the new question URL
+        await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
+
+        if (signal.aborted) {
+            console.log('Navigation aborted.');
             this.isLoading = false;
             return;
         }
 
-        // Fetch the question data
-        const question = this.quizService.getQuestion(this.currentQuestionIndex);
-
-        if (!question) {
-            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        // Load the new question
+        if (this.quizQuestionComponent) {
+            await this.quizQuestionComponent.loadQuestion(signal);
         }
 
-        // Assign the question and options to display
-        this.currentQuestion = question;
-
-        // Delay before loading options to ensure they are set correctly
-        await new Promise(resolve => setTimeout(resolve, 50));
-
-        if (signal?.aborted) {
-            console.log('Load question operation aborted after options loading.');
-            this.isLoading = false;
-            return;
-        }
-
-        this.optionsToDisplay = question.options || [];
-
-        // Simultaneously fetch explanation and feedback
-        const [explanationResult, feedbackResult] = await Promise.all([
-            this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
-        ]);
-
-        if (signal?.aborted) {
-            console.log('Load question operation aborted before setting texts.');
-            this.isLoading = false;
-            return;
-        }
-
-        this.explanationToDisplay = explanationResult || 'No explanation available';
-        this.feedbackText = feedbackResult || 'No feedback available';
-
-        // Set the selection message
-        this.setInitialMessage();
-
-        this.cdRef.detectChanges(); // Trigger UI update
-
+        this.isLoading = false;
     } catch (error) {
-        console.error('Error loading question:', error);
-    } finally {
-        if (!signal?.aborted) {
-            this.isLoading = false;
-            this.cdRef.detectChanges();
+        if (signal.aborted) {
+            console.log('Navigation was cancelled.');
+        } else {
+            console.error(`Error navigating to URL: ${newUrl}:`, error);
         }
+        this.isLoading = false;
     }
   }
  

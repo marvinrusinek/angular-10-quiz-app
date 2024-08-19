@@ -1759,38 +1759,45 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation) return;
 
+    // Set debounce to prevent rapid navigation
     this.debounceNavigation = true;
-    const debounceTimeout = 400; // Slightly increased debounce time
+    const debounceTimeout = 500; // Slightly increased debounce time
     setTimeout(() => {
         this.debounceNavigation = false;
     }, debounceTimeout);
 
+    // Abort any previous navigation operations
     if (this.navigationAbortController) {
-        this.navigationAbortController.abort(); // Cancel ongoing operations
+        this.navigationAbortController.abort();
     }
 
+    // Create a new abort controller for the new navigation operation
     this.navigationAbortController = new AbortController();
     const { signal } = this.navigationAbortController;
 
     this.isLoading = true;
 
+    // Validate the question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
         console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
         this.isLoading = false;
         return;
     }
 
+    // Prepare to navigate to the new question
     const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
 
-    // Clear the current question and options before navigating
-    if (this.quizQuestionComponent) {
-        this.quizQuestionComponent.resetTexts();
-        this.quizQuestionComponent.currentQuestion = null;
-        this.quizQuestionComponent.optionsToDisplay = [];
-    }
-
     try {
+        // Clear current question data before navigation
+        if (this.quizQuestionComponent) {
+            this.quizQuestionComponent.resetTexts();
+            this.quizQuestionComponent.currentQuestion = null;
+            this.quizQuestionComponent.optionsToDisplay = [];
+            this.quizQuestionComponent.isLoading = true; // Set loading to true
+        }
+
+        // Navigate to the new question URL
         await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
 
         if (signal.aborted) {
@@ -1799,9 +1806,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return;
         }
 
-        // Delay execution to allow navigation to settle
-        await new Promise(resolve => setTimeout(resolve, 50));
-
+        // Load the new question
         if (this.quizQuestionComponent) {
             await this.quizQuestionComponent.loadQuestion(signal);
         }
