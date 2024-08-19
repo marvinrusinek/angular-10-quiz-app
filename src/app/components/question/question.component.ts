@@ -660,6 +660,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
     this.isLoading = true;
+    this.cdRef.detectChanges(); // Indicate loading state immediately
 
     // Clear previous question data
     this.currentQuestion = null;
@@ -670,15 +671,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     if (signal?.aborted) {
         console.log('Load question operation aborted.');
         this.isLoading = false;
+        this.cdRef.detectChanges(); // Reset loading state
         return;
     }
 
     try {
+        // Simulate minimal delay
         await new Promise(resolve => setTimeout(resolve, 50));
 
         if (signal?.aborted) {
             console.log('Load question operation aborted after delay.');
             this.isLoading = false;
+            this.cdRef.detectChanges(); // Reset loading state
             return;
         }
 
@@ -692,15 +696,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.currentQuestion = question;
         this.optionsToDisplay = question.options || [];
 
-        // Manually trigger change detection for critical UI updates
+        // Batch UI updates
         this.cdRef.detectChanges();
+
+        // Defer loading explanation and feedback
+        setTimeout(async () => {
+            const [explanationResult, feedbackResult] = await Promise.all([
+                this.prepareAndSetExplanationText(this.currentQuestionIndex),
+                Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
+            ]);
+
+            if (!signal?.aborted) {
+                this.explanationToDisplay = explanationResult || 'No explanation available';
+                this.feedbackText = feedbackResult || 'No feedback available';
+
+                this.cdRef.detectChanges(); // Final UI update after deferred loading
+            }
+        }, 100); // Slight delay to allow main content to load first
 
     } catch (error) {
         console.error('Error loading question:', error);
     } finally {
         if (!signal?.aborted) {
             this.isLoading = false;
-            this.cdRef.detectChanges();
+            this.cdRef.detectChanges(); // Ensure final UI state is set
         }
     }
   }
