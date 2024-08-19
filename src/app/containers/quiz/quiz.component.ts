@@ -1783,14 +1783,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
 
-    try {
-        // Clear the current question and options before navigating
-        if (this.quizQuestionComponent) {
-            this.quizQuestionComponent.resetTexts();
-            this.quizQuestionComponent.currentQuestion = null;
-            this.quizQuestionComponent.optionsToDisplay = [];
-        }
+    // Clear the current question and options before navigating
+    if (this.quizQuestionComponent) {
+        this.quizQuestionComponent.resetTexts();
+        this.quizQuestionComponent.currentQuestion = null;
+        this.quizQuestionComponent.optionsToDisplay = [];
+    }
 
+    try {
         await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
 
         if (signal.aborted) {
@@ -1799,8 +1799,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return;
         }
 
+        // Store the intended question index
+        const intendedQuestionIndex = questionIndex;
+
         if (this.quizQuestionComponent) {
             await this.quizQuestionComponent.loadQuestion(signal);
+
+            // Verify that the loaded question corresponds to the intended question index
+            if (this.quizQuestionComponent.currentQuestionIndex !== intendedQuestionIndex) {
+                console.warn('Loaded question does not match the intended question index.');
+                this.isLoading = false;
+                return;
+            }
         }
 
         this.isLoading = false;
