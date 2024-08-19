@@ -660,7 +660,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
     this.isLoading = true;
-    this.cdRef.detectChanges(); // Show loading state
+    this.cdRef.detectChanges(); // Show loading state immediately
 
     this.currentQuestion = null;
     this.optionsToDisplay = [];
@@ -675,7 +675,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 50)); // Minimal delay
 
         if (signal?.aborted) {
             console.log('Load question operation aborted after delay.');
@@ -694,14 +694,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.currentQuestion = question;
         this.optionsToDisplay = question.options || [];
 
-        // Batch updates to minimize change detection cycles
+        // Batch and minimize UI updates
         this.cdRef.detectChanges(); // Update UI with basic question data
 
-        // Pre-fetch the next two questions to minimize lag on subsequent questions
+        // Pre-fetch the next two questions
         this.quizService.getQuestion(this.currentQuestionIndex + 1);
         this.quizService.getQuestion(this.currentQuestionIndex + 2);
 
-        // Defer explanation and feedback loading to minimize initial lag
+        // Defer explanation and feedback loading
         setTimeout(async () => {
             const [explanationResult, feedbackResult] = await Promise.all([
                 this.prepareAndSetExplanationText(this.currentQuestionIndex),
@@ -714,7 +714,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
                 this.cdRef.detectChanges(); // Final UI update after deferred loading
             }
-        }, 200); // Delay a bit more to ensure the main content is displayed first
+        }, 200); // Delay to ensure main content loads first
 
     } catch (error) {
         console.error('Error loading question:', error);
