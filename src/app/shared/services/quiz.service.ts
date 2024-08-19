@@ -46,6 +46,7 @@ export class QuizService implements OnDestroy {
   question: QuizQuestion;
   questions: QuizQuestion[];
   questionsList: QuizQuestion[] = [];
+  private questionCache = new Map<number, QuizQuestion>();
   nextQuestion: QuizQuestion;
   isNavigating = false;
 
