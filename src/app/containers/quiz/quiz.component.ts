@@ -1812,11 +1812,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.debounceNavigation = true;
     const debounceTimeout = 300;
     setTimeout(() => {
-      this.debounceNavigation = false;
+        this.debounceNavigation = false;
     }, debounceTimeout);
 
     if (this.navigationAbortController) {
-      this.navigationAbortController.abort(); // Cancel ongoing operations
+        this.navigationAbortController.abort(); // Cancel ongoing operations
     }
 
     this.navigationAbortController = new AbortController();
@@ -1834,6 +1834,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
 
     try {
+        // Clear the current question and options before navigating
+        if (this.quizQuestionComponent) {
+            this.quizQuestionComponent.resetTexts();
+            this.quizQuestionComponent.currentQuestion = null;
+            this.quizQuestionComponent.optionsToDisplay = [];
+        }
+
         await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
 
         if (signal.aborted) {

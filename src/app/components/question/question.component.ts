@@ -1040,7 +1040,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
     this.isLoading = true;
-    
+
     // Clear previous question data to avoid UI flickering
     this.currentQuestion = null;
     this.optionsToDisplay = [];
@@ -1107,7 +1107,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   }
-
  
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     if (document.hidden) {
