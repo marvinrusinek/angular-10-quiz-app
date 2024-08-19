@@ -332,11 +332,10 @@ export class QuizService implements OnDestroy {
   }
 
   private preFetchQuestion(index: number): void {
-    // Check if the question is already cached
     if (!this.questionCache.has(index) && this.questions && index >= 0 && index < this.questions.length) {
-      const question = this.questions[index];
-      this.questionCache.set(index, question); // Cache the pre-fetched question
-      console.log('Pre-fetched question at index:', index);
+        const question = this.questions[index];
+        this.questionCache.set(index, question);
+        console.log('Pre-fetched question at index:', index);
     }
   }
 
@@ -351,27 +350,22 @@ export class QuizService implements OnDestroy {
   } */
 
   getQuestion(index: number): QuizQuestion | null {
-    // Check if the question is already cached
     if (this.questionCache.has(index)) {
-      return this.questionCache.get(index)!;
+        return this.questionCache.get(index)!;
     }
 
-    // Validate the index and fetch the question if valid
     if (this.questions && index >= 0 && index < this.questions.length) {
-      const question = this.questions[index];
-        
-      // Cache the fetched question for future use
-      this.questionCache.set(index, question);
-        
-      // Pre-fetch the next question
-      if (index + 1 < this.questions.length) {
-        this.preFetchQuestion(index + 1);
-      }
+        const question = this.questions[index];
+        this.questionCache.set(index, question);
 
-      return question;
+        // Pre-fetch the next two questions
+        this.preFetchQuestion(index + 1);
+        this.preFetchQuestion(index + 2);
+
+        return question;
     } else {
-      console.error('Invalid index or questions not initialized:', index);
-      return null;
+        console.error('Invalid index or questions not initialized:', index);
+        return null;
     }
   }
 
