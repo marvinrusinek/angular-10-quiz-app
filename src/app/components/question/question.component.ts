@@ -662,7 +662,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.isLoading = true;
     this.cdRef.detectChanges(); // Indicate loading state immediately
 
-    // Clear previous question data
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
@@ -676,7 +675,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
-        // Simulate minimal delay
         await new Promise(resolve => setTimeout(resolve, 50));
 
         if (signal?.aborted) {
@@ -686,7 +684,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             return;
         }
 
-        // Fetch the question data
+        // Fetch the current question data
         const question = this.quizService.getQuestion(this.currentQuestionIndex);
 
         if (!question) {
@@ -696,8 +694,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.currentQuestion = question;
         this.optionsToDisplay = question.options || [];
 
-        // Batch UI updates
-        this.cdRef.detectChanges();
+        this.cdRef.detectChanges(); // Batch UI updates
+
+        // Pre-fetch the next question
+        if (this.currentQuestionIndex + 1 < this.quizService.questions.length) {
+            this.quizService.getQuestion(this.currentQuestionIndex + 1);
+        }
 
         // Defer loading explanation and feedback
         setTimeout(async () => {
@@ -712,7 +714,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
                 this.cdRef.detectChanges(); // Final UI update after deferred loading
             }
-        }, 100); // Slight delay to allow main content to load first
+        }, 100);
 
     } catch (error) {
         console.error('Error loading question:', error);
@@ -723,6 +725,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   }
+
   
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     if (document.hidden) {
