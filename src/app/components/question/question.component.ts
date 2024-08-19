@@ -382,27 +382,36 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
+  async onVisibilityChange(): Promise<void> {
     if (document.hidden) {
-      this.saveQuizState();
-      this.clearExplanationText();
-    } else {
-      this.restoreQuizState();
-
-      // Update the explanation text when the tab becomes visible again
-      const selectedOption = this.getSelectedOption();
-      if (selectedOption) {
-        this.prepareAndSetExplanationText(selectedOption);
-      } else {
-        this.clearExplanationText(); // Or handle it based on your logic
+      try {
+        this.saveQuizState();
+        this.clearExplanationText();
+      } catch (error) {
+        console.error('Error while saving quiz state or clearing explanation text:', error);
       }
+    } else {
+      try {
+        this.restoreQuizState();
 
-      this.ngZone.run(async () => {
-        await this.fetchAndProcessQuizQuestions(this.quizId);
+        // Update the explanation text when the tab becomes visible again
+        const selectedOption = this.getSelectedOption();
+        if (selectedOption) {
+          this.prepareAndSetExplanationText(selectedOption);
+        } else {
+          this.clearExplanationText();
+        }
 
-        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-      });
+        await this.ngZone.run(async () => {
+          await this.fetchAndProcessQuizQuestions(this.quizId);
+
+          const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+          await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+        });
+
+      } catch (error) {
+        console.error('Error while restoring quiz state or processing quiz data:', error);
+      }
     }
   }
 
