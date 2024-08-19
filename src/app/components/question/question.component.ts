@@ -385,8 +385,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   onVisibilityChange(): void {
     if (document.hidden) {
       this.saveQuizState();
+      this.clearExplanationText();
     } else {
       this.restoreQuizState();
+
+      // Update the explanation text when the tab becomes visible again
+      const selectedOption = this.getSelectedOption();
+      if (selectedOption) {
+        this.prepareAndSetExplanationText(selectedOption);
+      } else {
+        this.clearExplanationText(); // Or handle it based on your logic
+      }
 
       this.ngZone.run(async () => {
         await this.fetchAndProcessQuizQuestions(this.quizId);
