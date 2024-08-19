@@ -1756,7 +1756,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     await this.navigateToQuestion(questionIndex);
   }
 
-  async navigateToQuestion(questionIndex: number): Promise<void> {
+  /* async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation) return;
 
     // Set debounce to prevent rapid navigation
@@ -1798,6 +1798,65 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         }
 
         // Navigate to the new question URL
+        await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
+
+        if (signal.aborted) {
+            console.log('Navigation aborted.');
+            this.isLoading = false;
+            return;
+        }
+
+        // Load the new question
+        if (this.quizQuestionComponent) {
+            await this.quizQuestionComponent.loadQuestion(signal);
+        }
+
+        this.isLoading = false;
+    } catch (error) {
+        if (signal.aborted) {
+            console.log('Navigation was cancelled.');
+        } else {
+            console.error(`Error navigating to URL: ${newUrl}:`, error);
+        }
+        this.isLoading = false;
+    }
+  } */
+  async navigateToQuestion(questionIndex: number): Promise<void> {
+    if (this.isLoading || this.debounceNavigation) return;
+
+    this.debounceNavigation = true;
+    const debounceTimeout = 500;
+    setTimeout(() => {
+        this.debounceNavigation = false;
+    }, debounceTimeout);
+
+    if (this.navigationAbortController) {
+        this.navigationAbortController.abort(); // Cancel ongoing operations
+    }
+
+    this.navigationAbortController = new AbortController();
+    const { signal } = this.navigationAbortController;
+
+    this.isLoading = true;
+
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        this.isLoading = false;
+        return;
+    }
+
+    const adjustedIndexForUrl = questionIndex + 1;
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
+
+    // Reset all previous data before navigating
+    if (this.quizQuestionComponent) {
+        this.quizQuestionComponent.resetTexts();
+        this.quizQuestionComponent.currentQuestion = null;
+        this.quizQuestionComponent.optionsToDisplay = [];
+        this.quizQuestionComponent.isLoading = true;
+    }
+
+    try {
         await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
 
         if (signal.aborted) {

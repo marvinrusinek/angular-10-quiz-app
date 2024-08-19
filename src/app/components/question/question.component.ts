@@ -508,7 +508,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
-  private async loadQuestion(signal?: AbortSignal): Promise<void> {
+  /* private async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
     this.isLoading = true;
 
@@ -572,6 +572,81 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
                 this.cdRef.detectChanges(); // Update UI after deferred loading
             }
         }, 100); // Delay to allow main content to load first
+
+    } catch (error) {
+        console.error('Error loading question:', error);
+    } finally {
+        if (!signal?.aborted) {
+            this.isLoading = false;
+            this.cdRef.detectChanges();
+        }
+    }
+  } */
+  private async loadQuestion(signal?: AbortSignal): Promise<void> {
+    this.resetTexts();
+    this.isLoading = true;
+
+    // Explicitly clear all previous question data
+    this.currentQuestion = null;
+    this.optionsToDisplay = [];
+    this.explanationToDisplay = '';
+    this.feedbackText = '';
+
+    this.selectionMessageService.resetMessage();
+
+    if (signal?.aborted) {
+        console.log('Load question operation aborted.');
+        this.isLoading = false;
+        return;
+    }
+
+    try {
+        // Minimal delay to simulate loading
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        if (signal?.aborted) {
+            console.log('Load question operation aborted after delay.');
+            this.isLoading = false;
+            return;
+        }
+
+        // Fetch the question data
+        const question = this.quizService.getQuestion(this.currentQuestionIndex);
+
+        if (!question) {
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        }
+
+        this.currentQuestion = question;
+        this.optionsToDisplay = question.options || [];
+
+        // Update UI immediately with the question and options
+        this.cdRef.detectChanges();
+
+        // Defer explanation and feedback loading to ensure main content loads first
+        setTimeout(async () => {
+            const [explanationResult, feedbackResult] = await Promise.all([
+                this.prepareAndSetExplanationText(this.currentQuestionIndex),
+                Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
+            ]);
+
+            if (!signal?.aborted) {
+                this.explanationToDisplay = explanationResult || 'No explanation available';
+                this.feedbackText = feedbackResult || 'No feedback available';
+
+                this.cdRef.detectChanges(); // Update UI after deferred loading
+            }
+        }, 100);
+
+        // Set the initial selection message
+        const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+        if (!currentMessage || currentMessage === 'Please select an option to continue...') {
+            this.setInitialMessage();
+        } else {
+            this.updateSelectionMessage(false);
+        }
+
+        this.cdRef.detectChanges(); // Final UI update
 
     } catch (error) {
         console.error('Error loading question:', error);
