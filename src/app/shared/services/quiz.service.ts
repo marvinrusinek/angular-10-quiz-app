@@ -330,10 +330,44 @@ export class QuizService implements OnDestroy {
     this.questionsSubject.next(questions);
   }
 
-  getQuestion(index: number): QuizQuestion | null {
+  private preFetchQuestion(index: number): void {
+    // Check if the question is already cached
+    if (!this.questionCache.has(index) && this.questions && index >= 0 && index < this.questions.length) {
+      const question = this.questions[index];
+      this.questionCache.set(index, question); // Cache the pre-fetched question
+      console.log('Pre-fetched question at index:', index);
+    }
+  }
+
+  /* getQuestion(index: number): QuizQuestion | null {
     console.log("Accessing questions at index:", index);
     if (this.questions && index >= 0 && index < this.questions.length) {
       return this.questions[index];
+    } else {
+      console.error('Invalid index or questions not initialized:', index);
+      return null;
+    }
+  } */
+
+  getQuestion(index: number): QuizQuestion | null {
+    // Check if the question is already cached
+    if (this.questionCache.has(index)) {
+      return this.questionCache.get(index)!;
+    }
+
+    // Validate the index and fetch the question if valid
+    if (this.questions && index >= 0 && index < this.questions.length) {
+      const question = this.questions[index];
+        
+      // Cache the fetched question for future use
+      this.questionCache.set(index, question);
+        
+      // Pre-fetch the next question
+      if (index + 1 < this.questions.length) {
+        this.preFetchQuestion(index + 1);
+      }
+
+      return question;
     } else {
       console.error('Invalid index or questions not initialized:', index);
       return null;
