@@ -662,6 +662,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.isLoading = true;
     this.cdRef.detectChanges(); // Show loading state immediately
 
+    // Clear previous question data
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
@@ -694,7 +695,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.currentQuestion = question;
         this.optionsToDisplay = question.options || [];
 
-        // Batch and minimize UI updates
+        // Minimize change detection cycles
         this.cdRef.detectChanges(); // Update UI with basic question data
 
         // Pre-fetch the next two questions
