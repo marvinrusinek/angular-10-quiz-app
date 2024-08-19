@@ -537,12 +537,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             return;
         }
 
-        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-        if (!this.currentQuestion) {
+        // Fetch the question data
+        const question = this.quizService.getQuestion(this.currentQuestionIndex);
+
+        if (!question) {
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
 
-        this.optionsToDisplay = this.currentQuestion.options || [];
+        // Assign the question and options to display
+        this.currentQuestion = question;
+        this.optionsToDisplay = question.options || [];
 
         // Simultaneously fetch explanation and feedback
         const [explanationResult, feedbackResult] = await Promise.all([
