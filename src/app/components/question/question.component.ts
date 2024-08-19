@@ -528,6 +528,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     try {
+        // Minimal delay
         await new Promise(resolve => setTimeout(resolve, 50));
 
         if (signal?.aborted) {
@@ -546,7 +547,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.currentQuestion = question;
         this.optionsToDisplay = question.options || [];
 
-        // Defer loading of explanation and feedback
+        // Minimal UI update - skip explanation and feedback initially
+        this.cdRef.detectChanges(); // Trigger UI update for question and options
+
+        // Set the initial selection message
+        const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+        if (!currentMessage || currentMessage === 'Please select an option to continue...') {
+            this.setInitialMessage();
+        } else {
+            this.updateSelectionMessage(false);
+        }
+
+        // Deferred explanation and feedback loading
         setTimeout(async () => {
             const [explanationResult, feedbackResult] = await Promise.all([
                 this.prepareAndSetExplanationText(this.currentQuestionIndex),
@@ -559,17 +571,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
                 this.cdRef.detectChanges(); // Update UI after deferred loading
             }
-        }, 100); // Slight delay to allow main content to load first
-
-        // Set the initial selection message
-        const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
-        if (!currentMessage || currentMessage === 'Please select an option to continue...') {
-            this.setInitialMessage();
-        } else {
-            this.updateSelectionMessage(false);
-        }
-
-        this.cdRef.detectChanges(); // Update UI for question and options
+        }, 100); // Delay to allow main content to load first
 
     } catch (error) {
         console.error('Error loading question:', error);
@@ -580,7 +582,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   }
- 
+  
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     if (document.hidden) {
       return '';
