@@ -512,14 +512,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.resetTexts();
     this.isLoading = true;
 
-    // Clear previous question data to avoid UI flickering
-    this.currentQuestion = null;
-    this.optionsToDisplay = [];
-    this.explanationToDisplay = '';
-    this.feedbackText = '';
-
-    // Reset the selection message to avoid flashing
-    this.selectionMessageService.resetMessage();
+    // Show loading indicator
+    this.optionsToDisplay = []; // Clear options to prevent display lag
+    this.cdRef.detectChanges(); // Ensure UI updates immediately
 
     if (signal?.aborted) {
         console.log('Load question operation aborted.');
@@ -546,6 +541,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         // Assign the question and options to display
         this.currentQuestion = question;
+
+        // Delay before loading options to ensure they are set correctly
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        if (signal?.aborted) {
+            console.log('Load question operation aborted after options loading.');
+            this.isLoading = false;
+            return;
+        }
+
         this.optionsToDisplay = question.options || [];
 
         // Simultaneously fetch explanation and feedback
@@ -563,13 +568,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.explanationToDisplay = explanationResult || 'No explanation available';
         this.feedbackText = feedbackResult || 'No feedback available';
 
-        // Check if the selection message needs to be set for the first time
-        const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
-        if (!currentMessage || currentMessage === 'Please select an option to continue...') {
-            this.setInitialMessage();
-        } else {
-            this.updateSelectionMessage(false);
-        }
+        // Set the selection message
+        this.setInitialMessage();
 
         this.cdRef.detectChanges(); // Trigger UI update
 

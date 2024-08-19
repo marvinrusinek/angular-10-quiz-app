@@ -1760,7 +1760,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     if (this.isLoading || this.debounceNavigation) return;
 
     this.debounceNavigation = true;
-    const debounceTimeout = 300;
+    const debounceTimeout = 400; // Slightly increased debounce time
     setTimeout(() => {
         this.debounceNavigation = false;
     }, debounceTimeout);
@@ -1799,18 +1799,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return;
         }
 
-        // Store the intended question index
-        const intendedQuestionIndex = questionIndex;
+        // Delay execution to allow navigation to settle
+        await new Promise(resolve => setTimeout(resolve, 50));
 
         if (this.quizQuestionComponent) {
             await this.quizQuestionComponent.loadQuestion(signal);
-
-            // Verify that the loaded question corresponds to the intended question index
-            if (this.quizQuestionComponent.currentQuestionIndex !== intendedQuestionIndex) {
-                console.warn('Loaded question does not match the intended question index.');
-                this.isLoading = false;
-                return;
-            }
         }
 
         this.isLoading = false;
