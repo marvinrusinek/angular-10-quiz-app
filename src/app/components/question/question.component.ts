@@ -582,7 +582,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   } */
-  private async loadQuestion(signal?: AbortSignal): Promise<void> {
+  /* private async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
     this.isLoading = true;
 
@@ -647,6 +647,53 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
 
         this.cdRef.detectChanges(); // Final UI update
+
+    } catch (error) {
+        console.error('Error loading question:', error);
+    } finally {
+        if (!signal?.aborted) {
+            this.isLoading = false;
+            this.cdRef.detectChanges();
+        }
+    }
+  } */
+  private async loadQuestion(signal?: AbortSignal): Promise<void> {
+    this.resetTexts();
+    this.isLoading = true;
+
+    // Clear previous question data
+    this.currentQuestion = null;
+    this.optionsToDisplay = [];
+    this.explanationToDisplay = '';
+    this.feedbackText = '';
+
+    if (signal?.aborted) {
+        console.log('Load question operation aborted.');
+        this.isLoading = false;
+        return;
+    }
+
+    try {
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        if (signal?.aborted) {
+            console.log('Load question operation aborted after delay.');
+            this.isLoading = false;
+            return;
+        }
+
+        // Fetch the question data
+        const question = this.quizService.getQuestion(this.currentQuestionIndex);
+
+        if (!question) {
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        }
+
+        this.currentQuestion = question;
+        this.optionsToDisplay = question.options || [];
+
+        // Manually trigger change detection for critical UI updates
+        this.cdRef.detectChanges();
 
     } catch (error) {
         console.error('Error loading question:', error);
