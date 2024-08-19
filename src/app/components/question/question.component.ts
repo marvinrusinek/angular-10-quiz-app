@@ -660,7 +660,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
     this.isLoading = true;
-    this.cdRef.detectChanges(); // Indicate loading state immediately
+    this.cdRef.detectChanges(); // Show loading state
 
     this.currentQuestion = null;
     this.optionsToDisplay = [];
@@ -694,14 +694,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.currentQuestion = question;
         this.optionsToDisplay = question.options || [];
 
-        this.cdRef.detectChanges(); // Batch UI updates
+        // Batch updates to minimize change detection cycles
+        this.cdRef.detectChanges(); // Update UI with basic question data
 
-        // Pre-fetch the next question
-        if (this.currentQuestionIndex + 1 < this.quizService.questions.length) {
-            this.quizService.getQuestion(this.currentQuestionIndex + 1);
-        }
+        // Pre-fetch the next two questions to minimize lag on subsequent questions
+        this.quizService.getQuestion(this.currentQuestionIndex + 1);
+        this.quizService.getQuestion(this.currentQuestionIndex + 2);
 
-        // Defer loading explanation and feedback
+        // Defer explanation and feedback loading to minimize initial lag
         setTimeout(async () => {
             const [explanationResult, feedbackResult] = await Promise.all([
                 this.prepareAndSetExplanationText(this.currentQuestionIndex),
@@ -714,7 +714,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
                 this.cdRef.detectChanges(); // Final UI update after deferred loading
             }
-        }, 100);
+        }, 200); // Delay a bit more to ensure the main content is displayed first
 
     } catch (error) {
         console.error('Error loading question:', error);
@@ -725,7 +725,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   }
-
   
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     if (document.hidden) {
