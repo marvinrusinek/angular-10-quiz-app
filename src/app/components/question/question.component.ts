@@ -616,29 +616,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }  
 
-  private async fetchExplanationAndFeedbackText(): Promise<void> {
-    try {
-      // Simulate async operation if needed
-      await new Promise(resolve => setTimeout(resolve, 50));
-      const explanationTextPromise = this.prepareAndSetExplanationText(this.currentQuestionIndex);
-      const feedbackTextPromise = this.generateFeedbackText(this.currentQuestion);
-
-      // Fetch both texts in parallel
-      const [explanationText, feedbackText] = await Promise.all([explanationTextPromise, feedbackTextPromise]);
-
-      // Set both texts
-      this.explanationToDisplay = explanationText;
-      this.feedbackText = feedbackText;
-
-      console.log('Explanation and feedback texts set simultaneously:', {
-        explanationText,
-        feedbackText,
-      });
-    } catch (error) {
-      console.error('Error fetching explanation and feedback text:', error);
-    }
-  }
-
   private async generateFeedbackText(question: QuizQuestion): Promise<string> {
     const correctOptions = question.options.filter(option => option.correct);
     return this.setCorrectMessage(correctOptions);
