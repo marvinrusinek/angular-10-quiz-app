@@ -204,35 +204,4 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       console.error('An error occurred while processing the option click:', error);
     }
   }
-  
-  setCorrectMessage(correctOptions: Option[]): string {  
-    if (!correctOptions || correctOptions.length === 0) {
-      return 'No correct answers found for the current question.';
-    }
-  
-    const correctOptionIndices = correctOptions.map((correctOption) => {
-      const originalIndex = this.optionsToDisplay.findIndex(
-        (option) => option.text.trim() === correctOption.text.trim()
-      );
-      return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 to make it 1-based index for display
-    });
-  
-    const uniqueIndices = [...new Set(correctOptionIndices.filter(index => index !== undefined))]; // Remove duplicates and undefined
-  
-    if (uniqueIndices.length === 0) {
-      return 'No correct answers found for the current question.';
-    }
-  
-    const optionsText =
-      uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings =
-      uniqueIndices.length > 1
-        ? uniqueIndices.slice(0, -1).join(', ') +
-          ' and ' +
-          uniqueIndices.slice(-1)
-        : `${uniqueIndices[0]}`;
-  
-    const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
-    return correctMessage;
-  }  
 }
