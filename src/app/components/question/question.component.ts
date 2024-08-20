@@ -578,17 +578,35 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
+    // Check if the document is hidden and return early if so
     if (document.hidden) {
-      return '';
+        return 'Explanation text not available when document is hidden.';
     }
 
-    const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
-    if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
-      const formattedExplanation = await this.getFormattedExplanation(questionData, questionIndex);
-      return formattedExplanation.explanation || 'No explanation available';
-    } else {
-      console.error('Error: questionData or explanation is undefined');
-      return 'No explanation available';
+    try {
+        // Fetch the next question data
+        const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
+
+        // Validate the fetched question data
+        if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
+
+            // Optionally process the explanation text (if this is needed)
+            await this.processExplanationText(questionData, questionIndex);
+
+            // Get the formatted explanation
+            const formattedExplanation = await this.getFormattedExplanation(questionData, questionIndex);
+
+            // Return the explanation or a default message if none is available
+            return formattedExplanation.explanation || 'No explanation available';
+
+        } else {
+            console.error('Error: questionData or explanation is undefined');
+            return 'No explanation available.';
+        }
+
+    } catch (error) {
+        console.error('Error in fetching explanation text:', error);
+        return 'Error fetching explanation.';
     }
   }
 
@@ -697,6 +715,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     });
   }
   
+  /* potentially remove
   private handlePageVisibilityChange(isHidden: boolean): void {
     if (isHidden) {
       // Page is now hidden, pause or delay updates in this component
@@ -706,7 +725,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.isPaused = false; // Unpause updates
       this.prepareAndSetExplanationText(this.currentQuestionIndex);
     }
-  }
+  } */
   
   public getDisplayOptions(): Option[] {
     return this.optionsToDisplay && this.optionsToDisplay.length > 0
@@ -1698,10 +1717,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
   
         this.questionsArray = questionsArray;
-        const questionIndex = this.questionsArray.findIndex(
+        /* const questionIndex = this.questionsArray.findIndex(
           (q) => q.questionText === currentQuestion.questionText
           );
-        this.prepareAndSetExplanationText(questionIndex);
+        this.prepareAndSetExplanationText(questionIndex); */
         this.isLoadingQuestions = false;
       },
       error: (error: Error) => {
@@ -1796,26 +1815,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.showFeedback = false;
     this.selectedOption = null;
     this.quizQuestionManagerService.setExplanationText(null);
-  }
-  
-  async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
-    if (document.hidden) {
-      return 'Explanation text not available when document is hidden.';
-    }
-
-    try {
-      const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
-      if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
-        await this.processExplanationText(questionData, questionIndex);
-        return this.explanationTextService.getExplanationText(questionIndex);
-      } else {
-        console.error('Error: questionData or explanation is undefined');
-        return 'No explanation available.';
-      }
-    } catch (error) {
-      console.error('Error in fetching explanation text:', error);
-      return 'Error fetching explanation.';
-    }
   }
   
   private async processExplanationText(
