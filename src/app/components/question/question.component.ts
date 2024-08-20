@@ -520,60 +520,58 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.feedbackText = '';
 
     if (signal?.aborted) {
-        console.log('Load question operation aborted.');
-        this.isLoading = false;
-        this.cdRef.detectChanges(); // Reset loading state
-        return;
+      console.log('Load question operation aborted.');
+      this.isLoading = false;
+      this.cdRef.detectChanges(); // Reset loading state
+      return;
     }
 
     try {
-        await new Promise(resolve => setTimeout(resolve, 50)); // Minimal delay
+      await new Promise(resolve => setTimeout(resolve, 50)); // Minimal delay
 
-        if (signal?.aborted) {
-            console.log('Load question operation aborted after delay.');
-            this.isLoading = false;
-            this.cdRef.detectChanges(); // Reset loading state
-            return;
-        }
+      if (signal?.aborted) {
+        console.log('Load question operation aborted after delay.');
+        this.isLoading = false;
+        this.cdRef.detectChanges(); // Reset loading state
+        return;
+      }
 
-        // Fetch the current question data
-        const question = this.quizService.getQuestion(this.currentQuestionIndex);
+      // Fetch the current question data
+      const question = this.quizService.getQuestion(this.currentQuestionIndex);
+      if (!question) {
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
 
-        if (!question) {
-            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-        }
+      this.currentQuestion = question;
+      this.optionsToDisplay = question.options || [];
 
-        this.currentQuestion = question;
-        this.optionsToDisplay = question.options || [];
+      // Update UI with question text and options
+      this.cdRef.detectChanges(); // Update UI with basic question data
 
-        // Update UI with question text and options
-        this.cdRef.detectChanges(); // Update UI with basic question data
+      // Pre-fetch the next two questions
+      this.quizService.getQuestion(this.currentQuestionIndex + 1);
+      this.quizService.getQuestion(this.currentQuestionIndex + 2);
 
-        // Pre-fetch the next two questions
-        this.quizService.getQuestion(this.currentQuestionIndex + 1);
-        this.quizService.getQuestion(this.currentQuestionIndex + 2);
+      // Defer explanation text formatting and feedback
+      setTimeout(async () => {
+        const explanationResult = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
-        // Defer explanation text formatting and feedback
-        setTimeout(async () => {
-            const explanationResult = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-
-            if (!signal?.aborted) {
-                this.explanationToDisplay = explanationResult || 'No explanation available';
-
-                const feedbackResult = await this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct));
-                this.feedbackText = feedbackResult || 'No feedback available';
-
-                this.cdRef.detectChanges(); // Final UI update with explanation and feedback
-            }
-        }, 200); // Delay to ensure main content loads first
-
-    } catch (error) {
-        console.error('Error loading question:', error);
-    } finally {
         if (!signal?.aborted) {
-            this.isLoading = false;
-            this.cdRef.detectChanges(); // Ensure final UI state is set
+          this.explanationToDisplay = explanationResult || 'No explanation available';
+
+          const feedbackResult = await this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct));
+          this.feedbackText = feedbackResult || 'No feedback available';
+
+          this.cdRef.detectChanges(); // Final UI update with explanation and feedback
         }
+      }, 200); // Delay to ensure main content loads first
+    } catch (error) {
+      console.error('Error loading question:', error);
+    } finally {
+      if (!signal?.aborted) {
+        this.isLoading = false;
+        this.cdRef.detectChanges(); // Ensure final UI state is set
+      }
     }
   }
   
