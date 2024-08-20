@@ -206,14 +206,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
   
-  handleOptionClick(option: SelectedOption, index: number): void {
-    this.onOptionClicked(option, index);
-  }
-
-  isSelectedOption(option: Option): boolean {
-    return this.selectedOptionService.isSelectedOption(option);
-  }
-  
   setCorrectMessage(correctOptions: Option[]): string {  
     if (!correctOptions || correctOptions.length === 0) {
       return 'No correct answers found for the current question.';
