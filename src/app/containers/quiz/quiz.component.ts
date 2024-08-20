@@ -1756,82 +1756,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     await this.navigateToQuestion(questionIndex);
   }
 
-  /* async navigateToQuestion(questionIndex: number): Promise<void> {
-    if (this.isLoading || this.debounceNavigation) return;
-
-    // Set debounce to prevent rapid navigation
-    this.debounceNavigation = true;
-    const debounceTimeout = 500; // Slightly increased debounce time
-    setTimeout(() => {
-        this.debounceNavigation = false;
-    }, debounceTimeout);
-
-    // Abort any previous navigation operations
-    if (this.navigationAbortController) {
-        this.navigationAbortController.abort();
-    }
-
-    // Create a new abort controller for the new navigation operation
-    this.navigationAbortController = new AbortController();
-    const { signal } = this.navigationAbortController;
-
-    this.isLoading = true;
-
-    // Validate the question index
-    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
-        this.isLoading = false;
-        return;
-    }
-
-    // Prepare to navigate to the new question
-    const adjustedIndexForUrl = questionIndex + 1;
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
-
-    try {
-        // Clear current question data before navigation
-        if (this.quizQuestionComponent) {
-            this.quizQuestionComponent.resetTexts();
-            this.quizQuestionComponent.currentQuestion = null;
-            this.quizQuestionComponent.optionsToDisplay = [];
-            this.quizQuestionComponent.isLoading = true; // Set loading to true
-        }
-
-        // Navigate to the new question URL
-        await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
-
-        if (signal.aborted) {
-            console.log('Navigation aborted.');
-            this.isLoading = false;
-            return;
-        }
-
-        // Load the new question
-        if (this.quizQuestionComponent) {
-            await this.quizQuestionComponent.loadQuestion(signal);
-        }
-
-        this.isLoading = false;
-    } catch (error) {
-        if (signal.aborted) {
-            console.log('Navigation was cancelled.');
-        } else {
-            console.error(`Error navigating to URL: ${newUrl}:`, error);
-        }
-        this.isLoading = false;
-    }
-  } */
   async navigateToQuestion(questionIndex: number): Promise<void> {
     if (this.isLoading || this.debounceNavigation) return;
 
     this.debounceNavigation = true;
     const debounceTimeout = 500;
     setTimeout(() => {
-        this.debounceNavigation = false;
+      this.debounceNavigation = false;
     }, debounceTimeout);
 
     if (this.navigationAbortController) {
-        this.navigationAbortController.abort(); // Cancel ongoing operations
+      this.navigationAbortController.abort(); // Cancel ongoing operations
     }
 
     this.navigationAbortController = new AbortController();
@@ -1840,9 +1775,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isLoading = true;
 
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
-        this.isLoading = false;
-        return;
+      console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+      this.isLoading = false;
+       return;
     }
 
     const adjustedIndexForUrl = questionIndex + 1;
@@ -1850,34 +1785,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Reset all previous data before navigating
     if (this.quizQuestionComponent) {
-        this.quizQuestionComponent.resetTexts();
-        this.quizQuestionComponent.currentQuestion = null;
-        this.quizQuestionComponent.optionsToDisplay = [];
-        this.quizQuestionComponent.isLoading = true;
+      this.quizQuestionComponent.resetTexts();
+      this.quizQuestionComponent.currentQuestion = null;
+      this.quizQuestionComponent.optionsToDisplay = [];
+      this.quizQuestionComponent.isLoading = true;
     }
 
     try {
-        await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
+      await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
 
-        if (signal.aborted) {
-            console.log('Navigation aborted.');
-            this.isLoading = false;
-            return;
-        }
-
-        // Load the new question
-        if (this.quizQuestionComponent) {
-            await this.quizQuestionComponent.loadQuestion(signal);
-        }
-
+      if (signal.aborted) {
+        console.log('Navigation aborted.');
         this.isLoading = false;
+        return;
+      }
+
+      // Load the new question
+      if (this.quizQuestionComponent) {
+        await this.quizQuestionComponent.loadQuestion(signal);
+      }
+
+      this.isLoading = false;
     } catch (error) {
-        if (signal.aborted) {
-            console.log('Navigation was cancelled.');
-        } else {
-            console.error(`Error navigating to URL: ${newUrl}:`, error);
-        }
-        this.isLoading = false;
+      if (signal.aborted) {
+        console.log('Navigation was cancelled.');
+      } else {
+        console.error(`Error navigating to URL: ${newUrl}:`, error);
+      }
+      this.isLoading = false;
     }
   }
   
