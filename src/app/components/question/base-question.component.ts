@@ -26,6 +26,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   @Input() optionsToDisplay: Option[] = [];
   @Input() correctMessage = '';
   @Input() showFeedback = false;
+  @Input() shouldResetBackground = false;
   @Input() type: 'single' | 'multiple' = 'single';
   currentQuestionSubscription: Subscription;
   explanationToDisplay: string;
@@ -154,14 +155,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   protected abstract loadDynamicComponent(): void;
 
-  handleOptionClick(option: SelectedOption, index: number): void {
-    this.onOptionClicked(option, index);
-  }
-
-  isSelectedOption(option: Option): boolean {
-    return this.selectedOptionService.isSelectedOption(option);
-  }
-
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
       if (this.quizQuestionComponent) {
@@ -181,7 +174,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
   
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
-      this.correctMessage = this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
+      this.correctMessage = this.setCorrectMessage(correctOptions);
   
       console.log('Calling formatExplanationText');
       console.log('ExplanationTextService:', this.explanationTextService);
@@ -212,4 +205,43 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       console.error('An error occurred while processing the option click:', error);
     }
   }
+  
+  handleOptionClick(option: SelectedOption, index: number): void {
+    this.onOptionClicked(option, index);
+  }
+
+  isSelectedOption(option: Option): boolean {
+    return this.selectedOptionService.isSelectedOption(option);
+  }
+  
+  setCorrectMessage(correctOptions: Option[]): string {  
+    if (!correctOptions || correctOptions.length === 0) {
+      return 'No correct answers found for the current question.';
+    }
+  
+    const correctOptionIndices = correctOptions.map((correctOption) => {
+      const originalIndex = this.optionsToDisplay.findIndex(
+        (option) => option.text.trim() === correctOption.text.trim()
+      );
+      return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 to make it 1-based index for display
+    });
+  
+    const uniqueIndices = [...new Set(correctOptionIndices.filter(index => index !== undefined))]; // Remove duplicates and undefined
+  
+    if (uniqueIndices.length === 0) {
+      return 'No correct answers found for the current question.';
+    }
+  
+    const optionsText =
+      uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
+    const optionStrings =
+      uniqueIndices.length > 1
+        ? uniqueIndices.slice(0, -1).join(', ') +
+          ' and ' +
+          uniqueIndices.slice(-1)
+        : `${uniqueIndices[0]}`;
+  
+    const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
+    return correctMessage;
+  }  
 }

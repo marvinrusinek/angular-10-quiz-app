@@ -46,7 +46,6 @@ export class QuizService implements OnDestroy {
   question: QuizQuestion;
   questions: QuizQuestion[];
   questionsList: QuizQuestion[] = [];
-  private questionCache = new Map<number, QuizQuestion>();
   nextQuestion: QuizQuestion;
   isNavigating = false;
 
@@ -331,41 +330,13 @@ export class QuizService implements OnDestroy {
     this.questionsSubject.next(questions);
   }
 
-  private preFetchQuestion(index: number): void {
-    if (!this.questionCache.has(index) && this.questions && index >= 0 && index < this.questions.length) {
-        const question = this.questions[index];
-        this.questionCache.set(index, question);
-        console.log('Pre-fetched question at index:', index);
-    }
-  }
-
-  /* getQuestion(index: number): QuizQuestion | null {
+  getQuestion(index: number): QuizQuestion | null {
     console.log("Accessing questions at index:", index);
     if (this.questions && index >= 0 && index < this.questions.length) {
       return this.questions[index];
     } else {
       console.error('Invalid index or questions not initialized:', index);
       return null;
-    }
-  } */
-
-  getQuestion(index: number): QuizQuestion | null {
-    if (this.questionCache.has(index)) {
-        return this.questionCache.get(index)!;
-    }
-
-    if (this.questions && index >= 0 && index < this.questions.length) {
-        const question = this.questions[index];
-        this.questionCache.set(index, question);
-
-        // Pre-fetch the next two questions
-        this.preFetchQuestion(index + 1);
-        this.preFetchQuestion(index + 2);
-
-        return question;
-    } else {
-        console.error('Invalid index or questions not initialized:', index);
-        return null;
     }
   }
 
@@ -1017,37 +988,6 @@ export class QuizService implements OnDestroy {
         this.setCorrectAnswers(question, this.data.currentOptions);
       }
     });
-  }
-
-  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {  
-    if (!correctOptions || correctOptions.length === 0) {
-      return 'No correct answers found for the current question.';
-    }
-  
-    const correctOptionIndices = correctOptions.map((correctOption) => {
-      const originalIndex = optionsToDisplay.findIndex(
-        (option) => option.text.trim() === correctOption.text.trim()
-      );
-      return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 to make it 1-based index for display
-    });
-  
-    const uniqueIndices = [...new Set(correctOptionIndices.filter(index => index !== undefined))]; // Remove duplicates and undefined
-  
-    if (uniqueIndices.length === 0) {
-      return 'No correct answers found for the current question.';
-    }
-  
-    const optionsText =
-      uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings =
-      uniqueIndices.length > 1
-        ? uniqueIndices.slice(0, -1).join(', ') +
-          ' and ' +
-          uniqueIndices.slice(-1)
-        : `${uniqueIndices[0]}`;
-  
-    const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
-    return correctMessage;
   }
 
   updateCombinedQuestionData(newData: CombinedQuestionDataType): void {
