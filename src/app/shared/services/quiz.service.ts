@@ -1019,13 +1019,13 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  setCorrectMessage(correctOptions: Option[]): string {  
+  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {  
     if (!correctOptions || correctOptions.length === 0) {
       return 'No correct answers found for the current question.';
     }
   
     const correctOptionIndices = correctOptions.map((correctOption) => {
-      const originalIndex = this.optionsToDisplay.findIndex(
+      const originalIndex = optionsToDisplay.findIndex(
         (option) => option.text.trim() === correctOption.text.trim()
       );
       return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 to make it 1-based index for display
@@ -1048,7 +1048,7 @@ export class QuizService implements OnDestroy {
   
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
     return correctMessage;
-  }  
+  }
 
   updateCombinedQuestionData(newData: CombinedQuestionDataType): void {
     this.combinedQuestionDataSubject.next(newData);

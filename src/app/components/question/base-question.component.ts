@@ -173,7 +173,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
   
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
-      this.correctMessage = this.quizService.setCorrectMessage(correctOptions);
+      this.correctMessage = this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
   
       console.log('Calling formatExplanationText');
       console.log('ExplanationTextService:', this.explanationTextService);
