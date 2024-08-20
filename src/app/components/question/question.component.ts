@@ -692,25 +692,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             throw new Error(`No question found for index ${this.currentQuestionIndex}`);
         }
 
-        // Load the question text and update the UI
         this.currentQuestion = question;
-        this.cdRef.detectChanges(); // Update UI with just the question text
+        this.optionsToDisplay = question.options || [];
 
-        // Incrementally load the options
-        setTimeout(() => {
-            this.optionsToDisplay = question.options || [];
-            this.cdRef.detectChanges(); // Update UI with options
-        }, 100);
+        // Update UI with question text and options
+        this.cdRef.detectChanges(); // Update UI with basic question data
 
-        // Incrementally load the explanation and feedback
+        // Pre-fetch the next two questions
+        this.quizService.getQuestion(this.currentQuestionIndex + 1);
+        this.quizService.getQuestion(this.currentQuestionIndex + 2);
+
+        // Defer explanation text formatting and feedback
         setTimeout(async () => {
-            const [explanationResult, feedbackResult] = await Promise.all([
-                this.prepareAndSetExplanationText(this.currentQuestionIndex),
-                this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct))
-            ]);
+            const explanationResult = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
             if (!signal?.aborted) {
                 this.explanationToDisplay = explanationResult || 'No explanation available';
+
+                const feedbackResult = await this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct));
                 this.feedbackText = feedbackResult || 'No feedback available';
 
                 this.cdRef.detectChanges(); // Final UI update with explanation and feedback
