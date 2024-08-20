@@ -386,7 +386,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     if (document.hidden) {
       try {
         this.saveQuizState();
-        this.clearExplanationText();
+        this.explanationTextService.resetExplanationText();
       } catch (error) {
         console.error('Error while saving quiz state or clearing explanation text:', error);
       }
