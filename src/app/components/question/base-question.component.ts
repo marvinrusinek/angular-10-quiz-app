@@ -26,7 +26,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   @Input() optionsToDisplay: Option[] = [];
   @Input() correctMessage = '';
   @Input() showFeedback = false;
-  @Input() shouldResetBackground = false;
   @Input() type: 'single' | 'multiple' = 'single';
   currentQuestionSubscription: Subscription;
   explanationToDisplay: string;
