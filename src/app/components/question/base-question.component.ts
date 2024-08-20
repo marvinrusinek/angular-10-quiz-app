@@ -154,6 +154,14 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   protected abstract loadDynamicComponent(): void;
 
+  handleOptionClick(option: SelectedOption, index: number): void {
+    this.onOptionClicked(option, index);
+  }
+
+  isSelectedOption(option: Option): boolean {
+    return this.selectedOptionService.isSelectedOption(option);
+  }
+
   protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
       if (this.quizQuestionComponent) {
