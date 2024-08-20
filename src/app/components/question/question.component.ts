@@ -395,11 +395,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.restoreQuizState();
 
         // Update the explanation text when the tab becomes visible again
-        const selectedOption = this.getSelectedOption();
+        const selectedOption = this.selectedOptionService.getSelectedOption();
         if (selectedOption) {
           this.prepareAndSetExplanationText(selectedOption);
         } else {
-          this.clearExplanationText();
+          this.explanationTextService.resetExplanationText();
         }
 
         await this.ngZone.run(async () => {
