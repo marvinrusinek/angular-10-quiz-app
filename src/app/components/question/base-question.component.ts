@@ -56,6 +56,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   ngOnInit(): void {
+    console.log('BQC initialized with question:', this.question);
     console.log('ngOnInit - ExplanationTextService:', this.explanationTextService);
     /* if (this.question) {
       this.quizStateService.setCurrentQuestion(this.question);
@@ -212,5 +213,10 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
+  }
+
+  emitQuestionAnswered() {
+    console.log('Emitting questionAnswered event from BQC');
+    this.questionAnswered.emit();
   }
 }
