@@ -1089,7 +1089,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Simultaneously fetch explanation and feedback
         const [explanationResult, feedbackResult] = await Promise.all([
             this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            Promise.resolve(this.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
+            Promise.resolve(this.quizService.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
         ]);
 
         if (signal?.aborted) {
