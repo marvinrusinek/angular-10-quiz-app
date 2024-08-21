@@ -1566,10 +1566,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
         this.quizService.setCurrentQuestion(this.currentQuestionIndex);
+  
+        // Reset isAnsweredSubject to false before displaying the next question
+        this.isAnsweredSubject.next(false);
+  
+        // Prepare the next question for display
+        await this.prepareQuestionForDisplay(this.currentQuestionIndex);        
+  
+        // Check if the question has already been answered
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         this.selectedOptionService.setAnsweredState(isAnswered);
   
-        await this.prepareQuestionForDisplay(this.currentQuestionIndex);        
+        // Reset UI after preparing the question
         this.resetUI();
       } else {
         console.log('End of quiz reached.');
@@ -1582,7 +1590,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.quizService.setIsNavigatingToPrevious(false);
     }
   }
-
+  
   async advanceToPreviousQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
