@@ -63,7 +63,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     } */
     this.initializeQuestion();
     this.subscribeToQuestionChanges();
-    this.questionAnswered.emit();
+    // this.questionAnswered.emit();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -178,7 +178,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.correctMessage = this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
 
       // Emit the event to notify that the question has been answered
-      this.questionAnswered.emit();
+      // this.questionAnswered.emit();
+
+      console.log('About to emit questionAnswered event from BQC');
+      this.questionAnswered.emit(); // Emit the event
+      console.log('Event emitted from BQC');
   
       console.log('Calling formatExplanationText');
       console.log('ExplanationTextService:', this.explanationTextService);
