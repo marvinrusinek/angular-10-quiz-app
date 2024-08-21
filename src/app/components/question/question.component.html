@@ -16,12 +16,10 @@
 </form>-->
 
 <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
- <!-- <ng-container *ngIf="currentQuestion">-->
-    <app-base-question 
-      [question]="currentQuestion"
-      (questionAnswered)="onQuestionAnswered()">
-    </app-base-question>
-  <!--</ng-container>-->
+  <app-base-question 
+    [question]="currentQuestion"
+    (questionAnswered)="onQuestionAnswered()">
+  </app-base-question>
 
   <ng-container #dynamicComponentContainer></ng-container>
 
