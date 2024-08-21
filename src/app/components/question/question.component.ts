@@ -122,6 +122,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   shouldRenderContainer = true;
   private hasSetInitialMessage = false;
   feedbackText = '';
+  private tabVisible = true;
 
   explanationTextSubject = new BehaviorSubject<string>('');
   feedbackTextSubject = new BehaviorSubject<string>('');
@@ -177,6 +178,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
         this.handlePageVisibilityChange(isHidden);
     }); */
+
+    this.addVisibilityChangeListener();
   
     this.quizService
       .getIsNavigatingToPrevious()
@@ -400,6 +403,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   onQuestionAnswered() {
     console.log('Received questionAnswered event in QuizQuestionComponent, re-emitting to QuizComponent');
     this.questionAnswered.emit(); // Re-emit the event as void
+  }
+
+  addVisibilityChangeListener() {
+    document.addEventListener('visibilitychange', () => {
+      this.tabVisible = !document.hidden;
+      if (this.tabVisible) {
+        console.log('Tab is visible again. Re-checking state...');
+        this.recheckSelectionState();
+      }
+    });
+  }
+
+  recheckSelectionState() {
+    // Recheck the state of the selected options to ensure everything is correct
+    if (this.isAnswerSelected()) {
+      console.log('Answer was already selected. Ensuring the Next button is enabled.');
+      this.isAnsweredSubject.next(true);
+    } else {
+      console.log('No answer selected. Waiting for user interaction.');
+      this.isAnsweredSubject.next(false);
+    }
+  }
+
+  isAnswerSelected(): boolean {
+    // Implement your logic to check if an option is selected.
+    return this.selectedOptions && this.selectedOptions.length > 0;
   }
 
   private saveQuizState(): void {
