@@ -1053,18 +1053,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   } */
-  private async loadQuestion(signal?: AbortSignal): Promise<void> {
+  async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
     this.isLoading = true;
     
-    // Clear previous question data to avoid UI flickering
+    // Clear previous data
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
     this.feedbackText = '';
-
-    // Reset the selection message to avoid flashing
-    this.selectionMessageService.resetMessage();
 
     if (signal?.aborted) {
         console.log('Load question operation aborted.');
@@ -1104,13 +1101,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.explanationToDisplay = explanationResult || 'No explanation available';
         this.feedbackText = feedbackResult || 'No feedback available';
 
-        // Check if the selection message needs to be set for the first time
-        const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
-        if (!currentMessage || currentMessage === 'Please select an option to continue...') {
-            this.setInitialMessage();
-        } else {
-            this.updateSelectionMessage(false);
-        }
+        // Update the selection message
+        this.updateSelectionMessage(false);
 
         this.cdRef.detectChanges(); // Trigger UI update
 
@@ -1123,7 +1115,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
     }
   }
-
  
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     if (document.hidden) {
