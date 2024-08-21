@@ -3,18 +3,6 @@
 
 <!--<ang-music-player [audioList]="audioList"></ang-music-player>-->
 
-<!--<form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
-  <ng-container *ngIf="currentQuestion">
-    <app-base-question [question]="currentQuestion"></app-base-question>
-  </ng-container>
-  <ng-container *ngIf="shouldRenderContainer">
-    <div *ngIf="isLoading" class="loading-spinner"></div>
-    <div *ngIf="shouldDisplayOptions">
-      <ng-template #dynamicComponentContainer></ng-template>
-    </div>
-  </ng-container>
-</form>-->
-
 <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
   <app-base-question 
     [question]="currentQuestion"
