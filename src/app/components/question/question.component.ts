@@ -40,7 +40,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     selectedOptions: Option[];
   }> = new EventEmitter();
   @Output() optionSelected: EventEmitter<boolean> = new EventEmitter<boolean>();
-  @Output() questionAnswered: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() questionAnswered: EventEmitter<void> = new EventEmitter<void>();
   @Output() isAnswerSelectedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() explanationToDisplayChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() showExplanationChange: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -395,6 +395,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       });
     }
+  }
+
+  onQuestionAnswered() {
+    console.log('Received questionAnswered event in QuizQuestionComponent, re-emitting to QuizComponent');
+    this.questionAnswered.emit(); // Re-emit the event as void
   }
 
   private saveQuizState(): void {
