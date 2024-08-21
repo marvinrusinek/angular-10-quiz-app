@@ -63,6 +63,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     } */
     this.initializeQuestion();
     this.subscribeToQuestionChanges();
+    this.questionAnswered.emit();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
