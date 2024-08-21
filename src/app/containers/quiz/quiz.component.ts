@@ -206,7 +206,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.detectChanges(); // Ensure the UI is updated with the restored state
   }
 
-
   async ngOnInit(): Promise<void> {
     this.activatedRoute.paramMap.subscribe(params => {
       const quizId = params.get('quizId');
@@ -258,6 +257,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     } else {
       console.log('SharedOptionComponent ngOnChanges called without optionsToDisplay change');
     }
+  }
+
+  onQuestionAnswered(): void {
+    // Update the isAnswered$ observable to true when a question is answered
+    this.isAnsweredSubject.next(true);
   }
 
   onExplanationToDisplayChange(explanation: string): void {
