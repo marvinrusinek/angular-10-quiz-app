@@ -1185,8 +1185,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }; */
       this.showFeedbackForOption[option.optionId] = true;
 
-      // Call prepareAndSetExplanationText after an option is clicked
-      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+      // Fetch and set the explanation text after an option is clicked
+      this.explanationToDisplay = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
       this.updateFeedbackForOption(option);
       
@@ -1815,28 +1815,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
-    console.log('Calling prepareAndSetExplanationText for questionIndex:', questionIndex);
-
     if (document.hidden) {
-      console.log('Document is hidden, returning placeholder text.');
       return 'Explanation text not available when document is hidden.';
     }
   
     try {
       const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
-      console.log('Fetched questionData:', questionData);
-
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
         const formattedExplanation = await this.getFormattedExplanation(questionData, questionIndex);
-        await this.processExplanationText(questionData, questionIndex);
-        return formattedExplanation.explanation || 'No explanation available';
+        this.explanationToDisplay = formattedExplanation.explanation || 'No explanation available';
+        return this.explanationToDisplay;
       } else {
         console.error('Error: questionData or explanation is undefined');
-        return 'No explanation available.';
+        this.explanationToDisplay = 'No explanation available.';
+        return this.explanationToDisplay;
       }
     } catch (error) {
       console.error('Error in fetching explanation text:', error);
-      return 'Error fetching explanation.';
+      this.explanationToDisplay = 'Error fetching explanation.';
+      return this.explanationToDisplay;
     }
   }
   
