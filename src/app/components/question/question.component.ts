@@ -1188,8 +1188,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Fetch and set the explanation text after an option is clicked
       this.explanationToDisplay = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
-      // Enable the Next button by setting isLoading to false
-      this.isLoading = false;
+      // Set answered state to true and loading state to false
+      this.quizStateService.setAnswered(true);
+      this.quizStateService.setLoading(false);
 
       this.updateFeedbackForOption(option);
       
