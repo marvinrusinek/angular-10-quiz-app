@@ -259,13 +259,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  onQuestionAnswered(): void {
-    // Update the isAnswered$ observable to true when a question is answered
-    console.log('QuizComponent: Received questionAnswered event');
-    console.log('Received questionAnswered event in QuizComponent, isAnswered$ updated to true');
-    this.isAnsweredSubject.next(true);
-  }
-
   onExplanationToDisplayChange(explanation: string): void {
     this.explanationToDisplay = explanation;
   }
