@@ -1192,6 +1192,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.quizStateService.setAnswered(true);
       this.quizStateService.setLoading(false);
 
+      this.cdRef.detectChanges();
+
       this.updateFeedbackForOption(option);
       
       console.log(
