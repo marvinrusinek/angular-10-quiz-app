@@ -1184,6 +1184,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         [option.optionId]: true 
       }; */
       this.showFeedbackForOption[option.optionId] = true;
+
+      // Call prepareAndSetExplanationText after an option is clicked
+      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+
       this.updateFeedbackForOption(option);
       
       console.log(
@@ -1252,9 +1256,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       );
 
       this.selectionMessageService.updateSelectionMessage(newMessage);
-
-      // Call prepareAndSetExplanationText after an option is clicked
-      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
       /* if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
