@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Inject, Input, OnInit, OnChanges, OnDestroy, Optional, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Inject, Input, OnInit, OnChanges, OnDestroy, Optional, Output, QueryList, SimpleChanges, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
@@ -18,8 +18,8 @@ import { QuizQuestionComponent } from '../../components/question/question.compon
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  protected quizQuestionComponent: QuizQuestionComponent | null;
-
+  // protected quizQuestionComponent: QuizQuestionComponent | null;
+  @ViewChildren(QuizQuestionComponent) quizQuestionComponents: QueryList<QuizQuestionComponent>;
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
   dynamicComponentContainer!: ViewContainerRef;
   @Output() explanationToDisplayChange = new EventEmitter<string>();
@@ -51,7 +51,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     protected selectedOptionService: SelectedOptionService,
     protected cdRef: ChangeDetectorRef
   ) {
-    this.quizQuestionComponent = quizQuestionComponent;
+    // this.quizQuestionComponent = quizQuestionComponent;
     console.log('Constructor - ExplanationTextService:', this.explanationTextService);
     if (!this.fb || typeof this.fb.group !== 'function') {
       console.error('FormBuilder group method is not a function or FormBuilder is not instantiated properly:', this.fb);
