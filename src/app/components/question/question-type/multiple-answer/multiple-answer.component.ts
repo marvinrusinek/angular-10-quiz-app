@@ -1,10 +1,11 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
+import { QuizQuestionComponent } from '../../../../components/question/question.component';
 
 @Component({
   selector: 'codelab-question-multiple-answer',
@@ -15,6 +16,7 @@ import { SelectedOptionService } from '../../../../shared/services/selectedoptio
   ]
 })
 export class MultipleAnswerComponent extends BaseQuestionComponent {
+  @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
 
