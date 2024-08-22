@@ -1815,15 +1815,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
+    console.log('Preparing explanation text for question index:', questionIndex);
+    
     if (document.hidden) {
+      console.log('Document is hidden, returning placeholder text.');
       return 'Explanation text not available when document is hidden.';
     }
   
     try {
       const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
+      console.log('Fetched question data:', questionData);
+      
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
         const formattedExplanation = await this.getFormattedExplanation(questionData, questionIndex);
         this.explanationToDisplay = formattedExplanation.explanation || 'No explanation available';
+        console.log('Explanation set to:', this.explanationToDisplay);
         return this.explanationToDisplay;
       } else {
         console.error('Error: questionData or explanation is undefined');
