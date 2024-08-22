@@ -214,9 +214,4 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       console.error('An error occurred while processing the option click:', error);
     }
   }
-
-  emitQuestionAnswered() {
-    console.log('Emitting questionAnswered event from BQC');
-    this.questionAnswered.emit();
-  }
 }
