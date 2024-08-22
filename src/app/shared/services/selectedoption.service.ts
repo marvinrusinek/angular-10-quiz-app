@@ -19,7 +19,7 @@ export class SelectedOptionService {
 
   private isOptionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  private isAnsweredSubject = new BehaviorSubject<boolean>(false);
+  isAnsweredSubject = new BehaviorSubject<boolean>(false);
   isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable();
 
   private showFeedbackForOptionSubject = new BehaviorSubject<{ [optionId: number]: boolean }>({});
