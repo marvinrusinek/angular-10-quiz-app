@@ -1,8 +1,8 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentFactoryResolver, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, forkJoin, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, finalize, map, switchMap, take, takeUntil } from 'rxjs/operators';
+import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
@@ -286,7 +286,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.initializeQuizQuestion();
       await this.handleQuestionState();
       // this.loadOptions();
-      super.setCorrectMessage([]);
+      // super.setCorrectMessage([]);
 
       // Subscribe to selectionMessage$ to update the message displayed in the template
       this.selectionMessageService.selectionMessage$
@@ -1134,7 +1134,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   async getFeedbackText(currentQuestion: QuizQuestion): Promise<string> {
     const correctOptions = currentQuestion.options.filter(option => option.correct);
-    return this.setCorrectMessage(correctOptions);
+    return this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
   }
 
   async prepareAndSetFeedbackText(question: QuizQuestion): Promise<string> {
@@ -1143,7 +1143,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     const correctOptions = question.options.filter(option => option.correct);
-    return this.setCorrectMessage(correctOptions);
+    return this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
   }
 
   async prepareFeedbackText(question: QuizQuestion): Promise<string> {
