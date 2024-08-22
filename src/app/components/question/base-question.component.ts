@@ -18,8 +18,7 @@ import { QuizQuestionComponent } from '../../components/question/question.compon
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  // protected quizQuestionComponent: QuizQuestionComponent | null;
-  @ViewChildren(QuizQuestionComponent) quizQuestionComponents: QueryList<QuizQuestionComponent>;
+  @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
   dynamicComponentContainer!: ViewContainerRef;
   @Output() explanationToDisplayChange = new EventEmitter<string>();
@@ -88,6 +87,12 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   ngAfterViewInit(): void {
+    if (this.quizQuestionComponent) {
+      console.log('QuizQuestionComponent is available');
+    } else {
+      console.error('QuizQuestionComponent is not available');
+    }
+
     console.log('dynamicComponentContainer:::', this.dynamicComponentContainer);
     if (this.dynamicComponentContainer !== undefined) {
       console.log('dynamicComponentContainer is defined:', this.dynamicComponentContainer);
