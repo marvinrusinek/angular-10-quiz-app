@@ -1916,7 +1916,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     await this.processAnswer(selectedOption);
   
     // Emit an event to notify QuizComponent that processing is complete
-    this.questionAnswered.emit(true);
+    this.questionAnswered.emit();
   }
   
   private validateForm(): boolean {
