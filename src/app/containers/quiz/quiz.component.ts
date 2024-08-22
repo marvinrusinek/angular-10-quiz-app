@@ -186,7 +186,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.refreshQuestionOnReset();
       })
     );
-  } 
+
+    this.isLoading$.subscribe(isLoading => {
+      console.log('isLoading in QuizComponent:', isLoading);
+    });
+  
+    this.isAnswered$.subscribe(isAnswered => {
+      console.log('isAnswered in QuizComponent:', isAnswered);
+    });
+  }
 
   @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
