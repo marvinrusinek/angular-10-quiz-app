@@ -10,7 +10,7 @@ import { ExplanationTextService } from '../../shared/services/explanation-text.s
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
-import { QuizQuestionComponent } from '../../components/question/question.component';
+import { QuizQuestionComponent } from './question.component';
 
 @Component({
   selector: 'app-base-question',
