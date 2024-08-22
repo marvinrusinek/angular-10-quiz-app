@@ -1775,13 +1775,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('Updated showFeedbackForOption after highlighting correct answers:', this.showFeedbackForOption);
       }
 
-      if (this.currentQuestion.type === QuestionType.Multiple) {
-        option.selected = !option.selected;
-        this.selectedOptionService.updateSelectedOptions(option);
-      } else {
-        this.selectedOption = option;
-      }
-
       this.updateSelectedOption(option);
       this.selectedOptionService.setOptionSelected(true);
       this.selectedOptionService.setSelectedOption(option);

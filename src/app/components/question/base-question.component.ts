@@ -19,7 +19,6 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
   dynamicComponentContainer!: ViewContainerRef;
-  @Output() questionAnswered = new EventEmitter<void>();
   @Output() explanationToDisplayChange = new EventEmitter<string>();
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number }>();
   @Input() question!: QuizQuestion;
@@ -177,13 +176,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
       this.correctMessage = this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
-
-      // Emit the event to notify that the question has been answered
-      // this.questionAnswered.emit();
-
-      console.log('About to emit questionAnswered event from BQC');
-      this.questionAnswered.emit(); // Emit the event
-      console.log('Event emitted from BQC');
   
       console.log('Calling formatExplanationText');
       console.log('ExplanationTextService:', this.explanationTextService);
