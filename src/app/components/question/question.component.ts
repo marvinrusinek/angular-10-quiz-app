@@ -1811,9 +1811,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       this.processCurrentQuestionState(currentQuestion, option, index);
 
-      const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
-      this.correctMessage = super.setCorrectMessage(correctOptions);
-
       await this.handleCorrectnessAndTimer();
     } catch (error) {
       console.error(
