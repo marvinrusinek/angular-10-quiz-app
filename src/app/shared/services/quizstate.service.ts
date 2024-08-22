@@ -232,6 +232,14 @@ export class QuizStateService {
     });
   }
 
+  setLoading(isLoading: boolean) {
+    this.isLoadingSubject.next(isLoading);
+  }
+
+  setAnswered(isAnswered: boolean) {
+    this.isAnsweredSubject.next(isAnswered);
+  }
+
   setQuizQuestionCreated(): void {
     this.quizQuestionCreated = true;
   }
