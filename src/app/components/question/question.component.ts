@@ -1185,8 +1185,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }; */
       this.showFeedbackForOption[option.optionId] = true;
       this.updateFeedbackForOption(option);
-
-      // this.correctMessage = super.setCorrectMessage(this.optionsToDisplay);
       
       console.log(
         'onOptionClicked - showFeedbackForOption:',
@@ -1255,6 +1253,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       this.selectionMessageService.updateSelectionMessage(newMessage);
 
+      // Call prepareAndSetExplanationText after an option is clicked
+      await this.prepareAndSetExplanationText(this.currentQuestionIndex);
 
       /* if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
@@ -1814,12 +1814,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
+    console.log('Calling prepareAndSetExplanationText for questionIndex:', questionIndex);
+
     if (document.hidden) {
+      console.log('Document is hidden, returning placeholder text.');
       return 'Explanation text not available when document is hidden.';
     }
   
     try {
       const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
+      console.log('Fetched questionData:', questionData);
+
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
         const formattedExplanation = await this.getFormattedExplanation(questionData, questionIndex);
         await this.processExplanationText(questionData, questionIndex);
@@ -1833,7 +1838,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       return 'Error fetching explanation.';
     }
   }
-  
   
   private async processExplanationText(
     questionData: QuizQuestion,
