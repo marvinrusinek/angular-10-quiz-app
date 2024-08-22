@@ -1168,6 +1168,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     this.showFeedbackForOption[index] = true;
     this.quizStateService.setLoading(true);
+    console.log('isLoading set to true');
     try {
       if (!option) {
         console.error('Option is undefined');
@@ -1190,7 +1191,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       // Set answered state to true and loading state to false
       this.quizStateService.setAnswered(true);
+      console.log('isAnswered set to true');
+    
       this.quizStateService.setLoading(false);
+      console.log('isLoading set to false');
 
       this.cdRef.detectChanges();
 
