@@ -6,6 +6,7 @@ import { catchError, debounceTime, distinctUntilChanged, filter, finalize, map, 
 
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
+import { QuestionType } from '../../shared/models/question-type.enum';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -1772,6 +1773,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         });
 
         console.log('Updated showFeedbackForOption after highlighting correct answers:', this.showFeedbackForOption);
+      }
+
+      if (this.currentQuestion.type === QuestionType.Multiple) {
+        option.selected = !option.selected;
+        this.updateSelectedOptions(option);
+      } else {
+        this.selectedOption = option;
       }
 
       this.updateSelectedOption(option);
