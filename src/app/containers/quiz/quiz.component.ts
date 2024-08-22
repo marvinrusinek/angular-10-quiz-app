@@ -135,9 +135,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private navigationAbortController: AbortController | null = null;
   nextButtonTooltip$: Observable<string>;
 
-  private isAnsweredSubject = new BehaviorSubject<boolean>(false);
-  isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable();
-  // isAnswered$: Observable<boolean>;
+  /* private isAnsweredSubject = new BehaviorSubject<boolean>(false);
+  isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable(); */
+
+  isLoading$ = this.quizStateService.isLoading$;
+  isAnswered$ = this.quizStateService.isAnswered$;
 
   shouldDisplayCorrectAnswers = false;
 
