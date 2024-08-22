@@ -1191,7 +1191,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       // Set answered state to true and loading state to false
       this.quizStateService.setAnswered(true);
-      console.log('Setting isAnswered to true in QuizQuestionComponent');
       this.quizStateService.setLoading(false);
 
       this.cdRef.detectChanges();
