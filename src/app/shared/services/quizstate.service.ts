@@ -249,7 +249,7 @@ export class QuizStateService {
   }
 
   resetState(): void {
-    this.currentQuestionIndex.next(0);
+    this.currentQuestionIndex$.next(0);
     this.quizQuestionCreated = false;
   }
 }
