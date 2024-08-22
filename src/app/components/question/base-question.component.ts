@@ -18,7 +18,6 @@ import { QuizQuestionComponent } from './question.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
   dynamicComponentContainer!: ViewContainerRef;
   @Output() explanationToDisplayChange = new EventEmitter<string>();
