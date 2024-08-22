@@ -100,7 +100,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   correctOptionIndex: number;
   shuffleOptions = true;
   shuffledOptions: Option[];
-  explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   feedbackIcon: string;
   feedbackVisible: { [optionId: number]: boolean } = {};
   showFeedbackForOption: { [optionId: number]: boolean } = {};
