@@ -560,9 +560,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         // Simultaneously fetch explanation and feedback
         const [explanationResult, feedbackResult] = await Promise.all([
-            this.prepareAndSetExplanationText(this.currentQuestionIndex),
-            Promise.resolve(this.quizService.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct)))
-        ]);
+          this.prepareAndSetExplanationText(this.currentQuestionIndex),
+          Promise.resolve(this.quizService.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct), this.optionsToDisplay))
+        ]);        
 
         if (signal?.aborted) {
             console.log('Load question operation aborted before setting texts.');
