@@ -2367,7 +2367,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
         await this.processExplanationText(questionData, questionIndex);
-        return this.explanationTextService.getExplanationText(questionIndex);
+        return this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
       } else {
         console.error('Error: questionData or explanation is undefined');
         return 'No explanation available.';
