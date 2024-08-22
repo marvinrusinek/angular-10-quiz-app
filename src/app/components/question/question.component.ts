@@ -416,14 +416,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     });
   }
 
-  recheckSelectionState() {
+  recheckSelectionState(): void {
     // Recheck the state of the selected options to ensure everything is correct
     if (this.isAnswerSelected()) {
       console.log('Answer was already selected. Ensuring the Next button is enabled.');
-      this.isAnsweredSubject.next(true);
+      this.selectedOptionService.isAnsweredSubject.next(true);
     } else {
       console.log('No answer selected. Waiting for user interaction.');
-      this.isAnsweredSubject.next(false);
+      this.selectedOptionService.isAnsweredSubject.next(false);
     }
   }
 
@@ -637,7 +637,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   private async generateFeedbackText(question: QuizQuestion): Promise<string> {
     const correctOptions = question.options.filter(option => option.correct);
-    return this.setCorrectMessage(correctOptions);
+    return this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
   }
   
   private resetTexts(): void {
