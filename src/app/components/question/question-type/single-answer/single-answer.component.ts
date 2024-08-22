@@ -5,7 +5,6 @@ import { FormBuilder } from '@angular/forms';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
-import { QuizQuestionComponent } from '../../../../components/question/question.component';
 
 @Component({
   selector: 'codelab-question-single-answer',
@@ -16,19 +15,16 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
   ]
 })
 export class SingleAnswerComponent extends BaseQuestionComponent {
-  @ViewChild(QuizQuestionComponent) quizQuestionComponent: QuizQuestionComponent;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
 
   constructor(
-    @Optional() @Inject(forwardRef(() => QuizQuestionComponent))
-    protected quizQuestionComponent: QuizQuestionComponent | null,
     protected quizService: QuizService,
     protected selectedOptionService: SelectedOptionService,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
   ) {
-    super(quizQuestionComponent, quizService, selectedOptionService, fb, cdRef);
+    super(quizService, selectedOptionService, fb, cdRef);
   }
 
   loadDynamicComponent(): void {}

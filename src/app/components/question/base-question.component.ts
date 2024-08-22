@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Inject, Input, OnInit, OnChanges, OnDestroy, Optional, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
@@ -18,7 +18,8 @@ import { QuizQuestionComponent } from '../../components/question/question.compon
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  @ViewChild(QuizQuestionComponent) quizQuestionComponent: QuizQuestionComponent;
+  protected quizQuestionComponent: QuizQuestionComponent | null;
+
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
   dynamicComponentContainer!: ViewContainerRef;
   @Output() explanationToDisplayChange = new EventEmitter<string>();
@@ -40,6 +41,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   private containerInitialized = false;
 
   constructor(
+    @Optional() @Inject(forwardRef(() => QuizQuestionComponent))
+    quizQuestionComponent: QuizQuestionComponent | null,
     protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
     protected explanationTextService: ExplanationTextService,
@@ -48,6 +51,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     protected selectedOptionService: SelectedOptionService,
     protected cdRef: ChangeDetectorRef
   ) {
+    this.quizQuestionComponent = quizQuestionComponent;
     console.log('Constructor - ExplanationTextService:', this.explanationTextService);
     if (!this.fb || typeof this.fb.group !== 'function') {
       console.error('FormBuilder group method is not a function or FormBuilder is not instantiated properly:', this.fb);
