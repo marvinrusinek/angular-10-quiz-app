@@ -34,8 +34,7 @@ export class FeedbackComponent implements OnChanges {
     if (!this.selectedOption) {
       return '';
     }
-    console.log('Selected option:', this.selectedOption);
-    console.log('Correct message:', this.correctMessage);
+    
     return this.selectedOption.correct
       ? "You're right! " 
       : "That's wrong. ";
