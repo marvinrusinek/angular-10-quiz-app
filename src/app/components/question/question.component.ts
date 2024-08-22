@@ -1777,7 +1777,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       if (this.currentQuestion.type === QuestionType.Multiple) {
         option.selected = !option.selected;
-        this.updateSelectedOptions(option);
+        this.selectedOptionService.updateSelectedOptions(option);
       } else {
         this.selectedOption = option;
       }
