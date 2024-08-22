@@ -5,8 +5,7 @@
 
 <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
   <app-base-question 
-    [question]="currentQuestion"
-    (questionAnswered)="onQuestionAnswered()">
+    [question]="currentQuestion">
   </app-base-question>
 
   <ng-container #dynamicComponentContainer></ng-container>
