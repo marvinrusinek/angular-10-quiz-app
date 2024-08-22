@@ -428,7 +428,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   isAnswerSelected(): boolean {
-    // Implement your logic to check if an option is selected.
     return this.selectedOptions && this.selectedOptions.length > 0;
   }
 
@@ -1802,7 +1801,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     // Retrieve correct answers and set correct message
     const correctAnswers = this.optionsToDisplay.filter((opt) => opt.correct);
-    super.setCorrectMessage(correctAnswers);
+    this.quizService.setCorrectMessage(correctAnswers, this.optionsToDisplay);
   }
   
   unselectOption(): void {
