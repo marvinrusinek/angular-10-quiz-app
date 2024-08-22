@@ -5,7 +5,6 @@ import { FormBuilder } from '@angular/forms';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
-import { QuizQuestionComponent } from '../../../../components/question/question.component';
 
 @Component({
   selector: 'codelab-question-multiple-answer',
@@ -16,7 +15,6 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
   ]
 })
 export class MultipleAnswerComponent extends BaseQuestionComponent {
-  @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
 
