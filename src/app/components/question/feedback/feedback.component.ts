@@ -24,7 +24,7 @@ export class FeedbackComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.selectedOption || changes.correctMessage || changes.showFeedback) {
+    if (changes.selectedOption || changes.correctMessage || changes.showFeedback || changes.feedback) {
       this.feedbackMessageClass = this.determineFeedbackMessageClass();
       this.feedback = this.displayFeedbackMessage();
     }
