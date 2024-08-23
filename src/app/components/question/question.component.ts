@@ -200,6 +200,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
 
+    this.quizStateService.setLoading(true);
+
     // Ensure optionsToDisplay is correctly set
     this.optionsToDisplay = this.options;
       
@@ -1170,8 +1172,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     this.showFeedbackForOption[index] = true;
-    this.quizStateService.setLoading(true);
-    console.log('isLoading set to true');
+
     try {
       if (!option) {
         console.error('Option is undefined');
