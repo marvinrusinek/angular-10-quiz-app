@@ -1197,7 +1197,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.cdRef.detectChanges(); // Ensure UI updates
 
       // Update the state to indicate that the explanation should be displayed
-      this.quizStateService.updateQuestionStateForExplanation(this.quizId, this.currentQuestionIndex);
+      const correctAnswersCount = this.correctAnswers.length;
+      this.quizStateService.updateQuestionState(
+        this.quizId,
+        this.currentQuestionIndex,
+        { explanationDisplayed: true },
+        correctAnswersCount
+      );
 
       // Set answered state to true and loading state to false
       this.quizStateService.setAnswered(true);
