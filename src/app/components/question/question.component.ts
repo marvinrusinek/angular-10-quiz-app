@@ -1192,17 +1192,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       // Fetch and set the explanation text after an option is clicked
       this.explanationToDisplay = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-      console.log('Explanation text set to:', this.explanationToDisplay);
-      this.cdRef.detectChanges(); // Ensure UI updates
 
       // Update the state to indicate that the explanation should be displayed
-      const correctAnswersCount = this.correctAnswers.length;
       this.quizStateService.updateQuestionState(
         this.quizId,
         this.currentQuestionIndex,
-        { explanationDisplayed: true },
-        correctAnswersCount
+        { explanationDisplayed: true, selectedOptions: [option] }, // Update with the selected option
+        this.correctAnswers.length
       );
+      console.log('Question state updated with explanationDisplayed: true');
 
       // Set answered state to true and loading state to false
       this.quizStateService.setAnswered(true);
