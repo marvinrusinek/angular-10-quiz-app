@@ -1191,8 +1191,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.showFeedbackForOption[option.optionId] = true;
 
       // Fetch and set the explanation text after an option is clicked
-      // this.explanationToDisplay = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-      this.explanationToDisplay = 'Example explanation text';
+      this.explanationToDisplay = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
       console.log('Explanation text set to:', this.explanationToDisplay);
       this.cdRef.detectChanges(); // Ensure UI updates
 
