@@ -171,6 +171,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   ) {
    super(fb, dynamicComponentService, quizStateService, selectedOptionService, cdRef);
 
+   console.log('QuizStateService injected:', !!this.quizStateService);
+
+
     this.questionForm = this.fb.group({});
   
     /* this.sharedVisibilitySubscription =
