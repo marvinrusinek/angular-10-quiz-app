@@ -753,7 +753,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         if (displayExplanation && formattedExplanation) {
           textToDisplay = formattedExplanation;
           this.shouldDisplayCorrectAnswers = false;
-        } else if (nextQuestion) {
+        } else {
           textToDisplay = this.questionToDisplay || '';
           this.shouldDisplayCorrectAnswers = !displayExplanation && isMultipleAnswer;
         }
