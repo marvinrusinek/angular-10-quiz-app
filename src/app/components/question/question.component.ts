@@ -1197,7 +1197,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.quizStateService.updateQuestionState(
         this.quizId,
         this.currentQuestionIndex,
-        { explanationDisplayed: true, selectedOptions: [option] }, // Update with the selected option
+        { explanationDisplayed: true, selectedOptions: [option] },
         this.correctAnswers.length
       );
       console.log('Question state updated with explanationDisplayed: true');
