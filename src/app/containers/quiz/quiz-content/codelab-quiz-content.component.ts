@@ -737,6 +737,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     );
   }
   
+  
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
@@ -752,7 +753,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         if (displayExplanation && formattedExplanation) {
           textToDisplay = formattedExplanation;
           this.shouldDisplayCorrectAnswers = false;
-        } else {
+        } else if (nextQuestion) {
           textToDisplay = this.questionToDisplay || '';
           this.shouldDisplayCorrectAnswers = !displayExplanation && isMultipleAnswer;
         }
