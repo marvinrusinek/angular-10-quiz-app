@@ -17,9 +17,10 @@ export class ExplanationTextService {
   currentQuestionExplanation: string | null = null;
   
   formattedExplanations: Record<number, FormattedExplanation> = {};
-  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
   private formattedExplanationSubject = new BehaviorSubject<string>('');
+  // formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  formattedExplanation$: BehaviorSubject<string> = this.formattedExplanationSubject.asObservable();
   processedQuestions: Set<string> = new Set<string>();
 
   private explanationsUpdated = new BehaviorSubject<Record<number, FormattedExplanation>>(this.formattedExplanations);
