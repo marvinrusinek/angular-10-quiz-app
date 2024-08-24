@@ -118,11 +118,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   ngOnInit(): void {
-    console.log('ngOnInit triggered in CodelabQuizContentComponent');
-    this.explanationTextService.formattedExplanation$.subscribe(explanationText => {
-      console.log('formattedExplanation$ emitted::::>>>>', explanationText);
-    });
-
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
