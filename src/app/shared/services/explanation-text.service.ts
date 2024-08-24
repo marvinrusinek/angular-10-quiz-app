@@ -19,6 +19,7 @@ export class ExplanationTextService {
   formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
+  private formattedExplanationSubject = new BehaviorSubject<string>('');
   processedQuestions: Set<string> = new Set<string>();
 
   private explanationsUpdated = new BehaviorSubject<Record<number, FormattedExplanation>>(this.formattedExplanations);
@@ -144,6 +145,10 @@ export class ExplanationTextService {
     this.processedQuestions.add(questionKey);
 
     return of({ questionIndex, explanation: formattedExplanation });
+  }
+
+  updateFormattedExplanation(explanation: string): void {
+    this.formattedExplanationSubject.next(explanation);
   }
 
   // Method to sanitize explanation text
