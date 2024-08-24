@@ -139,7 +139,7 @@ export class ExplanationTextService {
 
     this.storeFormattedExplanation(questionIndex, formattedExplanation, question);
     this.syncFormattedExplanationState(questionIndex, formattedExplanation);
-    this.setFormattedExplanation(formattedExplanation);
+    this.updateFormattedExplanation(formattedExplanation);
 
     const questionKey = JSON.stringify(question);
     this.processedQuestions.add(questionKey);
@@ -228,10 +228,6 @@ export class ExplanationTextService {
     } else {
       console.error(`No element at index ${questionIndex} in formattedExplanations$`);
     }
-  }
-
-  setFormattedExplanation(newExplanation: string): void {
-    this.formattedExplanation$.next(newExplanation);
   }
 
   getFormattedExplanation(questionIndex: number): Observable<string> {
