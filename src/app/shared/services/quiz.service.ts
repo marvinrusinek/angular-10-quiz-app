@@ -526,7 +526,7 @@ export class QuizService implements OnDestroy {
           const questions = selectedQuiz.questions;
   
           // Add optionId to each option if options are defined
-          questions.forEach((question, qIndex) => {
+          for (const [qIndex, question] of questions.entries()) {
             if (question.options && Array.isArray(question.options)) {
               question.options = question.options.map((option, oIndex) => ({
                 ...option,
@@ -537,7 +537,7 @@ export class QuizService implements OnDestroy {
               console.log('Question index:', qIndex, 'Question:', question);
               question.options = [];  // Initialize as an empty array to prevent further errors
             }
-          });
+          }          
   
           this.questionsSubject.next(questions); // Update BehaviorSubject with new data
         }),
