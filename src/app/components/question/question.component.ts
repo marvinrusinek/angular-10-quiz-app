@@ -1169,7 +1169,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.showFeedbackForOption = {};
   }
   
-  async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     console.log('onOptionClicked triggered with option:', option, 'index:', index);
 
     try {
