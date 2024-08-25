@@ -1155,7 +1155,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
   
-  private resetState(): void {
+  public resetState(): void {
     this.resetFeedback();
     this.selectedOptionService.clearOptions();
   }
