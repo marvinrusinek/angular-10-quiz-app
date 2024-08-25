@@ -100,9 +100,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.selectedOption && this.selectedOption.optionId === option.optionId;
   }
 
-  onOptionClicked(option: Option, index: number): void {
+  /* onOptionClicked(option: Option, index: number): void {
     this.optionClicked.emit({ option, index });
-  }
+  } */
 
   handleOptionClick(option: SelectedOption, index: number): void {
     console.log('handleOptionClick called in SharedOptionComponent', option, index);
