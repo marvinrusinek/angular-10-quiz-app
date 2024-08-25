@@ -898,13 +898,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.questions$.subscribe(questions => {
       if (questions) {
+        this.currentQuestionIndex = 0;
+
         // Reset and set initial state for each question
-        questions.forEach((question, index) => {
+        for (const [index, question] of questions.entries()) {
           const defaultState: QuestionState = this.quizStateService.createDefaultQuestionState();
           this.quizStateService.setQuestionState(this.quizId, index, defaultState);
-        });
-
-        this.currentQuestionIndex = 0;
+        }
       }
     });
 
@@ -1486,26 +1486,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       const currentQuestionObservable: Observable<QuizQuestion[]> =
         this.quizDataService.getQuestionsForQuiz(quizId);
 
-      currentQuestionObservable.subscribe((currentQuestions) => {
-        if (currentQuestions && currentQuestions.length > 0) {
-          currentQuestions.forEach((currentQuestion) => {
-            if (currentQuestion && currentQuestion.options) {
-              const correctAnswerOptions: Option[] =
-                currentQuestion.options.filter((option) => option.correct);
-
-              this.quizDataService.setQuestionType(currentQuestion);
-
-              // Display the question and options on the screen for each question
-              this.currentQuestion = currentQuestion;
-              this.options = currentQuestion.options;
-            } else {
-              console.log('Current question or options are undefined.');
+        currentQuestionObservable.subscribe((currentQuestions) => {
+          if (currentQuestions && currentQuestions.length > 0) {
+            for (const currentQuestion of currentQuestions) {
+              if (currentQuestion && currentQuestion.options) {
+                const correctAnswerOptions: Option[] =
+                  currentQuestion.options.filter((option) => option.correct);
+        
+                this.quizDataService.setQuestionType(currentQuestion);
+        
+                // Display the question and options on the screen for each question
+                this.currentQuestion = currentQuestion;
+                this.options = currentQuestion.options;
+              } else {
+                console.log('Current question or options are undefined.');
+              }
             }
-          });
-        } else {
-          console.log('No questions found for the quiz.');
+          } else {
+            console.log('No questions found for the quiz.');
+          }
         }
-      });
+      );        
     } catch (error) {
       console.error('Error fetching and displaying the questions:', error);
     }
