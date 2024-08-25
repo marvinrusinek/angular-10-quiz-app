@@ -836,17 +836,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.questions = of(questions);
   
         // Ensure option IDs are set
-        questions.forEach((question, qIndex) => {
+        for (const [qIndex, question] of questions.entries()) {
           if (question.options) {
-            question.options.forEach((option, oIndex) => {
+            for (const [oIndex, option] of question.options.entries()) {
               option.optionId = oIndex;
-            });
+            }
           } else {
             console.error(
               `Options are not properly defined for question: ${question.questionText}`
             );
           }
-        });
+        }        
   
         // Handle explanation texts for previously answered questions
         questions.forEach((question, index) => {
