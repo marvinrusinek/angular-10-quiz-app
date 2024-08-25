@@ -149,8 +149,10 @@ export class ExplanationTextService {
   }
 
   updateFormattedExplanation(explanation: string): void {
+    console.log('updateFormattedExplanation called with:', explanation);
     this.formattedExplanationSubject.next(explanation);
-  }
+    console.log('formattedExplanationSubject current value:', this.formattedExplanationSubject.getValue());
+  }  
 
   // Method to sanitize explanation text
   private sanitizeExplanation(explanation: string): string {

@@ -1191,8 +1191,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       // Fetch and set the explanation text after an option is clicked
       const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+      
       // Update the explanation text in ExplanationTextService
       this.explanationTextService.updateFormattedExplanation(explanationText);
+
       this.explanationTextService.formattedExplanation$.subscribe((text) => {
         console.log('After update, formattedExplanation$ emitted:::', text);
       });
