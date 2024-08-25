@@ -539,55 +539,54 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.feedbackText = '';
 
     if (signal?.aborted) {
-        console.log('Load question operation aborted.');
-        this.isLoading = false;
-        return;
+      console.log('Load question operation aborted.');
+      this.isLoading = false;
+      return;
     }
 
     try {
-        // Slight delay to simulate async loading
-        await new Promise(resolve => setTimeout(resolve, 50));
+      // Slight delay to simulate async loading
+      await new Promise(resolve => setTimeout(resolve, 50));
 
-        if (signal?.aborted) {
-            console.log('Load question operation aborted after delay.');
-            this.isLoading = false;
-            return;
-        }
+      if (signal?.aborted) {
+        console.log('Load question operation aborted after delay.');
+        this.isLoading = false;
+        return;
+      }
 
-        this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
-        if (!this.currentQuestion) {
-            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-        }
+      this.currentQuestion = this.quizService.getQuestion(this.currentQuestionIndex);
+      if (!this.currentQuestion) {
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
 
-        this.optionsToDisplay = this.currentQuestion.options || [];
+      this.optionsToDisplay = this.currentQuestion.options || [];
 
-        // Simultaneously fetch explanation and feedback
-        const [explanationResult, feedbackResult] = await Promise.all([
-          this.prepareAndSetExplanationText(this.currentQuestionIndex),
-          Promise.resolve(this.quizService.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct), this.optionsToDisplay))
-        ]);        
+      // Simultaneously fetch explanation and feedback
+      const [explanationResult, feedbackResult] = await Promise.all([
+        this.prepareAndSetExplanationText(this.currentQuestionIndex),
+        Promise.resolve(this.quizService.setCorrectMessage(this.currentQuestion.options.filter(option => option.correct), this.optionsToDisplay))
+      ]);        
 
-        if (signal?.aborted) {
-            console.log('Load question operation aborted before setting texts.');
-            this.isLoading = false;
-            return;
-        }
+      if (signal?.aborted) {
+        console.log('Load question operation aborted before setting texts.');
+        this.isLoading = false;
+        return;
+      }
 
-        this.explanationToDisplay = explanationResult || 'No explanation available';
-        this.feedbackText = feedbackResult || 'No feedback available';
+      this.explanationToDisplay = explanationResult || 'No explanation available';
+      this.feedbackText = feedbackResult || 'No feedback available';
 
-        // Update the selection message
-        this.updateSelectionMessage(false);
+      // Update the selection message
+      this.updateSelectionMessage(false);
 
-        this.cdRef.detectChanges(); // Trigger UI update
-
+      this.cdRef.detectChanges(); // Trigger UI update
     } catch (error) {
-        console.error('Error loading question:', error);
+      console.error('Error loading question:', error);
     } finally {
-        if (!signal?.aborted) {
-            this.isLoading = false;
-            this.cdRef.detectChanges();
-        }
+      if (!signal?.aborted) {
+        this.isLoading = false;
+        this.cdRef.detectChanges();
+      }
     }
   }
 
