@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, In
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
@@ -228,13 +228,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }
     });
 
-    /* this.buttonState$ = combineLatest([
+    this.buttonState$ = combineLatest([
         this.quizStateService.isLoading$,
         this.quizStateService.isAnswered$
     ]).pipe(
         map(([isLoading, isAnswered]) => !isLoading && isAnswered),
         startWith(false) // Initially disabled
-    ); */
+    );
 
     this.subscribeToSelectionMessage();
 
