@@ -14,13 +14,13 @@ export class ExplanationTextService {
     new BehaviorSubject<string | null>('');
   explanationTexts: Record<number, string> = {};
 
+  processedQuestions: Set<string> = new Set<string>();
   currentQuestionExplanation: string | null = null;
   
   formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
   formattedExplanationSubject = new BehaviorSubject<string>('');
   formattedExplanation$: Observable<string> = this.formattedExplanationSubject.asObservable();
-  processedQuestions: Set<string> = new Set<string>();
 
   private explanationsUpdated = new BehaviorSubject<Record<number, FormattedExplanation>>(this.formattedExplanations);
   explanationsUpdated$ = this.explanationsUpdated.asObservable();
