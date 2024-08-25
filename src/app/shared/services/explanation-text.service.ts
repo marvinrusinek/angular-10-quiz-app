@@ -20,7 +20,7 @@ export class ExplanationTextService {
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
   private formattedExplanationSubject = new BehaviorSubject<string>('');
   // formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  formattedExplanation$: BehaviorSubject<string> = this.formattedExplanationSubject.asObservable();
+  formattedExplanation$: Observable<string> = this.formattedExplanationSubject.asObservable();
   processedQuestions: Set<string> = new Set<string>();
 
   private explanationsUpdated = new BehaviorSubject<Record<number, FormattedExplanation>>(this.formattedExplanations);
@@ -78,7 +78,7 @@ export class ExplanationTextService {
       const formattedExplanation = this.formattedExplanations[index];
 
       if (formattedExplanation && formattedExplanation.explanation) {
-        this.formattedExplanation$.next(formattedExplanation.explanation);
+        this.formattedExplanationSubject.next(formattedExplanation.explanation);
         return formattedExplanation.explanation;
       } else {
         console.log("No explanation text found for index", index);
@@ -287,7 +287,7 @@ export class ExplanationTextService {
   }
 
   resetExplanationState(): void {
-    this.formattedExplanation$.next('');
+    this.formattedExplanationSubject.next('');
     this.explanationTexts = {};
     this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
     this.isExplanationTextDisplayedSource.next(false);
