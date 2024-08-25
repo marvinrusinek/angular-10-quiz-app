@@ -46,9 +46,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   private resetOptionState(): void {
     if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-      this.optionsToDisplay.forEach(option => {
+      for (const option of this.optionsToDisplay) {
         option.selected = false;
-      });
+      }      
     }
   }  
 
