@@ -757,7 +757,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         .getAllQuestions()
         .pipe(
           map((questions: QuizQuestion[]) => {
-            questions.forEach((quizQuestion: QuizQuestion) => {
+            for (const quizQuestion of questions) {
               quizQuestion.selectedOptions = null;
   
               // Check if options exist and are an array before mapping
@@ -774,7 +774,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
                 );
                 quizQuestion.options = []; // Initialize as an empty array to prevent further errors
               }
-            });
+            }
             return questions;
           })
         )
@@ -796,9 +796,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           error: (err) => {
             console.error('Error fetching questions:', err);
           },
-        });
-      }
+        }
+      );
+    }
   }
+  
+ 
   
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {
     try {
