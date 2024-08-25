@@ -267,7 +267,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           },
         });
       } else {
-        console.error('No questions were loaded');
+        console.error('No questions were loaded...');
       }
   
       // Ensure this.quiz is set correctly
