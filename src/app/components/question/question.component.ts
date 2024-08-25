@@ -1170,7 +1170,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    console.log('onOptionClicked triggered');
+    console.log('onOptionClicked triggered with option:', option, 'index:', index);
+
     try {
       if (!option) {
         console.error('Option is undefined');
@@ -1186,10 +1187,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       // Fetch and set the explanation text after an option is clicked
       const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-      console.log('Explanation text generated in onOptionClicked:', explanationText);
+      console.log('Explanation text generated in onOptionClicked:::>>>', explanationText);
       
-      // Update the explanation text in ExplanationTextService
-      this.explanationTextService.updateFormattedExplanation(explanationText);
+      // Double-check the value before updating the service
+      if (!explanationText) {
+        console.error('Explanation text is empty or undefined:', explanationText);
+      } else {
+        this.explanationTextService.updateFormattedExplanation(explanationText);
+      }
 
       // Subscribe to see if the update is reflected
       this.explanationTextService.formattedExplanation$.subscribe((text) => {
