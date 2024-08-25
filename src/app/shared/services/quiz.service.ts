@@ -473,16 +473,16 @@ export class QuizService implements OnDestroy {
         throw new Error(`Quiz with ID ${quizId} not found`);
       }
 
-      quiz.questions.forEach((question, qIndex) => {
+      for (const [qIndex, question] of quiz.questions.entries()) {
         if (question.options) {
-          question.options.forEach((option, oIndex) => {
+          for (const [oIndex, option] of question.options.entries()) {
             option.optionId = oIndex;
-          });
+          }
         } else {
           console.error(`Options are not properly defined for question: ${question.questionText}`);
         }
-      });
-
+      }
+      
       if (this.checkedShuffle.value) {
         Utils.shuffleArray(quiz.questions);
         quiz.questions.forEach(question => {
