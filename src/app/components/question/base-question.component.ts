@@ -164,27 +164,33 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   protected abstract loadDynamicComponent(): void;
-
-  /* protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  
+  protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     try {
+      // Ensure showFeedbackForOption is initialized
       if (!this.showFeedbackForOption) {
         console.error('showFeedbackForOption is not initialized');
         this.showFeedbackForOption = {};
       }
-  
+
+      // Update the selected option's feedback state
       this.showFeedbackForOption[option.optionId] = true;
       this.selectedOption = option;
       this.showFeedback = true;
+
+      // Ensure feedback for the selected option is displayed
       this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
-  
+
+      // Determine the correct options and set the correct message
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
       this.correctMessage = this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
-  
+
       console.log('Calling formatExplanationText');
       console.log('ExplanationTextService:', this.explanationTextService);
       console.log('Type of formatExplanationText:', typeof this.explanationTextService.formatExplanationText);
 
-      if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText !== 'function') {
+      // Ensure formatExplanationText is a function and call it
+      if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
         this.explanationTextService.formatExplanationText(this.question, this.quizService.currentQuestionIndex)
           .subscribe({
             next: ({ explanation }) => {
@@ -198,58 +204,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
               console.error('Error in formatExplanationText subscription:', err);
             }
           });
-      } else {
-        console.error('formatExplanationText is not a function');
-      }
-  
-      this.quizService.setCorrectOptions(correctOptions);
-  
-      this.cdRef.markForCheck();
-    } catch (error) {
-      console.error('An error occurred while processing the option click:', error);
-    }
-  } */
-  protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    try {
-        // Ensure showFeedbackForOption is initialized
-        if (!this.showFeedbackForOption) {
-            console.error('showFeedbackForOption is not initialized');
-            this.showFeedbackForOption = {};
-        }
-
-        // Update the selected option's feedback state
-        this.showFeedbackForOption[option.optionId] = true;
-        this.selectedOption = option;
-        this.showFeedback = true;
-
-        // Ensure feedback for the selected option is displayed
-        this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
-
-        // Determine the correct options and set the correct message
-        const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
-        this.correctMessage = this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
-
-        console.log('Calling formatExplanationText');
-        console.log('ExplanationTextService:', this.explanationTextService);
-        console.log('Type of formatExplanationText:', typeof this.explanationTextService.formatExplanationText);
-
-        // Ensure formatExplanationText is a function and call it
-        if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
-            this.explanationTextService.formatExplanationText(this.question, this.quizService.currentQuestionIndex)
-                .subscribe({
-                    next: ({ explanation }) => {
-                        console.log('Emitting explanation:', explanation);
-                        if (this.explanationToDisplay !== explanation) {
-                            this.explanationToDisplay = explanation;
-                            this.explanationToDisplayChange.emit(this.explanationToDisplay);
-                        }
-                    },
-                    error: (err) => {
-                        console.error('Error in formatExplanationText subscription:', err);
-                    }
-                });
         } else {
-            console.error('formatExplanationText is not a function');
+          console.error('formatExplanationText is not a function');
         }
 
         // Set the correct options in the quiz service
