@@ -987,13 +987,13 @@ export class QuizService implements OnDestroy {
     questions: QuizQuestion[],
     correctAnswers: Map<string, number[]>
   ): void {
-    questions.forEach((question) => {
+    for (const question of questions) {
       const currentCorrectAnswers = correctAnswers.get(question.questionText);
       if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
         this.setCorrectAnswers(question, this.data.currentOptions);
       }
-    });
-  }
+    }
+  }  
 
   setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {  
     if (!correctOptions || correctOptions.length === 0) {
