@@ -1578,6 +1578,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
         // Reset isAnsweredSubject to false before displaying the next question
         this.quizStateService.isAnsweredSubject.next(false);
+
+        this.quizStateService.setAnswered(false); // Reset answered state for the new question
+        this.quizStateService.setLoading(false); // Mark loading as complete
   
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);        
