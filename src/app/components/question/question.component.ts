@@ -1312,13 +1312,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private highlightCorrectAnswers(): void {
     console.log('Highlighting all correct answers');
   
-    this.optionsToDisplay.forEach(option => {
+    for (const option of this.optionsToDisplay) {
       if (option.correct) {
         // Notify the directive to highlight itself by updating showFeedbackForOption
         console.log('Setting showFeedbackForOption for option:', option.text);
         this.showFeedbackForOption[option.optionId] = true;
       }
-    });
+    }    
   
     // Trigger change detection if necessary
     this.cdRef.detectChanges();
