@@ -108,9 +108,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('handleOptionClick called in SharedOptionComponent', option, index);
     option.selected = true;
     this.selectedOption = option;
-    this.optionClicked.emit({ option, index });
     this.showFeedbackForOption[index] = true;
     this.iconVisibility[index] = true;
+
+    // Emit the event to the parent component
+    this.optionClicked.emit({ option, index });
   }
 
   trackByOption(index: number, item: Option): number {
