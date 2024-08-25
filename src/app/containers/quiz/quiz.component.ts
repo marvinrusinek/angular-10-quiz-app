@@ -625,13 +625,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       return forkJoin(explanationObservables).pipe(
         tap((explanations) => {
           // Update the formattedExplanations with the new data
-          explanations.forEach((explanation) => {
+          for (const explanation of explanations) {
             this.explanationTextService.formattedExplanations[explanation.questionIndex] = {
               questionIndex: explanation.questionIndex,
               explanation: explanation.explanation
             };
             console.log(`Preloaded explanation for index ${explanation.questionIndex}:`, explanation.explanation);
-          });
+          }          
           console.log('All explanations preloaded:', this.explanationTextService.formattedExplanations);
         }),
         map(() => true),  // Ensure this Observable resolves to true
