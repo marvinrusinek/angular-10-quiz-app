@@ -1126,14 +1126,14 @@ export class QuizService implements OnDestroy {
       options = question.options;
       this.resetAll();
     }
-
+  
     // Logic to mark options as selected based on selectedOptions array
     if (selectedOptions) {
-      options?.forEach((option: Option) => {
+      for (const option of options) {
         option.selected = selectedOptions.includes(option.value);
-      });
+      }
     }
-  }
+  }  
 
   validateAnswers(currentQuestionValue: QuizQuestion, answers: any[]): boolean {
     if (!currentQuestionValue || !answers || answers.length === 0) {
