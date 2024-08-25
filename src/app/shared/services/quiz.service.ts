@@ -556,11 +556,11 @@ export class QuizService implements OnDestroy {
       map(quizzes => quizzes.find(quiz => quiz.quizId === quizId)),
       tap(quiz => {
         if (quiz) {
-          quiz.questions.forEach((question, qIndex) => {
-            question.options.forEach((option, oIndex) => {
+          for (const [qIndex, question] of quiz.questions.entries()) {
+            for (const [oIndex, option] of question.options.entries()) {
               option.optionId = oIndex;
-            });
-          });
+            }
+          }          
   
           if (this.checkedShuffle.value) {
             Utils.shuffleArray(quiz.questions);  // Shuffle questions
