@@ -227,17 +227,17 @@ export class QuizStateService {
   }
 
   clearSelectedOptions(): void {
-    this.questionStates.forEach((state, key) => {
+    for (const [key, state] of this.questionStates.entries()) {
       state.selectedOptions = [];
-    });
+    }    
   }
 
-  setLoading(isLoading: boolean) {
+  setLoading(isLoading: boolean): void {
     console.log('Emitting isLoading:', isLoading);
     this.isLoadingSubject.next(isLoading);
   }
   
-  setAnswered(isAnswered: boolean) {
+  setAnswered(isAnswered: boolean): void {
     console.log('Emitting isAnswered:', isAnswered);
     this.isAnsweredSubject.next(isAnswered);
   }
