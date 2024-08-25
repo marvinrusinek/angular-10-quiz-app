@@ -93,9 +93,9 @@ export class ExplanationTextService {
   initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = {};
 
-    explanations.forEach((explanation, index) => {
+    for (const [index, explanation] of explanations.entries()) {
       this.explanationTexts[index] = explanation;
-    });
+    }    
   }
 
   initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
@@ -106,14 +106,14 @@ export class ExplanationTextService {
       return;
     }
 
-    explanations.forEach(({ questionIndex, explanation }) => {
+    for (const { questionIndex, explanation } of explanations) {
       console.log(`Processing explanation for questionIndex ${questionIndex}:`, explanation);
-
+    
       if (typeof questionIndex !== 'number' || questionIndex < 0) {
         console.warn(`Invalid questionIndex: ${questionIndex}. It should be a non-negative number.`);
-        return;
+        continue;
       }
-
+    
       if (typeof explanation !== 'string' || !explanation.trim()) {
         console.warn(`Invalid or empty explanation for questionIndex ${questionIndex}:`, explanation);
         this.formattedExplanations[questionIndex] = { questionIndex, explanation: 'No explanation available' };
@@ -121,7 +121,7 @@ export class ExplanationTextService {
         this.formattedExplanations[questionIndex] = { questionIndex, explanation: explanation.trim() };
         console.log("Formatted Explanation", this.formattedExplanations[questionIndex]);
       }
-    });
+    }
 
     // Notify subscribers about the updated explanations
     this.explanationsUpdated.next(this.formattedExplanations);
