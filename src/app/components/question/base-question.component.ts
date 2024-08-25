@@ -132,11 +132,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
     if (this.question && this.question.options) {
       this.questionForm = this.fb.group({});
-      this.question.options.forEach(option => {
+      for (const option of this.question.options) {
         if (!this.questionForm.contains(option.text)) {
           this.questionForm.addControl(option.text, this.fb.control(false));
         }
-      });
+      }
       this.optionsToDisplay = this.question.options || [];
     } else {
       console.error('initializeOptions - Question or options are undefined', { question: this.question });
