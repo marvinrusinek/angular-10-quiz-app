@@ -1191,9 +1191,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Update the explanation text in ExplanationTextService
       this.explanationTextService.updateFormattedExplanation(explanationText);
 
+      // Subscribe to see if the update is reflected
       this.explanationTextService.formattedExplanation$.subscribe((text) => {
-        console.log('After update, formattedExplanation$ emitted:::', text);
+        console.log('Formatted explanation emitted:::>>', text);
+        this.explanationToDisplay = text;
+        this.cdRef.detectChanges(); // Ensure the UI updates
       });
+
       this.explanationTextService.setShouldDisplayExplanation(true);
 
       // Update the state to indicate that the explanation should be displayed
@@ -1842,30 +1846,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     console.log('Preparing explanation text for question index:', questionIndex);
-    
+
     if (document.hidden) {
       console.log('Document is hidden, returning placeholder text.');
       return 'Explanation text not available when document is hidden.';
     }
-  
+
     try {
       const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
       console.log('Fetched question data:', questionData);
-      
+
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
         const formattedExplanation = await this.getFormattedExplanation(questionData, questionIndex);
-        this.explanationToDisplay = formattedExplanation.explanation || 'No explanation available';
-        console.log('Explanation set to:', this.explanationToDisplay);
-        return this.explanationToDisplay;
+        const explanationText = formattedExplanation.explanation || 'No explanation available';
+        console.log('Generated explanation text:', explanationText);
+        return explanationText;
       } else {
         console.error('Error: questionData or explanation is undefined');
-        this.explanationToDisplay = 'No explanation available.';
-        return this.explanationToDisplay;
+        return 'No explanation available.';
       }
     } catch (error) {
       console.error('Error in fetching explanation text:', error);
-      this.explanationToDisplay = 'Error fetching explanation.';
-      return this.explanationToDisplay;
+      return 'Error fetching explanation.';
     }
   }
   
