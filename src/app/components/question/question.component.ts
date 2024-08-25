@@ -849,21 +849,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }        
   
         // Handle explanation texts for previously answered questions
-        questions.forEach((question, index) => {
+        for (const [index, question] of questions.entries()) {
           const state = this.quizStateService.getQuestionState(quizId, index);
           if (state?.isAnswered) {
             const formattedExplanationText: FormattedExplanation = {
               questionIndex: index,
-              explanation:
-                this.explanationTextService.getFormattedExplanationTextForQuestion(
-                  index
-                ),
+              explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(index),
             };
-            this.explanationTextService.formattedExplanations[index] =
-              formattedExplanationText;
+            this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
           }
-        });
-  
+        }  
         return questions;
       } else {
         console.error('No questions were loaded');
@@ -1152,10 +1147,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private clearSelection(): void {
     if (this.correctAnswers && this.correctAnswers.length === 1) {
       if (this.currentQuestion && this.currentQuestion.options) {
-        this.currentQuestion.options.forEach((option) => {
+        for (const option of this.currentQuestion.options) {
           option.selected = false;
           option.styleClass = '';
-        });
+        }
       }
     }
   }
@@ -1261,11 +1256,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('Incorrect option selected.');
 
         // Directly highlight all correct options
-        this.optionsToDisplay.forEach(opt => {
+        for (const opt of this.optionsToDisplay) {
           if (opt.correct) {
             this.showFeedbackForOption[opt.optionId] = true;
           }
-        });
+        }
 
         console.log('Updated showFeedbackForOption after highlighting correct answers:', this.showFeedbackForOption);
       }
