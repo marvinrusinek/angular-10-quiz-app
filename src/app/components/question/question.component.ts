@@ -1171,8 +1171,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     console.log('onOptionClicked triggered');
-    this.showFeedbackForOption[index] = true;
-
     try {
       if (!option) {
         console.error('Option is undefined');
@@ -1184,10 +1182,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       ];
       this.selectedOption = { ...option, optionId: index + 1 };
       this.showFeedback = true;
-      /* this.showFeedbackForOption = { 
-        ...this.showFeedbackForOption, 
-        [option.optionId]: true 
-      }; */
       this.showFeedbackForOption[option.optionId] = true;
 
       // Fetch and set the explanation text after an option is clicked
