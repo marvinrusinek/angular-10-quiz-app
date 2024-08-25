@@ -1145,9 +1145,9 @@ export class QuizService implements OnDestroy {
 
   async determineCorrectAnswer(question: QuizQuestion, answers: Option[]): Promise<boolean[]> {
     // Ensure option IDs are assigned based on array position
-    question.options.forEach((option, index) => {
+    for (const [index, option] of question.options.entries()) {
       option.optionId = index;
-    });
+    }    
   
     return await Promise.all(
       answers.map(async (answer) => {
