@@ -890,19 +890,24 @@ export class QuizService implements OnDestroy {
 
   calculateCorrectAnswers(questions: QuizQuestion[]): Map<string, number[]> {
     const correctAnswers = new Map<string, number[]>();
-    questions.forEach((question) => {
+    
+    for (const question of questions) {
       if (question?.options) {
-        const correctOptionNumbers = question.options
-          .filter((option) => option?.correct)
-          .map((option) => option?.optionId);
+        const correctOptionNumbers = [];
+        for (const option of question.options) {
+          if (option?.correct) {
+            correctOptionNumbers.push(option.optionId);
+          }
+        }
         correctAnswers.set(question.questionText, correctOptionNumbers);
       } else {
         console.log('Options are undefined for question:', question);
       }
-    });
+    }
+  
     return correctAnswers;
   }
-
+  
   async initializeCombinedQuestionData(): Promise<void> {
     try {
       const currentQuestion = await firstValueFrom(this.currentQuestion$);
