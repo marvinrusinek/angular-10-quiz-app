@@ -134,6 +134,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private currentNavigationToken = 0;
   private navigationAbortController: AbortController | null = null;
   nextButtonTooltip$: Observable<string>;
+  nextButtonTooltip = 'Please select an option to continue...';
+  buttonState$: Observable<boolean>;
 
   /* private isAnsweredSubject = new BehaviorSubject<boolean>(false);
   isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable(); */
@@ -147,7 +149,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
   private isDestroyed = false;
-  nextButtonTooltip = 'Please select an option to continue...';
   audioAvailable = true;
 
   constructor(
@@ -226,6 +227,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         console.error('Quiz ID is not provided in the route');
       }
     });
+
+    /* this.buttonState$ = combineLatest([
+        this.quizStateService.isLoading$,
+        this.quizStateService.isAnswered$
+    ]).pipe(
+        map(([isLoading, isAnswered]) => !isLoading && isAnswered),
+        startWith(false) // Initially disabled
+    ); */
 
     this.subscribeToSelectionMessage();
 
