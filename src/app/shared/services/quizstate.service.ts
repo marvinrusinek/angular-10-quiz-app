@@ -171,11 +171,11 @@ export class QuizStateService {
       this.quizStates[quizId] = new Map<number, QuestionState>();
     }
   
-    questions.forEach((question, index) => {
+    for (const [index, question] of questions.entries()) {
       const defaultState = this.createDefaultQuestionState();
       // Apply the default state to each question using its index as the identifier within the specific quiz's state map
       this.quizStates[quizId].set(index, defaultState);
-    });
+    }    
   }
   
   updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
