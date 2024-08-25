@@ -1505,11 +1505,11 @@ export class QuizService implements OnDestroy {
       this.calculateCorrectAnswers(this.questions);
 
     let score = 0;
-    correctAnswersMap.forEach((answers, questionId) => {
+    for (const [questionId, answers] of correctAnswersMap.entries()) {
       if (answers.includes(userAnswers[parseInt(questionId)])) {
         score += 1;
       }
-    });
+    }
 
     const quizScore: QuizScore = {
       quizId: this.selectedQuiz.quizId,
