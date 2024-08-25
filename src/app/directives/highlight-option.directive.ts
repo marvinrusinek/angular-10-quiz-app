@@ -82,9 +82,9 @@ export class HighlightOptionDirective implements OnChanges {
 
   private highlightCorrectAnswers(): void {
     console.log('Highlighting correct answers');
-
+  
     if (this.allOptions) {
-      this.allOptions.forEach(opt => {
+      for (const opt of this.allOptions) {
         if (opt.correct) {
           console.log('Correct option found:', opt.text, ' - Option ID:', opt.optionId);
           this.showFeedbackForOption[opt.optionId] = true;
@@ -93,11 +93,11 @@ export class HighlightOptionDirective implements OnChanges {
             this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
           }
         }
-      });
+      }
     } else {
       console.error('All options are not defined');
     }
-  }
+  }  
 
   // Reset the state in-between questions
   public reset(): void {
