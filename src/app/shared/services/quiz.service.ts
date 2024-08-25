@@ -564,11 +564,11 @@ export class QuizService implements OnDestroy {
   
           if (this.checkedShuffle.value) {
             Utils.shuffleArray(quiz.questions);  // Shuffle questions
-            quiz.questions.forEach(question => {
+            for (const question of quiz.questions) {
               if (question.options) {
                 Utils.shuffleArray(question.options);  // Shuffle options within each question
               }
-            });
+            }            
           }
         }
       }),
