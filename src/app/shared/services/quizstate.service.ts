@@ -117,7 +117,7 @@ export class QuizStateService {
       // Ensure selectedOptions is an array and update it based on stateUpdates
       currentState.selectedOptions = Array.isArray(currentState.selectedOptions) ? currentState.selectedOptions : [];
       
-      stateUpdates.selectedOptions.forEach((option) => {
+      for (const option of stateUpdates.selectedOptions) {
         if (!currentState.selectedOptions.some((selectedOption) => selectedOption.optionId === option.optionId)) {
           currentState.selectedOptions.push(option);
       
@@ -125,7 +125,7 @@ export class QuizStateService {
             currentState.numberOfCorrectAnswers++;
           }
         }
-      });    
+      }          
     
       // Mark as answered if the number of correct answers is reached
       currentState.isAnswered = currentState.numberOfCorrectAnswers >= totalCorrectAnswers;
