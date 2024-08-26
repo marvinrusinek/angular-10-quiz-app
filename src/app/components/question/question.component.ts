@@ -1898,6 +1898,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       return 'Error fetching explanation.';
     }
   }
+
+  async fetchAndSetExplanationText(): Promise<void> {
+    await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+  }
   
   private async processExplanationText(
     questionData: QuizQuestion,

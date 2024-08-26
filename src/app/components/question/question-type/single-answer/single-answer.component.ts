@@ -38,5 +38,11 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
   public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     console.log('onOptionClicked in SingleAnswerComponent with option:', option, 'index:', index);
     await super.onOptionClicked(option, index); // Calls BQC's implementation
+
+    // Check if this component is actually an instance of QuizQuestionComponent
+    if (this instanceof QuizQuestionComponent) {
+      console.log('Calling fetchAndSetExplanationText in QuizQuestionComponent from SingleAnswerComponent');
+      await (this as QuizQuestionComponent).fetchAndSetExplanationText();
+    }
   }
 }
