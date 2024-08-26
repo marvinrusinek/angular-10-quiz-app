@@ -1189,148 +1189,119 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     console.log('onOptionClicked triggered with option:', option, 'index:', index);
+    
+    // Set the loading state to true at the beginning
+    this.quizStateService.setLoading(true);
+    this.quizStateService.setAnswered(false);
+
     await super.onOptionClicked(option, index);
 
     try {
-      if (!option) {
-        console.error('Option is undefined');
-        return;
-      }
-
-      this.selectedOptions = [
-        { ...option, questionIndex: this.currentQuestionIndex },
-      ];
-      this.selectedOption = { ...option, optionId: index + 1 };
-      this.showFeedback = true;
-      this.showFeedbackForOption[option.optionId] = true;
-
-      // Fetch and set the explanation text after an option is clicked
-      const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-      console.log('Explanation text generated in onOptionClicked:::>>>', explanationText);
-      
-      // Double-check the value before updating the service
-      if (!explanationText) {
-        console.error('Explanation text is empty or undefined:', explanationText);
-      } else {
-        this.explanationTextService.updateFormattedExplanation(explanationText);
-      }
-
-      // Subscribe to see if the update is reflected
-      this.explanationTextService.formattedExplanation$.subscribe((text) => {
-        console.log('Formatted explanation emitted:::>>', text);
-        this.explanationToDisplay = text;
-        this.cdRef.detectChanges(); // Ensure the UI updates
-      });
-
-      this.explanationTextService.setShouldDisplayExplanation(true);
-
-      // Update the state to indicate that the explanation should be displayed
-      this.quizStateService.updateQuestionState(
-        this.quizId,
-        this.currentQuestionIndex,
-        { explanationDisplayed: true, selectedOptions: [option] },
-        this.correctAnswers.length
-      );
-      console.log('Question state updated with explanationDisplayed: true');
-
-      // Set answered state to true and loading state to false
-      this.quizStateService.setAnswered(true);
-      console.log('isAnswered set to true');
-    
-      
-      this.quizStateService.setLoading(false);
-      console.log('Ensuring isLoading: false (option selected)');
-
-      // this.quizStateService.setLoading(false);
-      // console.log('isLoading set to false');
-
-      this.cdRef.detectChanges();
-
-      this.updateFeedbackForOption(option);
-      
-      console.log(
-        'onOptionClicked - showFeedbackForOption:',
-        this.showFeedbackForOption
-      );
-
-      /* if (option.correct) {
-        console.log('Correct option selected.');
-        this.showFeedbackForOption[option.optionId] = true;
-      } else {
-        console.log('Incorrect option selected.');
-        this.showFeedbackForOption[option.optionId] = true;
-    
-        // Check user preference before highlighting correct answers
-        const highlightPreference = this.userPreferenceService.getHighlightPreference();
-        console.log('Highlight preference:', highlightPreference);
-    
-        if (highlightPreference) {
-          console.log('User preference set to highlight correct answers.');
-          this.highlightCorrectAnswers();
-        }
-      } */
-
-      /* if (!option.correct) {
-        console.log('Incorrect option selected.');
-
-        // Bypass user preference and directly highlight correct options
-        this.highlightCorrectAnswers();
-      } */
-
-      if (!option.correct) {
-        console.log('Incorrect option selected.');
-
-        // Directly highlight all correct options
-        for (const opt of this.optionsToDisplay) {
-          if (opt.correct) {
-            this.showFeedbackForOption[opt.optionId] = true;
-          }
+        if (!option) {
+            console.error('Option is undefined');
+            return;
         }
 
-        console.log('Updated showFeedbackForOption after highlighting correct answers:', this.showFeedbackForOption);
-      }
+        this.selectedOptions = [
+            { ...option, questionIndex: this.currentQuestionIndex },
+        ];
+        this.selectedOption = { ...option, optionId: index + 1 };
+        this.showFeedback = true;
+        this.showFeedbackForOption[option.optionId] = true;
 
-      this.updateSelectedOption(option);
-      this.selectedOptionService.setOptionSelected(true);
-      this.selectedOptionService.setSelectedOption(option);
-      this.selectedOptionService.setAnsweredState(true);
+        // Fetch and set the explanation text after an option is clicked
+        const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+        console.log('Explanation text generated in onOptionClicked:::>>>', explanationText);
+        
+        if (!explanationText) {
+            console.error('Explanation text is empty or undefined:', explanationText);
+        } else {
+            this.explanationTextService.updateFormattedExplanation(explanationText);
+        }
 
-      const currentQuestion = await this.fetchAndProcessCurrentQuestion();
-      if (!currentQuestion) {
-        console.error('Could not retrieve the current question.');
-        return;
-      }
-      this.selectOption(currentQuestion, option, index);
+        this.explanationTextService.formattedExplanation$.subscribe((text) => {
+            console.log('Formatted explanation emitted:::>>', text);
+            this.explanationToDisplay = text;
+            this.cdRef.detectChanges(); // Ensure the UI updates
+        });
 
-      const isAnswered = true;
-      this.updateSelectionMessage(isAnswered);
-      await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+        this.explanationTextService.setShouldDisplayExplanation(true);
 
-      // Update the message after selecting an option
-      const newMessage = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        isAnswered
-      );
+        // Update the state to indicate that the explanation should be displayed
+        this.quizStateService.updateQuestionState(
+            this.quizId,
+            this.currentQuestionIndex,
+            { explanationDisplayed: true, selectedOptions: [option] },
+            this.correctAnswers.length
+        );
+        console.log('Question state updated with explanationDisplayed: true');
 
-      this.selectionMessageService.updateSelectionMessage(newMessage);
+        // Set answered state to true
+        this.quizStateService.setAnswered(true);
+        console.log('isAnswered set to true');
+    
+        // Ensure loading state is set to false
+        this.quizStateService.setLoading(false);
+        console.log('isLoading set to false (option selected)');
 
-      /* if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
+        this.cdRef.detectChanges();
+
+        this.updateFeedbackForOption(option);
+        
+        console.log(
+            'onOptionClicked - showFeedbackForOption:',
+            this.showFeedbackForOption
+        );
+
+        if (!option.correct) {
+            console.log('Incorrect option selected.');
+
+            // Directly highlight all correct options
+            for (const opt of this.optionsToDisplay) {
+                if (opt.correct) {
+                    this.showFeedbackForOption[opt.optionId] = true;
+                }
+            }
+
+            console.log('Updated showFeedbackForOption after highlighting correct answers:', this.showFeedbackForOption);
+        }
+
+        this.updateSelectedOption(option);
+        this.selectedOptionService.setOptionSelected(true);
+        this.selectedOptionService.setSelectedOption(option);
+        this.selectedOptionService.setAnsweredState(true);
+
+        const currentQuestion = await this.fetchAndProcessCurrentQuestion();
+        if (!currentQuestion) {
+            console.error('Could not retrieve the current question.');
+            return;
+        }
+        this.selectOption(currentQuestion, option, index);
+
+        const isAnswered = true;
+        this.updateSelectionMessage(isAnswered);
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-      } else {
-        console.log('No update required for the selection message.');
-      } */
 
-      this.cdRef.detectChanges();
+        // Update the message after selecting an option
+        const newMessage = this.selectionMessageService.determineSelectionMessage(
+            this.currentQuestionIndex,
+            this.totalQuestions,
+            isAnswered
+        );
 
-      this.processCurrentQuestionState(currentQuestion, option, index);
+        this.selectionMessageService.updateSelectionMessage(newMessage);
 
-      await this.handleCorrectnessAndTimer();
+        this.cdRef.detectChanges();
+
+        this.processCurrentQuestionState(currentQuestion, option, index);
+
+        await this.handleCorrectnessAndTimer();
     } catch (error) {
-      console.error(
-        'An error occurred while processing the option click:',
-        error
-      );
+        console.error('An error occurred while processing the option click:', error);
+    } finally {
+        // Ensure the loading state is set to false in case of any errors
+        this.quizStateService.setLoading(false);
+        console.log('Loading state reset in finally block.');
     }
   }
 
@@ -1899,7 +1870,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error('Error in fetching explanation text:', error);
       return 'Error fetching explanation.';
     }
-    
+
     this.cdRef.detectChanges(); // Ensure the UI updates
   }
 
