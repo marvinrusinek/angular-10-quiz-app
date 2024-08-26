@@ -29,7 +29,11 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
 
   loadDynamicComponent(): void {}
 
-  public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  /* public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     await super.onOptionClicked(option, index); // Call the inherited method
+  } */
+
+  protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+    console.log('onOptionClicked in BaseQuestionComponent with option:', option, 'index:', index);
   }
 }
