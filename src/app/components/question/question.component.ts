@@ -1253,6 +1253,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             this.showFeedbackForOption
         );
 
+        /* if (option.correct) {
+            console.log('Correct option selected.');
+            this.showFeedbackForOption[option.optionId] = true;
+        } else {
+            console.log('Incorrect option selected.');
+            this.showFeedbackForOption[option.optionId] = true;
+        
+            // Check user preference before highlighting correct answers
+            const highlightPreference = this.userPreferenceService.getHighlightPreference();
+            console.log('Highlight preference:', highlightPreference);
+        
+            if (highlightPreference) {
+                console.log('User preference set to highlight correct answers.');
+                this.highlightCorrectAnswers();
+            }
+        } */
+
+        /* if (!option.correct) {
+            console.log('Incorrect option selected.');
+
+            // Bypass user preference and directly highlight correct options
+            this.highlightCorrectAnswers();
+        } */
+
         if (!option.correct) {
             console.log('Incorrect option selected.');
 
@@ -1290,6 +1314,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         );
 
         this.selectionMessageService.updateSelectionMessage(newMessage);
+
+        /* if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
+            await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+        } else {
+            console.log('No update required for the selection message.');
+        } */
 
         this.cdRef.detectChanges();
 
@@ -1870,7 +1900,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error('Error in fetching explanation text:', error);
       return 'Error fetching explanation.';
     }
-
+    
     this.cdRef.detectChanges(); // Ensure the UI updates
   }
 
