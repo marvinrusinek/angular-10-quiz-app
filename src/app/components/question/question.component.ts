@@ -538,6 +538,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.explanationToDisplay = '';
     this.feedbackText = '';
 
+    this.quizStateService.setAnswered(false);
+    this.quizStateService.setLoading(false);
+
     if (signal?.aborted) {
       console.log('Load question operation aborted.');
       this.isLoading = false;
