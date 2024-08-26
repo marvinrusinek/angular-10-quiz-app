@@ -546,12 +546,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.optionsToDisplay = [];
     this.feedbackText = '';
 
-    this.quizStateService.setAnswered(false);  // Reset answered state
-    console.log('isAnswered set to false (new question loaded)');
-    setTimeout(() => {  // Simulating async loading
+    // After the question is loaded, stop loading
+    setTimeout(() => {
       this.quizStateService.setLoading(false);
-      console.log('Emitting isLoading: false (question loaded)');
-    }, 1000);  // Adjust the delay to simulate loading time
+      console.log('isLoading set to false (question loaded)');
+    }, 1000);  // Simulate loading time
+
+    // Reset the answered state for the new question
+    this.quizStateService.setAnswered(false);
+    console.log('isAnswered set to false (new question loaded)');
 
     this.explanationToDisplay = '';
 
@@ -1233,10 +1236,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.quizStateService.setAnswered(true);
       console.log('isAnswered set to true');
     
-      if (this.isLoading) {
-        this.quizStateService.setLoading(false);
-        console.log('Ensuring isLoading: false (option selected)');
-      }
+      
+      this.quizStateService.setLoading(false);
+      console.log('Ensuring isLoading: false (option selected)');
 
       // this.quizStateService.setLoading(false);
       // console.log('isLoading set to false');
