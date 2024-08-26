@@ -33,7 +33,8 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
     await super.onOptionClicked(option, index); // Call the inherited method
   } */
 
-  protected async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    console.log('onOptionClicked in BaseQuestionComponent with option:', option, 'index:', index);
+  public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+    console.log('onOptionClicked in MultipleAnswerComponent with option:', option, 'index:', index);
+    await super.onOptionClicked(option, index); // Calls BQC's implementation
   }
 }

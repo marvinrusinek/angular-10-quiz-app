@@ -1188,8 +1188,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    await super.onOptionClicked(option, index);
     console.log('onOptionClicked triggered with option:', option, 'index:', index);
+    await super.onOptionClicked(option, index);
 
     try {
       if (!option) {
