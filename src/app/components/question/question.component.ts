@@ -200,6 +200,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
 
+    this.quizStateService.isLoading$.subscribe(isLoading => {
+      console.log('isLoading$', isLoading);
+    });
+
+    this.quizStateService.isAnswered$.subscribe(isAnswered => {
+      console.log('isAnswered$', isAnswered);
+    });
+
     this.quizStateService.setLoading(true);
 
     // Ensure optionsToDisplay is correctly set
