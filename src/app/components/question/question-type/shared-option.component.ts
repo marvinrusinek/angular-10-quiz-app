@@ -105,7 +105,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   } */
 
   handleOptionClick(option: SelectedOption, index: number): void {
-    console.log('handleOptionClick called in SharedOptionComponent', option, index);
+    console.log('handleOptionClick called in SharedOptionComponent with option:', option, 'index:', index);
     option.selected = true;
     this.selectedOption = option;
     this.showFeedbackForOption[index] = true;
