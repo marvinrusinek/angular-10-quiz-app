@@ -543,11 +543,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // Clear previous data
     this.currentQuestion = null;
     this.optionsToDisplay = [];
-    this.explanationToDisplay = '';
     this.feedbackText = '';
 
-    this.quizStateService.setAnswered(false);
+    this.quizStateService.setAnswered(false);  // Reset answered state
+    console.log('isAnswered set to false (new question loaded)');
+
+    // After the question is loaded, we can stop the loading state
     this.quizStateService.setLoading(false);
+    console.log('isLoading set to false (question loaded)');
+
+    this.explanationToDisplay = '';
 
     if (signal?.aborted) {
       console.log('Load question operation aborted.');
