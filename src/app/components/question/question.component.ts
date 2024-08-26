@@ -539,6 +539,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
     this.isLoading = true;
+    this.quizStateService.setLoading(true);
     
     // Clear previous data
     this.currentQuestion = null;
@@ -547,10 +548,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     this.quizStateService.setAnswered(false);  // Reset answered state
     console.log('isAnswered set to false (new question loaded)');
-
-    // After the question is loaded, we can stop the loading state
-    this.quizStateService.setLoading(false);
-    console.log('isLoading set to false (question loaded)');
+    setTimeout(() => {  // Simulating async loading
+      this.quizStateService.setLoading(false);
+      console.log('Emitting isLoading: false (question loaded)');
+    }, 1000);  // Adjust the delay to simulate loading time
 
     this.explanationToDisplay = '';
 
