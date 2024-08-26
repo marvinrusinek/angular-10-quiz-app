@@ -1877,7 +1877,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     if (document.hidden) {
       console.log('Document is hidden, returning placeholder text.');
-      return 'Explanation text not available when document is hidden.';
+      this.explanationToDisplay = 'Explanation text not available when document is hidden.';
+      this.cdRef.detectChanges();
+      return;
     }
 
     try {
@@ -1897,6 +1899,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error('Error in fetching explanation text:', error);
       return 'Error fetching explanation.';
     }
+    
+    this.cdRef.detectChanges(); // Ensure the UI updates
   }
 
   async fetchAndSetExplanationText(): Promise<void> {
