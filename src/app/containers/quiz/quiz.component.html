@@ -99,15 +99,14 @@
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
               aria-label="Next Question"
-              [disabled]="!(buttonState$ | async)"
+              [disabled]="(isLoading$ | async) || !(isAnswered$ | async)"
               title="Please select an option to continue..."
               data-toggle="tooltip" data-placement="top"
             >
               <i class="material-icons">navigate_next</i>
             </button>
           </div>
-          <!--[disabled]="(isLoading$ | async) || !(isAnswered$ | async)"-->
-  
+          <!--[disabled]="!(buttonState$ | async)"-->
           <div class="show-score-nav" [hidden]="shouldHideShowResultsButton">
             <button
               type="submit"
