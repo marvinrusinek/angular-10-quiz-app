@@ -1,4 +1,4 @@
-<ng-container *ngIf="optionsToDisplay?.length > 0; else noOptions">
+<ng-container *ngIf="optionsToDisplay && optionsToDisplay.length > 0; else noOptions">
   <div *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption">
     <label class="options">
       <ng-container [ngSwitch]="type">
@@ -7,7 +7,7 @@
           [appHighlightInputType]="'checkbox'"
           [appHighlightReset]="shouldResetBackground"
           [appResetBackground]="shouldResetBackground"
-          [allOptions]="optionsToDisplay"
+          [optionsToDisplay]="optionsToDisplay"
           [checked]="isSelectedOption(option)"
           (click)="handleOptionClick(option, idx)"
           [isCorrect]="option.correct"
@@ -33,7 +33,7 @@
           [appHighlightInputType]="'radio'"
           [appHighlightReset]="shouldResetBackground"
           [appResetBackground]="shouldResetBackground"
-          [allOptions]="optionsToDisplay"
+          [optionsToDisplay]="optionsToDisplay"
           [checked]="isSelectedOption(option)"
           (click)="handleOptionClick(option, idx)"
           [isCorrect]="option.correct"
@@ -69,5 +69,5 @@
 </ng-container>
 
 <ng-template #noOptions>
-  <p>No options available.</p>
+  <p>No options available. Debug info: {{ debugOptionsInfo() }}</p>
 </ng-template>

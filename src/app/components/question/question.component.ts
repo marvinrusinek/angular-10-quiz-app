@@ -580,6 +580,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
 
       this.optionsToDisplay = this.currentQuestion.options || [];
+      console.log('Options to Display:::::>>>>>>', this.optionsToDisplay);
 
       // Simultaneously fetch explanation and feedback
       const [explanationResult, feedbackResult] = await Promise.all([

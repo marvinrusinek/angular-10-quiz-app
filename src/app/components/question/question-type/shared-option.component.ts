@@ -118,4 +118,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   trackByOption(index: number, item: Option): number {
     return item.optionId;
   }
+
+  debugOptionsInfo(): string {
+    return `optionsToDisplay: ${JSON.stringify(this.optionsToDisplay)}, 
+            data.options: ${JSON.stringify(this.data?.options)}`;
+  }
 }
