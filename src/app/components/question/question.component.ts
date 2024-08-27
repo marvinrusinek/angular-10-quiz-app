@@ -328,6 +328,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes.questionData) {
+      console.log('questionData changed:', this.questionData);
+      this.initializeSharedOptionConfig();
+    }
+    
     if (changes.currentQuestionIndex || changes.isAnswered) {
       this.updateSelectionMessage(this.isAnswered);
     }
