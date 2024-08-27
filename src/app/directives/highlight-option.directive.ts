@@ -10,9 +10,12 @@ export class HighlightOptionDirective implements OnChanges {
   @Output() resetBackground = new EventEmitter<boolean>();
   @Input() option: Option;
   @Input() isCorrect: boolean;
+  @Input() showFeedback: boolean;
   @Input() showFeedbackForOption: { [key: number]: boolean }; 
   @Input() highlightCorrectAfterIncorrect: boolean;
   @Input() allOptions: Option[]; // to access all options directly
+  @Input() isMultipleAnswer: boolean;
+  @Input() isSelected: boolean;
   private isAnswered = false;
 
   constructor(
@@ -68,7 +71,7 @@ export class HighlightOptionDirective implements OnChanges {
     }
   }
 
-  private updateHighlight(isAnswered: boolean = false): void {
+  /* private updateHighlight(isAnswered: boolean = false): void {
     if (!this.option) {
       console.error('Option is undefined in updateHighlight');
       return;
@@ -79,6 +82,24 @@ export class HighlightOptionDirective implements OnChanges {
       (this.showFeedbackForOption && this.showFeedbackForOption[optionId]);
     const color = shouldHighlight ? (this.isCorrect ? '#43f756' : '#ff0000') : 'white';
     console.log(`Setting background color to ${color} for option ${optionId}`);
+    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+  } */
+  private updateHighlight(): void {
+    if (!this.option) return;
+  
+    let color = 'white';
+    if (this.showFeedback) {
+      if (this.isMultipleAnswer) {
+        if (this.isSelected) {
+          color = this.isCorrect ? '#43f756' : '#ff0000';
+        } else if (this.isCorrect) {
+          color = '#43f756';
+        }
+      } else {
+        color = this.isCorrect ? '#43f756' : '#ff0000';
+      }
+    }
+  
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
 
