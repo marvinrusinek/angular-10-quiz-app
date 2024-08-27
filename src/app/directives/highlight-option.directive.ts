@@ -23,6 +23,7 @@ export class HighlightOptionDirective implements OnChanges {
 
   ngOnChanges(): void {
     if (this.option) {
+      console.log('ngOnChanges called, updating highlight');
       this.updateHighlight();
     } else {
       console.error('Option is undefined in ngOnChanges');
@@ -77,6 +78,7 @@ export class HighlightOptionDirective implements OnChanges {
     const shouldHighlight = isAnswered || this.isAnswered || 
       (this.showFeedbackForOption && this.showFeedbackForOption[optionId]);
     const color = shouldHighlight ? (this.isCorrect ? '#43f756' : '#ff0000') : 'white';
+    console.log(`Setting background color to ${color} for option ${optionId}`);
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
 
