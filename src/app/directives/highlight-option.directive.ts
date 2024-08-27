@@ -21,6 +21,7 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() optionsToDisplay: Option[];
   @Input() isMultipleAnswer: boolean;
   @Input() isSelected: boolean;
+  @Input() shouldResetBackground: boolean;
   private isAnswered = false;
 
   constructor(
@@ -30,12 +31,13 @@ export class HighlightOptionDirective implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.option || changes.showFeedback || changes.isSelected || changes.appHighlightReset) {
+    this.updateHighlight();
+    /* if (changes.option || changes.showFeedback || changes.isSelected || changes.appHighlightReset) {
       console.log('ngOnChanges called, updating highlight');
       this.updateHighlight();
     } else {
       console.error('Option is undefined in ngOnChanges');
-    }
+    } */
   }
 
   @HostBinding('style.backgroundColor') backgroundColor: string = 'white';
@@ -79,7 +81,7 @@ export class HighlightOptionDirective implements OnChanges {
     }
   }
 
-  private updateHighlight(): void {
+  /* private updateHighlight(): void {
     if (!this.option || !this.showFeedback) {
       this.backgroundColor = 'white';
       return;
@@ -104,6 +106,34 @@ export class HighlightOptionDirective implements OnChanges {
     }
 
     console.log(`Updated background color for ${this.option.text}: ${this.backgroundColor}`);
+  } */
+  private updateHighlight(): void {
+    if (!this.option || !this.showFeedback) {
+      this.setBackgroundColor('white');
+      return;
+    }
+
+    const isMultiple = this.appHighlightInputType === 'checkbox';
+
+    if (isMultiple) {
+      if (this.isSelected) {
+        this.setBackgroundColor(this.option.correct ? '#43f756' : '#ff0000');
+      } else if (this.option.correct) {
+        this.setBackgroundColor('#43f756');
+      } else {
+        this.setBackgroundColor('white');
+      }
+    } else {
+      if (this.isSelected) {
+        this.setBackgroundColor(this.option.correct ? '#43f756' : '#ff0000');
+      } else {
+        this.setBackgroundColor('white');
+      }
+    }
+  }
+
+  private setBackgroundColor(color: string): void {
+    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
 
   /* private highlightCorrectAnswers(): void {
