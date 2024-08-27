@@ -445,11 +445,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   initializeSharedOptionConfig() {
     console.log('Initializing shared option config');
+    console.log('Full questionData:', this.questionData);
     console.log('Options from questionData:', this.questionData?.options);
 
+    if (!this.questionData) {
+      console.warn('questionData is undefined or null');
+      return;
+    }
+
+    if (!this.questionData.options || this.questionData.options.length === 0) {
+      console.warn('No options found in questionData');
+    }
+
     this.sharedOptionConfig = {
-      optionsToDisplay: this.questionData?.options || [],
-      type: this.mapQuestionType(this.questionData?.type),
+      optionsToDisplay: this.questionData.options || [],
+      type: this.mapQuestionType(this.questionData.type),
       shouldResetBackground: false,
       selectedOption: null,
       showFeedbackForOption: {},
