@@ -201,9 +201,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.quizComponentData = {
       data: this.data,
       currentQuestion: this.currentQuestion,
-      questions: [], // Initialize with actual data
+      questions: [],
       optionsToDisplay: this.optionsToDisplay,
-      selectedOption: null, // Initialize with actual data
+      selectedOption: null,
       currentQuestionIndex: this.currentQuestionIndex,
       multipleAnswer: this.multipleAnswer,
       showFeedback: this.showFeedback,
