@@ -8,6 +8,7 @@ import { UserPreferenceService } from '../shared/services/user-preference.servic
 })
 export class HighlightOptionDirective implements OnChanges {
   @Output() resetBackground = new EventEmitter<boolean>();
+  @Output() optionClicked = new EventEmitter<Option>();
   @Input() option: Option;
   @Input() isCorrect: boolean;
   @Input() showFeedback: boolean;
@@ -54,6 +55,7 @@ export class HighlightOptionDirective implements OnChanges {
 
   @HostListener('click') onClick(): void {
     console.log('Option clicked:', this.option.text);
+    this.optionClicked.emit(this.option);
 
     if (this.option) {
       this.isAnswered = true; // Mark as answered
