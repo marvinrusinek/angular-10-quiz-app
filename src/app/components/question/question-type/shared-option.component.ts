@@ -26,7 +26,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   selectedOptions: Set<number> = new Set();
   isSubmitted = false;
-  iconVisibility: boolean[] = []; // Array to store visibility state of icons
+  // iconVisibility: boolean[] = []; // Array to store visibility state of icons
+  iconVisibility: { [key: number]: boolean } = {};
 
   optionTextStyle = {
     color: 'black'
@@ -158,12 +159,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   handleOptionClick(option: Option, index: number): void {
     if (this.type === 'single') {
       this.selectedOptions.clear();
+      this.iconVisibility = {};
     }
 
     if (this.selectedOptions.has(option.optionId)) {
       this.selectedOptions.delete(option.optionId);
+      this.iconVisibility[index] = false;
     } else {
       this.selectedOptions.add(option.optionId);
+      this.iconVisibility[index] = true;
     }
 
     this.optionClicked.emit({ option, index });
