@@ -121,7 +121,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private initialized = false;
   feedbackForOption: boolean;
   shouldRenderContainer = true;
-  private hasSetInitialMessage = false;
   feedbackText = '';
   private tabVisible = true;
   sharedOptionConfig: SharedOptionConfig;
