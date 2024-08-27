@@ -17,7 +17,7 @@
           [isSelected]="isSelectedOption(option)"
           [checked]="isSelectedOption(option)"
           (change)="handleOptionClick(option, idx)"
-          [disabled]="option.selected"
+          [disabled]="option.selected && isSubmitted"
           [attr.aria-label]="'Option ' + (idx + 1)">
           <ng-container *ngTemplateOutlet="optionContent; context: {option: option, idx: idx}"></ng-container>
         </mat-checkbox>
@@ -37,7 +37,7 @@
           [isSelected]="isSelectedOption(option)"
           [checked]="isSelectedOption(option)"
           (change)="handleOptionClick(option, idx)"
-          [disabled]="option.selected"
+          [disabled]="option.selected && isSubmitted"
           [attr.aria-label]="'Option ' + (idx + 1)">
           <ng-container *ngTemplateOutlet="optionContent; context: {option: option, idx: idx}"></ng-container>
         </mat-radio-button>
