@@ -1,4 +1,4 @@
-import { Directive, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 import { UserPreferenceService } from '../shared/services/user-preference.service';
@@ -29,7 +29,7 @@ export class HighlightOptionDirective implements OnChanges {
     private userPreferenceService: UserPreferenceService) {
   }
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes.option || changes.showFeedback || changes.isSelected || changes.appHighlightReset) {
       console.log('ngOnChanges called, updating highlight');
       this.updateHighlight();
@@ -37,6 +37,8 @@ export class HighlightOptionDirective implements OnChanges {
       console.error('Option is undefined in ngOnChanges');
     }
   }
+
+  @HostBinding('style.backgroundColor') backgroundColor: string = 'white';
 
   /* @HostListener('click') onClick(): void {
     console.log('Option clicked:', this.option.text);
@@ -79,26 +81,29 @@ export class HighlightOptionDirective implements OnChanges {
 
   private updateHighlight(): void {
     if (!this.option || !this.showFeedback) {
-      this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
+      this.backgroundColor = 'white';
       return;
     }
 
     const isMultiple = this.appHighlightInputType === 'checkbox';
-    let color = 'white';
 
     if (isMultiple) {
       if (this.isSelected) {
-        color = this.option.correct ? '#43f756' : '#ff0000';
+        this.backgroundColor = this.option.correct ? '#43f756' : '#ff0000';
       } else if (this.option.correct) {
-        color = '#43f756';
+        this.backgroundColor = '#43f756';
+      } else {
+        this.backgroundColor = 'white';
       }
     } else {
       if (this.isSelected) {
-        color = this.option.correct ? '#43f756' : '#ff0000';
+        this.backgroundColor = this.option.correct ? '#43f756' : '#ff0000';
+      } else {
+        this.backgroundColor = 'white';
       }
     }
 
-    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+    console.log(`Updated background color for ${this.option.text}: ${this.backgroundColor}`);
   }
 
   /* private highlightCorrectAnswers(): void {
