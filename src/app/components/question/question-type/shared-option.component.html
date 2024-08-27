@@ -1,5 +1,5 @@
-<ng-container *ngIf="config?.optionsToDisplay?.length; else noOptions">
-  <div *ngFor="let option of config.optionsToDisplay; let idx = index; trackBy: trackByOption">
+<ng-container *ngIf="optionsToDisplay?.length; else noOptions">
+  <div *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption">
     <label class="options">
       <ng-container [ngSwitch]="type">
         <mat-checkbox *ngSwitchCase="'multiple'"
