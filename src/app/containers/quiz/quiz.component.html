@@ -23,11 +23,9 @@
           <codelab-quiz-question
             *ngIf="isContentAvailable"
             [data]="data"
-            [questionToDisplay]="questionToDisplay"
             [question]="currentQuestion"
             [questions]="questions$"
             [options]="optionsToDisplay"
-            [optionsToDisplay]="optionsToDisplay"
             (answer)="selectedAnswer($event)"
             [selectedOption]="selectedOption$ | async"          
             [currentQuestion]="currentQuestion"
