@@ -68,7 +68,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  resetState(): void {
+  /* resetState(): void {
     this.selectedOptions.clear();
     this.isSubmitted = false;
     this.showFeedback = false;
@@ -76,6 +76,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedbackForOption = {};
     this.iconVisibility = [];
     this.resetOptionState();
+  } */
+  resetState(): void {
+    this.selectedOptions.clear();
+    this.isSubmitted = false;
+    this.showFeedback = false;
+    this.optionsToDisplay.forEach(option => option.selected = false);
   }
 
   private logConfig(): void {
@@ -150,45 +156,22 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   } */
 
   handleOptionClick(option: SelectedOption, index: number): void {
-    console.log('handleOptionClick called in SharedOptionComponent with option:', option, 'index:', index);
-  
-    if (!this.isSubmitted) {
-      if (this.type === 'single') {
-        // For single choice, clear all selections first
-        this.selectedOptions.clear();
-        this.resetOptionState();
-        this.showFeedbackForOption = {};
-        this.iconVisibility = [];
-      }
-  
-      if (this.selectedOptions.has(option.optionId)) {
-        // Deselect the option
-        this.selectedOptions.delete(option.optionId);
-        option.selected = false;
-        this.showFeedbackForOption[index] = false;
-        this.iconVisibility[index] = false;
-        if (this.type === 'single') {
-          this.selectedOption = null;
-        }
-      } else {
-        // Select the option
-        this.selectedOptions.add(option.optionId);
-        option.selected = true;
-        this.showFeedbackForOption[index] = true;
-        this.iconVisibility[index] = true;
-        if (this.type === 'single') {
-          this.selectedOption = option;
-        }
-      }
-  
-      console.log('After click - selectedOptions:', new Set(this.selectedOptions));
-  
-      // Trigger change detection
-      this.optionsToDisplay = [...this.optionsToDisplay];
-  
-      // Emit the event to the parent component
-      this.optionClicked.emit({ option, index });
+    if (this.isSubmitted) return;
+
+    if (this.type === 'single') {
+      this.selectedOptions.clear();
+      this.optionsToDisplay.forEach(opt => opt.selected = false);
     }
+
+    if (this.selectedOptions.has(option.optionId)) {
+      this.selectedOptions.delete(option.optionId);
+      option.selected = false;
+    } else {
+      this.selectedOptions.add(option.optionId);
+      option.selected = true;
+    }
+
+    this.optionClicked.emit({ option, index });
   }
 
   getOptionClass(option: Option): string {
