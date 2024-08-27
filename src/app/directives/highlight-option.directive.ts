@@ -94,12 +94,17 @@ export class HighlightOptionDirective implements OnChanges {
           if (opt.optionId === this.option.optionId) {
             this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
           }
+        } else {
+          // Ensure incorrect options are not highlighted
+          if (opt.optionId === this.option.optionId) {
+            this.renderer.setStyle(this.el.nativeElement, 'background-color', '#ff0000');
+          }
         }
       }
     } else {
       console.error('All options are not defined');
     }
-  }  
+  }
 
   // Reset the state in-between questions
   public reset(): void {
