@@ -472,7 +472,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log('Shared option config after init:', this.sharedOptionConfig);
   }
 
-  private mapQuestionType(type: QuestionType | undefined): 'single' | 'multiple' {
+  /* private mapQuestionType(type: QuestionType | undefined): 'single' | 'multiple' {
     switch (type) {
       case QuestionType.MultipleAnswer:
         return 'multiple';
@@ -480,6 +480,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       default:
         return 'single';
     }
+  } */
+  private mapQuestionType(type: QuestionType): 'single' | 'multiple' {
+    return type === QuestionType.MultipleAnswer ? 'multiple' : 'single';
   }
 
   private saveQuizState(): void {
