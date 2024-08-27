@@ -12,6 +12,7 @@ import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
+import { SharedOptionConfig } from '../../shared/models/SharedOptionConfig.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
@@ -123,6 +124,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private hasSetInitialMessage = false;
   feedbackText = '';
   private tabVisible = true;
+  sharedOptionConfig: SharedOptionConfig;
 
   explanationTextSubject = new BehaviorSubject<string>('');
   feedbackTextSubject = new BehaviorSubject<string>('');
@@ -199,6 +201,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
+    this.initializeSharedOptionConfig();
 
     this.quizStateService.isLoading$.subscribe(isLoading => {
       console.log('isLoading$', isLoading);
@@ -410,7 +413,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
-  onQuestionAnswered() {
+  onQuestionAnswered() { //check if i still need this
     console.log('Received questionAnswered event in QuizQuestionComponent, re-emitting to QuizComponent');
     this.questionAnswered.emit(); // Re-emit the event as void
   }
@@ -438,6 +441,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   isAnswerSelected(): boolean {
     return this.selectedOptions && this.selectedOptions.length > 0;
+  }
+
+  initializeSharedOptionConfig(): void {
+    this.sharedOptionConfig = {
+      optionsToDisplay: this.optionsToDisplay,
+      type: this.isMultipleAnswer ? 'multiple' : 'single',
+      shouldResetBackground: this.shouldResetBackground,
+      selectedOption: this.selectedOption,
+      showFeedbackForOption: this.showFeedbackForOption,
+      currentQuestion: this.currentQuestion,
+      correctMessage: this.correctMessage,
+      showFeedback: this.showFeedback,
+      feedback: this.feedback
+    };
   }
 
   private saveQuizState(): void {
