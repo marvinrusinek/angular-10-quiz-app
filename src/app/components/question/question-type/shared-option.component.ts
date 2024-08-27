@@ -51,20 +51,31 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.currentQuestion) {
+    /* if (changes.currentQuestion) {
       this.resetOptionState(); // Reset option states when the question changes
     }
 
     if (changes.config) {
       console.log('Config changed in SharedOptionComponent');
       this.logConfig();
-    }
+    } */
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
-      this.selectedOptions.clear();
-      this.isSubmitted = false;
-      this.showFeedback = false;
+      this.resetState();
+      //this.selectedOptions.clear();
+      //this.isSubmitted = false;
+      //this.showFeedback = false;
     }
+  }
+
+  resetState(): void {
+    this.selectedOptions.clear();
+    this.isSubmitted = false;
+    this.showFeedback = false;
+    this.selectedOption = null;
+    this.showFeedbackForOption = {};
+    this.iconVisibility = [];
+    this.resetOptionState();
   }
 
   private logConfig(): void {
@@ -140,30 +151,44 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   handleOptionClick(option: SelectedOption, index: number): void {
     console.log('handleOptionClick called in SharedOptionComponent with option:', option, 'index:', index);
-
-    console.log('handleOptionClick', option, index);
+  
     if (!this.isSubmitted) {
       if (this.type === 'single') {
+        // For single choice, clear all selections first
         this.selectedOptions.clear();
+        this.resetOptionState();
+        this.showFeedbackForOption = {};
+        this.iconVisibility = [];
       }
+  
       if (this.selectedOptions.has(option.optionId)) {
+        // Deselect the option
         this.selectedOptions.delete(option.optionId);
+        option.selected = false;
+        this.showFeedbackForOption[index] = false;
+        this.iconVisibility[index] = false;
+        if (this.type === 'single') {
+          this.selectedOption = null;
+        }
       } else {
+        // Select the option
         this.selectedOptions.add(option.optionId);
+        option.selected = true;
+        this.showFeedbackForOption[index] = true;
+        this.iconVisibility[index] = true;
+        if (this.type === 'single') {
+          this.selectedOption = option;
+        }
       }
+  
+      console.log('After click - selectedOptions:', new Set(this.selectedOptions));
+  
+      // Trigger change detection
+      this.optionsToDisplay = [...this.optionsToDisplay];
+  
+      // Emit the event to the parent component
+      this.optionClicked.emit({ option, index });
     }
-    console.log('After click - selectedOptions:', new Set(this.selectedOptions));
-
-    // Trigger change detection
-    this.optionsToDisplay = [...this.optionsToDisplay];
-
-    option.selected = true;
-    this.selectedOption = option;
-    this.showFeedbackForOption[index] = true;
-    this.iconVisibility[index] = true;
-
-    // Emit the event to the parent component
-    this.optionClicked.emit({ option, index });
   }
 
   getOptionClass(option: Option): string {
