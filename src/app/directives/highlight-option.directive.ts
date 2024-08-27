@@ -33,11 +33,7 @@ export class HighlightOptionDirective implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.shouldResetBackground && this.shouldResetBackground) {
-      this.selectedOptions.clear();
-    }
-
-    this.updateHighlight();
+    this.updateHighlight();  
     /* if (changes.option || changes.showFeedback || changes.isSelected || changes.appHighlightReset) {
       console.log('ngOnChanges called, updating highlight');
       this.updateHighlight();
@@ -148,22 +144,12 @@ export class HighlightOptionDirective implements OnChanges {
       return;
     }
 
-    const isMultiple = this.appHighlightInputType === 'checkbox';
-
-    if (isMultiple) {
-      if (this.isSelected) {
-        this.setBackgroundColor(this.option.correct ? '#43f756' : '#ff0000');
-      } else if (this.option.correct) {
-        this.setBackgroundColor('#43f756');
-      } else {
-        this.setBackgroundColor('white');
-      }
+    if (this.isSelected) {
+      this.setBackgroundColor(this.option.correct ? '#43f756' : '#ff0000');
+    } else if (this.isMultipleAnswer && this.option.correct) {
+      this.setBackgroundColor('#43f756');
     } else {
-      if (this.isSelected) {
-        this.setBackgroundColor(this.option.correct ? '#43f756' : '#ff0000');
-      } else {
-        this.setBackgroundColor('white');
-      }
+      this.setBackgroundColor('white');
     }
   }
 
