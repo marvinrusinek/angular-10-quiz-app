@@ -228,6 +228,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }
     });
 
+    this.quizStateService.isLoading$.subscribe(isLoading => {
+      console.log('isLoading$ in QuizComponent:', isLoading);
+    });
+
+    this.quizStateService.isAnswered$.subscribe(isAnswered => {
+      console.log('isAnswered$ in QuizComponent:', isAnswered);
+    });
+
     /* this.buttonState$ = combineLatest([
         this.quizStateService.isLoading$,
         this.quizStateService.isAnswered$

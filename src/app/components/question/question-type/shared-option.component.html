@@ -7,7 +7,6 @@
           [appHighlightInputType]="'checkbox'"
           [appHighlightReset]="shouldResetBackground"
           [appResetBackground]="shouldResetBackground"
-          [shouldResetBackground]="shouldResetBackground"
           [allOptions]="optionsToDisplay"
           [checked]="isSelectedOption(option)"
           (click)="handleOptionClick(option, idx)"
@@ -33,7 +32,6 @@
           [appHighlightInputType]="'radio'"
           [appHighlightReset]="shouldResetBackground"
           [appResetBackground]="shouldResetBackground"
-          [shouldResetBackground]="shouldResetBackground"
           [allOptions]="optionsToDisplay"
           [checked]="isSelectedOption(option)"
           (click)="handleOptionClick(option, idx)"
@@ -69,5 +67,5 @@
 </ng-container>
 
 <ng-template #noOptions>
-  <span>No options available</span>
+  <p>No options available.</p>
 </ng-template>
