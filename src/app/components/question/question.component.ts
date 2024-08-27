@@ -446,7 +446,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   initializeSharedOptionConfig(): void {
     this.sharedOptionConfig = {
       optionsToDisplay: this.optionsToDisplay,
-      type: this.isMultipleAnswer ? 'multiple' : 'single',
+      type: this.multipleAnswer.value ? 'multiple' : 'single',
       shouldResetBackground: this.shouldResetBackground,
       selectedOption: this.selectedOption,
       showFeedbackForOption: this.showFeedbackForOption,
