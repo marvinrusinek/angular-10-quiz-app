@@ -4,16 +4,14 @@
 <!--<ang-music-player [audioList]="audioList"></ang-music-player>-->
 
 <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
-  <app-base-question 
-    [question]="currentQuestion">
-  </app-base-question>
+  <app-base-question [question]="currentQuestion"></app-base-question>
 
   <ng-container #dynamicComponentContainer></ng-container>
 
   <ng-container *ngIf="shouldRenderContainer">
-    <div *ngIf="isLoading" class="loading-spinner"></div>
+    <div *ngIf="isLoading" class="loading-spinner" aria-label="Loading"></div>
     <div *ngIf="shouldDisplayOptions">
-      <!-- The template is now moved outside this block -->
+      <!-- Options content here -->
     </div>
   </ng-container>
 </form>
