@@ -1,4 +1,4 @@
-<ng-container *ngIf="optionsToDisplay && optionsToDisplay.length > 0; else noOptions">
+<ng-container *ngIf="optionsToDisplay?.length > 0; else noOptions">
   <div *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption">
     <label class="options">
       <ng-container [ngSwitch]="type">
@@ -9,7 +9,7 @@
           [appResetBackground]="shouldResetBackground"
           [allOptions]="optionsToDisplay"
           [checked]="isSelectedOption(option)"
-          (click)="handleOptionClick(option, idx)"
+          (change)="handleOptionClick(option, idx)"
           [isCorrect]="option.correct"
           [selectedOption]="selectedOption"
           [option]="option"
@@ -34,7 +34,7 @@
           [appResetBackground]="shouldResetBackground"
           [allOptions]="optionsToDisplay"
           [checked]="isSelectedOption(option)"
-          (click)="handleOptionClick(option, idx)"
+          (change)="handleOptionClick(option, idx)"
           [isCorrect]="option.correct"
           [selectedOption]="selectedOption"
           [option]="option"
