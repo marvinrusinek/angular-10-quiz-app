@@ -41,7 +41,7 @@
           ></codelab-quiz-question>-->
           <codelab-quiz-question
             *ngIf="isContentAvailable"
-            [quizData]="quizData"
+            [quizData]="quizComponentData"
             (answer)="selectedAnswer($event)"
             (selectionMessageChange)="onSelectionMessageChange($event)"
             (isAnsweredChange)="onIsAnsweredChange($event)"
