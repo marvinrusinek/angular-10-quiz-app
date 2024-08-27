@@ -443,7 +443,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     return this.selectedOptions && this.selectedOptions.length > 0;
   }
 
-  initializeSharedOptionConfig(): void {
+  initializeSharedOptionConfig() {
     console.log('Initializing shared option config');
     console.log('Options to display before init:', this.optionsToDisplay);
     
@@ -458,6 +458,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       showFeedback: this.showFeedback,
       feedback: this.feedback
     };
+    
+    console.log('Shared option config after init:', this.sharedOptionConfig);
   }
 
   private saveQuizState(): void {
