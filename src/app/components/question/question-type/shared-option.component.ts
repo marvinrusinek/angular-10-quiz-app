@@ -25,6 +25,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @Input() shouldResetBackground = false;
 
   selectedOptions: Set<number> = new Set();
+  isSubmitted = false;
   iconVisibility: boolean[] = []; // Array to store visibility state of icons
 
   optionTextStyle = {
@@ -61,6 +62,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.selectedOptions.clear();
+      this.isSubmitted = false;
+      this.showFeedback = false;
     }
   }
 
@@ -138,14 +141,19 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   handleOptionClick(option: SelectedOption, index: number): void {
     console.log('handleOptionClick called in SharedOptionComponent with option:', option, 'index:', index);
 
-    if (this.type === 'single') {
-      this.selectedOptions.clear();
+    console.log('handleOptionClick', option, index);
+    if (!this.isSubmitted) {
+      if (this.type === 'single') {
+        this.selectedOptions.clear();
+      }
+      if (this.selectedOptions.has(option.optionId)) {
+        this.selectedOptions.delete(option.optionId);
+      } else {
+        this.selectedOptions.add(option.optionId);
+      }
     }
-    if (this.selectedOptions.has(option.optionId)) {
-      this.selectedOptions.delete(option.optionId);
-    } else {
-      this.selectedOptions.add(option.optionId);
-    }
+    console.log('After click - selectedOptions:', new Set(this.selectedOptions));
+
     // Trigger change detection
     this.optionsToDisplay = [...this.optionsToDisplay];
 
