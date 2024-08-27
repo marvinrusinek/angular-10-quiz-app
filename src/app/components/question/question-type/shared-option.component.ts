@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnI
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../shared/models/SelectedOption.model';
+import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
 
 @Component({
@@ -13,6 +14,7 @@ import { UserPreferenceService } from '../../../shared/services/user-preference.
 })
 export class SharedOptionComponent implements OnInit, OnChanges {
   @Output() optionClicked = new EventEmitter<{ option: Option, index: number }>();
+  @Input() config: SharedOptionConfig;
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
