@@ -463,7 +463,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     this.sharedOptionConfig = {
-      optionsToDisplay: this.questionData.options || [],
+      optionsToDisplay: this.options || [],
       type: this.mapQuestionType(this.questionData.type),
       shouldResetBackground: false,
       selectedOption: null,
