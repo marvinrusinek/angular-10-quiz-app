@@ -171,9 +171,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   getOptionClass(option: Option): string {
     if (!this.showFeedback) {
-      return this.isSelected(option) ? 'selected' : '';
+      return this.isSelectedOption(option) ? 'selected' : '';
     }
-    if (this.isSelected(option)) {
+    if (this.isSelectedOption(option)) {
       return option.correct ? 'correct-selected' : 'incorrect-selected';
     }
     if (this.type === 'multiple' && option.correct) {
