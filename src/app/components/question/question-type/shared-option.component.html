@@ -1,4 +1,4 @@
-<ng-container *ngIf="optionsToDisplay && optionsToDisplay.length > 0; else noOptions">
+<ng-container *ngIf="optionsToDisplay?.length; else noOptions">
   <div *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption">
     <label class="options">
       <ng-container [ngSwitch]="type">
@@ -9,23 +9,10 @@
           [appResetBackground]="shouldResetBackground"
           [optionsToDisplay]="optionsToDisplay"
           [checked]="isSelectedOption(option)"
-          (click)="handleOptionClick(option, idx)"
-          [isCorrect]="option.correct"
-          [selectedOption]="selectedOption"
-          [option]="option"
+          (change)="handleOptionClick(option, idx)"
           [disabled]="option.selected"
           [attr.aria-label]="'Option ' + (idx + 1)">
-          <div class="option-content">
-            <span class="option-text" 
-              [ngStyle]="optionTextStyle">
-              {{ idx + 1 }}. {{ option?.text }}
-            </span>
-            <mat-icon *ngIf="isIconVisible(option)"
-              class="material-icons icon" 
-              [ngClass]="getOptionIconClass(option)">
-              {{ getOptionIcon(option) }}
-            </mat-icon>
-          </div>
+          <ng-container *ngTemplateOutlet="optionContent; context: {option: option, idx: idx}"></ng-container>
         </mat-checkbox>
         
         <mat-radio-button *ngSwitchCase="'single'"
@@ -35,23 +22,10 @@
           [appResetBackground]="shouldResetBackground"
           [optionsToDisplay]="optionsToDisplay"
           [checked]="isSelectedOption(option)"
-          (click)="handleOptionClick(option, idx)"
-          [isCorrect]="option.correct"
-          [selectedOption]="selectedOption"
-          [option]="option"
+          (change)="handleOptionClick(option, idx)"
           [disabled]="option.selected"
           [attr.aria-label]="'Option ' + (idx + 1)">
-          <div class="option-content">
-            <span class="option-text" 
-              [ngStyle]="optionTextStyle">
-              {{ idx + 1 }}. {{ option?.text }}
-            </span>
-            <mat-icon *ngIf="isIconVisible(option)"
-              class="material-icons icon" 
-              [ngClass]="getOptionIconClass(option)">
-              {{ getOptionIcon(option) }}
-            </mat-icon>
-          </div>
+          <ng-container *ngTemplateOutlet="optionContent; context: {option: option, idx: idx}"></ng-container>
         </mat-radio-button>
       </ng-container>
       
@@ -70,4 +44,19 @@
 
 <ng-template #noOptions>
   <p>No options available. Debug info: {{ debugOptionsInfo() }}</p>
+</ng-template>
+
+<!-- Separate template for option content -->
+<ng-template #optionContent let-option="option" let-idx="idx">
+  <div class="option-content">
+    <span class="option-text" 
+      [ngStyle]="optionTextStyle">
+      {{ idx + 1 }}. {{ option?.text }}
+    </span>
+    <mat-icon *ngIf="isIconVisible(option)"
+      class="material-icons icon" 
+      [ngClass]="getOptionIconClass(option)">
+      {{ getOptionIcon(option) }}
+    </mat-icon>
+  </div>
 </ng-template>
