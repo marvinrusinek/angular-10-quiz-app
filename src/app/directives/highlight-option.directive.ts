@@ -30,7 +30,7 @@ export class HighlightOptionDirective implements OnChanges {
   }
 
   ngOnChanges(): void {
-    if (this.option) {
+    if (changes.option || changes.showFeedback || changes.isSelected || changes.appHighlightReset) {
       console.log('ngOnChanges called, updating highlight');
       this.updateHighlight();
     } else {
@@ -77,39 +77,27 @@ export class HighlightOptionDirective implements OnChanges {
     }
   }
 
-  /* private updateHighlight(isAnswered: boolean = false): void {
-    if (!this.option) {
-      console.error('Option is undefined in updateHighlight');
-      return;
-    }
-
-    const optionId = this.option.optionId;
-    const shouldHighlight = isAnswered || this.isAnswered || 
-      (this.showFeedbackForOption && this.showFeedbackForOption[optionId]);
-    const color = shouldHighlight ? (this.isCorrect ? '#43f756' : '#ff0000') : 'white';
-    console.log(`Setting background color to ${color} for option ${optionId}`);
-    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
-  } */
   private updateHighlight(): void {
     if (!this.option || !this.showFeedback) {
       this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
       return;
     }
-  
+
     const isMultiple = this.appHighlightInputType === 'checkbox';
-    const isSelected = (this.el.nativeElement as HTMLInputElement).checked;
-  
     let color = 'white';
+
     if (isMultiple) {
-      if (isSelected) {
+      if (this.isSelected) {
         color = this.option.correct ? '#43f756' : '#ff0000';
       } else if (this.option.correct) {
         color = '#43f756';
       }
     } else {
-      color = this.option.correct ? '#43f756' : '#ff0000';
+      if (this.isSelected) {
+        color = this.option.correct ? '#43f756' : '#ff0000';
+      }
     }
-  
+
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
 
