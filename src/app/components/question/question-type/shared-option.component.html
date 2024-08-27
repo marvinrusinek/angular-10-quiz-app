@@ -42,10 +42,6 @@
   </div>
 </ng-container>
 
-<ng-template #noOptions>
-  <p>No options available. Debug info: {{ debugOptionsInfo() }}</p>
-</ng-template>
-
 <!-- Separate template for option content -->
 <ng-template #optionContent let-option="option" let-idx="idx">
   <div class="option-content">
@@ -59,4 +55,8 @@
       {{ getOptionIcon(option) }}
     </mat-icon>
   </div>
+</ng-template>
+
+<ng-template #noOptions>
+  <p>No options available. Debug info: {{ debugOptionsInfo() }}</p>
 </ng-template>
