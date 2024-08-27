@@ -1,6 +1,6 @@
 <ng-container *ngIf="optionsToDisplay?.length; else noOptions">
   <div *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption">
-    <label class="options">
+    <label class="options" [ngClass]="getOptionClass(option)">
       <ng-container [ngSwitch]="type">
         <mat-checkbox *ngSwitchCase="'multiple'"
           appHighlightOption
