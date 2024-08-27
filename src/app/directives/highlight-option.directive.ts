@@ -103,6 +103,19 @@ export class HighlightOptionDirective implements OnChanges {
     return this.selectedOptions.has(idx);
   }
 
+  getOptionClass(option: Option, idx: number): string {
+    if (!this.showFeedback) {
+      return '';
+    }
+    if (this.isSelectedOption(idx)) {
+      return option.correct ? 'correct-selected' : 'incorrect-selected';
+    }
+    if (this.type === 'multiple' && option.correct) {
+      return 'correct-unselected';
+    }
+    return '';
+  }
+
   /* private updateHighlight(): void {
     if (!this.option || !this.showFeedback) {
       this.backgroundColor = 'white';
