@@ -10,6 +10,7 @@ export class HighlightOptionDirective implements OnChanges {
   @Output() resetBackground = new EventEmitter<boolean>();
   @Output() optionClicked = new EventEmitter<Option>();
   @Input() appHighlightInputType: 'checkbox' | 'radio';
+  @Input() type: 'single' | 'multiple';
   @Input() appHighlightReset: boolean;
   @Input() appResetBackground: boolean;
   @Input() option: Option;
@@ -22,6 +23,7 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() isMultipleAnswer: boolean;
   @Input() isSelected: boolean;
   @Input() shouldResetBackground: boolean;
+  selectedOptions: Set<number> = new Set();
   private isAnswered = false;
 
   constructor(
@@ -31,6 +33,10 @@ export class HighlightOptionDirective implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes.shouldResetBackground && this.shouldResetBackground) {
+      this.selectedOptions.clear();
+    }
+
     this.updateHighlight();
     /* if (changes.option || changes.showFeedback || changes.isSelected || changes.appHighlightReset) {
       console.log('ngOnChanges called, updating highlight');
@@ -79,6 +85,22 @@ export class HighlightOptionDirective implements OnChanges {
     } else {
       console.error('Option is undefined on click');
     }
+  }
+
+  handleOptionClick(option: Option, idx: number): void {
+    if (this.type === 'single') {
+      this.selectedOptions.clear();
+    }
+    if (this.selectedOptions.has(idx)) {
+      this.selectedOptions.delete(idx);
+    } else {
+      this.selectedOptions.add(idx);
+    }
+    // Your existing logic here
+  }
+
+  isSelectedOption(idx: number): boolean {
+    return this.selectedOptions.has(idx);
   }
 
   /* private updateHighlight(): void {
