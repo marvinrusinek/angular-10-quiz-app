@@ -9,12 +9,16 @@ import { UserPreferenceService } from '../shared/services/user-preference.servic
 export class HighlightOptionDirective implements OnChanges {
   @Output() resetBackground = new EventEmitter<boolean>();
   @Output() optionClicked = new EventEmitter<Option>();
+  @Input() appHighlightInputType: 'checkbox' | 'radio';
+  @Input() appHighlightReset: boolean;
+  @Input() appResetBackground: boolean;
   @Input() option: Option;
   @Input() isCorrect: boolean;
   @Input() showFeedback: boolean;
   @Input() showFeedbackForOption: { [key: number]: boolean }; 
   @Input() highlightCorrectAfterIncorrect: boolean;
   @Input() allOptions: Option[]; // to access all options directly
+  @Input() optionsToDisplay: Option[];
   @Input() isMultipleAnswer: boolean;
   @Input() isSelected: boolean;
   private isAnswered = false;
@@ -87,19 +91,23 @@ export class HighlightOptionDirective implements OnChanges {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   } */
   private updateHighlight(): void {
-    if (!this.option) return;
+    if (!this.option || !this.showFeedback) {
+      this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
+      return;
+    }
+  
+    const isMultiple = this.appHighlightInputType === 'checkbox';
+    const isSelected = (this.el.nativeElement as HTMLInputElement).checked;
   
     let color = 'white';
-    if (this.showFeedback) {
-      if (this.isMultipleAnswer) {
-        if (this.isSelected) {
-          color = this.isCorrect ? '#43f756' : '#ff0000';
-        } else if (this.isCorrect) {
-          color = '#43f756';
-        }
-      } else {
-        color = this.isCorrect ? '#43f756' : '#ff0000';
+    if (isMultiple) {
+      if (isSelected) {
+        color = this.option.correct ? '#43f756' : '#ff0000';
+      } else if (this.option.correct) {
+        color = '#43f756';
       }
+    } else {
+      color = this.option.correct ? '#43f756' : '#ff0000';
     }
   
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
