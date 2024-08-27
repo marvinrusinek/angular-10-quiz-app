@@ -91,7 +91,7 @@ export class HighlightOptionDirective implements OnChanges {
 
     if (this.isSelected) {
       this.setBackgroundColor(this.option.correct ? '#43f756' : '#ff0000');
-    } else if (this.isMultipleAnswer && this.option.correct) {
+    } else if (this.isMultipleAnswer && this.option.correct && this.showFeedback) {
       this.setBackgroundColor('#43f756');
     } else {
       this.setBackgroundColor('transparent');
