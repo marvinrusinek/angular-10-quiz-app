@@ -59,15 +59,12 @@
       </summary>
 
       <div class="status-icon">
-        <span [ngClass]="getLinkClass(quiz)" [matTooltip]="getTooltip(quiz)">
-          <a
-            *ngIf="shouldShowLink(quiz)"
-            routerLinkActive="active"
-            [routerLink]="getLinkRouterLink(quiz)"
-          >
-            <i [ngClass]="getIconClass(quiz)"></i>
+        <mat-card-actions>
+          <a mat-icon-button [ngClass]="getLinkClass(quiz)" [matTooltip]="getTooltip(quiz)"
+             *ngIf="shouldShowLink(quiz)" [routerLink]="getLinkRouterLink(quiz)">
+            <mat-icon>{{ getIconClass(quiz) }}</mat-icon>
           </a>
-        </span>
+        </mat-card-actions>
       </div>
     </div>
   </div>
