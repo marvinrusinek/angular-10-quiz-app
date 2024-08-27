@@ -209,6 +209,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       showFeedback: this.showFeedback,
       selectionMessage: this.selectionMessage
     };
+
+    // Subscribe to observables and update quizComponentData accordingly
+    this.selectedOption$.subscribe(option => this.quizComponentData.selectedOption = option);
+    this.currentQuestion$.subscribe(question => this.quizComponentData.currentQuestion = question);
+    this.questions$.subscribe(questions => this.quizComponentData.questions = questions);
   }
 
   @HostListener('window:focus', ['$event'])
