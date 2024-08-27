@@ -146,6 +146,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     } else {
       this.selectedOptions.add(option.optionId);
     }
+    // Trigger change detection
+    this.optionsToDisplay = [...this.optionsToDisplay];
 
     option.selected = true;
     this.selectedOption = option;
