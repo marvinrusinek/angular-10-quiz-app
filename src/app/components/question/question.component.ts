@@ -445,21 +445,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   initializeSharedOptionConfig() {
     console.log('Initializing shared option config');
-    console.log('Options to display before init:', this.optionsToDisplay);
-    
+    console.log('Options from questionData:', this.questionData?.options);
+
     this.sharedOptionConfig = {
-      optionsToDisplay: this.optionsToDisplay,
-      type: this.multipleAnswer.value ? 'multiple' : 'single',
-      shouldResetBackground: this.shouldResetBackground,
-      selectedOption: this.selectedOption,
-      showFeedbackForOption: this.showFeedbackForOption,
-      currentQuestion: this.currentQuestion,
-      correctMessage: this.correctMessage,
-      showFeedback: this.showFeedback,
-      feedback: this.feedback
+      optionsToDisplay: this.questionData?.options || [],
+      type: this.mapQuestionType(this.questionData?.type),
+      shouldResetBackground: false,
+      selectedOption: null,
+      showFeedbackForOption: {},
+      currentQuestion: this.questionData,
+      showFeedback: false,
+      feedback: '',
+      correctMessage: ''
     };
-    
+
     console.log('Shared option config after init:', this.sharedOptionConfig);
+  }
+
+  private mapQuestionType(type: QuestionType | undefined): 'single' | 'multiple' {
+    switch (type) {
+      case QuestionType.MultipleAnswer:
+        return 'multiple';
+      case QuestionType.SingleAnswer:
+      default:
+        return 'single';
+    }
   }
 
   private saveQuizState(): void {
