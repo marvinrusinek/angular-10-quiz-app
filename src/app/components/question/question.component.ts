@@ -443,7 +443,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     return this.selectedOptions && this.selectedOptions.length > 0;
   }
 
-  initializeSharedOptionConfig() {
+  initializeSharedOptionConfig(): void {
     console.log('Initializing shared option config');
     console.log('Full questionData:', this.questionData);
     console.log('Options from questionData:', this.questionData?.options);
@@ -472,15 +472,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log('Shared option config after init:', this.sharedOptionConfig);
   }
 
-  /* private mapQuestionType(type: QuestionType | undefined): 'single' | 'multiple' {
-    switch (type) {
-      case QuestionType.MultipleAnswer:
-        return 'multiple';
-      case QuestionType.SingleAnswer:
-      default:
-        return 'single';
-    }
-  } */
   private mapQuestionType(type: QuestionType): 'single' | 'multiple' {
     return type === QuestionType.MultipleAnswer ? 'multiple' : 'single';
   }
