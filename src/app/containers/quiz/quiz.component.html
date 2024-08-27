@@ -30,6 +30,7 @@
             [selectedOption]="selectedOption$ | async"          
             [currentQuestion]="currentQuestion"
             [currentQuestion$]="currentQuestion$ | async"
+            [questionData]="currentQuestion"
             [currentQuestionIndex]="currentQuestionIndex"            
             [multipleAnswer]="multipleAnswer"
             (answersChange)="checkIfAnsweredCorrectly()"
