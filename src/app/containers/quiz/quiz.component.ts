@@ -13,6 +13,7 @@ import { QuestionState } from '../../shared/models/QuestionState.model';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizComponentData } from '../../shared/models/QuizComponentData.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { Resource } from '../../shared/models/Resource.model';
@@ -54,6 +55,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   formControl: FormControl;
   quiz: Quiz;
   quizData: QuizData[];
+  quizComponentData: QuizComponentData;
   quizId = '';
   quizResources: QuizResource[];
   quizQuestions: QuizQuestion[];
@@ -196,13 +198,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.log('isAnswered in QuizComponent:', isAnswered);
     });
 
-    this.quizData = {
+    this.quizComponentData = {
       data: this.data,
       currentQuestion: this.currentQuestion,
-      questions$: this.questions$,
+      questions: [], // Initialize with actual data
       optionsToDisplay: this.optionsToDisplay,
-      selectedOption$: this.selectedOption$,
-      currentQuestion$: this.currentQuestion$,
+      selectedOption: null, // Initialize with actual data
       currentQuestionIndex: this.currentQuestionIndex,
       multipleAnswer: this.multipleAnswer,
       showFeedback: this.showFeedback,
