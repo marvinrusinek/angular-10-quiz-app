@@ -4,6 +4,11 @@
       <ng-container [ngSwitch]="type">
         <mat-checkbox *ngSwitchCase="'multiple'"
           appHighlightOption
+          [option]="option"
+          [isCorrect]="option.correct"
+          [showFeedbackForOption]="showFeedbackForOption"
+          [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
+          [allOptions]="optionsToDisplay"
           [appHighlightInputType]="'checkbox'"
           [appHighlightReset]="shouldResetBackground"
           [appResetBackground]="shouldResetBackground"
@@ -17,6 +22,11 @@
         
         <mat-radio-button *ngSwitchCase="'single'"
           appHighlightOption
+          [option]="option"
+          [isCorrect]="option.correct"
+          [showFeedbackForOption]="showFeedbackForOption"
+          [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
+          [allOptions]="optionsToDisplay"
           [appHighlightInputType]="'radio'"
           [appHighlightReset]="shouldResetBackground"
           [appResetBackground]="shouldResetBackground"
