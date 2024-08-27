@@ -8,7 +8,6 @@ export interface SharedOptionConfig {
   feedback: any;
   type: 'single' | 'multiple';
   shouldResetBackground: boolean;
-  showFeedbackForOption: boolean;
   correctMessage: string;
   showFeedbackForOption: { [optionId: number]: boolean };
 }
