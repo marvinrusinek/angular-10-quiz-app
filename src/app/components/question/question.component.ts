@@ -444,6 +444,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   initializeSharedOptionConfig(): void {
+    console.log('Initializing shared option config');
+    console.log('Options to display before init:', this.optionsToDisplay);
+    
     this.sharedOptionConfig = {
       optionsToDisplay: this.optionsToDisplay,
       type: this.multipleAnswer.value ? 'multiple' : 'single',
