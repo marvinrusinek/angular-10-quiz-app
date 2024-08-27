@@ -13,7 +13,8 @@
           [isCorrect]="option.correct"
           [selectedOption]="selectedOption"
           [option]="option"
-          [disabled]="option.selected">
+          [disabled]="option.selected"
+          [attr.aria-label]="'Option ' + (idx + 1)">
           <div class="option-content">
             <span class="option-text" 
               [ngStyle]="optionTextStyle">
@@ -38,7 +39,8 @@
           [isCorrect]="option.correct"
           [selectedOption]="selectedOption"
           [option]="option"
-          [disabled]="option.selected">
+          [disabled]="option.selected"
+          [attr.aria-label]="'Option ' + (idx + 1)">
           <div class="option-content">
             <span class="option-text" 
               [ngStyle]="optionTextStyle">
