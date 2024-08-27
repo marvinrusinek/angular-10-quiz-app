@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
@@ -16,7 +16,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
     '../shared-option.component.scss'
   ]
 })
-export class SingleAnswerComponent extends BaseQuestionComponent implements OnInit {
+export class SingleAnswerComponent extends BaseQuestionComponent {
   @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
@@ -29,20 +29,6 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     protected cdRef: ChangeDetectorRef
   ) {
     super(quizService, selectedOptionService, fb, cdRef);
-  }
-
-  ngOnInit(): void {
-    this.sharedOptionConfig = {
-      optionsToDisplay: this.optionsToDisplay,
-      selectedOption: this.selectedOption,
-      currentQuestion: this.currentQuestion,
-      showFeedback: this.showFeedback,
-      feedback: this.feedback,
-      type: 'single',
-      shouldResetBackground: this.shouldResetBackground,
-      showFeedbackForOption: this.showFeedbackForOption,
-      correctMessage: this.correctMessage
-    };
   }
 
   loadDynamicComponent(): void {}
