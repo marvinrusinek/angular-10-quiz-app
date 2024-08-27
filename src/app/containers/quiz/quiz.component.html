@@ -98,7 +98,7 @@
               (window:keydown.Enter)="advanceToNextQuestion()"
               aria-label="Next Question"
               [disabled]="(isLoading$ | async) || !(isAnswered$ | async)"
-              title="Please select an option to continue..."
+              [matTooltip]="(isAnswered$ | async) ? 'Next Question »' : 'Please select an option to continue...'"
               data-toggle="tooltip" data-placement="top"
             >
               <i class="material-icons">navigate_next</i>
