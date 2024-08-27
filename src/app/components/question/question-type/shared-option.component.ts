@@ -52,6 +52,21 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (changes.currentQuestion) {
       this.resetOptionState(); // Reset option states when the question changes
     }
+
+    if (changes.config) {
+      console.log('Config changed in SharedOptionComponent');
+      this.logConfig();
+    }
+  }
+
+  private logConfig(): void {
+    console.log('Current config in SharedOptionComponent:', this.config);
+    if (this.config && this.config.optionsToDisplay) {
+      console.log('Options count:', this.config.optionsToDisplay.length);
+      console.log('First option:', this.config.optionsToDisplay[0]);
+    } else {
+      console.warn('No options in config');
+    }
   }
 
   private resetOptionState(): void {
