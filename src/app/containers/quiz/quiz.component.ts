@@ -195,6 +195,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isAnswered$.subscribe(isAnswered => {
       console.log('isAnswered in QuizComponent:', isAnswered);
     });
+
+    this.quizData = {
+      data: this.data,
+      currentQuestion: this.currentQuestion,
+      questions$: this.questions$,
+      optionsToDisplay: this.optionsToDisplay,
+      selectedOption$: this.selectedOption$,
+      currentQuestion$: this.currentQuestion$,
+      currentQuestionIndex: this.currentQuestionIndex,
+      multipleAnswer: this.multipleAnswer,
+      showFeedback: this.showFeedback,
+      selectionMessage: this.selectionMessage
+    };
   }
 
   @HostListener('window:focus', ['$event'])

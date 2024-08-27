@@ -20,7 +20,7 @@
         <ng-content></ng-content>
 
         <ng-container *ngIf="optionsToDisplay">
-          <codelab-quiz-question
+          <!--<codelab-quiz-question
             *ngIf="isContentAvailable"
             [data]="data"
             [question]="currentQuestion"
@@ -36,6 +36,13 @@
             (answersChange)="checkIfAnsweredCorrectly()"
             [showFeedback]="showFeedback"
             [selectionMessage]="selectionMessage"
+            (selectionMessageChange)="onSelectionMessageChange($event)"
+            (isAnsweredChange)="onIsAnsweredChange($event)"
+          ></codelab-quiz-question>-->
+          <codelab-quiz-question
+            *ngIf="isContentAvailable"
+            [quizData]="quizData"
+            (answer)="selectedAnswer($event)"
             (selectionMessageChange)="onSelectionMessageChange($event)"
             (isAnsweredChange)="onIsAnsweredChange($event)"
           ></codelab-quiz-question>
