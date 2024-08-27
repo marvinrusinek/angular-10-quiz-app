@@ -10,4 +10,5 @@ export interface SharedOptionConfig {
   shouldResetBackground: boolean;
   showFeedbackForOption: boolean;
   correctMessage: string;
+  showFeedbackForOption: { [optionId: number]: boolean };
 }
