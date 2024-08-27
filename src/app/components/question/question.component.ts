@@ -244,8 +244,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     );
   
     try {
-      const quizId =
-        this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
+      const quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
       if (!quizId) {
         console.error('Quiz ID is missing');
         return;
@@ -296,8 +295,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
       this.initializeQuizQuestion();
       await this.handleQuestionState();
-      // this.loadOptions();
-      // super.setCorrectMessage([]);
 
       // Subscribe to selectionMessage$ to update the message displayed in the template
       this.selectionMessageService.selectionMessage$
