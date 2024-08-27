@@ -73,7 +73,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
       for (const option of this.optionsToDisplay) {
         option.selected = false;
-      }      
+      }
     }
   }  
 
