@@ -69,7 +69,7 @@ export class HighlightOptionDirective implements OnChanges {
 
     if (this.option) {
       this.isAnswered = true; // Mark as answered
-      this.updateHighlight(true); // Update the highlight with answered state
+      this.updateHighlight(); // Update the highlight with answered state
 
       // Check user preference and highlight correct answers if needed
       if (!this.isCorrect && this.highlightCorrectAfterIncorrect) {
@@ -83,61 +83,6 @@ export class HighlightOptionDirective implements OnChanges {
     }
   }
 
-  handleOptionClick(option: Option, idx: number): void {
-    if (this.type === 'single') {
-      this.selectedOptions.clear();
-    }
-    if (this.selectedOptions.has(idx)) {
-      this.selectedOptions.delete(idx);
-    } else {
-      this.selectedOptions.add(idx);
-    }
-    // Your existing logic here
-  }
-
-  isSelectedOption(idx: number): boolean {
-    return this.selectedOptions.has(idx);
-  }
-
-  getOptionClass(option: Option, idx: number): string {
-    if (!this.showFeedback) {
-      return '';
-    }
-    if (this.isSelectedOption(idx)) {
-      return option.correct ? 'correct-selected' : 'incorrect-selected';
-    }
-    if (this.type === 'multiple' && option.correct) {
-      return 'correct-unselected';
-    }
-    return '';
-  }
-
-  /* private updateHighlight(): void {
-    if (!this.option || !this.showFeedback) {
-      this.backgroundColor = 'white';
-      return;
-    }
-
-    const isMultiple = this.appHighlightInputType === 'checkbox';
-
-    if (isMultiple) {
-      if (this.isSelected) {
-        this.backgroundColor = this.option.correct ? '#43f756' : '#ff0000';
-      } else if (this.option.correct) {
-        this.backgroundColor = '#43f756';
-      } else {
-        this.backgroundColor = 'white';
-      }
-    } else {
-      if (this.isSelected) {
-        this.backgroundColor = this.option.correct ? '#43f756' : '#ff0000';
-      } else {
-        this.backgroundColor = 'white';
-      }
-    }
-
-    console.log(`Updated background color for ${this.option.text}: ${this.backgroundColor}`);
-  } */
   private updateHighlight(): void {
     if (!this.option || !this.showFeedback) {
       this.setBackgroundColor('white');
@@ -203,6 +148,7 @@ export class HighlightOptionDirective implements OnChanges {
   // Reset the state in-between questions
   public reset(): void {
     this.isAnswered = false;
+    this.setBackgroundColor('white');
     this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
     this.resetBackground.emit(true); // Emit event to notify the reset
   }
