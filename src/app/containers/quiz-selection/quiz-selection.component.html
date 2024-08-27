@@ -29,21 +29,11 @@
       <span i18n>Milestones &#x25BC;</span>
     </button>
     <mat-menu #menu="matMenu" xPosition="before">
-      <span style="margin-left: 10px" i18n
-        ><strong>Select a Quiz&hellip;</strong></span
-      >
-      <div *ngFor="let quiz of quizzes$ | async">
-        <button
-          mat-menu-item
-          name="milestone"
-          routerLinkActive="active"
-          [routerLink]="['/intro/', quiz?.quizId]"
-          data-i18n="quiz.milestone"
-          style="outline: none !important; border: none !important;"
-        >
-          {{ quiz?.milestone || 'Milestone not found' }}
-        </button>
-      </div>
+      <span style="margin-left: 10px" i18n><strong>Select a Quiz&hellip;</strong></span>
+      <button mat-menu-item *ngFor="let quiz of quizzes$ | async"
+              [routerLink]="['/intro/', quiz?.quizId]">
+        {{ quiz?.milestone || 'Milestone not found' }}
+      </button>
     </mat-menu>
   </div>
 
