@@ -85,7 +85,7 @@ export class HighlightOptionDirective implements OnChanges {
 
   private updateHighlight(): void {
     if (!this.option || !this.showFeedback) {
-      this.setBackgroundColor('white');
+      this.setBackgroundColor('transparent');
       return;
     }
 
@@ -94,7 +94,7 @@ export class HighlightOptionDirective implements OnChanges {
     } else if (this.isMultipleAnswer && this.option.correct) {
       this.setBackgroundColor('#43f756');
     } else {
-      this.setBackgroundColor('white');
+      this.setBackgroundColor('transparent');
     }
   }
 
