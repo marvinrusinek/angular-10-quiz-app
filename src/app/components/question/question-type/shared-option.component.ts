@@ -155,20 +155,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.optionClicked.emit({ option, index });
   } */
 
-  handleOptionClick(option: SelectedOption, index: number): void {
-    if (this.isSubmitted) return;
-
+  handleOptionClick(option: Option, index: number): void {
     if (this.type === 'single') {
       this.selectedOptions.clear();
-      this.optionsToDisplay.forEach(opt => opt.selected = false);
     }
 
     if (this.selectedOptions.has(option.optionId)) {
       this.selectedOptions.delete(option.optionId);
-      option.selected = false;
     } else {
       this.selectedOptions.add(option.optionId);
-      option.selected = true;
     }
 
     this.optionClicked.emit({ option, index });
