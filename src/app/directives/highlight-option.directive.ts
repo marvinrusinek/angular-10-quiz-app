@@ -82,7 +82,7 @@ export class HighlightOptionDirective implements OnChanges {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
 
-  private highlightCorrectAnswers(): void {
+  /* private highlightCorrectAnswers(): void {
     console.log('Highlighting correct answers');
   
     if (this.allOptions) {
@@ -98,6 +98,25 @@ export class HighlightOptionDirective implements OnChanges {
           // Ensure incorrect options are not highlighted
           if (opt.optionId === this.option.optionId) {
             this.renderer.setStyle(this.el.nativeElement, 'background-color', '#ff0000');
+          }
+        }
+      }
+    } else {
+      console.error('All options are not defined');
+    }
+  } */
+
+  private highlightCorrectAnswers(): void {
+    console.log('Highlighting correct answers');
+  
+    if (this.allOptions) {
+      for (const opt of this.allOptions) {
+        if (opt.correct) {
+          console.log('Correct option found:', opt.text, ' - Option ID:', opt.optionId);
+          this.showFeedbackForOption[opt.optionId] = true;
+          // Apply the highlight only if this is the element corresponding to the correct option
+          if (opt.optionId === this.option.optionId) {
+            this.renderer.setStyle(this.el.nativeElement, 'background-color', '#43f756');
           }
         }
       }
