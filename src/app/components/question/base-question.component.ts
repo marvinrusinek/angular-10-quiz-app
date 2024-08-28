@@ -68,6 +68,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.quizStateService.setCurrentQuestion(this.question);
       this.initializeQuestion();
     } */
+    this.initializeSharedOptionConfig();
     this.initializeQuestion();
     this.subscribeToQuestionChanges();
     // this.questionAnswered.emit();
