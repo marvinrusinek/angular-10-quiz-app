@@ -5,6 +5,7 @@ import { OptionBindings } from '../../../shared/models/OptionBindings.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
+import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
 
 @Component({
@@ -35,6 +36,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   };
 
   constructor(
+    private quizStateService: QuizStateService,
     private userPreferenceService: UserPreferenceService,
     private cdRef: ChangeDetectorRef
   ) {}
