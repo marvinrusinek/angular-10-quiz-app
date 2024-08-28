@@ -89,10 +89,15 @@ export class HighlightOptionDirective implements OnChanges {
       return;
     }
 
-    if (this.isSelected) {
+    /* if (this.isSelected) {
       this.setBackgroundColor(this.option.correct ? '#43f756' : '#ff0000');
     } else if (this.isMultipleAnswer && this.option.correct && this.showFeedback) {
       this.setBackgroundColor('#43f756');
+    } else {
+      this.setBackgroundColor('transparent');
+    } */
+    if (this.isSelected) {
+      this.setBackgroundColor(this.isCorrect ? '#43f756' : '#ff0000');
     } else {
       this.setBackgroundColor('transparent');
     }
