@@ -170,7 +170,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     if (this.quizStateService) {
       console.log('currentQuestion$ in subscribeToQuestionChanges:', this.quizStateService.currentQuestion$);
       
-      this.questionSubscription = this.quizStateService.currentQuestion$.subscribe({
+      this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
           console.log('Received new question from subscription:', currentQuestion);
           if (currentQuestion) {
