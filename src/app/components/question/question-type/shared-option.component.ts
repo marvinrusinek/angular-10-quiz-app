@@ -68,6 +68,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes.optionsToDisplay) {
+      this.initializeOptionBindings();
+    }
     /* if (changes.currentQuestion) {
       this.resetOptionState(); // Reset option states when the question changes
     }
@@ -191,7 +194,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       option.selected = true;
     }
 
+    this.showFeedbackForOption[option.optionId] = true; // Ensure feedback is shown
     this.optionClicked.emit({ option, index });
+    this.cdr.detectChanges(); // Trigger change detection manually
   }
 
   getOptionClass(option: Option): string {

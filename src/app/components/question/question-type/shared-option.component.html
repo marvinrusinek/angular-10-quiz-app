@@ -1,28 +1,28 @@
 <ng-container *ngIf="optionsToDisplay?.length; else noOptions">
-  <div *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption">
+  <div *ngFor="let optionBinding of optionBindings; let idx = index; trackBy: trackByOption">
     <label class="options">
       <ng-container [ngSwitch]="type">
         <mat-checkbox *ngSwitchCase="'multiple'"
           appHighlightOption
-          [attr.aria-label]="optionBindings[idx].ariaLabel"
-          [checked]="optionBindings[idx].isSelected"
-          [disabled]="optionBindings[idx].disabled"
-          (change)="optionBindings[idx].change()">
-          <ng-container *ngTemplateOutlet="optionContent; context: {option: option, idx: idx}"></ng-container>
+          [attr.aria-label]="optionBinding.ariaLabel"
+          [checked]="optionBinding.isSelected"
+          [disabled]="optionBinding.disabled"
+          (change)="optionBinding.change()">
+          <ng-container *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}"></ng-container>
         </mat-checkbox>
         
         <mat-radio-button *ngSwitchCase="'single'"
           appHighlightOption
-          [attr.aria-label]="optionBindings[idx].ariaLabel"
-          [checked]="optionBindings[idx].isSelected"
-          [disabled]="optionBindings[idx].disabled"
-          (change)="optionBindings[idx].change()">
-          <ng-container *ngTemplateOutlet="optionContent; context: {option: option, idx: idx}"></ng-container>
+          [attr.aria-label]="optionBinding.ariaLabel"
+          [checked]="optionBinding.isSelected"
+          [disabled]="optionBinding.disabled"
+          (change)="optionBinding.change()">
+          <ng-container *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}"></ng-container>
         </mat-radio-button>
       </ng-container>
       
       <codelab-quiz-feedback
-        *ngIf="showFeedback && selectedOption === option"
+        *ngIf="showFeedback && selectedOption === optionBinding.option"
         [question]="currentQuestion"
         [selectedOption]="selectedOption"
         [correctMessage]="correctMessage"
