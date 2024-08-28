@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Inject, Input, OnInit, OnChanges, OnDestroy, Optional, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
@@ -144,7 +144,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.questionForm = new FormGroup({});
       for (const option of this.question.options) {
         if (!this.questionForm.contains(option.text)) {
-          this.questionForm.addControl(option.text, this.fb.control(false));
+          this.questionForm.addControl(option.text, new FormControl(false));
         }
       }
       this.optionsToDisplay = this.question.options || [];
