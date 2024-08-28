@@ -144,7 +144,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
 
-  protected subscribeToQuestionChanges(): void {
+  /* protected subscribeToQuestionChanges(): void {
     if (this.quizStateService && this.quizStateService.currentQuestion$) {
       this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
@@ -161,6 +161,31 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       });
     } else {
       console.error('currentQuestion$ is undefined in subscribeToQuestionChanges');
+    }
+  } */
+  protected subscribeToQuestionChanges(): void {
+    console.log('Subscribing to question changes');
+    console.log('QuizStateService in subscribeToQuestionChanges:', this.quizStateService);
+    
+    if (this.quizStateService) {
+      console.log('currentQuestion$ in subscribeToQuestionChanges:', this.quizStateService.currentQuestion$);
+      
+      this.questionSubscription = this.quizStateService.currentQuestion$.subscribe({
+        next: (currentQuestion) => {
+          console.log('Received new question from subscription:', currentQuestion);
+          if (currentQuestion) {
+            this.question = currentQuestion;
+            this.initializeQuestion();
+          } else {
+            console.warn('Received null currentQuestion');
+          }
+        },
+        error: (err) => {
+          console.error('Error subscribing to currentQuestion:', err);
+        }
+      });
+    } else {
+      console.error('quizStateService is undefined in subscribeToQuestionChanges');
     }
   }
 
