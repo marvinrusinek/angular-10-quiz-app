@@ -47,7 +47,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     protected dynamicComponentService: DynamicComponentService,
     protected explanationTextService: ExplanationTextService,
     protected quizService: QuizService,
-    @Optional() protected quizStateService: QuizStateService,
+    @Optional() private _quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
     protected cdRef: ChangeDetectorRef
   ) {}
@@ -57,7 +57,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     console.log('ngOnInit - ExplanationTextService:', this.explanationTextService);
     
     if (this.question) {
-      this.quizStateService.setCurrentQuestion(this.question);
+      this.setCurrentQuestion(this.question);
+      // this.quizStateService.setCurrentQuestion(this.question);
       this.initializeQuestion();
     } else {
       console.warn('Initial question input is undefined in ngOnInit, waiting for ngOnChanges');
@@ -122,7 +123,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     if (this.question) {
       this.initializeOptions();
       this.optionsInitialized = true;
-      this.quizStateService.setCurrentQuestion(this.question);
+      this.setCurrentQuestion(this.question);
     } else {
       console.error('Initial question input is undefined in ngOnInit');
     }
@@ -147,8 +148,20 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
 
+  protected get quizStateService(): QuizStateService | undefined {
+    return this._quizStateService;
+  }
+
+  protected setCurrentQuestion(question: QuizQuestion): void {
+    if (this._quizStateService) {
+      this._quizStateService.setCurrentQuestion(question);
+    } else {
+      console.warn('quizStateService is not available. Unable to set current question.');
+    }
+  }
+
   protected subscribeToQuestionChanges(): void {
-    if (this.quizStateService && this.quizStateService.currentQuestion$) {
+    if (this._quizStateService && this.quizStateService.currentQuestion$) {
       this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
           if (currentQuestion) {
