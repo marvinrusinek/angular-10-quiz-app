@@ -80,6 +80,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
+  onQuestionChange(question: QuizQuestion): void {
+    this.quizStateService.setCurrentQuestion(question);
+  }
+
   /* resetState(): void {
     this.selectedOptions.clear();
     this.isSubmitted = false;
