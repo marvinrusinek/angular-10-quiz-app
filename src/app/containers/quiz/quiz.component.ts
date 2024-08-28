@@ -336,10 +336,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  onQuestionChange(question: QuizQuestion): void {
-    this.quizStateService.setCurrentQuestion(question);
-  }
-
   onExplanationToDisplayChange(explanation: string): void {
     this.explanationToDisplay = explanation;
   }
