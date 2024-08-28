@@ -336,6 +336,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  onQuestionAnswered(question: QuizQuestion): void {
+    console.log('Question answered in QuizComponent:', question);
+    this.quizStateService.setCurrentQuestion(question);
+  }
+
   onExplanationToDisplayChange(explanation: string): void {
     this.explanationToDisplay = explanation;
   }
