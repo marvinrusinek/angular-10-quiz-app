@@ -5,6 +5,7 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
+import { SharedOptionConfig } from '../../shared/models/SharedOptionConfig.model';
 import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 import { QuizService } from '../../shared/services/quiz.service';
