@@ -1,12 +1,9 @@
-// get rid of feedback, look into using OptionClickEvent, remove code in ngAfterViewInit(), remove 138
-
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Inject, Input, OnInit, OnChanges, OnDestroy, Optional, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
-import { OptionClickEvent } from '../../shared/models/OptionClickEvent.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../shared/models/SharedOptionConfig.model';
@@ -51,7 +48,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     protected dynamicComponentService: DynamicComponentService,
     protected explanationTextService: ExplanationTextService,
     protected quizService: QuizService,
-    protected quizStateService: QuizStateService,
+    @Optional() protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
     protected cdRef: ChangeDetectorRef
   ) {}
@@ -63,7 +60,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     this.initializeSharedOptionConfig();
     
     if (this.question) {
-      this.quizStateService.setCurrentQuestion(this.question);
+      this.setCurrentQuestion(this.question);
       this.initializeQuestion();
     } else {
       console.warn('Initial question input is undefined in ngOnInit, waiting for ngOnChanges');
@@ -134,7 +131,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
 
     if (this.question && this.question.options) {
-      // this.questionForm = this.fb.group({});
       this.questionForm = new FormGroup({});
       for (const option of this.question.options) {
         if (!this.questionForm.contains(option.text)) {
@@ -261,5 +257,13 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   private mapQuestionType(type: QuestionType): 'single' | 'multiple' {
     return type === QuestionType.MultipleAnswer ? 'multiple' : 'single';
+  }
+
+  protected setCurrentQuestion(question: QuizQuestion): void {
+    if (this.quizStateService) {
+      this.quizStateService.setCurrentQuestion(question);
+    } else {
+      console.warn('quizStateService is not available. Unable to set current question.');
+    }
   }
 }
