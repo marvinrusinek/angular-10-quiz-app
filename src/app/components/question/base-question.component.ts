@@ -24,6 +24,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   dynamicComponentContainer!: ViewContainerRef;
   @Output() explanationToDisplayChange = new EventEmitter<string>();
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number }>();
+  @Output() questionChange = new EventEmitter<QuizQuestion>();
   @Input() question: QuizQuestion | null = null;
   @Input() optionsToDisplay: Option[] = [];
   @Input() correctMessage = '';
