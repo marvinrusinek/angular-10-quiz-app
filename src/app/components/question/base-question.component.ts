@@ -244,7 +244,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
 
     this.sharedOptionConfig = {
-      optionsToDisplay: this.options || [],
+      optionsToDisplay: this.optionsToDisplay || [],
       type: this.mapQuestionType(this.questionData.type),
       shouldResetBackground: false,
       selectedOption: null,
