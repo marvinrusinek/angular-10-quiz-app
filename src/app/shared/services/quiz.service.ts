@@ -246,6 +246,7 @@ export class QuizService implements OnDestroy {
     this.activeQuiz = quiz;
     this.questionsList = quiz.questions;
     this.questionsSubject.next(quiz.questions);
+    this.questions = quiz.questions;
     console.log('Questions initialized:', this.questionsList);
   }
 
@@ -362,6 +363,7 @@ export class QuizService implements OnDestroy {
       .subscribe({
         next: (data: Quiz[]) => {
           this._quizData$.next(data);
+          console.log('Quiz data initialized:', data);
         },
         error: (err) => {
           console.error('Error fetching quiz data:', err);
