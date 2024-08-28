@@ -55,11 +55,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     protected cdRef: ChangeDetectorRef
   ) {
     console.log('Constructor - ExplanationTextService:', this.explanationTextService);
-    if (!this.fb || typeof this.fb.group !== 'function') {
+    /* if (!this.fb || typeof this.fb.group !== 'function') {
       console.error('FormBuilder group method is not a function or FormBuilder is not instantiated properly:', this.fb);
     } else {
       this.questionForm = this.fb.group({});
-    }
+    } */
   }
 
   ngOnInit(): void {
@@ -140,7 +140,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
 
     if (this.question && this.question.options) {
-      this.questionForm = this.fb.group({});
+      // this.questionForm = this.fb.group({});
+      this.questionForm = new FormGroup({});
       for (const option of this.question.options) {
         if (!this.questionForm.contains(option.text)) {
           this.questionForm.addControl(option.text, this.fb.control(false));
