@@ -5,7 +5,6 @@ export interface SharedOptionConfig {
   selectedOption: any;
   currentQuestion: any;
   showFeedback: boolean;
-  feedback: any;
   type: 'single' | 'multiple';
   shouldResetBackground: boolean;
   correctMessage: string;
