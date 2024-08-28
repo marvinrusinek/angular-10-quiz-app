@@ -171,6 +171,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   protected abstract loadDynamicComponent(): void;
   
   public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+    this.sharedOptionConfig.selectedOption = event.option;
     try {
       // Ensure showFeedbackForOption is initialized
       if (!this.showFeedbackForOption) {
