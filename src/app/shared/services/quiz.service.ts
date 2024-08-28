@@ -915,6 +915,8 @@ export class QuizService implements OnDestroy {
   async initializeCombinedQuestionData(): Promise<void> {
     try {
       const currentQuestion = await firstValueFrom(this.currentQuestion$);
+      const formattedExplanation = await firstValueFrom(this.explanationTextService.formattedExplanation$);
+      
       if (currentQuestion) {
         const combinedQuestionData: CombinedQuestionDataType = {
           questionText: currentQuestion.questionText,
@@ -924,7 +926,7 @@ export class QuizService implements OnDestroy {
           options: this.data.currentOptions,
           isNavigatingToPrevious: false,
           explanationText: '',
-          formattedExplanation: this.explanationTextService.formattedExplanation$.value,
+          formattedExplanation: formattedExplanation,
           isExplanationDisplayed: true
         };        
         this.combinedQuestionDataSubject.next(combinedQuestionData);
