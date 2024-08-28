@@ -47,7 +47,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     protected dynamicComponentService: DynamicComponentService,
     protected explanationTextService: ExplanationTextService,
     protected quizService: QuizService,
-    protected quizStateService: QuizStateService,
+    @Optional() protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
     protected cdRef: ChangeDetectorRef
   ) {}
