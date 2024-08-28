@@ -36,7 +36,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @Input() correctMessage: string;
   @Input() showFeedback: boolean;
   @Input() shouldResetBackground = false;
-
+  optionBindings: OptionBindings[] = [];
   selectedOptions: Set<number> = new Set();
   isSubmitted = false;
   iconVisibility: boolean[] = []; // Array to store visibility state of icons
