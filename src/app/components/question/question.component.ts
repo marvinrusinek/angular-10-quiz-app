@@ -1364,10 +1364,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('Setting showFeedbackForOption for option:', option.text);
         this.showFeedbackForOption[option.optionId] = true;
       }
-    }    
-  
-    // Trigger change detection if necessary
-    this.cdRef.detectChanges();
+    }
   }
   
   // Helper method to update feedback for options
@@ -1899,7 +1896,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     if (document.hidden) {
       console.log('Document is hidden, returning placeholder text.');
       this.explanationToDisplay = 'Explanation text not available when document is hidden.';
-      this.cdRef.detectChanges();
       return;
     }
 
@@ -1920,8 +1916,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error('Error in fetching explanation text:', error);
       return 'Error fetching explanation.';
     }
-    
-    this.cdRef.detectChanges(); // Ensure the UI updates
   }
 
   async fetchAndSetExplanationText(): Promise<void> {
