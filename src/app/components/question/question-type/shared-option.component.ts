@@ -205,7 +205,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return '';
   }
 
-  getOptionBindings(option: Option, idx: number) {
+  getOptionBindings(option: Option, idx: number): OptionBindings {
     return {
       option: option,
       isCorrect: option.correct,
