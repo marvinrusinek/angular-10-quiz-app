@@ -822,14 +822,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private initializeAndPrepareQuestion(questionData: CombinedQuestionDataType, quizId: string): void {
+    if (!quizId) {
+      console.error('Quiz ID is not provided or is empty');
+      return;
+    }
+
     const data = {
       ...questionData,
       currentOptions: questionData.currentOptions || []
     };
     this.data = data;
     this.quizService.setQuizId(quizId);
-    this.quizService.fetchQuizQuestions(quizId);
-    this.quizService.setQuestionData(questionData);
+    this.quizService.fetchQuizQuestions(quizId).then(questions => {
+      console.log('Fetched questions:', questions);
+      this.quizService.setQuestionData(questionData);
+    }).catch(error => {
+      console.error('Error fetching questions:', error);
+    });
 
     // Subscribe to the observable to get the actual data
     this.quizStateService.currentOptions$.subscribe((options: Option[]) => {
