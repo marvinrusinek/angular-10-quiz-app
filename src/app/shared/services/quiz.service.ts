@@ -467,6 +467,7 @@ export class QuizService implements OnDestroy {
   async fetchQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
       if (!quizId) {
+        console.error('Quiz ID is not provided or is empty:', quizId); // Log the quizId
         throw new Error('Quiz ID is not provided or is empty');
       }
   
@@ -916,7 +917,7 @@ export class QuizService implements OnDestroy {
     try {
       const currentQuestion = await firstValueFrom(this.currentQuestion$);
       const formattedExplanation = await firstValueFrom(this.explanationTextService.formattedExplanation$);
-      
+
       if (currentQuestion) {
         const combinedQuestionData: CombinedQuestionDataType = {
           questionText: currentQuestion.questionText,
