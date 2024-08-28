@@ -466,6 +466,8 @@ export class QuizService implements OnDestroy {
 
   async fetchQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
+      console.log('fetchQuizQuestions called with quizId:', quizId); // Log the quizId
+      
       if (!quizId) {
         console.error('Quiz ID is not provided or is empty:', quizId); // Log the quizId
         throw new Error('Quiz ID is not provided or is empty');
