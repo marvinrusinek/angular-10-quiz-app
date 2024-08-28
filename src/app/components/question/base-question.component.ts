@@ -65,18 +65,17 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   ngOnInit(): void {
     console.log('BQC initialized with question:', this.question);
     console.log('ngOnInit - ExplanationTextService:', this.explanationTextService);
-    /* if (this.question) {
-      this.quizStateService.setCurrentQuestion(this.question);
-      this.initializeQuestion();
-    } */
+
     this.initializeSharedOptionConfig();
+    
     if (this.question) {
+      this.quizStateService.setCurrentQuestion(this.question);
       this.initializeQuestion();
     } else {
       console.warn('Initial question input is undefined in ngOnInit, waiting for ngOnChanges');
     }
+
     this.subscribeToQuestionChanges();
-    // this.questionAnswered.emit();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
