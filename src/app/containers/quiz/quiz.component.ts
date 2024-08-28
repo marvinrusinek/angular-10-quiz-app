@@ -227,8 +227,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     } else {
       console.warn('Current question index is undefined.');
     }
-
-    this.cdRef.detectChanges(); // Ensure the UI is updated with the restored state
   }
 
   async ngOnInit(): Promise<void> {
@@ -1869,9 +1867,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private resetUI(): void {
     this.question = null;
     this.optionsToDisplay = [];
-    this.ngZone.run(() => {
-      this.cdRef.detectChanges();
-    });
 
     console.log('QuizComponent - resetUI called');
     if (this.quizQuestionComponent) {
