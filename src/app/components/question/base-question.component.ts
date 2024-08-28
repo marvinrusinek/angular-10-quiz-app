@@ -73,7 +73,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     if (this.question) {
       this.initializeQuestion();
     } else {
-      console.error('Initial question input is undefined in ngOnInit');
+      console.warn('Initial question input is undefined in ngOnInit, waiting for ngOnChanges');
     }
     this.subscribeToQuestionChanges();
     // this.questionAnswered.emit();
