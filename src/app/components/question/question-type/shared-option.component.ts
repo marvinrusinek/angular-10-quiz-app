@@ -229,7 +229,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       appResetBackground: this.shouldResetBackground,
       optionsToDisplay: this.optionsToDisplay,
       isSelected: this.isSelectedOption(option),
-      change: () => this.handleOptionClick(option as SelectedOption, idx),
+      change: () => this.handleOptionClick(option, idx),
       disabled: option.selected,
       ariaLabel: 'Option ' + (idx + 1)
     };
