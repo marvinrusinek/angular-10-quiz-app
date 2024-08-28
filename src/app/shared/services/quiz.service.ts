@@ -466,13 +466,17 @@ export class QuizService implements OnDestroy {
 
   async fetchQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
+      if (!quizId) {
+        throw new Error('Quiz ID is not provided or is empty');
+      }
+  
       const quizzes = await firstValueFrom(this.http.get<Quiz[]>(this.quizUrl));
       const quiz = quizzes.find(q => q.quizId === quizId);
-
+  
       if (!quiz) {
         throw new Error(`Quiz with ID ${quizId} not found`);
       }
-
+  
       for (const [qIndex, question] of quiz.questions.entries()) {
         if (question.options) {
           for (const [oIndex, option] of question.options.entries()) {
@@ -482,7 +486,7 @@ export class QuizService implements OnDestroy {
           console.error(`Options are not properly defined for question: ${question.questionText}`);
         }
       }
-      
+  
       if (this.checkedShuffle.value) {
         Utils.shuffleArray(quiz.questions);
         for (const question of quiz.questions) {
@@ -490,8 +494,8 @@ export class QuizService implements OnDestroy {
             Utils.shuffleArray(question.options);
           }
         }
-      }      
-
+      }
+  
       this.questionsSubject.next(quiz.questions);
       return quiz.questions;
     } catch (error) {
