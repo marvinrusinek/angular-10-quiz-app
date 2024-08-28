@@ -4,6 +4,7 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
+import { OptionClickEvent } from '../../shared/models/OptionClickEvent.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../shared/models/SharedOptionConfig.model';
