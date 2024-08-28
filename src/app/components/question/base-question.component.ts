@@ -37,7 +37,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   sharedOptionConfig: SharedOptionConfig;
   currentQuestionSubscription: Subscription;
   explanationToDisplay: string;
-  feedback = '';
   multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   questionForm: FormGroup;
   selectedOption!: SelectedOption;
@@ -254,7 +253,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       showFeedbackForOption: {},
       currentQuestion: this.questionData,
       showFeedback: false,
-      feedback: '',
       correctMessage: ''
     };
 
