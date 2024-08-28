@@ -58,8 +58,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     console.log('ngOnInit - ExplanationTextService:', this.explanationTextService);
     
     if (this.question) {
-      // this.setCurrentQuestion(this.question);
-      // this.quizStateService.setCurrentQuestion(this.question);
       this.initializeQuestion();
     } else {
       console.warn('Initial question input is undefined in ngOnInit, waiting for ngOnChanges');
@@ -75,9 +73,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       if (changes.question.currentValue) {
         console.log('New question received:', changes.question.currentValue);
         this.question = changes.question.currentValue;
-        this.quizStateService.setCurrentQuestion(this.question);
         this.initializeQuestion();
-        this.optionsInitialized = true;
       } else {
         console.warn('Received undefined question. Previous value:', changes.question.previousValue);
         this.question = changes.question.previousValue || null;
@@ -150,7 +146,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   protected getQuizStateService(): QuizStateService | undefined {
-    return this._quizStateService;
+    return this.quizStateService;
   }
 
   protected setCurrentQuestion(question: QuizQuestion): void {
