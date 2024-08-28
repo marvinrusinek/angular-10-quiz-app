@@ -447,39 +447,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     return this.selectedOptions && this.selectedOptions.length > 0;
   }
 
-  initializeSharedOptionConfig(): void {
-    console.log('Initializing shared option config');
-    console.log('Full questionData:', this.questionData);
-    console.log('Options from questionData:', this.questionData?.options);
-
-    if (!this.questionData) {
-      console.warn('questionData is undefined or null');
-      return;
-    }
-
-    if (!this.questionData.options || this.questionData.options.length === 0) {
-      console.warn('No options found in questionData');
-    }
-
-    this.sharedOptionConfig = {
-      optionsToDisplay: this.options || [],
-      type: this.mapQuestionType(this.questionData.type),
-      shouldResetBackground: false,
-      selectedOption: null,
-      showFeedbackForOption: {},
-      currentQuestion: this.questionData,
-      showFeedback: false,
-      feedback: '',
-      correctMessage: ''
-    };
-
-    console.log('Shared option config after init:', this.sharedOptionConfig);
-  }
-
-  private mapQuestionType(type: QuestionType): 'single' | 'multiple' {
-    return type === QuestionType.MultipleAnswer ? 'multiple' : 'single';
-  }
-
   private saveQuizState(): void {
     sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
     sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));

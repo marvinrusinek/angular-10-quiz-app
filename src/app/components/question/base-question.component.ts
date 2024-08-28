@@ -28,6 +28,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   @Input() showFeedback = false;
   @Input() shouldResetBackground = false;
   @Input() type: 'single' | 'multiple' = 'single';
+  @Input() questionData: any;
+  sharedOptionConfig: SharedOptionConfig;
   currentQuestionSubscription: Subscription;
   explanationToDisplay: string;
   feedback = '';
@@ -216,5 +218,38 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     } catch (error) {
         console.error('An error occurred while processing the option click:', error);
     }
+  }
+
+  initializeSharedOptionConfig(): void {
+    console.log('Initializing shared option config');
+    console.log('Full questionData:', this.questionData);
+    console.log('Options from questionData:', this.questionData?.options);
+
+    if (!this.questionData) {
+      console.warn('questionData is undefined or null');
+      return;
+    }
+
+    if (!this.questionData.options || this.questionData.options.length === 0) {
+      console.warn('No options found in questionData');
+    }
+
+    this.sharedOptionConfig = {
+      optionsToDisplay: this.options || [],
+      type: this.mapQuestionType(this.questionData.type),
+      shouldResetBackground: false,
+      selectedOption: null,
+      showFeedbackForOption: {},
+      currentQuestion: this.questionData,
+      showFeedback: false,
+      feedback: '',
+      correctMessage: ''
+    };
+
+    console.log('Shared option config after init:', this.sharedOptionConfig);
+  }
+
+  private mapQuestionType(type: QuestionType): 'single' | 'multiple' {
+    return type === QuestionType.MultipleAnswer ? 'multiple' : 'single';
   }
 }
