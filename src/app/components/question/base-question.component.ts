@@ -1,5 +1,3 @@
-// remove code in ngAfterViewInit()
-
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Inject, Input, OnInit, OnChanges, OnDestroy, Optional, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
@@ -69,18 +67,29 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.question && changes.question.currentValue) {
-      this.question = changes.question.currentValue;
-      this.quizStateService.setCurrentQuestion(this.question);
-      this.initializeQuestion();
-      this.optionsInitialized = true;
-    } else if (changes.question) {
-      console.error('ngOnChanges - Received undefined question:', changes.question);
+    console.log('ngOnChanges called with changes:', changes);
+  
+    if (changes.question) {
+      if (changes.question.currentValue) {
+        console.log('New question received:', changes.question.currentValue);
+        this.question = changes.question.currentValue;
+        this.quizStateService.setCurrentQuestion(this.question);
+        this.initializeQuestion();
+        this.optionsInitialized = true;
+      } else {
+        console.warn('Received undefined question. Previous value:', changes.question.previousValue);
+        // Optionally, you can keep the previous question or set a default state
+        // this.question = changes.question.previousValue || null;
+      }
     }
-
+  
     if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
+      console.log('New options received:', changes.optionsToDisplay.currentValue);
       this.optionsToDisplay = changes.optionsToDisplay.currentValue;
     }
+  
+    // Trigger change detection
+    this.cdRef.detectChanges();
   }
 
   ngAfterViewInit(): void {
