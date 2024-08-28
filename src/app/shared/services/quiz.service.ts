@@ -1195,7 +1195,13 @@ export class QuizService implements OnDestroy {
 
   // Populate correctOptions when questions are loaded
   setCorrectOptions(options: Option[]): void {
-    this.correctOptions = options.filter(option => option.isCorrect);
+    if (!options) {
+      console.error('Options are undefined or null');
+      this.correctOptions = [];
+      return;
+    }
+  
+    this.correctOptions = options.filter(option => option.correct);
   }
 
   setCorrectAnswers(
