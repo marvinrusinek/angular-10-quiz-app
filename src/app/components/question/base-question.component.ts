@@ -78,8 +78,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         this.optionsInitialized = true;
       } else {
         console.warn('Received undefined question. Previous value:', changes.question.previousValue);
-        // Optionally, you can keep the previous question or set a default state
-        // this.question = changes.question.previousValue || null;
+        this.question = changes.question.previousValue || null;
       }
     }
   
