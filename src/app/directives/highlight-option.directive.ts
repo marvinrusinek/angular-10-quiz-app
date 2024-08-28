@@ -33,6 +33,20 @@ export class HighlightOptionDirective implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log('ngOnChanges called with changes:', changes);
+    console.log('Current inputs:', {
+      option: this.option,
+      isCorrect: this.isCorrect,
+      showFeedbackForOption: this.showFeedbackForOption,
+      highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
+      allOptions: this.allOptions,
+      appHighlightInputType: this.appHighlightInputType,
+      appHighlightReset: this.appHighlightReset,
+      appResetBackground: this.appResetBackground,
+      optionsToDisplay: this.optionsToDisplay,
+      isSelected: this.isSelected
+    });
+
     this.updateHighlight();  
     /* if (changes.option || changes.showFeedback || changes.isSelected || changes.appHighlightReset) {
       console.log('ngOnChanges called, updating highlight');

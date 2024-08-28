@@ -1,4 +1,40 @@
 <ng-container *ngIf="optionsToDisplay?.length; else noOptions">
+<div *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption">
+  <label class="options">
+    <ng-container [ngSwitch]="type">
+      <mat-checkbox *ngSwitchCase="'multiple'"
+        appHighlightOption
+        [attr.aria-label]="getOptionBindings(option, idx).ariaLabel"
+        [checked]="getOptionBindings(option, idx).isSelected"
+        [disabled]="getOptionBindings(option, idx).disabled"
+        (change)="getOptionBindings(option, idx).change()">
+        <ng-container *ngTemplateOutlet="optionContent; context: {option: option, idx: idx}"></ng-container>
+      </mat-checkbox>
+      
+      <mat-radio-button *ngSwitchCase="'single'"
+        appHighlightOption
+        [attr.aria-label]="getOptionBindings(option, idx).ariaLabel"
+        [checked]="getOptionBindings(option, idx).isSelected"
+        [disabled]="getOptionBindings(option, idx).disabled"
+        (change)="getOptionBindings(option, idx).change()">
+        <ng-container *ngTemplateOutlet="optionContent; context: {option: option, idx: idx}"></ng-container>
+      </mat-radio-button>
+    </ng-container>
+    
+    <codelab-quiz-feedback
+      *ngIf="showFeedback && selectedOption === option"
+      [question]="currentQuestion"
+      [selectedOption]="selectedOption"
+      [correctMessage]="correctMessage"
+      [showFeedback]="showFeedback"
+      [feedback]="feedback"
+      [options]="data?.options">
+    </codelab-quiz-feedback>
+  </label>
+</div>
+</ng-container>
+
+<!--<ng-container *ngIf="optionsToDisplay?.length; else noOptions">
   <div *ngFor="let option of optionsToDisplay; let idx = index; trackBy: trackByOption">
     <label class="options" [ngClass]="getOptionClass(option)">
       <ng-container [ngSwitch]="type">
@@ -54,7 +90,7 @@
       </codelab-quiz-feedback>
     </label>
   </div>
-</ng-container>
+</ng-container>-->
 
 <!-- option content template -->
 <ng-template #optionContent let-option="option" let-idx="idx">
