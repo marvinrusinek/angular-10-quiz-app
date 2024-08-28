@@ -188,7 +188,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     this.showFeedbackForOption[option.optionId] = true; // Ensure feedback is shown
     this.optionClicked.emit({ option, index });
-    this.cdRef.detectChanges(); // Trigger change detection manually
   }
 
   getOptionClass(option: Option): string {
