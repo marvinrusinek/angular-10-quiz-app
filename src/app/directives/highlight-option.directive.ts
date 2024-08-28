@@ -78,13 +78,13 @@ export class HighlightOptionDirective implements OnChanges {
   } */
 
   @HostListener('click') onClick(): void {
-    console.log('Option clicked:', this.option.text);
-    this.optionClicked.emit(this.option);
-
     if (this.option) {
+      console.log('Option clicked:', this.option.text);
+      this.optionClicked.emit(this.option);
+    
       this.isAnswered = true; // Mark as answered
       this.updateHighlight(); // Update the highlight with answered state
-
+    
       // Check user preference and highlight correct answers if needed
       if (!this.isCorrect && this.highlightCorrectAfterIncorrect) {
         console.log('Incorrect answer selected, highlighting correct answers');
