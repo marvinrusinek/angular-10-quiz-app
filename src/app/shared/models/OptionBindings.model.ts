@@ -5,11 +5,11 @@ export interface OptionBindings {
   isCorrect: boolean;
   showFeedbackForOption: { [key: number]: boolean };
   highlightCorrectAfterIncorrect: boolean;
-  allOptions: any[];
+  allOptions: Option[];
   appHighlightInputType: 'checkbox' | 'radio';
   appHighlightReset: boolean;
   appResetBackground: boolean;
-  optionsToDisplay: any[];
+  optionsToDisplay: Option[];
   isSelected: boolean;
   change: () => void;
   disabled: boolean;
