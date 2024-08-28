@@ -47,6 +47,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   constructor(private userPreferenceService: UserPreferenceService) {}
 
   ngOnInit(): void {
+    this.initializeOptionBindings();
     this.resetOptionState(); // Reset option states on initialization
 
     if (!this.showFeedbackForOption) {
@@ -210,7 +211,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       option: option,
       isCorrect: option.correct,
       showFeedbackForOption: this.showFeedbackForOption,
-      highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
+      // highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
       allOptions: this.optionsToDisplay,
       appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
       appHighlightReset: this.shouldResetBackground,
@@ -221,6 +222,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       disabled: option.selected,
       ariaLabel: 'Option ' + (idx + 1)
     };
+  }
+
+  initializeOptionBindings(): void {
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => this.getOptionBindings(option, idx));
   }
 
   trackByOption(index: number, item: Option): number {
