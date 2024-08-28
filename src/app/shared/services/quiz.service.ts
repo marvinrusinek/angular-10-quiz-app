@@ -246,6 +246,7 @@ export class QuizService implements OnDestroy {
     this.activeQuiz = quiz;
     this.questionsList = quiz.questions;
     this.questionsSubject.next(quiz.questions);
+    console.log('Questions initialized:', this.questionsList);
   }
 
   getActiveQuiz(): Quiz | null {
