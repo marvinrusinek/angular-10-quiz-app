@@ -229,14 +229,21 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       appResetBackground: this.shouldResetBackground,
       optionsToDisplay: this.optionsToDisplay,
       isSelected: this.isSelectedOption(option),
-      change: () => this.handleOptionClick(option, idx),
+      change: () => this.handleOptionClick(option as SelectedOption, idx),
       disabled: option.selected,
       ariaLabel: 'Option ' + (idx + 1)
     };
   }
 
-  initializeOptionBindings(): void {
+  /* initializeOptionBindings(): void {
     this.optionBindings = this.optionsToDisplay.map((option, idx) => this.getOptionBindings(option, idx));
+  } */
+  initializeOptionBindings(): void {
+    this.optionsToDisplay.forEach((option, idx) => {
+      option['isSelected'] = this.isSelectedOption(option);
+      option['change'] = () => this.handleOptionClick(option as SelectedOption, idx);
+      option['ariaLabel'] = 'Option ' + (idx + 1);
+    });
   }
 
   trackByOption(index: number, item: Option): number {
