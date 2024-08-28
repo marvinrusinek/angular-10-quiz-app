@@ -42,7 +42,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     selectedOptions: Option[];
   }> = new EventEmitter();
   @Output() optionSelected: EventEmitter<boolean> = new EventEmitter<boolean>();
-  @Output() questionAnswered: EventEmitter<void> = new EventEmitter<void>();
+  @Output() questionAnswered = new EventEmitter<QuizQuestion>();
   @Output() isAnswerSelectedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() explanationToDisplayChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() showExplanationChange: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -436,6 +436,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   onQuestionAnswered() { //check if i still need this
     console.log('Received questionAnswered event in QuizQuestionComponent, re-emitting to QuizComponent');
     this.questionAnswered.emit(); // Re-emit the event as void
+  }
+
+  onQuestionChange(question: QuizQuestion): void {
+    console.log('Question changed in SharedOptionComponent:', question);
+    // You can add any additional logic here if needed
+    this.questionAnswered.emit(question);
   }
 
   addVisibilityChangeListener() {
