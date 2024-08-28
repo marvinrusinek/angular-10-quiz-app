@@ -854,7 +854,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.isLoading = true;
   
     try {
+      console.log('Fetching quiz questions for quizId:', quizId); // Log the quizId
       const questions = await this.quizService.fetchQuizQuestions(quizId);
+      console.log('Fetched questions:', questions); // Log the fetched questions
   
       if (questions && questions.length > 0) {
         this.questions = of(questions);
@@ -870,7 +872,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
               `Options are not properly defined for question: ${question.questionText}`
             );
           }
-        }        
+        }
   
         // Handle explanation texts for previously answered questions
         for (const [index, question] of questions.entries()) {
@@ -882,7 +884,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             };
             this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
           }
-        }  
+        }
         return questions;
       } else {
         console.error('No questions were loaded');
