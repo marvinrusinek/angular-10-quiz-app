@@ -46,7 +46,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   constructor(
     @Optional() @Inject(forwardRef(() => QuizQuestionComponent))
     quizQuestionComponent: QuizQuestionComponent | null,
-    protected fb: FormBuilder,
+    // protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
     protected explanationTextService: ExplanationTextService,
     protected quizService: QuizService,
