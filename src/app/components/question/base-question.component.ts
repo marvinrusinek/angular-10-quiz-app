@@ -214,18 +214,19 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
             error: (err) => {
               console.error('Error in formatExplanationText subscription:', err);
             }
-          });
-        } else {
-          console.error('formatExplanationText is not a function');
-        }
+          }
+        );
+      } else {
+        console.error('formatExplanationText is not a function');
+      }
 
-        // Set the correct options in the quiz service
-        this.quizService.setCorrectOptions(correctOptions);
+      // Set the correct options in the quiz service
+      this.quizService.setCorrectOptions(correctOptions);
 
-        // Trigger change detection to update the UI
-        this.cdRef.markForCheck();
+      // Trigger change detection to update the UI
+      this.cdRef.markForCheck();
     } catch (error) {
-        console.error('An error occurred while processing the option click:', error);
+      console.error('An error occurred while processing the option click:', error);
     }
   }
 
