@@ -480,7 +480,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
-  protected async loadDynamicComponent(): Promise<void> {
+  async loadDynamicComponent(): Promise<void> {
     console.log('Loading dynamic component in QuizQuestionComponent');
     if (this.dynamicComponentContainer) {
       this.dynamicComponentContainer.clear();
@@ -852,10 +852,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     quizId: string
   ): Promise<QuizQuestion[]> {
     if (!quizId) {
-      console.error('Quiz ID is not provided or is empty');
+      console.error('Quiz ID is not provided or is empty.');
       return [];
     }
-    
+
     this.isLoading = true;
   
     try {
