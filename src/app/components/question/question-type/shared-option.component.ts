@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -45,7 +46,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     color: 'black',
   };
 
-  constructor(private userPreferenceService: UserPreferenceService) {}
+  constructor(
+    private userPreferenceService: UserPreferenceService,
+    private cdRef: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.initializeOptionBindings();
@@ -196,7 +200,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     this.showFeedbackForOption[option.optionId] = true; // Ensure feedback is shown
     this.optionClicked.emit({ option, index });
-    this.cdr.detectChanges(); // Trigger change detection manually
+    this.cdRef.detectChanges(); // Trigger change detection manually
   }
 
   getOptionClass(option: Option): string {
