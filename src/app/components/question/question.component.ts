@@ -479,9 +479,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.currentQuestionIndex = +storedIndex;
       this.currentQuestion = JSON.parse(storedQuestion);
       this.optionsToDisplay = JSON.parse(storedOptions);
-
-      // Manually trigger change detection to update the view
-      this.cdRef.detectChanges();
     } else {
       this.loadQuestion();
     }
@@ -511,7 +508,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
 
         componentRef.changeDetectorRef.markForCheck();
-        this.cdRef.detectChanges();
       }
     } else {
       console.error('dynamicComponentContainer is still undefined in QuizQuestionComponent');
@@ -619,14 +615,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       // Update the selection message
       this.updateSelectionMessage(false);
-
-      this.cdRef.detectChanges(); // Trigger UI update
     } catch (error) {
       console.error('Error loading question:', error);
     } finally {
       if (!signal?.aborted) {
         this.isLoading = false;
-        this.cdRef.detectChanges();
       }
     }
   }
@@ -1246,25 +1239,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('Explanation text generated in onOptionClicked:::>>>', explanationText);
         
         if (!explanationText) {
-            console.error('Explanation text is empty or undefined:', explanationText);
+          console.error('Explanation text is empty or undefined:', explanationText);
         } else {
-            this.explanationTextService.updateFormattedExplanation(explanationText);
+          this.explanationTextService.updateFormattedExplanation(explanationText);
         }
 
         this.explanationTextService.formattedExplanation$.subscribe((text) => {
-            console.log('Formatted explanation emitted:::>>', text);
-            this.explanationToDisplay = text;
-            this.cdRef.detectChanges(); // Ensure the UI updates
+          console.log('Formatted explanation emitted:::>>', text);
+          this.explanationToDisplay = text;
         });
 
         this.explanationTextService.setShouldDisplayExplanation(true);
 
         // Update the state to indicate that the explanation should be displayed
         this.quizStateService.updateQuestionState(
-            this.quizId,
-            this.currentQuestionIndex,
-            { explanationDisplayed: true, selectedOptions: [option] },
-            this.correctAnswers.length
+          this.quizId,
+          this.currentQuestionIndex,
+          { explanationDisplayed: true, selectedOptions: [option] },
+          this.correctAnswers.length
         );
         console.log('Question state updated with explanationDisplayed: true');
 
@@ -1275,8 +1267,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Ensure loading state is set to false
         this.quizStateService.setLoading(false);
         console.log('isLoading set to false (option selected)');
-
-        this.cdRef.detectChanges();
 
         this.updateFeedbackForOption(option);
         
@@ -1310,16 +1300,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         } */
 
         if (!option.correct) {
-            console.log('Incorrect option selected.');
+          console.log('Incorrect option selected.');
 
-            // Directly highlight all correct options
-            for (const opt of this.optionsToDisplay) {
-                if (opt.correct) {
-                    this.showFeedbackForOption[opt.optionId] = true;
-                }
+          // Directly highlight all correct options
+          for (const opt of this.optionsToDisplay) {
+            if (opt.correct) {
+              this.showFeedbackForOption[opt.optionId] = true;
             }
+          }
 
-            console.log('Updated showFeedbackForOption after highlighting correct answers:', this.showFeedbackForOption);
+          console.log('Updated showFeedbackForOption after highlighting correct answers:', this.showFeedbackForOption);
         }
 
         this.updateSelectedOption(option);
@@ -1340,9 +1330,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         // Update the message after selecting an option
         const newMessage = this.selectionMessageService.determineSelectionMessage(
-            this.currentQuestionIndex,
-            this.totalQuestions,
-            isAnswered
+          this.currentQuestionIndex,
+          this.totalQuestions,
+           isAnswered
         );
 
         this.selectionMessageService.updateSelectionMessage(newMessage);
@@ -1352,8 +1342,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         } else {
             console.log('No update required for the selection message.');
         } */
-
-        this.cdRef.detectChanges();
 
         this.processCurrentQuestionState(currentQuestion, option, index);
 
