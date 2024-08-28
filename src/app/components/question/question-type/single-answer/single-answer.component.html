@@ -1,9 +1,11 @@
-<!--<app-shared-option
-  [config]="sharedOptionConfig"
-  (optionClicked)="onOptionClicked($event)"
-></app-shared-option>-->
-
 <app-shared-option
+  [config]="sharedOptionConfig"
+  [type]="'single'"
+  [selectedOptions]="selectedOptions"
+  (optionClicked)="onOptionClicked($event)"
+></app-shared-option>
+
+<!--<app-shared-option
   [optionsToDisplay]="optionsToDisplay"
   [type]="'single'"
   [shouldResetBackground]="shouldResetBackground"
@@ -14,4 +16,4 @@
   [showFeedback]="showFeedback"
   [feedback]="feedback"
   (optionClicked)="onOptionClicked($event.option, $event.index)"
-></app-shared-option>
+></app-shared-option>-->
