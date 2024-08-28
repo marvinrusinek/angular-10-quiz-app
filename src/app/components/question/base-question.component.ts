@@ -86,9 +86,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       console.log('New options received:', changes.optionsToDisplay.currentValue);
       this.optionsToDisplay = changes.optionsToDisplay.currentValue;
     }
-  
-    // Trigger change detection
-    this.cdRef.detectChanges();
   }
 
   ngAfterViewInit(): void {
