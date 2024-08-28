@@ -37,6 +37,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @Input() correctMessage: string;
   @Input() showFeedback: boolean;
   @Input() shouldResetBackground = false;
+  @Input() highlightCorrectAfterIncorrect: boolean;
   optionBindings: OptionBindings[] = [];
   selectedOptions: Set<number> = new Set();
   isSubmitted = false;
@@ -221,14 +222,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       option: option,
       isCorrect: option.correct,
       showFeedbackForOption: this.showFeedbackForOption,
-      // highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
+      highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
       allOptions: this.optionsToDisplay,
       appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
       appHighlightReset: this.shouldResetBackground,
       appResetBackground: this.shouldResetBackground,
       optionsToDisplay: this.optionsToDisplay,
       isSelected: this.isSelectedOption(option),
-      change: () => this.handleOptionClick(option, idx),
+      change: () => this.handleOptionClick(option as SelectedOption, idx),
       disabled: option.selected,
       ariaLabel: 'Option ' + (idx + 1)
     };
