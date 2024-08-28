@@ -1049,6 +1049,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   private logFinalData(): void {
+    if (!this.data) {
+      console.error('this.data is undefined or null');
+      return;
+    }
+  
     const data = {
       questionText: this.data.questionText,
       correctAnswersText: this.data.correctAnswersText || '',
@@ -1056,7 +1061,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     };
     console.log('Data to be passed to fetchCorrectAnswersText:', data);
     console.log('questionData:::', this.questionData);
-    // console.log('data:::', this.data); // this works correctly
     console.log('data.currentOptions:::', this.data.options);
     console.log('MY CORR MSG', this.correctMessage);
   }
