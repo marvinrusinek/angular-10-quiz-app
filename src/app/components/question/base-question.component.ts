@@ -41,6 +41,9 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   optionsInitialized = false;
   private containerInitialized = false;
 
+  private _quizStateService: QuizStateService | null;
+  private initializationInProgress = false;
+
   constructor(
     @Optional() @Inject(forwardRef(() => QuizQuestionComponent))
     quizQuestionComponent: QuizQuestionComponent | null,
@@ -51,7 +54,9 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     quizStateService: QuizStateService | null,
     protected selectedOptionService: SelectedOptionService,
     protected cdRef: ChangeDetectorRef
-  ) {}
+  ) {
+    this._quizStateService = quizStateService;
+  }
 
   ngOnInit(): void {
     console.log('BQC initialized with question:', this.question);
@@ -117,13 +122,22 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   protected initializeQuestion(): void {
+    if (this.initializationInProgress) {
+      console.warn('Initialization already in progress, skipping');
+      return;
+    }
+
+    this.initializationInProgress = true;
+    console.log('Initializing question', this.question);
+
     if (this.question) {
-      this.setCurrentQuestion(this.question);
       this.initializeOptions();
       this.optionsInitialized = true;
     } else {
-      console.error('Initial question input is undefined in ngOnInit');
+      console.error('Question is undefined in initializeQuestion');
     }
+
+    this.initializationInProgress = false;
   }
 
   protected initializeOptions(): void {
@@ -145,11 +159,12 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
 
-  protected getQuizStateService(): QuizStateService | undefined {
-    return this.quizStateService;
+  protected getQuizStateService(): QuizStateService | null {
+    return this._quizStateService;
   }
 
   protected setCurrentQuestion(question: QuizQuestion): void {
+    console.log('Setting current question', question);
     const quizStateService = this.getQuizStateService();
     if (quizStateService) {
       quizStateService.setCurrentQuestion(question);
@@ -159,14 +174,16 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   protected subscribeToQuestionChanges(): void {
+    console.log('Subscribing to question changes');
     const quizStateService = this.getQuizStateService();
     if (quizStateService && quizStateService.currentQuestion$) {
       this.currentQuestionSubscription = quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
-          if (currentQuestion) {
+          console.log('Received new question from subscription', currentQuestion);
+          if (currentQuestion && !this.initializationInProgress) {
             this.question = currentQuestion;
             this.initializeQuestion();
-          } else {
+          } else if (!currentQuestion) {
             console.warn('Received undefined currentQuestion');
           }
         },
