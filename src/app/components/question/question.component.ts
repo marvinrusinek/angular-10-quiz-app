@@ -851,6 +851,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private async fetchAndProcessQuizQuestions(
     quizId: string
   ): Promise<QuizQuestion[]> {
+    if (!quizId) {
+      console.error('Quiz ID is not provided or is empty');
+      return [];
+    }
+    
     this.isLoading = true;
   
     try {
