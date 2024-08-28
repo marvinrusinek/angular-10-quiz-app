@@ -47,7 +47,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     protected dynamicComponentService: DynamicComponentService,
     protected explanationTextService: ExplanationTextService,
     protected quizService: QuizService,
-    @Optional() private _quizStateService: QuizStateService,
+    @Optional() @Inject(forwardRef(() => QuizStateService))
+    quizStateService: QuizStateService | null,
     protected selectedOptionService: SelectedOptionService,
     protected cdRef: ChangeDetectorRef
   ) {}
@@ -57,7 +58,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     console.log('ngOnInit - ExplanationTextService:', this.explanationTextService);
     
     if (this.question) {
-      this.setCurrentQuestion(this.question);
+      // this.setCurrentQuestion(this.question);
       // this.quizStateService.setCurrentQuestion(this.question);
       this.initializeQuestion();
     } else {
@@ -121,9 +122,9 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   protected initializeQuestion(): void {
     if (this.question) {
+      this.setCurrentQuestion(this.question);
       this.initializeOptions();
       this.optionsInitialized = true;
-      this.setCurrentQuestion(this.question);
     } else {
       console.error('Initial question input is undefined in ngOnInit');
     }
@@ -148,27 +149,29 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
 
-  protected get quizStateService(): QuizStateService | undefined {
+  protected getQuizStateService(): QuizStateService | undefined {
     return this._quizStateService;
   }
 
   protected setCurrentQuestion(question: QuizQuestion): void {
-    if (this._quizStateService) {
-      this._quizStateService.setCurrentQuestion(question);
+    const quizStateService = this.getQuizStateService();
+    if (quizStateService) {
+      quizStateService.setCurrentQuestion(question);
     } else {
       console.warn('quizStateService is not available. Unable to set current question.');
     }
   }
 
   protected subscribeToQuestionChanges(): void {
-    if (this._quizStateService && this.quizStateService.currentQuestion$) {
-      this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe({
+    const quizStateService = this.getQuizStateService();
+    if (quizStateService && quizStateService.currentQuestion$) {
+      this.currentQuestionSubscription = quizStateService.currentQuestion$.subscribe({
         next: (currentQuestion) => {
           if (currentQuestion) {
             this.question = currentQuestion;
-            this.initializeOptions();
+            this.initializeQuestion();
           } else {
-            console.error('Received undefined currentQuestion');
+            console.warn('Received undefined currentQuestion');
           }
         },
         error: (err) => {
@@ -176,7 +179,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         }
       });
     } else {
-      console.error('currentQuestion$ is undefined in subscribeToQuestionChanges');
+      console.warn('currentQuestion$ is undefined in subscribeToQuestionChanges');
     }
   }
 
