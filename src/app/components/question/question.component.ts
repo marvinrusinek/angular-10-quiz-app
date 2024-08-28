@@ -408,10 +408,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.restoreQuizState();
 
       this.ngZone.run(async () => {
-        await this.fetchAndProcessQuizQuestions(this.quizId);
+        console.log('Visibility changed, current quizId:', this.quizId);
 
-        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+        if (!this.quizId) {
+          // Attempt to retrieve quizId from route or other sources
+          this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
+          console.log('Attempted to retrieve quizId, new value:', this.quizId);
+
+          if (!this.quizId) {
+            console.error('Unable to retrieve Quiz ID, cannot fetch questions');
+            return;
+          }
+        }
+
+        try {
+          await this.fetchAndProcessQuizQuestions(this.quizId);
+
+          const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+          await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+        } catch (error) {
+          console.error('Error in onVisibilityChange:', error);
+        }
       });
     }
   }
