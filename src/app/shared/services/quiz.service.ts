@@ -1219,13 +1219,17 @@ export class QuizService implements OnDestroy {
 
   // Populate correctOptions when questions are loaded
   setCorrectOptions(options: Option[]): void {
-    if (!options) {
-      console.error('Options are undefined or null');
+    if (!options || !Array.isArray(options) || options.length === 0) {
+      console.warn('Options are undefined, null, or empty. Setting correctOptions to an empty array.');
       this.correctOptions = [];
       return;
     }
-  
-    this.correctOptions = options.filter(option => option.correct);
+
+    this.correctOptions = options.filter(option => option && typeof option === 'object' && 'correct' in option && option.correct === true);
+
+    if (this.correctOptions.length === 0) {
+      console.warn('No correct options found. Check if the "correct" property is properly set on the options.');
+    }
   }
 
   setCorrectAnswers(
