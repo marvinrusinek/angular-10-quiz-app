@@ -1,4 +1,5 @@
 import {
+  ApplicationRef,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -53,6 +54,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   constructor(
     private quizStateService: QuizStateService,
     private userPreferenceService: UserPreferenceService,
+    private appRef: ApplicationRef,
     private cdRef: ChangeDetectorRef
   ) {}
 
@@ -229,7 +231,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.optionClicked.emit({ option, index });
   
     // Force change detection
-    this.cdRef.detectChanges();
+    // this.cdRef.detectChanges();
+
+    this.appRef.tick();
   }
 
   getOptionClass(option: Option): string {
