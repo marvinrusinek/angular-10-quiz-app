@@ -247,6 +247,8 @@ export class QuizQuestionComponent
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
 
+    this.initializeData();
+
     this.quizStateService.isLoading$.subscribe((isLoading) => {
       console.log('isLoading$', isLoading);
     });
@@ -835,6 +837,17 @@ export class QuizQuestionComponent
     }
 
     this.getCorrectAnswers();
+  }
+
+  private initializeData(): void {
+    if (!this.data && this.currentQuestion) {
+      this.data = {
+        questionText: this.currentQuestion.questionText,
+        explanationText: this.currentQuestion.explanation,
+        correctAnswersText: this.quizService.getCorrectAnswersAsString(),
+        options: this.currentQuestion.options || [],
+      };
+    }
   }
 
   private async initializeQuiz(): Promise<void> {
@@ -1592,7 +1605,7 @@ export class QuizQuestionComponent
   public async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
       this.resetStateForNewQuestion(); // Reset state before fetching new question
-
+  
       const quizId = this.quizService.getCurrentQuizId();
       const currentQuestion = await firstValueFrom(
         this.quizService.getCurrentQuestionByIndex(
@@ -1601,19 +1614,27 @@ export class QuizQuestionComponent
         )
       );
       console.log('Fetched current question::::::>>>>>>', currentQuestion);
-
+  
       if (!currentQuestion) {
         return null;
       }
-
+  
       this.currentQuestion = currentQuestion;
       this.optionsToDisplay = [...(currentQuestion.options || [])];
-
+  
+      // Set this.data
+      this.data = {
+        questionText: currentQuestion.questionText,
+        explanationText: currentQuestion.explanation,
+        correctAnswersText: this.quizService.getCorrectAnswersAsString(),
+        options: this.optionsToDisplay,
+      };
+  
       // Determine if the current question is answered
       const isAnswered = await this.isQuestionAnswered(
         this.currentQuestionIndex
       );
-
+  
       // Update the selection message based on the current state
       if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
@@ -1621,7 +1642,7 @@ export class QuizQuestionComponent
         console.log('No update required for the selection message.');
       }
       this.updateAnswerStateAndMessage(isAnswered);
-
+  
       // Return the fetched current question
       return currentQuestion;
     } catch (error) {
