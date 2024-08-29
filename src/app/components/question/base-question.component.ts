@@ -1,4 +1,21 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Inject, Input, OnInit, OnChanges, OnDestroy, Optional, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  forwardRef,
+  Inject,
+  Input,
+  OnInit,
+  OnChanges,
+  OnDestroy,
+  Optional,
+  Output,
+  SimpleChanges,
+  ViewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
@@ -17,13 +34,21 @@ import { QuizQuestionComponent } from './question.component';
 @Component({
   selector: 'app-base-question',
   template: '',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
+export abstract class BaseQuestionComponent
+  implements OnInit, OnChanges, OnDestroy, AfterViewInit
+{
+  @ViewChild('dynamicComponentContainer', {
+    read: ViewContainerRef,
+    static: false,
+  })
   dynamicComponentContainer!: ViewContainerRef;
   @Output() explanationToDisplayChange = new EventEmitter<string>();
-  @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number }>();
+  @Output() optionClicked = new EventEmitter<{
+    option: SelectedOption;
+    index: number;
+  }>();
   @Output() questionChange = new EventEmitter<QuizQuestion>();
   @Input() question: QuizQuestion | null = null;
   @Input() optionsToDisplay: Option[] = [];
@@ -35,7 +60,9 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   sharedOptionConfig: SharedOptionConfig;
   currentQuestionSubscription: Subscription;
   explanationToDisplay: string;
-  multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
+    false
+  );
   questionForm: FormGroup;
   selectedOption!: SelectedOption;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
@@ -43,7 +70,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   private containerInitialized = false;
 
   constructor(
-    @Optional() @Inject(forwardRef(() => QuizQuestionComponent))
+    @Optional()
+    @Inject(forwardRef(() => QuizQuestionComponent))
     quizQuestionComponent: QuizQuestionComponent | null,
     protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
@@ -56,15 +84,20 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   ngOnInit(): void {
     console.log('BQC initialized with question:', this.question);
-    console.log('ngOnInit - ExplanationTextService:', this.explanationTextService);
+    console.log(
+      'ngOnInit - ExplanationTextService:',
+      this.explanationTextService
+    );
 
     this.initializeSharedOptionConfig();
-    
+
     if (this.question) {
       this.setCurrentQuestion(this.question);
       this.initializeQuestion();
     } else {
-      console.warn('Initial question input is undefined in ngOnInit, waiting for ngOnChanges');
+      console.warn(
+        'Initial question input is undefined in ngOnInit, waiting for ngOnChanges'
+      );
     }
 
     this.subscribeToQuestionChanges();
@@ -72,7 +105,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('ngOnChanges called with changes:', changes);
-  
+
     if (changes.question) {
       console.log('Question change detected:', changes.question);
       if (changes.question.currentValue) {
@@ -81,7 +114,9 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         if (this.quizStateService) {
           this.quizStateService.setCurrentQuestion(this.question);
         } else {
-          console.warn('quizStateService is undefined, unable to set current question');
+          console.warn(
+            'quizStateService is undefined, unable to set current question'
+          );
         }
         this.initializeQuestion();
         this.optionsInitialized = true;
@@ -89,11 +124,14 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         console.warn('Received null or undefined question:', changes.question);
       }
     }
-  
+
     if (changes.optionsToDisplay) {
       console.log('Options change detected:', changes.optionsToDisplay);
       if (changes.optionsToDisplay.currentValue) {
-        console.log('New options value:', changes.optionsToDisplay.currentValue);
+        console.log(
+          'New options value:',
+          changes.optionsToDisplay.currentValue
+        );
         this.optionsToDisplay = changes.optionsToDisplay.currentValue;
       } else {
         console.warn('Received null or undefined options');
@@ -108,36 +146,61 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       console.error('QuizQuestionComponent is not available');
     } */
 
-    console.log('dynamicComponentContainer:::', this.dynamicComponentContainer);
+    /* console.log('dynamicComponentContainer:::', this.dynamicComponentContainer);
     if (this.dynamicComponentContainer !== undefined) {
-      console.log('dynamicComponentContainer is defined:', this.dynamicComponentContainer);
+      console.log(
+        'dynamicComponentContainer is defined:',
+        this.dynamicComponentContainer
+      );
       this.dynamicComponentContainer.clear();
       this.loadDynamicComponent();
     } else {
-      console.error('dynamicComponentContainer is still undefined in ngAfterViewInit');
-    }
+      console.error(
+        'dynamicComponentContainer is still undefined in ngAfterViewInit'
+      );
+    } */
+    this.tryLoadDynamicComponent();
   }
 
   ngAfterViewChecked(): void {
-    if (!this.containerInitialized && this.dynamicComponentContainer) {
-      console.log('ngAfterViewChecked - dynamicComponentContainer:', this.dynamicComponentContainer);
+    /* if (!this.containerInitialized && this.dynamicComponentContainer) {
+      console.log(
+        'ngAfterViewChecked - dynamicComponentContainer:',
+        this.dynamicComponentContainer
+      );
       this.dynamicComponentContainer.clear();
       this.loadDynamicComponent();
       this.containerInitialized = true; // Prevents further executions
-    }
+    } */
+    this.tryLoadDynamicComponent();
   }
 
   ngOnDestroy(): void {
     this.currentQuestionSubscription?.unsubscribe();
   }
 
+  private tryLoadDynamicComponent(): void {
+    if (!this.containerInitialized && this.dynamicComponentContainer) {
+      console.log(
+        'tryLoadDynamicComponent - dynamicComponentContainer:',
+        this.dynamicComponentContainer
+      );
+      this.dynamicComponentContainer.clear();
+      this.loadDynamicComponent();
+      this.containerInitialized = true;
+      this.cdRef.detectChanges();
+    }
+  }
+
   protected initializeQuestion(): void {
     if (this.question) {
       this.initializeOptions();
       this.optionsInitialized = true;
-      this.questionChange.emit(this.question);  // Emit the question change
+      this.questionChange.emit(this.question); // Emit the question change
     } else {
-      console.error('Initial question input is undefined in initializeQuestion');
+      console.error(
+        'Initial question input is undefined in initializeQuestion'
+      );
     }
   }
 
@@ -156,43 +219,51 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       }
       this.optionsToDisplay = this.question.options || [];
     } else {
-      console.error('initializeOptions - Question or options are undefined', { question: this.question });
+      console.error('initializeOptions - Question or options are undefined', {
+        question: this.question,
+      });
     }
   }
 
   protected subscribeToQuestionChanges(): void {
     console.log('Subscribing to question changes');
     console.log('quizStateService:', this.quizStateService);
-  
+
     if (this.quizStateService) {
       console.log('currentQuestion$:', this.quizStateService.currentQuestion$);
-      
+
       if (this.quizStateService.currentQuestion$) {
-        this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe({
-          next: (currentQuestion) => {
-            console.log('Received new question:', currentQuestion);
-            if (currentQuestion) {
-              this.question = currentQuestion;
-              this.initializeOptions();
-            } else {
-              console.warn('Received undefined currentQuestion');
-            }
-          },
-          error: (err) => {
-            console.error('Error subscribing to currentQuestion:', err);
-          }
-        });
+        this.currentQuestionSubscription =
+          this.quizStateService.currentQuestion$.subscribe({
+            next: (currentQuestion) => {
+              console.log('Received new question:', currentQuestion);
+              if (currentQuestion) {
+                this.question = currentQuestion;
+                this.initializeOptions();
+              } else {
+                console.warn('Received undefined currentQuestion');
+              }
+            },
+            error: (err) => {
+              console.error('Error subscribing to currentQuestion:', err);
+            },
+          });
       } else {
         console.warn('currentQuestion$ is undefined in quizStateService');
       }
     } else {
-      console.warn('quizStateService is undefined. Make sure it is properly injected and initialized.');
+      console.warn(
+        'quizStateService is undefined. Make sure it is properly injected and initialized.'
+      );
     }
   }
 
   protected abstract loadDynamicComponent(): void;
-  
-  public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+
+  public async onOptionClicked(
+    option: SelectedOption,
+    index: number
+  ): Promise<void> {
     // Ensure sharedOptionConfig is initialized
     if (!this.sharedOptionConfig) {
       console.error('sharedOptionConfig is not initialized');
@@ -217,16 +288,29 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
 
       // Determine the correct options and set the correct message
-      const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
-      this.correctMessage = this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
+      const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
+      this.correctMessage = this.quizService.setCorrectMessage(
+        correctOptions,
+        this.optionsToDisplay
+      );
 
       console.log('Calling formatExplanationText');
       console.log('ExplanationTextService:', this.explanationTextService);
-      console.log('Type of formatExplanationText:', typeof this.explanationTextService.formatExplanationText);
+      console.log(
+        'Type of formatExplanationText:',
+        typeof this.explanationTextService.formatExplanationText
+      );
 
       // Ensure formatExplanationText is a function and call it
-      if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
-        this.explanationTextService.formatExplanationText(this.question, this.quizService.currentQuestionIndex)
+      if (
+        this.explanationTextService &&
+        typeof this.explanationTextService.formatExplanationText === 'function'
+      ) {
+        this.explanationTextService
+          .formatExplanationText(
+            this.question,
+            this.quizService.currentQuestionIndex
+          )
           .subscribe({
             next: ({ explanation }) => {
               console.log('Emitting explanation:', explanation);
@@ -236,10 +320,12 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
               }
             },
             error: (err) => {
-              console.error('Error in formatExplanationText subscription:', err);
-            }
-          }
-        );
+              console.error(
+                'Error in formatExplanationText subscription:',
+                err
+              );
+            },
+          });
       } else {
         console.error('formatExplanationText is not a function');
       }
@@ -250,7 +336,10 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       // Trigger change detection to update the UI
       this.cdRef.markForCheck();
     } catch (error) {
-      console.error('An error occurred while processing the option click:', error);
+      console.error(
+        'An error occurred while processing the option click:',
+        error
+      );
     }
   }
 
@@ -276,7 +365,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       showFeedbackForOption: {},
       currentQuestion: this.questionData,
       showFeedback: false,
-      correctMessage: ''
+      correctMessage: '',
     };
 
     console.log('Shared option config after init:', this.sharedOptionConfig);
@@ -290,7 +379,9 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     if (this.quizStateService) {
       this.quizStateService.setCurrentQuestion(question);
     } else {
-      console.warn('quizStateService is not available. Unable to set current question.');
+      console.warn(
+        'quizStateService is not available. Unable to set current question.'
+      );
     }
   }
 }
