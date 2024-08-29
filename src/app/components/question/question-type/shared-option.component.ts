@@ -231,8 +231,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.optionClicked.emit({ option, index });
   
     // Force change detection
-    // this.cdRef.detectChanges();
-
+    this.cdRef.detectChanges();
+    // Force full change detection across the app
     this.appRef.tick();
   }
 
