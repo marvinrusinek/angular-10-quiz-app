@@ -201,6 +201,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     console.log('handleOptionClick called with option:', option, 'index:', index);
   
+    // Wrap in ngZone to ensure Angular is aware of the changes
     this.ngZone.run(() => {
       if (this.type === 'single') {
         console.log('Handling single option selection...');
@@ -233,11 +234,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // Emit the event to the parent component
       this.optionClicked.emit({ option, index });
   
-      // Use setTimeout to push the update to the next event loop
-      setTimeout(() => {
-        this.cdRef.markForCheck();
-        console.log('Component marked for check');
-      }, 0);
+      // Immediately trigger change detection to ensure UI updates correctly
+      this.cdRef.detectChanges();
+      console.log('Change detection triggered immediately');
+
+      // If needed, also ensure the component is marked for further checks
+      this.cdRef.markForCheck();
+      console.log('Component marked for check');
     });
   }
 
