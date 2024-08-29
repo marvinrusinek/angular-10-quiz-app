@@ -177,10 +177,6 @@ export abstract class BaseQuestionComponent
   }
 
   initializeSharedOptionConfig(): void {
-    console.log('Initializing shared option config');
-    console.log('Full questionData:', this.questionData);
-    console.log('Options from questionData:', this.questionData?.options);
-
     if (!this.questionData) {
       console.warn('questionData is undefined or null');
       return;
