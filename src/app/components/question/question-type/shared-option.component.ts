@@ -194,6 +194,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   handleOptionClick(option: SelectedOption, index: number): void {
     if (this.isSubmitted) return;
 
+    console.log('handleOptionClick called with option:', option, 'index:', index);
+
     if (this.type === 'single') {
       this.selectedOptions.clear();
       this.optionsToDisplay.forEach((opt) => (opt.selected = false));
@@ -208,7 +210,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
 
     this.showFeedbackForOption[option.optionId] = true; // Ensure feedback is shown
+
+    console.log('showFeedbackForOption state:', this.showFeedbackForOption);
+
+    // Emit the event to the parent component
     this.optionClicked.emit({ option, index });
+
+    // Force change detection to ensure UI updates immediately
+    this.cdRef.detectChanges();
   }
 
   getOptionClass(option: Option): string {
