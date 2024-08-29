@@ -68,7 +68,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.showFeedbackForOption = [];
     }
 
-    console.log('SharedOptionComponent initialized');
     console.log('Received config:', this.config);
     if (this.config && this.config.optionsToDisplay) {
       console.log(
