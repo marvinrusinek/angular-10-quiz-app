@@ -132,6 +132,7 @@ export abstract class BaseQuestionComponent
 
   private tryLoadDynamicComponent(): void {
     if (!this.containerInitialized && this.dynamicComponentContainer) {
+      console.log('Condition met, loading dynamic component');
       console.log(
         'tryLoadDynamicComponent - dynamicComponentContainer:',
         this.dynamicComponentContainer
