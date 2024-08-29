@@ -286,31 +286,33 @@ export abstract class BaseQuestionComponent
       );
 
       // Ensure formatExplanationText is a function and call it
-      if (
-        typeof this.explanationTextService.formatExplanationText === 'function'
-      ) {
-        this.explanationTextService
-          .formatExplanationText(
-            this.question,
-            this.quizService.currentQuestionIndex
-          )
-          .subscribe({
-            next: ({ explanation }) => {
-              console.log('Emitting explanation:', explanation);
-              if (this.explanationToDisplay !== explanation) {
-                this.explanationToDisplay = explanation;
-                this.explanationToDisplayChange.emit(this.explanationToDisplay);
-              }
-            },
-            error: (err) => {
-              console.error(
-                'Error in formatExplanationText subscription:',
-                err
-              );
-            },
-          });
+      if (this.explanationTextService) {
+        if (typeof this.explanationTextService.formatExplanationText === 'function') {
+          // Existing code for calling formatExplanationText
+          this.explanationTextService
+            .formatExplanationText(
+              this.question,
+              this.quizService.currentQuestionIndex
+            )
+            .subscribe({
+              next: ({ explanation }) => {
+                console.log('Emitting explanation:', explanation);
+                if (this.explanationToDisplay !== explanation) {
+                  this.explanationToDisplay = explanation;
+                  this.explanationToDisplayChange.emit(this.explanationToDisplay);
+                }
+              },
+              error: (err) => {
+                console.error('Error in formatExplanationText subscription:', err);
+              },
+            });
+        } else {
+          console.error('formatExplanationText is not a function');
+          console.log('explanationTextService methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(this.explanationTextService)));
+          console.log('explanationTextService keys:', Object.keys(this.explanationTextService));
+        }
       } else {
-        console.error('formatExplanationText is not a function');
+        console.error('explanationTextService is undefined');
       }
 
       // Set the correct options in the quiz service
