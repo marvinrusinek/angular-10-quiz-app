@@ -168,18 +168,18 @@ export abstract class BaseQuestionComponent
     }
   }
 
-  initializeSharedOptionConfig(): void {
+  private initializeSharedOptionConfig(): void {
+    console.log('Initializing sharedOptionConfig');
+    
     if (!this.questionData) {
       console.warn('questionData is undefined or null');
+      // Set a default configuration even if questionData is not available
+      this.sharedOptionConfig = this.getDefaultSharedOptionConfig();
       return;
     }
-
-    if (!this.questionData.options || this.questionData.options.length === 0) {
-      console.warn('No options found in questionData');
-    }
-
+  
     this.sharedOptionConfig = {
-      optionsToDisplay: this.optionsToDisplay || [],
+      optionsToDisplay: this.questionData.options || [],
       type: this.mapQuestionType(this.questionData.type),
       shouldResetBackground: false,
       selectedOption: null,
@@ -188,8 +188,21 @@ export abstract class BaseQuestionComponent
       showFeedback: false,
       correctMessage: '',
     };
-
-    console.log('Shared option config after init:', this.sharedOptionConfig);
+  
+    console.log('sharedOptionConfig initialized:', this.sharedOptionConfig);
+  }
+  
+  private getDefaultSharedOptionConfig(): SharedOptionConfig {
+    return {
+      optionsToDisplay: [],
+      type: 'single', // or whatever default type you want
+      shouldResetBackground: false,
+      selectedOption: null,
+      showFeedbackForOption: {},
+      currentQuestion: null,
+      showFeedback: false,
+      correctMessage: '',
+    };
   }
 
   protected subscribeToQuestionChanges(): void {
@@ -267,8 +280,6 @@ export abstract class BaseQuestionComponent
         this.optionsToDisplay
       );
 
-      console.log('Calling formatExplanationText');
-      console.log('ExplanationTextService:', this.explanationTextService);
       console.log(
         'Type of formatExplanationText:',
         typeof this.explanationTextService.formatExplanationText
