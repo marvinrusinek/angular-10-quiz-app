@@ -5,7 +5,6 @@ import {
   Component,
   EventEmitter,
   Input,
-  NgZone,
   OnChanges,
   OnInit,
   Output,
@@ -56,8 +55,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     private quizStateService: QuizStateService,
     private userPreferenceService: UserPreferenceService,
     private appRef: ApplicationRef,
-    private cdRef: ChangeDetectorRef,
-    private ngZone: NgZone
+    private cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
