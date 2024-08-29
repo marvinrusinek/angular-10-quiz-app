@@ -225,6 +225,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     console.log('handleOptionClick called with option:', option, 'index:', index);
 
+    // Handle selection based on type (single or multiple)
     if (this.type === 'single') {
         this.selectedOptions.clear();
         this.optionsToDisplay.forEach((opt) => {
@@ -234,8 +235,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         });
     }
 
-    // Toggle selection and visibility state
+    // Toggle the state for the clicked option
     const wasSelected = this.selectedOptions.has(option.optionId);
+    this.selectedOptions.clear();  // Clear all selections first for simplicity
     if (wasSelected) {
         this.selectedOptions.delete(option.optionId);
         option.selected = false;
@@ -248,27 +250,19 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         this.showIconForOption[option.optionId] = true;
     }
 
-    console.log(`After click: Option ${option.optionId} selected state is ${option.selected}`);
+    console.log(`Option ${option.optionId} state:`, {
+        selected: option.selected,
+        showFeedback: this.showFeedbackForOption[option.optionId],
+        showIcon: this.showIconForOption[option.optionId]
+    });
 
-    // Direct DOM manipulation to see if this resolves the issue
-    const iconElement = document.querySelector(`#icon-${option.optionId}`);
-    if (iconElement) {
-        if (option.selected) {
-            iconElement.classList.add('visible');
-        } else {
-            iconElement.classList.remove('visible');
-        }
-        console.log(`Icon for option ${option.optionId} is now ${option.selected ? 'visible' : 'hidden'}`);
-    }
-
-    // Emit the event to the parent component
+    // Emit the event to parent component
     this.optionClicked.emit({ option, index });
 
-    // Force change detection
+    // Ensure immediate change detection
     this.cdRef.detectChanges();
-    console.log('Change detection triggered');
+    console.log('Change detection triggered after option click');
   }
-
 
   getOptionClass(option: Option): string {
     if (!this.showFeedback) {
