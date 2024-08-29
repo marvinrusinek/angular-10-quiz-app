@@ -116,11 +116,22 @@ export abstract class BaseQuestionComponent
       console.log('Condition not met, skipping dynamic component load');
     }
   }
+  
   private updateQuizStateService(): void {
+    console.log('Updating QuizStateService');
+    console.log('quizStateService:', this.quizStateService);
+    console.log('current question:', this.question);
+  
     if (this.quizStateService) {
-      this.quizStateService.setCurrentQuestion(this.question);
+      try {
+        this.quizStateService.setCurrentQuestion(this.question);
+        console.log('Successfully updated current question in QuizStateService');
+      } catch (error) {
+        console.error('Error updating current question:', error);
+      }
     } else {
-      console.warn('quizStateService is undefined, unable to set current question');
+      console.warn('quizStateService is not available. Unable to set current question.');
+      console.log('Component instance:', this);
     }
   }
 
