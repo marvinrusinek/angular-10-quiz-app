@@ -71,17 +71,33 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.question && changes.question.currentValue) {
-      this.question = changes.question.currentValue;
-      this.quizStateService.setCurrentQuestion(this.question);
-      this.initializeQuestion();
-      this.optionsInitialized = true;
-    } else if (changes.question) {
-      console.error('ngOnChanges - Received undefined question:', changes.question);
+    console.log('ngOnChanges called with changes:', changes);
+  
+    if (changes.question) {
+      console.log('Question change detected:', changes.question);
+      if (changes.question.currentValue) {
+        console.log('New question value:', changes.question.currentValue);
+        this.question = changes.question.currentValue;
+        if (this.quizStateService) {
+          this.quizStateService.setCurrentQuestion(this.question);
+        } else {
+          console.warn('quizStateService is undefined, unable to set current question');
+        }
+        this.initializeQuestion();
+        this.optionsInitialized = true;
+      } else {
+        console.warn('Received null or undefined question:', changes.question);
+      }
     }
-
-    if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
-      this.optionsToDisplay = changes.optionsToDisplay.currentValue;
+  
+    if (changes.optionsToDisplay) {
+      console.log('Options change detected:', changes.optionsToDisplay);
+      if (changes.optionsToDisplay.currentValue) {
+        console.log('New options value:', changes.optionsToDisplay.currentValue);
+        this.optionsToDisplay = changes.optionsToDisplay.currentValue;
+      } else {
+        console.warn('Received null or undefined options');
+      }
     }
   }
 
