@@ -66,12 +66,6 @@ export abstract class BaseQuestionComponent
   ) {}
 
   ngOnInit(): void {
-    console.log('BQC initialized with question:', this.question);
-    console.log(
-      'ngOnInit - ExplanationTextService:',
-      this.explanationTextService
-    );
-
     this.initializeSharedOptionConfig();
 
     if (this.question) {
