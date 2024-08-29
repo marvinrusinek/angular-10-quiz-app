@@ -237,6 +237,12 @@ export abstract class BaseQuestionComponent
       this.initializeSharedOptionConfig();
     }
 
+    // Ensure sharedOptionConfig is now initialized
+    if (!this.sharedOptionConfig) {
+      console.error('Failed to initialize sharedOptionConfig. Cannot proceed.');
+      return;
+    }
+
     this.sharedOptionConfig.selectedOption = option;
 
     try {
