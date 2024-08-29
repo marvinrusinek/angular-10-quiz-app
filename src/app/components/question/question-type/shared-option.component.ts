@@ -60,7 +60,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.initializeOptionBindings();
-    this.resetOptionState(); // Reset option states on initialization
 
     if (!this.showFeedbackForOption) {
       this.showFeedbackForOption = [];
@@ -81,14 +80,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (changes.optionsToDisplay) {
       this.initializeOptionBindings();
     }
-    /* if (changes.currentQuestion) {
+    if (changes.currentQuestion) {
       this.resetOptionState(); // Reset option states when the question changes
     }
 
     if (changes.config) {
       console.log('Config changed in SharedOptionComponent');
       this.logConfig();
-    } */
+    }
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
