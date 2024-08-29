@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Inject, Input, OnInit, OnChanges, OnDestroy, Optional, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Inject, Input, OnInit, OnChanges, OnDestroy, Optional, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
@@ -66,8 +66,6 @@ export abstract class BaseQuestionComponent
   ) {}
 
   ngOnInit(): void {
-    this.initializeSharedOptionConfig();
-
     if (this.question) {
       this.setCurrentQuestion(this.question);
       this.initializeQuestion();
@@ -82,37 +80,21 @@ export abstract class BaseQuestionComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('ngOnChanges called with changes:', changes);
-
+  
     if (changes.question) {
-      console.log('Question change detected:', changes.question);
-      if (changes.question.currentValue) {
-        console.log('New question value:', changes.question.currentValue);
-        this.question = changes.question.currentValue;
-        if (this.quizStateService) {
-          this.quizStateService.setCurrentQuestion(this.question);
-        } else {
-          console.warn(
-            'quizStateService is undefined, unable to set current question'
-          );
-        }
-        this.initializeQuestion();
-        this.optionsInitialized = true;
-      } else {
-        console.warn('Received null or undefined question:', changes.question);
-      }
+      this.handleQuestionChange(changes.question);
     }
-
+  
+    if (changes.questionData) {
+      this.handleQuestionDataChange(changes.questionData);
+    }
+  
     if (changes.optionsToDisplay) {
-      console.log('Options change detected:', changes.optionsToDisplay);
-      if (changes.optionsToDisplay.currentValue) {
-        console.log(
-          'New options value:',
-          changes.optionsToDisplay.currentValue
-        );
-        this.optionsToDisplay = changes.optionsToDisplay.currentValue;
-      } else {
-        console.warn('Received null or undefined options');
-      }
+      this.handleOptionsToDisplayChange(changes.optionsToDisplay);
+    }
+  
+    if (changes.question || changes.questionData) {
+      this.initializeSharedOptionConfig();
     }
   }
 
@@ -132,6 +114,13 @@ export abstract class BaseQuestionComponent
       this.cdRef.detectChanges();
     } else {
       console.log('Condition not met, skipping dynamic component load');
+    }
+  }
+  private updateQuizStateService(): void {
+    if (this.quizStateService) {
+      this.quizStateService.setCurrentQuestion(this.question);
+    } else {
+      console.warn('quizStateService is undefined, unable to set current question');
     }
   }
 
@@ -327,6 +316,40 @@ export abstract class BaseQuestionComponent
       console.warn(
         'quizStateService is not available. Unable to set current question.'
       );
+    }
+  }
+
+  private handleQuestionChange(change: SimpleChange): void {
+    console.log('Question change detected:', change);
+    if (change.currentValue) {
+      console.log('New question value:', change.currentValue);
+      this.question = change.currentValue;
+      this.updateQuizStateService();
+      this.initializeQuestion();
+      this.optionsInitialized = true;
+    } else {
+      console.warn('Received null or undefined question:', change);
+    }
+  }
+  
+  private handleQuestionDataChange(change: SimpleChange): void {
+    console.log('QuestionData change detected:', change);
+    if (change.currentValue) {
+      console.log('New questionData value:', change.currentValue);
+      this.questionData = change.currentValue;
+      // Add any specific logic for questionData changes here
+    } else {
+      console.warn('Received null or undefined questionData:', change);
+    }
+  }
+
+  private handleOptionsToDisplayChange(change: SimpleChange): void {
+    console.log('Options change detected:', change);
+    if (change.currentValue) {
+      console.log('New options value:', change.currentValue);
+      this.optionsToDisplay = change.currentValue;
+    } else {
+      console.warn('Received null or undefined options');
     }
   }
 }
