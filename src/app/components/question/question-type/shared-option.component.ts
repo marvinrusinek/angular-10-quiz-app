@@ -225,7 +225,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     console.log('handleOptionClick called with option:', option, 'index:', index);
 
-    // Handle selection based on type (single or multiple)
+    // Clear all selections if in single selection mode
     if (this.type === 'single') {
         this.selectedOptions.clear();
         this.optionsToDisplay.forEach((opt) => {
@@ -235,33 +235,35 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         });
     }
 
-    // Toggle the state for the clicked option
-    const wasSelected = this.selectedOptions.has(option.optionId);
-    this.selectedOptions.clear();  // Clear all selections first for simplicity
-    if (wasSelected) {
+    // Toggle the selected state
+    if (this.selectedOptions.has(option.optionId)) {
         this.selectedOptions.delete(option.optionId);
         option.selected = false;
-        this.showFeedbackForOption[option.optionId] = false;
-        this.showIconForOption[option.optionId] = false;
     } else {
         this.selectedOptions.add(option.optionId);
         option.selected = true;
-        this.showFeedbackForOption[option.optionId] = true;
-        this.showIconForOption[option.optionId] = true;
     }
 
-    console.log(`Option ${option.optionId} state:`, {
-        selected: option.selected,
-        showFeedback: this.showFeedbackForOption[option.optionId],
-        showIcon: this.showIconForOption[option.optionId]
-    });
+    // Update the state in the DOM directly
+    const iconElement = document.querySelector(`#icon-${option.optionId}`);
+    if (iconElement) {
+        if (option.selected) {
+            iconElement.classList.add('visible');
+            this.showFeedbackForOption[option.optionId] = true;
+        } else {
+            iconElement.classList.remove('visible');
+            this.showFeedbackForOption[option.optionId] = false;
+        }
+    }
 
-    // Emit the event to parent component
+    console.log(`Option ${option.optionId} selected state:`, option.selected);
+
+    // Emit the event to the parent component
     this.optionClicked.emit({ option, index });
 
-    // Ensure immediate change detection
+    // Force change detection after manipulating the DOM
     this.cdRef.detectChanges();
-    console.log('Change detection triggered after option click');
+    console.log('Change detection triggered');
   }
 
   getOptionClass(option: Option): string {
