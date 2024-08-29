@@ -24,12 +24,12 @@ export abstract class BaseQuestionComponent
 {
   @ViewChild('dynamicComponentContainer', {
     read: ViewContainerRef,
-    static: false,
+    static: false
   })
   dynamicComponentContainer!: ViewContainerRef;
   @Output() explanationToDisplayChange = new EventEmitter<string>();
   @Output() optionClicked = new EventEmitter<{
-    option: SelectedOption;
+    option: SelectedOption,
     index: number;
   }>();
   @Output() questionChange = new EventEmitter<QuizQuestion>();
@@ -60,7 +60,7 @@ export abstract class BaseQuestionComponent
     protected dynamicComponentService: DynamicComponentService,
     protected explanationTextService: ExplanationTextService,
     protected quizService: QuizService,
-    @Optional() protected quizStateService: QuizStateService,
+    protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
     protected cdRef: ChangeDetectorRef
   ) {}
