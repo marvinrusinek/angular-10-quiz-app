@@ -197,7 +197,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     console.log('handleOptionClick called with option:', option, 'index:', index);
 
-    // Clear all selections if it's a single selection type
+    // Handle single selection type
     if (this.type === 'single') {
         this.selectedOptions.clear();
         this.optionsToDisplay.forEach((opt) => {
@@ -224,10 +224,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('Updated showFeedbackForOption state:', this.showFeedbackForOption);
     console.log('Updated showIconForOption state:', this.showIconForOption);
 
-    // Emit the event and force change detection
+    // Emit the event to the parent component
     this.optionClicked.emit({ option, index });
+
+    // Force immediate change detection
     this.cdRef.detectChanges();
-    console.log('Change detection triggered');
+    console.log('Change detection triggered immediately');
+
+    // Add another change detection cycle with setTimeout
+    setTimeout(() => {
+        this.cdRef.detectChanges();
+        console.log('Second change detection cycle triggered');
+    }, 0);
   }
 
   getOptionClass(option: Option): string {
