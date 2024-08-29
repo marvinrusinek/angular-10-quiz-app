@@ -225,7 +225,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     console.log('handleOptionClick called with option:', option, 'index:', index);
 
-    // Clear previous selections if single selection mode
     if (this.type === 'single') {
         this.selectedOptions.clear();
         this.optionsToDisplay.forEach((opt) => {
@@ -235,8 +234,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         });
     }
 
-    // Toggle the current option's selection state
-    if (this.selectedOptions.has(option.optionId)) {
+    // Toggle selection and visibility state
+    const wasSelected = this.selectedOptions.has(option.optionId);
+    if (wasSelected) {
         this.selectedOptions.delete(option.optionId);
         option.selected = false;
         this.showFeedbackForOption[option.optionId] = false;
@@ -248,18 +248,28 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         this.showIconForOption[option.optionId] = true;
     }
 
-    console.log(`Option ${option.optionId} clicked, selected: ${option.selected}`);
-    console.log('showFeedbackForOption:', this.showFeedbackForOption);
-    console.log('showIconForOption:', this.showIconForOption);
+    console.log(`After click: Option ${option.optionId} selected state is ${option.selected}`);
+
+    // Direct DOM manipulation to see if this resolves the issue
+    const iconElement = document.querySelector(`#icon-${option.optionId}`);
+    if (iconElement) {
+        if (option.selected) {
+            iconElement.classList.add('visible');
+        } else {
+            iconElement.classList.remove('visible');
+        }
+        console.log(`Icon for option ${option.optionId} is now ${option.selected ? 'visible' : 'hidden'}`);
+    }
 
     // Emit the event to the parent component
     this.optionClicked.emit({ option, index });
 
-    // Force immediate change detection
+    // Force change detection
     this.cdRef.detectChanges();
     console.log('Change detection triggered');
   }
-  
+
+
   getOptionClass(option: Option): string {
     if (!this.showFeedback) {
       return '';
