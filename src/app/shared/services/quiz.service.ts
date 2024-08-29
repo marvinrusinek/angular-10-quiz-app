@@ -365,17 +365,20 @@ export class QuizService implements OnDestroy {
           this._quizData$.next(data);
           console.log('Quiz data initialized:', data);
           if (data && data.length > 0) {
-            const quizId = this.quizId;
+            const quizId = this.quizId || this.getDefaultQuizId(data);
             if (quizId) {
               const selectedQuiz = data.find(quiz => quiz.quizId === quizId);
               if (selectedQuiz) {
                 this.setActiveQuiz(selectedQuiz);
+                this.quizId = quizId; // Ensure quizId is set
               } else {
                 console.error(`Quiz with ID ${quizId} not found in the data`);
+                this.handleQuizNotFound(data);
               }
             } else {
-              console.warn('No quizId set. Setting the first quiz as active.');
+              console.warn('No quizId available. Setting the first quiz as active.');
               this.setActiveQuiz(data[0]);
+              this.quizId = data[0].quizId; // Set quizId to the first quiz
             }
           } else {
             console.warn('No quiz data available');
@@ -385,6 +388,19 @@ export class QuizService implements OnDestroy {
           console.error('Error fetching quiz data:', err);
         },
       });
+  }
+  
+  private getDefaultQuizId(data: Quiz[]): string | null {
+    return data.length > 0 ? data[0].quizId : null;
+  }
+  
+  private handleQuizNotFound(data: Quiz[]): void {
+    // Implement fallback logic when the specified quiz is not found
+    console.warn('Specified quiz not found. Falling back to the first available quiz.');
+    if (data.length > 0) {
+      this.setActiveQuiz(data[0]);
+      this.quizId = data[0].quizId;
+    }
   }
 
   private loadRouteParams(): void {
