@@ -247,7 +247,6 @@ export class QuizService implements OnDestroy {
     this.questionsList = quiz.questions;
     this.questionsSubject.next(quiz.questions);
     this.questions = quiz.questions;
-    console.log('Questions initialized:', this.questionsList);
   }
 
   getActiveQuiz(): Quiz | null {
@@ -363,7 +362,6 @@ export class QuizService implements OnDestroy {
       .subscribe({
         next: (data: Quiz[]) => {
           this._quizData$.next(data);
-          console.log('Quiz data initialized:', data);
           if (data && data.length > 0) {
             const quizId = this.quizId || this.getDefaultQuizId(data);
             if (quizId) {
