@@ -146,27 +146,31 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   protected subscribeToQuestionChanges(): void {
     console.log('Subscribing to question changes');
-    console.log('QuizStateService in subscribeToQuestionChanges:', this.quizStateService);
-    
+    console.log('quizStateService:', this.quizStateService);
+  
     if (this.quizStateService) {
-      console.log('currentQuestion$ in subscribeToQuestionChanges:', this.quizStateService.currentQuestion$);
+      console.log('currentQuestion$:', this.quizStateService.currentQuestion$);
       
-      this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe({
-        next: (currentQuestion) => {
-          console.log('Received new question from subscription:', currentQuestion);
-          if (currentQuestion) {
-            this.question = currentQuestion;
-            this.initializeQuestion();
-          } else {
-            console.warn('Received null currentQuestion');
+      if (this.quizStateService.currentQuestion$) {
+        this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe({
+          next: (currentQuestion) => {
+            console.log('Received new question:', currentQuestion);
+            if (currentQuestion) {
+              this.question = currentQuestion;
+              this.initializeOptions();
+            } else {
+              console.warn('Received undefined currentQuestion');
+            }
+          },
+          error: (err) => {
+            console.error('Error subscribing to currentQuestion:', err);
           }
-        },
-        error: (err) => {
-          console.error('Error subscribing to currentQuestion:', err);
-        }
-      });
+        });
+      } else {
+        console.warn('currentQuestion$ is undefined in quizStateService');
+      }
     } else {
-      console.error('quizStateService is undefined in subscribeToQuestionChanges');
+      console.warn('quizStateService is undefined. Make sure it is properly injected and initialized.');
     }
   }
 
