@@ -287,24 +287,36 @@ export abstract class BaseQuestionComponent
 
       // Ensure formatExplanationText is a function and call it
       if (this.explanationTextService) {
+        console.log('explanationTextService:', this.explanationTextService);
+        console.log('formatExplanationText:', this.explanationTextService.formatExplanationText);
+        console.log('Type of formatExplanationText:', typeof this.explanationTextService.formatExplanationText);
+      
         if (typeof this.explanationTextService.formatExplanationText === 'function') {
-          // Existing code for calling formatExplanationText
           this.explanationTextService
             .formatExplanationText(
               this.question,
               this.quizService.currentQuestionIndex
             )
             .subscribe({
-              next: ({ explanation }) => {
-                console.log('Emitting explanation:', explanation);
-                if (this.explanationToDisplay !== explanation) {
-                  this.explanationToDisplay = explanation;
-                  this.explanationToDisplayChange.emit(this.explanationToDisplay);
+              next: (result) => {
+                console.log('Received result:', result);
+                if (result && 'explanation' in result) {
+                  const { explanation } = result;
+                  console.log('Emitting explanation:', explanation);
+                  if (this.explanationToDisplay !== explanation) {
+                    this.explanationToDisplay = explanation;
+                    this.explanationToDisplayChange.emit(this.explanationToDisplay);
+                  }
+                } else {
+                  console.error('Unexpected result format:', result);
                 }
               },
               error: (err) => {
                 console.error('Error in formatExplanationText subscription:', err);
               },
+              complete: () => {
+                console.log('formatExplanationText observable completed');
+              }
             });
         } else {
           console.error('formatExplanationText is not a function');
