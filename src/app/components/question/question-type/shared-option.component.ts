@@ -238,7 +238,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     // Immediately trigger change detection
     this.cdRef.detectChanges();
     console.log('Change detection triggered immediately');
-}
+  }
 
 
 
