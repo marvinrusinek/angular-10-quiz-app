@@ -62,15 +62,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.initializeOptionBindings();
 
     if (!this.showFeedbackForOption) {
-      this.showFeedbackForOption = [];
+      this.showFeedbackForOption = {};
     }
 
     console.log('Received config:', this.config);
-    if (this.config && this.config.optionsToDisplay) {
-      console.log(
-        'Options in SharedOptionComponent:',
-        this.config.optionsToDisplay
-      );
+    if (this.config && this.config.optionsToDisplay && this.config.optionsToDisplay.length > 0) {
+      console.log('Options in SharedOptionComponent:', this.config.optionsToDisplay);
+      this.optionsToDisplay = this.config.optionsToDisplay;
+    } else if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
+      console.log('Options received directly:', this.optionsToDisplay);
     } else {
       console.warn('No options received in SharedOptionComponent');
     }
