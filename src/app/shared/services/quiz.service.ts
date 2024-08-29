@@ -365,13 +365,20 @@ export class QuizService implements OnDestroy {
           this._quizData$.next(data);
           console.log('Quiz data initialized:', data);
           if (data && data.length > 0) {
-            const quizId = this.quizId; // Use the current quizId
-            const selectedQuiz = data.find(quiz => quiz.quizId === quizId);
-            if (selectedQuiz) {
-              this.setActiveQuiz(selectedQuiz); // Set the correct quiz as active
+            const quizId = this.quizId;
+            if (quizId) {
+              const selectedQuiz = data.find(quiz => quiz.quizId === quizId);
+              if (selectedQuiz) {
+                this.setActiveQuiz(selectedQuiz);
+              } else {
+                console.error(`Quiz with ID ${quizId} not found in the data`);
+              }
             } else {
-              console.error(`Quiz with ID ${quizId} not found`);
+              console.warn('No quizId set. Setting the first quiz as active.');
+              this.setActiveQuiz(data[0]);
             }
+          } else {
+            console.warn('No quiz data available');
           }
         },
         error: (err) => {
