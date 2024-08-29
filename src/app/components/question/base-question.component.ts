@@ -140,6 +140,8 @@ export abstract class BaseQuestionComponent
       this.loadDynamicComponent();
       this.containerInitialized = true;
       this.cdRef.detectChanges();
+    } else {
+      console.log('Condition not met, skipping dynamic component load');
     }
   }
 
