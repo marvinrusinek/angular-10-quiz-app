@@ -1,21 +1,4 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  forwardRef,
-  Inject,
-  Input,
-  OnInit,
-  OnChanges,
-  OnDestroy,
-  Optional,
-  Output,
-  SimpleChanges,
-  ViewChild,
-  ViewContainerRef,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Inject, Input, OnInit, OnChanges, OnDestroy, Optional, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
@@ -140,38 +123,6 @@ export abstract class BaseQuestionComponent
   }
 
   ngAfterViewInit(): void {
-    /* if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent is available');
-    } else {
-      console.error('QuizQuestionComponent is not available');
-    } */
-
-    /* console.log('dynamicComponentContainer:::', this.dynamicComponentContainer);
-    if (this.dynamicComponentContainer !== undefined) {
-      console.log(
-        'dynamicComponentContainer is defined:',
-        this.dynamicComponentContainer
-      );
-      this.dynamicComponentContainer.clear();
-      this.loadDynamicComponent();
-    } else {
-      console.error(
-        'dynamicComponentContainer is still undefined in ngAfterViewInit'
-      );
-    } */
-    this.tryLoadDynamicComponent();
-  }
-
-  ngAfterViewChecked(): void {
-    /* if (!this.containerInitialized && this.dynamicComponentContainer) {
-      console.log(
-        'ngAfterViewChecked - dynamicComponentContainer:',
-        this.dynamicComponentContainer
-      );
-      this.dynamicComponentContainer.clear();
-      this.loadDynamicComponent();
-      this.containerInitialized = true; // Prevents further executions
-    } */
     this.tryLoadDynamicComponent();
   }
 
