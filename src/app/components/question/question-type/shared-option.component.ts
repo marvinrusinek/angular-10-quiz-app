@@ -199,41 +199,44 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     console.log('handleOptionClick called with option:', option, 'index:', index);
   
-    if (this.type === 'single') {
-      console.log('Handling single option selection...');
-      this.selectedOptions.clear();
-      this.optionsToDisplay.forEach((opt) => {
-        opt.selected = false;
-        this.showFeedbackForOption[opt.optionId] = false;
-        this.showIconForOption[opt.optionId] = false;
-      });
-    }
+    this.zone.run(() => {
+      if (this.type === 'single') {
+        console.log('Handling single option selection...');
+        this.selectedOptions.clear();
+        this.optionsToDisplay.forEach((opt) => {
+          opt.selected = false;
+          this.showFeedbackForOption[opt.optionId] = false;
+          this.showIconForOption[opt.optionId] = false;
+        });
+      }
   
-    if (this.selectedOptions.has(option.optionId)) {
-      console.log(`Option ${option.optionId} was already selected. Deselecting it.`);
-      this.selectedOptions.delete(option.optionId);
-      option.selected = false;
-      this.showFeedbackForOption[option.optionId] = false;
-      this.showIconForOption[option.optionId] = false;
-    } else {
-      console.log(`Selecting option ${option.optionId}.`);
-      this.selectedOptions.add(option.optionId);
-      option.selected = true;
-      this.showFeedbackForOption[option.optionId] = true;
-      this.showIconForOption[option.optionId] = true;
-    }
+      if (this.selectedOptions.has(option.optionId)) {
+        console.log(`Option ${option.optionId} was already selected. Deselecting it.`);
+        this.selectedOptions.delete(option.optionId);
+        option.selected = false;
+        this.showFeedbackForOption[option.optionId] = false;
+        this.showIconForOption[option.optionId] = false;
+      } else {
+        console.log(`Selecting option ${option.optionId}.`);
+        this.selectedOptions.add(option.optionId);
+        option.selected = true;
+        this.showFeedbackForOption[option.optionId] = true;
+        this.showIconForOption[option.optionId] = true;
+      }
   
-    console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
-    console.log('Updated showFeedbackForOption state:', this.showFeedbackForOption);
-    console.log('Updated showIconForOption state:', this.showIconForOption);
+      console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
+      console.log('Updated showFeedbackForOption state:', this.showFeedbackForOption);
+      console.log('Updated showIconForOption state:', this.showIconForOption);
   
-    // Emit the event to the parent component
-    this.optionClicked.emit({ option, index });
+      // Emit the event to the parent component
+      this.optionClicked.emit({ option, index });
   
-    // Force change detection
-    this.cdRef.detectChanges();
-    // Force full change detection across the app
-    this.appRef.tick();
+      // Use setTimeout to push the update to the next event loop
+      setTimeout(() => {
+        this.cdRef.markForCheck();
+        console.log('Component marked for check');
+      }, 0);
+    });
   }
 
   getOptionClass(option: Option): string {
