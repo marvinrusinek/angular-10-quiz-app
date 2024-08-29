@@ -5,6 +5,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  NgZone,
   OnChanges,
   OnInit,
   Output,
@@ -55,7 +56,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     private quizStateService: QuizStateService,
     private userPreferenceService: UserPreferenceService,
     private appRef: ApplicationRef,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -199,7 +201,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     console.log('handleOptionClick called with option:', option, 'index:', index);
   
-    this.zone.run(() => {
+    this.ngZone.run(() => {
       if (this.type === 'single') {
         console.log('Handling single option selection...');
         this.selectedOptions.clear();
