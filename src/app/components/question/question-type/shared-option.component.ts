@@ -209,11 +209,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     // Toggle selection state
     if (this.selectedOptions.has(option.optionId)) {
+        console.log(`Deselecting option ${option.optionId}`);
         this.selectedOptions.delete(option.optionId);
         option.selected = false;
         this.showFeedbackForOption[option.optionId] = false;
         this.showIconForOption[option.optionId] = false;
     } else {
+        console.log(`Selecting option ${option.optionId}`);
         this.selectedOptions.add(option.optionId);
         option.selected = true;
         this.showFeedbackForOption[option.optionId] = true;
@@ -227,11 +229,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     // Emit the event to the parent component
     this.optionClicked.emit({ option, index });
 
-    // Force immediate change detection
+    // Ensure the state update is registered by Angular
     this.cdRef.detectChanges();
     console.log('Change detection triggered immediately');
 
-    // Add another change detection cycle with setTimeout
+    // Add a slight delay to force another change detection cycle
     setTimeout(() => {
         this.cdRef.detectChanges();
         console.log('Second change detection cycle triggered');
