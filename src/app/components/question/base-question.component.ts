@@ -287,7 +287,6 @@ export abstract class BaseQuestionComponent
 
       // Ensure formatExplanationText is a function and call it
       if (
-        this.explanationTextService &&
         typeof this.explanationTextService.formatExplanationText === 'function'
       ) {
         this.explanationTextService
