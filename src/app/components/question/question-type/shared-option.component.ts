@@ -225,7 +225,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     console.log('handleOptionClick called with option:', option, 'index:', index);
 
-    // Reset all selections if in single selection mode
+    // Handle selection based on type (single or multiple)
     if (this.type === 'single') {
         this.selectedOptions.clear();
         this.optionsToDisplay.forEach((opt) => {
@@ -237,7 +237,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     // Toggle the selected state for the clicked option
     const wasSelected = this.selectedOptions.has(option.optionId);
-    this.selectedOptions.clear(); // Clear all selections first for simplicity
+    this.selectedOptions.clear();  // Clear all selections first for simplicity
 
     if (wasSelected) {
         this.selectedOptions.delete(option.optionId);
@@ -251,7 +251,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         this.showIconForOption[option.optionId] = true;
     }
 
-    console.log(`After click: Option ${option.optionId} selected state is ${option.selected}`);
+    // Log the entire state
+    console.log(`After click: Option ${option.optionId} state:`, {
+        selected: option.selected,
+        showFeedback: this.showFeedbackForOption[option.optionId],
+        showIcon: this.showIconForOption[option.optionId]
+    });
+    console.log('Current selectedOptions:', Array.from(this.selectedOptions));
+    console.log('Current showFeedbackForOption:', this.showFeedbackForOption);
+    console.log('Current showIconForOption:', this.showIconForOption);
 
     // Emit the event to the parent component
     this.optionClicked.emit({ option, index });
@@ -260,6 +268,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.cdRef.detectChanges();
     console.log('Change detection triggered after option click');
   }
+
 
   getOptionClass(option: Option): string {
     if (!this.showFeedback) {
