@@ -150,10 +150,17 @@ export class HighlightOptionDirective implements OnChanges {
     this.setBackgroundColor(color);
   } */
   private updateHighlight() {
+    console.log('updateHighlight called', {
+      showFeedback: this.showFeedback,
+      isSelected: this.isSelected,
+      isCorrect: this.isCorrect
+    });
     if (this.showFeedback && this.isSelected) {
       const color = this.isCorrect ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)';
+      console.log('Applying color', color);
       this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
     } else {
+      console.log('Removing background-color');
       this.renderer.removeStyle(this.el.nativeElement, 'background-color');
     }
   }
