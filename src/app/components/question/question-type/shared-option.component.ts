@@ -1,15 +1,4 @@
-import {
-  ApplicationRef,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
 import { Option } from '../../../shared/models/Option.model';
 import { OptionBindings } from '../../../shared/models/OptionBindings.model';
@@ -23,7 +12,7 @@ import { UserPreferenceService } from '../../../shared/services/user-preference.
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
   styleUrls: ['../question.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SharedOptionComponent implements OnInit, OnChanges {
   @Output() optionClicked = new EventEmitter<{
@@ -54,7 +43,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   constructor(
     private quizStateService: QuizStateService,
     private userPreferenceService: UserPreferenceService,
-    private appRef: ApplicationRef,
     private cdRef: ChangeDetectorRef
   ) {}
 
@@ -179,7 +167,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   isIconVisible(option: Option): boolean {
-    return option.correct || option.selected || this.showFeedback;
+    // Prioritize selected options or correct ones if feedback is not shown yet
+    if (!this.showFeedback) {
+      return option.selected || option.correct;
+    }
+
+    // When feedback is being shown, icons should reflect correctness
+    return this.showFeedback && (option.selected || option.correct);
   }
 
   isSelectedOption(option: Option): boolean {
