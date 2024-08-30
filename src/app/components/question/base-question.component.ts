@@ -264,131 +264,75 @@ export abstract class BaseQuestionComponent
     option: SelectedOption,
     index: number
   ): Promise<void> {
-    // Ensure sharedOptionConfig is initialized
-    if (!this.sharedOptionConfig) {
-      console.error('sharedOptionConfig is not initialized');
-      this.initializeSharedOptionConfig();
-    }
-
-    // Ensure sharedOptionConfig is now initialized
-    if (!this.sharedOptionConfig) {
-      console.error('Failed to initialize sharedOptionConfig. Cannot proceed.');
+    console.log('Option clicked:', option, 'Index:', index);
+  
+    if (!this.sharedOptionConfig || !this.optionsToDisplay) {
+      console.error('Required configurations are not initialized');
       return;
     }
-
+  
     try {
-      // Check if it's a single selection type
+      // Toggle the selected state of the clicked option
+      option.selected = !option.selected;
+  
       if (this.type === 'single') {
-        // Deselect all other options
-        this.optionsToDisplay.forEach((opt) => (opt.selected = false));
-        option.selected = true;
-      } else {
-        // For multiple selection, toggle the clicked option
-        option.selected = !option.selected;
+        // For single selection, deselect all other options
+        this.optionsToDisplay.forEach(opt => {
+          if (opt !== option) {
+            opt.selected = false;
+          }
+        });
       }
-
-      this.sharedOptionConfig.selectedOption = option;
-
-      // Ensure showFeedbackForOption is initialized
-      if (!this.showFeedbackForOption) {
-        console.error('showFeedbackForOption is not initialized');
-        this.showFeedbackForOption = {};
-      }
-
-      // Update the selected option's feedback state
-      this.showFeedbackForOption[option.optionId] = true;
-      this.selectedOption = option;
-      this.showFeedback = true;
-
-      // Ensure feedback for the selected option is displayed
-      this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
-
+  
+      // Update the shared option config
+      this.sharedOptionConfig.selectedOption = option.selected ? option : null;
+      this.sharedOptionConfig.showFeedbackForOption = { [option.optionId]: option.selected };
+  
+      // Update component properties
+      this.selectedOption = option.selected ? option : null;
+      this.showFeedback = option.selected;
+  
       // Determine the correct options and set the correct message
       const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
       this.correctMessage = this.quizService.setCorrectMessage(
         correctOptions,
         this.optionsToDisplay
       );
-
-      console.log(
-        'Type of formatExplanationText:',
-        typeof this.explanationTextService.formatExplanationText
-      );
-
-      // Ensure formatExplanationText is a function and call it
-      if (this.explanationTextService) {
-        console.log('explanationTextService:', this.explanationTextService);
-        console.log(
-          'formatExplanationText:',
-          this.explanationTextService.formatExplanationText
-        );
-        console.log(
-          'Type of formatExplanationText:',
-          typeof this.explanationTextService.formatExplanationText
-        );
-
-        if (
-          typeof this.explanationTextService.formatExplanationText ===
-          'function'
-        ) {
-          this.explanationTextService
-            .formatExplanationText(
-              this.question,
-              this.quizService.currentQuestionIndex
-            )
-            .subscribe({
-              next: (result) => {
-                console.log('Received result:', result);
-                if (result && 'explanation' in result) {
-                  const { explanation } = result;
-                  console.log('Emitting explanation:', explanation);
-                  if (this.explanationToDisplay !== explanation) {
-                    this.explanationToDisplay = explanation;
-                    this.explanationToDisplayChange.emit(
-                      this.explanationToDisplay
-                    );
-                  }
-                } else {
-                  console.error('Unexpected result format:', result);
+  
+      // Handle explanation text
+      if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
+        this.explanationTextService
+          .formatExplanationText(
+            this.question,
+            this.quizService.currentQuestionIndex
+          )
+          .subscribe({
+            next: (result) => {
+              if (result && 'explanation' in result) {
+                const { explanation } = result;
+                if (this.explanationToDisplay !== explanation) {
+                  this.explanationToDisplay = explanation;
+                  this.explanationToDisplayChange.emit(this.explanationToDisplay);
                 }
-              },
-              error: (err) => {
-                console.error(
-                  'Error in formatExplanationText subscription:',
-                  err
-                );
-              },
-              complete: () => {
-                console.log('formatExplanationText observable completed');
-              },
-            });
-        } else {
-          console.error('formatExplanationText is not a function');
-          console.log(
-            'explanationTextService methods:',
-            Object.getOwnPropertyNames(
-              Object.getPrototypeOf(this.explanationTextService)
-            )
-          );
-          console.log(
-            'explanationTextService keys:',
-            Object.keys(this.explanationTextService)
-          );
-        }
-      } else {
-        console.error('explanationTextService is undefined');
+              }
+            },
+            error: (err) => console.error('Error in formatExplanationText:', err)
+          });
       }
-
+  
       // Set the correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
-
+  
+      // Emit the option clicked event
+      this.optionClicked.emit({ option, index });
+  
       // Trigger change detection to update the UI
       this.cdRef.markForCheck();
+  
+      console.log('Updated option state:', option);
+      console.log('Updated sharedOptionConfig:', this.sharedOptionConfig);
     } catch (error) {
-      console.error(
-        'An error occurred while processing the option click:',
-        error
-      );
+      console.error('An error occurred while processing the option click:', error);
     }
   }
 
