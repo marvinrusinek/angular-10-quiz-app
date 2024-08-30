@@ -266,13 +266,11 @@ export abstract class BaseQuestionComponent
   ): Promise<void> {
     console.log('Option clicked:', option, 'Index:', index);
   
-    // Ensure sharedOptionConfig is initialized
     if (!this.sharedOptionConfig) {
       console.error('sharedOptionConfig is not initialized');
       this.initializeSharedOptionConfig();
     }
   
-    // Ensure sharedOptionConfig is now initialized
     if (!this.sharedOptionConfig) {
       console.error('Failed to initialize sharedOptionConfig. Cannot proceed.');
       return;
@@ -282,27 +280,27 @@ export abstract class BaseQuestionComponent
       // Toggle the selected state of the clicked option
       option.selected = !option.selected;
   
+      // Initialize showFeedbackForOption if it doesn't exist
+      if (!this.showFeedbackForOption) {
+        this.showFeedbackForOption = {};
+      }
+  
       // Check if it's a single selection type
       if (this.type === 'single') {
         // Deselect all other options
         this.optionsToDisplay.forEach((opt) => {
           if (opt !== option) {
             opt.selected = false;
-            this.showFeedbackForOption[opt.optionId] = false;
           }
+          // Show feedback for all options in single selection mode
+          this.showFeedbackForOption[opt.optionId] = true;
         });
+      } else {
+        // For multiple selection, toggle feedback for the clicked option
+        this.showFeedbackForOption[option.optionId] = option.selected;
       }
   
       this.sharedOptionConfig.selectedOption = option.selected ? option : null;
-  
-      // Ensure showFeedbackForOption is initialized
-      if (!this.showFeedbackForOption) {
-        console.error('showFeedbackForOption is not initialized');
-        this.showFeedbackForOption = {};
-      }
-  
-      // Update the selected option's feedback state
-      this.showFeedbackForOption[option.optionId] = option.selected;
       this.selectedOption = option.selected ? option : null;
       this.showFeedback = true;
   
