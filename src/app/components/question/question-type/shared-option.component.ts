@@ -178,44 +178,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return ''; // No class if the option is not selected or does not meet the conditions above
   }
 
-  /* isIconVisible(option: Option): boolean {
-    const highlightPreference =
-      this.userPreferenceService.getHighlightPreference();
-
-    if (highlightPreference && option.correct) {
-      return true; // Show icon if the user preference is set and the option is correct
-    }
-
-    const visibility = option.selected;
-    return visibility || false; // Default to showing the icon if the option is selected
-  } */
-  /* isIconVisible(option: Option): boolean {
-    const highlightPreference = this.userPreferenceService.getHighlightPreference();
-    const isSelected = this.selectedOptions.has(option.optionId);
-    const isVisible = isSelected || (this.showFeedback && option.correct);
-
-    console.log(`isIconVisible for option ${option.optionId}:`, {
-      highlightPreference,
-      isSelected,
-      showFeedback: this.showFeedback,
-      isCorrect: option.correct,
-      isVisible
-    });
-
-    return isVisible;
-  } */
   isIconVisible(option: Option): boolean {
-    const isSelected = this.selectedOptions.has(option.optionId);
-    const isVisible = isSelected || (this.showFeedback && option.correct);
-
-    console.log(`isIconVisible for option ${option.optionId}:`, {
-      isSelected,
-      showFeedback: this.showFeedback,
-      isCorrect: option.correct,
-      isVisible,
-    });
-
-    return isVisible;
+    return option.correct || option.selected || this.showFeedback;
   }
 
   isSelectedOption(option: Option): boolean {
