@@ -57,9 +57,14 @@ export class HighlightOptionDirective implements OnChanges {
       optionsToDisplay: this.optionsToDisplay,
       isSelected: this.isSelected,
     });
-  
-    if (changes.option || changes.showFeedback || changes.isSelected || changes.appHighlightReset) {
-      console.log('ngOnChanges called, updating highlight');
+
+    if (
+      changes.option ||
+      changes.showFeedback ||
+      changes.isSelected ||
+      changes.appHighlightReset
+    ) {
+      console.log('Relevant changes detected, updating highlight');
       this.updateHighlight();
     } else {
       console.log('No relevant changes detected, skipping highlight update');
@@ -102,18 +107,19 @@ export class HighlightOptionDirective implements OnChanges {
 
   private updateHighlight(): void {
     if (!this.option) return;
-      
+
     const isOptionCorrect = this.option.correct;
     const isOptionSelected = this.isSelected;
-    const shouldShowFeedbackForOption = this.showFeedback && this.showFeedbackForOption[this.option.optionId];
-      
+    const shouldShowFeedbackForOption =
+      this.showFeedback && this.showFeedbackForOption[this.option.optionId];
+
     console.log('Updating highlight', {
       isSelected: isOptionSelected,
       isCorrect: isOptionCorrect,
       showFeedback: this.showFeedback,
-      optionId: this.option.optionId
+      optionId: this.option.optionId,
     });
-      
+
     if (isOptionSelected && shouldShowFeedbackForOption) {
       const color = isOptionCorrect ? '#43f756' : '#ff0000';
       this.setBackgroundColor(color);
