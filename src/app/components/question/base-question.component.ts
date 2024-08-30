@@ -219,9 +219,6 @@ export abstract class BaseQuestionComponent
   }
 
   protected subscribeToQuestionChanges(): void {
-    console.log('Subscribing to question changes');
-    console.log('quizStateService:', this.quizStateService);
-
     if (this.quizStateService) {
       console.log('currentQuestion$:', this.quizStateService.currentQuestion$);
 
