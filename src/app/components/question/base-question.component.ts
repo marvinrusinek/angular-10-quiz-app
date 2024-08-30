@@ -266,31 +266,38 @@ export abstract class BaseQuestionComponent
   ): Promise<void> {
     console.log('Option clicked:', option, 'Index:', index);
   
-    if (!this.sharedOptionConfig || !this.optionsToDisplay) {
-      console.error('Required configurations are not initialized');
+    if (!this.sharedOptionConfig) {
+      console.error('sharedOptionConfig is not initialized');
+      this.initializeSharedOptionConfig();
+    }
+  
+    if (!this.sharedOptionConfig) {
+      console.error('Failed to initialize sharedOptionConfig. Cannot proceed.');
       return;
     }
   
     try {
-      // Toggle the selected state of the clicked option
-      option.selected = !option.selected;
-  
+      // Check if it's a single selection type
       if (this.type === 'single') {
-        // For single selection, deselect all other options
-        this.optionsToDisplay.forEach(opt => {
-          if (opt !== option) {
-            opt.selected = false;
-          }
-        });
+        // Deselect all other options
+        this.optionsToDisplay.forEach((opt) => (opt.selected = false));
+        option.selected = true;
+      } else {
+        // For multiple selection, toggle the clicked option
+        option.selected = !option.selected;
       }
   
-      // Update the shared option config
-      this.sharedOptionConfig.selectedOption = option.selected ? option : null;
-      this.sharedOptionConfig.showFeedbackForOption = { [option.optionId]: option.selected };
+      this.sharedOptionConfig.selectedOption = option;
   
-      // Update component properties
-      this.selectedOption = option.selected ? option : null;
-      this.showFeedback = option.selected;
+      // Ensure showFeedbackForOption is initialized
+      if (!this.showFeedbackForOption) {
+        this.showFeedbackForOption = {};
+      }
+  
+      // Update the selected option's feedback state
+      this.showFeedbackForOption[option.optionId] = true;
+      this.selectedOption = option;
+      this.showFeedback = true;
   
       // Determine the correct options and set the correct message
       const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
@@ -299,7 +306,6 @@ export abstract class BaseQuestionComponent
         this.optionsToDisplay
       );
   
-      // Handle explanation text
       if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
         this.explanationTextService
           .formatExplanationText(
@@ -314,10 +320,14 @@ export abstract class BaseQuestionComponent
                   this.explanationToDisplay = explanation;
                   this.explanationToDisplayChange.emit(this.explanationToDisplay);
                 }
+              } else {
+                console.error('Unexpected result format:', result);
               }
             },
-            error: (err) => console.error('Error in formatExplanationText:', err)
+            error: (err) => console.error('Error in formatExplanationText subscription:', err)
           });
+      } else {
+        console.error('explanationTextService or formatExplanationText is not available');
       }
   
       // Set the correct options in the quiz service
@@ -331,6 +341,8 @@ export abstract class BaseQuestionComponent
   
       console.log('Updated option state:', option);
       console.log('Updated sharedOptionConfig:', this.sharedOptionConfig);
+      console.log('showFeedback:', this.showFeedback);
+      console.log('showFeedbackForOption:', this.showFeedbackForOption);
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
