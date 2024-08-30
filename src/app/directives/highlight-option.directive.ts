@@ -73,7 +73,8 @@ export class HighlightOptionDirective implements OnChanges {
   @HostListener('click') onClick(): void {
     console.log('Option clicked:', this.option);
     if (this.option) {
-      this.isSelected = true;
+      // this.isSelected = true;
+      this.isSelected = !this.isSelected;
       this.optionClicked.emit(this.option);
       this.updateHighlight();
     }
@@ -98,7 +99,7 @@ export class HighlightOptionDirective implements OnChanges {
   } */
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
-  private updateHighlight(): void {
+  /* private updateHighlight(): void {
     console.log('updateHighlight called', {
       optionBinding: this.optionBinding,
       showFeedback: this.showFeedback,
@@ -127,9 +128,33 @@ export class HighlightOptionDirective implements OnChanges {
     }
 
     this.setBackgroundColor(color);
+  } */
+  
+  private updateHighlight(): void {
+    console.log('Updating highlight', {
+      isSelected: this.isSelected,
+      isCorrect: this.isCorrect,
+      showFeedback: this.showFeedback,
+    });
+
+    let color = 'transparent';
+
+    if (this.isSelected) {
+      color = this.showFeedback ? (this.isCorrect ? '#43f756' : '#ff0000') : '#e0e0e0';
+    }
+
+    if (this.highlightCorrectAfterIncorrect && this.showFeedback && this.isCorrect) {
+      color = '#43f756';
+    }
+
+    this.setBackgroundColor(color);
   }
 
   private setBackgroundColor(color: string): void {
+    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+  }
+
+  /* private setBackgroundColor(color: string): void {
     console.log(`Attempting to set background color to: ${color}`);
     const element = this.el.nativeElement;
 
@@ -146,7 +171,7 @@ export class HighlightOptionDirective implements OnChanges {
     }
 
     console.log('Styles applied to:', element);
-  }
+  } */
 
   /* private setBackgroundColor(color: string): void {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
