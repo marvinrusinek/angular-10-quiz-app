@@ -1,4 +1,22 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Inject, Input, OnInit, OnChanges, OnDestroy, Optional, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  forwardRef,
+  Inject,
+  Input,
+  OnInit,
+  OnChanges,
+  OnDestroy,
+  Optional,
+  Output,
+  SimpleChange,
+  SimpleChanges,
+  ViewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
@@ -24,12 +42,12 @@ export abstract class BaseQuestionComponent
 {
   @ViewChild('dynamicComponentContainer', {
     read: ViewContainerRef,
-    static: false
+    static: false,
   })
   dynamicComponentContainer!: ViewContainerRef;
   @Output() explanationToDisplayChange = new EventEmitter<string>();
   @Output() optionClicked = new EventEmitter<{
-    option: SelectedOption,
+    option: SelectedOption;
     index: number;
   }>();
   @Output() questionChange = new EventEmitter<QuizQuestion>();
@@ -80,19 +98,19 @@ export abstract class BaseQuestionComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('ngOnChanges called with changes:', changes);
-  
+
     if (changes.question) {
       this.handleQuestionChange(changes.question);
     }
-  
+
     if (changes.questionData) {
       this.handleQuestionDataChange(changes.questionData);
     }
-  
+
     if (changes.optionsToDisplay) {
       this.handleOptionsToDisplayChange(changes.optionsToDisplay);
     }
-  
+
     if (changes.question || changes.questionData) {
       this.initializeSharedOptionConfig();
     }
@@ -116,21 +134,25 @@ export abstract class BaseQuestionComponent
       console.log('Condition not met, skipping dynamic component load');
     }
   }
-  
+
   private updateQuizStateService(): void {
     console.log('Updating QuizStateService');
     console.log('quizStateService:', this.quizStateService);
     console.log('current question:', this.question);
-  
+
     if (this.quizStateService) {
       try {
         this.quizStateService.setCurrentQuestion(this.question);
-        console.log('Successfully updated current question in QuizStateService');
+        console.log(
+          'Successfully updated current question in QuizStateService'
+        );
       } catch (error) {
         console.error('Error updating current question:', error);
       }
     } else {
-      console.warn('quizStateService is not available. Unable to set current question.');
+      console.warn(
+        'quizStateService is not available. Unable to set current question.'
+      );
       console.log('Component instance:', this);
     }
   }
@@ -175,7 +197,7 @@ export abstract class BaseQuestionComponent
       this.sharedOptionConfig = this.getDefaultSharedOptionConfig();
       return;
     }
-  
+
     this.sharedOptionConfig = {
       optionsToDisplay: this.questionData.options || [],
       type: this.mapQuestionType(this.questionData.type),
@@ -184,12 +206,12 @@ export abstract class BaseQuestionComponent
       showFeedbackForOption: {},
       currentQuestion: this.questionData,
       showFeedback: false,
-      correctMessage: ''
+      correctMessage: '',
     };
-  
+
     console.log('sharedOptionConfig initialized:', this.sharedOptionConfig);
   }
-  
+
   private getDefaultSharedOptionConfig(): SharedOptionConfig {
     return {
       optionsToDisplay: [],
@@ -199,7 +221,7 @@ export abstract class BaseQuestionComponent
       showFeedbackForOption: {},
       currentQuestion: null,
       showFeedback: false,
-      correctMessage: ''
+      correctMessage: '',
     };
   }
 
@@ -254,9 +276,19 @@ export abstract class BaseQuestionComponent
       return;
     }
 
-    this.sharedOptionConfig.selectedOption = option;
-
     try {
+      // Check if it's a single selection type
+      if (this.type === 'single') {
+        // Deselect all other options
+        this.optionsToDisplay.forEach((opt) => (opt.selected = false));
+        option.selected = true;
+      } else {
+        // For multiple selection, toggle the clicked option
+        option.selected = !option.selected;
+      }
+
+      this.sharedOptionConfig.selectedOption = option;
+
       // Ensure showFeedbackForOption is initialized
       if (!this.showFeedbackForOption) {
         console.error('showFeedbackForOption is not initialized');
@@ -286,10 +318,19 @@ export abstract class BaseQuestionComponent
       // Ensure formatExplanationText is a function and call it
       if (this.explanationTextService) {
         console.log('explanationTextService:', this.explanationTextService);
-        console.log('formatExplanationText:', this.explanationTextService.formatExplanationText);
-        console.log('Type of formatExplanationText:', typeof this.explanationTextService.formatExplanationText);
-      
-        if (typeof this.explanationTextService.formatExplanationText === 'function') {
+        console.log(
+          'formatExplanationText:',
+          this.explanationTextService.formatExplanationText
+        );
+        console.log(
+          'Type of formatExplanationText:',
+          typeof this.explanationTextService.formatExplanationText
+        );
+
+        if (
+          typeof this.explanationTextService.formatExplanationText ===
+          'function'
+        ) {
           this.explanationTextService
             .formatExplanationText(
               this.question,
@@ -303,23 +344,36 @@ export abstract class BaseQuestionComponent
                   console.log('Emitting explanation:', explanation);
                   if (this.explanationToDisplay !== explanation) {
                     this.explanationToDisplay = explanation;
-                    this.explanationToDisplayChange.emit(this.explanationToDisplay);
+                    this.explanationToDisplayChange.emit(
+                      this.explanationToDisplay
+                    );
                   }
                 } else {
                   console.error('Unexpected result format:', result);
                 }
               },
               error: (err) => {
-                console.error('Error in formatExplanationText subscription:', err);
+                console.error(
+                  'Error in formatExplanationText subscription:',
+                  err
+                );
               },
               complete: () => {
                 console.log('formatExplanationText observable completed');
-              }
+              },
             });
         } else {
           console.error('formatExplanationText is not a function');
-          console.log('explanationTextService methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(this.explanationTextService)));
-          console.log('explanationTextService keys:', Object.keys(this.explanationTextService));
+          console.log(
+            'explanationTextService methods:',
+            Object.getOwnPropertyNames(
+              Object.getPrototypeOf(this.explanationTextService)
+            )
+          );
+          console.log(
+            'explanationTextService keys:',
+            Object.keys(this.explanationTextService)
+          );
         }
       } else {
         console.error('explanationTextService is undefined');
@@ -364,7 +418,7 @@ export abstract class BaseQuestionComponent
       console.warn('Received null or undefined question:', change);
     }
   }
-  
+
   private handleQuestionDataChange(change: SimpleChange): void {
     console.log('QuestionData change detected:', change);
     if (change.currentValue) {
