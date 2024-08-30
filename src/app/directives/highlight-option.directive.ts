@@ -36,9 +36,9 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() isSelected: boolean;
   @Input() shouldResetBackground: boolean;
   @Input() optionBinding: OptionBindings;
+  @Input() isAnswered: boolean;
   selectedOptions: Set<number> = new Set();
-  private isAnswered = false;
-
+  
   constructor(
     private el: ElementRef,
     private renderer: Renderer2,
@@ -108,33 +108,29 @@ export class HighlightOptionDirective implements OnChanges {
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
   private updateHighlight(): void {
-    console.log('updateHighlight called', this.optionBinding);
-  
+    console.log('updateHighlight called', {
+      optionBinding: this.optionBinding,
+      showFeedback: this.showFeedback,
+      isAnswered: this.isAnswered
+    });
+
     if (!this.optionBinding || !this.optionBinding.option) {
       console.warn('OptionBinding or Option is undefined');
       return;
     }
-  
+
     const isOptionCorrect = this.optionBinding.isCorrect;
     const isSelected = this.optionBinding.isSelected;
-    const shouldShowFeedbackForOption = this.showFeedback && this.optionBinding.showFeedbackForOption[this.optionBinding.option.optionId];
-  
-    console.log('Highlight conditions:', {
-      isOptionCorrect,
-      isSelected,
-      shouldShowFeedbackForOption,
-      showFeedback: this.showFeedback,
-      optionId: this.optionBinding.option.optionId
-    });
-  
+    const shouldShowFeedbackForOption = this.isAnswered && this.showFeedback && 
+      this.optionBinding.showFeedbackForOption[this.optionBinding.option.optionId];
+
     let color = '';
     if (isSelected && shouldShowFeedbackForOption) {
       color = isOptionCorrect ? '#43f756' : '#ff0000';
     } else if (isSelected) {
       color = '#e0e0e0';
     }
-  
-    console.log('Calculated color:', color);
+
     this.setBackgroundColor(color);
   }
   
