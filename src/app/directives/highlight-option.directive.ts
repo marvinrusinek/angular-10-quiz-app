@@ -57,14 +57,13 @@ export class HighlightOptionDirective implements OnChanges {
       optionsToDisplay: this.optionsToDisplay,
       isSelected: this.isSelected,
     });
-
-    this.updateHighlight();
-    /* if (changes.option || changes.showFeedback || changes.isSelected || changes.appHighlightReset) {
+  
+    if (changes.option || changes.showFeedback || changes.isSelected || changes.appHighlightReset) {
       console.log('ngOnChanges called, updating highlight');
       this.updateHighlight();
     } else {
-      console.error('Option is undefined in ngOnChanges');
-    } */
+      console.log('No relevant changes detected, skipping highlight update');
+    }
   }
 
   // @HostBinding('style.backgroundColor') backgroundColor: string = 'white';
