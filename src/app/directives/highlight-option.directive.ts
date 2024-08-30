@@ -109,7 +109,7 @@ export class HighlightOptionDirective implements OnChanges {
       console.error('Option is undefined on click');
     }
   } */
-  @HostListener('click') onClick(): void {
+  /* @HostListener('click') onClick(): void {
     console.log('Option clicked', this.option);
     if (this.option) {
       this.optionClicked.emit(this.option);
@@ -120,21 +120,26 @@ export class HighlightOptionDirective implements OnChanges {
         this.highlightCorrectAnswers();
       }
     }
+  } */
+  @HostListener('click') onClick(): void {
+    console.log('Option clicked');
+    this.isSelected = true;
+    this.updateHighlight();
   }
  
-  private updateHighlight(): void {
+  /* private updateHighlight(): void {
     if (!this.option || !this.showFeedback) {
       this.setBackgroundColor('transparent');
       return;
     }
 
-    /* if (this.isSelected) {
-      this.setBackgroundColor(this.option.correct ? '#43f756' : '#ff0000');
-    } else if (this.isMultipleAnswer && this.option.correct && this.showFeedback) {
-      this.setBackgroundColor('#43f756');
-    } else {
-      this.setBackgroundColor('transparent');
-    } */
+    // if (this.isSelected) {
+    //  this.setBackgroundColor(this.option.correct ?'#43f756' : '#ff0000');
+    //} else if (this.isMultipleAnswer && this.option.correct && this.showFeedback) {
+    //  this.setBackgroundColor('#43f756');
+    //} else {
+    //  this.setBackgroundColor('transparent');
+    //}
     if (this.isSelected) {
       this.setBackgroundColor(this.isCorrect ? '#43f756' : '#ff0000');
     } else if (
@@ -145,6 +150,24 @@ export class HighlightOptionDirective implements OnChanges {
       this.setBackgroundColor('#43f756');
     } else {
       this.setBackgroundColor('transparent');
+    }
+  } */
+  /* private updateHighlight(): void {
+    console.log('Updating highlight', { isSelected: this.isSelected, isCorrect: this.isCorrect });
+    if (this.isSelected) {
+      const color = this.isCorrect ? '#43f756' : '#ff0000';
+      this.renderer.setStyle(this.el.nativeElement, 'background-color', `${color} !important`);
+    } else {
+      this.renderer.removeStyle(this.el.nativeElement, 'background-color');
+    }
+  } */
+  private updateHighlight(): void {
+    console.log('Updating highlight', { isSelected: this.isSelected, isCorrect: this.isCorrect, showFeedback: this.showFeedback });
+    if (this.showFeedback && this.isSelected) {
+      const color = this.isCorrect ? '#43f756' : '#ff0000';
+      this.renderer.setStyle(this.el.nativeElement, 'background-color', `${color} !important`);
+    } else {
+      this.renderer.removeStyle(this.el.nativeElement, 'background-color');
     }
   }
 
