@@ -167,13 +167,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   isIconVisible(option: Option): boolean {
-    // Prioritize selected options or correct ones if feedback is not shown yet
+    const isSelectedOrCorrect = option.selected || option.correct;
+
     if (!this.showFeedback) {
-      return option.selected || option.correct;
+      return isSelectedOrCorrect;
     }
 
-    // When feedback is being shown, icons should reflect correctness
-    return this.showFeedback && (option.selected || option.correct);
+    return this.showFeedback && isSelectedOrCorrect;
   }
 
   isSelectedOption(option: Option): boolean {
