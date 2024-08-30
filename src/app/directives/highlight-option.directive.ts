@@ -82,7 +82,7 @@ export class HighlightOptionDirective implements OnChanges {
     }
   }
 
-  private updateHighlight(): void {
+  /* private updateHighlight(): void {
     console.log('Updating highlight', {
       isSelected: this.isSelected,
       isCorrect: this.isCorrect,
@@ -95,6 +95,16 @@ export class HighlightOptionDirective implements OnChanges {
         'background-color',
         `${color} !important`
       );
+    } else {
+      this.renderer.removeStyle(this.el.nativeElement, 'background-color');
+    }
+  } */
+  private updateHighlight(): void {
+    if (this.option && this.showFeedback && this.showFeedbackForOption[this.option.optionId]) {
+      const color = this.option.correct ? '#43f756' : '#ff0000';
+      this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+    } else if (this.option && this.option.selected) {
+      this.renderer.setStyle(this.el.nativeElement, 'background-color', '#e0e0e0');
     } else {
       this.renderer.removeStyle(this.el.nativeElement, 'background-color');
     }
