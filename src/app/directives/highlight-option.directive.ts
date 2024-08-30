@@ -31,10 +31,10 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() allOptions: Option[]; // to access all options directly
   @Input() optionsToDisplay: Option[];
   @Input() optionBinding: OptionBindings;
-  @Input() isSelected = false;
-  @Input() isCorrect = false;
-  @Input() showFeedback = false;
-  @Input() isAnswered = false;
+  @Input() isSelected: boolean;
+  @Input() isCorrect: boolean;
+  @Input() showFeedback: boolean;
+  @Input() isAnswered: boolean;
 
   constructor(
     private el: ElementRef,
