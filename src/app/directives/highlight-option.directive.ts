@@ -31,8 +31,8 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() allOptions: Option[]; // to access all options directly
   @Input() optionsToDisplay: Option[];
   @Input() optionBinding: OptionBindings;
-  @Input() isMultipleAnswer: boolean;
-  @Input() shouldResetBackground: boolean;
+  // @Input() isMultipleAnswer: boolean;
+  // @Input() shouldResetBackground: boolean;
   @Input() isSelected = false;
   @Input() isCorrect = false;
   @Input() showFeedback = false;
@@ -83,6 +83,7 @@ export class HighlightOptionDirective implements OnChanges {
   @HostListener('click') onClick(): void {
     console.log('Option clicked:', this.option);
     if (this.option) {
+      this.isSelected = true;
       this.optionClicked.emit(this.option);
       this.updateHighlight();
     }
