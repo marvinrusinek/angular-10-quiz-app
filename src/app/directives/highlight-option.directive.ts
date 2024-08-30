@@ -130,11 +130,11 @@ export class HighlightOptionDirective implements OnChanges {
   }
 
 
-  /* private setBackgroundColor(color: string): void {
-    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
-  } */
-
   private setBackgroundColor(color: string): void {
+    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+  }
+
+  /* private setBackgroundColor(color: string): void {
     console.log(`Attempting to set background color to: ${color}`);
     console.log('Element:', this.el.nativeElement);
     
@@ -154,7 +154,7 @@ export class HighlightOptionDirective implements OnChanges {
       this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
       console.log('Applied to element itself');
     }
-  }
+  } */
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
