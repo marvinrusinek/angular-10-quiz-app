@@ -21,7 +21,7 @@ import { UserPreferenceService } from '../shared/services/user-preference.servic
 export class HighlightOptionDirective implements OnChanges {
   @Output() resetBackground = new EventEmitter<boolean>();
   @Output() optionClicked = new EventEmitter<Option>();
-  @Input() appHighlightInputType: 'checkbox' | 'radio';
+  @Input() appHighlightInputType: 'checkbox' | 'radio' = 'radio';
   @Input() type: 'single' | 'multiple';
   @Input() appHighlightReset: boolean;
   @Input() appResetBackground: boolean;
@@ -35,8 +35,7 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() isCorrect = false;
   @Input() showFeedback = false;
   @Input() isAnswered = false;
-  selectedOptions: Set<number> = new Set();
-  
+
   constructor(
     private el: ElementRef,
     private renderer: Renderer2,
@@ -46,16 +45,9 @@ export class HighlightOptionDirective implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     console.log('ngOnChanges called with changes:', changes);
     console.log('Current inputs:', {
-      option: this.option,
-      isCorrect: this.isCorrect,
-      showFeedbackForOption: this.showFeedbackForOption,
-      highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
-      allOptions: this.allOptions,
-      appHighlightInputType: this.appHighlightInputType,
-      appHighlightReset: this.appHighlightReset,
-      appResetBackground: this.appResetBackground,
-      optionsToDisplay: this.optionsToDisplay,
-      isSelected: this.isSelected,
+      optionBinding: this.optionBinding,
+      isAnswered: this.isAnswered,
+      showFeedback: this.showFeedback
     });
 
     if (
@@ -110,7 +102,7 @@ export class HighlightOptionDirective implements OnChanges {
     console.log('updateHighlight called', {
       optionBinding: this.optionBinding,
       showFeedback: this.showFeedback,
-      isAnswered: this.isAnswered
+      isAnswered: this.isAnswered,
     });
 
     if (!this.optionBinding || !this.optionBinding.option) {
@@ -120,8 +112,12 @@ export class HighlightOptionDirective implements OnChanges {
 
     const isOptionCorrect = this.optionBinding.isCorrect;
     const isSelected = this.optionBinding.isSelected;
-    const shouldShowFeedbackForOption = this.isAnswered && this.showFeedback && 
-      this.optionBinding.showFeedbackForOption[this.optionBinding.option.optionId];
+    const shouldShowFeedbackForOption =
+      this.isAnswered &&
+      this.showFeedback &&
+      this.optionBinding.showFeedbackForOption[
+        this.optionBinding.option.optionId
+      ];
 
     let color = '';
     if (isSelected && shouldShowFeedbackForOption) {
@@ -132,26 +128,25 @@ export class HighlightOptionDirective implements OnChanges {
 
     this.setBackgroundColor(color);
   }
-  
+
   private setBackgroundColor(color: string): void {
     console.log(`Attempting to set background color to: ${color}`);
     const element = this.el.nativeElement;
-    
+
     // Apply to the element itself and its children
     this.renderer.setStyle(element, 'background-color', color);
     this.renderer.setStyle(element, 'border-radius', '4px');
     this.renderer.setStyle(element, 'padding', '2px 5px');
-    
+
     const label = element.querySelector('.mat-radio-button, .mat-checkbox');
     if (label) {
       this.renderer.setStyle(label, 'background-color', color);
       this.renderer.setStyle(label, 'border-radius', '4px');
       this.renderer.setStyle(label, 'padding', '2px 5px');
     }
-    
+
     console.log('Styles applied to:', element);
   }
-
 
   /* private setBackgroundColor(color: string): void {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
