@@ -283,9 +283,10 @@ export abstract class BaseQuestionComponent
       // Check if it's a single selection type
       if (this.type === 'single') {
         // Deselect all other options
-        this.optionsToDisplay.forEach((opt) => {
+        for (const opt of this.optionsToDisplay) {
           opt.selected = opt === option;
-        });
+          this.showFeedbackForOption[opt.optionId] = false;
+        }
       } else {
         // For multiple selection, toggle the clicked option
         option.selected = !option.selected;
@@ -299,9 +300,9 @@ export abstract class BaseQuestionComponent
       }
   
       // Show feedback for all options
-      this.optionsToDisplay.forEach((opt) => {
+      for (const opt of this.optionsToDisplay) {
         this.showFeedbackForOption[opt.optionId] = true;
-      });
+      }
   
       this.selectedOption = option;
   

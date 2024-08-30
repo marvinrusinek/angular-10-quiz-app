@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 
 import { Option } from '../../../shared/models/Option.model';
 import { OptionBindings } from '../../../shared/models/OptionBindings.model';
@@ -12,7 +22,7 @@ import { UserPreferenceService } from '../../../shared/services/user-preference.
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
   styleUrls: ['../question.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SharedOptionComponent implements OnInit, OnChanges {
   @Output() optionClicked = new EventEmitter<{
@@ -199,7 +209,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     if (this.type === 'single') {
       this.selectedOptions.clear();
-      this.optionsToDisplay.forEach((opt) => (opt.selected = false));
+      for (const opt of this.optionsToDisplay) {
+        opt.selected = false;
+      }
     }
 
     if (this.selectedOptions.has(option.optionId)) {
