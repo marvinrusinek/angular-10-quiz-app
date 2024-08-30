@@ -277,6 +277,10 @@ export abstract class BaseQuestionComponent
     }
   
     try {
+      // Toggle the global showFeedback state
+      this.showFeedback = !this.showFeedback;
+      console.log('Toggled showFeedback:', this.showFeedback);
+  
       // Check if it's a single selection type
       if (this.type === 'single') {
         // Deselect all other options
@@ -295,11 +299,10 @@ export abstract class BaseQuestionComponent
         this.showFeedbackForOption = {};
       }
   
-      // Always show feedback for all options when an option is clicked
+      // Set feedback state for all options based on the global showFeedback state
       this.optionsToDisplay.forEach((opt) => {
-        this.showFeedbackForOption[opt.optionId] = true;
+        this.showFeedbackForOption[opt.optionId] = this.showFeedback;
       });
-      this.showFeedback = true;
   
       this.selectedOption = option;
   
@@ -340,6 +343,7 @@ export abstract class BaseQuestionComponent
       console.log('Updated option state:', option);
       console.log('showFeedback:', this.showFeedback);
       console.log('showFeedbackForOption:', this.showFeedbackForOption);
+      console.log('optionsToDisplay:', this.optionsToDisplay);
   
       // Trigger change detection to update the UI
       this.cdRef.detectChanges();
