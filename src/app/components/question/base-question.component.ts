@@ -169,8 +169,6 @@ export abstract class BaseQuestionComponent
   }
 
   private initializeSharedOptionConfig(): void {
-    console.log('Initializing sharedOptionConfig');
-    
     if (!this.questionData) {
       console.warn('questionData is undefined or null');
       // Set a default configuration even if questionData is not available
@@ -186,7 +184,7 @@ export abstract class BaseQuestionComponent
       showFeedbackForOption: {},
       currentQuestion: this.questionData,
       showFeedback: false,
-      correctMessage: '',
+      correctMessage: ''
     };
   
     console.log('sharedOptionConfig initialized:', this.sharedOptionConfig);
@@ -201,7 +199,7 @@ export abstract class BaseQuestionComponent
       showFeedbackForOption: {},
       currentQuestion: null,
       showFeedback: false,
-      correctMessage: '',
+      correctMessage: ''
     };
   }
 
