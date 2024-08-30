@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
+import { OptionBindings } from '../shared/models/OptionBindings.model';
 import { UserPreferenceService } from '../shared/services/user-preference.service';
 
 @Directive({
