@@ -109,36 +109,64 @@ export class HighlightOptionDirective implements OnChanges {
 
   private updateHighlight(): void {
     console.log('updateHighlight called', this.optionBinding);
-
+  
     if (!this.optionBinding || !this.optionBinding.option) {
       console.warn('OptionBinding or Option is undefined');
       return;
     }
-
+  
     const isOptionCorrect = this.optionBinding.isCorrect;
     const isSelected = this.optionBinding.isSelected;
     const shouldShowFeedbackForOption = this.showFeedback && this.optionBinding.showFeedbackForOption[this.optionBinding.option.optionId];
-
+  
+    console.log('Highlight conditions:', {
+      isOptionCorrect,
+      isSelected,
+      shouldShowFeedbackForOption,
+      showFeedback: this.showFeedback,
+      optionId: this.optionBinding.option.optionId
+    });
+  
     let color = '';
     if (isSelected && shouldShowFeedbackForOption) {
       color = isOptionCorrect ? '#43f756' : '#ff0000';
     } else if (isSelected) {
       color = '#e0e0e0';
     }
-
+  
+    console.log('Calculated color:', color);
     this.setBackgroundColor(color);
+  }
+  
+  private setBackgroundColor(color: string): void {
+    console.log(`Attempting to set background color to: ${color}`);
+    const element = this.el.nativeElement;
+    
+    // Apply to the element itself and its children
+    this.renderer.setStyle(element, 'background-color', color);
+    this.renderer.setStyle(element, 'border-radius', '4px');
+    this.renderer.setStyle(element, 'padding', '2px 5px');
+    
+    const label = element.querySelector('.mat-radio-button, .mat-checkbox');
+    if (label) {
+      this.renderer.setStyle(label, 'background-color', color);
+      this.renderer.setStyle(label, 'border-radius', '4px');
+      this.renderer.setStyle(label, 'padding', '2px 5px');
+    }
+    
+    console.log('Styles applied to:', element);
   }
 
 
   /* private setBackgroundColor(color: string): void {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   } */
-  private setBackgroundColor(color: string): void {
+  /* private setBackgroundColor(color: string): void {
     const element = this.el.nativeElement;
     
     // Apply styles directly to the element
     this.renderer.setStyle(element, 'background-color', color);
-  }
+  } */
 
   /* private setBackgroundColor(color: string): void {
     console.log(`Attempting to set background color to: ${color}`);
