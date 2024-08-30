@@ -105,7 +105,7 @@ export class HighlightOptionDirective implements OnChanges {
   } */
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
-  private updateHighlight(): void {
+  /* private updateHighlight(): void {
     if (!this.option) return;
 
     const isOptionCorrect = this.option.correct;
@@ -128,6 +128,31 @@ export class HighlightOptionDirective implements OnChanges {
     } else {
       this.renderer.removeStyle(this.el.nativeElement, 'background-color');
     }
+  } */
+  private updateHighlight(): void {
+    console.log('updateHighlight called', {
+      option: this.option,
+      isSelected: this.isSelected,
+      showFeedback: this.showFeedback,
+      showFeedbackForOption: this.showFeedbackForOption
+    });
+
+    if (!this.option) {
+      console.warn('Option is undefined');
+      return;
+    }
+
+    const isOptionCorrect = this.option.correct;
+    const shouldShowFeedbackForOption = this.showFeedback && this.showFeedbackForOption[this.option.optionId];
+
+    let color = '';
+    if (this.isSelected && shouldShowFeedbackForOption) {
+      color = isOptionCorrect ? '#43f756' : '#ff0000';
+    } else if (this.isSelected) {
+      color = '#e0e0e0';
+    }
+
+    this.setBackgroundColor(color);
   }
 
   /* private setBackgroundColor(color: string): void {
