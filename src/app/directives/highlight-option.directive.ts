@@ -88,7 +88,7 @@ export class HighlightOptionDirective implements OnChanges {
     }
   } */
 
-  @HostListener('click') onClick(): void {
+  /* @HostListener('click') onClick(): void {
     if (this.option) {
       console.log('Option clicked:', this.option.text);
       this.optionClicked.emit(this.option);
@@ -108,8 +108,20 @@ export class HighlightOptionDirective implements OnChanges {
     } else {
       console.error('Option is undefined on click');
     }
+  } */
+  @HostListener('click') onClick(): void {
+    console.log('Option clicked', this.option);
+    if (this.option) {
+      this.optionClicked.emit(this.option);
+      this.isAnswered = true;
+      this.updateHighlight();
+    
+      if (!this.isCorrect && this.highlightCorrectAfterIncorrect) {
+        this.highlightCorrectAnswers();
+      }
+    }
   }
-
+ 
   private updateHighlight(): void {
     if (!this.option || !this.showFeedback) {
       this.setBackgroundColor('transparent');
