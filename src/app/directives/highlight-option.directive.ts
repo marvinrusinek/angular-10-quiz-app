@@ -43,7 +43,6 @@ export class HighlightOptionDirective implements OnChanges {
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('ngOnChanges called with changes:', changes);
     console.log('Current inputs:', {
       optionBinding: this.optionBinding,
       isAnswered: this.isAnswered,
@@ -65,11 +64,6 @@ export class HighlightOptionDirective implements OnChanges {
 
   // @HostBinding('style.backgroundColor') backgroundColor: string = 'white';
 
-  /* @HostListener('click') onClick(): void {
-    console.log('Option clicked');
-    this.isSelected = true;
-    this.updateHighlight();
-  } */
   @HostListener('click') onClick(): void {
     console.log('Option clicked:', this.option);
     if (this.option) {
