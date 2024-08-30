@@ -135,24 +135,25 @@ export class HighlightOptionDirective implements OnChanges {
   } */
 
   private setBackgroundColor(color: string): void {
-    console.log(`Setting background color to: ${color}`);
+    console.log(`Attempting to set background color to: ${color}`);
+    console.log('Element:', this.el.nativeElement);
     
-    // For mat-checkbox
     const checkbox = this.el.nativeElement.querySelector('.mat-checkbox');
+    const radioButton = this.el.nativeElement.querySelector('.mat-radio-button');
+    
+    console.log('Checkbox found:', !!checkbox);
+    console.log('Radio button found:', !!radioButton);
+    
     if (checkbox) {
       this.renderer.setStyle(checkbox, 'background-color', color);
-      return;
-    }
-    
-    // For mat-radio-button
-    const radioButton = this.el.nativeElement.querySelector('.mat-radio-button');
-    if (radioButton) {
+      console.log('Applied to checkbox');
+    } else if (radioButton) {
       this.renderer.setStyle(radioButton, 'background-color', color);
-      return;
+      console.log('Applied to radio button');
+    } else {
+      this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+      console.log('Applied to element itself');
     }
-    
-    // If neither checkbox nor radio button, apply to the element itself
-    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
 
   private highlightCorrectAnswers(): void {
