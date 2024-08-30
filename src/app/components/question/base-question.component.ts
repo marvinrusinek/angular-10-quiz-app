@@ -199,7 +199,7 @@ export abstract class BaseQuestionComponent
       showFeedbackForOption: {},
       currentQuestion: this.questionData,
       showFeedback: false,
-      correctMessage: '',
+      correctMessage: ''
     };
 
     console.log('sharedOptionConfig initialized:', this.sharedOptionConfig);
@@ -214,7 +214,7 @@ export abstract class BaseQuestionComponent
       showFeedbackForOption: {},
       currentQuestion: null,
       showFeedback: false,
-      correctMessage: '',
+      correctMessage: ''
     };
   }
 
