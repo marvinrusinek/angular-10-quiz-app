@@ -313,28 +313,7 @@ export abstract class BaseQuestionComponent
       );
   
       // Handle explanation text
-      if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
-        try {
-          const result = await this.explanationTextService.formatExplanationText(
-            this.question,
-            this.quizService.currentQuestionIndex
-          ).toPromise();
-  
-          if (result && 'explanation' in result) {
-            const { explanation } = result;
-            if (this.explanationToDisplay !== explanation) {
-              this.explanationToDisplay = explanation;
-              this.explanationToDisplayChange.emit(this.explanationToDisplay);
-            }
-          } else {
-            console.error('Unexpected result format:', result);
-          }
-        } catch (err) {
-          console.error('Error in formatExplanationText:', err);
-        }
-      } else {
-        console.error('explanationTextService or formatExplanationText is not available');
-      }
+      await this.updateExplanationText();
   
       // Set the correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
@@ -348,6 +327,31 @@ export abstract class BaseQuestionComponent
       this.cdRef.detectChanges();
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
+    }
+  }
+  
+  private async updateExplanationText(): Promise<void> {
+    if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
+      try {
+        const result = await this.explanationTextService.formatExplanationText(
+          this.question,
+          this.quizService.currentQuestionIndex
+        ).toPromise();
+  
+        if (result && 'explanation' in result) {
+          const { explanation } = result;
+          if (this.explanationToDisplay !== explanation) {
+            this.explanationToDisplay = explanation;
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+          }
+        } else {
+          console.error('Unexpected result format:', result);
+        }
+      } catch (err) {
+        console.error('Error in formatExplanationText:', err);
+      }
+    } else {
+      console.error('explanationTextService or formatExplanationText is not available');
     }
   }
 
