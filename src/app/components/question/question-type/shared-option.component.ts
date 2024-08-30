@@ -120,7 +120,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.selectedOptions.clear();
     this.isSubmitted = false;
     this.showFeedback = false;
-    this.optionsToDisplay.forEach((option) => (option.selected = false));
+    
+    for (const option of this.optionsToDisplay) {
+      option.selected = false;
+    }
   }
 
   private logConfig(): void {
