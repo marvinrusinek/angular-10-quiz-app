@@ -132,25 +132,21 @@ export class HighlightOptionDirective implements OnChanges {
     }
   } */
   private updateHighlight(): void {
-    console.log('updateHighlight called', {
-      option: this.option,
-      isSelected: this.isSelected,
-      showFeedback: this.showFeedback,
-      showFeedbackForOption: this.showFeedbackForOption
-    });
+    console.log('updateHighlight called', this.optionBinding);
 
-    if (!this.option) {
-      console.warn('Option is undefined');
+    if (!this.optionBinding || !this.optionBinding.option) {
+      console.warn('OptionBinding or Option is undefined');
       return;
     }
 
-    const isOptionCorrect = this.option.correct;
-    const shouldShowFeedbackForOption = this.showFeedback && this.showFeedbackForOption[this.option.optionId];
+    const isOptionCorrect = this.optionBinding.isCorrect;
+    const isSelected = this.optionBinding.isSelected;
+    const shouldShowFeedbackForOption = this.showFeedback && this.optionBinding.showFeedbackForOption[this.optionBinding.option.optionId];
 
     let color = '';
-    if (this.isSelected && shouldShowFeedbackForOption) {
+    if (isSelected && shouldShowFeedbackForOption) {
       color = isOptionCorrect ? '#43f756' : '#ff0000';
-    } else if (this.isSelected) {
+    } else if (isSelected) {
       color = '#e0e0e0';
     }
 
