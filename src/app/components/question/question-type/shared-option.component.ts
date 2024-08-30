@@ -183,7 +183,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   isSelectedOption(option: Option): boolean {
-    //  return this.selectedOption && this.selectedOption.optionId === option.optionId;
     return this.selectedOptions.has(option.optionId);
   }
 
