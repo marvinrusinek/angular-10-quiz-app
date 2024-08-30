@@ -34,6 +34,7 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() isMultipleAnswer: boolean;
   @Input() isSelected: boolean;
   @Input() shouldResetBackground: boolean;
+  @Input() optionBinding: OptionBindings;
   selectedOptions: Set<number> = new Set();
   private isAnswered = false;
 
