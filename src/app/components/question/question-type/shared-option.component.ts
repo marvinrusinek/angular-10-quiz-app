@@ -144,6 +144,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
+  getOptionDisplayText(optionBinding: OptionBindings, index: number): string {
+    return `${index + 1}. ${optionBinding.option?.text}`;
+  }
+
   getOptionIcon(option: Option): string {
     const highlightCorrectAfterIncorrect =
       this.userPreferenceService.getHighlightPreference();
