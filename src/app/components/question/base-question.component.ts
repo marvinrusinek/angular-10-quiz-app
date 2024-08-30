@@ -372,7 +372,6 @@ export abstract class BaseQuestionComponent
     if (change.currentValue) {
       console.log('New questionData value:', change.currentValue);
       this.questionData = change.currentValue;
-      // Add any specific logic for questionData changes here
     } else {
       console.warn('Received null or undefined questionData:', change);
     }
