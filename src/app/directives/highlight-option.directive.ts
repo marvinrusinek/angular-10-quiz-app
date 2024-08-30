@@ -69,17 +69,36 @@ export class HighlightOptionDirective implements OnChanges {
 
   // @HostBinding('style.backgroundColor') backgroundColor: string = 'white';
 
-  @HostListener('click') onClick(): void {
+  /* @HostListener('click') onClick(): void {
     console.log('Option clicked');
     this.isSelected = true;
     this.updateHighlight();
+  } */
+  @HostListener('click') onClick(): void {
+    console.log('Option clicked:', this.option);
+    if (this.option) {
+      this.isSelected = !this.isSelected; // Toggle selection
+      this.optionClicked.emit({
+        optionId: this.option.optionId,
+        isSelected: this.isSelected
+      });
+      this.updateHighlight();
+    }
   }
- 
+
   private updateHighlight(): void {
-    console.log('Updating highlight', { isSelected: this.isSelected, isCorrect: this.isCorrect, showFeedback: this.showFeedback });
+    console.log('Updating highlight', {
+      isSelected: this.isSelected,
+      isCorrect: this.isCorrect,
+      showFeedback: this.showFeedback,
+    });
     if (this.showFeedback && this.isSelected) {
       const color = this.isCorrect ? '#43f756' : '#ff0000';
-      this.renderer.setStyle(this.el.nativeElement, 'background-color', `${color} !important`);
+      this.renderer.setStyle(
+        this.el.nativeElement,
+        'background-color',
+        `${color} !important`
+      );
     } else {
       this.renderer.removeStyle(this.el.nativeElement, 'background-color');
     }
