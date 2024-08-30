@@ -260,91 +260,138 @@ export abstract class BaseQuestionComponent
 
   protected abstract loadDynamicComponent(): void;
 
-  public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    console.log('Option clicked:', option, 'Index:', index);
-
+  public async onOptionClicked(
+    option: SelectedOption,
+    index: number
+  ): Promise<void> {
+    // Ensure sharedOptionConfig is initialized
     if (!this.sharedOptionConfig) {
-        console.error('sharedOptionConfig is not initialized');
-        this.initializeSharedOptionConfig();
+      console.error('sharedOptionConfig is not initialized');
+      this.initializeSharedOptionConfig();
     }
 
+    // Ensure sharedOptionConfig is now initialized
     if (!this.sharedOptionConfig) {
-        console.error('Failed to initialize sharedOptionConfig. Cannot proceed.');
-        return;
+      console.error('Failed to initialize sharedOptionConfig. Cannot proceed.');
+      return;
     }
 
     try {
-        // Handling single selection type
-        if (this.type === 'single') {
-            // Deselect all other options
-            this.optionsToDisplay.forEach((opt) => {
-                opt.selected = false;
-                this.showFeedbackForOption[opt.optionId] = false;
+      // Check if it's a single selection type
+      if (this.type === 'single') {
+        // Deselect all other options
+        this.optionsToDisplay.forEach((opt) => {
+          opt.selected = false;
+          this.showFeedbackForOption[opt.optionId] = false;
+        });
+        option.selected = true;
+      } else {
+        // For multiple selection, toggle the clicked option
+        option.selected = !option.selected;
+      }
+
+      this.sharedOptionConfig.selectedOption = option;
+
+      // Ensure showFeedbackForOption is initialized
+      if (!this.showFeedbackForOption) {
+        console.error('showFeedbackForOption is not initialized');
+        this.showFeedbackForOption = {};
+      }
+
+      // Update the selected option's feedback state
+      this.showFeedbackForOption[option.optionId] = true;
+      this.selectedOption = option;
+      this.showFeedback = true;
+
+      // Ensure feedback for the selected option is displayed
+      this.showFeedbackForOption = { [this.selectedOption.optionId]: true };
+
+      // Determine the correct options and set the correct message
+      const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
+      this.correctMessage = this.quizService.setCorrectMessage(
+        correctOptions,
+        this.optionsToDisplay
+      );
+
+      console.log(
+        'Type of formatExplanationText:',
+        typeof this.explanationTextService.formatExplanationText
+      );
+
+      // Ensure formatExplanationText is a function and call it
+      if (this.explanationTextService) {
+        console.log('explanationTextService:', this.explanationTextService);
+        console.log(
+          'formatExplanationText:',
+          this.explanationTextService.formatExplanationText
+        );
+        console.log(
+          'Type of formatExplanationText:',
+          typeof this.explanationTextService.formatExplanationText
+        );
+
+        if (
+          typeof this.explanationTextService.formatExplanationText ===
+          'function'
+        ) {
+          this.explanationTextService
+            .formatExplanationText(
+              this.question,
+              this.quizService.currentQuestionIndex
+            )
+            .subscribe({
+              next: (result) => {
+                console.log('Received result:', result);
+                if (result && 'explanation' in result) {
+                  const { explanation } = result;
+                  console.log('Emitting explanation:', explanation);
+                  if (this.explanationToDisplay !== explanation) {
+                    this.explanationToDisplay = explanation;
+                    this.explanationToDisplayChange.emit(
+                      this.explanationToDisplay
+                    );
+                  }
+                } else {
+                  console.error('Unexpected result format:', result);
+                }
+              },
+              error: (err) => {
+                console.error(
+                  'Error in formatExplanationText subscription:',
+                  err
+                );
+              },
+              complete: () => {
+                console.log('formatExplanationText observable completed');
+              },
             });
-            option.selected = true;
         } else {
-            // For multiple selection, toggle the clicked option
-            option.selected = !option.selected;
+          console.error('formatExplanationText is not a function');
+          console.log(
+            'explanationTextService methods:',
+            Object.getOwnPropertyNames(
+              Object.getPrototypeOf(this.explanationTextService)
+            )
+          );
+          console.log(
+            'explanationTextService keys:',
+            Object.keys(this.explanationTextService)
+          );
         }
+      } else {
+        console.error('explanationTextService is undefined');
+      }
 
-        // Store the selected option in the shared config
-        this.sharedOptionConfig.selectedOption = option;
+      // Set the correct options in the quiz service
+      this.quizService.setCorrectOptions(correctOptions);
 
-        // Initialize showFeedbackForOption if needed
-        if (!this.showFeedbackForOption) {
-            this.showFeedbackForOption = {};
-        }
-
-        // Update the feedback state for the selected option
-        this.showFeedbackForOption[option.optionId] = true;
-        this.selectedOption = option;
-        this.showFeedback = true;
-
-        console.log('Correct options before setCorrectMessage:', this.optionsToDisplay.filter(opt => opt.correct));
-
-        // Set the correct message
-        const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
-        this.correctMessage = this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
-
-        console.log('Correct message after setCorrectMessage:', this.correctMessage);
-
-        // Check if explanation text needs to be processed
-        if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
-            this.explanationTextService
-                .formatExplanationText(this.question, this.quizService.currentQuestionIndex)
-                .subscribe({
-                    next: (result) => {
-                        if (result && 'explanation' in result) {
-                            const { explanation } = result;
-                            if (this.explanationToDisplay !== explanation) {
-                                this.explanationToDisplay = explanation;
-                                this.explanationToDisplayChange.emit(this.explanationToDisplay);
-                            }
-                        } else {
-                            console.error('Unexpected result format:', result);
-                        }
-                    },
-                    error: (err) => console.error('Error in formatExplanationText subscription:', err),
-                });
-        } else {
-            console.error('explanationTextService or formatExplanationText is not available');
-        }
-
-        // Set the correct options in the quiz service
-        this.quizService.setCorrectOptions(correctOptions);
-
-        // Emit the option clicked event
-        this.optionClicked.emit({ option, index });
-
-        // Trigger change detection to update the UI
-        this.cdRef.markForCheck();
-
-        console.log('Final option state:', option);
-        console.log('Final sharedOptionConfig:', this.sharedOptionConfig);
-        console.log('showFeedback:', this.showFeedback);
-        console.log('showFeedbackForOption:', this.showFeedbackForOption);
+      // Trigger change detection to update the UI
+      this.cdRef.markForCheck();
     } catch (error) {
-        console.error('An error occurred while processing the option click:', error);
+      console.error(
+        'An error occurred while processing the option click:',
+        error
+      );
     }
   }
 
