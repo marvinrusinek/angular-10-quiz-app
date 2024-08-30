@@ -26,17 +26,17 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() appHighlightReset: boolean;
   @Input() appResetBackground: boolean;
   @Input() option: Option;
-  @Input() isCorrect: boolean;
-  @Input() showFeedback: boolean;
   @Input() showFeedbackForOption: { [key: number]: boolean };
   @Input() highlightCorrectAfterIncorrect: boolean;
   @Input() allOptions: Option[]; // to access all options directly
   @Input() optionsToDisplay: Option[];
-  @Input() isMultipleAnswer: boolean;
-  @Input() isSelected: boolean;
-  @Input() shouldResetBackground: boolean;
   @Input() optionBinding: OptionBindings;
-  @Input() isAnswered: boolean;
+  @Input() isMultipleAnswer: boolean;
+  @Input() shouldResetBackground: boolean;
+  @Input() isSelected = false;
+  @Input() isCorrect = false;
+  @Input() showFeedback = false;
+  @Input() isAnswered = false;
   selectedOptions: Set<number> = new Set();
   
   constructor(
