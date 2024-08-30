@@ -5,6 +5,7 @@
         <mat-checkbox *ngSwitchCase="'multiple'"
           appHighlightOption
           [attr.aria-label]="optionBinding.ariaLabel"
+          [optionBinding]="optionBinding"
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
           (change)="optionBinding.change()">
@@ -14,6 +15,7 @@
         <mat-radio-button *ngSwitchCase="'single'"
           appHighlightOption
           [attr.aria-label]="optionBinding.ariaLabel"
+          [optionBinding]="optionBinding"
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
           (change)="optionBinding.change()">
