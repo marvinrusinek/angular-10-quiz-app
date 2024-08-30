@@ -144,8 +144,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  getOptionDisplayText(optionBinding: OptionBindings, index: number): string {
-    return `${index + 1}. ${optionBinding.option?.text}`;
+  getOptionDisplayText(option: Option, idx: number): string {
+    return `${idx + 1}. ${option?.text}`;
   }
 
   getOptionIcon(option: Option): string {
