@@ -7,11 +7,7 @@
           [attr.aria-label]="optionBinding.ariaLabel"
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
-          (change)="optionBinding.change()"
-          [isSelected]="optionBinding.isSelected"
-          [isCorrect]="optionBinding.option.correct"
-          [showFeedback]="showFeedback"
-          [isAnswered]="isAnswered">
+          (change)="optionBinding.change()">
           <ng-container *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}"></ng-container>
         </mat-checkbox>
         
@@ -20,11 +16,7 @@
           [attr.aria-label]="optionBinding.ariaLabel"
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
-          (change)="optionBinding.change()"
-          [isSelected]="optionBinding.isSelected"
-          [isCorrect]="optionBinding.option.correct"
-          [showFeedback]="showFeedback"
-          [isAnswered]="isAnswered">
+          (change)="optionBinding.change()">
           <ng-container *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}"></ng-container>
         </mat-radio-button>
       </ng-container>
