@@ -56,7 +56,7 @@ export class HighlightOptionDirective implements OnChanges {
     } */
   }
 
-  @HostBinding('style.backgroundColor') backgroundColor: string = 'white';
+  // @HostBinding('style.backgroundColor') backgroundColor: string = 'white';
 
   /* @HostListener('click') onClick(): void {
     console.log('Option clicked:', this.option.text);
@@ -112,6 +112,8 @@ export class HighlightOptionDirective implements OnChanges {
     } */
     if (this.isSelected) {
       this.setBackgroundColor(this.isCorrect ? '#43f756' : '#ff0000');
+    } else if (this.isMultipleAnswer && this.option.correct && this.showFeedback) {
+      this.setBackgroundColor('#43f756');
     } else {
       this.setBackgroundColor('transparent');
     }
