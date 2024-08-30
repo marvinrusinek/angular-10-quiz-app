@@ -318,11 +318,6 @@ export abstract class BaseQuestionComponent
       // Set the correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
   
-      console.log('Updated option state:', option);
-      console.log('showFeedback:', this.showFeedback);
-      console.log('showFeedbackForOption:', this.showFeedbackForOption);
-      console.log('optionsToDisplay:', this.optionsToDisplay);
-  
       // Trigger change detection to update the UI
       this.cdRef.detectChanges();
     } catch (error) {
