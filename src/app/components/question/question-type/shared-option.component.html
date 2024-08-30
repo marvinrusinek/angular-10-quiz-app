@@ -39,7 +39,7 @@
   <div class="option-content">
     <span class="option-text" 
       [ngStyle]="optionTextStyle">
-      {{ idx + 1 }}. {{ option?.text }}
+      {{ getOptionDisplayText(optionBinding, idx) }}
     </span>
     <mat-icon *ngIf="isIconVisible(option)"
       class="material-icons icon" 
