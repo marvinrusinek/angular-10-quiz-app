@@ -208,7 +208,7 @@ export abstract class BaseQuestionComponent
   private getDefaultSharedOptionConfig(): SharedOptionConfig {
     return {
       optionsToDisplay: [],
-      type: 'single', // or whatever default type you want
+      type: 'single',
       shouldResetBackground: false,
       selectedOption: null,
       showFeedbackForOption: {},
