@@ -1350,6 +1350,7 @@ export class QuizQuestionComponent
     option: SelectedOption,
     index: number
   ): Promise<void> {
+    console.log('QQC onOptionClicked started', { option, index });
     console.log(
       'onOptionClicked triggered with option:',
       option,
@@ -1510,7 +1511,7 @@ export class QuizQuestionComponent
       console.log('Loading state reset in finally block.');
     }
   }
-  
+
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
     this.showFeedbackForOption = {}; // Reset the feedback object
