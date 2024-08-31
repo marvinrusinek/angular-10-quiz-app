@@ -8,6 +8,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
+  ViewChild
 } from '@angular/core';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -26,13 +27,14 @@ import { QuizQuestionComponent } from '../question.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SharedOptionComponent implements OnInit, OnChanges {
+  @ViewChild(QuizQuestionComponent)
+  quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionClicked = new EventEmitter<{
     option: Option;
     index: number;
   }>();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
   @Output() optionChanged = new EventEmitter<any>();
-  @Input() quizQuestionComponent!: QuizQuestionComponent;
   @Input() config: SharedOptionConfig;
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
