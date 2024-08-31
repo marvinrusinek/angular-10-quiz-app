@@ -60,6 +60,8 @@ import { SharedVisibilityService } from '../../shared/services/shared-visibility
 import { TimerService } from '../../shared/services/timer.service';
 import { UserPreferenceService } from '../../shared/services/user-preference.service';
 import { BaseQuestionComponent } from './base-question.component';
+import { SingleAnswerComponent } from '../../components/question/question-type/single-answer/single-answer.component';
+import { MultipleAnswerComponent } from '../../components/question/question-type/multiple-answer/multiple-answer.component';
 
 @Component({
   selector: 'codelab-quiz-question',
@@ -607,24 +609,33 @@ export class QuizQuestionComponent
       const isMultipleAnswer = await firstValueFrom(
         this.quizStateService.isMultipleAnswerQuestion(this.question)
       );
+      console.log('Is multiple answer question:', isMultipleAnswer);
+  
       const componentRef = await this.dynamicComponentService.loadComponent(
         this.dynamicComponentContainer,
         isMultipleAnswer
       );
+      console.log('Dynamic component loaded:', componentRef.instance.constructor.name);
   
       if (componentRef.instance) {
         componentRef.instance.questionForm = this.questionForm;
         componentRef.instance.question = this.question;
         componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
+        console.log('Component instance properties set');
   
-        // Check if the instance is SingleAnswerComponent or MultipleAnswerComponent
-        if (componentRef.instance instanceof SingleAnswerComponent || 
-            componentRef.instance instanceof MultipleAnswerComponent) {
-          // Pass the onOptionClicked method to the dynamic component
-          componentRef.instance.quizQuestionComponentOnOptionClicked = this.onOptionClicked.bind(this);
+        // Pass the onOptionClicked method to the dynamic component
+        if (typeof componentRef.instance.setQuizQuestionComponentOnOptionClicked === 'function') {
+          console.log('Setting quizQuestionComponentOnOptionClicked in dynamic component');
+          componentRef.instance.setQuizQuestionComponentOnOptionClicked(this.onOptionClicked.bind(this));
+        } else {
+          console.error('setQuizQuestionComponentOnOptionClicked is not a function on the dynamic component');
+          console.log('Component instance methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(componentRef.instance)));
         }
   
         componentRef.changeDetectorRef.markForCheck();
+        console.log('Change detection triggered for dynamic component');
+      } else {
+        console.error('Component instance is undefined');
       }
     } else {
       console.error(
