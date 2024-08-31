@@ -997,9 +997,7 @@ export class QuizQuestionComponent
     this.isLoading = true;
 
     try {
-      console.log('Fetching quiz questions for quizId:', quizId); // Log the quizId
       const questions = await this.quizService.fetchQuizQuestions(quizId);
-      console.log('Fetched questions:', questions); // Log the fetched questions
 
       if (questions && questions.length > 0) {
         this.questions = of(questions);
