@@ -576,21 +576,17 @@ export class QuizQuestionComponent
   }
 
   async loadDynamicComponent(): Promise<void> {
-    console.log('Loading dynamic component in QuizQuestionComponent');
     if (this.dynamicComponentContainer) {
       this.dynamicComponentContainer.clear();
   
       const isMultipleAnswer = await firstValueFrom(
         this.quizStateService.isMultipleAnswerQuestion(this.question)
       );
-      console.log('Is multiple answer question:', isMultipleAnswer);
   
       const componentRef = await this.dynamicComponentService.loadComponent(
         this.dynamicComponentContainer,
         isMultipleAnswer
       );
-      console.log('Dynamic component loaded:', componentRef.instance.constructor.name);
-  
       if (componentRef.instance) {
         componentRef.instance.questionForm = this.questionForm;
         componentRef.instance.question = this.question;
