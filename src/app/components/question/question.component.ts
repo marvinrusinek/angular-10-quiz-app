@@ -575,32 +575,6 @@ export class QuizQuestionComponent
     }
   }
 
-  /* async loadDynamicComponent(): Promise<void> {
-    console.log('Loading dynamic component in QuizQuestionComponent');
-    if (this.dynamicComponentContainer) {
-      this.dynamicComponentContainer.clear();
-
-      const isMultipleAnswer = await firstValueFrom(
-        this.quizStateService.isMultipleAnswerQuestion(this.question)
-      );
-      const componentRef = await this.dynamicComponentService.loadComponent(
-        this.dynamicComponentContainer,
-        isMultipleAnswer
-      );
-
-      if (componentRef.instance) {
-        componentRef.instance.questionForm = this.questionForm;
-        componentRef.instance.question = this.question;
-        componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
-
-        componentRef.changeDetectorRef.markForCheck();
-      }
-    } else {
-      console.error(
-        'dynamicComponentContainer is still undefined in QuizQuestionComponent'
-      );
-    }
-  } */
   async loadDynamicComponent(): Promise<void> {
     console.log('Loading dynamic component in QuizQuestionComponent');
     if (this.dynamicComponentContainer) {
