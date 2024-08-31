@@ -239,12 +239,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   } */
   handleOptionClick(option: Option, index: number) {
     console.log('SOC handleOptionClick called with option:', option, 'index:', index);
-
+  
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
     }
-
+  
     if (this.type === 'single') {
       // For single-select, always select the clicked option
       this.selectedOptions.clear();
@@ -264,19 +264,19 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
       this.updateOptionBinding(option, index);
     }
-
+  
     this.showFeedback = true;
-
+  
     console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
     console.log('showFeedback:', this.showFeedback);
-
-    // Call the QuizQuestionComponent's onOptionClicked method
-    if (this.quizQuestionComponent) {
-      this.quizQuestionComponent.onOptionClicked(option as SelectedOption, index);
+  
+    // Call the callback function from QuizQuestionComponent
+    if (this.onOptionClickedCallback) {
+      this.onOptionClickedCallback(option as SelectedOption, index);
     } else {
-      console.error('quizQuestionComponent is not defined');
+      console.error('onOptionClickedCallback is not defined');
     }
-
+  
     this.optionClicked.emit({ option, index });
     this.cdRef.detectChanges();
   }
