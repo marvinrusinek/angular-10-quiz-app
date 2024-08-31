@@ -1510,19 +1510,7 @@ export class QuizQuestionComponent
       console.log('Loading state reset in finally block.');
     }
   }
-
-  private highlightCorrectAnswers(): void {
-    console.log('Highlighting all correct answers');
-
-    for (const option of this.optionsToDisplay) {
-      if (option.correct) {
-        // Notify the directive to highlight itself by updating showFeedbackForOption
-        console.log('Setting showFeedbackForOption for option:', option.text);
-        this.showFeedbackForOption[option.optionId] = true;
-      }
-    }
-  }
-
+  
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
     this.showFeedbackForOption = {}; // Reset the feedback object
