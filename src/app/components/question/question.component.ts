@@ -2096,7 +2096,7 @@ export class QuizQuestionComponent
       return 'Error fetching explanation.';
     }
   } */
-  async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
+  /* async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     console.log('Preparing explanation text for question index:', questionIndex);
   
     if (document.hidden) {
@@ -2114,6 +2114,37 @@ export class QuizQuestionComponent
         console.log('Formatted explanation:', formattedExplanation);
   
         this.explanationToDisplay = formattedExplanation || 'No explanation available...';
+        console.log('Generated explanation text:', this.explanationToDisplay);
+        return this.explanationToDisplay;
+      } else {
+        console.error('Error: questionData or explanation is undefined');
+        this.explanationToDisplay = 'No explanation available.';
+        return this.explanationToDisplay;
+      }
+    } catch (error) {
+      console.error('Error in fetching explanation text:', error);
+      this.explanationToDisplay = 'Error fetching explanation.';
+      return this.explanationToDisplay;
+    }
+  } */
+  async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
+    console.log('Preparing explanation text for question index:', questionIndex);
+  
+    if (document.hidden) {
+      console.log('Document is hidden, returning placeholder text.');
+      this.explanationToDisplay = 'Explanation text not available when document is hidden.';
+      return this.explanationToDisplay;
+    }
+  
+    try {
+      const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
+      console.log('Fetched question data:', JSON.stringify(questionData, null, 2));
+  
+      if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
+        const formattedExplanation = await this.getFormattedExplanation(questionData, questionIndex);
+        console.log('Formatted explanation:', formattedExplanation);
+  
+        this.explanationToDisplay = formattedExplanation.explanation || 'No explanation available...';
         console.log('Generated explanation text:', this.explanationToDisplay);
         return this.explanationToDisplay;
       } else {
