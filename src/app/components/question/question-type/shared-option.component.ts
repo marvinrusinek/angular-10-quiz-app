@@ -105,6 +105,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
+  onOptionClicked(option: any, index: number) {
+    console.log('SOC onOptionClicked called');
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.onOptionClicked(option, index);
+    } else {
+      console.error('quizQuestionComponent is not defined');
+    }
+  }
+
   onQuestionChange(question: QuizQuestion): void {
     this.quizStateService.setCurrentQuestion(question);
     this.questionAnswered.emit(question);
