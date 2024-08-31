@@ -44,6 +44,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @Input() showFeedback: boolean;
   @Input() shouldResetBackground = false;
   @Input() highlightCorrectAfterIncorrect: boolean;
+  @Input() quizQuestionComponentOnOptionClicked!: (option: SelectedOption, index: number) => void;
   optionBindings: OptionBindings[] = [];
   selectedOptions: Set<number> = new Set();
   isSubmitted = false;
@@ -108,6 +109,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       //this.isSubmitted = false;
       //this.showFeedback = false;
     }
+  }
+
+  onOptionClicked(option: SelectedOption, index: number) {
+    if (this.quizQuestionComponentOnOptionClicked) {
+      this.quizQuestionComponentOnOptionClicked(option, index);
+    } else {
+      console.error('quizQuestionComponentOnOptionClicked is not defined');
+    }
+    // Any additional logic specific to SharedOptionComponent
   }
 
   onQuestionChange(question: QuizQuestion): void {
@@ -275,13 +285,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('showFeedback:', this.showFeedback);
   
     // Call the onOptionClicked method from QuizQuestionComponent
-    if (this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function') {
+    /* if (this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function') {
       this.quizQuestionComponent.onOptionClicked(option as SelectedOption, index);
     } else {
       console.error('quizQuestionComponent or its onOptionClicked method is not defined');
       console.error('quizQuestionComponent:', this.quizQuestionComponent);
       console.error('onOptionClicked:', this.quizQuestionComponent?.onOptionClicked);
-    }
+    } */
   
     this.optionClicked.emit({ option, index });
     this.cdRef.detectChanges();
