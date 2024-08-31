@@ -364,12 +364,13 @@ export abstract class BaseQuestionComponent
       if (result && 'explanation' in result) {
         this.explanationToDisplay = result.explanation;
         console.log('Explanation updated:', this.explanationToDisplay);
-        this.cdRef.detectChanges(); // Force change detection
       } else {
         console.error('Unexpected result format:', result);
+        this.explanationToDisplay = 'Error: Unexpected explanation format';
       }
     } catch (err) {
       console.error('Error in formatExplanationText:', err);
+      this.explanationToDisplay = 'Error: Failed to fetch explanation';
     }
   }
 
