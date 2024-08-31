@@ -1,12 +1,12 @@
 <ng-container *ngIf="optionsToDisplay?.length; else noOptions">
   <div *ngFor="let optionBinding of optionBindings; let idx = index; trackBy: trackByOption">
-    <label class="options" appHighlightOption [style.background-color]="getBackgroundColor(optionBinding)">
+    <label class="options" appHighlightOption>
       <ng-container [ngSwitch]="type">
         <mat-checkbox *ngSwitchCase="'multiple'"
           [attr.aria-label]="optionBinding.ariaLabel"
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
-          (change)="onOptionChange(optionBinding)">
+          (change)="optionBinding.change()">
           <ng-container *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}"></ng-container>
         </mat-checkbox>
         
@@ -14,7 +14,7 @@
           [attr.aria-label]="optionBinding.ariaLabel"
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
-          (change)="onOptionChange(optionBinding)">
+          (change)="optionBinding.change()">
           <ng-container *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}"></ng-container>
         </mat-radio-button>
       </ng-container>
