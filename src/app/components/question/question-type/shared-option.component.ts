@@ -25,7 +25,7 @@ import { QuizQuestionComponent } from '../question.component';
   styleUrls: ['../question.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SharedOptionComponent extends QuizQuestionComponent implements OnInit, OnChanges {
+export class SharedOptionComponent implements OnInit, OnChanges {
   @Output() optionClicked = new EventEmitter<{
     option: Option;
     index: number;
@@ -56,9 +56,7 @@ export class SharedOptionComponent extends QuizQuestionComponent implements OnIn
     private quizStateService: QuizStateService,
     private userPreferenceService: UserPreferenceService,
     private cdRef: ChangeDetectorRef
-  ) {
-    super();
-  }
+  ) {}
 
   ngOnInit(): void {
     this.initializeOptionBindings();
