@@ -288,7 +288,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       isSelected: this.isSelectedOption(option),
       change: () => this.handleOptionClick(option as SelectedOption, idx),
       disabled: option.selected,
-      ariaLabel: 'Option ' + (idx + 1),
+      ariaLabel: 'Option ' + (idx + 1)
     };
   }
 
@@ -298,7 +298,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     );
   }
 
-  trackByOption(index: number, item: Option): number {
+  trackByOption(item: Option, index: number): number {
     return item.optionId;
   }
 }
