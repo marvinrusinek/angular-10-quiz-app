@@ -315,31 +315,6 @@ export abstract class BaseQuestionComponent
       console.error('An error occurred while processing the option click:', error);
     }
   }
-  
-  /* private async updateFormattedExplanationText(): Promise<void> {
-    if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
-      try {
-        const result = await this.explanationTextService.formatExplanationText(
-          this.question,
-          this.quizService.currentQuestionIndex
-        ).toPromise();
-  
-        if (result && 'explanation' in result) {
-          const { explanation } = result;
-          if (this.explanationToDisplay !== explanation) {
-            this.explanationToDisplay = explanation;
-            this.explanationToDisplayChange.emit(this.explanationToDisplay);
-          }
-        } else {
-          console.error('Unexpected result format:', result);
-        }
-      } catch (err) {
-        console.error('Error in formatExplanationText:', err);
-      }
-    } else {
-      console.error('explanationTextService or formatExplanationText is not available');
-    }
-  } */
 
   private async updateFormattedExplanationText(): Promise<void> {
     console.log('updateExplanationText called', { question: this.question, currentQuestionIndex: this.quizService.currentQuestionIndex });
