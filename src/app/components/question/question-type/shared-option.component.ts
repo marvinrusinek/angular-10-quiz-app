@@ -45,6 +45,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   isSubmitted = false;
   iconVisibility: boolean[] = []; // Array to store visibility state of icons
   showIconForOption: { [optionId: number]: boolean } = {};
+  @Output() optionChanged = new EventEmitter<any>();
 
   optionTextStyle = {
     color: 'black',
@@ -277,5 +278,23 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   trackByOption(index: number, item: Option): number {
     return item.optionId;
+  }
+
+  getBackgroundColor(optionBinding: any): string {
+    console.log('getBackgroundColor', optionBinding, this.showFeedback);
+    if (optionBinding.isSelected) {
+      if (this.showFeedback) {
+        return optionBinding.option.correct ? '#43f756' : '#ff0000';
+      }
+      return '#e0e0e0';
+    }
+    return 'transparent';
+  }
+
+  onOptionChange(optionBinding: any): void {
+    console.log('Option changed', optionBinding);
+    optionBinding.isSelected = !optionBinding.isSelected;
+    optionBinding.change();
+    this.optionChanged.emit(optionBinding);
   }
 }
