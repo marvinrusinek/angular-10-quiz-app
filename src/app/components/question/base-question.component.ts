@@ -304,7 +304,7 @@ export abstract class BaseQuestionComponent
       );
   
       // Handle explanation text
-      await this.updateExplanationText();
+      await this.updateFormattedExplanationText();
   
       // Set the correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
@@ -316,7 +316,7 @@ export abstract class BaseQuestionComponent
     }
   }
   
-  private async updateExplanationText(): Promise<void> {
+  private async updateFormattedExplanationText(): Promise<void> {
     if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
       try {
         const result = await this.explanationTextService.formatExplanationText(
