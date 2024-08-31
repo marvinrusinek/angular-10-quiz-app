@@ -18,6 +18,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 })
 export class SingleAnswerComponent extends BaseQuestionComponent {
   @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
+  quizQuestionComponentOnOptionClicked?: (option: SelectedOption, index: number) => void;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
   sharedOptionConfig: SharedOptionConfig;
@@ -45,6 +46,10 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     if (this instanceof QuizQuestionComponent) {
       console.log('Calling fetchAndSetExplanationText in QuizQuestionComponent from SingleAnswerComponent');
       await (this as QuizQuestionComponent).fetchAndSetExplanationText();
+    }
+
+    if (this.quizQuestionComponentOnOptionClicked) {
+      this.quizQuestionComponentOnOptionClicked(option, index);
     }
   }
 }
