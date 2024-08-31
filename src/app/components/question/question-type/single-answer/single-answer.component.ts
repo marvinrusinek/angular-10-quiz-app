@@ -47,9 +47,5 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
       console.log('Calling fetchAndSetExplanationText in QuizQuestionComponent from SingleAnswerComponent');
       await (this as QuizQuestionComponent).fetchAndSetExplanationText();
     }
-
-    /* if (this.quizQuestionComponentOnOptionClicked) {
-      this.quizQuestionComponentOnOptionClicked(option, index);
-    } */
   }
 }
