@@ -2144,7 +2144,7 @@ export class QuizQuestionComponent
 
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
         console.log('Question data is valid, getting formatted explanation');
-        const formattedExplanationObservable = this.getFormattedExplanation(questionIndex);
+        const formattedExplanationObservable = this.explanationTextService.getFormattedExplanation(questionIndex);
         const formattedExplanation = await firstValueFrom(formattedExplanationObservable);
         console.log('Formatted explanation:', formattedExplanation);
 
