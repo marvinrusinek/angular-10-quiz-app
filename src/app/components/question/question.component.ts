@@ -60,8 +60,6 @@ import { SharedVisibilityService } from '../../shared/services/shared-visibility
 import { TimerService } from '../../shared/services/timer.service';
 import { UserPreferenceService } from '../../shared/services/user-preference.service';
 import { BaseQuestionComponent } from './base-question.component';
-import { SingleAnswerComponent } from '../../components/question/question-type/single-answer/single-answer.component';
-import { MultipleAnswerComponent } from '../../components/question/question-type/multiple-answer/multiple-answer.component';
 
 @Component({
   selector: 'codelab-quiz-question',
