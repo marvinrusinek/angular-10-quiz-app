@@ -16,4 +16,5 @@
   (optionClicked)="onOptionClicked($event.option, $event.index)"
   (questionAnswered)="onQuestionAnswered($event)"
   [quizQuestionComponentOnOptionClicked]="quizQuestionComponentOnOptionClicked"
+  [onOptionClicked]="onOptionClicked.bind(this)"
 ></app-shared-option>

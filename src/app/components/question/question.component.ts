@@ -622,6 +622,8 @@ export class QuizQuestionComponent
         componentRef.instance.question = this.question;
         componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
         console.log('Component instance properties set');
+
+        componentRef.instance.quizQuestionComponentOnOptionClicked = this.onOptionClicked.bind(this);
   
         // Directly pass the onOptionClicked method to the dynamic component
         if (typeof componentRef.instance.onOptionClicked === 'undefined') {
