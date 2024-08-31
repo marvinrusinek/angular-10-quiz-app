@@ -76,14 +76,16 @@ export abstract class BaseQuestionComponent
     quizQuestionComponent: QuizQuestionComponent | null,
     protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
-    protected explanationTextService: ExplanationTextService,
+    @Optional() 
+    @Inject(forwardRef(() => ExplanationTextService))
+    private explanationTextService: ExplanationTextService | null,
     protected quizService: QuizService,
     protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
     protected cdRef: ChangeDetectorRef
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     if (this.question) {
       this.setCurrentQuestion(this.question);
       this.initializeQuestion();
@@ -94,6 +96,8 @@ export abstract class BaseQuestionComponent
     }
 
     this.subscribeToQuestionChanges();
+
+    await this.debugUpdateExplanation();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -372,6 +376,13 @@ export abstract class BaseQuestionComponent
       console.error('Error in formatExplanationText:', err);
       this.explanationToDisplay = 'Error: Failed to fetch explanation';
     }
+  }
+
+  async debugUpdateExplanation() {
+    console.log('Debug: Updating explanation');
+    await this.updateAndDisplayFormattedExplanationText();
+    console.log('Debug: After update, explanationToDisplay:', this.explanationToDisplay);
+    this.cdRef.detectChanges();
   }
 
   private mapQuestionType(type: QuestionType): 'single' | 'multiple' {
