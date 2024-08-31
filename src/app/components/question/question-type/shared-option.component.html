@@ -11,7 +11,7 @@
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
           (change)="optionBinding.change()"
-          (click)="quizQuestionComponent.onOptionClicked(optionBinding.option, idx)"
+          (click)="onOptionClicked(optionBinding.option, idx)"
         >
           <ng-container 
             *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}">
@@ -27,7 +27,7 @@
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
           (change)="optionBinding.change()"
-          (click)="quizQuestionComponent.onOptionClicked(optionBinding.option, idx)"
+          (click)="onOptionClicked(optionBinding.option, idx)"
         >
           <ng-container 
             *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}">
