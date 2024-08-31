@@ -56,7 +56,9 @@ export class SharedOptionComponent extends QuizQuestionComponent implements OnIn
     private quizStateService: QuizStateService,
     private userPreferenceService: UserPreferenceService,
     private cdRef: ChangeDetectorRef
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
     this.initializeOptionBindings();
