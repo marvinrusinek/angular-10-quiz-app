@@ -67,8 +67,6 @@ export class HighlightOptionDirective implements OnChanges {
   @HostListener('click') onClick(): void {
     console.log('Option clicked:', this.option);
     if (this.option) {
-      // this.isSelected = true;
-      this.isSelected = !this.isSelected;
       this.optionClicked.emit(this.option);
       this.updateHighlight();
     }
