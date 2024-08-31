@@ -286,17 +286,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('showFeedback:', this.showFeedback);
   
     // Call the onOptionClicked method from QuizQuestionComponent
-    /* if (this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function') {
-      this.quizQuestionComponent.onOptionClicked(option as SelectedOption, index);
-    } else {
-      console.error('quizQuestionComponent or its onOptionClicked method is not defined');
-      console.error('quizQuestionComponent:', this.quizQuestionComponent);
-      console.error('onOptionClicked:', this.quizQuestionComponent?.onOptionClicked);
-    } */
+    // if (this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function') {
+    //  this.quizQuestionComponent.onOptionClicked(option as SelectedOption, index);
+    //} else {
+    //  console.error('quizQuestionComponent or its onOptionClicked method is not defined');
+    //  console.error('quizQuestionComponent:', this.quizQuestionComponent);
+    //  console.error('onOptionClicked:', this.quizQuestionComponent?.onOptionClicked);
+    //}
   
     this.optionClicked.emit({ option, index });
     this.cdRef.detectChanges();
   } */
+
   handleOptionClick(option: Option, index: number) {
     console.log('SOC handleOptionClick called with option:', option, 'index:', index);
   
