@@ -11,7 +11,7 @@
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
           (change)="optionBinding.change()"
-          (click)="onOptionClicked(optionBinding.option, idx)">
+          (click)="onOptionClicked(optionBinding.option, idx); $event.stopPropagation()">
           <ng-container *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}"></ng-container>
         </mat-checkbox>
         
@@ -24,7 +24,7 @@
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
           (change)="optionBinding.change()"
-          (click)="onOptionClicked(optionBinding.option, idx)"
+          (click)="onOptionClicked(optionBinding.option, idx); $event.stopPropagation()"
           >
           <ng-container *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}"></ng-container>
         </mat-radio-button>
