@@ -2127,26 +2127,28 @@ export class QuizQuestionComponent
       return this.explanationToDisplay;
     }
   } */
+
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     console.log('Preparing explanation text for question index:', questionIndex);
-  
+
     if (document.hidden) {
       console.log('Document is hidden, returning placeholder text.');
       this.explanationToDisplay = 'Explanation text not available when document is hidden.';
       return this.explanationToDisplay;
     }
-  
+
     try {
       console.log('Attempting to fetch next question for index:', this.currentQuestionIndex);
       const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
       console.log('Fetched question data:', JSON.stringify(questionData, null, 2));
-  
+
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
         console.log('Question data is valid, getting formatted explanation');
-        const formattedExplanation = await this.getFormattedExplanation(questionData, questionIndex);
+        const formattedExplanationObservable = this.getFormattedExplanation(questionIndex);
+        const formattedExplanation = await firstValueFrom(formattedExplanationObservable);
         console.log('Formatted explanation:', formattedExplanation);
-  
-        this.explanationToDisplay = formattedExplanation.explanation || 'No explanation available...';
+
+        this.explanationToDisplay = formattedExplanation || 'No explanation available...';
         console.log('Generated explanation text:', this.explanationToDisplay);
         return this.explanationToDisplay;
       } else {
