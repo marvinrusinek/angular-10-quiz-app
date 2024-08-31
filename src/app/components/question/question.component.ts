@@ -2075,7 +2075,6 @@ export class QuizQuestionComponent
     try {
       console.log('Attempting to fetch next question for index:', this.currentQuestionIndex);
       const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
-      console.log('Fetched question data:', JSON.stringify(questionData, null, 2));
 
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
         console.log('Question data is valid, getting formatted explanation');
