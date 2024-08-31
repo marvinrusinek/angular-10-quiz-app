@@ -13,7 +13,9 @@
           (change)="optionBinding.change()"
           (click)="onOptionClicked(optionBinding.option, idx)"
         >
-          <ng-container *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}"></ng-container>
+          <ng-container 
+            *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}">
+          </ng-container>
         </mat-checkbox>
         
         <mat-radio-button *ngSwitchCase="'single'"
@@ -27,7 +29,9 @@
           (change)="optionBinding.change()"
           (click)="onOptionClicked(optionBinding.option, idx)"
         >
-          <ng-container *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}"></ng-container>
+          <ng-container 
+            *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}">
+          </ng-container>
         </mat-radio-button>
       </ng-container>
       
