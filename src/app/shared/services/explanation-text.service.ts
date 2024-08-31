@@ -232,7 +232,7 @@ export class ExplanationTextService {
     }
   }
 
-  /* getFormattedExplanation(questionIndex: number): Observable<string> {
+  getFormattedExplanation(questionIndex: number): Observable<string> {
     console.log('Fetching explanation for questionIndex:', questionIndex);
     const explanationText = this.getFormattedExplanationTextForQuestion(questionIndex);
   
@@ -242,18 +242,6 @@ export class ExplanationTextService {
     } else {
       console.log(`No formatted explanation found for questionIndex: ${questionIndex}`);
       return of('No explanation available');
-    }
-  } */
-  async getFormattedExplanation(questionData: any, questionIndex: number): Promise<{ questionIndex: number; explanation: string }> {
-    console.log('Fetching explanation for questionIndex:', questionIndex);
-    const explanationText = this.getFormattedExplanationTextForQuestion(questionIndex);
-  
-    if (explanationText) {
-      console.log("Formatted Explanation:", explanationText);
-      return { questionIndex, explanation: explanationText };
-    } else {
-      console.log(`No formatted explanation found for questionIndex: ${questionIndex}`);
-      return { questionIndex, explanation: 'No explanation available' };
     }
   }
 
