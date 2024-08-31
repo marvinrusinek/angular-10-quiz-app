@@ -18,7 +18,6 @@ import { SelectedOption } from '../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
-import { QuizQuestionComponent } from '../question.component';
 
 @Component({
   selector: 'app-shared-option',
@@ -27,8 +26,6 @@ import { QuizQuestionComponent } from '../question.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SharedOptionComponent implements OnInit, OnChanges {
-  @ViewChild(QuizQuestionComponent)
-  quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionClicked = new EventEmitter<{
     option: Option;
     index: number;
@@ -105,6 +102,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       //this.isSubmitted = false;
       //this.showFeedback = false;
     }
+  }
+
+  onOptionClicked(option: Option, index: number) {
+    this.optionClicked.emit({ option, index });
   }
 
   onQuestionChange(question: QuizQuestion): void {
