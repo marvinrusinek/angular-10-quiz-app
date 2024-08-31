@@ -320,36 +320,6 @@ export abstract class BaseQuestionComponent
     }
   }
 
-  /* private async updateAndDisplayFormattedExplanationText(): Promise<void> {
-    console.log('updateExplanationText called', { question: this.question, currentQuestionIndex: this.quizService.currentQuestionIndex });
-    
-    if (!this.explanationTextService || typeof this.explanationTextService.formatExplanationText !== 'function') {
-      console.error('explanationTextService or formatExplanationText is not available');
-      return;
-    }
-
-    try {
-      console.log('Calling formatExplanationText');
-      const result = await firstValueFrom(this.explanationTextService.formatExplanationText(
-        this.question,
-        this.quizService.currentQuestionIndex
-      ));
-
-      console.log('formatExplanationText result:', result);
-
-      if (result && 'explanation' in result) {
-        const { explanation } = result;
-        console.log('New explanation:', explanation);
-        this.explanationToDisplay = explanation;
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-        this.cdRef.markForCheck(); // Mark for check to ensure change detection runs
-      } else {
-        console.error('Unexpected result format:', result);
-      }
-    } catch (err) {
-      console.error('Error in formatExplanationText:', err);
-    }
-  } */
   private async updateAndDisplayFormattedExplanationText(): Promise<void> {
     console.log('updateAndDisplayFormattedExplanationText called');
     if (!this.explanationTextService || typeof this.explanationTextService.formatExplanationText !== 'function') {
@@ -368,6 +338,7 @@ export abstract class BaseQuestionComponent
       if (result && 'explanation' in result) {
         this.explanationToDisplay = result.explanation;
         console.log('Explanation updated:', this.explanationToDisplay);
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
       } else {
         console.error('Unexpected result format:', result);
         this.explanationToDisplay = 'Error: Unexpected explanation format';
