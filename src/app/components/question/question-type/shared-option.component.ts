@@ -26,8 +26,8 @@ import { QuizQuestionComponent } from '../question.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SharedOptionComponent implements OnInit, OnChanges {
-  @Output() optionClicked = new EventEmitter<{
-    option: Option;
+  @Output() optionClicked! = new EventEmitter<{
+    option: Option,
     index: number;
   }>();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
