@@ -2077,9 +2077,7 @@ export class QuizQuestionComponent
     }
 
     try {
-      const questionData = await this.quizService.getNextQuestion(
-        this.currentQuestionIndex
-      );
+      const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
       console.log('Fetched question data:', questionData);
 
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
@@ -2087,10 +2085,13 @@ export class QuizQuestionComponent
           questionData,
           questionIndex
         );
-        const explanationText =
-          formattedExplanation.explanation || 'No explanation available';
+        /* const explanationText =
+          formattedExplanation.explanation || 'No explanation available...';
         console.log('Generated explanation text:', explanationText);
-        return explanationText;
+        return explanationText; */
+        this.explanationToDisplay = formattedExplanation.explanation || 'No explanation available...';
+        console.log('Generated explanation text:', this.explanationToDisplay);
+        return formattedExplanation.explanation || 'No explanation available...';
       } else {
         console.error('Error: questionData or explanation is undefined');
         return 'No explanation available.';
