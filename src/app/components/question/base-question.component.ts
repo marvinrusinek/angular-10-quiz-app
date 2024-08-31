@@ -306,7 +306,7 @@ export abstract class BaseQuestionComponent
       );
   
       // Handle explanation text
-      await this.updateAndDisplayFormattedExplanationText();
+      // await this.updateAndDisplayFormattedExplanationText();
   
       // Set the correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
