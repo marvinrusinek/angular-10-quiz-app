@@ -124,7 +124,7 @@ export class HighlightOptionDirective implements OnChanges {
     this.setBackgroundColor(color);
   } */
   
-  private updateHighlight(): void {
+  /* private updateHighlight(): void {
     console.log('Updating highlight', {
       isSelected: this.isSelected,
       isCorrect: this.isCorrect,
@@ -142,7 +142,31 @@ export class HighlightOptionDirective implements OnChanges {
     }
 
     this.setBackgroundColor(color);
+  } */
+  private updateHighlight(): void {
+    console.log('updateHighlight called', {
+      option: this.option,
+      isSelected: this.isSelected,
+      showFeedback: this.showFeedback,
+      isCorrect: this.isCorrect
+    });
+
+    let color = 'transparent';
+
+    if (this.isSelected) {
+      if (this.showFeedback) {
+        color = this.isCorrect ? 'rgba(67, 247, 86, 0.5)' : 'rgba(255, 0, 0, 0.5)';
+      } else {
+        color = 'rgba(224, 224, 224, 0.5)';
+      }
+    }
+
+    console.log('Setting background color to:', color);
+    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
+  
+
+
   /* private updateHighlight() {
     console.log('updateHighlight called', {
       showFeedback: this.showFeedback,
