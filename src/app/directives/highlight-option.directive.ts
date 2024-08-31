@@ -46,7 +46,7 @@ export class HighlightOptionDirective implements OnChanges {
     console.log('Current inputs:', {
       optionBinding: this.optionBinding,
       isAnswered: this.isAnswered,
-      showFeedback: this.showFeedback
+      showFeedback: this.showFeedback,
     });
 
     if (
@@ -71,7 +71,7 @@ export class HighlightOptionDirective implements OnChanges {
       this.updateHighlight();
     }
   }
-  
+
   private updateHighlight(): void {
     let backgroundColor = 'transparent';
 
@@ -89,10 +89,6 @@ export class HighlightOptionDirective implements OnChanges {
       this.setBackgroundColor(backgroundColor);
     }
   }
-  
-  private setBackgroundColor(color: string): void {
-    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
-  }
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
@@ -109,6 +105,10 @@ export class HighlightOptionDirective implements OnChanges {
     } else {
       console.error('All options are not defined');
     }
+  }
+
+  private setBackgroundColor(color: string): void {
+    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
 
   // Reset the state in-between questions

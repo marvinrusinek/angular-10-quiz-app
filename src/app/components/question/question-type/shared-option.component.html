@@ -3,8 +3,8 @@
     <label class="options">
       <ng-container [ngSwitch]="type">
         <mat-checkbox *ngSwitchCase="'multiple'"
-          [attr.aria-label]="optionBinding.ariaLabel"
           appHighlightOption
+          [attr.aria-label]="optionBinding.ariaLabel"
           [isSelected]="optionBinding.isSelected"
           [isCorrect]="optionBinding.option.correct"
           [showFeedback]="showFeedback"
@@ -14,9 +14,9 @@
           <ng-container *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}"></ng-container>
         </mat-checkbox>
         
-        <mat-radio-button *ngSwitchCase="'single'" 
-          [attr.aria-label]="optionBinding.ariaLabel"
+        <mat-radio-button *ngSwitchCase="'single'"
           appHighlightOption
+          [attr.aria-label]="optionBinding.ariaLabel"
           [isSelected]="optionBinding.isSelected"
           [isCorrect]="optionBinding.option.correct"
           [showFeedback]="showFeedback"
