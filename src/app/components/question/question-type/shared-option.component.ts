@@ -26,7 +26,7 @@ import { QuizQuestionComponent } from '../question.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SharedOptionComponent implements OnInit, OnChanges {
-  @Output() optionClicked! = new EventEmitter<{
+  @Output() optionClicked = new EventEmitter<{
     option: Option,
     index: number;
   }>();
@@ -111,14 +111,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  onOptionClicked(option: SelectedOption, index: number) {
+  /* onOptionClicked(option: SelectedOption, index: number) {
     if (this.quizQuestionComponentOnOptionClicked) {
       this.quizQuestionComponentOnOptionClicked(option, index);
     } else {
       console.error('quizQuestionComponentOnOptionClicked is not defined');
     }
+
     // Any additional logic specific to SharedOptionComponent
-  }
+  } */
 
   onQuestionChange(question: QuizQuestion): void {
     this.quizStateService.setCurrentQuestion(question);

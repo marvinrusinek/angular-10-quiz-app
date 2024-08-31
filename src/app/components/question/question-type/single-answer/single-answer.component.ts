@@ -48,8 +48,8 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
       await (this as QuizQuestionComponent).fetchAndSetExplanationText();
     }
 
-    if (this.quizQuestionComponentOnOptionClicked) {
+    /* if (this.quizQuestionComponentOnOptionClicked) {
       this.quizQuestionComponentOnOptionClicked(option, index);
-    }
+    } */
   }
 }
