@@ -105,15 +105,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  onOptionClicked(option: any, index: number) {
-    console.log('SOC onOptionClicked called');
-    if (this.quizQuestionComponent) {
-      this.quizQuestionComponent.onOptionClicked(option, index);
-    } else {
-      console.error('quizQuestionComponent is not defined');
-    }
-  }
-
   onQuestionChange(question: QuizQuestion): void {
     this.quizStateService.setCurrentQuestion(question);
     this.questionAnswered.emit(question);
@@ -209,7 +200,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.selectedOptions.has(option.optionId);
   }
 
-  handleOptionClick(option: Option, index: number) {
+  /* handleOptionClick(option: Option, index: number) {
     console.log('handleOptionClick called with option:', option, 'index:', index);
   
     if (this.isSubmitted) {
@@ -242,6 +233,49 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
     console.log('showFeedback:', this.showFeedback);
   
+    this.optionClicked.emit({ option, index });
+    this.cdRef.detectChanges();
+  } */
+  handleOptionClick(option: Option, index: number) {
+    console.log('SOC handleOptionClick called with option:', option, 'index:', index);
+
+    if (this.isSubmitted) {
+      console.log('Question already submitted, ignoring click');
+      return;
+    }
+
+    if (this.type === 'single') {
+      // For single-select, always select the clicked option
+      this.selectedOptions.clear();
+      this.selectedOptions.add(option.optionId);
+      
+      this.optionsToDisplay.forEach((opt, idx) => {
+        opt.selected = opt.optionId === option.optionId;
+        this.updateOptionBinding(opt, idx);
+      });
+    } else {
+      // For multiple-select, toggle the selection
+      option.selected = !option.selected;
+      if (option.selected) {
+        this.selectedOptions.add(option.optionId);
+      } else {
+        this.selectedOptions.delete(option.optionId);
+      }
+      this.updateOptionBinding(option, index);
+    }
+
+    this.showFeedback = true;
+
+    console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
+    console.log('showFeedback:', this.showFeedback);
+
+    // Call the QuizQuestionComponent's onOptionClicked method
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.onOptionClicked(option as SelectedOption, index);
+    } else {
+      console.error('quizQuestionComponent is not defined');
+    }
+
     this.optionClicked.emit({ option, index });
     this.cdRef.detectChanges();
   }
