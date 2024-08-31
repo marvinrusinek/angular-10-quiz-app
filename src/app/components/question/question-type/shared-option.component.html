@@ -18,7 +18,7 @@
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
           (change)="optionBinding.change()"
-          (click)="onOptionClicked(optionBinding.option, idx)"
+          (click)="handleOptionClick(optionBinding.option, idx)"
         >
           <ng-container
             *ngTemplateOutlet="
@@ -39,7 +39,7 @@
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
           (change)="optionBinding.change()"
-          (click)="onOptionClicked(optionBinding.option, idx)"
+          (click)="handleOptionClick(optionBinding.option, idx)"
         >
           <ng-container
             *ngTemplateOutlet="
