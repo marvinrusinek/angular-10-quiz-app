@@ -183,7 +183,7 @@ export abstract class BaseQuestionComponent
     }
   }
 
-  private initializeSharedOptionConfig(): void {
+  public initializeSharedOptionConfig(): void {
     if (!this.questionData) {
       console.warn('questionData is undefined or null');
       // Set a default configuration even if questionData is not available
