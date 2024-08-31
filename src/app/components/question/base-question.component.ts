@@ -35,19 +35,19 @@ import { QuizQuestionComponent } from './question.component';
 @Component({
   selector: 'app-base-question',
   template: '',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export abstract class BaseQuestionComponent
   implements OnInit, OnChanges, OnDestroy, AfterViewInit
 {
   @ViewChild('dynamicComponentContainer', {
     read: ViewContainerRef,
-    static: false,
+    static: false
   })
   dynamicComponentContainer!: ViewContainerRef;
   @Output() explanationToDisplayChange = new EventEmitter<string>();
   @Output() optionClicked = new EventEmitter<{
-    option: SelectedOption;
+    option: SelectedOption,
     index: number;
   }>();
   @Output() questionChange = new EventEmitter<QuizQuestion>();
