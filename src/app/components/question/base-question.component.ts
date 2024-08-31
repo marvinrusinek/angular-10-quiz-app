@@ -341,18 +341,26 @@ export abstract class BaseQuestionComponent
     }
   } */
   private async updateFormattedExplanationText(): Promise<void> {
+    console.log('updateExplanationText called');
     if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
       try {
+        console.log('Calling formatExplanationText');
         const result = await this.explanationTextService.formatExplanationText(
           this.question,
           this.quizService.currentQuestionIndex
         ).toPromise();
   
+        console.log('formatExplanationText result:', result);
+  
         if (result && 'explanation' in result) {
           const { explanation } = result;
+          console.log('New explanation:', explanation);
           if (this.explanationToDisplay !== explanation) {
             this.explanationToDisplay = explanation;
+            console.log('Emitting new explanation');
             this.explanationToDisplayChange.emit(this.explanationToDisplay);
+          } else {
+            console.log('Explanation unchanged, not emitting');
           }
         } else {
           console.error('Unexpected result format:', result);
