@@ -2081,17 +2081,12 @@ export class QuizQuestionComponent
       console.log('Fetched question data:', questionData);
 
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
-        const formattedExplanation = await this.getFormattedExplanation(
-          questionData,
-          questionIndex
-        );
-        /* const explanationText =
-          formattedExplanation.explanation || 'No explanation available...';
-        console.log('Generated explanation text:', explanationText);
-        return explanationText; */
+        const formattedExplanation = await this.getFormattedExplanation(questionData, questionIndex);
+        console.log('Formatted explanation:', JSON.stringify(formattedExplanation, null, 2));
+
         this.explanationToDisplay = formattedExplanation.explanation || 'No explanation available...';
         console.log('Generated explanation text:', this.explanationToDisplay);
-        return formattedExplanation.explanation || 'No explanation available...';
+        return this.explanationToDisplay;
       } else {
         console.error('Error: questionData or explanation is undefined');
         return 'No explanation available.';
