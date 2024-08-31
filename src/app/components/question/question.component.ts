@@ -1363,14 +1363,6 @@ export class QuizQuestionComponent
     option: SelectedOption,
     index: number
   ): Promise<void> {
-    console.log('QQC onOptionClicked started', { option, index });
-    console.log(
-      'onOptionClicked triggered with option:',
-      option,
-      'index:',
-      index
-    );
-
     // Set the loading state to true at the beginning
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswered(false);
