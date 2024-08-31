@@ -203,57 +203,6 @@ export class HighlightOptionDirective implements OnChanges {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
 
-  /* private setBackgroundColor(color: string): void {
-    console.log(`Attempting to set background color to: ${color}`);
-    const element = this.el.nativeElement;
-
-    // Apply to the element itself and its children
-    this.renderer.setStyle(element, 'background-color', color);
-    this.renderer.setStyle(element, 'border-radius', '4px');
-    this.renderer.setStyle(element, 'padding', '2px 5px');
-
-    const label = element.querySelector('.mat-radio-button, .mat-checkbox');
-    if (label) {
-      this.renderer.setStyle(label, 'background-color', color);
-      this.renderer.setStyle(label, 'border-radius', '4px');
-      this.renderer.setStyle(label, 'padding', '2px 5px');
-    }
-
-    console.log('Styles applied to:', element);
-  } */
-
-  /* private setBackgroundColor(color: string): void {
-    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
-  } */
-  /* private setBackgroundColor(color: string): void {
-    const element = this.el.nativeElement;
-    
-    // Apply styles directly to the element
-    this.renderer.setStyle(element, 'background-color', color);
-  } */
-
-  /* private setBackgroundColor(color: string): void {
-    console.log(`Attempting to set background color to: ${color}`);
-    console.log('Element:', this.el.nativeElement);
-    
-    const checkbox = this.el.nativeElement.querySelector('.mat-checkbox');
-    const radioButton = this.el.nativeElement.querySelector('.mat-radio-button');
-    
-    console.log('Checkbox found:', !!checkbox);
-    console.log('Radio button found:', !!radioButton);
-    
-    if (checkbox) {
-      this.renderer.setStyle(checkbox, 'background-color', color);
-      console.log('Applied to checkbox');
-    } else if (radioButton) {
-      this.renderer.setStyle(radioButton, 'background-color', color);
-      console.log('Applied to radio button');
-    } else {
-      this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
-      console.log('Applied to element itself');
-    }
-  } */
-
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
       for (const opt of this.allOptions) {
