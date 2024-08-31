@@ -62,7 +62,7 @@ export class HighlightOptionDirective implements OnChanges {
     }
   }
 
-  // @HostBinding('style.backgroundColor') backgroundColor: string = 'white';
+  @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
   @HostListener('click') onClick(): void {
     console.log('Option clicked:', this.option);
@@ -73,56 +73,6 @@ export class HighlightOptionDirective implements OnChanges {
       this.updateHighlight();
     }
   }
-
-  /* private updateHighlight(): void {
-    console.log('Updating highlight', {
-      isSelected: this.isSelected,
-      isCorrect: this.isCorrect,
-      showFeedback: this.showFeedback,
-    });
-    if (this.showFeedback && this.isSelected) {
-      const color = this.isCorrect ? '#43f756' : '#ff0000';
-      this.renderer.setStyle(
-        this.el.nativeElement,
-        'background-color',
-        `${color} !important`
-      );
-    } else {
-      this.renderer.removeStyle(this.el.nativeElement, 'background-color');
-    }
-  } */
-  @HostBinding('style.backgroundColor') backgroundColor: string = '';
-
-  /* private updateHighlight(): void {
-    console.log('updateHighlight called', {
-      optionBinding: this.optionBinding,
-      showFeedback: this.showFeedback,
-      isAnswered: this.isAnswered,
-    });
-
-    if (!this.optionBinding || !this.optionBinding.option) {
-      console.warn('OptionBinding or Option is undefined');
-      return;
-    }
-
-    const isOptionCorrect = this.optionBinding.isCorrect;
-    const isSelected = this.optionBinding.isSelected;
-    const shouldShowFeedbackForOption =
-      this.isAnswered &&
-      this.showFeedback &&
-      this.optionBinding.showFeedbackForOption[
-        this.optionBinding.option.optionId
-      ];
-
-    let color = '';
-    if (isSelected && shouldShowFeedbackForOption) {
-      color = isOptionCorrect ? '#43f756' : '#ff0000';
-    } else if (isSelected) {
-      color = '#e0e0e0';
-    }
-
-    this.setBackgroundColor(color);
-  } */
   
   private updateHighlight(): void {
     let backgroundColor = 'transparent';
