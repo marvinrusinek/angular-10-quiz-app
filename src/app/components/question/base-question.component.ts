@@ -340,36 +340,36 @@ export abstract class BaseQuestionComponent
       console.error('explanationTextService or formatExplanationText is not available');
     }
   } */
+
   private async updateFormattedExplanationText(): Promise<void> {
-    console.log('updateExplanationText called');
-    if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
-      try {
-        console.log('Calling formatExplanationText');
-        const result = await firstValueFrom(this.explanationTextService.formatExplanationText(
-          this.question,
-          this.quizService.currentQuestionIndex
-        ));
-  
-        console.log('formatExplanationText result:', result);
-  
-        if (result && 'explanation' in result) {
-          const { explanation } = result;
-          console.log('New explanation:', explanation);
-          if (this.explanationToDisplay !== explanation) {
-            this.explanationToDisplay = explanation;
-            console.log('Emitting new explanation');
-            this.explanationToDisplayChange.emit(this.explanationToDisplay);
-          } else {
-            console.log('Explanation unchanged, not emitting');
-          }
-        } else {
-          console.error('Unexpected result format:', result);
-        }
-      } catch (err) {
-        console.error('Error in formatExplanationText:', err);
-      }
-    } else {
+    console.log('updateExplanationText called', { question: this.question, currentQuestionIndex: this.quizService.currentQuestionIndex });
+    
+    if (!this.explanationTextService || typeof this.explanationTextService.formatExplanationText !== 'function') {
       console.error('explanationTextService or formatExplanationText is not available');
+      return;
+    }
+
+    try {
+      console.log('Calling formatExplanationText');
+      const result = await firstValueFrom(this.explanationTextService.formatExplanationText(
+        this.question,
+        this.quizService.currentQuestionIndex
+      ));
+
+      console.log('formatExplanationText result:', result);
+
+      if (result && 'explanation' in result) {
+        const { explanation } = result;
+        console.log('New explanation:', explanation);
+        this.explanationToDisplay = explanation;
+        console.log('Emitting new explanation');
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.cdRef.markForCheck(); // Mark for check to ensure change detection runs
+      } else {
+        console.error('Unexpected result format:', result);
+      }
+    } catch (err) {
+      console.error('Error in formatExplanationText:', err);
     }
   }
 
