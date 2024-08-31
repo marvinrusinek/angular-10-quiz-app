@@ -19,6 +19,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
+import { firstValueFrom } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
@@ -345,10 +346,10 @@ export abstract class BaseQuestionComponent
     if (this.explanationTextService && typeof this.explanationTextService.formatExplanationText === 'function') {
       try {
         console.log('Calling formatExplanationText');
-        const result = await this.explanationTextService.formatExplanationText(
+        const result = await firstValueFrom(this.explanationTextService.formatExplanationText(
           this.question,
           this.quizService.currentQuestionIndex
-        ).toPromise();
+        ));
   
         console.log('formatExplanationText result:', result);
   
