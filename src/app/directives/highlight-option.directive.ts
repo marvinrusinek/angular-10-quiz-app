@@ -145,34 +145,25 @@ export class HighlightOptionDirective implements OnChanges {
   } */
   private updateHighlight(): void {
     console.log('updateHighlight called', {
-      option: this.option,
       isSelected: this.isSelected,
-      showFeedback: this.showFeedback,
-      showFeedbackForOption: this.showFeedbackForOption
+      isCorrect: this.isCorrect,
+      showFeedback: this.showFeedback
     });
 
-    if (!this.option) {
-      console.log('Option is undefined, returning');
-      return;
-    }
+    let backgroundColor = 'transparent';
 
-    const isOptionCorrect = this.option.correct;
-    const shouldShowFeedbackForOption = this.showFeedback && this.showFeedbackForOption[this.option.optionId];
-
-    let backgroundColor = '';
-
-    if (this.isSelected && shouldShowFeedbackForOption) {
-      backgroundColor = isOptionCorrect ? '#43f756' : '#ff0000';
-    } else if (this.isSelected) {
-      backgroundColor = '#e0e0e0';
+    if (this.isSelected) {
+      if (this.showFeedback) {
+        backgroundColor = this.isCorrect ? '#43f756' : '#ff0000';
+      } else {
+        backgroundColor = '#e0e0e0';
+      }
     }
 
     console.log('Setting background color to:', backgroundColor);
     this.renderer.setStyle(this.el.nativeElement, 'background-color', backgroundColor);
   }
   
-
-
   /* private updateHighlight() {
     console.log('updateHighlight called', {
       showFeedback: this.showFeedback,

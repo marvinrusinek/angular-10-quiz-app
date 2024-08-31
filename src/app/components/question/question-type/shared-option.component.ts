@@ -198,45 +198,52 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.selectedOptions.has(option.optionId);
   }
 
-  /* onOptionClicked(option: Option, index: number): void {
-    this.optionClicked.emit({ option, index });
-  } */
-
   handleOptionClick(option: Option, index: number) {
-    console.log(
-      'handleOptionClick called with option:',
-      option,
-      'index:',
-      index
-    );
-
+    console.log('handleOptionClick called with option:', option, 'index:', index);
+  
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
     }
-
+  
     if (this.type === 'single') {
+      // For single-select, always select the clicked option
       this.selectedOptions.clear();
-      for (const opt of this.optionsToDisplay) {
-        opt.selected = false;
-      }
-    }
-
-    if (this.selectedOptions.has(option.optionId)) {
-      this.selectedOptions.delete(option.optionId);
-      option.selected = false;
-    } else {
       this.selectedOptions.add(option.optionId);
-      option.selected = true;
+      
+      this.optionsToDisplay.forEach((opt, idx) => {
+        opt.selected = opt.optionId === option.optionId;
+        this.updateOptionBinding(opt, idx);
+      });
+    } else {
+      // For multiple-select, toggle the selection
+      option.selected = !option.selected;
+      if (option.selected) {
+        this.selectedOptions.add(option.optionId);
+      } else {
+        this.selectedOptions.delete(option.optionId);
+      }
+      this.updateOptionBinding(option, index);
     }
-
+  
     this.showFeedback = true;
-
+  
     console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
     console.log('showFeedback:', this.showFeedback);
-
+  
     this.optionClicked.emit({ option, index });
     this.cdRef.detectChanges();
+  }
+  
+  private updateOptionBinding(option: Option, index: number) {
+    const updatedBinding = this.getOptionBindings(option, index);
+    // Only update specific properties to avoid changing the option text
+    this.optionBindings[index] = {
+      ...this.optionBindings[index],
+      isSelected: updatedBinding.isSelected,
+      disabled: updatedBinding.disabled,
+      change: updatedBinding.change
+    };
   }
 
   getOptionClass(option: Option): string {
@@ -278,23 +285,5 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   trackByOption(index: number, item: Option): number {
     return item.optionId;
-  }
-
-  getBackgroundColor(optionBinding: any): string {
-    console.log('getBackgroundColor', optionBinding, this.showFeedback);
-    if (optionBinding.isSelected) {
-      if (this.showFeedback) {
-        return optionBinding.option.correct ? '#43f756' : '#ff0000';
-      }
-      return '#e0e0e0';
-    }
-    return 'transparent';
-  }
-
-  onOptionChange(optionBinding: any): void {
-    console.log('Option changed', optionBinding);
-    optionBinding.isSelected = !optionBinding.isSelected;
-    optionBinding.change();
-    this.optionChanged.emit(optionBinding);
   }
 }
