@@ -83,7 +83,11 @@ export class HighlightOptionDirective implements OnChanges {
       }
     }
 
-    this.setBackgroundColor(backgroundColor);
+    if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
+      this.highlightCorrectAnswers();
+    } else {
+      this.setBackgroundColor(backgroundColor);
+    }
   }
   
   private setBackgroundColor(color: string): void {
