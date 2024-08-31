@@ -8,7 +8,6 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-  ViewChild
 } from '@angular/core';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -18,6 +17,7 @@ import { SelectedOption } from '../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
+import { QuizQuestionComponent } from '../question.component';
 
 @Component({
   selector: 'app-shared-option',
@@ -32,6 +32,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }>();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
   @Output() optionChanged = new EventEmitter<any>();
+  @Input() quizQuestionComponent!: QuizQuestionComponent;
   @Input() config: SharedOptionConfig;
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
@@ -102,10 +103,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       //this.isSubmitted = false;
       //this.showFeedback = false;
     }
-  }
-
-  onOptionClicked(option: Option, index: number) {
-    this.optionClicked.emit({ option, index });
   }
 
   onQuestionChange(question: QuizQuestion): void {

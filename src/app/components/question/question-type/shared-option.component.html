@@ -1,8 +1,15 @@
 <ng-container *ngIf="optionsToDisplay?.length; else noOptions">
-  <div *ngFor="let optionBinding of optionBindings; let idx = index; trackBy: trackByOption">
+  <div
+    *ngFor="
+      let optionBinding of optionBindings;
+      let idx = index;
+      trackBy: trackByOption
+    "
+  >
     <label class="options">
       <ng-container [ngSwitch]="type">
-        <mat-checkbox *ngSwitchCase="'multiple'"
+        <mat-checkbox
+          *ngSwitchCase="'multiple'"
           appHighlightOption
           [attr.aria-label]="optionBinding.ariaLabel"
           [isSelected]="optionBinding.isSelected"
@@ -11,14 +18,21 @@
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
           (change)="optionBinding.change()"
-          (click)="onOptionClicked(optionBinding.option, idx)"
+          (click)="
+            quizQuestionComponent.onOptionClicked(optionBinding.option, idx)
+          "
         >
-          <ng-container 
-            *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}">
+          <ng-container
+            *ngTemplateOutlet="
+              optionContent;
+              context: { option: optionBinding.option, idx: idx }
+            "
+          >
           </ng-container>
         </mat-checkbox>
-        
-        <mat-radio-button *ngSwitchCase="'single'"
+
+        <mat-radio-button
+          *ngSwitchCase="'single'"
           appHighlightOption
           [attr.aria-label]="optionBinding.ariaLabel"
           [isSelected]="optionBinding.isSelected"
@@ -27,14 +41,20 @@
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
           (change)="optionBinding.change()"
-          (click)="onOptionClicked(optionBinding.option, idx)"
+          (click)="
+            quizQuestionComponent.onOptionClicked(optionBinding.option, idx)
+          "
         >
-          <ng-container 
-            *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}">
+          <ng-container
+            *ngTemplateOutlet="
+              optionContent;
+              context: { option: optionBinding.option, idx: idx }
+            "
+          >
           </ng-container>
         </mat-radio-button>
       </ng-container>
-      
+
       <codelab-quiz-feedback
         *ngIf="showFeedback && selectedOption === optionBinding.option"
         [question]="currentQuestion"
@@ -42,7 +62,8 @@
         [correctMessage]="correctMessage"
         [showFeedback]="showFeedback"
         [feedback]="feedback"
-        [options]="data?.options">
+        [options]="data?.options"
+      >
       </codelab-quiz-feedback>
     </label>
   </div>
@@ -51,13 +72,14 @@
 <!-- option content template -->
 <ng-template #optionContent let-option="option" let-idx="idx">
   <div class="option-content">
-    <span class="option-text" 
-      [ngStyle]="optionTextStyle">
+    <span class="option-text" [ngStyle]="optionTextStyle">
       {{ getOptionDisplayText(option, idx) }}
     </span>
-    <mat-icon *ngIf="isIconVisible(option)"
-      class="material-icons icon" 
-      [ngClass]="getOptionIconClass(option)">
+    <mat-icon
+      *ngIf="isIconVisible(option)"
+      class="material-icons icon"
+      [ngClass]="getOptionIconClass(option)"
+    >
       {{ getOptionIcon(option) }}
     </mat-icon>
   </div>
