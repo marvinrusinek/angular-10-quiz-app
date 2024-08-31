@@ -305,9 +305,6 @@ export abstract class BaseQuestionComponent
         this.optionsToDisplay
       );
   
-      // Handle explanation text
-      // await this.updateAndDisplayFormattedExplanationText();
-  
       // Set the correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
   
@@ -315,35 +312,6 @@ export abstract class BaseQuestionComponent
       this.cdRef.detectChanges();
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
-    }
-  }
-
-  private async updateAndDisplayFormattedExplanationText(): Promise<void> {
-    console.log('updateAndDisplayFormattedExplanationText called');
-    if (!this.explanationTextService || typeof this.explanationTextService.formatExplanationText !== 'function') {
-      console.error('explanationTextService or formatExplanationText is not available');
-      return;
-    }
-
-    try {
-      const result = await firstValueFrom(this.explanationTextService.formatExplanationText(
-        this.question,
-        this.quizService.currentQuestionIndex
-      ));
-
-      console.log('formatExplanationText result:', result);
-
-      if (result && 'explanation' in result) {
-        this.explanationToDisplay = result.explanation;
-        console.log('Explanation updated:', this.explanationToDisplay);
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-      } else {
-        console.error('Unexpected result format:', result);
-        this.explanationToDisplay = 'Error: Unexpected explanation format';
-      }
-    } catch (err) {
-      console.error('Error in formatExplanationText:', err);
-      this.explanationToDisplay = 'Error: Failed to fetch explanation';
     }
   }
 
