@@ -10,8 +10,10 @@
           [showFeedback]="showFeedback"
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
-          (change)="optionBinding.change()"
-          (click)="console.log('Checkbox click event'); onOptionClicked(optionBinding.option, idx)">
+          (change)="testChange(idx)"
+          (click)="onOptionClicked(optionBinding.option, idx)"
+          (mousedown)="testMousedown(idx)"
+        >
           <ng-container *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}"></ng-container>
         </mat-checkbox>
         
@@ -23,9 +25,10 @@
           [showFeedback]="showFeedback"
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
-          (change)="optionBinding.change()"
-          (click)="console.log('Radio button click event'); onOptionClicked(optionBinding.option, idx)"
-          >
+          (change)="testChange(idx)"
+          (click)="onOptionClicked(optionBinding.option, idx)"
+          (mousedown)="testMousedown(idx)"
+        >
           <ng-container *ngTemplateOutlet="optionContent; context: {option: optionBinding.option, idx: idx}"></ng-container>
         </mat-radio-button>
       </ng-container>

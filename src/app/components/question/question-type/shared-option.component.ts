@@ -286,4 +286,21 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   trackByOption(index: number, item: Option): number {
     return item.optionId;
   }
+
+  debugMessage: string = '';
+
+  testClick(index: number) {
+    this.debugMessage = `Clicked option ${index + 1}`;
+    console.log('testClick', index);
+  }
+
+  testMousedown(index: number) {
+    this.debugMessage = `Mousedown on option ${index + 1}`;
+    console.log('testMousedown', index);
+  }
+
+  onOptionClicked(option: any, index: number) {
+    this.debugMessage = `onOptionClicked: option ${index + 1}`;
+    console.log('QQC onOptionClicked started', { option, index });
+  }
 }
