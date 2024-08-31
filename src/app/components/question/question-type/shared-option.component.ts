@@ -86,6 +86,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['quizQuestionComponent']) {
+      console.log('quizQuestionComponent changed:', this.quizQuestionComponent);
+    }
+
     if (changes.optionsToDisplay) {
       this.initializeOptionBindings();
     }
@@ -270,11 +274,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
     console.log('showFeedback:', this.showFeedback);
   
-    // Call the callback function from QuizQuestionComponent
-    if (this.onOptionClickedCallback) {
-      this.onOptionClickedCallback(option as SelectedOption, index);
+    // Call the onOptionClicked method from QuizQuestionComponent
+    if (this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function') {
+      this.quizQuestionComponent.onOptionClicked(option as SelectedOption, index);
     } else {
-      console.error('onOptionClickedCallback is not defined');
+      console.error('quizQuestionComponent or its onOptionClicked method is not defined');
+      console.error('quizQuestionComponent:', this.quizQuestionComponent);
+      console.error('onOptionClicked:', this.quizQuestionComponent?.onOptionClicked);
     }
   
     this.optionClicked.emit({ option, index });
