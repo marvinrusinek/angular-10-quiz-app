@@ -96,8 +96,6 @@ export abstract class BaseQuestionComponent
     }
 
     this.subscribeToQuestionChanges();
-
-    await this.debugUpdateExplanation();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -347,13 +345,6 @@ export abstract class BaseQuestionComponent
       console.error('Error in formatExplanationText:', err);
       this.explanationToDisplay = 'Error: Failed to fetch explanation';
     }
-  }
-
-  async debugUpdateExplanation() {
-    console.log('Debug: Updating explanation');
-    await this.updateAndDisplayFormattedExplanationText();
-    console.log('Debug: After update, explanationToDisplay:', this.explanationToDisplay);
-    this.cdRef.detectChanges();
   }
 
   private mapQuestionType(type: QuestionType): 'single' | 'multiple' {
