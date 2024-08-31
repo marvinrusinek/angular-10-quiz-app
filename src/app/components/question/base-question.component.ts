@@ -304,7 +304,7 @@ export abstract class BaseQuestionComponent
       );
   
       // Handle explanation text
-      await this.updateFormattedExplanationText();
+      await this.updateAndDisplayFormattedExplanationText();
   
       // Set the correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
@@ -316,7 +316,7 @@ export abstract class BaseQuestionComponent
     }
   }
 
-  private async updateFormattedExplanationText(): Promise<void> {
+  private async updateAndDisplayFormattedExplanationText(): Promise<void> {
     console.log('updateExplanationText called', { question: this.question, currentQuestionIndex: this.quizService.currentQuestionIndex });
     
     if (!this.explanationTextService || typeof this.explanationTextService.formatExplanationText !== 'function') {
@@ -337,7 +337,6 @@ export abstract class BaseQuestionComponent
         const { explanation } = result;
         console.log('New explanation:', explanation);
         this.explanationToDisplay = explanation;
-        console.log('Emitting new explanation');
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.cdRef.markForCheck(); // Mark for check to ensure change detection runs
       } else {
