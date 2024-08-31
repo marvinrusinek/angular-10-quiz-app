@@ -124,32 +124,7 @@ export class HighlightOptionDirective implements OnChanges {
     this.setBackgroundColor(color);
   } */
   
-  /* private updateHighlight(): void {
-    console.log('Updating highlight', {
-      isSelected: this.isSelected,
-      isCorrect: this.isCorrect,
-      showFeedback: this.showFeedback,
-    });
-
-    let color = 'transparent';
-
-    if (this.isSelected) {
-      color = this.showFeedback ? (this.isCorrect ? '#43f756' : '#ff0000') : '#e0e0e0';
-    }
-
-    if (this.highlightCorrectAfterIncorrect && this.showFeedback && this.isCorrect) {
-      color = '#43f756';
-    }
-
-    this.setBackgroundColor(color);
-  } */
   private updateHighlight(): void {
-    console.log('updateHighlight called', {
-      isSelected: this.isSelected,
-      isCorrect: this.isCorrect,
-      showFeedback: this.showFeedback
-    });
-
     let backgroundColor = 'transparent';
 
     if (this.isSelected) {
@@ -160,45 +135,9 @@ export class HighlightOptionDirective implements OnChanges {
       }
     }
 
-    console.log('Setting background color to:', backgroundColor);
-    this.renderer.setStyle(this.el.nativeElement, 'background-color', backgroundColor);
+    this.setBackgroundColor(backgroundColor);
   }
   
-  /* private updateHighlight() {
-    console.log('updateHighlight called', {
-      showFeedback: this.showFeedback,
-      isSelected: this.isSelected,
-      isCorrect: this.isCorrect
-    });
-    if (this.showFeedback && this.isSelected) {
-      const color = this.isCorrect ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)';
-      console.log('Applying color', color);
-      this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
-    } else {
-      console.log('Removing background-color');
-      this.renderer.removeStyle(this.el.nativeElement, 'background-color');
-    }
-  } */
-  /* private updateHighlight(): void {
-    console.log('Updating highlight', {
-      isSelected: this.isSelected,
-      isCorrect: this.isCorrect,
-      showFeedback: this.showFeedback,
-    });
-  
-    let color = 'transparent';
-  
-    if (this.isSelected) {
-      if (this.showFeedback) {
-        color = this.isCorrect ? 'rgba(67, 247, 86, 0.5)' : 'rgba(255, 0, 0, 0.5)';
-      } else {
-        color = 'rgba(224, 224, 224, 0.5)'; // Light gray for selected but not yet evaluated
-      }
-    }
-  
-    this.setBackgroundColor(color);
-  } */
-
   private setBackgroundColor(color: string): void {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
