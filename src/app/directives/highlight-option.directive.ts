@@ -167,8 +167,6 @@ export class HighlightOptionDirective implements OnChanges {
       backgroundColor = '#e0e0e0';
     }
 
-    this.setBackgroundColor(this.backgroundColor);
-
     console.log('Setting background color to:', backgroundColor);
     this.renderer.setStyle(this.el.nativeElement, 'background-color', backgroundColor);
   }
