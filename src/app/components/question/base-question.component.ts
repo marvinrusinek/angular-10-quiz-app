@@ -100,8 +100,6 @@ export abstract class BaseQuestionComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('ngOnChanges called with changes:', changes);
-
     if (changes.question) {
       this.handleQuestionChange(changes.question);
     }
