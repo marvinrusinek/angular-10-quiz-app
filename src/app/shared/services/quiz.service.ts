@@ -1231,7 +1231,7 @@ export class QuizService implements OnDestroy {
 
   // Populate correctOptions when questions are loaded
   setCorrectOptions(options: Option[]): void {
-    console.log('setCorrectOptions called with:', options);
+    console.log('setCorrectOptions called with:', options); // undefined
   
     if (!options || !Array.isArray(options) || options.length === 0) {
       console.warn('Options are undefined, null, or empty. Setting correctOptions to an empty array.');
@@ -1251,8 +1251,6 @@ export class QuizService implements OnDestroy {
     if (this.correctOptions.length === 0) {
       console.warn('No correct options found. Check if the "correct" property is properly set on the options.');
     }
-  
-    console.log('Correct options set:', this.correctOptions);
   }
 
   setCorrectAnswers(
