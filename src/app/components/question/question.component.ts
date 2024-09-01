@@ -1687,7 +1687,7 @@ export class QuizQuestionComponent
   
     if (questionState.isAnswered) {
       try {
-        const explanationText = this.getExplanationText(questionIndex);
+        const explanationText = await this.getExplanationText(questionIndex);
         this.explanationToDisplayChange.emit(explanationText); // Emit the explanation text
         this.showExplanationChange.emit(true); // Emit the flag to show the explanation
       } catch (error) {
@@ -1774,7 +1774,7 @@ export class QuizQuestionComponent
     );
 
     // Fetch and store the explanation text using the ExplanationTextService
-    const explanationText = this.getExplanationText(this.currentQuestionIndex);
+    const explanationText = await this.getExplanationText(this.currentQuestionIndex);
     this.explanationTextService.setExplanationText(explanationText);
     this.explanationText = explanationText;
 
@@ -1852,7 +1852,7 @@ export class QuizQuestionComponent
     // Check if the question has been answered
     if (questionState && questionState.isAnswered) {
       // If answered, fetch and set the formatted explanation text for the question
-      const explanationText = this.getExplanationText(questionIndex);
+      const explanationText = await this.getExplanationText(questionIndex);
       this.explanationTextService.setExplanationText(explanationText);
       this.explanationTextService.setShouldDisplayExplanation(true);
     } else {
@@ -1977,7 +1977,7 @@ export class QuizQuestionComponent
     );
 
     // Update the selection message based on the new state
-    const explanationText = this.getExplanationText(this.currentQuestionIndex) || 'No explanation available';
+    const explanationText = await this.getExplanationText(this.currentQuestionIndex) || 'No explanation available';
     this.explanationTextService.setExplanationText(explanationText);
 
     // Notify the service to update the explanation text
