@@ -2322,13 +2322,7 @@ export class QuizQuestionComponent
     }
 
     try {
-      console.log(
-        'Attempting to fetch next question for index:',
-        this.currentQuestionIndex
-      );
-      const questionData = await this.quizService.getNextQuestion(
-        this.currentQuestionIndex
-      );
+      const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
 
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
         const formattedExplanationObservable =
