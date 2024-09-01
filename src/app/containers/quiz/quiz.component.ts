@@ -1504,7 +1504,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.quizId,
       questionIndex
     );
-    console.log('Question state:', questionState);
 
     if (!questionState.selectedOptions) {
       questionState.selectedOptions = [];
