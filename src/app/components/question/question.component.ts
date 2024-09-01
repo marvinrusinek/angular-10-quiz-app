@@ -1686,19 +1686,24 @@ export class QuizQuestionComponent
     console.log('Formatted Explanations on click:', explanations);
   }
 
-  updateExplanationText(questionIndex: number): void {
+  async updateExplanationText(questionIndex: number): Promise<void> {
     const questionState = this.quizStateService.getQuestionState(
       this.quizId,
       questionIndex
     );
-
+  
     if (questionState.isAnswered) {
-      const explanationText =
-        this.explanationTextService.getFormattedExplanationTextForQuestion(
-          questionIndex
+      try {
+        const explanationText = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
         );
-      this.explanationToDisplayChange.emit(explanationText); // Emit the explanation text
-      this.showExplanationChange.emit(true); // Emit the flag to show the explanation
+        this.explanationToDisplayChange.emit(explanationText); // Emit the explanation text
+        this.showExplanationChange.emit(true); // Emit the flag to show the explanation
+      } catch (error) {
+        console.error('Error fetching explanation text:', error);
+        this.explanationToDisplayChange.emit('Error loading explanation.'); // Emit an error message
+        this.showExplanationChange.emit(true); // Still show the explanation area with the error message
+      }
     } else {
       this.explanationToDisplayChange.emit(''); // Clear the explanation text
       this.showExplanationChange.emit(false); // Emit the flag to hide the explanation
