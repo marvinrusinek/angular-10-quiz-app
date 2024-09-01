@@ -44,7 +44,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @Input() showFeedback: boolean;
   @Input() shouldResetBackground = false;
   @Input() highlightCorrectAfterIncorrect: boolean;
-  @Input() quizQuestionComponentOnOptionClicked!: (option: SelectedOption, index: number) => void;
   optionBindings: OptionBindings[] = [];
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
@@ -262,7 +261,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       
       for (const [idx, opt] of this.optionsToDisplay.entries()) {
         opt.selected = opt.optionId === option.optionId;
-        this.showIconForOption[opt.optionId] = opt.selected;
+        // this.showIconForOption[opt.optionId] = opt.selected;
+        this.showIconForOption[opt.optionId] = this.clickedOptionIds.has(opt.optionId);
         this.updateOptionBinding(opt, idx);
       }
     } else {
@@ -273,7 +273,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       } else {
         this.selectedOptions.delete(option.optionId);
       }
-      this.showIconForOption[option.optionId] = option.selected;
+      // Always show icon for clicked options, regardless of current selection state
+      this.showIconForOption[option.optionId] = true;
       this.updateOptionBinding(option, index);
     }
   
