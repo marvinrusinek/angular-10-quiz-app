@@ -141,6 +141,19 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return `${idx + 1}. ${option?.text}`;
   }
 
+  getOptionClass(option: Option): string {
+    if (!this.showFeedback) {
+      return '';
+    }
+    if (this.isSelectedOption(option)) {
+      return option.correct ? 'correct-selected' : 'incorrect-selected';
+    }
+    if (this.type === 'multiple' && option.correct) {
+      return 'correct-unselected';
+    }
+    return '';
+  }
+
   getOptionIcon(option: Option): string {
     const highlightCorrectAfterIncorrect =
       this.userPreferenceService.getHighlightPreference();
@@ -241,29 +254,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.optionClicked.emit({ option, index });
     this.cdRef.detectChanges();
   }
-  
-  private updateOptionBinding(option: Option, index: number) {
-    const updatedBinding = this.getOptionBindings(option, index);
-    // Only update specific properties to avoid changing the option text
-    this.optionBindings[index] = {
-      ...this.optionBindings[index],
-      isSelected: updatedBinding.isSelected,
-      disabled: updatedBinding.disabled,
-      change: updatedBinding.change
-    };
-  }
 
-  getOptionClass(option: Option): string {
-    if (!this.showFeedback) {
-      return '';
-    }
-    if (this.isSelectedOption(option)) {
-      return option.correct ? 'correct-selected' : 'incorrect-selected';
-    }
-    if (this.type === 'multiple' && option.correct) {
-      return 'correct-unselected';
-    }
-    return '';
+  initializeOptionBindings(): void {
+    this.optionBindings = this.optionsToDisplay.map((option, idx) =>
+      this.getOptionBindings(option, idx)
+    );
   }
 
   getOptionBindings(option: Option, idx: number): OptionBindings {
@@ -284,10 +279,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     };
   }
 
-  initializeOptionBindings(): void {
-    this.optionBindings = this.optionsToDisplay.map((option, idx) =>
-      this.getOptionBindings(option, idx)
-    );
+  private updateOptionBinding(option: Option, index: number) {
+    const updatedBinding = this.getOptionBindings(option, index);
+    // Only update specific properties to avoid changing the option text
+    this.optionBindings[index] = {
+      ...this.optionBindings[index],
+      isSelected: updatedBinding.isSelected,
+      disabled: updatedBinding.disabled,
+      change: updatedBinding.change
+    };
   }
 
   trackByOption(item: Option, index: number): number {
