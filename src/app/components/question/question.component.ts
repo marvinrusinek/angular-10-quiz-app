@@ -1410,7 +1410,7 @@ export class QuizQuestionComponent
         this.quizId,
         this.currentQuestionIndex,
         { explanationDisplayed: true, selectedOptions: [option] },
-        this.correctAnswers.length
+        this.correctAnswers?.length ?? 0
       );
       console.log('Question state updated with explanationDisplayed: true');
 
