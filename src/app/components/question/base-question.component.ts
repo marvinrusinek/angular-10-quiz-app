@@ -96,6 +96,7 @@ export abstract class BaseQuestionComponent
     }
 
     this.subscribeToQuestionChanges();
+    this.initializeSharedOptionConfig();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -245,6 +246,15 @@ export abstract class BaseQuestionComponent
         'quizStateService is undefined. Make sure it is properly injected and initialized.'
       );
     }
+  }
+
+  private initializeSharedOptionConfig(): void {
+    this.sharedOptionConfig = {
+      isOptionSelected: false,
+      selectedOptionIndex: -1,
+      isAnswerCorrect: false,
+      showFeedback: false,
+    };
   }
 
   protected abstract loadDynamicComponent(): void;
