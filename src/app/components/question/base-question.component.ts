@@ -217,9 +217,12 @@ export abstract class BaseQuestionComponent
       shouldResetBackground: false,
       selectedOption: null,
       showFeedbackForOption: {},
-      currentQuestion: null,
+      currentQuestion: {} as QuizQuestion,
       showFeedback: false,
-      correctMessage: ''
+      correctMessage: '',
+      isOptionSelected: false,
+      selectedOptionIndex: -1,
+      isAnswerCorrect: false
     };
   }
 
