@@ -1841,10 +1841,10 @@ export class QuizQuestionComponent
       });
   }
 
-  private handleQuestionData(
+  private async handleQuestionData(
     data: QuizQuestion[],
     questionIndex: number
-  ): void {
+  ): Promise<void> {
     this.questionsArray = data;
 
     if (!this.questionsArray || this.questionsArray.length === 0) {
@@ -1866,9 +1866,9 @@ export class QuizQuestionComponent
     if (questionState && questionState.isAnswered) {
       // If answered, fetch and set the formatted explanation text for the question
       const explanationText =
-        this.explanationTextService.getFormattedExplanationTextForQuestion(
+        await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(
           questionIndex
-        );
+        ));
       this.explanationTextService.setExplanationText(explanationText);
       this.explanationTextService.setShouldDisplayExplanation(true);
     } else {
