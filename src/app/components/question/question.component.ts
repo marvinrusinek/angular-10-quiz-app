@@ -1358,11 +1358,10 @@ export class QuizQuestionComponent
     option: SelectedOption,
     index: number
   ): Promise<void> {
+    this.displayExplanation = false; // Reset display flag
     this.optionSelected.emit(option); // Emit the selected option
-  
-    // Set the loading state to true at the beginning
     this.quizStateService.setLoading(true);
-
+  
     const questionState = this.quizStateService.getQuestionState(
       this.quizId, this.currentQuestionIndex
     );
@@ -1383,74 +1382,78 @@ export class QuizQuestionComponent
       this.showFeedback = true;
       this.showFeedbackForOption[option.optionId] = true;
   
-      // Fetch and set the explanation text after an option is clicked
-      let explanationText = await this.prepareAndSetExplanationText(
-        this.currentQuestionIndex
-      );
-
-      if (!explanationText) {
-        console.error('Explanation text is empty or undefined:', explanationText);
-        explanationText = 'No explanation available';
-      } else {
-        // Process the explanation text
-        const processedExplanation = await this.processExplanationText(
-          this.currentQuestion,
+      // Nested try-catch for explanation text processing
+      try {
+        let explanationText = await this.prepareAndSetExplanationText(
           this.currentQuestionIndex
         );
-        
-        if (processedExplanation && processedExplanation.explanation) {
-          explanationText = processedExplanation.explanation;
+  
+        if (!explanationText) {
+          console.warn('Explanation text is empty or undefined');
+          explanationText = 'No explanation available';
+        } else {
+          try {
+            const processedExplanation = await this.processExplanationText(
+              this.currentQuestion,
+              this.currentQuestionIndex
+            );
+            
+            if (processedExplanation && processedExplanation.explanation) {
+              explanationText = processedExplanation.explanation;
+            }
+          } catch (processingError) {
+            console.error('Error processing explanation text:', processingError);
+            // Use the original explanationText if processing fails
+          }
         }
+  
+        this.explanationToDisplay = explanationText;
+        this.explanationTextService.updateFormattedExplanation(explanationText);
+        this.explanationTextService.setShouldDisplayExplanation(true);
+        this.explanationToDisplayChange.emit(explanationText);
+        this.showExplanationChange.emit(true);
+        this.displayExplanation = true;
+  
+      } catch (explanationError) {
+        console.error('Error preparing or setting explanation text:', explanationError);
+        this.explanationToDisplay = 'Error loading explanation. Please try again.';
+        this.displayExplanation = true;
       }
-
-      this.explanationToDisplay = explanationText;
-      this.explanationTextService.updateFormattedExplanation(explanationText);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-      this.explanationToDisplayChange.emit(explanationText); // Emit the explanation text
-      this.showExplanationChange.emit(true); // Emit the flag to show the explanation
-      this.displayExplanation = true;
   
-      // Update the state to indicate that the explanation should be displayed
-      this.quizStateService.updateQuestionState(
-        this.quizId,
-        this.currentQuestionIndex,
-        { 
-          explanationDisplayed: true, 
-          selectedOptions: [option],
-          explanationText: this.explanationToDisplay
-        },
-        this.correctAnswers?.length ?? 0
-      );
-      console.log('Question state updated with explanationDisplayed: true');
+      // Update question state
+      try {
+        this.quizStateService.updateQuestionState(
+          this.quizId,
+          this.currentQuestionIndex,
+          { 
+            explanationDisplayed: true, 
+            selectedOptions: [option],
+            explanationText: this.explanationToDisplay
+          },
+          this.correctAnswers?.length ?? 0
+        );
+        console.log('Question state updated with explanationDisplayed: true');
+      } catch (stateUpdateError) {
+        console.error('Error updating question state:', stateUpdateError);
+      }
   
-      // Perform operations with correctAnswers
+      // Rest of your existing code...
       if (this.correctAnswers && this.correctAnswers.length > 0) {
         console.log('Correct answers:', this.correctAnswers);
-  
-        // Example operation: Log each correct answer
         for (const answer of this.correctAnswers) {
           console.log('Correct answer:', answer);
         }
-  
-        // Example operation: Count the number of correct answers
         const correctAnswerCount = this.correctAnswers.length;
         console.log('Number of correct answers:', correctAnswerCount);
-  
-        // Example operation: Check if a specific answer is correct
         const isSpecificAnswerCorrect = this.correctAnswers.includes(option.optionId);
         console.log('Is the specific answer correct?', isSpecificAnswerCorrect);
       } else {
         console.warn('No correct answers available for this question.');
       }
   
-      // Set answered state to true
       questionState.isAnswered = true;
       this.quizStateService.setAnswered(true);
       console.log('isAnswered set to true');
-  
-      // Ensure loading state is set to false
-      this.quizStateService.setLoading(false);
-      console.log('isLoading set to false (option selected)');
   
       this.updateFeedbackForOption(option);
   
@@ -1461,14 +1464,11 @@ export class QuizQuestionComponent
   
       if (!option.correct) {
         console.log('Incorrect option selected.');
-  
-        // Directly highlight all correct options
         for (const opt of this.optionsToDisplay) {
           if (opt.correct) {
             this.showFeedbackForOption[opt.optionId] = true;
           }
         }
-  
         console.log(
           'Updated showFeedbackForOption after highlighting correct answers:',
           this.showFeedbackForOption
@@ -1490,7 +1490,6 @@ export class QuizQuestionComponent
       this.updateSelectionMessage(questionState.isAnswered);
       await this.updateSelectionMessageBasedOnCurrentState(questionState.isAnswered);
   
-      // Update the message after selecting an option
       const newMessage = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
         this.totalQuestions,
@@ -1502,13 +1501,13 @@ export class QuizQuestionComponent
       this.processCurrentQuestionState(currentQuestion, option, index);
   
       await this.handleCorrectnessAndTimer();
+  
     } catch (error) {
       console.error(
         'An error occurred while processing the option click:::::',
         error
       );
     } finally {
-      // Ensure the loading state is set to false in case of any errors
       this.quizStateService.setLoading(false);
       console.log('Loading state reset in finally block.');
     }
