@@ -937,8 +937,6 @@ export class QuizQuestionComponent
     this.quizStateService.setAnswered(false);
     console.log('isAnswered set to false (new question loaded)');
 
-    this.explanationToDisplay = '';
-
     if (signal?.aborted) {
       console.log('Load question operation aborted.');
       this.isLoading = false;
@@ -965,25 +963,18 @@ export class QuizQuestionComponent
       }
       this.optionsToDisplay = this.currentQuestion.options || [];
 
-      // Simultaneously fetch explanation and feedback
-      const [explanationResult, feedbackResult] = await Promise.all([
-        this.prepareAndSetExplanationText(this.currentQuestionIndex),
-        Promise.resolve(
-          this.quizService.setCorrectMessage(
-            this.currentQuestion.options.filter((option) => option.correct),
-            this.optionsToDisplay
-          )
-        ),
-      ]);
-
       if (signal?.aborted) {
         console.log('Load question operation aborted before setting texts.');
         this.isLoading = false;
         return;
       }
 
-      this.explanationToDisplay =
-        explanationResult || 'No explanation available';
+      // Fetch feedback
+      const feedbackResult = await this.quizService.setCorrectMessage(
+        this.currentQuestion.options.filter((option) => option.correct),
+        this.optionsToDisplay
+      );
+
       this.feedbackText = feedbackResult || 'No feedback available';
 
       // Update the selection message
