@@ -36,7 +36,6 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
   } */
 
   public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    console.log('onOptionClicked in MultipleAnswerComponent with option:', option, 'index:', index);
     await super.onOptionClicked(option, index); // Calls BQC's implementation
 
     // Check if this component is actually an instance of QuizQuestionComponent
