@@ -329,7 +329,6 @@ export abstract class BaseQuestionComponent
   private handleQuestionChange(change: SimpleChange): void {
     console.log('Question change detected:', change);
     if (change.currentValue) {
-      console.log('New question value:', change.currentValue);
       this.question = change.currentValue;
       this.updateQuizStateService();
       this.initializeQuestion();
