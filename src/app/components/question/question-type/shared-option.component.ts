@@ -219,7 +219,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     const isSelectedOrCorrect = option.selected || option.correct;
     const isVisible = this.showFeedback && isSelectedOrCorrect;
     
-    console.log(`Visibility result for option ${option.optionId}:`, {
+    console.log(`Visibility result for option:`, {
+      text: option.text,
       isSelected: option.selected,
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
@@ -227,7 +228,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     });
     
     return isVisible;
-  }
+}
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOptions.has(option.optionId);
