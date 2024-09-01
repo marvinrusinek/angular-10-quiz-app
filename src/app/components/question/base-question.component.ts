@@ -181,9 +181,7 @@ export abstract class BaseQuestionComponent
       this.setCurrentQuestion(this.question);
       this.initializeQuestion();
     } else {
-      console.warn(
-        'Initial question input is undefined in ngOnInit, waiting for ngOnChanges'
-      );
+      console.warn('Initial question input is undefined in ngOnInit, waiting for ngOnChanges');
     }
   }
 
@@ -334,7 +332,6 @@ export abstract class BaseQuestionComponent
   }
 
   private handleQuestionChange(change: SimpleChange): void {
-    console.log('Question change detected:', change);
     if (change.currentValue) {
       this.question = change.currentValue;
       this.updateQuizStateService();
