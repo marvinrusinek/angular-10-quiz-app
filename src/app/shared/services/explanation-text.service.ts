@@ -233,11 +233,9 @@ export class ExplanationTextService {
   }
 
   getFormattedExplanation(questionIndex: number): Observable<string> {
-    console.log('Fetching explanation for questionIndex:', questionIndex);
     const explanationText = this.getFormattedExplanationTextForQuestion(questionIndex);
   
     if (explanationText) {
-      console.log("Formatted Explanation:", explanationText);
       return of(explanationText);
     } else {
       console.log(`No formatted explanation found for questionIndex: ${questionIndex}`);
