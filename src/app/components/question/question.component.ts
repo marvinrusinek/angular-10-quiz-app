@@ -1414,6 +1414,26 @@ export class QuizQuestionComponent
       );
       console.log('Question state updated with explanationDisplayed: true');
 
+      // Perform operations with correctAnswers
+    if (this.correctAnswers && this.correctAnswers.length > 0) {
+      console.log('Correct answers:', this.correctAnswers);
+
+      // Example operation: Log each correct answer
+      for (const answer of this.correctAnswers) {
+        console.log('Correct answer:', answer);
+      }
+
+      // Example operation: Count the number of correct answers
+      const correctAnswerCount = this.correctAnswers.length;
+      console.log('Number of correct answers:', correctAnswerCount);
+
+      // Example operation: Check if a specific answer is correct
+      const isSpecificAnswerCorrect = this.correctAnswers.includes(option);
+      console.log('Is the specific answer correct?', isSpecificAnswerCorrect);
+    } else {
+      console.warn('No correct answers available for this question.');
+    }
+
       // Set answered state to true
       this.quizStateService.setAnswered(true);
       console.log('isAnswered set to true');
