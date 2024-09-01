@@ -228,7 +228,6 @@ export abstract class BaseQuestionComponent
         this.currentQuestionSubscription =
           this.quizStateService.currentQuestion$.subscribe({
             next: (currentQuestion) => {
-              console.log('Received new question:', currentQuestion);
               if (currentQuestion) {
                 this.question = currentQuestion;
                 this.initializeOptions();
