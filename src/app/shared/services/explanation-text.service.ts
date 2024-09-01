@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -255,7 +255,7 @@ export class ExplanationTextService {
     }
   }
 
-  getFormattedExplanation(questionIndex: number): Observable<string> {
+  /* getFormattedExplanation(questionIndex: number): Observable<string> {
     const explanationText = this.getFormattedExplanationTextForQuestion(questionIndex);
   
     if (explanationText) {
@@ -264,6 +264,19 @@ export class ExplanationTextService {
       console.log(`No formatted explanation found for questionIndex: ${questionIndex}`);
       return of('No explanation available');
     }
+  } */
+
+  getFormattedExplanation(questionIndex: number): Observable<string> {
+    return this.getFormattedExplanationTextForQuestion(questionIndex).pipe(
+      switchMap(explanationText => {
+        if (explanationText) {
+          return of(explanationText);
+        } else {
+          console.log(`No formatted explanation found for questionIndex: ${questionIndex}`);
+          return of('No explanation available');
+        }
+      })
+    );
   }
 
   getFormattedExplanations(): Observable<FormattedExplanation[]> {
