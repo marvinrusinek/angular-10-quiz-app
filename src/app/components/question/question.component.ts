@@ -76,7 +76,6 @@ export class QuizQuestionComponent
     question: QuizQuestion;
     selectedOptions: Option[];
   }> = new EventEmitter();
-  @Output() optionSelected: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
   @Output() isAnswerSelectedChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
@@ -89,6 +88,7 @@ export class QuizQuestionComponent
   @Output() isAnsweredChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
   @Output() isAnswered = false;
+  @Output() optionSelected = new EventEmitter<SelectedOption>();
   @Input() data: {
     questionText: string;
     explanationText?: string;
@@ -126,7 +126,6 @@ export class QuizQuestionComponent
   selectedOption: SelectedOption | null = null;
   selectedOptions: SelectedOption[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
-  optionSelected = false;
   options$: Observable<Option[]>;
   quiz: Quiz;
   questionsArray: QuizQuestion[] = [];
@@ -1362,7 +1361,7 @@ export class QuizQuestionComponent
     option: SelectedOption,
     index: number
   ): Promise<void> {
-    this.optionSelected = true;
+    this.optionSelected.emit(option); // Emit the selected option
 
     // Set the loading state to true at the beginning
     this.quizStateService.setLoading(true);
@@ -1420,7 +1419,7 @@ export class QuizQuestionComponent
       console.log('Number of correct answers:', correctAnswerCount);
 
       // Example operation: Check if a specific answer is correct
-      const isSpecificAnswerCorrect = this.correctAnswers.includes(option);
+      const isSpecificAnswerCorrect = this.correctAnswers.includes(option.optionId);
       console.log('Is the specific answer correct?', isSpecificAnswerCorrect);
     } else {
       console.warn('No correct answers available for this question.');
@@ -1517,7 +1516,7 @@ export class QuizQuestionComponent
       await this.handleCorrectnessAndTimer();
     } catch (error) {
       console.error(
-        'An error occurred while processing the option click:',
+        'An error occurred while processing the option click:::::',
         error
       );
     } finally {
