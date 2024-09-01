@@ -1028,7 +1028,7 @@ export class QuizQuestionComponent
           const state = this.quizStateService.getQuestionState(quizId, index);
           if (state?.isAnswered) {
             try {
-              const explanationText = this.getExplanationText(index);
+              const explanationText = await this.getExplanationText(index);
               const formattedExplanationText: FormattedExplanation = {
                 questionIndex: index,
                 explanation: explanationText
