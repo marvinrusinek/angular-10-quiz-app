@@ -201,7 +201,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.clickedOptionIds.add(option.optionId);
   
     if (this.type === 'single') {
-      // For single-select, always select the clicked option
+      // For single-selection, always select the clicked option
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
       
@@ -211,7 +211,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         this.updateOptionBinding(opt, idx);
       }
     } else {
-      // For multiple-select, toggle the selection
+      // For multiple-selection, toggle the selection
       option.selected = !option.selected;
       if (option.selected) {
         this.selectedOptions.add(option.optionId);
@@ -225,9 +225,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     this.showFeedback = true;
   
+    // logging undefined
     console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
     console.log('Clicked options:', Array.from(this.clickedOptionIds));
-    console.log('showFeedback:', this.showFeedback);
   
     this.optionClicked.emit({ option, index });
     this.cdRef.detectChanges();
