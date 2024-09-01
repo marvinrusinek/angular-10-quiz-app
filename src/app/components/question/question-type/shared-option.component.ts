@@ -212,18 +212,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('Current showFeedback state:', this.showFeedback);
     
     if (!option) {
-        console.error('Option is undefined in isIconVisible');
-        return false;
+      console.error('Option is undefined in isIconVisible');
+      return false;
     }
     
     const isSelectedOrCorrect = option.selected || option.correct;
     const isVisible = this.showFeedback && isSelectedOrCorrect;
     
     console.log(`Visibility result for option ${option.optionId}:`, {
-        isSelected: option.selected,
-        isCorrect: option.correct,
-        showFeedback: this.showFeedback,
-        isVisible: isVisible
+      isSelected: option.selected,
+      isCorrect: option.correct,
+      showFeedback: this.showFeedback,
+      isVisible: isVisible
     });
     
     return isVisible;
