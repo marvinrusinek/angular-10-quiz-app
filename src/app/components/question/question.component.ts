@@ -1354,17 +1354,12 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public async onOptionClicked(
-    option: SelectedOption,
-    index: number
-  ): Promise<void> {
+  public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     this.displayExplanation = false; // Reset display flag
     this.optionSelected.emit(option); // Emit the selected option
     this.quizStateService.setLoading(true);
   
-    const questionState = this.quizStateService.getQuestionState(
-      this.quizId, this.currentQuestionIndex
-    );
+    const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
     questionState.isAnswered = false;
   
     await super.onOptionClicked(option, index);
@@ -1375,50 +1370,13 @@ export class QuizQuestionComponent
         return;
       }
   
-      this.selectedOptions = [
-        { ...option, questionIndex: this.currentQuestionIndex },
-      ];
+      this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
       this.selectedOption = { ...option, optionId: index + 1 };
       this.showFeedback = true;
       this.showFeedbackForOption[option.optionId] = true;
   
-      // Nested try-catch for explanation text processing
-      try {
-        let explanationText = await this.prepareAndSetExplanationText(
-          this.currentQuestionIndex
-        );
-  
-        if (!explanationText) {
-          console.warn('Explanation text is empty or undefined');
-          explanationText = 'No explanation available';
-        } else {
-          try {
-            const processedExplanation = await this.processExplanationText(
-              this.currentQuestion,
-              this.currentQuestionIndex
-            );
-            
-            if (processedExplanation && processedExplanation.explanation) {
-              explanationText = processedExplanation.explanation;
-            }
-          } catch (processingError) {
-            console.error('Error processing explanation text:', processingError);
-            // Use the original explanationText if processing fails
-          }
-        }
-  
-        this.explanationToDisplay = explanationText;
-        this.explanationTextService.updateFormattedExplanation(explanationText);
-        this.explanationTextService.setShouldDisplayExplanation(true);
-        this.explanationToDisplayChange.emit(explanationText);
-        this.showExplanationChange.emit(true);
-        this.displayExplanation = true;
-  
-      } catch (explanationError) {
-        console.error('Error preparing or setting explanation text:', explanationError);
-        this.explanationToDisplay = 'Error loading explanation. Please try again.';
-        this.displayExplanation = true;
-      }
+      // Manage the explanation display using the new function
+      await this.manageExplanationDisplay(option, index);
   
       // Update question state
       try {
@@ -1511,7 +1469,7 @@ export class QuizQuestionComponent
       this.quizStateService.setLoading(false);
       console.log('Loading state reset in finally block.');
     }
-  }
+  }  
 
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
@@ -2058,6 +2016,35 @@ export class QuizQuestionComponent
     this.selectedOption = null;
     this.quizQuestionManagerService.setExplanationText(null);
   }
+
+  private async manageExplanationDisplay(option: SelectedOption, index: number): Promise<void> {
+    try {
+      // Prepare the explanation text
+      let explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+  
+      if (!explanationText) {
+        explanationText = 'No explanation available';
+      } else {
+        const processedExplanation = await this.processExplanationText(this.currentQuestion, this.currentQuestionIndex);
+        if (processedExplanation && processedExplanation.explanation) {
+          explanationText = processedExplanation.explanation;
+        }
+      }
+  
+      // Update the explanation display properties
+      this.explanationToDisplay = explanationText;
+      this.explanationTextService.updateFormattedExplanation(explanationText);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.explanationToDisplayChange.emit(explanationText);
+      this.showExplanationChange.emit(true);
+      this.displayExplanation = true;
+  
+    } catch (error) {
+      console.error('Error managing explanation display:', error);
+      this.explanationToDisplay = 'Error loading explanation. Please try again.';
+      this.displayExplanation = true;
+    }
+  }  
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     console.log(
