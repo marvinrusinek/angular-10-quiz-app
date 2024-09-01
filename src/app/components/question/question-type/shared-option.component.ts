@@ -87,10 +87,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['quizQuestionComponent']) {
-      console.log('quizQuestionComponent changed:', this.quizQuestionComponent);
-    }
-
     if (changes.optionsToDisplay) {
       this.initializeOptionBindings();
     }
@@ -105,9 +101,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
-      //this.selectedOptions.clear();
-      //this.isSubmitted = false;
-      //this.showFeedback = false;
     }
   }
 
