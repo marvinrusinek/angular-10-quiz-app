@@ -232,27 +232,36 @@ export class QuizService implements OnDestroy {
 
     this.currentQuestion$ = this.currentQuestionSource.asObservable();
   } */
-  initializeData(): void {  
+  initializeData(): void {
     if (!QUIZ_DATA || !Array.isArray(QUIZ_DATA)) {
       console.error('QUIZ_DATA is invalid:', QUIZ_DATA);
       this.quizData = [];
     } else {
       this.quizData = QUIZ_DATA;
     }
-  
+    
     if (this.quizData.length > 0) {
       this.quizInitialState = _.cloneDeep(this.quizData);
+      let selectedQuiz;
   
-      const firstQuiz = this.quizData[0];
-      if (firstQuiz && typeof firstQuiz === 'object') {
-        if (Array.isArray(firstQuiz.questions) && firstQuiz.questions.length > 0) {
-          this.questions = [...firstQuiz.questions]; // Create a new array to avoid reference issues
-        } else {
-          console.error('First quiz does not have a valid questions array:', firstQuiz.questions);
-          this.questions = [];
+      if (this.quizId) {
+        // Try to find the quiz with the specified ID
+        selectedQuiz = this.quizData.find(quiz => quiz.quizId === this.quizId);
+        if (!selectedQuiz) {
+          console.warn(`No quiz found with ID: ${this.quizId}. Falling back to the first quiz.`);
         }
+      }
+  
+      // If no quiz is selected or found, default to the first quiz
+      if (!selectedQuiz) {
+        selectedQuiz = this.quizData[0];
+        this.quizId = selectedQuiz.quizId;
+      }
+  
+      if (Array.isArray(selectedQuiz.questions) && selectedQuiz.questions.length > 0) {
+        this.questions = [...selectedQuiz.questions]; // Create a new array to avoid reference issues
       } else {
-        console.error('First quiz is not a valid object:', firstQuiz);
+        console.error(`Selected quiz (ID: ${this.quizId}) does not have a valid questions array:`, selectedQuiz.questions);
         this.questions = [];
       }
     } else {
