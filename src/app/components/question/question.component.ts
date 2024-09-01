@@ -1027,15 +1027,23 @@ export class QuizQuestionComponent
         for (const [index, question] of questions.entries()) {
           const state = this.quizStateService.getQuestionState(quizId, index);
           if (state?.isAnswered) {
-            const formattedExplanationText: FormattedExplanation = {
-              questionIndex: index,
-              explanation:
-                this.explanationTextService.getFormattedExplanationTextForQuestion(
-                  index
-                ),
-            };
-            this.explanationTextService.formattedExplanations[index] =
-              formattedExplanationText;
+            try {
+              const explanationText = await firstValueFrom(
+                this.explanationTextService.getFormattedExplanationTextForQuestion(index)
+              );
+              const formattedExplanationText: FormattedExplanation = {
+                questionIndex: index,
+                explanation: explanationText
+              };
+              this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
+            } catch (error) {
+              console.error(`Error getting explanation for question ${index}:`, error);
+              // Set a default explanation or handle the error as needed
+              this.explanationTextService.formattedExplanations[index] = {
+                questionIndex: index,
+                explanation: 'Unable to load explanation.'
+              };
+            }
           }
         }
         return questions;
