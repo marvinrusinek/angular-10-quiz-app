@@ -1498,6 +1498,133 @@ export class QuizQuestionComponent
     }
   }
 
+  async ngOnInit(): Promise<void> {
+    super.ngOnInit();
+
+    this.initializeData();
+
+    this.quizStateService.isLoading$.subscribe((isLoading) => {
+      console.log('isLoading$', isLoading);
+    });
+
+    this.quizStateService.isAnswered$.subscribe((isAnswered) => {
+      console.log('isAnswered$', isAnswered);
+    });
+
+    this.quizStateService.setLoading(true);
+
+    // Ensure optionsToDisplay is correctly set
+    this.optionsToDisplay = this.options;
+
+    // Set correct options in the quiz service
+    this.quizService.setCorrectOptions(this.optionsToDisplay);
+
+    console.log('Options to Display:::::>>>>>>', this.optionsToDisplay); // Debugging statement
+
+    if (!this.question) {
+      console.error('Question is not defined');
+      return;
+    }
+
+    if (this.question && this.question.options) {
+      const hasMultipleAnswers =
+        this.question.options.filter((option) => option.correct).length > 1;
+      this.multipleAnswer.next(hasMultipleAnswers);
+    } else {
+      console.error(
+        'Question or options are undefined in QuizQuestionComponent ngOnInit'
+      );
+    }
+
+    this.resetFeedbackSubscription =
+      this.resetStateService.resetFeedback$.subscribe(() => {
+        console.log('QuizQuestionComponent - Reset feedback triggered');
+        this.resetFeedback();
+      });
+
+    this.resetStateSubscription = this.resetStateService.resetState$.subscribe(
+      () => {
+        console.log('QuizQuestionComponent - Reset state triggered');
+        this.resetState();
+      }
+    );
+
+    try {
+      const quizId =
+        this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
+      if (!quizId) {
+        console.error('Quiz ID is missing');
+        return;
+      }
+
+      const questions = await this.fetchAndProcessQuizQuestions(quizId);
+
+      if (questions && questions.length > 0) {
+        this.questions = of(questions);
+        this.questions.subscribe({
+          next: (questions: QuizQuestion[]) => {
+            this.questionsArray = questions;
+
+            if (this.questionsArray.length === 0) {
+              console.error('Questions are not initialized');
+              return;
+            }
+
+            this.selectedOptionService.selectedOption$.subscribe(
+              (selectedOption) => {
+                this.selectedOption = selectedOption;
+              }
+            );
+          },
+          error: (err) => {
+            console.error('Error fetching questions', err);
+          },
+        });
+      } else {
+        console.error('No questions were loaded...');
+      }
+
+      // Ensure this.quiz is set correctly
+      this.quiz = this.quizService.getActiveQuiz();
+      if (!this.quiz) {
+        console.error('Failed to get the active quiz');
+        return;
+      }
+
+      this.resetMessages();
+      this.resetStateForNewQuestion();
+      this.subscribeToOptionSelection();
+
+      if (!this.initialized) {
+        this.initialized = true;
+        await this.initializeQuiz();
+      }
+
+      this.initializeQuizQuestion();
+      await this.handleQuestionState();
+
+      // Subscribe to selectionMessage$ to update the message displayed in the template
+      this.selectionMessageService.selectionMessage$
+        .pipe(debounceTime(200))
+        .subscribe((message) => {
+          this.selectionMessage = message as string;
+        });
+      this.selectionMessageService.resetMessage();
+
+      this.initializeComponent();
+      this.loadInitialQuestionAndMessage();
+
+      document.addEventListener(
+        'visibilitychange',
+        this.onVisibilityChange.bind(this)
+      );
+      this.logInitialData();
+      this.logFinalData();
+    } catch (error) {
+      console.error('Error in ngOnInit:', error);
+    }
+  }
+
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
     this.showFeedbackForOption = {}; // Reset the feedback object
