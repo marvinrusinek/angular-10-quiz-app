@@ -1028,9 +1028,7 @@ export class QuizQuestionComponent
           const state = this.quizStateService.getQuestionState(quizId, index);
           if (state?.isAnswered) {
             try {
-              const explanationText = await firstValueFrom(
-                this.explanationTextService.getFormattedExplanationTextForQuestion(index)
-              );
+              const explanationText = this.getExplanationText(index);
               const formattedExplanationText: FormattedExplanation = {
                 questionIndex: index,
                 explanation: explanationText
@@ -2109,6 +2107,12 @@ export class QuizQuestionComponent
 
   async fetchAndSetExplanationText(): Promise<void> {
     await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+  }
+
+  async getExplanationText(questionIndex: number): Promise<string> {
+    return await firstValueFrom(
+      this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+    );
   }
 
   private async processExplanationText(
