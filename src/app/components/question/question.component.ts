@@ -1392,11 +1392,6 @@ export class QuizQuestionComponent
       } else {
         this.explanationTextService.updateFormattedExplanation(explanationText);
       }
-
-      this.explanationTextService.formattedExplanation$.subscribe((text) => {
-        this.explanationToDisplay = text;
-      });
-
       this.explanationTextService.setShouldDisplayExplanation(true);
 
       // Update the state to indicate that the explanation should be displayed
