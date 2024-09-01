@@ -974,11 +974,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     };
     this.data = data;
     this.quizService.setQuizId(quizId);
-    this.quizService
-      .fetchQuizQuestions(quizId)
+    this.quizService.fetchQuizQuestions(quizId)
       .then((questions) => {
-        console.log('Fetched questions:', questions);
-        this.quizService.setQuestionData(questionData);
+        this.quizService.setQuestionData(questions);
       })
       .catch((error) => {
         console.error('Error fetching questions:', error);
