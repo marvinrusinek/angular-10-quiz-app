@@ -1656,7 +1656,7 @@ export class QuizQuestionComponent
     this.explanationTextService.setShouldDisplayExplanation(true);
   
     try {
-      const explanationText = this.getExplanationText(this.currentQuestionIndex);  
+      const explanationText = await this.getExplanationText(this.currentQuestionIndex);  
       this.explanationTextService.setCurrentQuestionExplanation(explanationText);
   
       const totalCorrectAnswers =
