@@ -86,15 +86,7 @@ export abstract class BaseQuestionComponent
   ) {}
 
   async ngOnInit(): Promise<void> {
-    if (this.question) {
-      this.setCurrentQuestion(this.question);
-      this.initializeQuestion();
-    } else {
-      console.warn(
-        'Initial question input is undefined in ngOnInit, waiting for ngOnChanges'
-      );
-    }
-
+    this.initializeQuestionIfAvailable();
     this.initializeSharedOptionConfig();
     this.subscribeToQuestionChanges();
   }
@@ -181,6 +173,17 @@ export abstract class BaseQuestionComponent
       console.error('initializeOptions - Question or options are undefined', {
         question: this.question,
       });
+    }
+  }
+
+  private initializeQuestionIfAvailable(): void {
+    if (this.question) {
+      this.setCurrentQuestion(this.question);
+      this.initializeQuestion();
+    } else {
+      console.warn(
+        'Initial question input is undefined in ngOnInit, waiting for ngOnChanges'
+      );
     }
   }
 
