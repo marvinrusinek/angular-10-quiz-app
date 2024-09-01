@@ -1629,7 +1629,12 @@ export class QuizQuestionComponent
   
     // Set the loading state to true at the beginning
     this.quizStateService.setLoading(true);
-    this.questionState.isAnswered = false;
+
+    const questionState = this.quizStateService.getQuestionState(
+      this.quizId,
+      this.currentQuestionIndex
+    );
+    questionState.isAnswered = false;
   
     await super.onOptionClicked(option, index);
   
@@ -1692,7 +1697,7 @@ export class QuizQuestionComponent
       }
   
       // Set answered state to true
-      this.questionState.isAnswered = true;
+      questionState.isAnswered = true;
       this.quizStateService.setAnswered(true);
       console.log('isAnswered set to true');
   
@@ -1735,14 +1740,14 @@ export class QuizQuestionComponent
       }
       this.selectOption(currentQuestion, option, index);
   
-      this.updateSelectionMessage(this.questionState.isAnswered);
-      await this.updateSelectionMessageBasedOnCurrentState(this.questionState.isAnswered);
+      this.updateSelectionMessage(questionState.isAnswered);
+      await this.updateSelectionMessageBasedOnCurrentState(questionState.isAnswered);
   
       // Update the message after selecting an option
       const newMessage = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
         this.totalQuestions,
-        this.questionState.isAnswered
+        questionState.isAnswered
       );
   
       this.selectionMessageService.updateSelectionMessage(newMessage);
