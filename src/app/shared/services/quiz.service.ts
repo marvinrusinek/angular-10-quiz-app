@@ -233,20 +233,15 @@ export class QuizService implements OnDestroy {
     this.currentQuestion$ = this.currentQuestionSource.asObservable();
   } */
   initializeData(): void {
-    console.log('Initializing data...');
-  
     this.quizData = QUIZ_DATA || [];
-    console.log('QUIZ_DATA:', this.quizData);
   
     if (this.quizData && this.quizData.length > 0) {
       this.quizInitialState = _.cloneDeep(this.quizData);
-      console.log('Quiz initial state set');
   
       // Set this.questions to the questions of the first quiz
       const firstQuiz = this.quizData[0];
       if (firstQuiz && Array.isArray(firstQuiz.questions)) {
         this.questions = firstQuiz.questions;
-        console.log(`Questions initialized. Count: ${this.questions.length}`);
       } else {
         console.error('First quiz does not have a valid questions array');
       }
@@ -255,13 +250,8 @@ export class QuizService implements OnDestroy {
     }
   
     this.quizResources = QUIZ_RESOURCES || [];
-    console.log('Quiz resources:', this.quizResources);
   
     this.currentQuestion$ = this.currentQuestionSource.asObservable();
-    console.log('Current question observable set');
-  
-    // Log the final state of questions
-    console.log('Final questions state:', this.questions);
   
     if (!this.questions || this.questions.length === 0) {
       console.warn('Questions array is empty or undefined after initialization');
