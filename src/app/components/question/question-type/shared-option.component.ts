@@ -208,11 +208,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.showFeedback && (this.showIconForOption[option.optionId] || option.correct);
   } */
   isIconVisible(option: Option): boolean {
-    const isVisible = this.showFeedback || option.selected || option.correct;
-    console.log(`Icon visibility for option ${option.optionId}: ${isVisible}`, {
-        showFeedback: this.showFeedback,
-        isSelected: option.selected,
-        isCorrect: option.correct
+    const isSelectedOrCorrect = option.selected || option.correct;
+    const isVisible = this.showFeedback && isSelectedOrCorrect;
+    console.log(`isIconVisible called for option ${option.optionId}:`, {
+      showFeedback: this.showFeedback,
+      isSelected: option.selected,
+      isCorrect: option.correct,
+      isVisible: isVisible
     });
     return isVisible;
   }
