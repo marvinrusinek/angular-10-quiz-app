@@ -1394,7 +1394,6 @@ export class QuizQuestionComponent
       }
 
       this.explanationTextService.formattedExplanation$.subscribe((text) => {
-        console.log('Formatted explanation emitted:::>>', text);
         this.explanationToDisplay = text;
       });
 
