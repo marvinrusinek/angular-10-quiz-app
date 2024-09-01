@@ -1384,11 +1384,6 @@ export class QuizQuestionComponent
       const explanationText = await this.prepareAndSetExplanationText(
         this.currentQuestionIndex
       );
-      console.log(
-        'Explanation text generated in onOptionClicked:::>>>',
-        explanationText
-      );
-
       if (!explanationText) {
         console.error(
           'Explanation text is empty or undefined:',
