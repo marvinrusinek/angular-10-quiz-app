@@ -163,6 +163,7 @@ export class QuizQuestionComponent
   feedbackForOption: boolean;
   shouldRenderContainer = true;
   feedbackText = '';
+  displayExplanation = false;
   private tabVisible = true;
   sharedOptionConfig: SharedOptionConfig;
 
@@ -1403,11 +1404,11 @@ export class QuizQuestionComponent
       }
 
       this.explanationToDisplay = explanationText;
-      this.displayExplanation = true;
       this.explanationTextService.updateFormattedExplanation(explanationText);
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationToDisplayChange.emit(explanationText); // Emit the explanation text
       this.showExplanationChange.emit(true); // Emit the flag to show the explanation
+      this.displayExplanation = true;
   
       // Update the state to indicate that the explanation should be displayed
       this.quizStateService.updateQuestionState(
