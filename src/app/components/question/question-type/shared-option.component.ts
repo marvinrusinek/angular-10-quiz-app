@@ -193,8 +193,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   handleOptionClick(option: Option, index: number) {
-    console.log('SOC handleOptionClick called with option:', option, 'index:', index);
-  
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
