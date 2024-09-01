@@ -1652,6 +1652,7 @@ export class QuizQuestionComponent
           explanationText
         );
       } else {
+        this.explanationToDisplay = explanationText;
         this.explanationTextService.updateFormattedExplanation(explanationText);
         this.explanationTextService.setShouldDisplayExplanation(true);
         this.explanationToDisplayChange.emit(explanationText); // Emit the explanation text
@@ -1662,7 +1663,11 @@ export class QuizQuestionComponent
       this.quizStateService.updateQuestionState(
         this.quizId,
         this.currentQuestionIndex,
-        { explanationDisplayed: true, selectedOptions: [option] },
+        { 
+          explanationDisplayed: true, 
+          selectedOptions: [option],
+          explanationText: this.explanationToDisplay
+        },
         this.correctAnswers?.length ?? 0
       );
       console.log('Question state updated with explanationDisplayed: true');
