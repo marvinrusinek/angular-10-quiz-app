@@ -265,11 +265,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
       
-      this.optionsToDisplay.forEach((opt, idx) => {
+      for (const [idx, opt] of this.optionsToDisplay.entries()) {
         opt.selected = opt.optionId === option.optionId;
         this.showIconForOption[opt.optionId] = opt.selected;
         this.updateOptionBinding(opt, idx);
-      });
+      }
     } else {
       // For multiple-select, toggle the selection
       option.selected = !option.selected;
