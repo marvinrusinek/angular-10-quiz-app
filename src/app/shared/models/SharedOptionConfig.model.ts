@@ -4,11 +4,14 @@ import { SelectedOption } from './SelectedOption.model';
 
 export interface SharedOptionConfig {
   optionsToDisplay: Option[];
-  selectedOption: SelectedOption;
+  selectedOption: SelectedOption | null;
   currentQuestion: QuizQuestion;
   showFeedback: boolean;
   type: 'single' | 'multiple';
   shouldResetBackground: boolean;
   correctMessage: string;
   showFeedbackForOption: { [optionId: number]: boolean };
+  isOptionSelected: boolean;
+  selectedOptionIndex: number;
+  isAnswerCorrect: boolean;
 }
