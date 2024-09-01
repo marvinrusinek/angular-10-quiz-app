@@ -699,9 +699,7 @@ export class QuizQuestionComponent
           `No question found for index ${this.currentQuestionIndex}`
         );
       }
-
       this.optionsToDisplay = this.currentQuestion.options || [];
-      console.log('Options to Display:::::>>>>>>', this.optionsToDisplay);
 
       // Simultaneously fetch explanation and feedback
       const [explanationResult, feedbackResult] = await Promise.all([
