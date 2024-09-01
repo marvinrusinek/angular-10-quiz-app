@@ -193,40 +193,28 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return ''; // No class if the option is not selected or does not meet the conditions above
   }
 
-  /* isIconVisible(option: Option): boolean {
-    const isSelectedOrCorrect = option.selected || option.correct;
-
-    if (!this.showFeedback) {
-      return isSelectedOrCorrect;
-    }
-
-    return this.showFeedback && isSelectedOrCorrect;
-  } */
-  /* isIconVisible(option: Option): boolean {
-    return this.showIconForOption[option.optionId] || option.correct;
-  } */
-  /* isIconVisible(option: Option): boolean {
-    return this.showFeedback && (this.showIconForOption[option.optionId] || option.correct);
-  } */
   isIconVisible(option: Option): boolean {
-    if (!option || typeof option.optionId === 'undefined') {
-      console.error('Invalid option in isIconVisible:', option);
+    console.log('isIconVisible called with option:', option);
+    console.log('Current showFeedback state:', this.showFeedback);
+    
+    if (!option) {
+      console.error('Option is undefined in isIconVisible');
       return false;
     }
-  
-    const isSelected = this.selectedOptionIds.has(option.optionId);
-    const isVisible = this.showFeedback && (isSelected || option.correct);
-  
-    console.log(`Visibility for option ${option.optionId}:`, {
+    
+    const isSelectedOrCorrect = option.selected || option.correct;
+    const isVisible = this.showFeedback && isSelectedOrCorrect;
+    
+    console.log(`Visibility result for option:`, {
       text: option.text,
-      isSelected: isSelected,
+      isSelected: option.selected,
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
       isVisible: isVisible
     });
-  
+    
     return isVisible;
-  } 
+  }
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOptions.has(option.optionId);
@@ -320,7 +308,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.optionClicked.emit({ option, index });
     this.cdRef.detectChanges();
   } */
-
   handleOptionClick(option: Option, index: number) {
     console.log('SOC handleOptionClick called with option:', option, 'index:', index);
   
@@ -331,8 +318,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     if (this.type === 'single') {
       // For single-select, always select the clicked option
-      this.selectedOptionIds.clear();
-      this.selectedOptionIds.add(option.optionId);
+      this.selectedOptions.clear();
+      this.selectedOptions.add(option.optionId);
       
       for (const [idx, opt] of this.optionsToDisplay.entries()) {
         opt.selected = opt.optionId === option.optionId;
@@ -343,9 +330,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // For multiple-select, toggle the selection
       option.selected = !option.selected;
       if (option.selected) {
-        this.selectedOptionIds.add(option.optionId);
+        this.selectedOptions.add(option.optionId);
       } else {
-        this.selectedOptionIds.delete(option.optionId);
+        this.selectedOptions.delete(option.optionId);
       }
       this.showIconForOption[option.optionId] = option.selected;
       this.updateOptionBinding(option, index);
@@ -353,7 +340,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     this.showFeedback = true;
   
-    console.log('Updated selectedOptionIds:', Array.from(this.selectedOptionIds));
+    console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
     console.log('showFeedback:', this.showFeedback);
   
     // Call the quizQuestionComponentOnOptionClicked method if it exists
@@ -366,6 +353,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.optionClicked.emit({ option, index });
     this.cdRef.detectChanges();
   }
+  
   
   private updateOptionBinding(option: Option, index: number) {
     const updatedBinding = this.getOptionBindings(option, index);
