@@ -1994,9 +1994,9 @@ export class QuizQuestionComponent
 
     // Update the selection message based on the new state
     const explanationText =
-      this.explanationTextService.getFormattedExplanationTextForQuestion(
+      await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(
         this.currentQuestionIndex
-      ) || 'No explanation available';
+      )) || 'No explanation available';
     this.explanationTextService.setExplanationText(explanationText);
 
     // Notify the service to update the explanation text
