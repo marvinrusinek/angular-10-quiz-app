@@ -220,18 +220,6 @@ export class QuizService implements OnDestroy {
     return segments[1].toString();
   }
 
-  /* initializeData(): void {
-    this.quizData = QUIZ_DATA || [];
-    if (QUIZ_DATA) {
-      this.quizInitialState = _.cloneDeep(QUIZ_DATA);
-    } else {
-      console.log('QUIZ_DATA is undefined or null');
-    }
-
-    this.quizResources = QUIZ_RESOURCES || [];
-
-    this.currentQuestion$ = this.currentQuestionSource.asObservable();
-  } */
   initializeData(): void {
     if (!QUIZ_DATA || !Array.isArray(QUIZ_DATA)) {
       console.error('QUIZ_DATA is invalid:', QUIZ_DATA);
