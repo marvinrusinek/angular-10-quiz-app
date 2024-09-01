@@ -171,7 +171,7 @@ export abstract class BaseQuestionComponent
       this.optionsToDisplay = this.question.options || [];
     } else {
       console.error('initializeOptions - Question or options are undefined', {
-        question: this.question,
+        question: this.question
       });
     }
   }
