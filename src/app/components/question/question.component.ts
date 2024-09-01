@@ -592,7 +592,6 @@ export class QuizQuestionComponent
         componentRef.instance.questionForm = this.questionForm;
         componentRef.instance.question = this.question;
         componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
-        console.log('Component instance properties set');
 
         componentRef.instance.quizQuestionComponentOnOptionClicked =
           this.onOptionClicked.bind(this);
@@ -600,8 +599,7 @@ export class QuizQuestionComponent
         // Directly pass the onOptionClicked method to the dynamic component
         if (typeof componentRef.instance.onOptionClicked === 'undefined') {
           console.log('Setting onOptionClicked in dynamic component');
-          componentRef.instance.onOptionClicked =
-            this.onOptionClicked.bind(this);
+          componentRef.instance.onOptionClicked = this.onOptionClicked.bind(this);
         } else {
           console.warn(
             'onOptionClicked is already defined on the dynamic component'
