@@ -83,10 +83,10 @@ export class HighlightOptionDirective implements OnChanges {
         if (opt.correct) {
           this.showFeedbackForOption[opt.optionId] = true;
           if (opt.optionId === this.option.optionId) {
-            this.setBackgroundColor('#43f756');
+            this.setBackgroundColor('#43f756'); // set green
           }
         } else if (opt.optionId === this.option.optionId) {
-          this.setBackgroundColor('#ff0000');
+          this.setBackgroundColor('#ff0000'); // set red
         }
       }
     } else {
