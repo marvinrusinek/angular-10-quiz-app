@@ -251,7 +251,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('Question already submitted, ignoring click');
       return;
     }
-
+  
     this.clickedOptionIds.add(option.optionId);
   
     if (this.type === 'single') {
@@ -261,8 +261,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       
       for (const [idx, opt] of this.optionsToDisplay.entries()) {
         opt.selected = opt.optionId === option.optionId;
-        // this.showIconForOption[opt.optionId] = opt.selected;
-        this.showIconForOption[opt.optionId] = this.clickedOptionIds.has(opt.optionId);
+        this.showIconForOption[opt.optionId] = true; // Always show icon for clicked options
         this.updateOptionBinding(opt, idx);
       }
     } else {
@@ -281,12 +280,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedback = true;
   
     console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
+    console.log('Clicked options:', Array.from(this.clickedOptionIds));
     console.log('showFeedback:', this.showFeedback);
   
     this.optionClicked.emit({ option, index });
     this.cdRef.detectChanges();
   }
-  
   
   private updateOptionBinding(option: Option, index: number) {
     const updatedBinding = this.getOptionBindings(option, index);
