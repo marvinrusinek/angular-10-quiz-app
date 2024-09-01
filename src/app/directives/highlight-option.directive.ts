@@ -1,22 +1,11 @@
-import {
-  Directive,
-  ElementRef,
-  EventEmitter,
-  HostBinding,
-  HostListener,
-  Input,
-  OnChanges,
-  Output,
-  Renderer2,
-  SimpleChanges,
-} from '@angular/core';
+import { Directive, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 import { OptionBindings } from '../shared/models/OptionBindings.model';
 import { UserPreferenceService } from '../shared/services/user-preference.service';
 
 @Directive({
-  selector: '[appHighlightOption]',
+  selector: '[appHighlightOption]'
 })
 export class HighlightOptionDirective implements OnChanges {
   @Output() resetBackground = new EventEmitter<boolean>();
@@ -64,7 +53,6 @@ export class HighlightOptionDirective implements OnChanges {
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
   @HostListener('click') onClick(): void {
-    console.log('Option clicked:', this.option);
     if (this.option) {
       this.optionClicked.emit(this.option);
       this.updateHighlight();
