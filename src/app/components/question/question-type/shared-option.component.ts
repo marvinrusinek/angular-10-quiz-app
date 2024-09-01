@@ -259,10 +259,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
       
-      for (const [idx, opt] of this.optionsToDisplay.entries()) {
+      for (const opt of this.optionsToDisplay) {
         opt.selected = opt.optionId === option.optionId;
-        this.showIconForOption[opt.optionId] = true; // Always show icon for clicked options
-        this.updateOptionBinding(opt, idx);
+        // Show icon for all clicked options, not just the currently selected one
+        this.showIconForOption[opt.optionId] = this.clickedOptionIds.has(opt.optionId);
       }
     } else {
       // For multiple-select, toggle the selection
@@ -272,15 +272,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       } else {
         this.selectedOptions.delete(option.optionId);
       }
-      // Always show icon for clicked options, regardless of current selection state
-      this.showIconForOption[option.optionId] = true;
-      this.updateOptionBinding(option, index);
+    }
+  
+    // Update showIconForOption for all options
+    for (const opt of this.optionsToDisplay) {
+      this.showIconForOption[opt.optionId] = this.clickedOptionIds.has(opt.optionId);
     }
   
     this.showFeedback = true;
   
     console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
     console.log('Clicked options:', Array.from(this.clickedOptionIds));
+    console.log('showIconForOption:', this.showIconForOption);
     console.log('showFeedback:', this.showFeedback);
   
     this.optionClicked.emit({ option, index });
