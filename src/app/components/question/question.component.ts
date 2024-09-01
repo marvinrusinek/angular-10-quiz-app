@@ -126,6 +126,7 @@ export class QuizQuestionComponent
   selectedOption: SelectedOption | null = null;
   selectedOptions: SelectedOption[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
+  optionSelected = false;
   options$: Observable<Option[]>;
   quiz: Quiz;
   questionsArray: QuizQuestion[] = [];
@@ -1361,6 +1362,8 @@ export class QuizQuestionComponent
     option: SelectedOption,
     index: number
   ): Promise<void> {
+    this.optionSelected = true;
+
     // Set the loading state to true at the beginning
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswered(false);
