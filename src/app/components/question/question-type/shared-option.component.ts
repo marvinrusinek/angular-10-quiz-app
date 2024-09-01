@@ -117,24 +117,30 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.questionAnswered.emit(question);
   }
 
-  /* resetState(): void {
+  resetState(): void {
+    // Clear selected options and reset flags
     this.selectedOptions.clear();
     this.isSubmitted = false;
     this.showFeedback = false;
     this.selectedOption = null;
+  
+    // Reset option-specific states
     this.showFeedbackForOption = {};
     this.iconVisibility = [];
-    this.resetOptionState();
-  } */
-  resetState(): void {
-    this.selectedOptions.clear();
-    this.isSubmitted = false;
-    this.showFeedback = false;
-    
+  
+    // Reset state for each option in optionsToDisplay
     for (const option of this.optionsToDisplay) {
       option.selected = false;
-      this.showIconForOption[option.optionId] = false;
+      if (option.optionId !== undefined) {
+        this.showIconForOption[option.optionId] = false;
+      }
     }
+  
+    // Call additional reset method if it exists
+    this.resetOptionState();
+  
+    // Trigger change detection
+    this.cdRef.detectChanges();
   }
 
   private logConfig(): void {
