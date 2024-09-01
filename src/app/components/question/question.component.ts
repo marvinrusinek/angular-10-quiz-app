@@ -1643,7 +1643,7 @@ export class QuizQuestionComponent
       this.showFeedbackForOption[option.optionId] = true;
   
       // Fetch and set the explanation text after an option is clicked
-      const explanationText = await this.prepareAndSetExplanationText(
+      let explanationText = await this.prepareAndSetExplanationText(
         this.currentQuestionIndex
       );
       if (!explanationText) {
@@ -1651,7 +1651,17 @@ export class QuizQuestionComponent
           'Explanation text is empty or undefined:',
           explanationText
         );
+        explanationText = 'No explanation available';
       } else {
+        // Process the explanation text
+        let processedExplanation = await this.processExplanationText(
+          this.currentQuestion,
+          this.currentQuestionIndex
+        );
+        
+        if (processedExplanation) {
+          explanationText = processedExplanation.explanation;
+        }
         this.explanationToDisplay = explanationText;
         this.explanationTextService.updateFormattedExplanation(explanationText);
         this.explanationTextService.setShouldDisplayExplanation(true);
@@ -2358,19 +2368,35 @@ export class QuizQuestionComponent
   private async processExplanationText(
     questionData: QuizQuestion,
     questionIndex: number
-  ): Promise<void> {
+  ): Promise<{ questionIndex: number; explanation: string } | null> {
     this.explanationTextService.setCurrentQuestionExplanation(
       questionData.explanation
     );
-
+  
     try {
       const formattedExplanation = await this.getFormattedExplanation(
         questionData,
         questionIndex
       );
-      this.handleFormattedExplanation(formattedExplanation, questionIndex);
+      
+      if (formattedExplanation) {
+        this.handleFormattedExplanation(formattedExplanation, questionIndex);
+        return {
+          questionIndex: questionIndex,
+          explanation: typeof formattedExplanation === 'string' 
+            ? formattedExplanation 
+            : formattedExplanation.explanation || ''
+        };
+      } else {
+        console.warn('No formatted explanation received');
+        return {
+          questionIndex: questionIndex,
+          explanation: questionData.explanation || 'No explanation available'
+        };
+      }
     } catch (error) {
       console.error('Error in processing explanation text:', error);
+      return null;
     }
   }
 
