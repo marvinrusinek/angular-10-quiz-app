@@ -1646,28 +1646,27 @@ export class QuizQuestionComponent
       let explanationText = await this.prepareAndSetExplanationText(
         this.currentQuestionIndex
       );
+
       if (!explanationText) {
-        console.error(
-          'Explanation text is empty or undefined:',
-          explanationText
-        );
+        console.error('Explanation text is empty or undefined:', explanationText);
         explanationText = 'No explanation available';
       } else {
         // Process the explanation text
-        let processedExplanation = await this.processExplanationText(
+        const processedExplanation = await this.processExplanationText(
           this.currentQuestion,
           this.currentQuestionIndex
         );
         
-        if (processedExplanation) {
+        if (processedExplanation && processedExplanation.explanation) {
           explanationText = processedExplanation.explanation;
         }
-        this.explanationToDisplay = explanationText;
-        this.explanationTextService.updateFormattedExplanation(explanationText);
-        this.explanationTextService.setShouldDisplayExplanation(true);
-        this.explanationToDisplayChange.emit(explanationText); // Emit the explanation text
-        this.showExplanationChange.emit(true); // Emit the flag to show the explanation
       }
+
+      this.explanationToDisplay = explanationText;
+      this.explanationTextService.updateFormattedExplanation(explanationText);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.explanationToDisplayChange.emit(explanationText); // Emit the explanation text
+      this.showExplanationChange.emit(true); // Emit the flag to show the explanation
   
       // Update the state to indicate that the explanation should be displayed
       this.quizStateService.updateQuestionState(
