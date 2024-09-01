@@ -1966,11 +1966,11 @@ export class QuizQuestionComponent
     return shouldShow;
   }
 
-  selectOption(
+  async selectOption(
     currentQuestion: QuizQuestion,
     option: SelectedOption,
     optionIndex: number
-  ): void {
+  ): Promise<void> {
     const selectedOption = {
       ...option,
       optionId: optionIndex,
