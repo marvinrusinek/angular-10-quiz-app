@@ -120,14 +120,14 @@ export abstract class BaseQuestionComponent
   }
 
   ngAfterViewInit(): void {
-    this.tryLoadDynamicComponent();
+    this.initializeDynamicComponentIfNeeded();
   }
 
   ngOnDestroy(): void {
     this.currentQuestionSubscription?.unsubscribe();
   }
 
-  private tryLoadDynamicComponent(): void {
+  private initializeDynamicComponentIfNeeded(): void {
     if (!this.containerInitialized && this.dynamicComponentContainer) {
       this.dynamicComponentContainer.clear();
       this.loadDynamicComponent();
