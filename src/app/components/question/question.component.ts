@@ -1035,8 +1035,8 @@ export class QuizQuestionComponent
               };
               this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
             } catch (error) {
+              // Set a default explanation and handle the error as needed
               console.error(`Error getting explanation for question ${index}:`, error);
-              // Set a default explanation or handle the error as needed
               this.explanationTextService.formattedExplanations[index] = {
                 questionIndex: index,
                 explanation: 'Unable to load explanation.'
