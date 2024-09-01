@@ -1784,9 +1784,10 @@ export class QuizQuestionComponent
 
     // Fetch and store the explanation text using the ExplanationTextService
     const explanationText =
-      this.explanationTextService.getFormattedExplanationTextForQuestion(
-        this.currentQuestionIndex
-      );
+      await firstValueFrom(
+        this.explanationTextService.getFormattedExplanationTextForQuestion(
+          this.currentQuestionIndex
+    ));
     this.explanationTextService.setExplanationText(explanationText);
     this.explanationText = explanationText;
 
