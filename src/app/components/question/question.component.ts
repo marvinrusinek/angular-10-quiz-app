@@ -14,7 +14,7 @@ import {
   OnInit,
   Output,
   SimpleChange,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -244,7 +244,7 @@ export class QuizQuestionComponent
       });
   }
 
-  async ngOnInit(): Promise<void> {
+  /* async ngOnInit(): Promise<void> {
     super.ngOnInit();
 
     this.initializeData();
@@ -369,6 +369,268 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
+  } */
+  /* async ngOnInit(): Promise<void> {
+    super.ngOnInit();
+
+    this.initializeData();
+
+    this.quizStateService.isLoading$.subscribe((isLoading) => {
+      console.log('isLoading$', isLoading);
+    });
+
+    this.quizStateService.isAnswered$.subscribe((isAnswered) => {
+      console.log('isAnswered$', isAnswered);
+    });
+
+    this.quizStateService.setLoading(true);
+
+    // Ensure optionsToDisplay is correctly set
+    this.optionsToDisplay = this.options;
+
+    // Set correct options in the quiz service
+    this.quizService.setCorrectOptions(this.optionsToDisplay);
+
+    console.log('Options to Display:::::>>>>>>', this.optionsToDisplay); // Debugging statement
+
+    if (!this.question) {
+      console.error('Question is not defined');
+      return;
+    }
+
+    if (this.question && this.question.options) {
+      const hasMultipleAnswers =
+        this.question.options.filter((option) => option.correct).length > 1;
+      this.multipleAnswer.next(hasMultipleAnswers);
+    } else {
+      console.error(
+        'Question or options are undefined in QuizQuestionComponent ngOnInit'
+      );
+    }
+
+    this.resetFeedbackSubscription =
+      this.resetStateService.resetFeedback$.subscribe(() => {
+        console.log('QuizQuestionComponent - Reset feedback triggered');
+        this.resetFeedback();
+      });
+
+    this.resetStateSubscription = this.resetStateService.resetState$.subscribe(
+      () => {
+        console.log('QuizQuestionComponent - Reset state triggered');
+        this.resetState();
+      }
+    );
+
+    try {
+      const quizId =
+        this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
+      if (!quizId) {
+        console.error('Quiz ID is missing');
+        return;
+      }
+
+      const questions = await this.fetchAndProcessQuizQuestions(quizId);
+
+      if (questions && questions.length > 0) {
+        this.questions = of(questions);
+        this.questions.subscribe({
+          next: (questions: QuizQuestion[]) => {
+            this.questionsArray = questions;
+
+            if (this.questionsArray.length === 0) {
+              console.error('Questions are not initialized');
+              return;
+            }
+
+            this.selectedOptionService.selectedOption$.subscribe(
+              (selectedOption) => {
+                this.selectedOption = selectedOption;
+              }
+            );
+          },
+          error: (err) => {
+            console.error('Error fetching questions', err);
+          },
+        });
+      } else {
+        console.error('No questions were loaded...');
+      }
+
+      // Ensure this.quiz is set correctly
+      this.quiz = this.quizService.getActiveQuiz();
+      if (!this.quiz) {
+        console.error('Failed to get the active quiz');
+        return;
+      }
+
+      this.resetMessages();
+      this.resetStateForNewQuestion();
+      this.subscribeToOptionSelection();
+
+      if (!this.initialized) {
+        this.initialized = true;
+        await this.initializeQuiz();
+      }
+
+      this.initializeQuizQuestion();
+      await this.handleQuestionState();
+
+      // Subscribe to selectionMessage$ to update the message displayed in the template
+      this.selectionMessageService.selectionMessage$
+        .pipe(debounceTime(200))
+        .subscribe((message) => {
+          this.selectionMessage = message as string;
+        });
+      this.selectionMessageService.resetMessage();
+
+      this.initializeComponent();
+      this.loadInitialQuestionAndMessage();
+
+      document.addEventListener(
+        'visibilitychange',
+        this.onVisibilityChange.bind(this)
+      );
+      this.logInitialData();
+      this.logFinalData();
+    } catch (error) {
+      console.error('Error in ngOnInit:', error);
+    }
+
+    // Ensure the explanation text is not displayed initially
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationToDisplayChange.emit(''); // Clear the explanation text
+    this.showExplanationChange.emit(false); // Emit the flag to hide the explanation
+  } */
+  async ngOnInit(): Promise<void> {
+    super.ngOnInit();
+  
+    this.initializeData();
+  
+    this.quizStateService.isLoading$.subscribe((isLoading) => {
+      console.log('isLoading$', isLoading);
+    });
+  
+    this.quizStateService.isAnswered$.subscribe((isAnswered) => {
+      console.log('isAnswered$', isAnswered);
+    });
+  
+    this.quizStateService.setLoading(true);
+  
+    // Ensure optionsToDisplay is correctly set
+    this.optionsToDisplay = this.options;
+  
+    // Set correct options in the quiz service
+    this.quizService.setCorrectOptions(this.optionsToDisplay);
+  
+    console.log('Options to Display:::::>>>>>>', this.optionsToDisplay); // Debugging statement
+  
+    if (!this.question) {
+      console.error('Question is not defined');
+      return;
+    }
+  
+    if (this.question && this.question.options) {
+      const hasMultipleAnswers =
+        this.question.options.filter((option) => option.correct).length > 1;
+      this.multipleAnswer.next(hasMultipleAnswers);
+    } else {
+      console.error(
+        'Question or options are undefined in QuizQuestionComponent ngOnInit'
+      );
+    }
+  
+    this.resetFeedbackSubscription =
+      this.resetStateService.resetFeedback$.subscribe(() => {
+        console.log('QuizQuestionComponent - Reset feedback triggered');
+        this.resetFeedback();
+      });
+  
+    this.resetStateSubscription = this.resetStateService.resetState$.subscribe(
+      () => {
+        console.log('QuizQuestionComponent - Reset state triggered');
+        this.resetState();
+      }
+    );
+  
+    try {
+      const quizId =
+        this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
+      if (!quizId) {
+        console.error('Quiz ID is missing');
+        return;
+      }
+  
+      const questions = await this.fetchAndProcessQuizQuestions(quizId);
+  
+      if (questions && questions.length > 0) {
+        this.questions = of(questions);
+        this.questions.subscribe({
+          next: (questions: QuizQuestion[]) => {
+            this.questionsArray = questions;
+  
+            if (this.questionsArray.length === 0) {
+              console.error('Questions are not initialized');
+              return;
+            }
+  
+            this.selectedOptionService.selectedOption$.subscribe(
+              (selectedOption) => {
+                this.selectedOption = selectedOption;
+              }
+            );
+          },
+          error: (err) => {
+            console.error('Error fetching questions', err);
+          },
+        });
+      } else {
+        console.error('No questions were loaded...');
+      }
+  
+      // Ensure this.quiz is set correctly
+      this.quiz = this.quizService.getActiveQuiz();
+      if (!this.quiz) {
+        console.error('Failed to get the active quiz');
+        return;
+      }
+  
+      this.resetMessages();
+      this.resetStateForNewQuestion();
+      this.subscribeToOptionSelection();
+  
+      if (!this.initialized) {
+        this.initialized = true;
+        await this.initializeQuiz();
+      }
+  
+      this.initializeQuizQuestion();
+      await this.handleQuestionState();
+  
+      // Subscribe to selectionMessage$ to update the message displayed in the template
+      this.selectionMessageService.selectionMessage$
+        .pipe(debounceTime(200))
+        .subscribe((message) => {
+          this.selectionMessage = message as string;
+        });
+      this.selectionMessageService.resetMessage();
+  
+      this.initializeComponent();
+      this.loadInitialQuestionAndMessage();
+  
+      document.addEventListener(
+        'visibilitychange',
+        this.onVisibilityChange.bind(this)
+      );
+      this.logInitialData();
+      this.logFinalData();
+    } catch (error) {
+      console.error('Error in ngOnInit:', error);
+    }
+  
+    // Ensure the explanation text is not displayed initially
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationToDisplayChange.emit(''); // Clear the explanation text
+    this.showExplanationChange.emit(false); // Emit the flag to hide the explanation
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -576,11 +838,11 @@ export class QuizQuestionComponent
   async loadDynamicComponent(): Promise<void> {
     if (this.dynamicComponentContainer) {
       this.dynamicComponentContainer.clear();
-  
+
       const isMultipleAnswer = await firstValueFrom(
         this.quizStateService.isMultipleAnswerQuestion(this.question)
       );
-  
+
       const componentRef = await this.dynamicComponentService.loadComponent(
         this.dynamicComponentContainer,
         isMultipleAnswer
@@ -591,16 +853,20 @@ export class QuizQuestionComponent
         componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
         console.log('Component instance properties set');
 
-        componentRef.instance.quizQuestionComponentOnOptionClicked = this.onOptionClicked.bind(this);
-  
+        componentRef.instance.quizQuestionComponentOnOptionClicked =
+          this.onOptionClicked.bind(this);
+
         // Directly pass the onOptionClicked method to the dynamic component
         if (typeof componentRef.instance.onOptionClicked === 'undefined') {
           console.log('Setting onOptionClicked in dynamic component');
-          componentRef.instance.onOptionClicked = this.onOptionClicked.bind(this);
+          componentRef.instance.onOptionClicked =
+            this.onOptionClicked.bind(this);
         } else {
-          console.warn('onOptionClicked is already defined on the dynamic component');
+          console.warn(
+            'onOptionClicked is already defined on the dynamic component'
+          );
         }
-  
+
         componentRef.changeDetectorRef.markForCheck();
         console.log('Change detection triggered for dynamic component');
       } else {
@@ -1362,26 +1628,26 @@ export class QuizQuestionComponent
     index: number
   ): Promise<void> {
     this.optionSelected.emit(option); // Emit the selected option
-
+  
     // Set the loading state to true at the beginning
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswered(false);
-
+  
     await super.onOptionClicked(option, index);
-
+  
     try {
       if (!option) {
         console.error('Option is undefined');
         return;
       }
-
+  
       this.selectedOptions = [
         { ...option, questionIndex: this.currentQuestionIndex },
       ];
       this.selectedOption = { ...option, optionId: index + 1 };
       this.showFeedback = true;
       this.showFeedbackForOption[option.optionId] = true;
-
+  
       // Fetch and set the explanation text after an option is clicked
       const explanationText = await this.prepareAndSetExplanationText(
         this.currentQuestionIndex
@@ -1397,7 +1663,7 @@ export class QuizQuestionComponent
         this.explanationToDisplayChange.emit(explanationText); // Emit the explanation text
         this.showExplanationChange.emit(true); // Emit the flag to show the explanation
       }
-
+  
       // Update the state to indicate that the explanation should be displayed
       this.quizStateService.updateQuestionState(
         this.quizId,
@@ -1406,85 +1672,85 @@ export class QuizQuestionComponent
         this.correctAnswers?.length ?? 0
       );
       console.log('Question state updated with explanationDisplayed: true');
-
+  
       // Perform operations with correctAnswers
       if (this.correctAnswers && this.correctAnswers.length > 0) {
         console.log('Correct answers:', this.correctAnswers);
-
+  
         // Example operation: Log each correct answer
         for (const answer of this.correctAnswers) {
           console.log('Correct answer:', answer);
         }
-
+  
         // Example operation: Count the number of correct answers
         const correctAnswerCount = this.correctAnswers.length;
         console.log('Number of correct answers:', correctAnswerCount);
-
+  
         // Example operation: Check if a specific answer is correct
         const isSpecificAnswerCorrect = this.correctAnswers.includes(option.optionId);
         console.log('Is the specific answer correct?', isSpecificAnswerCorrect);
       } else {
         console.warn('No correct answers available for this question.');
       }
-
+  
       // Set answered state to true
       this.quizStateService.setAnswered(true);
       console.log('isAnswered set to true');
-
+  
       // Ensure loading state is set to false
       this.quizStateService.setLoading(false);
       console.log('isLoading set to false (option selected)');
-
+  
       this.updateFeedbackForOption(option);
-
+  
       console.log(
         'onOptionClicked - showFeedbackForOption:',
         this.showFeedbackForOption
       );
-
+  
       if (!option.correct) {
         console.log('Incorrect option selected.');
-
+  
         // Directly highlight all correct options
         for (const opt of this.optionsToDisplay) {
           if (opt.correct) {
             this.showFeedbackForOption[opt.optionId] = true;
           }
         }
-
+  
         console.log(
           'Updated showFeedbackForOption after highlighting correct answers:',
           this.showFeedbackForOption
         );
       }
-
+  
       this.updateSelectedOption(option);
       this.selectedOptionService.setOptionSelected(true);
       this.selectedOptionService.setSelectedOption(option);
       this.selectedOptionService.setAnsweredState(true);
-
+  
       const currentQuestion = await this.fetchAndProcessCurrentQuestion();
       if (!currentQuestion) {
         console.error('Could not retrieve the current question.');
         return;
       }
       this.selectOption(currentQuestion, option, index);
-
+  
       const isAnswered = true;
       this.updateSelectionMessage(isAnswered);
       await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-
+  
       // Update the message after selecting an option
       const newMessage = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
         this.totalQuestions,
         isAnswered
       );
-
+  
       this.selectionMessageService.updateSelectionMessage(newMessage);
-
+  
       this.processCurrentQuestionState(currentQuestion, option, index);
-
+  
       await this.handleCorrectnessAndTimer();
     } catch (error) {
       console.error(
@@ -1495,133 +1761,6 @@ export class QuizQuestionComponent
       // Ensure the loading state is set to false in case of any errors
       this.quizStateService.setLoading(false);
       console.log('Loading state reset in finally block.');
-    }
-  }
-
-  async ngOnInit(): Promise<void> {
-    super.ngOnInit();
-
-    this.initializeData();
-
-    this.quizStateService.isLoading$.subscribe((isLoading) => {
-      console.log('isLoading$', isLoading);
-    });
-
-    this.quizStateService.isAnswered$.subscribe((isAnswered) => {
-      console.log('isAnswered$', isAnswered);
-    });
-
-    this.quizStateService.setLoading(true);
-
-    // Ensure optionsToDisplay is correctly set
-    this.optionsToDisplay = this.options;
-
-    // Set correct options in the quiz service
-    this.quizService.setCorrectOptions(this.optionsToDisplay);
-
-    console.log('Options to Display:::::>>>>>>', this.optionsToDisplay); // Debugging statement
-
-    if (!this.question) {
-      console.error('Question is not defined');
-      return;
-    }
-
-    if (this.question && this.question.options) {
-      const hasMultipleAnswers =
-        this.question.options.filter((option) => option.correct).length > 1;
-      this.multipleAnswer.next(hasMultipleAnswers);
-    } else {
-      console.error(
-        'Question or options are undefined in QuizQuestionComponent ngOnInit'
-      );
-    }
-
-    this.resetFeedbackSubscription =
-      this.resetStateService.resetFeedback$.subscribe(() => {
-        console.log('QuizQuestionComponent - Reset feedback triggered');
-        this.resetFeedback();
-      });
-
-    this.resetStateSubscription = this.resetStateService.resetState$.subscribe(
-      () => {
-        console.log('QuizQuestionComponent - Reset state triggered');
-        this.resetState();
-      }
-    );
-
-    try {
-      const quizId =
-        this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
-      if (!quizId) {
-        console.error('Quiz ID is missing');
-        return;
-      }
-
-      const questions = await this.fetchAndProcessQuizQuestions(quizId);
-
-      if (questions && questions.length > 0) {
-        this.questions = of(questions);
-        this.questions.subscribe({
-          next: (questions: QuizQuestion[]) => {
-            this.questionsArray = questions;
-
-            if (this.questionsArray.length === 0) {
-              console.error('Questions are not initialized');
-              return;
-            }
-
-            this.selectedOptionService.selectedOption$.subscribe(
-              (selectedOption) => {
-                this.selectedOption = selectedOption;
-              }
-            );
-          },
-          error: (err) => {
-            console.error('Error fetching questions', err);
-          },
-        });
-      } else {
-        console.error('No questions were loaded...');
-      }
-
-      // Ensure this.quiz is set correctly
-      this.quiz = this.quizService.getActiveQuiz();
-      if (!this.quiz) {
-        console.error('Failed to get the active quiz');
-        return;
-      }
-
-      this.resetMessages();
-      this.resetStateForNewQuestion();
-      this.subscribeToOptionSelection();
-
-      if (!this.initialized) {
-        this.initialized = true;
-        await this.initializeQuiz();
-      }
-
-      this.initializeQuizQuestion();
-      await this.handleQuestionState();
-
-      // Subscribe to selectionMessage$ to update the message displayed in the template
-      this.selectionMessageService.selectionMessage$
-        .pipe(debounceTime(200))
-        .subscribe((message) => {
-          this.selectionMessage = message as string;
-        });
-      this.selectionMessageService.resetMessage();
-
-      this.initializeComponent();
-      this.loadInitialQuestionAndMessage();
-
-      document.addEventListener(
-        'visibilitychange',
-        this.onVisibilityChange.bind(this)
-      );
-      this.logInitialData();
-      this.logFinalData();
-    } catch (error) {
-      console.error('Error in ngOnInit:', error);
     }
   }
 
@@ -1705,7 +1844,7 @@ export class QuizQuestionComponent
   public async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
       this.resetStateForNewQuestion(); // Reset state before fetching new question
-  
+
       const quizId = this.quizService.getCurrentQuizId();
       const currentQuestion = await firstValueFrom(
         this.quizService.getCurrentQuestionByIndex(
@@ -1714,14 +1853,14 @@ export class QuizQuestionComponent
         )
       );
       console.log('Fetched current question::::::>>>>>>', currentQuestion);
-  
+
       if (!currentQuestion) {
         return null;
       }
-  
+
       this.currentQuestion = currentQuestion;
       this.optionsToDisplay = [...(currentQuestion.options || [])];
-  
+
       // Set this.data
       this.data = {
         questionText: currentQuestion.questionText,
@@ -1729,12 +1868,12 @@ export class QuizQuestionComponent
         correctAnswersText: this.quizService.getCorrectAnswersAsString(),
         options: this.optionsToDisplay,
       };
-  
+
       // Determine if the current question is answered
       const isAnswered = await this.isQuestionAnswered(
         this.currentQuestionIndex
       );
-  
+
       // Update the selection message based on the current state
       if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
@@ -1742,7 +1881,7 @@ export class QuizQuestionComponent
         console.log('No update required for the selection message.');
       }
       this.updateAnswerStateAndMessage(isAnswered);
-  
+
       // Return the fetched current question
       return currentQuestion;
     } catch (error) {
@@ -2172,25 +2311,38 @@ export class QuizQuestionComponent
   }
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
-    console.log('Preparing explanation text for question index:', questionIndex);
+    console.log(
+      'Preparing explanation text for question index:',
+      questionIndex
+    );
 
     if (document.hidden) {
       console.log('Document is hidden, returning placeholder text.');
-      this.explanationToDisplay = 'Explanation text not available when document is hidden.';
+      this.explanationToDisplay =
+        'Explanation text not available when document is hidden.';
       return this.explanationToDisplay;
     }
 
     try {
-      console.log('Attempting to fetch next question for index:', this.currentQuestionIndex);
-      const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
+      console.log(
+        'Attempting to fetch next question for index:',
+        this.currentQuestionIndex
+      );
+      const questionData = await this.quizService.getNextQuestion(
+        this.currentQuestionIndex
+      );
 
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
         console.log('Question data is valid, getting formatted explanation');
-        const formattedExplanationObservable = this.explanationTextService.getFormattedExplanation(questionIndex);
-        const formattedExplanation = await firstValueFrom(formattedExplanationObservable);
+        const formattedExplanationObservable =
+          this.explanationTextService.getFormattedExplanation(questionIndex);
+        const formattedExplanation = await firstValueFrom(
+          formattedExplanationObservable
+        );
         console.log('Formatted explanation:', formattedExplanation);
 
-        this.explanationToDisplay = formattedExplanation || 'No explanation available...';
+        this.explanationToDisplay =
+          formattedExplanation || 'No explanation available...';
         console.log('Generated explanation text:', this.explanationToDisplay);
         return this.explanationToDisplay;
       } else {
