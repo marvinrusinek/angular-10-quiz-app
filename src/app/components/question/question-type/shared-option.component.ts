@@ -50,7 +50,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   isSubmitted = false;
   iconVisibility: boolean[] = []; // Array to store visibility state of icons
   showIconForOption: { [optionId: number]: boolean } = {};
-  selectedOptionIds: Set<number> = new Set();
+  clickedOptionIds: Set<number> = new Set();
 
   optionTextStyle = {
     color: 'black',
@@ -315,6 +315,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('Question already submitted, ignoring click');
       return;
     }
+
+    this.clickedOptionIds.add(option.optionId);
   
     if (this.type === 'single') {
       // For single-select, always select the clicked option
