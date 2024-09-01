@@ -759,8 +759,6 @@ export class QuizQuestionComponent
   }
 
   onQuestionChange(question: QuizQuestion): void {
-    console.log('Question changed in SharedOptionComponent:', question);
-    // You can add any additional logic here if needed
     this.questionAnswered.emit(question);
   }
 
