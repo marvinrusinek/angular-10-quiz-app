@@ -1393,8 +1393,10 @@ export class QuizQuestionComponent
         );
       } else {
         this.explanationTextService.updateFormattedExplanation(explanationText);
+        this.explanationTextService.setShouldDisplayExplanation(true);
+        this.explanationToDisplayChange.emit(explanationText); // Emit the explanation text
+        this.showExplanationChange.emit(true); // Emit the flag to show the explanation
       }
-      this.explanationTextService.setShouldDisplayExplanation(true);
 
       // Update the state to indicate that the explanation should be displayed
       this.quizStateService.updateQuestionState(
@@ -1406,24 +1408,24 @@ export class QuizQuestionComponent
       console.log('Question state updated with explanationDisplayed: true');
 
       // Perform operations with correctAnswers
-    if (this.correctAnswers && this.correctAnswers.length > 0) {
-      console.log('Correct answers:', this.correctAnswers);
+      if (this.correctAnswers && this.correctAnswers.length > 0) {
+        console.log('Correct answers:', this.correctAnswers);
 
-      // Example operation: Log each correct answer
-      for (const answer of this.correctAnswers) {
-        console.log('Correct answer:', answer);
+        // Example operation: Log each correct answer
+        for (const answer of this.correctAnswers) {
+          console.log('Correct answer:', answer);
+        }
+
+        // Example operation: Count the number of correct answers
+        const correctAnswerCount = this.correctAnswers.length;
+        console.log('Number of correct answers:', correctAnswerCount);
+
+        // Example operation: Check if a specific answer is correct
+        const isSpecificAnswerCorrect = this.correctAnswers.includes(option.optionId);
+        console.log('Is the specific answer correct?', isSpecificAnswerCorrect);
+      } else {
+        console.warn('No correct answers available for this question.');
       }
-
-      // Example operation: Count the number of correct answers
-      const correctAnswerCount = this.correctAnswers.length;
-      console.log('Number of correct answers:', correctAnswerCount);
-
-      // Example operation: Check if a specific answer is correct
-      const isSpecificAnswerCorrect = this.correctAnswers.includes(option.optionId);
-      console.log('Is the specific answer correct?', isSpecificAnswerCorrect);
-    } else {
-      console.warn('No correct answers available for this question.');
-    }
 
       // Set answered state to true
       this.quizStateService.setAnswered(true);
@@ -1439,30 +1441,6 @@ export class QuizQuestionComponent
         'onOptionClicked - showFeedbackForOption:',
         this.showFeedbackForOption
       );
-
-      /* if (option.correct) {
-            console.log('Correct option selected.');
-            this.showFeedbackForOption[option.optionId] = true;
-        } else {
-            console.log('Incorrect option selected.');
-            this.showFeedbackForOption[option.optionId] = true;
-        
-            // Check user preference before highlighting correct answers
-            const highlightPreference = this.userPreferenceService.getHighlightPreference();
-            console.log('Highlight preference:', highlightPreference);
-        
-            if (highlightPreference) {
-                console.log('User preference set to highlight correct answers.');
-                this.highlightCorrectAnswers();
-            }
-        } */
-
-      /* if (!option.correct) {
-            console.log('Incorrect option selected.');
-
-            // Bypass user preference and directly highlight correct options
-            this.highlightCorrectAnswers();
-        } */
 
       if (!option.correct) {
         console.log('Incorrect option selected.');
@@ -1504,12 +1482,6 @@ export class QuizQuestionComponent
       );
 
       this.selectionMessageService.updateSelectionMessage(newMessage);
-
-      /* if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
-            await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-        } else {
-            console.log('No update required for the selection message.');
-        } */
 
       this.processCurrentQuestionState(currentQuestion, option, index);
 
