@@ -62,28 +62,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
+    this.initializeSharedOptionDisplay();
     this.initializeOptionBindings();
-
-    if (!this.showFeedbackForOption) {
-      this.showFeedbackForOption = {};
-    }
-
-    console.log('Received config:', this.config);
-    if (
-      this.config &&
-      this.config.optionsToDisplay &&
-      this.config.optionsToDisplay.length > 0
-    ) {
-      console.log(
-        'Options in SharedOptionComponent:',
-        this.config.optionsToDisplay
-      );
-      this.optionsToDisplay = this.config.optionsToDisplay;
-    } else if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-      console.log('Options received directly:', this.optionsToDisplay);
-    } else {
-      console.warn('No options received in SharedOptionComponent');
-    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -253,6 +233,29 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     this.optionClicked.emit({ option, index });
     this.cdRef.detectChanges();
+  }
+
+  private initializeSharedOptionDisplay(): void {
+    if (!this.showFeedbackForOption) {
+      this.showFeedbackForOption = {};
+    }
+  
+    console.log('Received config:', this.config);
+    if (
+      this.config &&
+      this.config.optionsToDisplay &&
+      this.config.optionsToDisplay.length > 0
+    ) {
+      console.log(
+        'Options in SharedOptionComponent:',
+        this.config.optionsToDisplay
+      );
+      this.optionsToDisplay = this.config.optionsToDisplay;
+    } else if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
+      console.log('Options received directly:', this.optionsToDisplay);
+    } else {
+      console.warn('No options received in SharedOptionComponent');
+    }
   }
 
   initializeOptionBindings(): void {
