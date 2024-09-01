@@ -94,9 +94,9 @@ export abstract class BaseQuestionComponent
         'Initial question input is undefined in ngOnInit, waiting for ngOnChanges'
       );
     }
-
-    this.subscribeToQuestionChanges();
+    
     this.initializeSharedOptionConfig();
+    this.subscribeToQuestionChanges();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
