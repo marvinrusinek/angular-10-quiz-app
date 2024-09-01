@@ -233,7 +233,6 @@ export class QuizStateService {
   }
 
   setLoading(isLoading: boolean): void {
-    console.log('Emitting isLoading:', isLoading);
     this.isLoadingSubject.next(isLoading);
   }
   
