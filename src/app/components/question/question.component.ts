@@ -1656,24 +1656,29 @@ export class QuizQuestionComponent
     currentQuestion: QuizQuestion
   ): Promise<void> {
     this.explanationTextService.setShouldDisplayExplanation(true);
-
-    const explanationText = await firstValueFrom(
-      of(
+  
+    try {
+      const explanationText = await firstValueFrom(
         this.explanationTextService.getFormattedExplanationTextForQuestion(
           this.currentQuestionIndex
         )
-      )
-    );
-    this.explanationTextService.setCurrentQuestionExplanation(explanationText);
-
-    const totalCorrectAnswers =
-      this.quizService.getTotalCorrectAnswers(currentQuestion);
-    this.quizStateService.updateQuestionState(
-      this.quizId,
-      this.currentQuestionIndex,
-      { isAnswered: true },
-      totalCorrectAnswers
-    );
+      );
+  
+      this.explanationTextService.setCurrentQuestionExplanation(explanationText);
+  
+      const totalCorrectAnswers =
+        this.quizService.getTotalCorrectAnswers(currentQuestion);
+      this.quizStateService.updateQuestionState(
+        this.quizId,
+        this.currentQuestionIndex,
+        { isAnswered: true },
+        totalCorrectAnswers
+      );
+    } catch (error) {
+      console.error('Error processing current question:', error);
+      // Handle the error appropriately, maybe set a default explanation
+      this.explanationTextService.setCurrentQuestionExplanation('Unable to load explanation.');
+    }
   }
 
   private formatAndLogExplanations(): void {
