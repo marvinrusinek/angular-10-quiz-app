@@ -46,7 +46,7 @@ export class HighlightOptionDirective implements OnChanges {
     console.log('Current inputs:', {
       optionBinding: this.optionBinding,
       isAnswered: this.isAnswered,
-      showFeedback: this.showFeedback,
+      showFeedback: this.showFeedback
     });
 
     if (
@@ -55,7 +55,6 @@ export class HighlightOptionDirective implements OnChanges {
       changes.isSelected ||
       changes.appHighlightReset
     ) {
-      console.log('Relevant changes detected, updating highlight');
       this.updateHighlight();
     } else {
       console.log('No relevant changes detected, skipping highlight update');
