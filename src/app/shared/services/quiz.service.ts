@@ -333,12 +333,29 @@ export class QuizService implements OnDestroy {
 
   getQuestion(index: number): QuizQuestion | null {
     console.log("Accessing questions at index:", index);
-    if (this.questions && index >= 0 && index < this.questions.length) {
-      return this.questions[index];
-    } else {
-      console.error('Invalid index or questions not initialized:', index);
+    console.log("Current state of this.questions:", this.questions);
+    
+    if (!this.questions) {
+      console.error('Questions array is not initialized');
       return null;
     }
+    
+    if (!Array.isArray(this.questions)) {
+      console.error('Questions is not an array:', this.questions);
+      return null;
+    }
+    
+    if (this.questions.length === 0) {
+      console.error('Questions array is empty');
+      return null;
+    }
+    
+    if (index < 0 || index >= this.questions.length) {
+      console.error(`Index ${index} is out of bounds. Array length: ${this.questions.length}`);
+      return null;
+    }
+    
+    return this.questions[index];
   }
 
   getOptions(index: number): Option[] | null {
