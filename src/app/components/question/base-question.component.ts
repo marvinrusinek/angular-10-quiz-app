@@ -94,7 +94,7 @@ export abstract class BaseQuestionComponent
         'Initial question input is undefined in ngOnInit, waiting for ngOnChanges'
       );
     }
-    
+
     this.initializeSharedOptionConfig();
     this.subscribeToQuestionChanges();
   }
@@ -189,11 +189,10 @@ export abstract class BaseQuestionComponent
   public initializeSharedOptionConfig(): void {
     if (!this.questionData) {
       console.warn('questionData is undefined or null');
-      // Set a default configuration even if questionData is not available
       this.sharedOptionConfig = this.getDefaultSharedOptionConfig();
       return;
     }
-
+  
     this.sharedOptionConfig = {
       optionsToDisplay: this.questionData.options || [],
       type: this.mapQuestionType(this.questionData.type),
@@ -202,9 +201,12 @@ export abstract class BaseQuestionComponent
       showFeedbackForOption: {},
       currentQuestion: this.questionData,
       showFeedback: false,
-      correctMessage: ''
+      correctMessage: '',
+      isOptionSelected: false,
+      selectedOptionIndex: -1,
+      isAnswerCorrect: false
     };
-
+  
     console.log('sharedOptionConfig initialized:', this.sharedOptionConfig);
   }
 
@@ -246,15 +248,6 @@ export abstract class BaseQuestionComponent
         'quizStateService is undefined. Make sure it is properly injected and initialized.'
       );
     }
-  }
-
-  private initializeSharedOptionConfig(): void {
-    this.sharedOptionConfig = {
-      isOptionSelected: false,
-      selectedOptionIndex: -1,
-      isAnswerCorrect: false,
-      showFeedback: false,
-    };
   }
 
   protected abstract loadDynamicComponent(): void;
