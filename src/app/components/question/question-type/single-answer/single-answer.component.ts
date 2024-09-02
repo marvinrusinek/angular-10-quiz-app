@@ -33,22 +33,12 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
   ) {
     super(quizService, selectedOptionService, fb, cdRef);
 
-    this.optionBindings = this.optionsToDisplay.map(option => ({
-      option,
-      isSelected: false,
-      disabled: false,
-      isCorrect: option.correct,
-      showFeedbackForOption: false,
-      highlightCorrectAfterIncorrect: false, // You may want to set this based on some logic
-      allOptions: this.optionsToDisplay,
-      ariaLabel: `Option ${option.text}`,
-      change: () => this.onOptionChange(option)
-    }));
+    this.initializeOptionBindings();
   }
 
   loadDynamicComponent(): void {}
 
-  public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  public async onOptionClicked(option: SelectedOption, index: number, event?: Event): Promise<void> {
     await super.onOptionClicked(option, index); // call the inherited method in BQC
 
     // Check if this component is actually an instance of QuizQuestionComponent
@@ -64,10 +54,27 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     // Update the isSelected state for all options
     for (const binding of this.optionBindings) {
       binding.isSelected = binding.option === this.selectedOption;
-      // binding.showFeedbackForOption = binding.isSelected;
+      binding.showFeedbackForOption = { [index]: binding.isSelected };
     }
 
     console.log('SingleAnswerComponent - selectedOption set to', this.selectedOption);
     console.log('SingleAnswerComponent - showFeedback set to', this.showFeedback);
+  }
+
+  initializeOptionBindings() {
+    this.optionBindings = this.optionsToDisplay.map(option => ({
+      option: {
+        ...option,
+        feedback: option.correct ? this.correctMessage : this.incorrectMessage
+      },
+      isSelected: false,
+      disabled: false,
+      isCorrect: option.correct,
+      showFeedbackForOption: false,
+      highlightCorrectAfterIncorrect: false,
+      allOptions: this.optionsToDisplay,
+      ariaLabel: `Option ${option.text}`,
+      change: () => {}
+    }));
   }
 }
