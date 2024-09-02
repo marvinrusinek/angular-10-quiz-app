@@ -161,21 +161,21 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getOptionIcon(option: Option): string {
-    const highlightCorrectAfterIncorrect =
+    /* const highlightCorrectAfterIncorrect =
       this.userPreferenceService.getHighlightPreference();
 
     // Show the correct icon if the option is correct and user preference allows it
     if (highlightCorrectAfterIncorrect && option.correct) {
       return 'check';
-    }
+    } */
 
     // Show the incorrect icon if the option is incorrect and selected
-    if (option.selected) {
+    //if (option.selected) {
       return option.correct ? 'check' : 'close';
-    }
+    //}
 
     // No icon if the option is not selected or does not meet the conditions above
-    return '';
+    // return '';
   }
 
   getOptionIconClass(option: Option): string {
@@ -222,7 +222,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     
     return isVisible;
   } */
-  isIconVisible(option: Option): boolean {
+  /* isIconVisible(option: Option): boolean {
     const isVisible = this.showFeedback && (option.selected || option.correct);
     console.log(`Icon visibility for "${option.text}":`, {
       showFeedback: this.showFeedback,
@@ -231,12 +231,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       isVisible: isVisible
     });
     return isVisible;
-  }
-
-  shouldShowIcon(option: Option): boolean {
-    const shouldShow = this.showFeedback && (option.selected || option.correct);
-    console.log(`Icon visibility for "${option.text}":`, shouldShow);
-    return shouldShow;
+  } */
+  isIconVisible(option: Option): boolean {
+    const isVisible = this.showFeedback && (option.selected || option.correct);
+    console.log(`Icon visibility for "${option.text}":`, {
+      showFeedback: this.showFeedback,
+      isSelected: option.selected,
+      isCorrect: option.correct,
+      isVisible: isVisible,
+      icon: this.getOptionIcon(option)
+    });
+    return isVisible;
   }
 
   isSelectedOption(option: Option): boolean {
