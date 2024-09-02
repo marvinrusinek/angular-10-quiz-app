@@ -51,8 +51,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   iconVisibility: boolean[] = []; // Array to store visibility state of icons
   clickedOptionIds: Set<number> = new Set();
   showIconForOption: { [optionId: number]: boolean } = {};
-  debugIconVisibility = true;
-
+  
   optionTextStyle = {
     color: 'black',
   };
@@ -205,47 +204,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  /* isIconVisible(option: Option): boolean {
-    if (!option) {
-      console.error('Option is undefined in isIconVisible');
-      return false;
-    }
-    
-    const isSelected = this.type === 'single' 
-      ? option === this.selectedOption 
-      : option.selected;
-    
-    const isVisible = this.showFeedback && (isSelected || option.correct);
-    
-    console.log(`Visibility for option "${option.text}":`, {
-      isSelected: isSelected,
-      isCorrect: option.correct,
-      showFeedback: this.showFeedback,
-      isVisible: isVisible
-    });
-    
-    return isVisible;
-  } */
-  /* isIconVisible(option: Option): boolean {
-    const isVisible = this.showFeedback && (option.selected || option.correct);
-    console.log(`Icon visibility for "${option.text}":`, {
-      showFeedback: this.showFeedback,
-      isSelected: option.selected,
-      isCorrect: option.correct,
-      isVisible: isVisible
-    });
-    return isVisible;
-  } */
   isIconVisible(option: Option): boolean {
-    const isVisible = this.showFeedback && (option.selected || option.correct);
-    console.log(`Icon visibility for "${option.text}":`, {
-      showFeedback: this.showFeedback,
-      isSelected: option.selected,
-      isCorrect: option.correct,
-      isVisible: isVisible,
-      icon: this.getOptionIcon(option)
-    });
-    return isVisible;
+    return option.showIcon === true;
   }
 
   isSelectedOption(option: Option): boolean {
@@ -254,6 +214,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   handleOptionClick(option: Option, index: number) {
     console.log('SOC handleOptionClick called with option:', option, 'index:', index);
+
+    option.showIcon = true;
   
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
