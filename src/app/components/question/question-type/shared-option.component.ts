@@ -201,31 +201,42 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  isIconVisible(option: Option): boolean {
+  /* isIconVisible(option: Option): boolean {
     if (!option) {
       console.error('Option is undefined in isIconVisible');
       return false;
     }
     
-    // Debug logging
-    console.log('Option in isIconVisible:', option);
+    const isSelected = this.type === 'single' 
+      ? option === this.selectedOption 
+      : option.selected;
     
-    // Check if optionId exists, if not, use the index as a fallback
-    const optionIdentifier = option.optionId !== undefined ? option.optionId : this.optionsToDisplay.indexOf(option);
-    
-    const isClicked = this.clickedOptionIds.has(optionIdentifier);
-    const isVisible = this.showFeedback && (isClicked || option.correct);
+    const isVisible = this.showFeedback && (isSelected || option.correct);
     
     console.log(`Visibility for option "${option.text}":`, {
-      optionIdentifier: optionIdentifier,
-      isClicked: isClicked,
+      isSelected: isSelected,
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
-      isVisible: isVisible,
-      showIconForOption: this.showIconForOption[optionIdentifier]
+      isVisible: isVisible
     });
     
-    return isVisible || this.showIconForOption[optionIdentifier];
+    return isVisible;
+  } */
+  isIconVisible(option: Option): boolean {
+    const isVisible = this.showFeedback && (option.selected || option.correct);
+    console.log(`Icon visibility for "${option.text}":`, {
+      showFeedback: this.showFeedback,
+      isSelected: option.selected,
+      isCorrect: option.correct,
+      isVisible: isVisible
+    });
+    return isVisible;
+  }
+
+  shouldShowIcon(option: Option): boolean {
+    const shouldShow = this.showFeedback && (option.selected || option.correct);
+    console.log(`Icon visibility for "${option.text}":`, shouldShow);
+    return shouldShow;
   }
 
   isSelectedOption(option: Option): boolean {
@@ -247,41 +258,37 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.clickedOptionIds.add(optionIdentifier);
   
     if (this.type === 'single') {
+      this.optionsToDisplay.forEach(opt => opt.selected = false);
+      option.selected = true;
+      this.selectedOption = option;
+
       // For single-select, always select the clicked option
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
       
-      /* for (const [idx, opt] of this.optionsToDisplay.entries()) {
+      for (const [idx, opt] of this.optionsToDisplay.entries()) {
         opt.selected = opt.optionId === option.optionId;
         this.showIconForOption[opt.optionId] = true; // Always show icon for clicked options
         this.updateOptionBinding(opt, idx);
-      } */
-      for (const [idx, opt] of this.optionsToDisplay.entries()) {
-        const currentIdentifier = opt.optionId !== undefined ? opt.optionId : idx;
-        opt.selected = currentIdentifier === optionIdentifier;
-        this.showIconForOption[currentIdentifier] = true;
       }
     } else {
       // For multiple-select, toggle the selection
       option.selected = !option.selected;
       if (option.selected) {
-        // this.selectedOptions.add(option.optionId);
-        this.selectedOptions.add(optionIdentifier);
+        this.selectedOptions.add(option.optionId);
       } else {
-        // this.selectedOptions.delete(option.optionId);
-        this.selectedOptions.delete(optionIdentifier);
+        this.selectedOptions.delete(option.optionId);
       }
-      // this.showIconForOption[option.optionId] = option.selected;
-      this.showIconForOption[optionIdentifier] = true;
+      this.showIconForOption[option.optionId] = option.selected;
       this.updateOptionBinding(option, index);
     }
   
     this.showFeedback = true;
   
-    console.log('After click - showIconForOption:', this.showIconForOption);
-    console.log('After click - selectedOptions:', Array.from(this.selectedOptions));
-    console.log('After click - clickedOptionIds:', Array.from(this.clickedOptionIds));
-
+    console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
+    console.log('showFeedback:', this.showFeedback);
+    console.log('Clicked options:', Array.from(this.clickedOptionIds))
+  
     // Call the quizQuestionComponentOnOptionClicked method if it exists
     if (this.quizQuestionComponentOnOptionClicked) {
       this.quizQuestionComponentOnOptionClicked(option as SelectedOption, index);
