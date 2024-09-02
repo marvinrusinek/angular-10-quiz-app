@@ -246,7 +246,6 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('QuizQuestionComponent initialized');
     super.ngOnInit();
   
     this.initializeData();
@@ -1361,23 +1360,17 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public async onOptionClicked(
-    option: SelectedOption, 
-    index: number
-  ): Promise<void> {
-    console.log("MYTEST");
-    console.log('onOptionClicked called with option:', option, 'and index:', index);
+  public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+    this.displayExplanation = false; // Reset display flag
+    this.optionSelected.emit(option); // Emit the selected option
+    this.quizStateService.setLoading(true);
+  
+    const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
+    questionState.isAnswered = false;
+  
+    await super.onOptionClicked(option, index);
   
     try {
-      this.displayExplanation = false; // Reset display flag
-      this.optionSelected.emit(option); // Emit the selected option
-      this.quizStateService.setLoading(true);
-  
-      const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
-      questionState.isAnswered = false;
-  
-      await super.onOptionClicked(option, index);
-  
       if (!option) {
         console.error('Option is undefined');
         return;
@@ -1482,7 +1475,7 @@ export class QuizQuestionComponent
       this.quizStateService.setLoading(false);
       console.log('Loading state reset in finally block.');
     }
-  }
+  }  
 
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
@@ -2025,7 +2018,6 @@ export class QuizQuestionComponent
   }
 
   private async manageExplanationDisplay(option: SelectedOption, index: number): Promise<void> {
-    console.log('manageExplanationDisplay called'); 
     try {
       // Prepare the explanation text
       let explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
