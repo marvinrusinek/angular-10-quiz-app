@@ -225,6 +225,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     this.iconVisibility[option.optionId] = true; // Update icon visibility
     this.showFeedback = true;
+    this.showFeedbackForOption[option.optionId] = true;
     // this.clickedOptionIds.add(option.optionId);
     const optionIdentifier = option.optionId !== undefined ? option.optionId : index;
     this.clickedOptionIds.add(optionIdentifier);
@@ -256,7 +257,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     this.showFeedback = true;
-    this.showFeedbackForOption[option.optionId] = true;
   
     console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
     console.log('showFeedback:', this.showFeedback);
