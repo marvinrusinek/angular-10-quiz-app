@@ -1361,122 +1361,148 @@ export class QuizQuestionComponent
   }
 
   public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+    if (!option) {
+      console.error('Option is undefined');
+      return;
+    }
+
     this.displayExplanation = false; // Reset display flag
     this.optionSelected.emit(option); // Emit the selected option
     this.quizStateService.setLoading(true);
-  
-    const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
-    questionState.isAnswered = false;
-  
-    await super.onOptionClicked(option, index);
-  
+
     try {
-      if (!option) {
-        console.error('Option is undefined');
-        return;
-      }
-  
-      this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
-      this.selectedOption = { ...option, optionId: index + 1 };
-      this.showFeedback = true;
-      this.showFeedbackForOption[option.optionId] = true;
-  
-      // Manage the explanation display using the new function
-      await this.manageExplanationDisplay(option, index);
-  
-      // Update question state
-      try {
-        this.quizStateService.updateQuestionState(
-          this.quizId,
-          this.currentQuestionIndex,
-          { 
-            explanationDisplayed: true, 
-            selectedOptions: [option],
-            explanationText: this.explanationToDisplay
-          },
-          this.correctAnswers?.length ?? 0
-        );
-        console.log('Question state updated with explanationDisplayed: true');
-      } catch (stateUpdateError) {
-        console.error('Error updating question state:', stateUpdateError);
-      }
-  
-      // Rest of your existing code...
-      if (this.correctAnswers && this.correctAnswers.length > 0) {
-        console.log('Correct answers:', this.correctAnswers);
-        for (const answer of this.correctAnswers) {
-          console.log('Correct answer:', answer);
-        }
-        const correctAnswerCount = this.correctAnswers.length;
-        console.log('Number of correct answers:', correctAnswerCount);
-        const isSpecificAnswerCorrect = this.correctAnswers.includes(option.optionId);
-        console.log('Is the specific answer correct?', isSpecificAnswerCorrect);
-      } else {
-        console.warn('No correct answers available for this question.');
-      }
-  
+      const questionState = this.initializeQuestionState();
+
+      await this.processOptionSelection(option, index);
+      await this.updateQuestionState(option);
+      this.handleCorrectAnswers(option);
+
       questionState.isAnswered = true;
       this.quizStateService.setAnswered(true);
       console.log('isAnswered set to true');
-  
-      this.updateFeedbackForOption(option);
-  
+
+      this.updateFeedback(option);
+      await this.finalizeOptionSelection(option, index, questionState);
+    } catch (error) {
+        this.handleError(error);
+    } finally {
+        this.finalizeLoadingState();
+    }
+  }
+
+  private initializeQuestionState(): QuestionState {
+      const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
+      questionState.isAnswered = false;
+      return questionState;
+  }
+
+  private async processOptionSelection(option: SelectedOption, index: number): Promise<void> {
+    await super.onOptionClicked(option, index);
+
+    this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
+    this.selectedOption = { ...option, optionId: index + 1 };
+    this.showFeedback = true;
+    this.showFeedbackForOption[option.optionId] = true;
+
+    await this.manageExplanationDisplay(option, index);
+  }
+
+  private async updateQuestionState(option: SelectedOption): Promise<void> {
+    try {
+      this.quizStateService.updateQuestionState(
+        this.quizId,
+        this.currentQuestionIndex,
+        { 
+          explanationDisplayed: true, 
+          selectedOptions: [option],
+          explanationText: this.explanationToDisplay
+        },
+        this.correctAnswers?.length ?? 0
+      );
+      console.log('Question state updated with explanationDisplayed: true');
+    } catch (stateUpdateError) {
+      console.error('Error updating question state:',stateUpdateError);
+    }
+  }
+
+  private handleCorrectAnswers(option: SelectedOption): void {
+    if (this.correctAnswers && this.correctAnswers.length > 0) {
+      console.log('Correct answers:', this.correctAnswers);
+      for (const answer of this.correctAnswers) {
+        console.log('Correct answer:', answer);
+      }
+      const correctAnswerCount = this.correctAnswers.length;
+      console.log('Number of correct answers:', correctAnswerCount);
+      const isSpecificAnswerCorrect = this.correctAnswers.includes(option.optionId);
+      console.log('Is the specific answer correct?', isSpecificAnswerCorrect);
+    } else {
+      console.warn('No correct answers available for this question.');
+    }
+  }
+
+  private updateFeedback(option: SelectedOption): void {
+    this.updateFeedbackForOption(option);
+
+    console.log(
+      'onOptionClicked - showFeedbackForOption:',
+      this.showFeedbackForOption
+    );
+
+    if (!option.correct) {
+      console.log('Incorrect option selected.');
+      for (const opt of this.optionsToDisplay) {
+        if (opt.correct) {
+          this.showFeedbackForOption[opt.optionId] = true;
+        }
+      }
       console.log(
-        'onOptionClicked - showFeedbackForOption:',
+        'Updated showFeedbackForOption after highlighting correct answers:',
         this.showFeedbackForOption
       );
-  
-      if (!option.correct) {
-        console.log('Incorrect option selected.');
-        for (const opt of this.optionsToDisplay) {
-          if (opt.correct) {
-            this.showFeedbackForOption[opt.optionId] = true;
-          }
-        }
-        console.log(
-          'Updated showFeedbackForOption after highlighting correct answers:',
-          this.showFeedbackForOption
-        );
-      }
-  
-      this.updateSelectedOption(option);
-      this.selectedOptionService.setOptionSelected(true);
-      this.selectedOptionService.setSelectedOption(option);
-      this.selectedOptionService.setAnsweredState(true);
-  
-      const currentQuestion = await this.fetchAndProcessCurrentQuestion();
-      if (!currentQuestion) {
-        console.error('Could not retrieve the current question.');
-        return;
-      }
-      this.selectOption(currentQuestion, option, index);
-  
-      this.updateSelectionMessage(questionState.isAnswered);
-      await this.updateSelectionMessageBasedOnCurrentState(questionState.isAnswered);
-  
-      const newMessage = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        questionState.isAnswered
-      );
-  
-      this.selectionMessageService.updateSelectionMessage(newMessage);
-  
-      this.processCurrentQuestionState(currentQuestion, option, index);
-  
-      await this.handleCorrectnessAndTimer();
-  
-    } catch (error) {
-      console.error(
-        'An error occurred while processing the option click:::::',
-        error
-      );
-    } finally {
-      this.quizStateService.setLoading(false);
-      console.log('Loading state reset in finally block.');
     }
-  }  
 
+    this.updateSelectedOption(option);
+    this.selectedOptionService.setOptionSelected(true);
+    this.selectedOptionService.setSelectedOption(option);
+    this.selectedOptionService.setAnsweredState(true);
+  }
+
+  private async finalizeOptionSelection(option: SelectedOption, index: number, questionState: QuestionState): Promise<void> {
+    const currentQuestion = await this.fetchAndProcessCurrentQuestion();
+    if (!currentQuestion) {
+      console.error('Could not retrieve the current question.');
+      return;
+    }
+    this.selectOption(currentQuestion, option, index);
+
+    this.updateSelectionMessage(questionState.isAnswered);
+    await this.updateSelectionMessageBasedOnCurrentState(questionState.isAnswered);
+
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      questionState.isAnswered
+    );
+
+    this.selectionMessageService.updateSelectionMessage(newMessage);
+
+    this.processCurrentQuestionState(currentQuestion, option, index);
+
+    await this.handleCorrectnessAndTimer();
+  }
+
+  private handleError(error: any): void {
+    console.error(
+      'An error occurred while processing the option click:',
+        error
+    );
+  }
+
+  private finalizeLoadingState(): void {
+    this.quizStateService.setLoading(false);
+    console.log('Loading state reset in finally block.');
+  }
+  
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
     this.showFeedbackForOption = {}; // Reset the feedback object
