@@ -2261,17 +2261,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   setDisplayStateForExplanationsAfterRestart(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const explanation =
-        this.explanationTextService.getFormattedExplanationTextForQuestion(
-          this.currentQuestionIndex
-        );
-      if (explanation) {
-        this.explanationTextService.setExplanationText(explanation);
-        this.explanationTextService.setShouldDisplayExplanation(true);
-      } else {
-        console.warn('No explanation available for the first question');
-        reject('No explanation available');
-      }
+      const explanationObservable = this.explanationTextService.getFormattedExplanationTextForQuestion(
+        this.currentQuestionIndex
+      );
+  
+      explanationObservable.subscribe({
+        next: (explanation: string) => {
+          if (explanation) {
+            this.explanationTextService.setExplanationText(explanation);
+            this.explanationTextService.setShouldDisplayExplanation(true);
+            resolve();
+          } else {
+            console.warn('No explanation available for the first question');
+            reject('No explanation available');
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching explanation:', error);
+          reject('Error fetching explanation');
+        }
+      });
     });
   }
 }
