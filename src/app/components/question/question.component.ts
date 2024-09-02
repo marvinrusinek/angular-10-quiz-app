@@ -246,6 +246,7 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('QuizQuestionComponent initialized');
     super.ngOnInit();
   
     this.initializeData();
@@ -1360,8 +1361,12 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    console.log('onOptionClicked called');
+  public async onOptionClicked(
+    option: SelectedOption, 
+    index: number
+  ): Promise<void> {
+    console.log("MYTEST");
+    console.log('onOptionClicked called with option:', option, 'and index:', index); // Add this line for debugging
     this.displayExplanation = false; // Reset display flag
     this.optionSelected.emit(option); // Emit the selected option
     this.quizStateService.setLoading(true);
@@ -1476,7 +1481,7 @@ export class QuizQuestionComponent
       this.quizStateService.setLoading(false);
       console.log('Loading state reset in finally block.');
     }
-  }  
+  }
 
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
