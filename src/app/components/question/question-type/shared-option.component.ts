@@ -160,7 +160,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return `${idx + 1}. ${option?.text}`;
   }
 
-  getOptionIcon(option: Option): string {
+  //getOptionIcon(option: Option): string {
     /* const highlightCorrectAfterIncorrect =
       this.userPreferenceService.getHighlightPreference();
 
@@ -171,11 +171,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     // Show the incorrect icon if the option is incorrect and selected
     //if (option.selected) {
-      return option.correct ? 'check' : 'close';
+      //return option.correct ? 'check' : 'close';
     //}
 
     // No icon if the option is not selected or does not meet the conditions above
     // return '';
+  //}
+  getOptionIcon(option: Option): string {
+    if (!this.showFeedback) return '';
+    return option.correct ? 'check' : 'close';
   }
 
   getOptionIconClass(option: Option): string {
