@@ -42,6 +42,7 @@ import { AudioItem } from '../../shared/models/AudioItem.model';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
+import { QuestionState } from '../../shared/models/QuestionState.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
@@ -1373,7 +1374,7 @@ export class QuizQuestionComponent
     try {
       const questionState = this.initializeQuestionState();
 
-      await this.processOptionSelection(option, index);
+      await this.handleOptionProcessingAndFeedback(option, index);
       await this.updateQuestionState(option);
       this.handleCorrectAnswers(option);
 
@@ -1384,7 +1385,7 @@ export class QuizQuestionComponent
       this.updateFeedback(option);
       await this.finalizeOptionSelection(option, index, questionState);
     } catch (error) {
-        this.handleError(error);
+      this.handleError(error);
     } finally {
         this.finalizeLoadingState();
     }
@@ -1396,7 +1397,7 @@ export class QuizQuestionComponent
       return questionState;
   }
 
-  private async processOptionSelection(option: SelectedOption, index: number): Promise<void> {
+  private async handleOptionProcessingAndFeedback(option: SelectedOption, index: number): Promise<void> {
     await super.onOptionClicked(option, index);
 
     this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
