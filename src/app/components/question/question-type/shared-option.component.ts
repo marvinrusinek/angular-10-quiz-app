@@ -198,7 +198,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   shouldShowFeedback(option: Option): boolean {
-    return option.selected && option.feedback !== undefined;
+    return this.showFeedback && option === this.selectedOption;
   }
 
   handleOptionClick(option: Option, index: number) {
