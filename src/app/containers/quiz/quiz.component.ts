@@ -938,13 +938,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       const rawData = await firstValueFrom(
         of(this.quizService.getQuestionData(quizId, questionIndex))
       );
+
+      // Get the explanation as an Observable
+      const explanationObservable = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      
+      // Convert the Observable to a Promise and await its value
+      const explanation = await firstValueFrom(explanationObservable);
+
       const transformedData: QuizQuestion = {
         questionText: rawData.questionText,
         options: [],
-        explanation:
-          this.explanationTextService.getFormattedExplanationTextForQuestion(
-            questionIndex
-          ),
+        explanation: explanation,
         type: this.quizDataService.questionType as QuestionType,
       };
       return transformedData;
