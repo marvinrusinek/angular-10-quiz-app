@@ -38,7 +38,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
-  @Input() selectedOption: Option;
+  @Input() selectedOption: Option | null = null;
   @Input() showFeedbackForOption: { [optionId: number]: boolean };
   @Input() correctMessage: string;
   @Input() showFeedback: boolean;
