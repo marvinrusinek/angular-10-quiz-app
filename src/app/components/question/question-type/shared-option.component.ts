@@ -64,6 +64,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.initializeOptionBindings();
+    this.initializeIconVisibility();
 
     if (!this.showFeedbackForOption) {
       this.showFeedbackForOption = {};
@@ -193,21 +194,25 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return ''; // No class if the option is not selected or does not meet the conditions above
   }
 
+  initializeIconVisibility(): void {
+    for (const option of this.optionsToDisplay) {
+      this.iconVisibility[option.optionId] = false;
+    }
+  }
+
   isIconVisible(option: Option): boolean {
-    if (!option) {
-      console.error('Option is undefined in isIconVisible');
+    if (!option || option.optionId === undefined) {
+      console.error('Option is undefined or has no optionId in isIconVisible');
       return false;
     }
     
-    const isClicked = this.clickedOptionIds.has(option.optionId);
-    const isVisible = this.showFeedback && (isClicked || option.correct);
+    const isVisible = this.iconVisibility[option.optionId] || (this.showFeedback && option.correct);
     
-    console.log(`Icon visibility for option "${option.text}":`, {
-      optionId: option.optionId,
-      isClicked,
+    console.log(`Visibility for option "${option.text}":`, {
+      isClicked: this.iconVisibility[option.optionId],
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
-      isVisible
+      isVisible: isVisible
     });
     
     return isVisible;
@@ -225,6 +230,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
 
+    this.iconVisibility[option.optionId] = true; // Update icon visibility
+    this.showFeedback = true;
     this.clickedOptionIds.add(option.optionId);
   
     if (this.type === 'single') {
