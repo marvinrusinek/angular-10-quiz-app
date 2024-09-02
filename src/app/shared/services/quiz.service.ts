@@ -1262,16 +1262,21 @@ export class QuizService implements OnDestroy {
     }    
   
     return await Promise.all(
-      answers.map(async (answer) => {
+      answers.map(async (answer, index) => {
+        if (answer.optionId === undefined) {
+          console.error(`Answer at index ${index} has undefined optionId:`, answer);
+          return false;
+        }
+  
         const option = question.options && question.options.find(opt => opt.optionId === answer.optionId);
         
         if (!option) {
-          console.error('Option not found for answer ID:', answer.optionId);
+          console.error(`Option not found for answer ID: ${answer.optionId}`, answer);
           return false;
         }
   
         const isCorrect = answer['selected'] && option['correct'];
-        console.log('Is correct:', isCorrect);
+        console.log(`Answer ${index} - optionId: ${answer.optionId}, selected: ${answer['selected']}, correct: ${option['correct']}`);
         return isCorrect;
       })
     );
