@@ -51,7 +51,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   iconVisibility: boolean[] = []; // Array to store visibility state of icons
   clickedOptionIds: Set<number> = new Set();
   showIconForOption: { [optionId: number]: boolean } = {};
-  
+
   optionTextStyle = {
     color: 'black',
   };
@@ -159,25 +159,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return `${idx + 1}. ${option?.text}`;
   }
 
-  //getOptionIcon(option: Option): string {
-    /* const highlightCorrectAfterIncorrect =
+  getOptionIcon(option: Option): string {
+    if (!this.showFeedback) return '';
+
+    const highlightCorrectAfterIncorrect =
       this.userPreferenceService.getHighlightPreference();
 
     // Show the correct icon if the option is correct and user preference allows it
     if (highlightCorrectAfterIncorrect && option.correct) {
       return 'check';
-    } */
+    }
 
-    // Show the incorrect icon if the option is incorrect and selected
-    //if (option.selected) {
-      //return option.correct ? 'check' : 'close';
-    //}
-
-    // No icon if the option is not selected or does not meet the conditions above
-    // return '';
-  //}
-  getOptionIcon(option: Option): string {
-    if (!this.showFeedback) return '';
     return option.correct ? 'check' : 'close';
   }
 
