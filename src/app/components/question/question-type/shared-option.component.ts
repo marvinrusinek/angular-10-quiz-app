@@ -256,6 +256,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     this.showFeedback = true;
+    this.showFeedbackForOption[option.optionId] = true;
   
     console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
     console.log('showFeedback:', this.showFeedback);
