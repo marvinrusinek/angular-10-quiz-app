@@ -1487,7 +1487,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  updateQuestionStateAndExplanation(questionIndex: number): void {
+  private async updateQuestionStateAndExplanation(questionIndex: number): Promise<void> {
     const questionState = this.quizStateService.getQuestionState(
       this.quizId,
       questionIndex
@@ -1498,10 +1498,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     if (questionState.isAnswered) {
-      this.explanationToDisplay =
-        this.explanationTextService.getFormattedExplanationTextForQuestion(
-          questionIndex
-        );
+      // Convert the Observable to a Promise and await its value
+      this.explanationToDisplay = await firstValueFrom(
+        this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+      );
+
       this.explanationTextService.setExplanationText(this.explanationToDisplay);
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.showExplanation = true;
