@@ -26,7 +26,6 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../shared/models/SharedOptionConfig.model';
 import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
-import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
@@ -76,9 +75,6 @@ export abstract class BaseQuestionComponent
     quizQuestionComponent: QuizQuestionComponent | null,
     protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
-    @Optional() 
-    @Inject(forwardRef(() => ExplanationTextService))
-    private explanationTextService: ExplanationTextService | null,
     protected quizService: QuizService,
     protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
