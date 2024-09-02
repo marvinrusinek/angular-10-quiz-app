@@ -50,7 +50,7 @@
       </ng-container>
 
       <codelab-quiz-feedback
-        *ngIf="shouldShowFeedback(optionBinding)"
+        *ngIf="shouldShowFeedback(optionBinding.option)"
         [question]="currentQuestion"
         [selectedOption]="selectedOption"
         [correctMessage]="correctMessage"

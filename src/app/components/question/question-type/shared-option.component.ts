@@ -92,16 +92,21 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('quizQuestionComponent changed:', this.quizQuestionComponent);
     }
 
+    if (changes.config) {
+      console.log('Config changed in SharedOptionComponent');
+      this.logConfig();
+    }
+
     if (changes.optionsToDisplay) {
       this.initializeOptionBindings();
     }
+
     if (changes.currentQuestion) {
       this.resetOptionState(); // Reset option states when the question changes
     }
 
-    if (changes.config) {
-      console.log('Config changed in SharedOptionComponent');
-      this.logConfig();
+    if (changes.showFeedback) {
+      console.log('showFeedback changed to:', this.showFeedback);
     }
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
