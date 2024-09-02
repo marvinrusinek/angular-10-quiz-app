@@ -49,6 +49,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   selectedOptions: Set<number> = new Set();
   isSubmitted = false;
   iconVisibility: boolean[] = []; // Array to store visibility state of icons
+  clickedOptionIds: Set<number> = new Set();
   showIconForOption: { [optionId: number]: boolean } = {};
 
   optionTextStyle = {
@@ -192,17 +193,23 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return ''; // No class if the option is not selected or does not meet the conditions above
   }
 
-  /* isIconVisible(option: Option): boolean {
-    const isSelectedOrCorrect = option.selected || option.correct;
-
-    if (!this.showFeedback) {
-      return isSelectedOrCorrect;
-    }
-
-    return this.showFeedback && isSelectedOrCorrect;
-  } */
   isIconVisible(option: Option): boolean {
-    return this.showIconForOption[option.optionId] || option.correct;
+    if (!option) {
+      console.error('Option is undefined in isIconVisible');
+      return false;
+    }
+    
+    const isClicked = this.clickedOptionIds.has(option.optionId);
+    const isVisible = this.showFeedback && (isClicked || option.correct);
+    
+    console.log(`Visibility for option "${option.text}":`, {
+      isClicked: isClicked,
+      isCorrect: option.correct,
+      showFeedback: this.showFeedback,
+      isVisible: isVisible
+    });
+    
+    return isVisible;
   }
 
   isSelectedOption(option: Option): boolean {
