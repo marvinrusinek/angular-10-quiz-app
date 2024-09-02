@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
+import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
@@ -22,6 +23,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
   sharedOptionConfig: SharedOptionConfig;
+  optionBindings: OptionBindings[] = [];
 
   constructor(
     protected quizService: QuizService,
@@ -30,21 +32,42 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     protected cdRef: ChangeDetectorRef
   ) {
     super(quizService, selectedOptionService, fb, cdRef);
+
+    this.optionBindings = this.optionsToDisplay.map(option => ({
+      option,
+      isSelected: false,
+      disabled: false,
+      isCorrect: option.correct,
+      showFeedbackForOption: false,
+      highlightCorrectAfterIncorrect: false, // You may want to set this based on some logic
+      allOptions: this.optionsToDisplay,
+      ariaLabel: `Option ${option.text}`,
+      change: () => this.onOptionChange(option)
+    }));
   }
 
   loadDynamicComponent(): void {}
 
-  /* public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    await super.onOptionClicked(option, index); // Call the inherited method
-  } */
-
   public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    await super.onOptionClicked(option, index); // Calls BQC's implementation
+    await super.onOptionClicked(option, index); // call the inherited method in BQC
 
     // Check if this component is actually an instance of QuizQuestionComponent
     if (this instanceof QuizQuestionComponent) {
       console.log('Calling fetchAndSetExplanationText in QuizQuestionComponent from SingleAnswerComponent');
       await (this as QuizQuestionComponent).fetchAndSetExplanationText();
     }
+
+    console.log('SingleAnswerComponent - Option clicked', event);
+    this.selectedOption = option;
+    this.showFeedback = true;
+    
+    // Update the isSelected state for all options
+    for (const binding of this.optionBindings) {
+      binding.isSelected = binding.option === this.selectedOption;
+      // binding.showFeedbackForOption = binding.isSelected;
+    }
+
+    console.log('SingleAnswerComponent - selectedOption set to', this.selectedOption);
+    console.log('SingleAnswerComponent - showFeedback set to', this.showFeedback);
   }
 }
