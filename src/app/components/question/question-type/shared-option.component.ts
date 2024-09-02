@@ -266,17 +266,19 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('Question already submitted, ignoring click');
       return;
     }
+
+    this.clickedOptionIds.add(option.optionId);
   
     if (this.type === 'single') {
       // For single-select, always select the clicked option
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
       
-      this.optionsToDisplay.forEach((opt, idx) => {
+      for (const [idx, opt] of this.optionsToDisplay.entries()) {
         opt.selected = opt.optionId === option.optionId;
-        this.showIconForOption[opt.optionId] = opt.selected;
+        this.showIconForOption[opt.optionId] = true; // Always show icon for clicked options
         this.updateOptionBinding(opt, idx);
-      });
+      }
     } else {
       // For multiple-select, toggle the selection
       option.selected = !option.selected;
