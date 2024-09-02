@@ -1361,6 +1361,7 @@ export class QuizQuestionComponent
   }
 
   public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+    console.log('onOptionClicked called');
     this.displayExplanation = false; // Reset display flag
     this.optionSelected.emit(option); // Emit the selected option
     this.quizStateService.setLoading(true);
