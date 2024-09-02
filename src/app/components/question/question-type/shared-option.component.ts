@@ -7,7 +7,7 @@ import {
   OnChanges,
   OnInit,
   Output,
-  SimpleChanges,
+  SimpleChanges
 } from '@angular/core';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -23,7 +23,7 @@ import { QuizQuestionComponent } from '../question.component';
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
   styleUrls: ['../question.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SharedOptionComponent implements OnInit, OnChanges {
   @Output() optionClicked = new EventEmitter<{
@@ -202,11 +202,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     const isClicked = this.clickedOptionIds.has(option.optionId);
     const isVisible = this.showFeedback && (isClicked || option.correct);
     
-    console.log(`Visibility for option "${option.text}":`, {
-      isClicked: isClicked,
+    console.log(`Icon visibility for option "${option.text}":`, {
+      optionId: option.optionId,
+      isClicked,
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
-      isVisible: isVisible
+      isVisible
     });
     
     return isVisible;
@@ -216,49 +217,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.selectedOptions.has(option.optionId);
   }
 
-  /* handleOptionClick(option: Option, index: number) {
-    console.log('SOC handleOptionClick called with option:', option, 'index:', index);
-  
-    if (this.isSubmitted) {
-      console.log('Question already submitted, ignoring click');
-      return;
-    }
-  
-    if (this.type === 'single') {
-      // For single-select, always select the clicked option
-      this.selectedOptions.clear();
-      this.selectedOptions.add(option.optionId);
-      
-      this.optionsToDisplay.forEach((opt, idx) => {
-        opt.selected = opt.optionId === option.optionId;
-        this.updateOptionBinding(opt, idx);
-      });
-    } else {
-      // For multiple-select, toggle the selection
-      option.selected = !option.selected;
-      if (option.selected) {
-        this.selectedOptions.add(option.optionId);
-      } else {
-        this.selectedOptions.delete(option.optionId);
-      }
-      this.updateOptionBinding(option, index);
-    }
-  
-    this.showFeedback = true;
-  
-    console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
-    console.log('showFeedback:', this.showFeedback);
-  
-    // Call the quizQuestionComponentOnOptionClicked method if it exists
-    if (this.quizQuestionComponentOnOptionClicked) {
-      this.quizQuestionComponentOnOptionClicked(option as SelectedOption, index);
-    } else {
-      console.warn('quizQuestionComponentOnOptionClicked is not defined in SharedOptionComponent');
-    }
-  
-    this.optionClicked.emit({ option, index });
-    this.cdRef.detectChanges();
-  } */
   handleOptionClick(option: Option, index: number) {
     console.log('SOC handleOptionClick called with option:', option, 'index:', index);
   
