@@ -31,7 +31,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     index: number;
   }>();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
-  @Output() optionChanged = new EventEmitter<any>();
+  @Output() optionChanged = new EventEmitter<{option: SelectedOption, index: number}>();
   @Input() quizQuestionComponent!: QuizQuestionComponent;
   @Input() onOptionClickedCallback!: (option: Option, index: number) => void;
   @Input() config: SharedOptionConfig;
@@ -44,7 +44,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @Input() showFeedback: boolean;
   @Input() shouldResetBackground = false;
   @Input() highlightCorrectAfterIncorrect: boolean;
-  optionBindings: OptionBindings[] = [];
+  @Input() optionBindings: OptionBindings[] = [];
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
   showIconForOption: { [optionId: number]: boolean } = {};
