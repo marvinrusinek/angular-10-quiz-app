@@ -192,7 +192,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.selectedOptions.has(option.optionId);
   }
 
-  handleOptionClick(option: Option, index: number) {
+  async handleOptionClick(option: Option, index: number) {
+    console.log('handleOptionClick called', option, index);
+    console.log('Calling onOptionClicked');
+    try {
+      await this.quizQuestionComponent.onOptionClicked(option as SelectedOption, index);
+    } catch (error) {
+      console.error('Error in handleOptionClick:', error);
+    }
+
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
