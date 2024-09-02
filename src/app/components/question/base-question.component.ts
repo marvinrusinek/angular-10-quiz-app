@@ -254,8 +254,6 @@ export abstract class BaseQuestionComponent
     option: SelectedOption,
     index: number
   ): Promise<void> {
-    console.log('Option clicked:', option, 'Index:', index);
-  
     if (!this.sharedOptionConfig) {
       console.error('sharedOptionConfig is not initialized');
       this.initializeSharedOptionConfig();
