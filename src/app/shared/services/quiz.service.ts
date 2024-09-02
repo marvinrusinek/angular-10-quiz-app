@@ -389,6 +389,12 @@ export class QuizService implements OnDestroy {
   getQuestion(index: number): QuizQuestion | null {
     console.log("Accessing questions at index:", index);
     console.log("Current state of this.questions:", this.questions);
+    console.log("Questions loaded:", this.questionsLoaded);
+    
+    if (!this.questionsLoaded) {
+      console.warn('Questions are not yet loaded. Attempting to load them now.');
+      return null;
+    }
     
     if (!this.questions) {
       console.error('Questions array is not initialized');
