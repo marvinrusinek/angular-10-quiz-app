@@ -64,7 +64,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.initializeOptionBindings();
-    this.initializeIconVisibility();
 
     if (!this.showFeedbackForOption) {
       this.showFeedbackForOption = {};
@@ -190,18 +189,16 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return ''; // No class if the option is not selected or does not meet the conditions above
   }
 
-  initializeIconVisibility(): void {
-    for (const option of this.optionsToDisplay) {
-      this.iconVisibility[option.optionId] = false;
-    }
-  }
-
   isIconVisible(option: Option): boolean {
     return option.showIcon === true;
   }
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOptions.has(option.optionId);
+  }
+
+  shouldShowFeedback(option: Option): boolean {
+    return option.selected && option.feedback !== undefined;
   }
 
   handleOptionClick(option: Option, index: number) {
