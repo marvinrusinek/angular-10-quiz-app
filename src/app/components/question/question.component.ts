@@ -1366,17 +1366,18 @@ export class QuizQuestionComponent
     index: number
   ): Promise<void> {
     console.log("MYTEST");
-    console.log('onOptionClicked called with option:', option, 'and index:', index); // Add this line for debugging
-    this.displayExplanation = false; // Reset display flag
-    this.optionSelected.emit(option); // Emit the selected option
-    this.quizStateService.setLoading(true);
-  
-    const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
-    questionState.isAnswered = false;
-  
-    await super.onOptionClicked(option, index);
+    console.log('onOptionClicked called with option:', option, 'and index:', index);
   
     try {
+      this.displayExplanation = false; // Reset display flag
+      this.optionSelected.emit(option); // Emit the selected option
+      this.quizStateService.setLoading(true);
+  
+      const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
+      questionState.isAnswered = false;
+  
+      await super.onOptionClicked(option, index);
+  
       if (!option) {
         console.error('Option is undefined');
         return;
