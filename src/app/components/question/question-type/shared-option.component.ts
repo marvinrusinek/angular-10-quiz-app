@@ -282,7 +282,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       appResetBackground: this.shouldResetBackground,
       optionsToDisplay: this.optionsToDisplay,
       isSelected: this.isSelectedOption(option),
-      change: () => this.handleOptionClick(option as SelectedOption, idx),
+      // change: () => this.handleOptionClick(option as SelectedOption, idx),
+      change: () => {
+        console.log('Option change triggered', option, idx);
+        this.handleOptionClick(option as SelectedOption, idx);
+      },
       disabled: option.selected,
       ariaLabel: 'Option ' + (idx + 1)
     };
