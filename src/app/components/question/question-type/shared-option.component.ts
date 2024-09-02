@@ -51,6 +51,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   iconVisibility: boolean[] = []; // Array to store visibility state of icons
   clickedOptionIds: Set<number> = new Set();
   showIconForOption: { [optionId: number]: boolean } = {};
+  debugIconVisibility = true;
 
   optionTextStyle = {
     color: 'black',
@@ -206,16 +207,21 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return false;
     }
     
-    const isVisible = this.iconVisibility[option.optionId] || (this.showFeedback && option.correct);
+    const isClicked = this.clickedOptionIds.has(option.optionId);
+    const isVisible = this.showFeedback && (isClicked || option.correct);
     
-    console.log(`Visibility for option "${option.text}":`, {
-      isClicked: this.iconVisibility[option.optionId],
-      isCorrect: option.correct,
-      showFeedback: this.showFeedback,
-      isVisible: isVisible
-    });
+    if (this.debugIconVisibility) {
+      console.log(`Visibility for option "${option.text}":`, {
+        optionId: option.optionId,
+        isClicked: isClicked,
+        isCorrect: option.correct,
+        showFeedback: this.showFeedback,
+        isVisible: isVisible,
+        showIconForOption: this.showIconForOption[option.optionId]
+      });
+    }
     
-    return isVisible;
+    return isVisible || this.showIconForOption[option.optionId];
   }
 
   isSelectedOption(option: Option): boolean {
