@@ -293,12 +293,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
 
     this.buttonState$ = combineLatest([
-        this.quizStateService.isLoading$,
-        this.quizStateService.isAnswered$
+      this.quizStateService.isLoading$,
+      this.quizStateService.isAnswered$
     ]).pipe(
-        map(([isLoading, isAnswered]) => !isLoading && isAnswered),
-        startWith(false) // Initially disabled
+        map(([isLoading, isAnswered]) => {
+          const buttonState = !isLoading && isAnswered;
+          return buttonState;
+        }),
+        startWith(false)
     );
+    
+    // Subscribe to buttonState$ to log changes
+    this.buttonState$.subscribe(state => {
+        console.log('Button State Updated:', state);
+    });
 
     this.subscribeToSelectionMessage();
 
