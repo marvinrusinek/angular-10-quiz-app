@@ -2018,6 +2018,7 @@ export class QuizQuestionComponent
   }
 
   private async manageExplanationDisplay(option: SelectedOption, index: number): Promise<void> {
+    console.log('manageExplanationDisplay called'); 
     try {
       // Prepare the explanation text
       let explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
