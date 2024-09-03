@@ -52,10 +52,10 @@
       <codelab-quiz-feedback
         *ngIf="optionBinding.isSelected && showFeedback"
         [question]="currentQuestion"
-        [selectedOption]="selectedOption"
+        [selectedOption]="optionBinding.option"
         [correctMessage]="correctMessage"
         [showFeedback]="showFeedback"
-        [feedback]="optionBinding.option.correct ? feedback : 'Incorrect. Try again.'"
+        [feedback]="feedback"
         [options]="data?.options"
       >
       </codelab-quiz-feedback>
