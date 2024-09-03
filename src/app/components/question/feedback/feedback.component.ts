@@ -15,6 +15,7 @@ export class FeedbackComponent implements OnChanges {
   @Input() showFeedback = false;
   @Input() feedback = '';
   feedbackMessageClass: string;
+  feedbackPrefix: string;
 
   constructor(private selectedOptionService: SelectedOptionService) {
     const option = this.selectedOptionService.selectedOption;
@@ -26,11 +27,11 @@ export class FeedbackComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.selectedOption || changes.correctMessage || changes.showFeedback || changes.feedback) {
       this.feedbackMessageClass = this.determineFeedbackMessageClass();
-      this.feedback = this.displayFeedbackMessage();
+      this.feedbackPrefix = this.determineFeedbackPrefix();
     }
   }
 
-  displayFeedbackMessage(): string {
+  determineFeedbackPrefix(): string {
     if (!this.selectedOption) {
       return '';
     }

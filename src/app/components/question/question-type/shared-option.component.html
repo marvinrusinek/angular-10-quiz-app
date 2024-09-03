@@ -55,7 +55,7 @@
         [selectedOption]="selectedOption"
         [correctMessage]="correctMessage"
         [showFeedback]="showFeedback"
-        [feedback]="feedback"
+        [feedback]="optionBinding.option.correct ? feedback : 'Incorrect. Try again.'"
         [options]="data?.options"
       >
       </codelab-quiz-feedback>
