@@ -180,9 +180,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   nextButtonTooltip = 'Please select an option to continue...';
   buttonState$: Observable<boolean>;
 
-  /* private isAnsweredSubject = new BehaviorSubject<boolean>(false);
-  isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable(); */
-
   isLoading$ = this.quizStateService.isLoading$;
   isAnswered$ = this.quizStateService.isAnswered$;
 
