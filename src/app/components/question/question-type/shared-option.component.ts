@@ -214,19 +214,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
  
   handleOptionClick(option: Option, index: number) {
-    console.log('SOC handleOptionClick called with option:', option, 'index:', index);
-
-    option.showIcon = true;
-  
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
     }
 
+    option.showIcon = true;
     this.iconVisibility[option.optionId] = true; // Update icon visibility
     this.showFeedback = true;
     this.showFeedbackForOption[option.optionId] = true;
-    // this.clickedOptionIds.add(option.optionId);
     const optionIdentifier = option.optionId !== undefined ? option.optionId : index;
     this.clickedOptionIds.add(optionIdentifier);
   
