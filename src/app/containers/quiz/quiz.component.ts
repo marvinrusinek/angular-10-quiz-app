@@ -227,14 +227,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       })
     );
 
-    this.isLoading$.subscribe((isLoading) => {
-      console.log('isLoading in QuizComponent:', isLoading);
-    });
-
-    this.isAnswered$.subscribe((isAnswered) => {
-      console.log('isAnswered in QuizComponent:', isAnswered);
-    });
-
     this.quizComponentData = {
       data: this.data,
       currentQuestion: this.currentQuestion,
