@@ -74,10 +74,7 @@
             </button>
           </div>
   
-          <div class="next-question-nav" [hidden]="shouldHideNextButton"
-            matTooltip="Next Question &raquo;"
-            matTooltipPosition="above"
-          >
+          <div class="next-question-nav" [hidden]="shouldHideNextButton">
             <button
               type="button"
               mat-icon-button
@@ -88,6 +85,7 @@
               aria-label="Next Question"
               [disabled]="!(buttonState$ | async)"
               [matTooltip]="(isAnswered$ | async) ? 'Next Question »' : 'Please select an option to continue...'"
+              matTooltipPosition="above"
             >
               <i class="material-icons">navigate_next</i>
             </button>
