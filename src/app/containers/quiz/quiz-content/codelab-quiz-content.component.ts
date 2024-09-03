@@ -596,7 +596,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       displayText += ` ${data.correctAnswersText}`;
     }
 
-    console.log('Final Display Text:', displayText.trim());
     return displayText.trim();
   }
 
