@@ -53,6 +53,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   showIconForOption: { [optionId: number]: boolean } = {};
   lastSelectedOptionId: number | null = null;
   lastSelectedOptionIndex: number | null = null;
+  lastSelectedOption: Option | null = null;
 
   optionTextStyle = {
     color: 'black',
@@ -204,17 +205,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.selectedOptions.has(option.optionId);
   }
 
-  /* shouldShowFeedback(optionBinding: OptionBindings, index: number): boolean {
-    return this.showFeedback && !!optionBinding.showFeedbackForOption[index];
-  } */
-  /* shouldShowFeedback(optionBinding: OptionBindings): boolean {
-    return optionBinding.isSelected && this.showFeedback;
-  } */
-  /* shouldShowFeedback(optionBinding: any): boolean {
-    return this.showFeedback && optionBinding.option.optionId === this.lastSelectedOptionId;
-  } */
   shouldShowFeedback(optionId: number): boolean {
     return this.showFeedback && optionId === this.lastSelectedOptionId;
+  }
+
+  isLastSelectedOption(option: Option): boolean {
+    return this.showFeedback && this.lastSelectedOption === option;
   }
 
   updateLastSelectedOption(index: number): void {
@@ -225,7 +221,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
  
   handleOptionClick(option: Option, index: number) {
-    this.lastSelectedOptionId = option.optionId;
+    this.lastSelectedOption = option;
     this.showFeedback = true;
     this.cdRef.detectChanges();
 
