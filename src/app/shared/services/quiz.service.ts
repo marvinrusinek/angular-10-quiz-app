@@ -387,8 +387,6 @@ export class QuizService implements OnDestroy {
   }
 
   getQuestion(index: number): QuizQuestion | null {
-    console.log("Accessing questions at index:", index);
-    console.log("Current state of this.questions:", this.questions);
     console.log("Questions loaded:", this.questionsLoaded);
     
     if (!this.questionsLoaded) {
