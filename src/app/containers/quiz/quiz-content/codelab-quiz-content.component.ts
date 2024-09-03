@@ -6,6 +6,7 @@ import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWit
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
 import { QuestionType } from '../../../shared/models/question-type.enum';
+import { QuizData } from '../../../shared/models/QuizData.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
@@ -543,7 +544,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         });
 
         return this.calculateCombinedQuestionData(
-          currentQuizData,
+          currentQuizData as QuizData,
           +numberOfCorrectAnswers,
           isExplanationDisplayed,
           formattedExplanation
