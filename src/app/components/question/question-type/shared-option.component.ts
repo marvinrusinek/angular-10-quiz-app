@@ -125,19 +125,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.questionAnswered.emit(question);
   }
 
-  /* resetState(): void {
+  resetState(): void {
     this.selectedOptions.clear();
     this.isSubmitted = false;
     this.showFeedback = false;
     this.selectedOption = null;
     this.showFeedbackForOption = {};
     this.iconVisibility = [];
-    this.resetOptionState();
-  } */
-  resetState(): void {
-    this.selectedOptions.clear();
-    this.isSubmitted = false;
-    this.showFeedback = false;
     
     for (const option of this.optionsToDisplay) {
       option.selected = false;
