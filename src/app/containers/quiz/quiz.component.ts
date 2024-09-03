@@ -141,8 +141,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   showExplanation = false;
   displayExplanation = false;
   explanationText: string | null;
-  explanationVisibility: boolean[] = [];
-  explanationVisible = false;
 
   private combinedQuestionDataSubject = new BehaviorSubject<{
     question: QuizQuestion;
@@ -168,7 +166,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   questionToDisplay = '';
   optionsToDisplay: Option[] = [];
   explanationToDisplay = '';
-  isExplanationVisible = false;
 
   private isLoading = false;
   private isQuizDataLoaded = false;
