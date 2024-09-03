@@ -51,6 +51,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   iconVisibility: boolean[] = []; // Array to store visibility state of icons
   clickedOptionIds: Set<number> = new Set();
   showIconForOption: { [optionId: number]: boolean } = {};
+  lastSelectedOptionId: number | null = null;
+  lastSelectedOptionIndex: number | null = null;
 
   optionTextStyle = {
     color: 'black',
@@ -205,11 +207,28 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   /* shouldShowFeedback(optionBinding: OptionBindings, index: number): boolean {
     return this.showFeedback && !!optionBinding.showFeedbackForOption[index];
   } */
-  shouldShowFeedback(optionBinding: any): boolean {
+  /* shouldShowFeedback(optionBinding: OptionBindings): boolean {
     return optionBinding.isSelected && this.showFeedback;
+  } */
+  /* shouldShowFeedback(optionBinding: any): boolean {
+    return this.showFeedback && optionBinding.option.optionId === this.lastSelectedOptionId;
+  } */
+  shouldShowFeedback(optionId: number): boolean {
+    return this.showFeedback && optionId === this.lastSelectedOptionId;
+  }
+
+  updateLastSelectedOption(index: number): void {
+    console.log('Updating last selected option index:', index);
+    this.lastSelectedOptionIndex = index;
+    this.showFeedback = true; // Ensure feedback is shown
+    this.cdRef.detectChanges(); // Trigger change detection
   }
  
   handleOptionClick(option: Option, index: number) {
+    this.lastSelectedOptionId = option.optionId;
+    this.showFeedback = true;
+    this.cdRef.detectChanges();
+
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
