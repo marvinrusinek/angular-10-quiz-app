@@ -1374,28 +1374,26 @@ export class QuizQuestionComponent
 
     try {
       const questionState = this.initializeQuestionState();
+      questionState.isAnswered = true;
+      this.quizStateService.setAnswered(true);
 
       await this.handleOptionProcessingAndFeedback(option, index);
       await this.updateQuestionState(option);
       this.handleCorrectAnswers(option);
-
-      questionState.isAnswered = true;
-      this.quizStateService.setAnswered(true);
-      console.log('isAnswered set to true');
 
       this.updateFeedback(option);
       await this.finalizeOptionSelection(option, index, questionState);
     } catch (error) {
       this.handleError(error);
     } finally {
-        this.finalizeLoadingState();
+      this.finalizeLoadingState();
     }
   }
 
   private initializeQuestionState(): QuestionState {
-      const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
-      questionState.isAnswered = false;
-      return questionState;
+    const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
+    questionState.isAnswered = false;
+    return questionState;
   }
 
   private async handleOptionProcessingAndFeedback(option: SelectedOption, index: number): Promise<void> {
@@ -1493,7 +1491,7 @@ export class QuizQuestionComponent
     await this.handleCorrectnessAndTimer();
   }
 
-  private handleError(error: any): void {
+  private handleError(error: Error): void {
     console.error(
       'An error occurred while processing the option click:',
         error
