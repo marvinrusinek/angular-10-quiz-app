@@ -51,12 +51,12 @@
 
       <codelab-quiz-feedback
         *ngIf="isLastSelectedOption(optionBinding.option)"
+        [options]="data?.options"
         [question]="currentQuestion"
         [selectedOption]="optionBinding.option"
         [correctMessage]="correctMessage"
-        [showFeedback]="showFeedback"
         [feedback]="feedback"
-        [options]="data?.options"
+        [showFeedback]="showFeedback"
       >
       </codelab-quiz-feedback>
     </label>
