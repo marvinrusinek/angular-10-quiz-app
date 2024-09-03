@@ -17,7 +17,7 @@
           [showFeedback]="showFeedback"
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
-          (change)="optionBinding.change()"
+          (change)="optionBinding.change();updateLastSelectedOption(optionBinding.option.optionId)"
         >
           <ng-container
             *ngTemplateOutlet="
@@ -37,7 +37,7 @@
           [showFeedback]="showFeedback"
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
-          (change)="optionBinding.change()"
+          (change)="optionBinding.change();updateLastSelectedOption(optionBinding.option.optionId)"
         >
           <ng-container
             *ngTemplateOutlet="
@@ -50,7 +50,7 @@
       </ng-container>
 
       <codelab-quiz-feedback
-        *ngIf="shouldShowFeedback(optionBinding)"
+        *ngIf="shouldShowFeedback(optionBinding.option.optionId)"
         [question]="currentQuestion"
         [selectedOption]="optionBinding.option"
         [correctMessage]="correctMessage"
