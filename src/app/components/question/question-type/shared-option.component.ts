@@ -205,25 +205,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.selectedOptions.has(option.optionId);
   }
 
-  shouldShowFeedback(optionId: number): boolean {
-    return this.showFeedback && optionId === this.lastSelectedOptionId;
-  }
-
   isLastSelectedOption(option: Option): boolean {
     return this.showFeedback && this.lastSelectedOption === option;
-  }
-
-  updateLastSelectedOption(index: number): void {
-    console.log('Updating last selected option index:', index);
-    this.lastSelectedOptionIndex = index;
-    this.showFeedback = true; // Ensure feedback is shown
-    this.cdRef.detectChanges(); // Trigger change detection
   }
  
   handleOptionClick(option: Option, index: number) {
     this.lastSelectedOption = option;
     this.showFeedback = true;
-    this.cdRef.detectChanges();
 
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
