@@ -846,7 +846,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   getNextButtonTooltip(): string {
-    return this.isAnswered ? 'Next Question »' : 'Please select an option to continue...';
+    return this.isAnswered$.pipe(
+      map(isAnswered => isAnswered ? 'Next Question »' : 'Please select an option to continue...')
+    );
   }
 
   updateQuestionDisplayForShuffledQuestions(): void {
