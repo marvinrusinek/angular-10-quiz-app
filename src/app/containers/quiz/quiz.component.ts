@@ -191,7 +191,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
-  private isDestroyed = false;
   audioAvailable = true;
 
   constructor(
@@ -310,7 +309,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnDestroy(): void {
-    this.isDestroyed = true;
     this.destroy$.next();
     this.destroy$.complete();
     this.unsubscribe$.next();
