@@ -17,7 +17,7 @@
           [showFeedback]="showFeedback"
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
-          (change)="optionBinding.change();updateLastSelectedOption(optionBinding.option.optionId)"
+          (change)="optionBinding.change()"
         >
           <ng-container
             *ngTemplateOutlet="
@@ -37,7 +37,7 @@
           [showFeedback]="showFeedback"
           [checked]="optionBinding.isSelected"
           [disabled]="optionBinding.disabled"
-          (change)="optionBinding.change();updateLastSelectedOption(optionBinding.option.optionId)"
+          (change)="optionBinding.change()"
         >
           <ng-container
             *ngTemplateOutlet="
