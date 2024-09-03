@@ -216,6 +216,7 @@ export class QuizQuestionComponent
     super(
       fb,
       dynamicComponentService,
+      quizService,
       quizStateService,
       selectedOptionService,
       cdRef

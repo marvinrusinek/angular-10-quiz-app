@@ -29,7 +29,7 @@ import { DynamicComponentService } from '../../shared/services/dynamic-component
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
-import { QuizQuestionComponent } from './question.component';
+//import { QuizQuestionComponent } from './question.component';
 
 @Component({
   selector: 'app-base-question',
@@ -70,9 +70,9 @@ export abstract class BaseQuestionComponent
   private containerInitialized = false;
 
   constructor(
-    @Optional()
-    @Inject(forwardRef(() => QuizQuestionComponent))
-    quizQuestionComponent: QuizQuestionComponent | null,
+    //@Optional()
+    //@Inject(forwardRef(() => QuizQuestionComponent))
+    //quizQuestionComponent: QuizQuestionComponent | null,
     protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
     protected quizService: QuizService,
