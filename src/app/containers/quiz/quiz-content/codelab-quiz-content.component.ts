@@ -693,9 +693,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       isExplanationDisplayed: isExplanationDisplayed,
       isNavigatingToPrevious: false
     };
-
-    console.log('Combined Question Data:', combinedQuestionData);
-
     return of(combinedQuestionData);
   }
   
