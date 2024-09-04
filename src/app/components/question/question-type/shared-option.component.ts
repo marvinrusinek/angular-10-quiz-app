@@ -117,7 +117,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         }
       }
       this.updateHighlighting();
-    }
+    }  
 
     if (changes.showFeedback) {
       console.log('showFeedback changed to:', this.showFeedback);
@@ -393,16 +393,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       } else {
         this.selectedOptions.delete(option.optionId);
       }
-    }
-  
-    this.showIconForOption[option.optionId] = optionBinding.isSelected;
-  
-    // Update the OptionBindings
-    for (const [idx, binding] of this.optionBindings.entries()) {
-      const updatedBinding = this.getOptionBindings(binding.option, idx);
-      updatedBinding.isSelected = binding.isSelected;
-      updatedBinding.showFeedback = binding.showFeedback;
-      this.optionBindings[idx] = updatedBinding;
+      this.showIconForOption[option.optionId] = optionBinding.isSelected;
     }
   
     this.updateHighlighting();
