@@ -114,9 +114,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
-      //this.selectedOptions.clear();
-      //this.isSubmitted = false;
-      //this.showFeedback = false;
     }
   }
 
