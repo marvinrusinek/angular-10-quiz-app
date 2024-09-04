@@ -225,6 +225,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
  
   handleOptionClick(option: Option, index: number) {
     this.lastSelectedOption = option;
+    this.lastSelectedOptionIndex = index;
     this.showFeedback = true;
 
     if (this.isSubmitted) {
@@ -234,7 +235,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     option.showIcon = true;
     this.iconVisibility[option.optionId] = true; // Update icon visibility
-    this.showFeedback = true;
     this.showFeedbackForOption[option.optionId] = true;
     const optionIdentifier = option.optionId !== undefined ? option.optionId : index;
     this.clickedOptionIds.add(optionIdentifier);
