@@ -251,15 +251,16 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   updateHighlighting(): void {
     if (this.highlightDirectives) {
-      for (const [index, directive] of this.highlightDirectives.entries()) {
+      this.highlightDirectives.forEach((directive, index) => {
         const binding = this.optionBindings[index];
         directive.option = binding.option;
         directive.isSelected = binding.isSelected;
         directive.isCorrect = binding.isCorrect;
         directive.showFeedback = binding.showFeedback;
-        directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
+        directive.highlightCorrectAfterIncorrect =
+          this.highlightCorrectAfterIncorrect;
         directive.updateHighlight();
-      }
+      });
     }
   }
 
@@ -283,12 +284,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     if (this.type === 'single') {
       // For single-select, deselect all options and select only the clicked one
-      this.optionBindings.forEach((binding) => {
+      for (const binding of this.optionBindings) {
         const isClickedOption = binding.option.optionId === option.optionId;
         binding.isSelected = isClickedOption;
         binding.option.selected = isClickedOption;
         binding.showFeedback = this.showFeedback && isClickedOption;
-      });
+      }
       this.selectedOption = option;
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
