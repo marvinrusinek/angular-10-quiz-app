@@ -131,10 +131,37 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
   
   // Helper method to apply attributes
-  applyAttributes(element: any, attributes: any) {
+  /* applyAttributes(element: any, attributes: any) {
     for (const key of Object.keys(attributes)) {
       element[key] = attributes[key];
     }
+  } */
+  applyAttributes(element: any, attributes: any) {
+    for (const key of Object.keys(attributes)) {
+      if (key === 'appHighlightOption') {
+        continue; // Skip this attribute as it's just a marker for the directive
+      }
+      const value = attributes[key];
+      if (key.startsWith('[')) {
+        // For property bindings
+        const propName = key.slice(1, -1);
+        element[propName] = this.evaluateExpression(value, element);
+      } else if (key.startsWith('(')) {
+        // For event bindings
+        const eventName = key.slice(1, -1);
+        element.addEventListener(eventName, (event: Event) => {
+          this.evaluateExpression(value, element, event);
+        });
+      } else {
+        // For regular attributes
+        element.setAttribute(key, value);
+      }
+    }
+  }
+  
+  private evaluateExpression(expression: string, context: any, event?: Event): any {
+    const func = new Function('optionBinding', 'idx', '$event', `return ${expression};`);
+    return func.call(this, context, context.index, event);
   }
 
   onQuestionChange(question: QuizQuestion): void {
@@ -244,7 +271,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     if (this.type === 'single') {
       this.optionsToDisplay.forEach(opt => opt.selected = false);
-      this.optionBindings.forEach(binding => binding.isSelected = false);
+      for (const binding of this.optionBindings) {
+        binding.isSelected = false;
+      }
       option.selected = true;
       this.selectedOption = option;
       this.optionBindings[index].isSelected = true;
