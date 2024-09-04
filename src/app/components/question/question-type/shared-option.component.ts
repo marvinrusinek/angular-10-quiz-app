@@ -172,6 +172,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.selectedOption = null;
     this.showFeedbackForOption = {};
     this.iconVisibility = [];
+    this.clickedOptionIds.clear();
   }
 
   private resetOptionState(): void {
@@ -350,26 +351,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.lastSelectedOptionIndex = index;
     this.showFeedback = true;
   
-    // Reset all options first
-    for (const binding of this.optionBindings) {
-      binding.isSelected = false;
-      binding.option.selected = false;
-      binding.showFeedback = false;
-      this.showIconForOption[binding.option.optionId] = false;
-      this.iconVisibility[binding.option.optionId] = false;
-    }
-  
     const optionBinding = this.optionBindings[index];
-    optionBinding.option.showIcon = true;
-    this.iconVisibility[option.optionId] = true;
-    this.showFeedbackForOption[option.optionId] = true;
-    this.clickedOptionIds.add(option.optionId ?? index);
   
     if (this.type === 'single') {
-      // For single-select, select only the clicked option
-      optionBinding.isSelected = true;
-      optionBinding.option.selected = true;
-      optionBinding.showFeedback = this.showFeedback;
+      // For single-select, deselect all options and select only the clicked one
+      for (const binding of this.optionBindings) {
+        const isClickedOption = binding.option.optionId === option.optionId;
+        binding.isSelected = isClickedOption;
+        binding.option.selected = isClickedOption;
+        binding.showFeedback = this.showFeedback && isClickedOption;
+        this.showIconForOption[binding.option.optionId] = isClickedOption;
+        this.iconVisibility[binding.option.optionId] = isClickedOption;
+      }
       this.selectedOption = option;
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
@@ -378,6 +371,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       optionBinding.isSelected = !optionBinding.isSelected;
       optionBinding.option.selected = optionBinding.isSelected;
       optionBinding.showFeedback = this.showFeedback && optionBinding.isSelected;
+      this.showIconForOption[option.optionId] = optionBinding.isSelected;
+      this.iconVisibility[option.optionId] = optionBinding.isSelected;
       
       if (optionBinding.isSelected) {
         this.selectedOptions.add(option.optionId);
@@ -386,15 +381,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
     }
   
-    this.showIconForOption[option.optionId] = optionBinding.isSelected;
-  
-    // Update the OptionBindings
-    for (const [idx, binding] of this.optionBindings.entries()) {
-      const updatedBinding = this.getOptionBindings(binding.option, idx);
-      updatedBinding.isSelected = binding.isSelected;
-      updatedBinding.showFeedback = binding.showFeedback;
-      this.optionBindings[idx] = updatedBinding;
-    }
+    this.clickedOptionIds.add(option.optionId ?? index);
   
     this.updateHighlighting();
   
