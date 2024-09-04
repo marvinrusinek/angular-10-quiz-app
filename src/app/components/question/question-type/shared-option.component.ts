@@ -386,7 +386,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getOptionBindings(option: Option, idx: number): OptionBindings {
-    const binding = {
+    const binding: OptionBindings = {
       option: option,
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
@@ -394,7 +394,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
       allOptions: this.optionsToDisplay,
       type: this.type,
-      appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
+      appHighlightInputType: this.type === 'multiple' ? 'checkbox' as const : 'radio' as const,
       appHighlightReset: this.shouldResetBackground,
       appResetBackground: this.shouldResetBackground,
       optionsToDisplay: this.optionsToDisplay,
