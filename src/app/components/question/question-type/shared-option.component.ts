@@ -87,7 +87,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {;
     if (changes['quizQuestionComponent']) {
       console.log('quizQuestionComponent changed:', this.quizQuestionComponent);
     }
@@ -97,6 +97,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
 
     if (changes.currentQuestion) {
+      this.resetState();
       this.resetOptionState(); // Reset option states when the question changes
     }
 
@@ -146,16 +147,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.selectedOption = null;
     this.showFeedbackForOption = {};
     this.iconVisibility = [];
-
-    for (const option of this.optionsToDisplay) {
-      option.selected = false;
-    }
   }
 
   private resetOptionState(): void {
     if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
       for (const option of this.optionsToDisplay) {
         option.selected = false;
+      }
+      for (const optionBinding of this.optionBindings) {
+        optionBinding.isSelected = false;
       }
     }
   }
@@ -212,14 +212,29 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     idx: number,
     element: HTMLElement
   ): void {
+    if (this.type === 'single') {
+      // For single-answer questions, deselect all options first
+      this.resetOptionState();
+      optionBinding.isSelected = true;
+      this.selectedOptions.clear();
+      this.selectedOptions.add(optionBinding.option.optionId);
+    } else {
+      // For multiple-answer questions, toggle the selected state
+      optionBinding.isSelected = !optionBinding.isSelected;
+      if (optionBinding.isSelected) {
+        this.selectedOptions.add(optionBinding.option.optionId);
+      } else {
+        this.selectedOptions.delete(optionBinding.option.optionId);
+      }
+    }
+  
     this.handleOptionClick(optionBinding.option, idx);
     this.applyAttributes(element, this.getOptionAttributes(optionBinding));
   
-    if (this.showFeedback) {
-      this.showFeedbackForOption[optionBinding.option.optionId] = true;
-    } else {
-      this.showFeedbackForOption[optionBinding.option.optionId] = false;
-    }
+    this.showFeedback = true;
+    this.showFeedbackForOption[optionBinding.option.optionId] = this.showFeedback;
+  
+    this.cdRef.detectChanges();
   }
 
   updateHighlighting(): void {
