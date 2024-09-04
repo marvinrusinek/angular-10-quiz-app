@@ -138,6 +138,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
+  private resetOptionState(): void {
+    if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
+      for (const option of this.optionsToDisplay) {
+        option.selected = false;
+      }
+    }
+  }
+
   private logConfig(): void {
     console.log('Current config in SharedOptionComponent:', this.config);
     if (this.config && this.config.optionsToDisplay) {
@@ -145,14 +153,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('First option:', this.config.optionsToDisplay[0]);
     } else {
       console.warn('No options in config');
-    }
-  }
-
-  private resetOptionState(): void {
-    if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-      for (const option of this.optionsToDisplay) {
-        option.selected = false;
-      }
     }
   }
 
