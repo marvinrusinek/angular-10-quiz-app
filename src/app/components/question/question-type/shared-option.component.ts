@@ -173,6 +173,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedbackForOption = {};
     this.iconVisibility = [];
     this.clickedOptionIds.clear();
+    this.showIconForOption = {};
   }
 
   private resetOptionState(): void {
@@ -182,6 +183,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
       for (const optionBinding of this.optionBindings) {
         optionBinding.isSelected = false;
+        optionBinding.showFeedback = false;
       }
     }
   }
@@ -352,6 +354,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedback = true;
   
     const optionBinding = this.optionBindings[index];
+    optionBinding.option.showIcon = true;
+    this.iconVisibility[option.optionId] = true;
+    this.showFeedbackForOption[option.optionId] = true;
+    this.clickedOptionIds.add(option.optionId ?? index);
   
     if (this.type === 'single') {
       // For single-select, deselect all options and select only the clicked one
@@ -371,8 +377,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       optionBinding.isSelected = !optionBinding.isSelected;
       optionBinding.option.selected = optionBinding.isSelected;
       optionBinding.showFeedback = this.showFeedback && optionBinding.isSelected;
-      this.showIconForOption[option.optionId] = optionBinding.isSelected;
-      this.iconVisibility[option.optionId] = optionBinding.isSelected;
       
       if (optionBinding.isSelected) {
         this.selectedOptions.add(option.optionId);
@@ -381,7 +385,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
     }
   
-    this.clickedOptionIds.add(option.optionId ?? index);
+    this.showIconForOption[option.optionId] = optionBinding.isSelected;
+  
+    // Update the OptionBindings
+    for (const [idx, binding] of this.optionBindings.entries()) {
+      const updatedBinding = this.getOptionBindings(binding.option, idx);
+      updatedBinding.isSelected = binding.isSelected;
+      updatedBinding.showFeedback = binding.showFeedback;
+      this.optionBindings[idx] = updatedBinding;
+    }
   
     this.updateHighlighting();
   
