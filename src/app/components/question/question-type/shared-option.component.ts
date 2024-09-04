@@ -98,11 +98,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     if (changes['currentQuestion']) {
       const previousSelections = new Set(this.selectedOptions);
-      
-      // Don't reset the state completely
-      this.isSubmitted = false;
-      this.showFeedback = false;
-      
+      this.resetState();
       this.initializeOptionBindings();
   
       // Restore previous selections
@@ -110,25 +106,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         if (previousSelections.has(binding.option.optionId)) {
           binding.isSelected = true;
           binding.option.selected = true;
-          binding.showFeedback = true;
-          binding.option.showIcon = true;
           this.selectedOptions.add(binding.option.optionId);
           this.showIconForOption[binding.option.optionId] = true;
           this.iconVisibility[binding.option.optionId] = true;
           this.showFeedbackForOption[binding.option.optionId] = true;
-          
           if (this.type === 'single') {
             this.selectedOption = binding.option;
             break; // Only select one option for single-select questions
           }
-        } else {
-          binding.isSelected = false;
-          binding.option.selected = false;
-          binding.showFeedback = false;
-          binding.option.showIcon = false;
-          this.showIconForOption[binding.option.optionId] = false;
-          this.iconVisibility[binding.option.optionId] = false;
-          this.showFeedbackForOption[binding.option.optionId] = false;
         }
       }
   
