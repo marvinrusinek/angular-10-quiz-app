@@ -253,11 +253,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   private highlightSelectedOption(selectedIndex: number): void {
     this.highlightDirectives.forEach((directive, index) => {
-      if (index === selectedIndex) {
-        directive.highlight();
-      } else {
-        directive.removeHighlight();
-      }
+      directive.isSelected = index === selectedIndex;
     });
   }
 
