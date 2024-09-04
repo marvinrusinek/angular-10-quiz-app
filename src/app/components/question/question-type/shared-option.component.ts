@@ -300,71 +300,63 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.lastSelectedOption = option;
     this.lastSelectedOptionIndex = index;
     this.showFeedback = true;
-
+  
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
     }
-
-    option.showIcon = true;
-    this.iconVisibility[option.optionId] = true; // Update icon visibility
+  
+    const optionBinding = this.optionBindings[index];
+    optionBinding.option.showIcon = true;
+    this.iconVisibility[option.optionId] = true;
     this.showFeedbackForOption[option.optionId] = true;
-    const optionIdentifier =
-      option.optionId !== undefined ? option.optionId : index;
+    const optionIdentifier = option.optionId !== undefined ? option.optionId : index;
     this.clickedOptionIds.add(optionIdentifier);
-
+  
     if (this.type === 'single') {
-      for (const opt of this.optionsToDisplay) {
-        opt.selected = false;
-      }
-      for (const binding of this.optionBindings) {
+      this.optionBindings.forEach(binding => {
         binding.isSelected = false;
-      }
-      option.selected = true;
+        binding.option.selected = false;
+      });
+      optionBinding.isSelected = true;
+      optionBinding.option.selected = true;
       this.selectedOption = option;
-      this.optionBindings[index].isSelected = true;
-
-      // For single-select, always select the clicked option
+  
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
-
-      for (const [idx, opt] of this.optionsToDisplay.entries()) {
-        opt.selected = opt.optionId === option.optionId;
-        this.showIconForOption[opt.optionId] = true; // Always show icon for clicked options
-        this.updateOptionBinding(opt, idx);
-      }
+  
+      this.optionBindings.forEach(binding => {
+        binding.option.selected = binding.option.optionId === option.optionId;
+        this.showIconForOption[binding.option.optionId] = true;
+      });
     } else {
       // For multiple-select, toggle the selection
-      this.optionBindings[index].isSelected =
-        !this.optionBindings[index].isSelected;
-      option.selected = !option.selected;
-      if (option.selected) {
+      optionBinding.isSelected = !optionBinding.isSelected;
+      optionBinding.option.selected = optionBinding.isSelected;
+      if (optionBinding.isSelected) {
         this.selectedOptions.add(option.optionId);
       } else {
         this.selectedOptions.delete(option.optionId);
       }
-      this.showIconForOption[option.optionId] = option.selected;
-      this.updateOptionBinding(option, index);
+      this.showIconForOption[option.optionId] = optionBinding.isSelected;
     }
-
-    this.showFeedback = true;
-
+  
+    // Update the OptionBindings
+    this.optionBindings = this.optionBindings.map((binding, idx) => 
+      this.getOptionBindings(binding.option, idx)
+    );
+  
     console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
     console.log('showFeedback:', this.showFeedback);
     console.log('Clicked options:', Array.from(this.clickedOptionIds));
-
+  
     // Call the quizQuestionComponentOnOptionClicked method if it exists
     if (this.quizQuestionComponentOnOptionClicked) {
-      this.quizQuestionComponentOnOptionClicked(
-        option as SelectedOption,
-        index
-      );
+      this.quizQuestionComponentOnOptionClicked(option as SelectedOption, index);
     } else {
-      console.warn(
-        'quizQuestionComponentOnOptionClicked is not defined in SharedOptionComponent'
-      );
+      console.warn('quizQuestionComponentOnOptionClicked is not defined in SharedOptionComponent');
     }
-
+  
     this.optionClicked.emit({ option, index });
     this.cdRef.detectChanges();
   }
