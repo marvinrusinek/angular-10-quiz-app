@@ -7,7 +7,9 @@ import {
   OnChanges,
   OnInit,
   Output,
-  SimpleChanges
+  QueryList,
+  SimpleChanges, 
+  ViewChildren
 } from '@angular/core';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -18,6 +20,7 @@ import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.mo
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
 import { QuizQuestionComponent } from '../question.component';
+import { HighlightOptionDirective } from '../../../directives/highlight-option.directive';
 
 @Component({
   selector: 'app-shared-option',
@@ -26,6 +29,7 @@ import { QuizQuestionComponent } from '../question.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SharedOptionComponent implements OnInit, OnChanges {
+  @ViewChildren(HighlightOptionDirective) highlightDirectives!: QueryList<HighlightOptionDirective>;
   @Output() optionClicked = new EventEmitter<{
     option: Option,
     index: number;
