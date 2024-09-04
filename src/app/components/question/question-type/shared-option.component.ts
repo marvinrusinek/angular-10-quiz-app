@@ -120,7 +120,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  getOptionAttributes(optionBinding: any) {
+  getOptionAttributes(optionBinding: OptionBindings) {
     return {
       'appHighlightOption': '',
       '[attr.aria-label]': 'optionBinding.ariaLabel',
@@ -129,7 +129,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       '[showFeedback]': 'showFeedback',
       '[checked]': 'optionBinding.isSelected',
       '[disabled]': 'optionBinding.disabled',
-      '(change)': 'optionBinding.change()'
+      // '(change)': 'optionBinding.change()'
+      '(change)': 'handleOptionClick(optionBinding.option, idx)'
     };
   }
   
