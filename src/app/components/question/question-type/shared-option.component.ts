@@ -127,18 +127,19 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   getOptionAttributes(optionBinding: OptionBindings) {
     return {
-      'appHighlightOption': '',
+      appHighlightOption: '',
       '[attr.aria-label]': 'optionBinding.ariaLabel',
       '[isSelected]': 'optionBinding.isSelected',
       '[isCorrect]': 'optionBinding.isCorrect',
       '[showFeedback]': 'optionBinding.showFeedback',
       '[showFeedbackForOption]': 'optionBinding.showFeedbackForOption',
-      '[highlightCorrectAfterIncorrect]': 'optionBinding.highlightCorrectAfterIncorrect',
+      '[highlightCorrectAfterIncorrect]':
+        'optionBinding.highlightCorrectAfterIncorrect',
       '[allOptions]': 'optionBinding.allOptions',
       '[type]': 'optionBinding.type',
       '[checked]': 'optionBinding.isSelected',
       '[disabled]': 'optionBinding.disabled',
-      '(change)': 'optionBinding.change()'
+      '(change)': 'optionBinding.change()',
     };
   }
 
@@ -303,8 +304,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         directive.option = binding.option;
         directive.isSelected = binding.isSelected;
         directive.isCorrect = binding.isCorrect;
-        directive.showFeedback = this.showFeedback;
-        directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
+        directive.showFeedback = binding.showFeedback;
+        directive.highlightCorrectAfterIncorrect =
+          this.highlightCorrectAfterIncorrect;
         directive.updateHighlight();
       });
     }
@@ -333,8 +335,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         const isClickedOption = binding.option.optionId === option.optionId;
         binding.isSelected = isClickedOption;
         binding.option.selected = isClickedOption;
-        binding.showFeedback = isClickedOption;
-        this.showIconForOption[binding.option.optionId] = true;
+        binding.showFeedback = this.showFeedback && isClickedOption;
       });
       this.selectedOption = option;
       this.selectedOptions.clear();
@@ -343,19 +344,21 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // For multiple-select, toggle the selection of the clicked option
       optionBinding.isSelected = !optionBinding.isSelected;
       optionBinding.option.selected = optionBinding.isSelected;
-      optionBinding.showFeedback = optionBinding.isSelected;
+      optionBinding.showFeedback = this.showFeedback && optionBinding.isSelected;
       if (optionBinding.isSelected) {
         this.selectedOptions.add(option.optionId);
       } else {
         this.selectedOptions.delete(option.optionId);
       }
-      this.showIconForOption[option.optionId] = optionBinding.isSelected;
     }
+  
+    this.showIconForOption[option.optionId] = optionBinding.isSelected;
   
     // Update the OptionBindings
     this.optionBindings = this.optionBindings.map((binding, idx) => {
       const updatedBinding = this.getOptionBindings(binding.option, idx);
-      updatedBinding.showFeedback = binding.showFeedback; // Preserve the showFeedback state
+      updatedBinding.isSelected = binding.isSelected;
+      updatedBinding.showFeedback = binding.showFeedback;
       return updatedBinding;
     });
   
