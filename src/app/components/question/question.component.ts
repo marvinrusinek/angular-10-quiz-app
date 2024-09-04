@@ -2043,7 +2043,7 @@ export class QuizQuestionComponent
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
-  private async manageExplanationDisplay(option: SelectedOption, index: number): Promise<void> {
+  private async manageExplanationDisplay(): Promise<void> {
     try {
       // Prepare the explanation text
       let explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
