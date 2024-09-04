@@ -222,6 +222,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   isLastSelectedOption(option: Option): boolean {
     return this.showFeedback && this.lastSelectedOption === option;
   }
+
+  handleOptionClickAndApplyAttributes(optionBinding: OptionBindings, idx: number, element: any): void {
+    this.handleOptionClick(optionBinding.option, idx);
+    this.applyAttributes(element, this.getOptionAttributes(optionBinding));
+  }
  
   handleOptionClick(option: Option, index: number) {
     this.lastSelectedOption = option;
