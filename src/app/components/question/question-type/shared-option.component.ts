@@ -251,16 +251,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   updateHighlighting(): void {
     if (this.highlightDirectives) {
-      this.highlightDirectives.forEach((directive, index) => {
+      for (const [index, directive] of this.highlightDirectives.entries()) {
         const binding = this.optionBindings[index];
         directive.option = binding.option;
         directive.isSelected = binding.isSelected;
         directive.isCorrect = binding.isCorrect;
         directive.showFeedback = binding.showFeedback;
-        directive.highlightCorrectAfterIncorrect =
-          this.highlightCorrectAfterIncorrect;
+        directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
         directive.updateHighlight();
-      });
+      }
     }
   }
 
