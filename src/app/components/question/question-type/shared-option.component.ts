@@ -97,9 +97,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
 
     if (changes.currentQuestion) {
+      // Preserve the current selection state before resetting
+      const previousSelections = new Set(this.selectedOptions);
+      
       this.resetState();
-      this.resetOptionState(); // Reset option states when the question changes
+      this.resetOptionState();
       this.initializeOptionBindings();
+
+      // Restore the selection state for the current question
+      this.restoreSelectionState(previousSelections);
     }
 
     if (changes.showFeedback) {
@@ -109,6 +115,24 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
     }
+  }
+
+  private restoreSelectionState(previousSelections: Set<number>): void {
+    for (const binding of this.optionBindings) {
+      if (previousSelections.has(binding.option.optionId)) {
+        binding.isSelected = true;
+        binding.option.selected = true;
+        this.selectedOptions.add(binding.option.optionId);
+        this.showIconForOption[binding.option.optionId] = true;
+        this.iconVisibility[binding.option.optionId] = true;
+        
+        if (this.type === 'single') {
+          this.selectedOption = binding.option;
+          break; // Only select one option for single-select questions
+        }
+      }
+    }
+    this.updateHighlighting();
   }
 
   getOptionAttributes(optionBinding: OptionBindings) {
