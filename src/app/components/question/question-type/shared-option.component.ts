@@ -212,28 +212,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     idx: number,
     element: HTMLElement
   ): void {
-    if (this.type === 'single') {
-      // For single-answer questions, deselect all options first
-      this.resetOptionState();
-      optionBinding.isSelected = true;
-      this.selectedOptions.clear();
-      this.selectedOptions.add(optionBinding.option.optionId);
-    } else {
-      // For multiple-answer questions, toggle the selected state
-      optionBinding.isSelected = !optionBinding.isSelected;
-      if (optionBinding.isSelected) {
-        this.selectedOptions.add(optionBinding.option.optionId);
-      } else {
-        this.selectedOptions.delete(optionBinding.option.optionId);
-      }
-    }
-  
     this.handleOptionClick(optionBinding.option, idx);
+    
+    // Ensure showFeedback is set to true when an option is clicked
+    this.showFeedback = true;
+  
+    // Update showFeedbackForOption
+    this.showFeedbackForOption[optionBinding.option.optionId] = true;
+  
+    // Apply attributes after updating the state
     this.applyAttributes(element, this.getOptionAttributes(optionBinding));
   
-    this.showFeedback = true;
-    this.showFeedbackForOption[optionBinding.option.optionId] = this.showFeedback;
-  
+    // Force change detection to ensure the view updates
     this.cdRef.detectChanges();
   }
 
