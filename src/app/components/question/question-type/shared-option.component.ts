@@ -117,7 +117,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         }
       }
       this.updateHighlighting();
-    }  
+    }
 
     if (changes.showFeedback) {
       console.log('showFeedback changed to:', this.showFeedback);
