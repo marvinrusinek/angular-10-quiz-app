@@ -296,6 +296,20 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.cdRef.detectChanges();
   }
 
+  updateHighlighting(): void {
+    if (this.highlightDirectives) {
+      this.highlightDirectives.forEach((directive, index) => {
+        const binding = this.optionBindings[index];
+        directive.option = binding.option;
+        directive.isSelected = binding.isSelected;
+        directive.isCorrect = binding.isCorrect;
+        directive.showFeedback = this.showFeedback;
+        directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
+        directive.updateHighlight();
+      });
+    }
+  }
+
   handleOptionClick(option: Option, index: number): void {
     this.lastSelectedOption = option;
     this.lastSelectedOptionIndex = index;
@@ -312,6 +326,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedbackForOption[option.optionId] = true;
     const optionIdentifier = option.optionId !== undefined ? option.optionId : index;
     this.clickedOptionIds.add(optionIdentifier);
+
+    this.updateHighlighting();
   
     if (this.type === 'single') {
       this.optionBindings.forEach(binding => {
@@ -390,7 +406,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return '';
   }
 
-  getOptionBindings(option: Option, idx: number): OptionBindings {
+  /* getOptionBindings(option: Option, idx: number): OptionBindings {
     const binding: OptionBindings = {
       option: option,
       isCorrect: option.correct,
@@ -410,6 +426,25 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     };
     console.log('Generated OptionBinding:', binding);
     return binding;
+  } */
+  getOptionBindings(option: Option, idx: number): OptionBindings {
+    return {
+      option: option,
+      isCorrect: option.correct,
+      showFeedback: this.showFeedback,
+      showFeedbackForOption: this.showFeedbackForOption,
+      highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
+      allOptions: this.optionsToDisplay,
+      type: this.type,
+      appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
+      appHighlightReset: this.shouldResetBackground,
+      appResetBackground: this.shouldResetBackground,
+      optionsToDisplay: this.optionsToDisplay,
+      isSelected: this.isSelectedOption(option),
+      change: () => this.handleOptionClick(option as SelectedOption, idx),
+      disabled: option.selected,
+      ariaLabel: 'Option ' + (idx + 1),
+    };
   }
 
   initializeOptionBindings(): void {
