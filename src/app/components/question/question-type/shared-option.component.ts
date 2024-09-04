@@ -1,16 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  QueryList,
-  SimpleChanges,
-  ViewChildren,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges,
+  OnInit, Output, QueryList, SimpleChanges, ViewChildren } from '@angular/core';
 
 import { Option } from '../../../shared/models/Option.model';
 import { OptionBindings } from '../../../shared/models/OptionBindings.model';
@@ -26,7 +15,7 @@ import { HighlightOptionDirective } from '../../../directives/highlight-option.d
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
   styleUrls: ['../question.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SharedOptionComponent implements OnInit, OnChanges {
   @ViewChildren(HighlightOptionDirective)
@@ -64,7 +53,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   lastSelectedOption: Option | null = null;
 
   optionTextStyle = {
-    color: 'black',
+    color: 'black'
   };
 
   constructor(
@@ -134,7 +123,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       '[type]': 'optionBinding.type',
       '[checked]': 'optionBinding.isSelected',
       '[disabled]': 'optionBinding.disabled',
-      '(change)': 'optionBinding.change()',
+      '(change)': 'optionBinding.change()'
     };
   }
 
