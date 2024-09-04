@@ -367,6 +367,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     );
   }
 
+  shouldShowFeedback(option: any): boolean {
+    return this.showFeedback && this.isLastSelectedOption(option);
+  }
+
   trackByOption(item: Option, index: number): number {
     return item.optionId;
   }
