@@ -255,6 +255,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     if (this.type === 'single') {
       this.optionsToDisplay.forEach(opt => opt.selected = false);
+      this.optionBindings.forEach(binding => binding.isSelected = false);
       option.selected = true;
       this.selectedOption = option;
       this.optionBindings[index].isSelected = true;
