@@ -7,7 +7,7 @@
     "
   >
     <label class="options">
-      <ng-container [ngSwitch]="type">
+      <!--<ng-container [ngSwitch]="type">
         <mat-checkbox
           *ngSwitchCase="'multiple'"
           appHighlightOption
@@ -47,6 +47,11 @@
           >
           </ng-container>
         </mat-radio-button>
+      </ng-container>-->
+      <ng-container [ngComponentOutlet]="optionConfig[type]"
+                    [ngComponentOutletInputs]="getOptionAttributes(optionBinding)">
+      </ng-container>
+      <ng-container *ngTemplateOutlet="optionContent; context: { option: optionBinding.option, idx: idx }">
       </ng-container>
 
       <codelab-quiz-feedback
