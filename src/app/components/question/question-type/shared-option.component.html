@@ -17,12 +17,7 @@
 
       <codelab-quiz-feedback
         *ngIf="shouldShowFeedback(optionBinding.option)"
-        [options]="optionsToDisplay"
-        [question]="currentQuestion"
-        [selectedOption]="optionBinding.option"
-        [correctMessage]="correctMessage"
-        [feedback]="optionBinding.option.feedback"
-        [showFeedback]="showFeedback"
+        [feedbackProps]="getFeedbackProps(optionBinding)"
       >
       </codelab-quiz-feedback>
     </label>

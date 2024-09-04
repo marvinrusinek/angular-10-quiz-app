@@ -10,6 +10,15 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FeedbackComponent implements OnChanges {
+  @Input() feedbackProps: {
+    options: Option[],
+    question: any, // Replace 'any' with the appropriate type
+    selectedOption: Option,
+    correctMessage: string,
+    feedback: string,
+    showFeedback: boolean
+  };
+  
   @Input() correctMessage: string;
   @Input() selectedOption: Option & { correct: boolean };
   @Input() showFeedback = false;
