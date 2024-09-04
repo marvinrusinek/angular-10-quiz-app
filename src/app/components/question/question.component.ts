@@ -1404,7 +1404,7 @@ export class QuizQuestionComponent
     this.showFeedback = true;
     this.showFeedbackForOption[option.optionId] = true;
 
-    await this.manageExplanationDisplay(option, index);
+    await this.manageExplanationDisplay();
   }
 
   private async updateQuestionState(option: SelectedOption): Promise<void> {
