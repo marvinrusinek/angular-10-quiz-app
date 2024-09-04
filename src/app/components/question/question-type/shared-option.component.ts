@@ -117,7 +117,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         }
       }
       this.updateHighlighting();
-    }  
+    }
 
     if (changes.showFeedback) {
       console.log('showFeedback changed to:', this.showFeedback);
@@ -364,20 +364,24 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedback = true;
   
     const optionBinding = this.optionBindings[index];
-    optionBinding.option.showIcon = true;
-    this.iconVisibility[option.optionId] = true;
-    this.showFeedbackForOption[option.optionId] = true;
-    this.clickedOptionIds.add(option.optionId ?? index);
   
     if (this.type === 'single') {
-      // For single-select, deselect all options and select only the clicked one
+      // For single-select, deselect the previous option and select only the clicked one
       for (const binding of this.optionBindings) {
         const isClickedOption = binding.option.optionId === option.optionId;
-        binding.isSelected = isClickedOption;
-        binding.option.selected = isClickedOption;
-        binding.showFeedback = this.showFeedback && isClickedOption;
-        this.showIconForOption[binding.option.optionId] = isClickedOption;
-        this.iconVisibility[binding.option.optionId] = isClickedOption;
+        if (isClickedOption) {
+          binding.isSelected = true;
+          binding.option.selected = true;
+          binding.showFeedback = this.showFeedback;
+          this.showIconForOption[binding.option.optionId] = true;
+          this.iconVisibility[binding.option.optionId] = true;
+        } else {
+          binding.isSelected = false;
+          binding.option.selected = false;
+          binding.showFeedback = false;
+          this.showIconForOption[binding.option.optionId] = false;
+          this.iconVisibility[binding.option.optionId] = false;
+        }
       }
       this.selectedOption = option;
       this.selectedOptions.clear();
@@ -394,7 +398,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         this.selectedOptions.delete(option.optionId);
       }
       this.showIconForOption[option.optionId] = optionBinding.isSelected;
+      this.iconVisibility[option.optionId] = optionBinding.isSelected;
     }
+  
+    this.clickedOptionIds.add(option.optionId ?? index);
   
     this.updateHighlighting();
   
