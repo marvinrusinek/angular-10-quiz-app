@@ -149,42 +149,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       element[key] = attributes[key];
     }
   }
-  /* applyAttributes(element: any, attributes: any): void {
-    for (const key of Object.keys(attributes)) {
-      if (key === 'appHighlightOption') {
-        continue; // Skip this attribute as it's just a marker for the directive
-      }
-      const value = attributes[key];
-      if (key.startsWith('[')) {
-        // For property bindings
-        const propName = key.slice(1, -1);
-        element[propName] = this.evaluateExpression(value, element);
-      } else if (key.startsWith('(')) {
-        // For event bindings
-        const eventName = key.slice(1, -1);
-        element.addEventListener(eventName, (event: Event) => {
-          this.evaluateExpression(value, element, event);
-        });
-      } else {
-        // For regular attributes
-        element.setAttribute(key, value);
-      }
-    }
-  }
-
-  private evaluateExpression(
-    expression: string,
-    context: any,
-    event?: Event
-  ): any {
-    const func = new Function(
-      'optionBinding',
-      'idx',
-      '$event',
-      `return ${expression};`
-    );
-    return func.call(this, context, context.index, event);
-  } */
 
   onQuestionChange(question: QuizQuestion): void {
     this.quizStateService.setCurrentQuestion(question);
@@ -267,18 +231,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   isLastSelectedOption(option: Option): boolean {
     return this.showFeedback && this.lastSelectedOption === option;
-  }
-
-  private highlightSelectedOption(selectedIndex: number): void {
-    this.highlightDirectives.forEach((directive, index) => {
-      directive.isSelected = index === selectedIndex;
-    });
-  }
-
-  private updateAllHighlights(): void {
-    this.highlightDirectives.forEach((directive) => {
-      directive.updateHighlight();
-    });
   }
 
   updateOptionAndUI(
@@ -379,17 +331,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.cdRef.detectChanges();
   }
 
-  private updateOptionBinding(option: Option, index: number) {
-    const updatedBinding = this.getOptionBindings(option, index);
-    // Only update specific properties to avoid changing the option text
-    this.optionBindings[index] = {
-      ...this.optionBindings[index],
-      isSelected: updatedBinding.isSelected,
-      disabled: updatedBinding.disabled,
-      change: updatedBinding.change,
-    };
-  }
-
   getOptionClass(option: Option): string {
     if (!this.showFeedback) {
       return '';
@@ -403,25 +344,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return '';
   }
 
-  /* getOptionBindings(option: Option, idx: number): OptionBindings {
-    return {
-      option: option,
-      isCorrect: option.correct,
-      showFeedback: this.showFeedback,
-      showFeedbackForOption: this.showFeedbackForOption,
-      highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
-      allOptions: this.optionsToDisplay,
-      type: this.type,
-      appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
-      appHighlightReset: this.shouldResetBackground,
-      appResetBackground: this.shouldResetBackground,
-      optionsToDisplay: this.optionsToDisplay,
-      isSelected: this.isSelectedOption(option),
-      change: () => this.handleOptionClick(option as SelectedOption, idx),
-      disabled: option.selected,
-      ariaLabel: 'Option ' + (idx + 1),
-    };
-  } */
   getOptionBindings(option: Option, idx: number): OptionBindings {
     return {
       option: option,
