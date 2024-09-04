@@ -364,24 +364,21 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedback = true;
   
     const optionBinding = this.optionBindings[index];
+    optionBinding.option.showIcon = true;
+    this.iconVisibility[option.optionId] = true;
+    this.showFeedbackForOption[option.optionId] = true;
+    this.clickedOptionIds.add(option.optionId ?? index);
   
     if (this.type === 'single') {
-      // For single-select, deselect the previously selected option and select the clicked one
-      const previousSelectedOption = this.optionBindings.find(binding => binding.isSelected);
-      if (previousSelectedOption) {
-        previousSelectedOption.isSelected = false;
-        previousSelectedOption.option.selected = false;
-        previousSelectedOption.showFeedback = false;
-        this.showIconForOption[previousSelectedOption.option.optionId] = false;
-        this.iconVisibility[previousSelectedOption.option.optionId] = false;
+      // For single-select, deselect all options and select only the clicked one
+      for (const binding of this.optionBindings) {
+        const isClickedOption = binding.option.optionId === option.optionId;
+        binding.isSelected = isClickedOption;
+        binding.option.selected = isClickedOption;
+        binding.showFeedback = this.showFeedback && isClickedOption;
+        this.showIconForOption[binding.option.optionId] = isClickedOption;
+        this.iconVisibility[binding.option.optionId] = isClickedOption;
       }
-  
-      optionBinding.isSelected = true;
-      optionBinding.option.selected = true;
-      optionBinding.showFeedback = true;
-      this.showIconForOption[option.optionId] = true;
-      this.iconVisibility[option.optionId] = true;
-  
       this.selectedOption = option;
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
@@ -396,11 +393,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       } else {
         this.selectedOptions.delete(option.optionId);
       }
-      this.showIconForOption[option.optionId] = optionBinding.isSelected;
-      this.iconVisibility[option.optionId] = optionBinding.isSelected;
     }
   
-    this.clickedOptionIds.add(option.optionId ?? index);
+    this.showIconForOption[option.optionId] = optionBinding.isSelected;
   
     // Update the OptionBindings
     for (const [idx, binding] of this.optionBindings.entries()) {
