@@ -242,7 +242,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  handleOptionClick(option: Option, index: number): void {
+  /* handleOptionClick(option: Option, index: number): void {
     this.lastSelectedOption = option;
     this.lastSelectedOptionIndex = index;
     this.showFeedback = true;
@@ -314,6 +314,72 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     this.optionClicked.emit({ option, index });
     this.cdRef.detectChanges();
+  } */
+  handleOptionClick(option: Option, index: number): void {
+    if (this.isSubmitted) {
+      console.log('Question already submitted, ignoring click');
+      return;
+    }
+  
+    this.lastSelectedOption = option;
+    this.lastSelectedOptionIndex = index;
+    this.showFeedback = true;
+  
+    const optionBinding = this.optionBindings[index];
+    optionBinding.option.showIcon = true;
+    this.iconVisibility[option.optionId] = true;
+    this.showFeedbackForOption[option.optionId] = true;
+    this.clickedOptionIds.add(option.optionId ?? index);
+  
+    if (this.type === 'single') {
+      // For single-select, deselect all options and select only the clicked one
+      for (const binding of this.optionBindings) {
+        const isClickedOption = binding.option.optionId === option.optionId;
+        binding.isSelected = isClickedOption;
+        binding.option.selected = isClickedOption;
+        binding.showFeedback = this.showFeedback && isClickedOption;
+      }
+      this.selectedOption = option;
+      this.selectedOptions.clear();
+      this.selectedOptions.add(option.optionId);
+    } else {
+      // For multiple-select, toggle the selection of the clicked option
+      optionBinding.isSelected = !optionBinding.isSelected;
+      optionBinding.option.selected = optionBinding.isSelected;
+      optionBinding.showFeedback = this.showFeedback && optionBinding.isSelected;
+      
+      if (optionBinding.isSelected) {
+        this.selectedOptions.add(option.optionId);
+      } else {
+        this.selectedOptions.delete(option.optionId);
+      }
+    }
+  
+    this.showIconForOption[option.optionId] = optionBinding.isSelected;
+  
+    // Update the OptionBindings
+    for (const [idx, binding] of this.optionBindings.entries()) {
+      const updatedBinding = this.getOptionBindings(binding.option, idx);
+      updatedBinding.isSelected = binding.isSelected;
+      updatedBinding.showFeedback = binding.showFeedback;
+      this.optionBindings[idx] = updatedBinding;
+    }
+  
+    this.updateHighlighting();
+  
+    console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
+    console.log('showFeedback:', this.showFeedback);
+    console.log('Clicked options:', Array.from(this.clickedOptionIds));
+  
+    // Call the quizQuestionComponentOnOptionClicked method if it exists
+    if (this.quizQuestionComponentOnOptionClicked) {
+      this.quizQuestionComponentOnOptionClicked(option as SelectedOption, index);
+    } else {
+      console.warn('quizQuestionComponentOnOptionClicked is not defined in SharedOptionComponent');
+    }
+  
+    this.optionClicked.emit({ option, index });
+    this.cdRef.detectChanges();
   }
 
   getOptionClass(option: Option): string {
@@ -336,7 +402,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       selectedOption: optionBinding.option,
       correctMessage: this.correctMessage,
       feedback: optionBinding.option.feedback,
-      showFeedback: this.showFeedback,
+      showFeedback: this.showFeedback
     };
   }
 
