@@ -37,7 +37,7 @@
       {{ getOptionDisplayText(option, idx) }}
     </span>
     <mat-icon
-      *ngIf="showFeedback && isIconVisible(option)"
+      *ngIf="shouldShowIcon(option)"
       class="material-icons icon"
       [ngClass]="getOptionIconClass(option)"
     >
