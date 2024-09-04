@@ -103,11 +103,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('quizQuestionComponent changed:', this.quizQuestionComponent);
     }
 
-    if (changes.config) {
-      console.log('Config changed in SharedOptionComponent');
-      this.logConfig();
-    }
-
     if (changes.optionsToDisplay) {
       this.initializeOptionBindings();
     }
@@ -173,16 +168,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       for (const option of this.optionsToDisplay) {
         option.selected = false;
       }
-    }
-  }
-
-  private logConfig(): void {
-    console.log('Current config in SharedOptionComponent:', this.config);
-    if (this.config && this.config.optionsToDisplay) {
-      console.log('Options count:', this.config.optionsToDisplay.length);
-      console.log('First option:', this.config.optionsToDisplay[0]);
-    } else {
-      console.warn('No options in config');
     }
   }
 
