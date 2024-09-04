@@ -224,8 +224,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   handleOptionClickAndApplyAttributes(optionBinding: OptionBindings, idx: number, element: any): void {
+    console.log('handleOptionClickAndApplyAttributes called');
     this.handleOptionClick(optionBinding.option, idx);
     this.applyAttributes(element, this.getOptionAttributes(optionBinding));
+    
+    // Force change detection
+    this.cdRef.detectChanges();
+    
+    console.log('After click:');
+    console.log('isSelected:', optionBinding.isSelected);
+    console.log('isCorrect:', optionBinding.option.correct);
+    console.log('showFeedback:', this.showFeedback);
   }
  
   handleOptionClick(option: Option, index: number) {
