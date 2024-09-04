@@ -379,6 +379,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.lastSelectedOptionIndex = index;
     this.showFeedback = true;
   
+    const optionBinding = this.optionBindings[index];
+    optionBinding.option.showIcon = true;
+    this.iconVisibility[option.optionId] = true;
+    this.showFeedbackForOption[option.optionId] = true;
+    this.clickedOptionIds.add(option.optionId ?? index);
+  
     if (this.type === 'single') {
       // For single-select, deselect all options first
       for (const binding of this.optionBindings) {
@@ -390,25 +396,25 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
   
       // Now select only the clicked option
-      const optionBinding = this.optionBindings[index];
       optionBinding.isSelected = true;
       optionBinding.option.selected = true;
       optionBinding.showFeedback = true;
-      optionBinding.option.showIcon = true;
       this.showIconForOption[option.optionId] = true;
       this.iconVisibility[option.optionId] = true;
-      this.showFeedbackForOption[option.optionId] = true;
   
       this.selectedOption = option;
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
+  
+      // Store the selected option for this question
+      if (this.currentQuestion) {
+        this.quizStateService.setSelectedOptionForQuestion(this.currentQuestion.id, option.optionId);
+      }
     } else {
       // For multiple-select, toggle the selection of the clicked option
-      const optionBinding = this.optionBindings[index];
       optionBinding.isSelected = !optionBinding.isSelected;
       optionBinding.option.selected = optionBinding.isSelected;
       optionBinding.showFeedback = this.showFeedback && optionBinding.isSelected;
-      optionBinding.option.showIcon = optionBinding.isSelected;
       
       if (optionBinding.isSelected) {
         this.selectedOptions.add(option.optionId);
@@ -416,11 +422,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         this.selectedOptions.delete(option.optionId);
       }
       this.showIconForOption[option.optionId] = optionBinding.isSelected;
-      this.iconVisibility[option.optionId] = optionBinding.isSelected;
-      this.showFeedbackForOption[option.optionId] = optionBinding.isSelected;
     }
-  
-    this.clickedOptionIds.add(option.optionId ?? index);
   
     this.updateHighlighting();
   
