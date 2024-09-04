@@ -407,25 +407,23 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   /* getOptionBindings(option: Option, idx: number): OptionBindings {
-    const binding: OptionBindings = {
+    return {
       option: option,
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
       showFeedbackForOption: this.showFeedbackForOption,
-      highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect || false, // Provide a default value
+      highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
       allOptions: this.optionsToDisplay,
       type: this.type,
-      appHighlightInputType: this.type === 'multiple' ? 'checkbox' as const : 'radio' as const,
+      appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
       appHighlightReset: this.shouldResetBackground,
       appResetBackground: this.shouldResetBackground,
       optionsToDisplay: this.optionsToDisplay,
       isSelected: this.isSelectedOption(option),
       change: () => this.handleOptionClick(option as SelectedOption, idx),
-      disabled: option.selected || false, // Provide a default value
+      disabled: option.selected,
       ariaLabel: 'Option ' + (idx + 1),
     };
-    console.log('Generated OptionBinding:', binding);
-    return binding;
   } */
   getOptionBindings(option: Option, idx: number): OptionBindings {
     return {
