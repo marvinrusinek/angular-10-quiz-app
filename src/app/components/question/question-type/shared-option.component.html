@@ -2,14 +2,15 @@
   <div *ngFor="let optionBinding of optionBindings; let idx = index; trackBy: trackByOption">
     <label class="options">
       <ng-container [ngSwitch]="type">
-        <mat-checkbox *ngSwitchCase="'multiple'" #checkbox appHighlightOption
-          (change)="handleOptionClickAndApplyAttributes(optionBinding, idx, checkbox)">
+        <mat-checkbox *ngSwitchCase="'multiple'" #checkbox
+          appHighlightOption
+          (change)="updateOptionAndUI(optionBinding, idx, checkbox)">
           <ng-container *ngTemplateOutlet="optionContent; context: { option: optionBinding.option, idx: idx }">
           </ng-container>
         </mat-checkbox>
 
         <mat-radio-button *ngSwitchCase="'single'" #radio appHighlightOption
-        (change)="handleOptionClickAndApplyAttributes(optionBinding, idx, radio)">
+          (change)="updateOptionAndUI(optionBinding, idx, radio)">
           <ng-container *ngTemplateOutlet="optionContent; context: { option: optionBinding.option, idx: idx }">
           </ng-container>
         </mat-radio-button>
