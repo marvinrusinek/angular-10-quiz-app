@@ -9,7 +9,7 @@
         </mat-checkbox>
 
         <mat-radio-button *ngSwitchCase="'single'" #radio appHighlightOption
-         (change)="updateOptionAndUI(optionBinding, idx, radio)">
+          (change)="updateOptionAndUI(optionBinding, idx, radio)">
           <ng-container *ngTemplateOutlet="optionContent; context: { option: optionBinding.option, idx: idx }">
           </ng-container>
         </mat-radio-button>
