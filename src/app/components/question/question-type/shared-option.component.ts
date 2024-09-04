@@ -313,7 +313,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   handleOptionClick(option: Option, index: number): void {
     this.lastSelectedOption = option;
     this.lastSelectedOptionIndex = index;
-    this.showFeedback = true; // Set showFeedback to true when an option is clicked
+    this.showFeedback = true;
   
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
@@ -326,32 +326,24 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedbackForOption[option.optionId] = true;
     const optionIdentifier = option.optionId !== undefined ? option.optionId : index;
     this.clickedOptionIds.add(optionIdentifier);
-
-    this.updateHighlighting();
   
     if (this.type === 'single') {
+      // For single-select, deselect all options and select only the clicked one
       this.optionBindings.forEach(binding => {
-        binding.isSelected = false;
-        binding.option.selected = false;
-        binding.showFeedback = false; // Reset showFeedback for other options
-      });
-      optionBinding.isSelected = true;
-      optionBinding.option.selected = true;
-      optionBinding.showFeedback = true; // Set showFeedback for the selected option
-      this.selectedOption = option;
-  
-      this.selectedOptions.clear();
-      this.selectedOptions.add(option.optionId);
-  
-      this.optionBindings.forEach(binding => {
-        binding.option.selected = binding.option.optionId === option.optionId;
+        const isClickedOption = binding.option.optionId === option.optionId;
+        binding.isSelected = isClickedOption;
+        binding.option.selected = isClickedOption;
+        binding.showFeedback = isClickedOption;
         this.showIconForOption[binding.option.optionId] = true;
       });
+      this.selectedOption = option;
+      this.selectedOptions.clear();
+      this.selectedOptions.add(option.optionId);
     } else {
-      // For multiple-select, toggle the selection
+      // For multiple-select, toggle the selection of the clicked option
       optionBinding.isSelected = !optionBinding.isSelected;
       optionBinding.option.selected = optionBinding.isSelected;
-      optionBinding.showFeedback = optionBinding.isSelected; // Set showFeedback based on selection
+      optionBinding.showFeedback = optionBinding.isSelected;
       if (optionBinding.isSelected) {
         this.selectedOptions.add(option.optionId);
       } else {
@@ -366,6 +358,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       updatedBinding.showFeedback = binding.showFeedback; // Preserve the showFeedback state
       return updatedBinding;
     });
+  
+    this.updateHighlighting();
   
     console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
     console.log('showFeedback:', this.showFeedback);
