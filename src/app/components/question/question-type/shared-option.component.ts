@@ -8,8 +8,8 @@ import {
   OnInit,
   Output,
   QueryList,
-  SimpleChanges, 
-  ViewChildren
+  SimpleChanges,
+  ViewChildren,
 } from '@angular/core';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -26,12 +26,13 @@ import { HighlightOptionDirective } from '../../../directives/highlight-option.d
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
   styleUrls: ['../question.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SharedOptionComponent implements OnInit, OnChanges {
-  @ViewChildren(HighlightOptionDirective) highlightDirectives!: QueryList<HighlightOptionDirective>;
+  @ViewChildren(HighlightOptionDirective)
+  highlightDirectives!: QueryList<HighlightOptionDirective>;
   @Output() optionClicked = new EventEmitter<{
-    option: Option,
+    option: Option;
     index: number;
   }>();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
@@ -48,7 +49,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @Input() showFeedback: boolean;
   @Input() shouldResetBackground = false;
   @Input() highlightCorrectAfterIncorrect: boolean;
-  @Input() quizQuestionComponentOnOptionClicked!: (option: SelectedOption, index: number) => void;
+  @Input() quizQuestionComponentOnOptionClicked!: (
+    option: SelectedOption,
+    index: number
+  ) => void;
   optionBindings: OptionBindings[] = [];
   selectedOptions: Set<number> = new Set();
   isSubmitted = false;
@@ -123,17 +127,21 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   getOptionAttributes(optionBinding: OptionBindings) {
     return {
-      // 'appHighlightOption': '',
+      'appHighlightOption': '',
       '[attr.aria-label]': 'optionBinding.ariaLabel',
       '[isSelected]': 'optionBinding.isSelected',
-      '[isCorrect]': 'optionBinding.option.correct',
-      '[showFeedback]': 'showFeedback',
+      '[isCorrect]': 'optionBinding.isCorrect',
+      '[showFeedback]': 'optionBinding.showFeedback',
+      '[showFeedbackForOption]': 'optionBinding.showFeedbackForOption',
+      '[highlightCorrectAfterIncorrect]': 'optionBinding.highlightCorrectAfterIncorrect',
+      '[allOptions]': 'optionBinding.allOptions',
+      '[type]': 'optionBinding.type',
       '[checked]': 'optionBinding.isSelected',
       '[disabled]': 'optionBinding.disabled',
-      '(change)': 'handleOptionClick(optionBinding.option, idx)'
+      '(change)': 'optionBinding.change()'
     };
   }
-  
+
   // Helper method to apply attributes
   /* applyAttributes(element: any, attributes: any) {
     for (const key of Object.keys(attributes)) {
@@ -162,9 +170,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
     }
   }
-  
-  private evaluateExpression(expression: string, context: any, event?: Event): any {
-    const func = new Function('optionBinding', 'idx', '$event', `return ${expression};`);
+
+  private evaluateExpression(
+    expression: string,
+    context: any,
+    event?: Event
+  ): any {
+    const func = new Function(
+      'optionBinding',
+      'idx',
+      '$event',
+      `return ${expression};`
+    );
     return func.call(this, context, context.index, event);
   }
 
@@ -180,7 +197,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.selectedOption = null;
     this.showFeedbackForOption = {};
     this.iconVisibility = [];
-    
+
     for (const option of this.optionsToDisplay) {
       option.selected = false;
     }
@@ -258,12 +275,16 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   private updateAllHighlights(): void {
-    this.highlightDirectives.forEach(directive => {
+    this.highlightDirectives.forEach((directive) => {
       directive.updateHighlight();
     });
   }
 
-  updateOptionAndUI(optionBinding: OptionBindings, idx: number, element: any): void {
+  updateOptionAndUI(
+    optionBinding: OptionBindings,
+    idx: number,
+    element: any
+  ): void {
     this.handleOptionClick(optionBinding.option, idx);
     this.applyAttributes(element, this.getOptionAttributes(optionBinding));
 
@@ -274,7 +295,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     this.cdRef.detectChanges();
   }
- 
+
   handleOptionClick(option: Option, index: number): void {
     this.lastSelectedOption = option;
     this.lastSelectedOptionIndex = index;
@@ -288,9 +309,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     option.showIcon = true;
     this.iconVisibility[option.optionId] = true; // Update icon visibility
     this.showFeedbackForOption[option.optionId] = true;
-    const optionIdentifier = option.optionId !== undefined ? option.optionId : index;
+    const optionIdentifier =
+      option.optionId !== undefined ? option.optionId : index;
     this.clickedOptionIds.add(optionIdentifier);
-  
+
     if (this.type === 'single') {
       for (const opt of this.optionsToDisplay) {
         opt.selected = false;
@@ -305,7 +327,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // For single-select, always select the clicked option
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
-      
+
       for (const [idx, opt] of this.optionsToDisplay.entries()) {
         opt.selected = opt.optionId === option.optionId;
         this.showIconForOption[opt.optionId] = true; // Always show icon for clicked options
@@ -313,7 +335,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
     } else {
       // For multiple-select, toggle the selection
-      this.optionBindings[index].isSelected = !this.optionBindings[index].isSelected;
+      this.optionBindings[index].isSelected =
+        !this.optionBindings[index].isSelected;
       option.selected = !option.selected;
       if (option.selected) {
         this.selectedOptions.add(option.optionId);
@@ -323,24 +346,29 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.showIconForOption[option.optionId] = option.selected;
       this.updateOptionBinding(option, index);
     }
-  
+
     this.showFeedback = true;
-  
+
     console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
     console.log('showFeedback:', this.showFeedback);
-    console.log('Clicked options:', Array.from(this.clickedOptionIds))
-  
+    console.log('Clicked options:', Array.from(this.clickedOptionIds));
+
     // Call the quizQuestionComponentOnOptionClicked method if it exists
     if (this.quizQuestionComponentOnOptionClicked) {
-      this.quizQuestionComponentOnOptionClicked(option as SelectedOption, index);
+      this.quizQuestionComponentOnOptionClicked(
+        option as SelectedOption,
+        index
+      );
     } else {
-      console.warn('quizQuestionComponentOnOptionClicked is not defined in SharedOptionComponent');
+      console.warn(
+        'quizQuestionComponentOnOptionClicked is not defined in SharedOptionComponent'
+      );
     }
-  
+
     this.optionClicked.emit({ option, index });
     this.cdRef.detectChanges();
   }
-  
+
   private updateOptionBinding(option: Option, index: number) {
     const updatedBinding = this.getOptionBindings(option, index);
     // Only update specific properties to avoid changing the option text
@@ -348,7 +376,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       ...this.optionBindings[index],
       isSelected: updatedBinding.isSelected,
       disabled: updatedBinding.disabled,
-      change: updatedBinding.change
+      change: updatedBinding.change,
     };
   }
 
@@ -369,9 +397,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return {
       option: option,
       isCorrect: option.correct,
+      showFeedback: this.showFeedback,
       showFeedbackForOption: this.showFeedbackForOption,
       highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
       allOptions: this.optionsToDisplay,
+      type: this.type,
       appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
       appHighlightReset: this.shouldResetBackground,
       appResetBackground: this.shouldResetBackground,
@@ -379,7 +409,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       isSelected: this.isSelectedOption(option),
       change: () => this.handleOptionClick(option as SelectedOption, idx),
       disabled: option.selected,
-      ariaLabel: 'Option ' + (idx + 1)
+      ariaLabel: 'Option ' + (idx + 1),
     };
   }
 
