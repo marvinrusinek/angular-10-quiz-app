@@ -143,12 +143,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   // Helper method to apply attributes
-  /* applyAttributes(element: any, attributes: any) {
+  applyAttributes(element: any, attributes: any) {
     for (const key of Object.keys(attributes)) {
       element[key] = attributes[key];
     }
-  } */
-  applyAttributes(element: any, attributes: any): void {
+  }
+  /* applyAttributes(element: any, attributes: any): void {
     for (const key of Object.keys(attributes)) {
       if (key === 'appHighlightOption') {
         continue; // Skip this attribute as it's just a marker for the directive
@@ -183,7 +183,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       `return ${expression};`
     );
     return func.call(this, context, context.index, event);
-  }
+  } */
 
   onQuestionChange(question: QuizQuestion): void {
     this.quizStateService.setCurrentQuestion(question);
