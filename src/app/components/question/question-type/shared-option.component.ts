@@ -299,7 +299,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   handleOptionClick(option: Option, index: number): void {
     this.lastSelectedOption = option;
     this.lastSelectedOptionIndex = index;
-    this.showFeedback = true;
+    this.showFeedback = true; // Set showFeedback to true when an option is clicked
   
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
@@ -317,9 +317,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.optionBindings.forEach(binding => {
         binding.isSelected = false;
         binding.option.selected = false;
+        binding.showFeedback = false; // Reset showFeedback for other options
       });
       optionBinding.isSelected = true;
       optionBinding.option.selected = true;
+      optionBinding.showFeedback = true; // Set showFeedback for the selected option
       this.selectedOption = option;
   
       this.selectedOptions.clear();
@@ -333,6 +335,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // For multiple-select, toggle the selection
       optionBinding.isSelected = !optionBinding.isSelected;
       optionBinding.option.selected = optionBinding.isSelected;
+      optionBinding.showFeedback = optionBinding.isSelected; // Set showFeedback based on selection
       if (optionBinding.isSelected) {
         this.selectedOptions.add(option.optionId);
       } else {
@@ -342,9 +345,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     // Update the OptionBindings
-    this.optionBindings = this.optionBindings.map((binding, idx) => 
-      this.getOptionBindings(binding.option, idx)
-    );
+    this.optionBindings = this.optionBindings.map((binding, idx) => {
+      const updatedBinding = this.getOptionBindings(binding.option, idx);
+      updatedBinding.showFeedback = binding.showFeedback; // Preserve the showFeedback state
+      return updatedBinding;
+    });
   
     console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
     console.log('showFeedback:', this.showFeedback);
