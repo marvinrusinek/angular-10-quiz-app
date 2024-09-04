@@ -7,7 +7,6 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
-import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
 import { QuizQuestionComponent } from '../question.component';
 import { HighlightOptionDirective } from '../../../directives/highlight-option.directive';
@@ -59,7 +58,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   constructor(
     private quizStateService: QuizStateService,
-    private selectedOptionService: SelectedOptionService,
     private userPreferenceService: UserPreferenceService,
     private cdRef: ChangeDetectorRef
   ) {}
@@ -99,24 +97,38 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
 
     if (changes['currentQuestion']) {
-      this.resetState();
+      const previousSelections = new Set(this.selectedOptions);
+      
+      // Don't reset the state completely
+      this.isSubmitted = false;
+      this.showFeedback = false;
+      
       this.initializeOptionBindings();
   
-      const storedSelectedOption = this.selectedOptionService.getSelectedOption();
-  
-      if (storedSelectedOption && this.currentQuestion && storedSelectedOption.questionId === this.currentQuestion.id) {
-        for (const binding of this.optionBindings) {
-          const isSelected = binding.option.optionId === storedSelectedOption.optionId;
-          binding.isSelected = isSelected;
-          binding.option.selected = isSelected;
-          binding.showFeedback = isSelected;
-          this.showIconForOption[binding.option.optionId] = isSelected;
-          this.iconVisibility[binding.option.optionId] = isSelected;
-  
-          if (isSelected) {
-            this.selectedOptions.add(binding.option.optionId);
+      // Restore previous selections
+      for (const binding of this.optionBindings) {
+        if (previousSelections.has(binding.option.optionId)) {
+          binding.isSelected = true;
+          binding.option.selected = true;
+          binding.showFeedback = true;
+          binding.option.showIcon = true;
+          this.selectedOptions.add(binding.option.optionId);
+          this.showIconForOption[binding.option.optionId] = true;
+          this.iconVisibility[binding.option.optionId] = true;
+          this.showFeedbackForOption[binding.option.optionId] = true;
+          
+          if (this.type === 'single') {
             this.selectedOption = binding.option;
+            break; // Only select one option for single-select questions
           }
+        } else {
+          binding.isSelected = false;
+          binding.option.selected = false;
+          binding.showFeedback = false;
+          binding.option.showIcon = false;
+          this.showIconForOption[binding.option.optionId] = false;
+          this.iconVisibility[binding.option.optionId] = false;
+          this.showFeedbackForOption[binding.option.optionId] = false;
         }
       }
   
@@ -368,25 +380,36 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedback = true;
   
     const optionBinding = this.optionBindings[index];
+    optionBinding.option.showIcon = true;
+    this.iconVisibility[option.optionId] = true;
+    this.showFeedbackForOption[option.optionId] = true;
+    this.clickedOptionIds.add(option.optionId ?? index);
   
     if (this.type === 'single') {
-      // For single-select, update the selection
-      this.selectedOptions.clear();
-      this.selectedOptions.add(option.optionId);
-      this.selectedOption = option;
-  
-      // Update all option bindings
+      // For single-select, deselect all options first
       for (const binding of this.optionBindings) {
-        const isSelected = binding.option.optionId === option.optionId;
-        binding.isSelected = isSelected;
-        binding.option.selected = isSelected;
-        binding.showFeedback = this.showFeedback && isSelected;
-        this.showIconForOption[binding.option.optionId] = isSelected;
-        this.iconVisibility[binding.option.optionId] = isSelected;
+        binding.isSelected = false;
+        binding.option.selected = false;
+        binding.showFeedback = false;
+        this.showIconForOption[binding.option.optionId] = false;
+        this.iconVisibility[binding.option.optionId] = false;
       }
   
-      // Store the selected option
-      this.selectedOptionService.setSelectedOption(option as SelectedOption);
+      // Now select only the clicked option
+      optionBinding.isSelected = true;
+      optionBinding.option.selected = true;
+      optionBinding.showFeedback = true;
+      this.showIconForOption[option.optionId] = true;
+      this.iconVisibility[option.optionId] = true;
+  
+      this.selectedOption = option;
+      this.selectedOptions.clear();
+      this.selectedOptions.add(option.optionId);
+  
+      // Store the selected option for this question
+      if (this.currentQuestion) {
+        this.quizStateService.setSelectedOptionForQuestion(this.currentQuestion.id, option.optionId);
+      }
     } else {
       // For multiple-select, toggle the selection of the clicked option
       optionBinding.isSelected = !optionBinding.isSelected;
@@ -399,10 +422,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         this.selectedOptions.delete(option.optionId);
       }
       this.showIconForOption[option.optionId] = optionBinding.isSelected;
-      this.iconVisibility[option.optionId] = optionBinding.isSelected;
     }
   
-    this.clickedOptionIds.add(option.optionId ?? index);
     this.updateHighlighting();
   
     console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
