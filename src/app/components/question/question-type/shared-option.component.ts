@@ -120,6 +120,26 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
+  getOptionAttributes(optionBinding: any) {
+    return {
+      'appHighlightOption': '',
+      '[attr.aria-label]': 'optionBinding.ariaLabel',
+      '[isSelected]': 'optionBinding.isSelected',
+      '[isCorrect]': 'optionBinding.option.correct',
+      '[showFeedback]': 'showFeedback',
+      '[checked]': 'optionBinding.isSelected',
+      '[disabled]': 'optionBinding.disabled',
+      '(change)': 'optionBinding.change()'
+    };
+  }
+  
+  // Helper method to apply attributes
+  applyAttributes(element: any, attributes: any) {
+    Object.keys(attributes).forEach(key => {
+      element[key] = attributes[key];
+    });
+  }
+
   onQuestionChange(question: QuizQuestion): void {
     this.quizStateService.setCurrentQuestion(question);
     this.questionAnswered.emit(question);

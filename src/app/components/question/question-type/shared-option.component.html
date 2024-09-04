@@ -48,10 +48,18 @@
           </ng-container>
         </mat-radio-button>
       </ng-container>-->
-      <ng-container [ngComponentOutlet]="optionConfig[type]"
-                    [ngComponentOutletInputs]="getOptionAttributes(optionBinding)">
-      </ng-container>
-      <ng-container *ngTemplateOutlet="optionContent; context: { option: optionBinding.option, idx: idx }">
+      <ng-container [ngSwitch]="type">
+        <mat-checkbox *ngSwitchCase="'multiple'" #checkbox
+          (change)="applyAttributes(checkbox, getOptionAttributes(optionBinding))">
+          <ng-container *ngTemplateOutlet="optionContent; context: { option: optionBinding.option, idx: idx }">
+          </ng-container>
+        </mat-checkbox>
+
+        <mat-radio-button *ngSwitchCase="'single'" #radio
+          (change)="applyAttributes(radio, getOptionAttributes(optionBinding))">
+          <ng-container *ngTemplateOutlet="optionContent; context: { option: optionBinding.option, idx: idx }">
+          </ng-container>
+        </mat-radio-button>
       </ng-container>
 
       <codelab-quiz-feedback
