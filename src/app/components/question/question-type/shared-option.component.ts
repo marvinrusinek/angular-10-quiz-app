@@ -386,7 +386,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getOptionBindings(option: Option, idx: number): OptionBindings {
-    return {
+    const binding = {
       option: option,
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
@@ -404,6 +404,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       ariaLabel: 'Option ' + (idx + 1),
     };
     console.log('Generated OptionBinding:', binding);
+    return binding;
   }
 
   initializeOptionBindings(): void {
