@@ -119,7 +119,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   getOptionAttributes(optionBinding: OptionBindings) {
     return {
-      'appHighlightOption': '',
+      // 'appHighlightOption': '',
       '[attr.aria-label]': 'optionBinding.ariaLabel',
       '[isSelected]': 'optionBinding.isSelected',
       '[isCorrect]': 'optionBinding.option.correct',
