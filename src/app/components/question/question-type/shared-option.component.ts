@@ -99,6 +99,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (changes.currentQuestion) {
       this.resetState();
       this.resetOptionState(); // Reset option states when the question changes
+      this.initializeOptionBindings();
     }
 
     if (changes.showFeedback) {
@@ -325,6 +326,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.lastSelectedOptionIndex = index;
     this.showFeedback = true;
   
+    // Reset all options first
+    for (const binding of this.optionBindings) {
+      binding.isSelected = false;
+      binding.option.selected = false;
+      binding.showFeedback = false;
+      this.showIconForOption[binding.option.optionId] = false;
+      this.iconVisibility[binding.option.optionId] = false;
+    }
+  
     const optionBinding = this.optionBindings[index];
     optionBinding.option.showIcon = true;
     this.iconVisibility[option.optionId] = true;
@@ -332,13 +342,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.clickedOptionIds.add(option.optionId ?? index);
   
     if (this.type === 'single') {
-      // For single-select, deselect all options and select only the clicked one
-      for (const binding of this.optionBindings) {
-        const isClickedOption = binding.option.optionId === option.optionId;
-        binding.isSelected = isClickedOption;
-        binding.option.selected = isClickedOption;
-        binding.showFeedback = this.showFeedback && isClickedOption;
-      }
+      // For single-select, select only the clicked option
+      optionBinding.isSelected = true;
+      optionBinding.option.selected = true;
+      optionBinding.showFeedback = this.showFeedback;
       this.selectedOption = option;
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
