@@ -257,12 +257,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     });
   }
 
+  private updateAllHighlights(): void {
+    this.highlightDirectives.forEach(directive => {
+      directive.updateHighlight();
+    });
+  }
+
   updateOptionAndUI(optionBinding: OptionBindings, idx: number, element: any): void {
     this.handleOptionClick(optionBinding.option, idx);
     this.applyAttributes(element, this.getOptionAttributes(optionBinding));
 
-    // Highlight the selected option
-    this.highlightSelectedOption(idx);
+    // Update the highlight for all options
+    this.updateAllHighlights();
 
     this.cdRef.detectChanges();
   }

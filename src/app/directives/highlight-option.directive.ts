@@ -59,7 +59,7 @@ export class HighlightOptionDirective implements OnChanges {
     }
   }
 
-  private updateHighlight(): void {
+  updateHighlight(): void {
     let backgroundColor = 'transparent';
 
     if (this.isSelected) {
