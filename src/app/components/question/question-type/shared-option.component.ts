@@ -136,7 +136,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       element[key] = attributes[key];
     }
   } */
-  applyAttributes(element: any, attributes: any) {
+  applyAttributes(element: any, attributes: any): void {
     for (const key of Object.keys(attributes)) {
       if (key === 'appHighlightOption') {
         continue; // Skip this attribute as it's just a marker for the directive
@@ -253,7 +253,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.cdRef.detectChanges();
   }
  
-  handleOptionClick(option: Option, index: number) {
+  handleOptionClick(option: Option, index: number): void {
     this.lastSelectedOption = option;
     this.lastSelectedOptionIndex = index;
     this.showFeedback = true;
