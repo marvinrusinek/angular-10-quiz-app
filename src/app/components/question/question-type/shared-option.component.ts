@@ -100,22 +100,20 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.resetState();
       this.initializeOptionBindings();
   
-      if (this.currentQuestion) {
-        const storedSelectedOptionId = this.quizStateService.getSelectedOptionForQuestion(this.currentQuestion.id);
+      const storedSelectedOption = this.selectedOptionService.getSelectedOption();
   
-        if (storedSelectedOptionId !== undefined) {
-          for (const binding of this.optionBindings) {
-            const isSelected = binding.option.optionId === storedSelectedOptionId;
-            binding.isSelected = isSelected;
-            binding.option.selected = isSelected;
-            binding.showFeedback = isSelected;
-            this.showIconForOption[binding.option.optionId] = isSelected;
-            this.iconVisibility[binding.option.optionId] = isSelected;
+      if (storedSelectedOption && this.currentQuestion && storedSelectedOption.questionId === this.currentQuestion.id) {
+        for (const binding of this.optionBindings) {
+          const isSelected = binding.option.optionId === storedSelectedOption.optionId;
+          binding.isSelected = isSelected;
+          binding.option.selected = isSelected;
+          binding.showFeedback = isSelected;
+          this.showIconForOption[binding.option.optionId] = isSelected;
+          this.iconVisibility[binding.option.optionId] = isSelected;
   
-            if (isSelected) {
-              this.selectedOptions.add(binding.option.optionId);
-              this.selectedOption = binding.option;
-            }
+          if (isSelected) {
+            this.selectedOptions.add(binding.option.optionId);
+            this.selectedOption = binding.option;
           }
         }
       }
@@ -385,10 +383,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         this.iconVisibility[binding.option.optionId] = isSelected;
       }
   
-      // Store the selected option for this question
-      if (this.currentQuestion) {
-        this.quizStateService.setSelectedOptionForQuestion(this.currentQuestion.id, option.optionId);
-      }
+      // Store the selected option
+      this.selectedOptionService.setSelectedOption(option as SelectedOption);
     } else {
       // For multiple-select, toggle the selection of the clicked option
       optionBinding.isSelected = !optionBinding.isSelected;
