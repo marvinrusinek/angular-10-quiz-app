@@ -267,8 +267,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.handleOptionClick(optionBinding.option, idx);
     this.applyAttributes(element, this.getOptionAttributes(optionBinding));
 
-    // Update the highlight for all options
-    this.updateAllHighlights();
+    // Update showFeedbackForOption if needed
+    if (this.showFeedback) {
+      this.showFeedbackForOption[optionBinding.option.optionId] = true;
+    }
 
     this.cdRef.detectChanges();
   }
