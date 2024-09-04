@@ -403,6 +403,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       disabled: option.selected,
       ariaLabel: 'Option ' + (idx + 1),
     };
+    console.log('Generated OptionBinding:', binding);
   }
 
   initializeOptionBindings(): void {
