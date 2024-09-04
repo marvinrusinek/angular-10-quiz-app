@@ -132,9 +132,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
   // Helper method to apply attributes
   applyAttributes(element: any, attributes: any) {
-    Object.keys(attributes).forEach(key => {
+    for (const key of Object.keys(attributes)) {
       element[key] = attributes[key];
-    });
+    }
   }
 
   onQuestionChange(question: QuizQuestion): void {
