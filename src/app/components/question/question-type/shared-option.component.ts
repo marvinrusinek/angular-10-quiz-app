@@ -391,7 +391,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
       showFeedbackForOption: this.showFeedbackForOption,
-      highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
+      highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect || false, // Provide a default value
       allOptions: this.optionsToDisplay,
       type: this.type,
       appHighlightInputType: this.type === 'multiple' ? 'checkbox' as const : 'radio' as const,
@@ -400,7 +400,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       optionsToDisplay: this.optionsToDisplay,
       isSelected: this.isSelectedOption(option),
       change: () => this.handleOptionClick(option as SelectedOption, idx),
-      disabled: option.selected,
+      disabled: option.selected || false, // Provide a default value
       ariaLabel: 'Option ' + (idx + 1),
     };
     console.log('Generated OptionBinding:', binding);
