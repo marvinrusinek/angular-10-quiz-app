@@ -129,7 +129,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       '[showFeedback]': 'showFeedback',
       '[checked]': 'optionBinding.isSelected',
       '[disabled]': 'optionBinding.disabled',
-      // '(change)': 'optionBinding.change()'
       '(change)': 'handleOptionClick(optionBinding.option, idx)'
     };
   }
@@ -244,6 +243,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.optionsToDisplay.forEach(opt => opt.selected = false);
       option.selected = true;
       this.selectedOption = option;
+      this.optionBindings[index].isSelected = true;
 
       // For single-select, always select the clicked option
       this.selectedOptions.clear();
@@ -256,6 +256,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
     } else {
       // For multiple-select, toggle the selection
+      this.optionBindings[index].isSelected = !this.optionBindings[index].isSelected;
       option.selected = !option.selected;
       if (option.selected) {
         this.selectedOptions.add(option.optionId);
