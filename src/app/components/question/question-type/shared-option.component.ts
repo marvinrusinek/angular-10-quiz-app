@@ -345,10 +345,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     this.updateHighlighting();
   
-    console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
-    console.log('showFeedback:', this.showFeedback);
-    console.log('Clicked options:', Array.from(this.clickedOptionIds));
-  
     // Call the quizQuestionComponentOnOptionClicked method if it exists
     if (this.quizQuestionComponentOnOptionClicked) {
       this.quizQuestionComponentOnOptionClicked(option as SelectedOption, index);
