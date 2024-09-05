@@ -100,10 +100,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     if (changes['currentQuestion']) {
       const previousSelections = new Set(this.selectedOptions);
-      this.resetState();
+      
+      // Reset the component state
+      this.resetComponentState();
       this.initializeOptionBindings();
   
-      // Restore previous selections
+      // Check if this is not the first change (i.e., we're navigating between questions)
+      if (!changes['currentQuestion'].firstChange) {
+        // Clear previous selections when navigating
+        previousSelections.clear();
+      }
+  
+      // Restore previous selections (if any)
       for (const binding of this.optionBindings) {
         if (previousSelections.has(binding.option.optionId)) {
           binding.isSelected = true;
@@ -120,6 +128,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
   
       this.updateHighlighting();
+      this.cdRef.detectChanges();
     }
 
     if (changes.showFeedback) {
@@ -349,6 +358,27 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     this.optionClicked.emit({ option, index });
+    this.cdRef.detectChanges();
+  }
+
+  private resetComponentState(): void {
+    this.selectedOption = null;
+    this.selectedOptions.clear();
+    this.clickedOptionIds.clear();
+    this.showFeedbackForOption = {};
+    this.iconVisibility = {};
+    this.showIconForOption = {};
+  
+    if (this.optionBindings) {
+      for (const binding of this.optionBindings) {
+        binding.isSelected = false;
+        binding.option.selected = false;
+        binding.showFeedback = false;
+        binding.option.showIcon = false;
+      }
+    }
+  
+    this.updateHighlighting();
     this.cdRef.detectChanges();
   }
 
