@@ -288,7 +288,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('Question already submitted, ignoring click');
       return;
     }
-
+  
     // Check if the option has already been clicked
     if (this.clickedOptionIds.has(option.optionId ?? index)) {
       console.log('Option already selected, ignoring click');
@@ -328,28 +328,22 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.selectedOptions.add(option.optionId);
   
       // Store the selected option
-      if (this.currentQuestion) {
-        const selectedOption: SelectedOption = {
-          ...option,
-          questionId: this.currentQuestion.questionId // Assuming questionId exists on currentQuestion
-        };
-        this.selectedOptionService.setSelectedOption(selectedOption);
-      }
+      this.selectedOptionService.setSelectedOption(option as SelectedOption);
     } else {
-      // For multiple-select, keep the existing logic
-      optionBinding.isSelected = !optionBinding.isSelected;
-      optionBinding.option.selected = optionBinding.isSelected;
-      optionBinding.showFeedback = this.showFeedback && optionBinding.isSelected;
+      // For multiple-select, always select the option
+      optionBinding.isSelected = true;
+      optionBinding.option.selected = true;
+      optionBinding.showFeedback = this.showFeedback;
       
-      if (optionBinding.isSelected) {
-        this.selectedOptions.add(option.optionId);
-      } else {
-        this.selectedOptions.delete(option.optionId);
-      }
-      this.showIconForOption[option.optionId] = optionBinding.isSelected;
+      this.selectedOptions.add(option.optionId);
+      this.showIconForOption[option.optionId] = true;
     }
   
     this.updateHighlighting();
+  
+    console.log('Updated selectedOptions:', Array.from(this.selectedOptions));
+    console.log('showFeedback:', this.showFeedback);
+    console.log('Clicked options:', Array.from(this.clickedOptionIds));
   
     // Call the quizQuestionComponentOnOptionClicked method if it exists
     if (this.quizQuestionComponentOnOptionClicked) {
