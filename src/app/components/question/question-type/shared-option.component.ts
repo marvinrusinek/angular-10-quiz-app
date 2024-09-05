@@ -300,15 +300,21 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.clickedOptionIds.add(option.optionId ?? index);
   
     if (this.type === 'single') {
-      // For single-select, deselect all options and select only the clicked one
+      // For single-select, deselect all options first
       for (const binding of this.optionBindings) {
-        const isClickedOption = binding.option.optionId === option.optionId;
-        binding.isSelected = isClickedOption;
-        binding.option.selected = isClickedOption;
-        binding.showFeedback = this.showFeedback && isClickedOption;
-        this.showIconForOption[binding.option.optionId] = isClickedOption;
-        this.iconVisibility[binding.option.optionId] = isClickedOption;
+        binding.isSelected = false;
+        binding.option.selected = false;
+        binding.showFeedback = false;
+        this.showIconForOption[binding.option.optionId] = false;
+        this.iconVisibility[binding.option.optionId] = false;
       }
+      // Then select only the clicked option
+      optionBinding.isSelected = true;
+      optionBinding.option.selected = true;
+      optionBinding.showFeedback = this.showFeedback;
+      this.showIconForOption[option.optionId] = true;
+      this.iconVisibility[option.optionId] = true;
+  
       this.selectedOption = option;
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
@@ -322,7 +328,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         this.selectedOptionService.setSelectedOption(selectedOption);
       }
     } else {
-      // For multiple-select, toggle the selection of the clicked option
+      // For multiple-select, keep the existing logic
       optionBinding.isSelected = !optionBinding.isSelected;
       optionBinding.option.selected = optionBinding.isSelected;
       optionBinding.showFeedback = this.showFeedback && optionBinding.isSelected;
