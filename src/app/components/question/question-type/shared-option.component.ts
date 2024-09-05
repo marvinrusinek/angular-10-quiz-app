@@ -300,15 +300,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.clickedOptionIds.add(option.optionId ?? index);
   
     if (this.type === 'single') {
-      // For single-select, deselect all options first
-      for (const binding of this.optionBindings) {
-        binding.isSelected = false;
-        binding.option.selected = false;
-        binding.showFeedback = false;
-        this.showIconForOption[binding.option.optionId] = false;
-        this.iconVisibility[binding.option.optionId] = false;
+      // For single-select, update only the clicked option
+      if (this.selectedOption && this.selectedOption !== option) {
+        // Deselect the previously selected option
+        const prevSelectedBinding = this.optionBindings.find(binding => binding.option === this.selectedOption);
+        if (prevSelectedBinding) {
+          prevSelectedBinding.isSelected = false;
+          prevSelectedBinding.option.selected = false;
+        }
       }
-      // Then select only the clicked option
+  
+      // Select the clicked option
       optionBinding.isSelected = true;
       optionBinding.option.selected = true;
       optionBinding.showFeedback = this.showFeedback;
