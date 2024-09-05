@@ -288,6 +288,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('Question already submitted, ignoring click');
       return;
     }
+
+    // Check if the option has already been clicked
+    if (this.clickedOptionIds.has(option.optionId ?? index)) {
+      console.log('Option already selected, ignoring click');
+      return;
+    }
   
     this.lastSelectedOption = option;
     this.lastSelectedOptionIndex = index;
