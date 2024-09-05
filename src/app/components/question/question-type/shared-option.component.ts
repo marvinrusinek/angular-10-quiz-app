@@ -7,6 +7,7 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
+import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
 import { QuizQuestionComponent } from '../question.component';
 import { HighlightOptionDirective } from '../../../directives/highlight-option.directive';
@@ -58,6 +59,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   constructor(
     private quizStateService: QuizStateService,
+    private selectedOptionService: SelectedOptionService,
     private userPreferenceService: UserPreferenceService,
     private cdRef: ChangeDetectorRef
   ) {}
