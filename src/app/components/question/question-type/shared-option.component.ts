@@ -298,29 +298,26 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.clickedOptionIds.add(option.optionId ?? index);
   
     if (this.type === 'single') {
-      // For single-select, deselect all options first
+      // For single-select, deselect all options and select only the clicked one
       for (const binding of this.optionBindings) {
-        binding.isSelected = false;
-        binding.option.selected = false;
-        binding.showFeedback = false;
-        this.showIconForOption[binding.option.optionId] = false;
-        this.iconVisibility[binding.option.optionId] = false;
+        const isClickedOption = binding.option.optionId === option.optionId;
+        binding.isSelected = isClickedOption;
+        binding.option.selected = isClickedOption;
+        binding.showFeedback = this.showFeedback && isClickedOption;
+        this.showIconForOption[binding.option.optionId] = isClickedOption;
+        this.iconVisibility[binding.option.optionId] = isClickedOption;
       }
-  
-      // Now select only the clicked option
-      optionBinding.isSelected = true;
-      optionBinding.option.selected = true;
-      optionBinding.showFeedback = true;
-      this.showIconForOption[option.optionId] = true;
-      this.iconVisibility[option.optionId] = true;
-  
       this.selectedOption = option;
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
   
-      // Store the selected option for this question
+      // Store the selected option
       if (this.currentQuestion) {
-        this.quizStateService.setSelectedOptionForQuestion(this.currentQuestion.id, option.optionId);
+        const selectedOption: SelectedOption = {
+          ...option,
+          questionId: this.currentQuestion.questionId // Assuming questionId exists on currentQuestion
+        };
+        this.selectedOptionService.setSelectedOption(selectedOption);
       }
     } else {
       // For multiple-select, toggle the selection of the clicked option
