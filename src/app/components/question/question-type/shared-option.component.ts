@@ -313,7 +313,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedback = true;
   
     // Reset icon visibility and feedback for all options
-    this.iconVisibility = {};
+    this.iconVisibility = [];
     this.showIconForOption = {};
     this.showFeedbackForOption = {};
   
