@@ -303,8 +303,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     // Clear previous feedback and icons
     this.resetFeedbackAndIcons();
 
-    if (this.currentQuestion) {
-      this.type = this.currentQuestion.type as 'single' | 'multiple';
+    // Ensure type is set correctly if currentQuestion is available
+    if (this.currentQuestion && this.currentQuestion.type) {
+      this.type = this.convertQuestionType(this.currentQuestion.type);
     }
   
     this.lastSelectedOption = option;
@@ -428,8 +429,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.resetFeedbackAndIcons();
     this.initializeOptionBindings();
 
-    if (this.currentQuestion) {
-      this.type = this.currentQuestion.type as 'single' | 'multiple';
+    if (this.currentQuestion && this.currentQuestion.type) {
+      this.type = this.convertQuestionType(this.currentQuestion.type);
     }
   }
 
