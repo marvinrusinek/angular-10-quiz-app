@@ -94,6 +94,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     if (changes['currentQuestion']) {
       this.handleQuestionChange(changes['currentQuestion']);
+      this.initializeQuestionState();
     }
 
     if (changes.optionsToDisplay) {
@@ -300,6 +301,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     // Clear previous feedback and icons
     this.resetFeedbackAndIcons();
+
+    this.type = this.currentQuestion.type;
   
     this.lastSelectedOption = option;
     this.lastSelectedOptionIndex = index;
@@ -401,19 +404,28 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   public resetFeedbackAndIcons(): void {
     this.showFeedback = false;
     this.showFeedbackForOption = {};
+    this.showIconForOption = {};
+    this.iconVisibility = this.optionBindings.map(() => false);
+    this.selectedOptions.clear();
+    this.selectedOption = null;
+    this.clickedOptionIds.clear();
   
-    // Don't reset showIconForOption and iconVisibility
-    // this.showIconForOption = {};
-    // this.iconVisibility = {};
-
     for (const binding of this.optionBindings) {
+      binding.isSelected = false;
       binding.showFeedback = false;
-      // Don't reset option.showIcon
-      // binding.option.showIcon = false;
+      binding.option.selected = false;
+      binding.option.showIcon = false;
     }
-
+  
     this.updateHighlighting();
     this.cdRef.detectChanges();
+  }
+
+  private initializeQuestionState(): void {
+    this.resetFeedbackAndIcons();
+    this.initializeOptionBindings();
+    this.type = this.currentQuestion.type;
+    // Any other initialization needed for the new question
   }
 
   getOptionClass(option: Option): string {
