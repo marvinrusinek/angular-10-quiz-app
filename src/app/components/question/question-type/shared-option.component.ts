@@ -496,8 +496,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return item.optionId;
   }
 
-  isSingleOrMultiple(type: QuestionType): type is QuestionType.SingleAnswer | QuestionType.MultipleAnswer {
+  /* isSingleOrMultiple(type: QuestionType): type is QuestionType.SingleAnswer | QuestionType.MultipleAnswer {
     return type === QuestionType.SingleAnswer || type === QuestionType.MultipleAnswer;
+  } */
+  isSingleOrMultiple(type: 'single' | 'multiple'): type is 'single' | 'multiple' {
+    return type === 'single' || type === 'multiple';
   }
 
   convertQuestionType(type: QuestionType): 'single' | 'multiple' {
