@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, In
 
 import { Option } from '../../../shared/models/Option.model';
 import { OptionBindings } from '../../../shared/models/OptionBindings.model';
+import { QuestionType } from '../../../shared/models/question-type.enum';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
@@ -302,7 +303,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     // Clear previous feedback and icons
     this.resetFeedbackAndIcons();
 
-    this.type = this.currentQuestion.type;
+    if (this.currentQuestion) {
+      this.type = this.currentQuestion.type as 'single' | 'multiple';
+    }
   
     this.lastSelectedOption = option;
     this.lastSelectedOptionIndex = index;
@@ -424,8 +427,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   private initializeQuestionState(): void {
     this.resetFeedbackAndIcons();
     this.initializeOptionBindings();
-    this.type = this.currentQuestion.type;
-    // Any other initialization needed for the new question
+
+    if (this.currentQuestion) {
+      this.type = this.currentQuestion.type as 'single' | 'multiple';
+    }
   }
 
   getOptionClass(option: Option): string {
