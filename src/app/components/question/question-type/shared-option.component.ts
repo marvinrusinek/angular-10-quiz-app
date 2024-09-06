@@ -139,7 +139,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     this.updateHighlighting();
-    this.cdRef.detectChanges();
   }
 
   getOptionAttributes(optionBinding: OptionBindings) {
