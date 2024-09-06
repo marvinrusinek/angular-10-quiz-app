@@ -284,7 +284,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         directive.option = binding.option;
         directive.isSelected = binding.isSelected;
         directive.isCorrect = binding.isCorrect;
-        // directive.showFeedback = binding.showFeedback;
         directive.showFeedback = this.showFeedback && this.showFeedbackForOption[binding.option.optionId];
         directive.highlightCorrectAfterIncorrect =
           this.highlightCorrectAfterIncorrect;
@@ -402,12 +401,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   public resetFeedbackAndIcons(): void {
     this.showFeedback = false;
     this.showFeedbackForOption = {};
-    this.showIconForOption = {};
-    this.iconVisibility = {};
+    
+    // Don't reset showIconForOption and iconVisibility
+    // this.showIconForOption = {};
+    // this.iconVisibility = {};
   
     for (const binding of this.optionBindings) {
       binding.showFeedback = false;
-      binding.option.showIcon = false;
+      // Don't reset option.showIcon
+      // binding.option.showIcon = false;
     }
   
     this.updateHighlighting();
