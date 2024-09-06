@@ -109,7 +109,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  /* private handleQuestionChange(change: SimpleChange): void {
+  private handleQuestionChange(change: SimpleChange): void {
     const previousSelections = new Set(this.selectedOptions);
     
     // Reset the component state
@@ -139,35 +139,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     this.updateHighlighting();
-  } */
-  private handleQuestionChange(change: SimpleChange): void {
-    const previousSelections = new Set(this.selectedOptions);
-    
-    // Reset the component state
-    this.resetState();
-    this.initializeOptionBindings();
-  
-    // Restore previous selections (if any) without showing feedback or icons
-    for (const binding of this.optionBindings) {
-      if (previousSelections.has(binding.option.optionId)) {
-        binding.isSelected = true;
-        binding.option.selected = true;
-        this.selectedOptions.add(binding.option.optionId);
-        if (this.type === 'single') {
-          this.selectedOption = binding.option;
-          break; // Only select one option for single-select questions
-        }
-      }
-    }
-  
-    // Reset feedback and icon visibility
-    this.showFeedback = false;
-    this.showFeedbackForOption = {};
-    this.showIconForOption = {};
-    this.iconVisibility = [];
-  
-    this.updateHighlighting();
-    this.cdRef.detectChanges();
   }
 
   getOptionAttributes(optionBinding: OptionBindings) {
