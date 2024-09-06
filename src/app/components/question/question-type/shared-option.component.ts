@@ -101,39 +101,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.handleQuestionChange(changes['currentQuestion']);
     }
 
-    if (changes['currentQuestion']) {
-      const previousSelections = new Set(this.selectedOptions);
-      
-      // Reset the component state
-      this.resetComponentState();
-      this.initializeOptionBindings();
-  
-      // Check if this is not the first change (i.e., we're navigating between questions)
-      if (!changes['currentQuestion'].firstChange) {
-        // Clear previous selections when navigating
-        previousSelections.clear();
-      }
-  
-      // Restore previous selections (if any)
-      for (const binding of this.optionBindings) {
-        if (previousSelections.has(binding.option.optionId)) {
-          binding.isSelected = true;
-          binding.option.selected = true;
-          this.selectedOptions.add(binding.option.optionId);
-          this.showIconForOption[binding.option.optionId] = true;
-          this.iconVisibility[binding.option.optionId] = true;
-          this.showFeedbackForOption[binding.option.optionId] = true;
-          if (this.type === 'single') {
-            this.selectedOption = binding.option;
-            break; // Only select one option for single-select questions
-          }
-        }
-      }
-  
-      this.updateHighlighting();
-      this.cdRef.detectChanges();
-    }
-
     if (changes.showFeedback) {
       console.log('showFeedback changed to:', this.showFeedback);
     }
