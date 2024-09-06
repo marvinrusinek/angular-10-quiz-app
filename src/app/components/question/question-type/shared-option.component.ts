@@ -498,4 +498,16 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   isSingleOrMultiple(type: QuestionType): type is QuestionType.SingleAnswer | QuestionType.MultipleAnswer {
     return type === QuestionType.SingleAnswer || type === QuestionType.MultipleAnswer;
   }
+
+  convertQuestionType(type: QuestionType): 'single' | 'multiple' {
+    switch (type) {
+      case QuestionType.SingleAnswer:
+        return 'single';
+      case QuestionType.MultipleAnswer:
+        return 'multiple';
+      default:
+        console.warn(`Unexpected question type: ${type}. Defaulting to 'single'.`);
+        return 'single';
+    }
+  }
 }
