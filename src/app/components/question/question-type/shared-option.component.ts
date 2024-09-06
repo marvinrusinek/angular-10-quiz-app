@@ -297,18 +297,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('Question already submitted, ignoring click');
       return;
     }
-
-    /* if (this.isNavigatingBackwards) {
-      this.handleBackwardNavigationOptionClick(option, index);
-      return;
-    } */
   
-    // Check if the option has already been clicked
-    if (this.clickedOptionIds.has(option.optionId ?? index)) {
-      console.log('Option already selected, ignoring click');
-      return;
-    }
-
     // Clear previous feedback and icons
     this.resetFeedbackAndIcons();
   
@@ -316,29 +305,30 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.lastSelectedOptionIndex = index;
     this.showFeedback = true;
   
+    // Reset icon visibility for all options
+    this.iconVisibility = {};
+    this.showIconForOption = {};
+  
     const optionBinding = this.optionBindings[index];
     optionBinding.option.showIcon = true;
     this.iconVisibility[option.optionId] = true;
+    this.showIconForOption[option.optionId] = true;
     this.showFeedbackForOption[option.optionId] = true;
     this.clickedOptionIds.add(option.optionId ?? index);
   
     if (this.type === 'single') {
       // For single-select, update only the clicked option
-      if (this.selectedOption && this.selectedOption !== option) {
-        // Deselect the previously selected option
-        const prevSelectedBinding = this.optionBindings.find(binding => binding.option === this.selectedOption);
-        if (prevSelectedBinding) {
-          prevSelectedBinding.isSelected = false;
-          prevSelectedBinding.option.selected = false;
+      this.optionBindings.forEach(binding => {
+        if (binding === optionBinding) {
+          binding.isSelected = true;
+          binding.option.selected = true;
+          binding.showFeedback = this.showFeedback;
+        } else {
+          binding.isSelected = false;
+          binding.option.selected = false;
+          binding.showFeedback = false;
         }
-      }
-  
-      // Select the clicked option
-      optionBinding.isSelected = true;
-      optionBinding.option.selected = true;
-      optionBinding.showFeedback = this.showFeedback;
-      this.showIconForOption[option.optionId] = true;
-      this.iconVisibility[option.optionId] = true;
+      });
   
       this.selectedOption = option;
       this.selectedOptions.clear();
@@ -347,13 +337,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // Store the selected option
       this.selectedOptionService.setSelectedOption(option as SelectedOption);
     } else {
-      // For multiple-select, always select the option
-      optionBinding.isSelected = true;
-      optionBinding.option.selected = true;
+      // For multiple-select, toggle the selection
+      optionBinding.isSelected = !optionBinding.isSelected;
+      optionBinding.option.selected = optionBinding.isSelected;
       optionBinding.showFeedback = this.showFeedback;
       
-      this.selectedOptions.add(option.optionId);
-      this.showIconForOption[option.optionId] = true;
+      if (optionBinding.isSelected) {
+        this.selectedOptions.add(option.optionId);
+      } else {
+        this.selectedOptions.delete(option.optionId);
+        this.showIconForOption[option.optionId] = false;
+        this.iconVisibility[option.optionId] = false;
+      }
     }
   
     this.updateHighlighting();
