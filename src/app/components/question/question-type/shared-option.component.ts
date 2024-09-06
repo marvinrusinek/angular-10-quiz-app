@@ -265,7 +265,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  /* handleOptionClick(option: Option, index: number): void {
+  handleOptionClick(option: Option, index: number): void {
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
@@ -333,8 +333,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     this.optionClicked.emit({ option, index });
-  } */
-  handleOptionClick(option: Option, index: number): void {
+  }
+  /* handleOptionClick(option: Option, index: number): void {
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
@@ -406,7 +406,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     this.optionClicked.emit({ option, index });
-  }
+  } */
 
   private resetState(): void {
     this.isSubmitted = false;
