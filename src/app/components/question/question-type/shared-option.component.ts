@@ -351,8 +351,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.selectedOptions.clear();
     this.clickedOptionIds.clear();
     this.showFeedbackForOption = {};
-    this.iconVisibility = {};
     this.showIconForOption = {};
+    this.iconVisibility = [];
   
     if (this.optionBindings) {
       for (const binding of this.optionBindings) {
