@@ -298,10 +298,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
 
-    if (this.isNavigatingBackwards) {
+    /* if (this.isNavigatingBackwards) {
       this.handleBackwardNavigationOptionClick(option, index);
       return;
-    }
+    } */
+    // Clear previous feedback and icons
+    this.resetFeedbackAndIcons();
   
     // Check if the option has already been clicked
     if (this.clickedOptionIds.has(option.optionId ?? index)) {
