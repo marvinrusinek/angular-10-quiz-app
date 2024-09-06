@@ -395,54 +395,28 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   handleBackwardNavigationOptionClick(option: Option, index: number): void {
     const optionBinding = this.optionBindings[index];
     
-    // Store the previously selected option
-    const previouslySelectedOption = this.selectedOption;
-  
-    // Clear previous feedback and icons
-    this.showFeedbackForOption = {};
-    this.showIconForOption = {};
-    this.iconVisibility = this.optionBindings.map(() => false);
-  
-    // Update the clicked option
-    optionBinding.isSelected = true;
-    optionBinding.option.selected = true;
-    optionBinding.showFeedback = true;
-    this.showFeedbackForOption[option.optionId] = true;
-    this.showIconForOption[option.optionId] = true;
-    this.iconVisibility[option.optionId] = true;
-  
     if (this.type === 'single') {
-      // Deselect other options for single-select questions
+      // For single-select, clear all selections and select only the clicked option
       this.optionBindings.forEach(binding => {
-        if (binding !== optionBinding) {
-          binding.isSelected = false;
-          binding.option.selected = false;
-        }
+        binding.isSelected = binding === optionBinding;
+        binding.option.selected = binding === optionBinding;
       });
       this.selectedOption = option;
-      
-      // If there was a previously selected option, keep its icon visible
-      if (previouslySelectedOption && previouslySelectedOption !== option) {
-        this.showIconForOption[previouslySelectedOption.optionId] = true;
-        this.iconVisibility[previouslySelectedOption.optionId] = true;
-      }
+      this.selectedOptions.clear();
+      this.selectedOptions.add(option.optionId);
     } else {
       // For multiple-select, toggle the selection
-      if (this.selectedOptions.has(option.optionId)) {
-        this.selectedOptions.delete(option.optionId);
-        this.showIconForOption[option.optionId] = false;
-        this.iconVisibility[option.optionId] = false;
-      } else {
+      optionBinding.isSelected = !optionBinding.isSelected;
+      optionBinding.option.selected = optionBinding.isSelected;
+      
+      if (optionBinding.isSelected) {
         this.selectedOptions.add(option.optionId);
+      } else {
+        this.selectedOptions.delete(option.optionId);
       }
     }
   
-    // Ensure icons are shown only for selected options
-    this.selectedOptions.forEach(optionId => {
-      this.showIconForOption[optionId] = true;
-      this.iconVisibility[optionId] = true;
-    });
-  
+    this.showFeedback = true;
     this.updateHighlighting();
     this.cdRef.detectChanges();
   
