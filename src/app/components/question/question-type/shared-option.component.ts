@@ -321,7 +321,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     this.optionClicked.emit({ option, index });
-    this.cdRef.detectChanges();
   }
 
   private resetState(): void {
@@ -350,7 +349,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     this.updateHighlighting();
-    this.cdRef.detectChanges();
   }
 
   getOptionClass(option: Option): string {
