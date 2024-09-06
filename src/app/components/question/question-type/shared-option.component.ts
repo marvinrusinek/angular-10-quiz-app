@@ -147,27 +147,24 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.resetState();
     this.initializeOptionBindings();
   
-    // Check if this is not the first change (i.e., we're navigating between questions)
-    if (!change.firstChange) {
-      // Clear previous selections when navigating
-      previousSelections.clear();
-    }
-  
-    // Restore previous selections (if any)
+    // Restore previous selections (if any) without showing feedback or icons
     for (const binding of this.optionBindings) {
       if (previousSelections.has(binding.option.optionId)) {
         binding.isSelected = true;
         binding.option.selected = true;
         this.selectedOptions.add(binding.option.optionId);
-        this.showIconForOption[binding.option.optionId] = true;
-        this.iconVisibility[binding.option.optionId] = true;
-        this.showFeedbackForOption[binding.option.optionId] = true;
         if (this.type === 'single') {
           this.selectedOption = binding.option;
           break; // Only select one option for single-select questions
         }
       }
     }
+  
+    // Reset feedback and icon visibility
+    this.showFeedback = false;
+    this.showFeedbackForOption = {};
+    this.showIconForOption = {};
+    this.iconVisibility = [];
   
     this.updateHighlighting();
     this.cdRef.detectChanges();
@@ -279,7 +276,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         directive.option = binding.option;
         directive.isSelected = binding.isSelected;
         directive.isCorrect = binding.isCorrect;
-        directive.showFeedback = binding.showFeedback;
+        directive.showFeedback = this.showFeedback && binding.showFeedback;
         directive.highlightCorrectAfterIncorrect =
           this.highlightCorrectAfterIncorrect;
         directive.updateHighlight();
