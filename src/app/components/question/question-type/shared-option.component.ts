@@ -305,9 +305,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.lastSelectedOptionIndex = index;
     this.showFeedback = true;
   
-    // Reset icon visibility for all options
+    // Reset icon visibility and feedback for all options
     this.iconVisibility = {};
     this.showIconForOption = {};
+    this.showFeedbackForOption = {};
   
     const optionBinding = this.optionBindings[index];
     optionBinding.option.showIcon = true;
@@ -327,6 +328,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
           binding.isSelected = false;
           binding.option.selected = false;
           binding.showFeedback = false;
+          // Ensure other options don't show icons or feedback
+          this.iconVisibility[binding.option.optionId] = false;
+          this.showIconForOption[binding.option.optionId] = false;
+          this.showFeedbackForOption[binding.option.optionId] = false;
         }
       });
   
