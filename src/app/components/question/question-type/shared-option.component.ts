@@ -395,12 +395,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   handleBackwardNavigationOptionClick(option: Option, index: number): void {
     const optionBinding = this.optionBindings[index];
     
+    // Store the previously selected option
+    const previouslySelectedOption = this.selectedOption;
+  
     // Clear previous feedback and icons
     this.showFeedbackForOption = {};
     this.showIconForOption = {};
     this.iconVisibility = this.optionBindings.map(() => false);
   
-    // Update only the clicked option
+    // Update the clicked option
     optionBinding.isSelected = true;
     optionBinding.option.selected = true;
     optionBinding.showFeedback = true;
@@ -417,10 +420,28 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         }
       });
       this.selectedOption = option;
+      
+      // If there was a previously selected option, keep its icon visible
+      if (previouslySelectedOption && previouslySelectedOption !== option) {
+        this.showIconForOption[previouslySelectedOption.optionId] = true;
+        this.iconVisibility[previouslySelectedOption.optionId] = true;
+      }
+    } else {
+      // For multiple-select, toggle the selection
+      if (this.selectedOptions.has(option.optionId)) {
+        this.selectedOptions.delete(option.optionId);
+        this.showIconForOption[option.optionId] = false;
+        this.iconVisibility[option.optionId] = false;
+      } else {
+        this.selectedOptions.add(option.optionId);
+      }
     }
   
-    this.selectedOptions.clear();
-    this.selectedOptions.add(option.optionId);
+    // Ensure icons are shown only for selected options
+    this.selectedOptions.forEach(optionId => {
+      this.showIconForOption[optionId] = true;
+      this.iconVisibility[optionId] = true;
+    });
   
     this.updateHighlighting();
     this.cdRef.detectChanges();
