@@ -61,20 +61,26 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     console.log('SingleAnswerComponent - showFeedback set to', this.showFeedback);
   }
 
-  initializeOptionBindings() {
-    this.optionBindings = this.optionsToDisplay.map(option => ({
+  initializeOptionBindings(): void {
+    this.optionBindings = this.optionsToDisplay.map((option): OptionBindings => ({
       option: {
         ...option,
         feedback: option.correct ? this.correctMessage : this.incorrectMessage
       },
       isSelected: false,
-      disabled: false,
-      isCorrect: option.correct,
+      isCorrect: option.correct || false,
+      showFeedback: false,
       showFeedbackForOption: false,
-      highlightCorrectAfterIncorrect: false,
+      highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
       allOptions: this.optionsToDisplay,
-      ariaLabel: `Option ${option.text}`,
-      change: () => {}
+      type: this.type,
+      appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
+      appHighlightReset: false,
+      appResetBackground: false,
+      optionsToDisplay: this.optionsToDisplay,
+      disabled: false,
+      ariaLabel: `Option ${option.optionId}`,
+      change: () => this.handleOptionClick(option, option.optionId)
     }));
   }
 }
