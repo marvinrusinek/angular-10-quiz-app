@@ -92,12 +92,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('quizQuestionComponent changed:', this.quizQuestionComponent);
     }
 
-    if (changes.optionsToDisplay) {
-      this.initializeOptionBindings();
-    }
-
     if (changes['currentQuestion']) {
       this.handleQuestionChange(changes['currentQuestion']);
+    }
+
+    if (changes.optionsToDisplay) {
+      this.initializeOptionBindings();
     }
 
     if (changes.showFeedback) {
