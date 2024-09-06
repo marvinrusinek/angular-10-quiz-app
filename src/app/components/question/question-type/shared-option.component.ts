@@ -237,16 +237,37 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   updateHighlighting(): void {
-    if (this.highlightDirectives) {
-      this.highlightDirectives.forEach((directive, index) => {
-        const binding = this.optionBindings[index];
+    // Clear all icons and feedback
+    this.showFeedbackForOption = {};
+    this.showIconForOption = {};
+    this.iconVisibility = this.optionBindings.map(() => false);
+  
+    this.optionBindings.forEach(binding => {
+      const optionId = binding.option.optionId;
+      
+      if (this.showFeedback) {
+        if (binding.isSelected) {
+          // Show icon and feedback for selected options
+          this.showIconForOption[optionId] = true;
+          this.iconVisibility[optionId] = true;
+          this.showFeedbackForOption[optionId] = true;
+        } else if (this.highlightCorrectAfterIncorrect && binding.option.correct) {
+          // Show icon for correct options if highlightCorrectAfterIncorrect is true
+          this.showIconForOption[optionId] = true;
+          this.iconVisibility[optionId] = true;
+        }
+      }
+  
+      // Update the HighlightOptionDirective if it exists
+      const directive = this.highlightDirectives?.find(d => d.option === binding.option);
+      if (directive) {
         directive.isSelected = binding.isSelected;
         directive.isCorrect = binding.option.correct;
-        directive.showFeedback = this.showFeedback && this.showFeedbackForOption[binding.option.optionId];
+        directive.showFeedback = this.showFeedback;
         directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
         directive.updateHighlight();
-      });
-    }
+      }
+    });
   }
 
   handleOptionClick(option: Option, index: number): void {
