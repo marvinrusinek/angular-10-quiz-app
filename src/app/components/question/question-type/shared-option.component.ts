@@ -160,9 +160,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   // Helper method to apply attributes
-  applyAttributes(element: any, attributes: any) {
+  applyAttributes(element: HTMLElement, attributes: any): void {
     for (const key of Object.keys(attributes)) {
-      element[key] = attributes[key];
+      if (key in element) {
+        element[key] = attributes[key];
+      }
     }
   }
 
