@@ -141,6 +141,43 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.updateHighlighting();
   }
 
+  handleBackwardNavigationOptionClick(option: Option, index: number): void {
+    const optionBinding = this.optionBindings[index];
+    
+    // Clear previous feedback and icons
+    this.showFeedbackForOption = {};
+    this.showIconForOption = {};
+    // this.iconVisibility = {};
+  
+    // Update only the clicked option
+    optionBinding.isSelected = true;
+    optionBinding.option.selected = true;
+    optionBinding.showFeedback = true;
+    this.showFeedbackForOption[option.optionId] = true;
+    this.showIconForOption[option.optionId] = true;
+    this.iconVisibility[option.optionId] = true;
+  
+    if (this.type === 'single') {
+      // Deselect other options for single-select questions
+      this.optionBindings.forEach(binding => {
+        if (binding !== optionBinding) {
+          binding.isSelected = false;
+          binding.option.selected = false;
+        }
+      });
+      this.selectedOption = option;
+    }
+  
+    this.selectedOptions.clear();
+    this.selectedOptions.add(option.optionId);
+  
+    this.updateHighlighting();
+    this.cdRef.detectChanges();
+  
+    // Reset the backward navigation flag
+    this.isNavigatingBackwards = false;
+  }
+
   getOptionAttributes(optionBinding: OptionBindings) {
     return {
       appHighlightOption: '',
@@ -258,6 +295,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   handleOptionClick(option: Option, index: number): void {
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
+      return;
+    }
+
+    if (this.isNavigatingBackwards) {
+      this.handleBackwardNavigationOptionClick(option, index);
       return;
     }
   
