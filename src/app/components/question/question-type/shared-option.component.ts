@@ -255,7 +255,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  handleOptionClick(option: Option, index: number): void {
+  /* handleOptionClick(option: Option, index: number): void {
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
@@ -291,6 +291,65 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // Select the clicked option
       optionBinding.isSelected = true;
       optionBinding.option.selected = true;
+      optionBinding.showFeedback = this.showFeedback;
+      this.showIconForOption[option.optionId] = true;
+      this.iconVisibility[option.optionId] = true;
+  
+      this.selectedOption = option;
+      this.selectedOptions.clear();
+      this.selectedOptions.add(option.optionId);
+  
+      // Store the selected option
+      this.selectedOptionService.setSelectedOption(option as SelectedOption);
+    } else {
+      // For multiple-select, always select the option
+      optionBinding.isSelected = true;
+      optionBinding.option.selected = true;
+      optionBinding.showFeedback = this.showFeedback;
+      
+      this.selectedOptions.add(option.optionId);
+      this.showIconForOption[option.optionId] = true;
+    }
+  
+    this.updateHighlighting();
+  
+    // Call the quizQuestionComponentOnOptionClicked method if it exists
+    if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
+      this.quizQuestionComponentOnOptionClicked(option as SelectedOption, index);
+    } else if (this.quizQuestionComponentOnOptionClicked !== undefined) {
+      console.warn('quizQuestionComponentOnOptionClicked is defined but is not a function in SharedOptionComponent');
+    } else {
+      console.debug('quizQuestionComponentOnOptionClicked is not defined in SharedOptionComponent');
+    }
+  
+    this.optionClicked.emit({ option, index });
+  } */
+  handleOptionClick(option: Option, index: number): void {
+    if (this.isSubmitted) {
+      console.log('Question already submitted, ignoring click');
+      return;
+    }
+  
+    // Reset the state for the new selection
+    this.resetState();
+  
+    this.lastSelectedOption = option;
+    this.lastSelectedOptionIndex = index;
+    this.showFeedback = true;
+  
+    const optionBinding = this.optionBindings[index];
+    optionBinding.option.showIcon = true;
+    this.iconVisibility[option.optionId] = true;
+    this.showFeedbackForOption[option.optionId] = true;
+    this.clickedOptionIds.add(option.optionId ?? index);
+  
+    if (this.type === 'single') {
+      // For single-select, update only the clicked option
+      this.optionBindings.forEach(binding => {
+        binding.isSelected = binding.option === option;
+        binding.option.selected = binding.option === option;
+      });
+  
       optionBinding.showFeedback = this.showFeedback;
       this.showIconForOption[option.optionId] = true;
       this.iconVisibility[option.optionId] = true;
