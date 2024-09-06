@@ -50,6 +50,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   showIconForOption: { [optionId: number]: boolean } = {};
   lastSelectedOptionIndex: number | null = null;
   lastSelectedOption: Option | null = null;
+  isNavigatingBackwards = false;
 
   optionTextStyle = {
     color: 'black'
@@ -124,26 +125,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
           binding.isSelected = true;
           binding.option.selected = true;
           this.selectedOptions.add(binding.option.optionId);
-          this.showIconForOption[binding.option.optionId] = true;
-          this.iconVisibility[binding.option.optionId] = true;
-          this.showFeedbackForOption[binding.option.optionId] = true;
+          // Don't set showIconForOption or iconVisibility here
         }
       });
-  
-      // For single-select questions, ensure only one option is selected
-      if (this.type === 'single' && this.selectedOptions.size > 0) {
-        const lastSelectedOptionId = Array.from(this.selectedOptions).pop();
-        this.selectedOptions.clear();
-        this.selectedOptions.add(lastSelectedOptionId);
-        this.optionBindings.forEach(binding => {
-          const isSelected = binding.option.optionId === lastSelectedOptionId;
-          binding.isSelected = isSelected;
-          binding.option.selected = isSelected;
-          this.showIconForOption[binding.option.optionId] = isSelected;
-          this.iconVisibility[binding.option.optionId] = isSelected;
-          this.showFeedbackForOption[binding.option.optionId] = isSelected;
-        });
-      }
     }
   
     if (this.currentQuestion && this.currentQuestion.type) {
@@ -407,6 +391,43 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     this.optionClicked.emit({ option, index });
   } */
+
+  handleBackwardNavigationOptionClick(option: Option, index: number): void {
+    const optionBinding = this.optionBindings[index];
+    
+    // Clear previous feedback and icons
+    this.showFeedbackForOption = {};
+    this.showIconForOption = {};
+    this.iconVisibility = this.optionBindings.map(() => false);
+  
+    // Update only the clicked option
+    optionBinding.isSelected = true;
+    optionBinding.option.selected = true;
+    optionBinding.showFeedback = true;
+    this.showFeedbackForOption[option.optionId] = true;
+    this.showIconForOption[option.optionId] = true;
+    this.iconVisibility[option.optionId] = true;
+  
+    if (this.type === 'single') {
+      // Deselect other options for single-select questions
+      this.optionBindings.forEach(binding => {
+        if (binding !== optionBinding) {
+          binding.isSelected = false;
+          binding.option.selected = false;
+        }
+      });
+      this.selectedOption = option;
+    }
+  
+    this.selectedOptions.clear();
+    this.selectedOptions.add(option.optionId);
+  
+    this.updateHighlighting();
+    this.cdRef.detectChanges();
+  
+    // Reset the backward navigation flag
+    this.isNavigatingBackwards = false;
+  }
 
   private resetState(): void {
     this.isSubmitted = false;
