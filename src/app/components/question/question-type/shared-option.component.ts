@@ -48,7 +48,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   iconVisibility: boolean[] = []; // Array to store visibility state of icons
   clickedOptionIds: Set<number> = new Set();
   showIconForOption: { [optionId: number]: boolean } = {};
-  lastSelectedOptionId: number | null = null;
   lastSelectedOptionIndex: number | null = null;
   lastSelectedOption: Option | null = null;
 
