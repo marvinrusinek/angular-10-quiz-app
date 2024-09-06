@@ -314,10 +314,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.updateHighlighting();
   
     // Call the quizQuestionComponentOnOptionClicked method if it exists
-    if (this.quizQuestionComponentOnOptionClicked) {
+    if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
       this.quizQuestionComponentOnOptionClicked(option as SelectedOption, index);
+    } else if (this.quizQuestionComponentOnOptionClicked !== undefined) {
+      console.warn('quizQuestionComponentOnOptionClicked is defined but is not a function in SharedOptionComponent');
     } else {
-      console.warn('quizQuestionComponentOnOptionClicked is not defined in SharedOptionComponent');
+      console.debug('quizQuestionComponentOnOptionClicked is not defined in SharedOptionComponent');
     }
   
     this.optionClicked.emit({ option, index });
