@@ -401,17 +401,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   public resetFeedbackAndIcons(): void {
     this.showFeedback = false;
     this.showFeedbackForOption = {};
-    
+  
     // Don't reset showIconForOption and iconVisibility
     // this.showIconForOption = {};
     // this.iconVisibility = {};
-  
+
     for (const binding of this.optionBindings) {
       binding.showFeedback = false;
       // Don't reset option.showIcon
       // binding.option.showIcon = false;
     }
-  
+
     this.updateHighlighting();
     this.cdRef.detectChanges();
   }
