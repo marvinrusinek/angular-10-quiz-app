@@ -434,8 +434,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     if (this.optionBindings) {
       for (const binding of this.optionBindings) {
-        binding.isSelected = false;
-        binding.option.selected = false;
+        // binding.isSelected = false;
+        // binding.option.selected = false;
         binding.showFeedback = false;
         binding.option.showIcon = false;
       }
