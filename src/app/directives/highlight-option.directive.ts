@@ -61,15 +61,11 @@ export class HighlightOptionDirective implements OnChanges {
 
   updateHighlight(): void {
     let backgroundColor = 'transparent';
-
-    if (this.isSelected) {
-      if (this.showFeedback) {
-        backgroundColor = this.isCorrect ? '#43f756' : '#ff0000';
-      } else {
-        backgroundColor = '#e0e0e0';
-      }
+  
+    if (this.isSelected && this.showFeedback) {
+      backgroundColor = this.isCorrect ? '#43f756' : '#ff0000';
     }
-
+  
     if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
       this.highlightCorrectAnswers();
     } else {
