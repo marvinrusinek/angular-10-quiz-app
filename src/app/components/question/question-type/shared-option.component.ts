@@ -173,28 +173,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.questionAnswered.emit(question);
   }
 
-  resetState(): void {
-    this.isSubmitted = false;
-    this.showFeedback = false;
-    this.selectedOption = null;
-    this.showFeedbackForOption = {};
-    this.iconVisibility = [];
-    this.clickedOptionIds.clear();
-    this.showIconForOption = {};
-  }
-
-  private resetOptionState(): void {
-    if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-      for (const option of this.optionsToDisplay) {
-        option.selected = false;
-      }
-      for (const optionBinding of this.optionBindings) {
-        optionBinding.isSelected = false;
-        optionBinding.showFeedback = false;
-      }
-    }
-  }
-
   getOptionDisplayText(option: Option, idx: number): string {
     return `${idx + 1}. ${option?.text}`;
   }
@@ -346,6 +324,16 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.cdRef.detectChanges();
   }
 
+  resetState(): void {
+    this.isSubmitted = false;
+    this.showFeedback = false;
+    this.selectedOption = null;
+    this.showFeedbackForOption = {};
+    this.iconVisibility = [];
+    this.clickedOptionIds.clear();
+    this.showIconForOption = {};
+  }
+
   private resetComponentState(): void {
     this.selectedOption = null;
     this.selectedOptions.clear();
@@ -360,6 +348,19 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         binding.option.selected = false;
         binding.showFeedback = false;
         binding.option.showIcon = false;
+      }
+    }
+    
+    if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
+      for (const option of this.optionsToDisplay) {
+        option.selected = false;
+      }
+    }
+  
+    if (this.optionBindings) {
+      for (const optionBinding of this.optionBindings) {
+        optionBinding.isSelected = false;
+        optionBinding.showFeedback = false;
       }
     }
   
