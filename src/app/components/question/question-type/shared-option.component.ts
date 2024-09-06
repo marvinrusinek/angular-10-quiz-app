@@ -341,16 +341,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedbackForOption = {};
     this.showIconForOption = {};
     this.iconVisibility = [];
-  
-    if (this.optionBindings) {
-      for (const binding of this.optionBindings) {
-        binding.isSelected = false;
-        binding.option.selected = false;
-        binding.showFeedback = false;
-        binding.option.showIcon = false;
-      }
-    }
-    
+
     if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
       for (const option of this.optionsToDisplay) {
         option.selected = false;
@@ -358,9 +349,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     if (this.optionBindings) {
-      for (const optionBinding of this.optionBindings) {
-        optionBinding.isSelected = false;
-        optionBinding.showFeedback = false;
+      for (const binding of this.optionBindings) {
+        binding.isSelected = false;
+        binding.option.selected = false;
+        binding.showFeedback = false;
+        binding.option.showIcon = false;
       }
     }
   
