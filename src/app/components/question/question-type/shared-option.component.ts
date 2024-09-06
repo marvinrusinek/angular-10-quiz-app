@@ -299,7 +299,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  handleOptionClick(option: Option, index: number): void {
+  /* handleOptionClick(option: Option, index: number): void {
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
@@ -368,6 +368,72 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
     }
   
+    this.updateHighlighting();
+  
+    // Call the quizQuestionComponentOnOptionClicked method if it exists
+    if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
+      this.quizQuestionComponentOnOptionClicked(option as SelectedOption, index);
+    } else if (this.quizQuestionComponentOnOptionClicked !== undefined) {
+      console.warn('quizQuestionComponentOnOptionClicked is defined but is not a function in SharedOptionComponent');
+    } else {
+      console.debug('quizQuestionComponentOnOptionClicked is not defined in SharedOptionComponent');
+    }
+  
+    this.optionClicked.emit({ option, index });
+  } */
+  handleOptionClick(option: Option, index: number): void {
+    if (this.isSubmitted) {
+      console.log('Question already submitted, ignoring click');
+      return;
+    }
+  
+    // Ensure type is set correctly if currentQuestion is available
+    if (this.currentQuestion && this.currentQuestion.type) {
+      this.type = this.convertQuestionType(this.currentQuestion.type);
+    }
+  
+    this.lastSelectedOption = option;
+    this.lastSelectedOptionIndex = index;
+    this.showFeedback = true;
+  
+    const optionBinding = this.optionBindings[index];
+  
+    if (this.type === 'single') {
+      // For single-select, update all options
+      this.optionBindings.forEach((binding, i) => {
+        const isSelected = i === index;
+        binding.isSelected = isSelected;
+        binding.option.selected = isSelected;
+        binding.showFeedback = isSelected && this.showFeedback;
+        this.iconVisibility[binding.option.optionId] = isSelected;
+        this.showIconForOption[binding.option.optionId] = isSelected;
+        this.showFeedbackForOption[binding.option.optionId] = isSelected;
+      });
+  
+      this.selectedOption = option;
+      this.selectedOptions.clear();
+      this.selectedOptions.add(option.optionId);
+  
+      // Store the selected option
+      this.selectedOptionService.setSelectedOption(option as SelectedOption);
+    } else {
+      // For multiple-select, toggle the selection
+      optionBinding.isSelected = !optionBinding.isSelected;
+      optionBinding.option.selected = optionBinding.isSelected;
+      optionBinding.showFeedback = this.showFeedback;
+      
+      this.iconVisibility[option.optionId] = optionBinding.isSelected;
+      this.showIconForOption[option.optionId] = optionBinding.isSelected;
+      this.showFeedbackForOption[option.optionId] = optionBinding.isSelected;
+  
+      if (optionBinding.isSelected) {
+        this.selectedOptions.add(option.optionId);
+      } else {
+        this.selectedOptions.delete(option.optionId);
+      }
+    }
+  
+    this.clickedOptionIds.add(option.optionId ?? index);
     this.updateHighlighting();
   
     // Call the quizQuestionComponentOnOptionClicked method if it exists
