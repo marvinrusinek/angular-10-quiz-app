@@ -27,7 +27,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
   @Output() optionChanged = new EventEmitter<any>();
   @Input() quizQuestionComponent!: QuizQuestionComponent;
-  @Input() onOptionClickedCallback!: (option: Option, index: number) => void;
   @Input() config: SharedOptionConfig;
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
@@ -50,6 +49,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   showIconForOption: { [optionId: number]: boolean } = {};
   lastSelectedOptionIndex: number | null = null;
   lastSelectedOption: Option | null = null;
+  isNavigatingBackwards = false;
 
   optionTextStyle = {
     color: 'black'
