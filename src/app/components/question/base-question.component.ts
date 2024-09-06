@@ -151,6 +151,15 @@ export abstract class BaseQuestionComponent
     }
   }
 
+  private initializeQuestionIfAvailable(): void {
+    if (this.question) {
+      this.setCurrentQuestion(this.question);
+      this.initializeQuestion();
+    } else {
+      console.warn('Initial question input is undefined in ngOnInit, waiting for ngOnChanges');
+    }
+  }
+
   protected initializeOptions(): void {
     if (!this.question) {
       console.error('initializeOptions - Question is undefined when called');
@@ -169,15 +178,6 @@ export abstract class BaseQuestionComponent
       console.error('initializeOptions - Question or options are undefined', {
         question: this.question
       });
-    }
-  }
-
-  private initializeQuestionIfAvailable(): void {
-    if (this.question) {
-      this.setCurrentQuestion(this.question);
-      this.initializeQuestion();
-    } else {
-      console.warn('Initial question input is undefined in ngOnInit, waiting for ngOnChanges');
     }
   }
 
