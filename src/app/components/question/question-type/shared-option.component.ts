@@ -395,6 +395,21 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.updateHighlighting();
   }
 
+  public resetFeedbackAndIcons(): void {
+    this.showFeedback = false;
+    this.showFeedbackForOption = {};
+    this.showIconForOption = {};
+    // this.iconVisibility = {};
+  
+    for (const binding of this.optionBindings) {
+      binding.showFeedback = false;
+      binding.option.showIcon = false;
+    }
+  
+    this.updateHighlighting();
+    this.cdRef.detectChanges();
+  }
+
   getOptionClass(option: Option): string {
     if (!this.showFeedback) {
       return '';

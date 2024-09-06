@@ -1916,6 +1916,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
       if (this.sharedOptionComponent) {
         this.sharedOptionComponent.isNavigatingBackwards = true;
+        this.sharedOptionComponent.resetFeedbackAndIcons();
       }
 
       // Combine fetching data and initializing question state into a single method
