@@ -114,7 +114,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     const previousSelections = new Set(this.selectedOptions);
     
     // Reset the component state
-    this.resetComponentState();
+    this.resetState();
     this.initializeOptionBindings();
   
     // Check if this is not the first change (i.e., we're navigating between questions)
@@ -324,25 +324,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.cdRef.detectChanges();
   }
 
-  resetState(): void {
+  private resetState(): void {
     this.isSubmitted = false;
     this.showFeedback = false;
-    this.selectedOption = null;
-    this.showFeedbackForOption = {};
-    this.iconVisibility = [];
-    this.clickedOptionIds.clear();
-    this.showIconForOption = {};
-  }
-
-  private resetComponentState(): void {
     this.selectedOption = null;
     this.selectedOptions.clear();
     this.clickedOptionIds.clear();
     this.showFeedbackForOption = {};
     this.showIconForOption = {};
     this.iconVisibility = [];
-
-    if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
+  
+    if (this.optionsToDisplay) {
       for (const option of this.optionsToDisplay) {
         option.selected = false;
       }
