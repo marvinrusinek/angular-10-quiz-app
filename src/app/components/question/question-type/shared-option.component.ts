@@ -494,4 +494,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   trackByOption(item: Option, index: number): number {
     return item.optionId;
   }
+
+  isSingleOrMultiple(type: QuestionType): type is QuestionType.SingleAnswer | QuestionType.MultipleAnswer {
+    return type === QuestionType.SingleAnswer || type === QuestionType.MultipleAnswer;
+  }
 }
