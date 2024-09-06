@@ -290,7 +290,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         const binding = this.optionBindings[index];
         directive.isSelected = binding.isSelected;
         directive.isCorrect = binding.option.correct;
-        directive.showFeedback = this.showFeedback;
+        directive.showFeedback = this.showFeedback && this.showFeedbackForOption[binding.option.optionId];
         directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
         directive.updateHighlight();
       });
@@ -468,9 +468,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         const isSelected = i === index;
         binding.isSelected = isSelected;
         binding.option.selected = isSelected;
-        binding.showFeedback = this.showFeedback;
-        this.iconVisibility[binding.option.optionId] = isSelected;
-        this.showIconForOption[binding.option.optionId] = isSelected;
         this.showFeedbackForOption[binding.option.optionId] = isSelected;
       });
   
@@ -484,11 +481,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // For multiple-select, toggle the selection
       optionBinding.isSelected = !optionBinding.isSelected;
       optionBinding.option.selected = optionBinding.isSelected;
-      optionBinding.showFeedback = this.showFeedback;
-      
-      this.iconVisibility[option.optionId] = optionBinding.isSelected;
-      this.showIconForOption[option.optionId] = optionBinding.isSelected;
-      this.showFeedbackForOption[option.optionId] = true; // Show feedback for all clicked options
+      this.showFeedbackForOption[option.optionId] = true;
   
       if (optionBinding.isSelected) {
         this.selectedOptions.add(option.optionId);
