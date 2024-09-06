@@ -94,8 +94,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
 
     if (changes['currentQuestion']) {
+      this.resetQuestionState();
       this.handleQuestionChange(changes['currentQuestion']);
       this.initializeQuestionState();
+
+      if (this.currentQuestion && this.currentQuestion.type) {
+        this.type = this.convertQuestionType(this.currentQuestion.type);
+      }
     }
 
     if (changes.optionsToDisplay) {
@@ -413,6 +418,25 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.selectedOptions.clear();
     this.selectedOption = null;
     this.clickedOptionIds.clear();
+  
+    for (const binding of this.optionBindings) {
+      binding.isSelected = false;
+      binding.showFeedback = false;
+      binding.option.selected = false;
+      binding.option.showIcon = false;
+    }
+  
+    this.updateHighlighting();
+    this.cdRef.detectChanges();
+  }
+
+  private resetQuestionState(): void {
+    this.selectedOptions.clear();
+    this.selectedOption = null;
+    this.showFeedback = false;
+    this.showFeedbackForOption = {};
+    this.showIconForOption = {};
+    this.iconVisibility = this.optionBindings.map(() => false);
   
     for (const binding of this.optionBindings) {
       binding.isSelected = false;
