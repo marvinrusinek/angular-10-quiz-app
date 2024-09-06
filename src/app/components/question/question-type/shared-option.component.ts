@@ -301,7 +301,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     // Clear previous feedback and icons
-    this.resetFeedbackAndIcons();
+    // this.resetFeedbackAndIcons();
 
     // Ensure type is set correctly if currentQuestion is available
     if (this.currentQuestion && this.currentQuestion.type) {
