@@ -55,6 +55,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { Resource } from '../../shared/models/Resource.model';
 import { QuizQuestionComponent } from '../../components/question/question.component';
+import { SharedOptionComponent } from '../../components/question/question-type/shared-option.component';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
@@ -88,6 +89,7 @@ type AnimationState = 'animationStarted' | 'none';
 export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild(QuizQuestionComponent)
   quizQuestionComponent!: QuizQuestionComponent;
+  @ViewChild(SharedOptionComponent) sharedOptionComponent: SharedOptionComponent;
   @Input() data: {
     questionText: string;
     correctAnswersText?: string;
@@ -1911,6 +1913,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     try {
       const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
       this.currentQuestionIndex = previousQuestionIndex;
+
+      if (this.sharedOptionComponent) {
+        this.sharedOptionComponent.isNavigatingBackwards = true;
+      }
 
       // Combine fetching data and initializing question state into a single method
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
