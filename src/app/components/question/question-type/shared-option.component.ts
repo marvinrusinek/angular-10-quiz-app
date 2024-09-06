@@ -266,7 +266,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  /* handleOptionClick(option: Option, index: number): void {
+  handleOptionClick(option: Option, index: number): void {
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
@@ -321,77 +321,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.selectedOptions.add(option.optionId);
       this.showIconForOption[option.optionId] = true;
     }
-  
-    this.updateHighlighting();
-  
-    // Call the quizQuestionComponentOnOptionClicked method if it exists
-    if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
-      this.quizQuestionComponentOnOptionClicked(option as SelectedOption, index);
-    } else if (this.quizQuestionComponentOnOptionClicked !== undefined) {
-      console.warn('quizQuestionComponentOnOptionClicked is defined but is not a function in SharedOptionComponent');
-    } else {
-      console.debug('quizQuestionComponentOnOptionClicked is not defined in SharedOptionComponent');
-    }
-  
-    this.optionClicked.emit({ option, index });
-  } */
-  handleOptionClick(option: Option, index: number): void {
-    if (this.isSubmitted) {
-      console.log('Question already submitted, ignoring click');
-      return;
-    }
-  
-    // Remove this check to allow toggling options
-    // if (this.clickedOptionIds.has(option.optionId ?? index)) {
-    //   console.log('Option already selected, ignoring click');
-    //   return;
-    // }
-  
-    this.lastSelectedOption = option;
-    this.lastSelectedOptionIndex = index;
-    this.showFeedback = true;
-  
-    const optionBinding = this.optionBindings[index];
-    
-    if (this.type === 'single') {
-      // For single-select, update all options
-      this.optionBindings.forEach(binding => {
-        const isSelected = binding === optionBinding;
-        binding.isSelected = isSelected;
-        binding.option.selected = isSelected;
-        binding.showFeedback = isSelected && this.showFeedback;
-        binding.option.showIcon = isSelected;
-        this.iconVisibility[binding.option.optionId] = isSelected;
-        this.showIconForOption[binding.option.optionId] = isSelected;
-        this.showFeedbackForOption[binding.option.optionId] = isSelected;
-      });
-  
-      this.selectedOption = option;
-      this.selectedOptions.clear();
-      this.selectedOptions.add(option.optionId);
-  
-      // Store the selected option
-      this.selectedOptionService.setSelectedOption(option as SelectedOption);
-    } else {
-      // For multiple-select, toggle the selection
-      optionBinding.isSelected = !optionBinding.isSelected;
-      optionBinding.option.selected = optionBinding.isSelected;
-      optionBinding.showFeedback = this.showFeedback;
-      optionBinding.option.showIcon = optionBinding.isSelected;
-      
-      this.iconVisibility[option.optionId] = optionBinding.isSelected;
-      this.showIconForOption[option.optionId] = optionBinding.isSelected;
-      this.showFeedbackForOption[option.optionId] = true;
-  
-      if (optionBinding.isSelected) {
-        this.selectedOptions.add(option.optionId);
-      } else {
-        this.selectedOptions.delete(option.optionId);
-      }
-    }
-  
-    // Always add to clickedOptionIds to remember interaction
-    this.clickedOptionIds.add(option.optionId ?? index);
   
     this.updateHighlighting();
   
