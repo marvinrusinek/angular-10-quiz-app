@@ -110,7 +110,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  private handleQuestionChange(change: SimpleChange): void {
+  /* private handleQuestionChange(change: SimpleChange): void {
     const previousSelections = new Set(this.selectedOptions);
     
     // Reset the component state
@@ -135,6 +135,45 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     this.updateHighlighting();
+  } */
+  private handleQuestionChange(change: SimpleChange): void {
+    // Reset the component state
+    this.resetState();
+    this.initializeOptionBindings();
+  
+    if (this.currentQuestion && this.currentQuestion.type) {
+      this.type = this.convertQuestionType(this.currentQuestion.type);
+    }
+  
+    // If navigating backwards, restore previous selections
+    if (this.isNavigatingBackwards && !change.firstChange) {
+      this.restorePreviousSelections();
+    }
+  
+    this.updateHighlighting();
+  }
+
+  private restorePreviousSelections(): void {
+    // Assuming you have a service or some way to store previous selections
+    const previousSelections = this.quizStateService.getPreviousSelections(this.currentQuestion.id);
+  
+    if (previousSelections) {
+      this.optionBindings.forEach(binding => {
+        const isSelected = previousSelections.includes(binding.option.optionId);
+        binding.isSelected = isSelected;
+        binding.option.selected = isSelected;
+  
+        if (isSelected) {
+          this.selectedOptions.add(binding.option.optionId);
+          if (this.type === 'single') {
+            this.selectedOption = binding.option;
+          }
+        }
+      });
+  
+      // Don't show feedback immediately when restoring
+      this.showFeedback = false;
+    }
   }
 
   getOptionAttributes(optionBinding: OptionBindings) {
