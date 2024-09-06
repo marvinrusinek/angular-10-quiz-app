@@ -303,7 +303,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     } */
     // Clear previous feedback and icons
-    this.resetFeedbackAndIcons();
+    // this.resetFeedbackAndIcons();
   
     // Check if the option has already been clicked
     if (this.clickedOptionIds.has(option.optionId ?? index)) {
@@ -401,7 +401,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedback = false;
     this.showFeedbackForOption = {};
     this.showIconForOption = {};
-    // this.iconVisibility = {};
+    this.iconVisibility = {};
   
     for (const binding of this.optionBindings) {
       binding.showFeedback = false;
