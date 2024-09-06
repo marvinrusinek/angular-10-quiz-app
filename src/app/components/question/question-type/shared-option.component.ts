@@ -302,14 +302,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.handleBackwardNavigationOptionClick(option, index);
       return;
     } */
-    // Clear previous feedback and icons
-    // this.resetFeedbackAndIcons();
   
     // Check if the option has already been clicked
     if (this.clickedOptionIds.has(option.optionId ?? index)) {
       console.log('Option already selected, ignoring click');
       return;
     }
+
+    // Clear previous feedback and icons
+    this.resetFeedbackAndIcons();
   
     this.lastSelectedOption = option;
     this.lastSelectedOptionIndex = index;
