@@ -1264,13 +1264,19 @@ export class QuizService implements OnDestroy {
       option.optionId = index;
     }    
   
+    console.log('Question options:', question.options);
+    console.log('Answers:', answers);
+  
     return await Promise.all(
       answers.map(async (answer, index) => {
-        // Find the matching option based on the text property
-        const option = question.options && question.options.find(opt => opt.text === answer.text);
+        // Find the matching option based on the text property, ignoring case and trimming whitespace
+        const option = question.options && question.options.find(opt => 
+          opt.text.trim().toLowerCase() === answer.text.trim().toLowerCase()
+        );
         
         if (!option) {
           console.error(`Option not found for answer at index ${index}:`, answer);
+          console.log('Available options:', question.options.map(opt => opt.text));
           return false;
         }
   
