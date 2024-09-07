@@ -402,7 +402,7 @@ export class QuizQuestionComponent
     if (changes.currentQuestionIndex || changes.isAnswered) {
       this.updateSelectionMessage(this.isAnswered);
     }
-    
+
     if (changes.options || changes.questionData) {
       this.optionsToDisplay = this.options;
     }
@@ -1995,16 +1995,25 @@ export class QuizQuestionComponent
 
   private async manageExplanationDisplay(): Promise<void> {
     try {
+      if (this.currentQuestionIndex === null || this.currentQuestionIndex === undefined) {
+        throw new Error('Current question index is not set');
+      }
+  
       // Prepare the explanation text
       let explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
   
       if (!explanationText) {
+        console.warn(`No explanation text found for question index ${this.currentQuestionIndex}`);
         explanationText = 'No explanation available';
-      } else {
+      } else if (this.currentQuestion) {
         const processedExplanation = await this.processExplanationText(this.currentQuestion, this.currentQuestionIndex);
         if (processedExplanation && processedExplanation.explanation) {
           explanationText = processedExplanation.explanation;
+        } else {
+          console.warn('Processed explanation is empty or invalid');
         }
+      } else {
+        console.warn('Current question is null, using unprocessed explanation text');
       }
   
       // Update the explanation display properties
@@ -2015,12 +2024,20 @@ export class QuizQuestionComponent
       this.showExplanationChange.emit(true);
       this.displayExplanation = true;
   
+      console.log('Explanation display updated successfully');
+  
     } catch (error) {
       console.error('Error managing explanation display:', error);
       this.explanationToDisplay = 'Error loading explanation. Please try again.';
       this.displayExplanation = true;
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      this.showExplanationChange.emit(true);
+    } finally {
+      // Ensure these flags are always set, even if an error occurs
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.displayExplanation = true;
     }
-  }  
+  }
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     console.log(
