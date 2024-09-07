@@ -2189,11 +2189,16 @@ export class QuizQuestionComponent
         // Update the UI with the default message
         this.updateExplanationUI(this.currentQuestionIndex, 'No explanation available');
       }
+
+      // Call manageExplanationDisplay here
+      this.manageExplanationDisplay();
   
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
     } catch (error) {
       console.error(`Error fetching explanation for question ${this.currentQuestionIndex}:`, error);
       this.explanationToDisplay = 'Error fetching explanation. Please try again.';
+
+      this.manageExplanationDisplay();
       
       // Update the UI with the error message
       this.updateExplanationUI(this.currentQuestionIndex, this.explanationToDisplay);
