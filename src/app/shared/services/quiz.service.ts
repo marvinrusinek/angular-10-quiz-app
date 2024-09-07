@@ -1259,21 +1259,17 @@ export class QuizService implements OnDestroy {
   }
 
   async determineCorrectAnswer(question: QuizQuestion, answers: Option[]): Promise<boolean[]> {
-    console.log('Question in determineCorrectAnswer:', JSON.stringify(question, null, 2));
-    console.log('Answers in determineCorrectAnswer:', JSON.stringify(answers, null, 2));
-  
     return answers.map(answer => {
       const matchingOption = question.options.find(option => 
         option.text.trim().toLowerCase() === answer.text.trim().toLowerCase()
       );
   
-      if (!matchingOption) {
-        console.error('No matching option found for answer:', JSON.stringify(answer, null, 2));
-        console.log('Available options:', JSON.stringify(question.options, null, 2));
-        return false;
+      if (matchingOption) {
+        return answer.selected && matchingOption.correct;
       }
   
-      return answer.selected && matchingOption.correct;
+      // If no match is found, return false
+      return false;
     });
   }
 
