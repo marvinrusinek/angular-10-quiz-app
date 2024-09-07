@@ -762,8 +762,6 @@ export class QuizQuestionComponent
         throw new Error(`No question found for index ${this.currentQuestionIndex}`);
       }
   
-      console.log('Loaded question:', this.currentQuestion);
-  
       // Set options to display
       this.optionsToDisplay = this.currentQuestion.options || [];
   
