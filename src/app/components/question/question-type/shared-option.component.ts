@@ -27,7 +27,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }>();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
   @Output() optionChanged = new EventEmitter<any>();
-  @Input() quizQuestionComponent!: QuizQuestionComponent;
   @Input() config: SharedOptionConfig;
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
