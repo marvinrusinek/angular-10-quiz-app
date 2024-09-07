@@ -2212,7 +2212,25 @@ export class QuizQuestionComponent
   }
 
   public async fetchAndSetExplanationText(): Promise<void> {
-    await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+    console.log(`Fetching explanation for question ${this.currentQuestionIndex}`);
+    try {
+      const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+      
+      if (explanationText) {
+        this.explanationToDisplay = explanationText;
+        this.explanationTextService.updateFormattedExplanation(explanationText);
+        console.log(`Set explanation for question ${this.currentQuestionIndex}:`, explanationText.substring(0, 50) + '...');
+      } else {
+        console.warn(`No explanation text found for question ${this.currentQuestionIndex}`);
+        this.explanationToDisplay = 'No explanation available';
+      }
+  
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+    } catch (error) {
+      console.error(`Error fetching explanation for question ${this.currentQuestionIndex}:`, error);
+      this.explanationToDisplay = 'Error fetching explanation. Please try again.';
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+    }
   }
 
   public async getExplanationText(questionIndex: number): Promise<string> {
