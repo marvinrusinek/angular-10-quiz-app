@@ -703,6 +703,9 @@ export class QuizQuestionComponent
         console.log('Load question operation aborted.');
         return;
       }
+
+      // Fetch and set the new explanation
+      await this.fetchAndSetExplanationText();
   
       // Fetch feedback
       const correctOptions = this.currentQuestion.options.filter(option => option.correct);
