@@ -256,6 +256,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('Option already selected, ignoring click');
       return;
     }
+
+    if (this.isNavigatingBackwards) {
+      this.handleBackwardNavigationOptionClick(option, index);
+      return;
+    }
   
     this.lastSelectedOption = option;
     this.lastSelectedOptionIndex = index;
@@ -323,6 +328,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       for (const binding of this.optionBindings) {
         binding.isSelected = binding === optionBinding;
         binding.option.selected = binding === optionBinding;
+        binding.option.showIcon = binding === optionBinding;
       }
       this.selectedOption = option;
       this.selectedOptions.clear();
@@ -331,6 +337,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // For multiple-select, toggle the selection
       optionBinding.isSelected = !optionBinding.isSelected;
       optionBinding.option.selected = optionBinding.isSelected;
+      optionBinding.option.showIcon = optionBinding.isSelected;
       
       if (optionBinding.isSelected) {
         this.selectedOptions.add(option.optionId);
