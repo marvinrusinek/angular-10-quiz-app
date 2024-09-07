@@ -4,10 +4,7 @@
 <!--<ang-music-player [audioList]="audioList"></ang-music-player>-->
 
 <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
-  <app-base-question 
-    [question]="currentQuestion"
-    (questionAnswered)="onQuestionAnswered()">
-  </app-base-question>
+  <app-base-question></app-base-question>
 
   <ng-container #dynamicComponentContainer></ng-container>
 
