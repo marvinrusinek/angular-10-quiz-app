@@ -126,7 +126,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
           binding.option.selected = false;
           this.showFeedbackForOption[binding.option.optionId] = false;
         }
-        // Don't set showIcon here, it will be handled in updateHighlighting
       }
       
       // Set showFeedback to true if there are any selected options
