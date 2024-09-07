@@ -1259,36 +1259,22 @@ export class QuizService implements OnDestroy {
   }
 
   async determineCorrectAnswer(question: QuizQuestion, answers: Option[]): Promise<boolean[]> {
-    // Ensure option IDs are assigned based on array position
-    for (const [index, option] of question.options.entries()) {
-      option.optionId = index;
-    }    
+    console.log('Question in determineCorrectAnswer:', JSON.stringify(question, null, 2));
+    console.log('Answers in determineCorrectAnswer:', JSON.stringify(answers, null, 2));
   
-    console.log('Question options:', question.options);
-    console.log('Answers:', answers);
+    return answers.map(answer => {
+      const matchingOption = question.options.find(option => 
+        option.text.trim().toLowerCase() === answer.text.trim().toLowerCase()
+      );
   
-    return await Promise.all(
-      answers.map(async (answer, index) => {
-        // Find the matching option based on the text property, using simple normalization
-        const option = question.options && question.options.find(opt => 
-          opt.text.trim().toLowerCase() === answer.text.trim().toLowerCase()
-        );
-        
-        if (!option) {
-          console.error(`Option not found for answer at index ${index}:`, answer);
-          console.log('Available options:');
-          question.options.forEach((opt, i) => {
-            console.log(`Option ${i}: "${opt.text}" (normalized: "${opt.text.trim().toLowerCase()}")`);
-          });
-          console.log(`Answer text: "${answer.text}" (normalized: "${answer.text.trim().toLowerCase()}")`);
-          return false;
-        }
+      if (!matchingOption) {
+        console.error('No matching option found for answer:', JSON.stringify(answer, null, 2));
+        console.log('Available options:', JSON.stringify(question.options, null, 2));
+        return false;
+      }
   
-        const isCorrect = answer.selected && option.correct;
-        console.log(`Answer ${index} - text: "${answer.text}", selected: ${answer.selected}, correct: ${option.correct}`);
-        return isCorrect;
-      })
-    );
+      return answer.selected && matchingOption.correct;
+    });
   }
 
   /* setCorrectAnswers(
