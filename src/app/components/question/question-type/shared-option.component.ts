@@ -443,10 +443,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return item.optionId;
   }
 
-  isSingleOrMultiple(type: 'single' | 'multiple'): type is 'single' | 'multiple' {
-    return type === 'single' || type === 'multiple';
-  }
-
   convertQuestionType(type: QuestionType): 'single' | 'multiple' {
     switch (type) {
       case QuestionType.SingleAnswer:
