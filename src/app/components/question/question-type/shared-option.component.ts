@@ -120,7 +120,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
           binding.isSelected = true;
           binding.option.selected = true;
           this.selectedOptions.add(binding.option.optionId);
-          // Don't set showIconForOption or iconVisibility here
         }
       }
     }
