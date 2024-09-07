@@ -263,19 +263,20 @@ export class QuizQuestionComponent
     this.quizStateService.setLoading(true);
   
     // Ensure optionsToDisplay is correctly set
-    if (this.options) {
+    if (this.options && this.options.length > 0) {
+      console.log('Setting optionsToDisplay from this.options');
       this.optionsToDisplay = this.options;
-    } else if (this.questionData && this.questionData.options) {
+    } else if (this.questionData && this.questionData.options && this.questionData.options.length > 0) {
+      console.log('Setting optionsToDisplay from this.questionData.options');
       this.optionsToDisplay = this.questionData.options;
     } else {
       console.warn('No options available. Initializing as empty array.');
       this.optionsToDisplay = [];
     }
+    console.log('Options to Display:::::>>>>>>', this.optionsToDisplay); // Debugging statement
   
     // Set correct options in the quiz service
     this.quizService.setCorrectOptions(this.optionsToDisplay);
-  
-    console.log('Options to Display:::::>>>>>>', this.optionsToDisplay); // Debugging statement
   
     if (!this.question) {
       console.error('Question is not defined');
@@ -400,6 +401,9 @@ export class QuizQuestionComponent
 
     if (changes.currentQuestionIndex || changes.isAnswered) {
       this.updateSelectionMessage(this.isAnswered);
+    }
+    if (changes.options || changes.questionData) {
+      this.optionsToDisplay = this.options;
     }
 
     const isSubsequentChange = (change: SimpleChange) =>
@@ -712,7 +716,7 @@ export class QuizQuestionComponent
     } finally {
       this.isLoading = false;
       this.quizStateService.setLoading(false);
-      console.log('Question loading completed');
+      // console.log('Question loading completed');
     }
   }
 
