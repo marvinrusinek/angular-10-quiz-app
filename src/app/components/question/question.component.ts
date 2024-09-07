@@ -468,8 +468,6 @@ export class QuizQuestionComponent
       this.restoreQuizState();
 
       this.ngZone.run(async () => {
-        console.log('Visibility changed, current quizId:', this.quizId);
-
         if (!this.quizId) {
           // Attempt to retrieve quizId from route or other sources
           this.quizId =
