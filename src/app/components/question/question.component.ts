@@ -747,7 +747,9 @@ export class QuizQuestionComponent
       }
   
       // Fetch the current question
-      this.currentQuestion = await this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex).toPromise();
+      this.currentQuestion = await firstValueFrom(
+        this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
+      );
       
       if (!this.currentQuestion) {
         throw new Error(`No question found for index ${this.currentQuestionIndex}`);
