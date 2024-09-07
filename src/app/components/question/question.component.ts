@@ -2172,6 +2172,11 @@ export class QuizQuestionComponent
 
   public async fetchAndSetExplanationText(): Promise<void> {
     console.log(`Fetching explanation for question ${this.currentQuestionIndex}`);
+
+    // Reset the explanation text before fetching new one
+    this.explanationToDisplay = '';
+    this.manageExplanationDisplay();
+
     try {
       const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
       
