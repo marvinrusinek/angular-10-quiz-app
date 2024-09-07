@@ -734,9 +734,7 @@ export class QuizQuestionComponent
       }
     }
   } */
-  private async loadQuestion(signal?: AbortSignal): Promise<void> {
-    console.log('loadQuestion called. Current index:', this.currentQuestionIndex);
-    
+  private async loadQuestion(signal?: AbortSignal): Promise<void> {   
     this.resetTexts();
     this.isLoading = true;
     this.quizStateService.setLoading(true);
