@@ -657,7 +657,7 @@ export class QuizQuestionComponent
     }
   }
 
-  async loadQuestion(signal?: AbortSignal): Promise<void> {
+  /* async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetTexts();
     this.isLoading = true;
     this.quizStateService.setLoading(true);
@@ -725,6 +725,60 @@ export class QuizQuestionComponent
       if (!signal?.aborted) {
         this.isLoading = false;
       }
+    }
+  } */
+  private async loadQuestion(signal?: AbortSignal): Promise<void> {
+    console.log('loadQuestion called. Current index:', this.currentQuestionIndex);
+    
+    this.resetTexts();
+    this.isLoading = true;
+    this.quizStateService.setLoading(true);
+  
+    // Clear previous data
+    this.currentQuestion = null;
+    this.optionsToDisplay = [];
+    this.feedbackText = '';
+  
+    try {
+      // Ensure we have a valid quiz ID
+      const quizId = this.quizService.getCurrentQuizId();
+      if (!quizId) {
+        throw new Error('No active quiz ID found');
+      }
+  
+      // Fetch the current question
+      this.currentQuestion = await this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex).toPromise();
+      
+      if (!this.currentQuestion) {
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
+  
+      console.log('Loaded question:', this.currentQuestion);
+  
+      // Set options to display
+      this.optionsToDisplay = this.currentQuestion.options || [];
+      console.log('Options to display:', this.optionsToDisplay);
+  
+      if (signal?.aborted) {
+        console.log('Load question operation aborted.');
+        return;
+      }
+  
+      // Fetch feedback
+      const correctOptions = this.currentQuestion.options.filter(option => option.correct);
+      this.feedbackText = await this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
+      this.feedbackText = this.feedbackText || 'No feedback available';
+  
+      // Update the selection message
+      this.updateSelectionMessage(false);
+  
+    } catch (error) {
+      console.error('Error loading question:', error);
+      this.feedbackText = 'Error loading question. Please try again.';
+    } finally {
+      this.isLoading = false;
+      this.quizStateService.setLoading(false);
+      console.log('Question loading completed');
     }
   }
 
