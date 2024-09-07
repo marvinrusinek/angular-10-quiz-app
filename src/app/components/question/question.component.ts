@@ -1345,14 +1345,50 @@ export class QuizQuestionComponent
   }
 
   private async handleOptionProcessingAndFeedback(option: SelectedOption, index: number): Promise<void> {
-    await super.onOptionClicked(option, index);
-
-    this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
-    this.selectedOption = { ...option, optionId: index + 1 };
-    this.showFeedback = true;
-    this.showFeedbackForOption[option.optionId] = true;
-
-    await this.manageExplanationDisplay();
+    console.log(`Handling option processing and feedback for question ${this.currentQuestionIndex}, option ${index}`);
+  
+    try {
+      await super.onOptionClicked(option, index);
+  
+      this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
+      this.selectedOption = { ...option, optionId: index + 1 };
+      this.showFeedback = true;
+      this.showFeedbackForOption[option.optionId] = true;
+  
+      // Fetch the current question data again to ensure we have the most up-to-date information
+      const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+      
+      console.log(`Current question data:`, JSON.stringify(questionData, null, 2));
+  
+      if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
+        // Process the explanation text
+        const processedExplanation = await this.processExplanationText(questionData, this.currentQuestionIndex);
+        
+        let explanationText = processedExplanation?.explanation || questionData.explanation || 'No explanation available';
+  
+        console.log(`Explanation text for question ${this.currentQuestionIndex}:`, explanationText);
+  
+        // Update the explanation display properties
+        this.explanationToDisplay = explanationText;
+        this.explanationTextService.updateFormattedExplanation(explanationText);
+        this.explanationTextService.setShouldDisplayExplanation(true);
+        this.explanationToDisplayChange.emit(explanationText);
+        this.showExplanationChange.emit(true);
+        this.displayExplanation = true;
+      } else {
+        console.error('Invalid question data when handling option processing');
+        this.explanationToDisplay = 'Error: Invalid question data';
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      }
+    } catch (error) {
+      console.error('Error in handleOptionProcessingAndFeedback:', error);
+      this.explanationToDisplay = 'Error processing question. Please try again.';
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+    } finally {
+      // Ensure the explanation is always displayed, even if there was an error
+      this.showExplanationChange.emit(true);
+      this.displayExplanation = true;
+    }
   }
 
   private async updateQuestionState(option: SelectedOption): Promise<void> {
