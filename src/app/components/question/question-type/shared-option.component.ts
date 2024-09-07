@@ -283,7 +283,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  handleOptionClick(option: Option, index: number): void {
+  /* handleOptionClick(option: Option, index: number): void {
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
@@ -356,6 +356,60 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     this.optionClicked.emit({ option, index });
+  } */
+  handleOptionClick(option: Option, index: number): void {
+    if (this.isSubmitted) {
+      console.log('Question already submitted, ignoring click');
+      return;
+    }
+  
+    if (this.isNavigatingBackwards) {
+      this.handleBackwardNavigationOptionClick(option, index);
+      return;
+    }
+  
+    this.lastSelectedOption = option;
+    this.lastSelectedOptionIndex = index;
+    this.showFeedback = true;
+  
+    const optionBinding = this.optionBindings[index];
+    
+    if (this.type === 'single') {
+      // Deselect all options
+      for (const binding of this.optionBindings) {
+        binding.isSelected = false;
+        binding.option.selected = false;
+        binding.option.showIcon = false;
+        this.showFeedbackForOption[binding.option.optionId] = false;
+      }
+      
+      // Select the clicked option
+      optionBinding.isSelected = true;
+      optionBinding.option.selected = true;
+      optionBinding.option.showIcon = true;
+      this.showFeedbackForOption[option.optionId] = true;
+      
+      this.selectedOption = option;
+      this.selectedOptions.clear();
+      this.selectedOptions.add(option.optionId);
+    } else {
+      // For multiple-select, toggle the selection
+      optionBinding.isSelected = !optionBinding.isSelected;
+      optionBinding.option.selected = optionBinding.isSelected;
+      optionBinding.option.showIcon = optionBinding.isSelected;
+      this.showFeedbackForOption[option.optionId] = optionBinding.isSelected;
+      
+      if (optionBinding.isSelected) {
+        this.selectedOptions.add(option.optionId);
+      } else {
+        this.selectedOptions.delete(option.optionId);
+      }
+    }
+  
+    this.updateHighlighting();
+    this.cdRef.detectChanges();
+  
+    // ... rest of the method (emit events, etc.)
   }
 
   handleBackwardNavigationOptionClick(option: Option, index: number): void {
