@@ -2226,7 +2226,10 @@ export class QuizQuestionComponent
       }
     } catch (error) {
       console.error('Error in processing explanation text:', error);
-      return null;
+      return {
+        questionIndex: questionIndex,
+        explanation: questionData.explanation || 'Error processing explanation'
+      };
     }
   }
 
