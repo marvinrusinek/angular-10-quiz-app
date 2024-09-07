@@ -670,6 +670,7 @@ export class QuizQuestionComponent
   }
 
   private async loadQuestion(signal?: AbortSignal): Promise<void> {   
+    this.resetExplanation();
     this.resetTexts();
     this.isLoading = true;
     this.quizStateService.setLoading(true);
@@ -2029,6 +2030,15 @@ export class QuizQuestionComponent
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.displayExplanation = true;
     }
+  }
+
+  private resetExplanation(): void {
+    this.explanationToDisplay = '';
+    this.explanationTextService.updateFormattedExplanation('');
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationToDisplayChange.emit('');
+    this.showExplanationChange.emit(false);
+    this.displayExplanation = false;
   }
 
   /* async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
