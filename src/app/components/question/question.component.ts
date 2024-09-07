@@ -2005,9 +2005,18 @@ export class QuizQuestionComponent
       }
   
       // Process the explanation text
+      console.log(`Raw explanation for question ${this.currentQuestionIndex}:`, questionData.explanation);
+
+      // Use the raw explanation as a fallback
+      let explanationText = questionData.explanation || 'No explanation available';
+
+      // Process the explanation text
       const processedExplanation = await this.processExplanationText(questionData, this.currentQuestionIndex);
-      
-      let explanationText = processedExplanation?.explanation || 'No explanation available';
+
+      // Use the processed explanation if available
+      if (processedExplanation && processedExplanation.explanation) {
+        explanationText = processedExplanation.explanation;
+      }
   
       // Update the explanation display properties
       this.explanationToDisplay = explanationText;
