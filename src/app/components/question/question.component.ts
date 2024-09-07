@@ -1376,6 +1376,15 @@ export class QuizQuestionComponent
       this.showFeedback = true;
       this.showFeedbackForOption[option.optionId] = true;
   
+      // The question is now answered
+      this.isAnswered = true;
+  
+      // Fetch and set the explanation text
+      await this.fetchAndSetExplanationText();
+      
+      // Update the explanation display
+      this.updateExplanationDisplay(true);
+  
       // Fetch the current question data again to ensure we have the most up-to-date information
       const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
       
