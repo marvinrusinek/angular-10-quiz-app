@@ -1258,7 +1258,7 @@ export class QuizService implements OnDestroy {
     return true;
   }
 
-  async determineCorrectAnswer(question: QuizQuestion, answers: Option[]): Promise<boolean[]> {
+  /* async determineCorrectAnswer(question: QuizQuestion, answers: Option[]): Promise<boolean[]> {
     return answers.map(answer => {
       const matchingOption = question.options.find(option => 
         option.text.trim().toLowerCase() === answer.text.trim().toLowerCase()
@@ -1271,6 +1271,23 @@ export class QuizService implements OnDestroy {
       // If no match is found, return false
       return false;
     });
+  } */
+
+  async determineCorrectAnswer(question: QuizQuestion, answers: Option[]): Promise<boolean[]> {
+    const results = answers.map(answer => {
+      const matchingOption = question.options.find(option => 
+        option.text.trim().toLowerCase() === answer.text.trim().toLowerCase()
+      );
+
+      const isCorrect = matchingOption ? (answer.selected && matchingOption.correct) : false;
+      
+      // Optional: log result without causing errors
+      console.log(`Answer: ${answer.text}, Correct: ${isCorrect}`);
+
+      return isCorrect;
+    });
+
+    return results;
   }
 
   /* setCorrectAnswers(
