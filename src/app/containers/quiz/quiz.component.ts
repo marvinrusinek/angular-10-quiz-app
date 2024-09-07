@@ -1886,7 +1886,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
         // Clear the previous explanation
         this.quizQuestionComponent.explanationToDisplay = '';
-        this.quizQuestionComponent.manageExplanationDisplay();
 
         // Only fetch and display explanation if the question has been answered
         if (this.isAnswered) {
@@ -1925,7 +1924,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
       if (this.sharedOptionComponent) {
         this.sharedOptionComponent.isNavigatingBackwards = true;
-        this.sharedOptionComponent.resetFeedbackAndIcons();
       }
 
       // Combine fetching data and initializing question state into a single method
