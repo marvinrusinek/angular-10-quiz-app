@@ -704,9 +704,14 @@ export class QuizQuestionComponent
         return;
       }
 
-      // Fetch and set the new explanation
-      await this.fetchAndSetExplanationText();
-  
+      // Only display the explanation if the question has been answered
+      if (this.isAnswered) {
+        await this.fetchAndSetExplanationText();
+        this.updateExplanationDisplay(true);
+      } else {
+        this.updateExplanationDisplay(false);
+      }
+      
       // Fetch feedback
       const correctOptions = this.currentQuestion.options.filter(option => option.correct);
       this.feedbackText = await this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
@@ -722,6 +727,19 @@ export class QuizQuestionComponent
       this.isLoading = false;
       this.quizStateService.setLoading(false);
       // console.log('Question loading completed');
+    }
+  }
+
+  private updateExplanationDisplay(shouldDisplay: boolean): void {
+    this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
+    this.showExplanationChange.emit(shouldDisplay);
+    this.displayExplanation = shouldDisplay;
+  
+    if (shouldDisplay) {
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      console.log(`Displaying explanation for question ${this.currentQuestionIndex}`);
+    } else {
+      console.log(`Explanation for question ${this.currentQuestionIndex} is not displayed`);
     }
   }
 
