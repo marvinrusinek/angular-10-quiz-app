@@ -1268,30 +1268,6 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  /* setCorrectAnswers(
-    question: QuizQuestion,
-    options: Option[]
-  ): Observable<void> {
-    return new Observable((observer) => {
-      const correctOptionNumbers = options
-        .filter((option) => option.correct)
-        .map((option) => option.optionId);
-
-      if (correctOptionNumbers.length > 0) {
-        this.correctAnswers.set(question.questionText, correctOptionNumbers);
-        this.correctAnswersSubject.next(this.correctAnswers); // Emit the updated correct answers
-
-        // Emit the correct answers loaded status
-        this.correctAnswersLoadedSubject.next(true);
-
-        observer.next(); // Emit a completion signal
-        observer.complete();
-      } else {
-        observer.error('No correct options found.');
-      }
-    });
-  } */
-
   // Populate correctOptions when questions are loaded
   setCorrectOptions(options: Option[]): void {
     console.log('setCorrectOptions called with:', options); // undefined
