@@ -977,9 +977,6 @@ export class QuizQuestionComponent
       } else {
         console.error('Quiz ID is empty after initialization.');
       }
-
-      // this.initializeCorrectAnswerOptions();
-      // this.subscribeToCorrectAnswers();
     } catch (error) {
       console.error('Error getting current question:', error);
     }
