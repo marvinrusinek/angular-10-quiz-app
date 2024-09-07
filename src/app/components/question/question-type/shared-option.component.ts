@@ -115,19 +115,45 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     // Check if this is not the first change (i.e., we're navigating between questions)
     if (!change.firstChange) {
       this.isNavigatingBackwards = true;
-      // Restore previous selections
-      for (const binding of this.optionBindings) {
-        if (previousSelections.has(binding.option.optionId)) {
-          binding.isSelected = true;
-          binding.option.selected = true;
-          binding.option.showIcon = true;
-          this.selectedOptions.add(binding.option.optionId);
-          this.showFeedbackForOption[binding.option.optionId] = true;
-        } else {
-          binding.isSelected = false;
-          binding.option.selected = false;
-          binding.option.showIcon = false;
-          this.showFeedbackForOption[binding.option.optionId] = false;
+      
+      // For single select, only show icon for the last selected option
+      if (this.type === 'single') {
+        let lastSelectedOptionId: number | null = null;
+        for (const optionId of previousSelections) {
+          lastSelectedOptionId = optionId;
+        }
+  
+        for (const binding of this.optionBindings) {
+          if (binding.option.optionId === lastSelectedOptionId) {
+            binding.isSelected = true;
+            binding.option.selected = true;
+            binding.option.showIcon = true;
+            this.selectedOptions.add(binding.option.optionId);
+            this.showFeedbackForOption[binding.option.optionId] = true;
+            this.selectedOption = binding.option;
+          } else {
+            binding.isSelected = false;
+            binding.option.selected = false;
+            binding.option.showIcon = false;
+            this.showFeedbackForOption[binding.option.optionId] = false;
+          }
+        }
+      } 
+      // For multiple select, show icons for all previously selected options
+      else {
+        for (const binding of this.optionBindings) {
+          if (previousSelections.has(binding.option.optionId)) {
+            binding.isSelected = true;
+            binding.option.selected = true;
+            binding.option.showIcon = true;
+            this.selectedOptions.add(binding.option.optionId);
+            this.showFeedbackForOption[binding.option.optionId] = true;
+          } else {
+            binding.isSelected = false;
+            binding.option.selected = false;
+            binding.option.showIcon = false;
+            this.showFeedbackForOption[binding.option.optionId] = false;
+          }
         }
       }
       
