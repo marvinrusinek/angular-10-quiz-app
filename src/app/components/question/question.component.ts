@@ -669,7 +669,7 @@ export class QuizQuestionComponent
     }
   }
 
-  protected async loadQuestion(signal?: AbortSignal): Promise<void> {   
+  public async loadQuestion(signal?: AbortSignal): Promise<void> {   
     this.resetExplanation();
     this.resetTexts();
     this.isLoading = true;
