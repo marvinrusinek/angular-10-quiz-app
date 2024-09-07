@@ -2083,7 +2083,6 @@ export class QuizQuestionComponent
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     console.log('Preparing explanation text for question index:', questionIndex);
   
-    // Check if document is hidden
     if (document.hidden) {
       console.log('Document is hidden, returning placeholder text.');
       this.explanationToDisplay = 'Explanation text not available when document is hidden.';
@@ -2091,31 +2090,31 @@ export class QuizQuestionComponent
     }
   
     try {
-      // Use the current question index instead of fetching the next question
-      const questionData = await this.quizService.getQuestionByIndex(questionIndex);
+      const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
   
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
-        // Try to get the formatted explanation from the service
         const formattedExplanationObservable = this.explanationTextService.getFormattedExplanation(questionIndex);
         
-        // Use a timeout to prevent hanging if the observable doesn't complete
-        const formattedExplanation = await Promise.race([
-          firstValueFrom(formattedExplanationObservable),
-          new Promise<string>((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
-        ]);
+        try {
+          const formattedExplanation = await Promise.race([
+            firstValueFrom(formattedExplanationObservable),
+            new Promise<string>((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+          ]);
   
-        if (formattedExplanation) {
-          this.explanationToDisplay = formattedExplanation;
-        } else {
-          // If no formatted explanation is available, try to get the raw explanation and format it
-          const rawExplanation = questionData.explanation || '';
-          const processedExplanation = await this.processExplanationText(questionData, questionIndex);
-          this.explanationToDisplay = processedExplanation?.explanation || 'No explanation available...';
-          
-          // Update the formatted explanation in the service for future use
-          if (processedExplanation) {
-            this.explanationTextService.updateFormattedExplanation(processedExplanation);
+          if (formattedExplanation) {
+            this.explanationToDisplay = formattedExplanation;
+          } else {
+            const rawExplanation = questionData.explanation || '';
+            const processedExplanation = await this.processExplanationText(questionData, questionIndex);
+            this.explanationToDisplay = processedExplanation || 'No explanation available...';
+            
+            if (processedExplanation) {
+              this.explanationTextService.updateFormattedExplanation(questionIndex, processedExplanation);
+            }
           }
+        } catch (timeoutError) {
+          console.error('Timeout while fetching formatted explanation:', timeoutError);
+          this.explanationToDisplay = 'Explanation text unavailable at the moment.';
         }
       } else {
         console.error('Error: questionData is invalid');
