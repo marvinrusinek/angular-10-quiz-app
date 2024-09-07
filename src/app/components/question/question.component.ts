@@ -2145,9 +2145,9 @@ export class QuizQuestionComponent
   private async processExplanationText(
     questionData: QuizQuestion,
     questionIndex: number
-  ): Promise<{ questionIndex: number; explanation: string } | null> {
+  ): Promise<FormattedExplanation | null> {
     this.explanationTextService.setCurrentQuestionExplanation(
-      questionData.explanation
+      questionData.explanation || ''
     );
   
     try {
@@ -2157,13 +2157,17 @@ export class QuizQuestionComponent
       );
       
       if (formattedExplanation) {
-        this.handleFormattedExplanation(formattedExplanation, questionIndex);
-        return {
+        const explanationText = typeof formattedExplanation === 'string' 
+          ? formattedExplanation 
+          : formattedExplanation.explanation || '';
+        
+        const formattedExplanationObject: FormattedExplanation = {
           questionIndex: questionIndex,
-          explanation: typeof formattedExplanation === 'string' 
-            ? formattedExplanation 
-            : formattedExplanation.explanation || ''
+          explanation: explanationText
         };
+        
+        this.handleFormattedExplanation(formattedExplanationObject, formattedExplanationObject.questionIndex);
+        return formattedExplanationObject;
       } else {
         console.warn('No formatted explanation received');
         return {
