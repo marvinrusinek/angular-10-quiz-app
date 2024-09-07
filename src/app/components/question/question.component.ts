@@ -2116,47 +2116,6 @@ export class QuizQuestionComponent
     this.displayExplanation = false;
   }
 
-  /* async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
-    console.log(
-      'Preparing explanation text for question index:',
-      questionIndex
-    );
-
-    if (document.hidden) {
-      console.log('Document is hidden, returning placeholder text.');
-      this.explanationToDisplay =
-        'Explanation text not available when document is hidden.';
-      return this.explanationToDisplay;
-    }
-
-    try {
-      const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
-
-      if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
-        const formattedExplanationObservable =
-          this.explanationTextService.getFormattedExplanation(questionIndex);
-        const formattedExplanation = await firstValueFrom(
-          formattedExplanationObservable
-        );
-
-        this.explanationToDisplay =
-          formattedExplanation || 'No explanation available...';
-        return this.explanationToDisplay;
-      } else {
-        console.error('Error: questionData is invalid');
-        this.explanationToDisplay = 'No explanation available.';
-        return this.explanationToDisplay;
-      }
-    } catch (error) {
-      console.error('Error in fetching explanation text:', error);
-      if (error instanceof Error) {
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-      }
-      this.explanationToDisplay = 'Error fetching explanation.';
-      return this.explanationToDisplay;
-    }
-  } */
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     console.log('Preparing explanation text for question index:', questionIndex);
   
