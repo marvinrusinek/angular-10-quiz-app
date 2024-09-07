@@ -2057,7 +2057,7 @@ export class QuizQuestionComponent
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
-  private async manageExplanationDisplay(): Promise<void> {
+  async manageExplanationDisplay(): Promise<void> {
     try {
       if (this.currentQuestionIndex === null || this.currentQuestionIndex === undefined) {
         throw new Error('Current question index is not set');

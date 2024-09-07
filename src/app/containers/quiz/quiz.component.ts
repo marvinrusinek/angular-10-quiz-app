@@ -1884,11 +1884,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         );
         this.selectedOptionService.setAnsweredState(isAnswered);
 
-        // Reset the explanation text
+        // Clear the previous explanation
         this.quizQuestionComponent.explanationToDisplay = '';
-        
-        // Fetch and set the new explanation text
-        await this.quizQuestionComponent.fetchAndSetExplanationText();
+        this.quizQuestionComponent.manageExplanationDisplay();
+
+        // Only fetch and display explanation if the question has been answered
+        if (this.isAnswered) {
+          await this.quizQuestionComponent.fetchAndSetExplanationText();
+        }
 
         // Reset UI after preparing the question
         this.resetUI();
