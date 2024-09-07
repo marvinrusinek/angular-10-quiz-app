@@ -472,8 +472,6 @@ export class QuizQuestionComponent
           // Attempt to retrieve quizId from route or other sources
           this.quizId =
             this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
-          console.log('Attempted to retrieve quizId, new value:', this.quizId);
-
           if (!this.quizId) {
             console.error('Unable to retrieve Quiz ID, cannot fetch questions');
             return;
