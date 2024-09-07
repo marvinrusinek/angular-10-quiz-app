@@ -1213,12 +1213,6 @@ export class QuizQuestionComponent
     console.log('MY CORR MSG', this.correctMessage || 'Not available');
   }
 
-  getOptionsForQuestion(): Option[] {
-    return this.currentQuestionIndex === this.previousQuestionIndex
-      ? this.optionsToDisplay
-      : this.data?.options;
-  }
-
   public getCorrectAnswers(): number[] {
     // Check if the current question index has changed to decide whether to fetch new answers
     if (this.currentQuestionIndex !== this.previousQuestionIndex) {
