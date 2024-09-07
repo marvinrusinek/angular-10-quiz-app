@@ -120,14 +120,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     // Check if this is not the first change (i.e., we're navigating between questions)
     if (!change.firstChange) {
       // Restore previous selections
-      this.optionBindings.forEach(binding => {
+      for (const binding of this.optionBindings) {
         if (previousSelections.has(binding.option.optionId)) {
           binding.isSelected = true;
           binding.option.selected = true;
           this.selectedOptions.add(binding.option.optionId);
           // Don't set showIconForOption or iconVisibility here
         }
-      });
+      }
     }
   
     if (this.currentQuestion && this.currentQuestion.type) {
