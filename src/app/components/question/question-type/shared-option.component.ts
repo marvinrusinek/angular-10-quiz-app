@@ -114,14 +114,25 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     // Check if this is not the first change (i.e., we're navigating between questions)
     if (!change.firstChange) {
+      this.isNavigatingBackwards = true;
       // Restore previous selections
       for (const binding of this.optionBindings) {
         if (previousSelections.has(binding.option.optionId)) {
           binding.isSelected = true;
           binding.option.selected = true;
+          binding.option.showIcon = true;
           this.selectedOptions.add(binding.option.optionId);
+          this.showFeedbackForOption[binding.option.optionId] = true;
+        } else {
+          binding.isSelected = false;
+          binding.option.selected = false;
+          binding.option.showIcon = false;
+          this.showFeedbackForOption[binding.option.optionId] = false;
         }
       }
+      
+      // Set showFeedback to true if there are any selected options
+      this.showFeedback = this.selectedOptions.size > 0;
     }
   
     if (this.currentQuestion && this.currentQuestion.type) {
@@ -129,6 +140,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     this.updateHighlighting();
+    this.cdRef.detectChanges();
   }
 
   getOptionAttributes(optionBinding: OptionBindings) {
