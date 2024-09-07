@@ -1996,22 +1996,17 @@ export class QuizQuestionComponent
         throw new Error('Current question index is not set');
       }
   
-      // Prepare the explanation text
-      let explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+      // Fetch the current question data
+      const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
   
-      if (!explanationText) {
-        console.warn(`No explanation text found for question index ${this.currentQuestionIndex}`);
-        explanationText = 'No explanation available';
-      } else if (this.currentQuestion) {
-        const processedExplanation = await this.processExplanationText(this.currentQuestion, this.currentQuestionIndex);
-        if (processedExplanation && processedExplanation.explanation) {
-          explanationText = processedExplanation.explanation;
-        } else {
-          console.warn('Processed explanation is empty or invalid');
-        }
-      } else {
-        console.warn('Current question is null, using unprocessed explanation text');
+      if (!this.quizQuestionManagerService.isValidQuestionData(questionData)) {
+        throw new Error('Invalid question data');
       }
+  
+      // Process the explanation text
+      const processedExplanation = await this.processExplanationText(questionData, this.currentQuestionIndex);
+      
+      let explanationText = processedExplanation?.explanation || 'No explanation available';
   
       // Update the explanation display properties
       this.explanationToDisplay = explanationText;
@@ -2021,7 +2016,7 @@ export class QuizQuestionComponent
       this.showExplanationChange.emit(true);
       this.displayExplanation = true;
   
-      console.log('Explanation display updated successfully');
+      console.log(`Explanation display updated for question ${this.currentQuestionIndex}:`, explanationText.substring(0, 50) + '...');
   
     } catch (error) {
       console.error('Error managing explanation display:', error);
