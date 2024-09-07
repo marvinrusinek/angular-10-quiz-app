@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, In
 import { Option } from '../../../shared/models/Option.model';
 import { OptionBindings } from '../../../shared/models/OptionBindings.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
+import { QuestionType } from '../../../shared/models/question-type.enum';
 import { SelectedOption } from '../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
@@ -43,9 +44,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   ) => void;
   optionBindings: OptionBindings[] = [];
   selectedOptions: Set<number> = new Set();
+  clickedOptionIds: Set<number> = new Set();
   isSubmitted = false;
   iconVisibility: boolean[] = []; // Array to store visibility state of icons
-  clickedOptionIds: Set<number> = new Set();
   showIconForOption: { [optionId: number]: boolean } = {};
   lastSelectedOptionIndex: number | null = null;
   lastSelectedOption: Option | null = null;
