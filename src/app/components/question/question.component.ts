@@ -2220,15 +2220,25 @@ export class QuizQuestionComponent
         this.explanationToDisplay = explanationText;
         this.explanationTextService.updateFormattedExplanation(explanationText);
         console.log(`Set explanation for question ${this.currentQuestionIndex}:`, explanationText.substring(0, 50) + '...');
+        
+        // Update the UI with the explanation text
+        this.updateExplanationUI(this.currentQuestionIndex, explanationText);
       } else {
         console.warn(`No explanation text found for question ${this.currentQuestionIndex}`);
         this.explanationToDisplay = 'No explanation available';
+        
+        // Update the UI with the default message
+        this.updateExplanationUI(this.currentQuestionIndex, 'No explanation available');
       }
   
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
     } catch (error) {
       console.error(`Error fetching explanation for question ${this.currentQuestionIndex}:`, error);
       this.explanationToDisplay = 'Error fetching explanation. Please try again.';
+      
+      // Update the UI with the error message
+      this.updateExplanationUI(this.currentQuestionIndex, this.explanationToDisplay);
+      
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
     }
   }
