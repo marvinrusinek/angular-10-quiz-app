@@ -2106,10 +2106,12 @@ export class QuizQuestionComponent
           } else {
             const rawExplanation = questionData.explanation || '';
             const processedExplanation = await this.processExplanationText(questionData, questionIndex);
-            this.explanationToDisplay = processedExplanation || 'No explanation available...';
             
             if (processedExplanation) {
-              this.explanationTextService.updateFormattedExplanation(questionIndex, processedExplanation);
+              this.explanationToDisplay = processedExplanation.explanation;
+              this.explanationTextService.updateFormattedExplanation(processedExplanation);
+            } else {
+              this.explanationToDisplay = 'No explanation available...';
             }
           }
         } catch (timeoutError) {
