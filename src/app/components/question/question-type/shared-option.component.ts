@@ -9,7 +9,6 @@ import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.mo
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
-import { QuizQuestionComponent } from '../question.component';
 import { HighlightOptionDirective } from '../../../directives/highlight-option.directive';
 
 @Component({
@@ -22,7 +21,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
   @Output() optionClicked = new EventEmitter<{
-    option: Option;
+    option: Option,
     index: number;
   }>();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
