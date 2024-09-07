@@ -2109,7 +2109,7 @@ export class QuizQuestionComponent
             
             if (processedExplanation) {
               this.explanationToDisplay = processedExplanation.explanation;
-              this.explanationTextService.updateFormattedExplanation(processedExplanation);
+              this.explanationTextService.updateFormattedExplanation(processedExplanation.explanation);
             } else {
               this.explanationToDisplay = 'No explanation available...';
             }
