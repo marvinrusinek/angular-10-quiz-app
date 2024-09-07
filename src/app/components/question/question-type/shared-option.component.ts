@@ -87,13 +87,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {;
-    if (changes['quizQuestionComponent']) {
-      console.log('quizQuestionComponent changed:', this.quizQuestionComponent);
-    }
-
-    if (changes['currentQuestion']) {
-      this.handleQuestionChange(changes['currentQuestion']);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.currentQuestion) {
+      this.handleQuestionChange(changes.currentQuestion);
     }
 
     if (changes.optionsToDisplay) {
