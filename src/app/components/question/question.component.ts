@@ -1213,39 +1213,6 @@ export class QuizQuestionComponent
     console.log('MY CORR MSG', this.correctMessage || 'Not available');
   }
 
-  private async fetchCorrectAnswersAndText(
-    data: any,
-    currentOptions: Option[]
-  ): Promise<void> {
-    try {
-      console.log('fetchCorrectAnswersAndText called with data:', data);
-      console.log('Current Options:', currentOptions);
-
-      if (!currentOptions || currentOptions.length === 0) {
-        console.error('currentOptions is undefined or empty:', currentOptions);
-        throw new Error('Options array is undefined or empty.');
-      }
-
-      // Fetch the correct answers if they are not already available
-      const currentCorrectAnswers = this.quizService.correctAnswers.get(
-        data.questionText
-      );
-      if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
-        await firstValueFrom(
-          this.quizService.setCorrectAnswers(
-            this.currentQuestion,
-            currentOptions
-          )
-        );
-        this.correctAnswers = this.quizService.correctAnswers.get(
-          data.questionText
-        );
-      }
-    } catch (error) {
-      console.error('Error in fetchCorrectAnswersAndText:', error);
-    }
-  }
-
   getOptionsForQuestion(): Option[] {
     return this.currentQuestionIndex === this.previousQuestionIndex
       ? this.optionsToDisplay
