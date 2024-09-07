@@ -226,10 +226,10 @@ export class QuizQuestionComponent
 
     this.questionForm = this.fb.group({});
 
-    /* this.sharedVisibilitySubscription =
+    this.sharedVisibilitySubscription =
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
         this.handlePageVisibilityChange(isHidden);
-    }); */
+    });
 
     this.addVisibilityChangeListener();
 
