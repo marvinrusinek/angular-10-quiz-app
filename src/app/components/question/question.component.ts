@@ -402,6 +402,7 @@ export class QuizQuestionComponent
     if (changes.currentQuestionIndex || changes.isAnswered) {
       this.updateSelectionMessage(this.isAnswered);
     }
+    
     if (changes.options || changes.questionData) {
       this.optionsToDisplay = this.options;
     }
