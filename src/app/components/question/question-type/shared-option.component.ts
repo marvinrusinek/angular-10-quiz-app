@@ -399,10 +399,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     
     if (this.type === 'single') {
       // For single-select, clear all selections and select only the clicked option
-      this.optionBindings.forEach(binding => {
+      for (const binding of this.optionBindings) {
         binding.isSelected = binding === optionBinding;
         binding.option.selected = binding === optionBinding;
-      });
+      }
       this.selectedOption = option;
       this.selectedOptions.clear();
       this.selectedOptions.add(option.optionId);
