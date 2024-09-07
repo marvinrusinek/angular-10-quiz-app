@@ -527,7 +527,8 @@ export class QuizService implements OnDestroy {
           console.log(`Index ${index} is out of bounds, or questions are undefined`);
           return null;
         }
-        return questions[index];
+        const question = questions[index];
+        return question;
       }),
       catchError((error: Error) => {
         console.error('Error fetching question:', error);
