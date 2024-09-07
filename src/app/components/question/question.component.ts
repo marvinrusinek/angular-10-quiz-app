@@ -263,7 +263,14 @@ export class QuizQuestionComponent
     this.quizStateService.setLoading(true);
   
     // Ensure optionsToDisplay is correctly set
-    this.optionsToDisplay = this.options;
+    if (this.options) {
+      this.optionsToDisplay = this.options;
+    } else if (this.questionData && this.questionData.options) {
+      this.optionsToDisplay = this.questionData.options;
+    } else {
+      console.warn('No options available. Initializing as empty array.');
+      this.optionsToDisplay = [];
+    }
   
     // Set correct options in the quiz service
     this.quizService.setCorrectOptions(this.optionsToDisplay);
@@ -759,7 +766,6 @@ export class QuizQuestionComponent
   
       // Set options to display
       this.optionsToDisplay = this.currentQuestion.options || [];
-      console.log('Options to display:', this.optionsToDisplay);
   
       if (signal?.aborted) {
         console.log('Load question operation aborted.');
