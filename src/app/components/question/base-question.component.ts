@@ -55,7 +55,6 @@ export abstract class BaseQuestionComponent
     index: number
   ) => void;
   @Input() question: QuizQuestion | null = null;
-  @Input() questionData: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
   @Input() correctMessage = '';
   @Input() feedback: string;
@@ -95,18 +94,11 @@ export abstract class BaseQuestionComponent
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question) {
       this.handleQuestionChange(changes.question);
-    }
-
-    if (changes.questionData) {
-      this.handleQuestionDataChange(changes.questionData);
+      this.initializeSharedOptionConfig();
     }
 
     if (changes.optionsToDisplay) {
       this.handleOptionsToDisplayChange(changes.optionsToDisplay);
-    }
-
-    if (changes.question || changes.questionData) {
-      this.initializeSharedOptionConfig();
     }
   }
 
@@ -361,16 +353,6 @@ export abstract class BaseQuestionComponent
       this.optionsInitialized = true;
     } else {
       console.warn('Received null or undefined question:', change);
-    }
-  }
-
-  private handleQuestionDataChange(change: SimpleChange): void {
-    console.log('QuestionData change detected:', change);
-    if (change.currentValue) {
-      console.log('New questionData value:', change.currentValue);
-      this.questionData = change.currentValue;
-    } else {
-      console.warn('Received null or undefined questionData:', change);
     }
   }
 
