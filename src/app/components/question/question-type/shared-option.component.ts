@@ -92,8 +92,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('SharedOptionComponent ngOnChanges called', changes);
     if (changes.config) {
       this.initializeFromConfig();
-      this.logConfigState();
-      console.log('SharedOptionComponent config changed:', this.config);
     }
 
     if (changes.currentQuestion) {
@@ -113,15 +111,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  logConfigState() {
-    console.log('SharedOptionComponent - config:', this.config);
-    console.log('SharedOptionComponent - optionsToDisplay:', this.config?.optionsToDisplay);
-    if (this.config?.optionsToDisplay?.length === 0) {
-      console.warn('SharedOptionComponent - optionsToDisplay is empty');
-    }
-  }
-
-  initializeFromConfig() {
+  initializeFromConfig(): void {
     if (!this.config) {
       console.error('SharedOptionComponent: config is not provided');
       return;
