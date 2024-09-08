@@ -46,7 +46,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
 
   loadDynamicComponent(): void {}
 
-  public async onOptionClicked(option: SelectedOption, index: number, event?: Event): Promise<void> {
+  public override async onOptionClicked(option: SelectedOption, index: number, event?: Event): Promise<void> {
     await super.onOptionClicked(option, index); // call the inherited method in BQC
 
     // Check if this component is actually an instance of QuizQuestionComponent
