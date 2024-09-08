@@ -1405,6 +1405,10 @@ export class QuizQuestionComponent
         this.explanationToDisplayChange.emit(explanationText);
         this.showExplanationChange.emit(true);
         this.displayExplanation = true;
+
+        // Set the correct message using the QuizService method
+        const correctOptions = questionData.options.filter(opt => opt.correct);
+        this.correctMessage = this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
       } else {
         console.error('Invalid question data when handling option processing');
         this.explanationToDisplay = 'Error: Invalid question data';
