@@ -1409,6 +1409,10 @@ export class QuizQuestionComponent
         // Set the correct message using the QuizService method
         const correctOptions = questionData.options.filter(opt => opt.correct);
         this.correctMessage = this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
+        console.log('QuizQuestionComponent - Correct Message set:', this.correctMessage);
+
+        // Ensure the correctMessage is being updated in the view
+        this.cdRef.detectChanges();
       } else {
         console.error('Invalid question data when handling option processing');
         this.explanationToDisplay = 'Error: Invalid question data';
