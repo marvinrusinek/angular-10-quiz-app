@@ -288,7 +288,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  handleOptionClick(option: Option, index: number): void {
+  async handleOptionClick(option: Option, index: number): Promise<void> {
+    if (this.config && this.config.onOptionClicked) {
+      await this.config.onOptionClicked(option, index);
+    }
+
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
