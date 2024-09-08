@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
@@ -35,11 +35,20 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('SingleAnswerComponent - ngOnInit');
+    console.log('SingleAnswerComponent - questionData:', this.questionData);
     await super.ngOnInit();
+    console.log('SingleAnswerComponent - after super.ngOnInit, sharedOptionConfig:', this.sharedOptionConfig);
     await this.initializeSingleAnswerConfig();
     this.initializeSharedOptionConfig();
     console.log('SingleAnswerComponent after init - sharedOptionConfig:', this.sharedOptionConfig);
     console.log('SingleAnswerComponent after init - questionData:', this.questionData);
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.questionData) {
+      console.log('SingleAnswerComponent - questionData changed:', changes.questionData.currentValue);
+    }
   }
 
   loadDynamicComponent(): void {}
