@@ -231,7 +231,7 @@ export abstract class BaseQuestionComponent
       feedback: '',
       highlightCorrectAfterIncorrect: false,
       quizQuestionComponentOnOptionClicked: () => {},
-      onOptionClicked: () => {},
+      onOptionClicked: () => Promise.resolve(),
       onQuestionAnswered: () => {}
     };
   }
