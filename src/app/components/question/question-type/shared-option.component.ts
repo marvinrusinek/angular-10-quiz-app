@@ -88,9 +88,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.config || changes.type) {
+    if (changes.config) {
       this.initializeFromConfig();
       this.logConfigState();
+      console.log('SharedOptionComponent config changed:', this.config);
     }
 
     if (changes.currentQuestion) {
