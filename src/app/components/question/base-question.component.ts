@@ -207,8 +207,8 @@ export abstract class BaseQuestionComponent
       isAnswerCorrect: false,
       feedback: this.feedback || '',
       quizQuestionComponentOnOptionClicked: this.quizQuestionComponentOnOptionClicked || (() => {}),
-      onOptionClicked: (event: any) => this.onOptionClicked(event),
-      onQuestionAnswered: (event: any) => this.onQuestionAnswered(event)
+      onOptionClicked: this.onOptionClicked.bind(this),
+      onQuestionAnswered: this.onQuestionAnswered.bind(this)
     };
   
     console.log('sharedOptionConfig initialized:', this.sharedOptionConfig);
