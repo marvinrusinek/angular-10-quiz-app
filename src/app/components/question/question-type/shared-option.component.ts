@@ -359,7 +359,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.config.selectedOptionIndex = index;
     this.config.showFeedback = true;
     this.config.showExplanation = true;
-    this.config.explanationText = option.explanation || 'No explanation available.';
+    // this.config.explanationText = option.explanation || 'No explanation available.';
   
     // Check if the answer is correct
     this.config.isAnswerCorrect = option.correct || false;
