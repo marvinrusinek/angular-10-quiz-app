@@ -356,12 +356,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.updateHighlighting();
   
     // Show feedback and explanation
+    this.config.selectedOptionIndex = index;
     this.config.showFeedback = true;
     this.config.showExplanation = true;
     this.config.explanationText = option.explanation || 'No explanation available.';
   
     // Check if the answer is correct
-    this.config.isAnswerCorrect = option.isCorrect || false;
+    this.config.isAnswerCorrect = option.correct || false;
+    this.config.showCorrectMessage = option.correct;
   
     // Call the onOptionClicked method from the config
     if (this.config && this.config.onOptionClicked) {

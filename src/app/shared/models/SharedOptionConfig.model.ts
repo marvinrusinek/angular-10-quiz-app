@@ -13,11 +13,16 @@ export interface SharedOptionConfig {
   showCorrectMessage: boolean;
   feedback: string;
   showFeedbackForOption: { [optionId: number]: boolean };
+  explanationText: string;
+  showExplanation: boolean;
   isOptionSelected: boolean;
   selectedOptionIndex: number;
   isAnswerCorrect: boolean;
   highlightCorrectAfterIncorrect: boolean;
-  quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
+  quizQuestionComponentOnOptionClicked: (
+    option: SelectedOption,
+    index: number
+  ) => void;
   onOptionClicked: (option: Option, index: number) => void;
   onQuestionAnswered: (event: any) => void;
 }
