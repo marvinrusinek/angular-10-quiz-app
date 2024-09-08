@@ -229,6 +229,7 @@ export abstract class BaseQuestionComponent
       selectedOptionIndex: -1,
       isAnswerCorrect: false,
       feedback: '',
+      highlightCorrectAfterIncorrect: false,
       quizQuestionComponentOnOptionClicked: () => {},
       onOptionClicked: () => {},
       onQuestionAnswered: () => {}
