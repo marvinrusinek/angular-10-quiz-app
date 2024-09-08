@@ -15,7 +15,7 @@ export interface SharedOptionConfig {
   isOptionSelected: boolean;
   selectedOptionIndex: number;
   isAnswerCorrect: boolean;
-  quizQuestionComponentOnOptionClicked: (option: any) => void;
+  quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
   onOptionClicked: (event: any, index: number) => void;
   onQuestionAnswered: (event: any) => void;
 }
