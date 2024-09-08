@@ -49,6 +49,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     
     if (this.sharedOptionConfig) {
       this.sharedOptionConfig.type = 'multiple';
+      this.sharedOptionConfig.quizQuestionComponentOnOptionClicked = this.quizQuestionComponentOnOptionClicked;
     } else {
       console.error('Failed to initialize sharedOptionConfig in MultipleAnswerComponent');
     }
