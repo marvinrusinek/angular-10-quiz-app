@@ -10,6 +10,7 @@ export interface SharedOptionConfig {
   type: 'single' | 'multiple';
   shouldResetBackground: boolean;
   correctMessage: string;
+  showCorrectMessage: boolean;
   feedback: string;
   showFeedbackForOption: { [optionId: number]: boolean };
   isOptionSelected: boolean;

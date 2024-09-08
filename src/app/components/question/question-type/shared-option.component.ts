@@ -380,7 +380,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.optionClicked.emit({ option, index });
   
     // Trigger change detection
-    this.changeDetectorRef.detectChanges();
+    this.cdRef.detectChanges();
   }
 
   handleBackwardNavigationOptionClick(option: Option, index: number): void {
