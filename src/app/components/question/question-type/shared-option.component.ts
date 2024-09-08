@@ -63,6 +63,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.initializeOptionBindings();
+    this.initializeFromConfig();
 
     if (!this.showFeedbackForOption) {
       this.showFeedbackForOption = {};
@@ -87,6 +88,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes.config || changes.type) {
+      this.initializeFromConfig();
+    }
+
     if (changes.currentQuestion) {
       this.handleQuestionChange(changes.currentQuestion);
     }
@@ -102,6 +107,24 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
     }
+  }
+
+  initializeFromConfig() {
+    if (!this.config) {
+      console.error('SharedOptionComponent: config is not provided');
+      return;
+    }
+
+    this.optionsToDisplay = this.config.optionsToDisplay || [];
+    this.type = this.config.type || this.type; // Use input type if provided, otherwise use config type
+    this.showFeedback = this.config.showFeedback || false;
+    this.showFeedbackForOption = this.config.showFeedbackForOption || {};
+    this.highlightCorrectAfterIncorrect = this.config.highlightCorrectAfterIncorrect || false;
+    this.shouldResetBackground = this.config.shouldResetBackground || false;
+
+    this.initializeOptionBindings();
+
+    console.log('SharedOptionComponent initialized with config:', this.config);
   }
 
   private handleQuestionChange(change: SimpleChange): void {
