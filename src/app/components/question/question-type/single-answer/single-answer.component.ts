@@ -36,6 +36,9 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
   }
 
   async ngOnInit(): Promise<void> {
+    await super.ngOnInit();
+    await this.initializeSingleAnswerConfig();
+    
     this.sharedOptionConfig = {
       ...this.sharedOptionConfig,
       type: 'single'
@@ -49,6 +52,20 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     if (this.sharedOptionConfig) {
       this.sharedOptionConfig.type = 'single';
     }
+  }
+
+  private async initializeSingleAnswerConfig(): Promise<void> {
+    if (!this.sharedOptionConfig) {
+      await this.initializeSharedOptionConfig();
+    }
+    
+    if (this.sharedOptionConfig) {
+      this.sharedOptionConfig.type = 'single';
+    } else {
+      console.error('Failed to initialize sharedOptionConfig in SingleAnswerComponent');
+    }
+    
+    console.log('SingleAnswerComponent sharedOptionConfig:', this.sharedOptionConfig);
   }
 
   public override async onOptionClicked(option: SelectedOption, index: number, event?: Event): Promise<void> {
