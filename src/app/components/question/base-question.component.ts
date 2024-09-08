@@ -191,15 +191,19 @@ export abstract class BaseQuestionComponent
     this.sharedOptionConfig = {
       optionsToDisplay: this.questionData.options || [],
       type: this.mapQuestionType(this.questionData.type),
-      shouldResetBackground: false,
-      selectedOption: null,
-      showFeedbackForOption: {},
+      shouldResetBackground: this.shouldResetBackground || false,
+      selectedOption: this.selectedOption || null,
+      showFeedbackForOption: this.showFeedbackForOption || {},
       currentQuestion: this.questionData,
-      showFeedback: false,
-      correctMessage: '',
+      showFeedback: this.showFeedback || false,
+      correctMessage: this.correctMessage || '',
       isOptionSelected: false,
       selectedOptionIndex: -1,
-      isAnswerCorrect: false
+      isAnswerCorrect: false,
+      feedback: this.feedback || '',
+      quizQuestionComponentOnOptionClicked: this.quizQuestionComponentOnOptionClicked || (() => {}),
+      onOptionClicked: (event: any) => this.onOptionClicked(event),
+      onQuestionAnswered: (event: any) => this.onQuestionAnswered(event)
     };
   
     console.log('sharedOptionConfig initialized:', this.sharedOptionConfig);
