@@ -498,6 +498,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.showFeedback && this.isIconVisible(option);
   }
 
+  isAnswerCorrect(): boolean {
+    return this.selectedOption && this.selectedOption.correct;
+  }
+
   trackByOption(item: Option, index: number): number {
     return item.optionId;
   }
