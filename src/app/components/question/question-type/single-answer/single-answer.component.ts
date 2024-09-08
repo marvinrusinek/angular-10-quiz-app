@@ -33,8 +33,6 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
   ) {
     super(quizService, selectedOptionService, fb, cdRef);
     this.sharedOptionConfig.type = 'single';
-
-    this.initializeOptionBindings();
   }
 
   async ngOnInit(): Promise<void> {
@@ -67,28 +65,5 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
 
     console.log('SingleAnswerComponent - selectedOption set to', this.selectedOption);
     console.log('SingleAnswerComponent - showFeedback set to', this.showFeedback);
-  }
-
-  initializeOptionBindings(): void {
-    this.optionBindings = this.optionsToDisplay.map((option): OptionBindings => ({
-      option: {
-        ...option,
-        feedback: option.correct ? this.correctMessage : this.incorrectMessage
-      },
-      isSelected: false,
-      isCorrect: option.correct || false,
-      showFeedback: false,
-      showFeedbackForOption: false,
-      highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
-      allOptions: this.optionsToDisplay,
-      type: this.type,
-      appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
-      appHighlightReset: false,
-      appResetBackground: false,
-      optionsToDisplay: this.optionsToDisplay,
-      disabled: false,
-      ariaLabel: `Option ${option.optionId}`,
-      change: () => this.handleOptionClick(option, option.optionId)
-    }));
   }
 }
