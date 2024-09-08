@@ -38,11 +38,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
   async ngOnInit(): Promise<void> {
     await super.ngOnInit();
     await this.initializeSingleAnswerConfig();
-
-    this.sharedOptionConfig = {
-      ...this.sharedOptionConfig,
-      type: 'single'
-    };
+    this.initializeSharedOptionConfig();
   }
 
   loadDynamicComponent(): void {}

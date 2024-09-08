@@ -62,6 +62,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
+    console.log('SharedOptionComponent ngOnInit called');
     this.initializeOptionBindings();
     this.initializeFromConfig();
 
@@ -88,6 +89,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log('SharedOptionComponent ngOnChanges called', changes);
     if (changes.config) {
       this.initializeFromConfig();
       this.logConfigState();
