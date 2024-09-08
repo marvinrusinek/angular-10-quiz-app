@@ -50,9 +50,14 @@ export abstract class BaseQuestionComponent
     index: number;
   }>();
   @Output() questionChange = new EventEmitter<QuizQuestion>();
+  @Input() quizQuestionComponentOnOptionClicked!: (
+    option: SelectedOption,
+    index: number
+  ) => void;
   @Input() question: QuizQuestion | null = null;
   @Input() optionsToDisplay: Option[] = [];
   @Input() correctMessage = '';
+  @Input() feedback: string;
   @Input() showFeedback = false;
   @Input() shouldResetBackground = false;
   @Input() type: 'single' | 'multiple' = 'single';
