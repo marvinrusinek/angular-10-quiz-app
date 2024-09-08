@@ -44,6 +44,13 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
 
   loadDynamicComponent(): void {}
 
+  public override async initializeSharedOptionConfig(): Promise<void> {
+    await super.initializeSharedOptionConfig();
+    if (this.sharedOptionConfig) {
+      this.sharedOptionConfig.type = 'single';
+    }
+  }
+
   public override async onOptionClicked(option: SelectedOption, index: number, event?: Event): Promise<void> {
     await super.onOptionClicked(option, index); // call the inherited method in BQC
 

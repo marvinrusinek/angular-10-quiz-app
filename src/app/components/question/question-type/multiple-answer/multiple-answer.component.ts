@@ -38,42 +38,14 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     this.initializeSharedOptionConfig();
   }
 
-  initializeSharedOptionConfig(): void {
-    if (this.sharedOptionConfig) {
-      this.sharedOptionConfig = {
-        ...this.sharedOptionConfig,
-        type: 'multiple'
-      };
-    } else {
-      console.error('sharedOptionConfig is undefined in MultipleAnswerComponent');
-      // Initialize with default values if it's undefined
-      this.sharedOptionConfig = {
-        type: 'multiple',
-        optionsToDisplay: [],
-        selectedOption: null,
-        currentQuestion: {} as QuizQuestion,
-        showFeedback: false,
-        shouldResetBackground: false,
-        showFeedbackForOption: {},
-        correctMessage: '',
-        isOptionSelected: false,
-        selectedOptionIndex: -1,
-        isAnswerCorrect: false,
-        feedback: '',
-        highlightCorrectAfterIncorrect: false,
-        onOptionClicked: () => Promise.resolve(),
-        quizQuestionComponentOnOptionClicked: () => {},
-        onQuestionAnswered: () => {}
-      };
-    }
-    console.log('MultipleAnswerComponent sharedOptionConfig:', this.sharedOptionConfig);
-  }
-
   loadDynamicComponent(): void {}
 
-  /* public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    await super.onOptionClicked(option, index); // Call the inherited method
-  } */
+  public override async initializeSharedOptionConfig(): Promise<void> {
+    await super.initializeSharedOptionConfig();
+    if (this.sharedOptionConfig) {
+      this.sharedOptionConfig.type = 'multiple';
+    }
+  }
 
   public override async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     await super.onOptionClicked(option, index); // Calls BQC's implementation
