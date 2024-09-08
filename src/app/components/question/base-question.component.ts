@@ -234,6 +234,61 @@ export abstract class BaseQuestionComponent
     };
   }
 
+  protected onQuestionAnswered(event: any): void {
+    // Ensure we have a current question
+    if (!this.currentQuestion) {
+      console.warn('No current question set');
+      return;
+    }
+
+    // Update the selected option
+    this.selectedOption = event.option;
+
+    // Check if the answer is correct
+    this.isAnswerCorrect = this.checkAnswer();
+
+    // Show feedback
+    this.showFeedback = true;
+
+    // Update the current question with the user's answer
+    this.currentQuestion.userAnswer = this.selectedOption;
+    this.currentQuestion.isCorrect = this.isAnswerCorrect;
+
+    // Emit the updated question
+    this.questionAnswered.emit(this.currentQuestion);
+
+    console.log('Question answered:', {
+      question: this.currentQuestion,
+      selectedOption: this.selectedOption,
+      isCorrect: this.isAnswerCorrect
+    });
+  }
+
+  private checkAnswer(): boolean {
+    if (!this.selectedOption || !this.currentQuestion) {
+      return false;
+    }
+
+    // For single answer questions
+    if (!Array.isArray(this.currentQuestion.correctAnswer)) {
+      return this.selectedOption.optionId === this.currentQuestion.correctAnswer;
+    }
+
+    // For multiple answer questions
+    if (!Array.isArray(this.selectedOption)) {
+      console.warn('Multiple answers expected but single answer received');
+      return false;
+    }
+
+    const selectedIds = new Set(this.selectedOption.map(option => option.optionId));
+    const correctIds = new Set(this.currentQuestion.correctAnswer);
+
+    return (
+      selectedIds.size === correctIds.size &&
+      [...selectedIds].every(id => correctIds.has(id))
+    );
+  }
+
   protected subscribeToQuestionChanges(): void {
     if (this.quizStateService) {
       if (this.quizStateService.currentQuestion$) {
