@@ -116,6 +116,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   logConfigState() {
     console.log('SharedOptionComponent - config:', this.config);
     console.log('SharedOptionComponent - optionsToDisplay:', this.config?.optionsToDisplay);
+    if (this.config?.optionsToDisplay?.length === 0) {
+      console.warn('SharedOptionComponent - optionsToDisplay is empty');
+    }
   }
 
   initializeFromConfig() {
