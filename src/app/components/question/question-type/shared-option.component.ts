@@ -305,6 +305,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       await this.config.onOptionClicked(option, index);
     }
 
+    this.config.optionsToDisplay.forEach(opt => opt.selected = false);
+    option.selected = true;
+    this.config.showFeedback = true;
+    this.config.selectedOptionIndex = index;
+    this.config.onOptionClicked(option, index);
+
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
