@@ -32,6 +32,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent {
     protected cdRef: ChangeDetectorRef
   ) {
     super(quizService, selectedOptionService, fb, cdRef);
+    this.sharedOptionConfig.type = 'single';
 
     this.initializeOptionBindings();
   }
