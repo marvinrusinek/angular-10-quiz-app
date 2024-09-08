@@ -19,6 +19,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 })
 export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit {
   @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
+  quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
   sharedOptionConfig: SharedOptionConfig;
