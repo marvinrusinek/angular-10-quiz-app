@@ -38,6 +38,8 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     await super.ngOnInit();
     await this.initializeSingleAnswerConfig();
     this.initializeSharedOptionConfig();
+    console.log('SingleAnswerComponent after init - sharedOptionConfig:', this.sharedOptionConfig);
+    console.log('SingleAnswerComponent after init - questionData:', this.questionData);
   }
 
   loadDynamicComponent(): void {}
