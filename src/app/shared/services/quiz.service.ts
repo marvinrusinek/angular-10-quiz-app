@@ -1502,6 +1502,11 @@ export class QuizService implements OnDestroy {
     return -1;
   }
 
+  private initializeSelectedQuizData(selectedQuiz: Quiz): void {
+    this.setQuizData([selectedQuiz]);
+    this.setSelectedQuiz(selectedQuiz);
+  }
+
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
   

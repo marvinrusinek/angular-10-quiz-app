@@ -559,7 +559,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.currentQuestion = currentQuestion;
 
       this.processQuizData(zeroBasedQuestionIndex, this.selectedQuiz);
-      this.initializeSelectedQuizData(this.selectedQuiz);
+      this.quizService.initializeSelectedQuizData(this.selectedQuiz);
 
       const questionData = await this.fetchQuestionData(
         quizId,
@@ -898,11 +898,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     if (this.quizService.isAnswered(multipleAnswerQuestionIndex)) {
       this.shouldDisplayNumberOfCorrectAnswers = true;
     }
-  }
-
-  private initializeSelectedQuizData(selectedQuiz: Quiz): void {
-    this.quizService.setQuizData([selectedQuiz]);
-    this.quizService.setSelectedQuiz(selectedQuiz);
   }
 
   private async fetchQuestionData(
