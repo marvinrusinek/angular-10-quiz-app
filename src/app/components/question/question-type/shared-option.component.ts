@@ -117,14 +117,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
 
+    this.currentQuestion = this.config.currentQuestion;
     this.optionsToDisplay = this.config.optionsToDisplay || [];
-    this.type = this.type || this.config.type; // Use input type if provided, otherwise use config type
+    
+    const questionType = this.config.currentQuestion.type;
+    this.type = this.convertQuestionType(questionType);
+
     this.showFeedback = this.config.showFeedback || false;
     this.showFeedbackForOption = this.config.showFeedbackForOption || {};
+    this.correctMessage = this.config.correctMessage || '';
     this.highlightCorrectAfterIncorrect = this.config.highlightCorrectAfterIncorrect || false;
     this.shouldResetBackground = this.config.shouldResetBackground || false;
-    this.currentQuestion = this.config.currentQuestion;
-    this.correctMessage = this.config.correctMessage || '';
 
     this.initializeOptionBindings();
 
