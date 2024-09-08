@@ -1139,7 +1139,7 @@ export class QuizService implements OnDestroy {
         : `${uniqueIndices[0]}`;
   
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
-    return correctMessage;
+    return correctMessage || 'Correct answer information is not available.';
   }
 
   updateCombinedQuestionData(newData: CombinedQuestionDataType): void {
