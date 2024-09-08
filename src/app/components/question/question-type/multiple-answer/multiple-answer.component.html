@@ -4,16 +4,6 @@
 ></app-shared-option>-->
 
 <app-shared-option
-  [optionsToDisplay]="optionsToDisplay"
-  [type]="'multiple'"
-  [shouldResetBackground]="shouldResetBackground"
-  [selectedOption]="selectedOption"
-  [showFeedbackForOption]="showFeedbackForOption"
-  [currentQuestion]="currentQuestion"
-  [correctMessage]="correctMessage"
-  [showFeedback]="showFeedback"
-  [feedback]="feedback"
-  (optionClicked)="onOptionClicked($event)"
-  (questionAnswered)="onQuestionAnswered($event)"
-  [quizQuestionComponentOnOptionClicked]="quizQuestionComponentOnOptionClicked"
+  [type]="sharedOptionConfig.type"
+  [config]="sharedOptionConfig"
 ></app-shared-option>
