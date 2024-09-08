@@ -55,13 +55,13 @@ export abstract class BaseQuestionComponent
     index: number
   ) => void;
   @Input() question: QuizQuestion | null = null;
+  @Input() questionData: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
   @Input() correctMessage = '';
   @Input() feedback: string;
   @Input() showFeedback = false;
   @Input() shouldResetBackground = false;
   @Input() type: 'single' | 'multiple' = 'single';
-  @Input() questionData: any;
   sharedOptionConfig: SharedOptionConfig;
   currentQuestionSubscription: Subscription;
   explanationToDisplay: string;
@@ -186,7 +186,7 @@ export abstract class BaseQuestionComponent
     }
   }
 
-  public initializeSharedOptionConfig(): void {
+  public async initializeSharedOptionConfig(): Promise<void> {
     if (!this.questionData) {
       console.warn('questionData is undefined or null');
       this.sharedOptionConfig = this.getDefaultSharedOptionConfig();
@@ -194,8 +194,8 @@ export abstract class BaseQuestionComponent
     }
   
     this.sharedOptionConfig = {
+      type: 'single', // overridden in child component
       optionsToDisplay: this.questionData.options || [],
-      type: this.mapQuestionType(this.questionData.type),
       shouldResetBackground: this.shouldResetBackground || false,
       selectedOption: this.selectedOption || null,
       showFeedbackForOption: this.showFeedbackForOption || {},
@@ -206,6 +206,7 @@ export abstract class BaseQuestionComponent
       selectedOptionIndex: -1,
       isAnswerCorrect: false,
       feedback: this.feedback || '',
+      highlightCorrectAfterIncorrect: false,
       quizQuestionComponentOnOptionClicked: this.quizQuestionComponentOnOptionClicked || (() => {}),
       onOptionClicked: this.onOptionClicked.bind(this),
       onQuestionAnswered: this.onQuestionAnswered.bind(this)
