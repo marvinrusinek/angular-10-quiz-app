@@ -187,22 +187,22 @@ export abstract class BaseQuestionComponent
   }
 
   public async initializeSharedOptionConfig(): Promise<void> {
-    if (!this.questionData) {
-      console.warn('questionData is undefined or null');
+    if (!this.question) {
+      console.warn('question is undefined or null');
       this.sharedOptionConfig = this.getDefaultSharedOptionConfig();
       return;
     }
   
-    console.log('Initializing sharedOptionConfig with questionData:', this.questionData);
+    console.log('Initializing sharedOptionConfig with question:', this.question);
   
-    const options = this.questionData.options || [];
+    const options = this.question.options || [];
     console.log('Options from questionData:', options);
   
     this.sharedOptionConfig = {
       ...this.getDefaultSharedOptionConfig(),
       type: 'single', // overridden in child component
       optionsToDisplay: options,
-      currentQuestion: this.questionData,
+      currentQuestion: this.question,
       shouldResetBackground: this.shouldResetBackground || false,
       selectedOption: this.selectedOption || null,
       showFeedbackForOption: this.showFeedbackForOption || {},
