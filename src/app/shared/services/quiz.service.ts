@@ -1502,7 +1502,7 @@ export class QuizService implements OnDestroy {
     return -1;
   }
 
-  private initializeSelectedQuizData(selectedQuiz: Quiz): void {
+  initializeSelectedQuizData(selectedQuiz: Quiz): void {
     this.setQuizData([selectedQuiz]);
     this.setSelectedQuiz(selectedQuiz);
   }
