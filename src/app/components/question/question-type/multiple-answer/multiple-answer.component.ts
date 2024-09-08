@@ -35,10 +35,25 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
   async ngOnInit(): Promise<void> {
     await super.ngOnInit(); // Make sure to call the parent's ngOnInit first
+    await this.initializeMultipleAnswerConfig();
     this.initializeSharedOptionConfig();
   }
 
   loadDynamicComponent(): void {}
+
+  private async initializeMultipleAnswerConfig(): Promise<void> {
+    if (!this.sharedOptionConfig) {
+      await this.initializeSharedOptionConfig();
+    }
+    
+    if (this.sharedOptionConfig) {
+      this.sharedOptionConfig.type = 'multiple';
+    } else {
+      console.error('Failed to initialize sharedOptionConfig in MultipleAnswerComponent');
+    }
+    
+    console.log('MultipleAnswerComponent sharedOptionConfig:', this.sharedOptionConfig);
+  }
 
   public override async initializeSharedOptionConfig(): Promise<void> {
     await super.initializeSharedOptionConfig();
