@@ -61,6 +61,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     
     if (this.sharedOptionConfig) {
       this.sharedOptionConfig.type = 'single';
+      this.sharedOptionConfig.quizQuestionComponentOnOptionClicked = this.quizQuestionComponentOnOptionClicked;
     } else {
       console.error('Failed to initialize sharedOptionConfig in SingleAnswerComponent');
     }
