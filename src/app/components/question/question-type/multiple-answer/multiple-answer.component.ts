@@ -27,6 +27,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent {
     protected cdRef: ChangeDetectorRef
   ) {
     super(quizService, selectedOptionService, fb, cdRef);
+    this.sharedOptionConfig.type = 'multiple';
   }
 
   loadDynamicComponent(): void {}
