@@ -30,7 +30,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     this.sharedOptionConfig.type = 'multiple';
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.sharedOptionConfig = {
       ...this.sharedOptionConfig,
       type: 'multiple'

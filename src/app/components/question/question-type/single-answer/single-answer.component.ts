@@ -37,7 +37,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     this.initializeOptionBindings();
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.sharedOptionConfig = {
       ...this.sharedOptionConfig,
       type: 'single'
