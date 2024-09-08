@@ -23,6 +23,6 @@ export interface SharedOptionConfig {
     option: SelectedOption,
     index: number
   ) => void;
-  onOptionClicked: (option: Option, index: number) => void;
+  onOptionClicked: (option: Option, index: number) => Promise<void>;
   onQuestionAnswered: (event: any) => void;
 }
