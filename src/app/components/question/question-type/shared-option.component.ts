@@ -90,6 +90,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.config || changes.type) {
       this.initializeFromConfig();
+      this.logConfigState();
     }
 
     if (changes.currentQuestion) {
@@ -107,6 +108,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
     }
+  }
+
+  logConfigState() {
+    console.log('SharedOptionComponent - config:', this.config);
+    console.log('SharedOptionComponent - optionsToDisplay:', this.config?.optionsToDisplay);
   }
 
   initializeFromConfig() {
