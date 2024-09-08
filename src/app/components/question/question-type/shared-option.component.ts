@@ -301,16 +301,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   async handleOptionClick(option: Option, index: number): Promise<void> {
-    if (this.config && this.config.onOptionClicked) {
-      await this.config.onOptionClicked(option, index);
-    }
-
-    this.config.optionsToDisplay.forEach(opt => opt.selected = false);
-    option.selected = true;
-    this.config.showFeedback = true;
-    this.config.selectedOptionIndex = index;
-    this.config.onOptionClicked(option, index);
-
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
@@ -321,7 +311,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('Option already selected, ignoring click');
       return;
     }
-
+  
     if (this.isNavigatingBackwards) {
       this.handleBackwardNavigationOptionClick(option, index);
       return;
@@ -337,23 +327,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedbackForOption[option.optionId] = true;
     this.clickedOptionIds.add(option.optionId ?? index);
   
-    if (this.type === 'single') {
+    if (this.config.type === 'single') {
       // For single-select, update only the clicked option
-      if (this.selectedOption && this.selectedOption !== option) {
-        // Deselect the previously selected option
-        const prevSelectedBinding = this.optionBindings.find(binding => binding.option === this.selectedOption);
-        if (prevSelectedBinding) {
-          prevSelectedBinding.isSelected = false;
-          prevSelectedBinding.option.selected = false;
-        }
-      }
-  
-      // Select the clicked option
-      optionBinding.isSelected = true;
-      optionBinding.option.selected = true;
-      optionBinding.showFeedback = this.showFeedback;
-      this.showIconForOption[option.optionId] = true;
-      this.iconVisibility[option.optionId] = true;
+      this.config.optionsToDisplay.forEach(opt => opt.selected = false);
+      option.selected = true;
+      this.config.selectedOptionIndex = index;
   
       this.selectedOption = option;
       this.selectedOptions.clear();
@@ -362,16 +340,33 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // Store the selected option
       this.selectedOptionService.setSelectedOption(option as SelectedOption);
     } else {
-      // For multiple-select, always select the option
-      optionBinding.isSelected = true;
-      optionBinding.option.selected = true;
-      optionBinding.showFeedback = this.showFeedback;
-      
-      this.selectedOptions.add(option.optionId);
-      this.showIconForOption[option.optionId] = true;
+      // For multiple-select, toggle the selection
+      option.selected = !option.selected;
+      if (option.selected) {
+        this.selectedOptions.add(option.optionId);
+      } else {
+        this.selectedOptions.delete(option.optionId);
+      }
     }
   
+    optionBinding.isSelected = option.selected;
+    optionBinding.showFeedback = this.showFeedback;
+    this.showIconForOption[option.optionId] = option.selected;
+  
     this.updateHighlighting();
+  
+    // Show feedback and explanation
+    this.config.showFeedback = true;
+    this.config.showExplanation = true;
+    this.config.explanationText = option.explanation || 'No explanation available.';
+  
+    // Check if the answer is correct
+    this.config.isAnswerCorrect = option.isCorrect || false;
+  
+    // Call the onOptionClicked method from the config
+    if (this.config && this.config.onOptionClicked) {
+      await this.config.onOptionClicked(option, index);
+    }
   
     // Call the quizQuestionComponentOnOptionClicked method if it exists
     if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
@@ -383,6 +378,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     this.optionClicked.emit({ option, index });
+  
+    // Trigger change detection
+    this.changeDetectorRef.detectChanges();
   }
 
   handleBackwardNavigationOptionClick(option: Option, index: number): void {
