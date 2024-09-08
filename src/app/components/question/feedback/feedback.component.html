@@ -8,6 +8,9 @@
         sentiment_very_dissatisfied
       </mat-icon>
     </ng-template>
-    {{ displayMessage }}
+    
+    <div *ngIf="showFeedback">>
+      <span>{{ displayMessage }}</span>
+    </div>
   </div>
 </section>
