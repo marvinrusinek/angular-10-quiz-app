@@ -43,7 +43,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     await super.onOptionClicked(option, index); // Call the inherited method
   } */
 
-  public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  public override async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     await super.onOptionClicked(option, index); // Calls BQC's implementation
 
     // Check if this component is actually an instance of QuizQuestionComponent
