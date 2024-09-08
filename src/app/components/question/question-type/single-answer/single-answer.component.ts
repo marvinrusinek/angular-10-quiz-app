@@ -19,7 +19,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 })
 export class SingleAnswerComponent extends BaseQuestionComponent implements OnInit {
   @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
-  quizQuestionComponentOnOptionClicked?: (option: SelectedOption, index: number) => void;
+  quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
   sharedOptionConfig: SharedOptionConfig;
@@ -38,7 +38,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
   async ngOnInit(): Promise<void> {
     await super.ngOnInit();
     await this.initializeSingleAnswerConfig();
-    
+
     this.sharedOptionConfig = {
       ...this.sharedOptionConfig,
       type: 'single'
