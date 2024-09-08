@@ -16,6 +16,7 @@ export class FeedbackComponent implements OnChanges {
   @Input() feedback = '';
   feedbackMessageClass: string;
   feedbackPrefix: string;
+  displayMessage = '';
 
   constructor(private selectedOptionService: SelectedOptionService) {
     const option = this.selectedOptionService.selectedOption;
@@ -29,6 +30,7 @@ export class FeedbackComponent implements OnChanges {
       console.log('FeedbackComponent - Correct Message:', this.correctMessage);
       this.feedbackMessageClass = this.determineFeedbackMessageClass();
       this.feedbackPrefix = this.determineFeedbackPrefix();
+      this.updateDisplayMessage();
 
       console.log('feedbackPrefix:', this.feedbackPrefix);
       console.log('feedbackMessageClass:', this.feedbackMessageClass);
@@ -49,5 +51,12 @@ export class FeedbackComponent implements OnChanges {
     return this.selectedOption && this.selectedOption.correct 
       ? 'correct-message' 
       : 'wrong-message';
+  }
+
+  updateDisplayMessage(): void {
+    this.displayMessage = `${this.feedbackPrefix}${this.correctMessage || ''}`;
+    if (this.feedback) {
+      this.displayMessage += ` ${this.feedback}`;
+    }
   }
 }
