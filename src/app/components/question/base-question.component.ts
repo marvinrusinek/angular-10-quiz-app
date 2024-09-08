@@ -226,7 +226,11 @@ export abstract class BaseQuestionComponent
       correctMessage: '',
       isOptionSelected: false,
       selectedOptionIndex: -1,
-      isAnswerCorrect: false
+      isAnswerCorrect: false,
+      feedback: '',
+      quizQuestionComponentOnOptionClicked: () => {},
+      onOptionClicked: () => {},
+      onQuestionAnswered: () => {}
     };
   }
 
