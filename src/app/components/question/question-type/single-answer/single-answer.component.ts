@@ -32,7 +32,6 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     protected cdRef: ChangeDetectorRef
   ) {
     super(quizService, selectedOptionService, fb, cdRef);
-    this.sharedOptionConfig.type = 'single';
   }
 
   async ngOnInit(): Promise<void> {

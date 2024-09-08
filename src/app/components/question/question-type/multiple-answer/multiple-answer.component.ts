@@ -31,7 +31,6 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     protected cdRef: ChangeDetectorRef
   ) {
     super(quizService, selectedOptionService, fb, cdRef);
-    this.sharedOptionConfig.type = 'multiple';
   }
 
   async ngOnInit(): Promise<void> {
