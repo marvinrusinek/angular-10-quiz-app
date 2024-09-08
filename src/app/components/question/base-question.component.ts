@@ -194,6 +194,7 @@ export abstract class BaseQuestionComponent
     }
   
     this.sharedOptionConfig = {
+      ...this.getDefaultSharedOptionConfig(),
       type: 'single', // overridden in child component
       optionsToDisplay: this.questionData.options || [],
       shouldResetBackground: this.shouldResetBackground || false,
