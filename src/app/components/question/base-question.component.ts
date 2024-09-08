@@ -193,15 +193,10 @@ export abstract class BaseQuestionComponent
       return;
     }
   
-    console.log('Initializing sharedOptionConfig with question:', this.question);
-  
-    const options = this.question.options || [];
-    console.log('Options from questionData:', options);
-  
     this.sharedOptionConfig = {
       ...this.getDefaultSharedOptionConfig(),
       type: 'single', // overridden in child component
-      optionsToDisplay: options,
+      optionsToDisplay: this.question.options || [],
       currentQuestion: this.question,
       shouldResetBackground: this.shouldResetBackground || false,
       selectedOption: this.selectedOption || null,
@@ -217,9 +212,6 @@ export abstract class BaseQuestionComponent
       onOptionClicked: this.onOptionClicked.bind(this),
       onQuestionAnswered: this.onQuestionAnswered.bind(this)
     };
-  
-    console.log('sharedOptionConfig initialized:', this.sharedOptionConfig);
-    console.log('optionsToDisplay in sharedOptionConfig:', this.sharedOptionConfig.optionsToDisplay);
   }
 
   private getDefaultSharedOptionConfig(): SharedOptionConfig {
