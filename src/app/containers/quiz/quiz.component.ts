@@ -894,27 +894,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   checkAndDisplayCorrectAnswers(): void {
     const multipleAnswerQuestionIndex =
-      this.findCurrentMultipleAnswerQuestionIndex();
+      this.quizService.findCurrentMultipleAnswerQuestionIndex();
     if (this.quizService.isAnswered(multipleAnswerQuestionIndex)) {
       this.shouldDisplayNumberOfCorrectAnswers = true;
     }
-  }
-
-  findCurrentMultipleAnswerQuestionIndex(): number {
-    if (!this.questions || this.questions.length === 0) {
-      console.error('No questions available');
-      return -1;
-    }
-
-    const currentQuestion = this.questions[this.currentQuestionIndex];
-    if (
-      currentQuestion &&
-      currentQuestion.type === QuestionType.MultipleAnswer
-    ) {
-      return this.currentQuestionIndex;
-    }
-
-    return -1;
   }
 
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {

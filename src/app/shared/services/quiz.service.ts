@@ -1485,7 +1485,6 @@ export class QuizService implements OnDestroy {
     return this.isNavigatingToPrevious.asObservable();
   }
 
-  // see where I can use this...
   findCurrentMultipleAnswerQuestionIndex(): number {
     if (!this.questions || this.questions.length === 0) {
       console.error('No questions available');
