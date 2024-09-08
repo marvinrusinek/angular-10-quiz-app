@@ -26,8 +26,12 @@ export class FeedbackComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.selectedOption || changes.correctMessage || changes.showFeedback || changes.feedback) {
+      console.log('FeedbackComponent - Correct Message:', this.correctMessage);
       this.feedbackMessageClass = this.determineFeedbackMessageClass();
       this.feedbackPrefix = this.determineFeedbackPrefix();
+
+      console.log('feedbackPrefix:', this.feedbackPrefix);
+      console.log('feedbackMessageClass:', this.feedbackMessageClass);
     }
   }
 
