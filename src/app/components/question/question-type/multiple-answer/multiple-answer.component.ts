@@ -2,7 +2,9 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
+import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
+import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { QuizQuestionComponent } from '../../../../components/question/question.component';
@@ -19,6 +21,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
+  sharedOptionConfig: SharedOptionConfig;
 
   constructor(
     protected quizService: QuizService,
@@ -31,10 +34,39 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   }
 
   async ngOnInit(): Promise<void> {
-    this.sharedOptionConfig = {
-      ...this.sharedOptionConfig,
-      type: 'multiple'
-    };
+    await super.ngOnInit(); // Make sure to call the parent's ngOnInit first
+    this.initializeSharedOptionConfig();
+  }
+
+  initializeSharedOptionConfig(): void {
+    if (this.sharedOptionConfig) {
+      this.sharedOptionConfig = {
+        ...this.sharedOptionConfig,
+        type: 'multiple'
+      };
+    } else {
+      console.error('sharedOptionConfig is undefined in MultipleAnswerComponent');
+      // Initialize with default values if it's undefined
+      this.sharedOptionConfig = {
+        type: 'multiple',
+        optionsToDisplay: [],
+        selectedOption: null,
+        currentQuestion: {} as QuizQuestion,
+        showFeedback: false,
+        shouldResetBackground: false,
+        showFeedbackForOption: {},
+        correctMessage: '',
+        isOptionSelected: false,
+        selectedOptionIndex: -1,
+        isAnswerCorrect: false,
+        feedback: '',
+        highlightCorrectAfterIncorrect: false,
+        onOptionClicked: () => Promise.resolve(),
+        quizQuestionComponentOnOptionClicked: () => {},
+        onQuestionAnswered: () => {}
+      };
+    }
+    console.log('MultipleAnswerComponent sharedOptionConfig:', this.sharedOptionConfig);
   }
 
   loadDynamicComponent(): void {}
