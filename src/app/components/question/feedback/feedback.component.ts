@@ -54,21 +54,20 @@ export class FeedbackComponent implements OnChanges {
   }
 
   updateDisplayMessage(): void {
-    console.log('Updating display message');
-    console.log('feedbackPrefix:', this.feedbackPrefix);
-    console.log('correctMessage:', this.correctMessage);
-    console.log('feedback:', this.feedback);
+    this.displayMessage = '';
 
-    this.displayMessage = this.feedbackPrefix;
-    
-    if (this.correctMessage) {
-      this.displayMessage += ` ${this.correctMessage}`;
+    if (this.showFeedback) {
+      this.displayMessage += this.feedbackPrefix;
+      
+      if (this.correctMessage) {
+        this.displayMessage += ` ${this.correctMessage}`;
+      }
+      
+      if (this.feedback) {
+        this.displayMessage += ` ${this.feedback}`;
+      }
     }
-    
-    if (this.feedback) {
-      this.displayMessage += ` ${this.feedback}`;
-    }
-    
+
     console.log('FeedbackComponent - Final display message:', this.displayMessage);
   }
 }
