@@ -4,7 +4,7 @@
 <!--<ang-music-player [audioList]="audioList"></ang-music-player>-->
 
 <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
-  <ng-container #dynamicComponentContainer></ng-container>
+  <ng-container #dynamicAnswerContainer></ng-container>
 
   <ng-container *ngIf="shouldRenderContainer">
     <div *ngIf="isLoading" class="loading-spinner" aria-label="Loading"></div>
