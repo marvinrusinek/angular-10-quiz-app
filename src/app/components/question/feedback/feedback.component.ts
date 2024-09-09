@@ -19,22 +19,31 @@ export class FeedbackComponent implements OnChanges {
   displayMessage = '';
 
   constructor(private selectedOptionService: SelectedOptionService) {
-    const option = this.selectedOptionService.selectedOption;
-    this.selectedOption = option 
-      ? { ...option, correct: !!option.correct } 
-      : { text: '', correct: false, optionId: -1 };
+    //const option = this.selectedOptionService.selectedOption;
+    //this.selectedOption = option 
+    //  ? { ...option, correct: !!option.correct } 
+    //  : { text: '', correct: false, optionId: -1 };
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.selectedOption || changes.correctMessage || changes.showFeedback || changes.feedback) {
-      console.log('FeedbackComponent - Correct Message:', this.correctMessage);
-      this.feedbackMessageClass = this.determineFeedbackMessageClass();
-      this.feedbackPrefix = this.determineFeedbackPrefix();
-      this.updateDisplayMessage();
-
-      console.log('feedbackPrefix:', this.feedbackPrefix);
-      console.log('feedbackMessageClass:', this.feedbackMessageClass);
+      this.updateFeedback();
     }
+  }
+
+  private updateFeedback(): void {
+    this.feedbackMessageClass = this.determineFeedbackMessageClass();
+    this.feedbackPrefix = this.determineFeedbackPrefix();
+    this.updateDisplayMessage();
+
+    console.log('FeedbackComponent - Updated feedback:', {
+      correctMessage: this.correctMessage,
+      selectedOption: this.selectedOption,
+      showFeedback: this.showFeedback,
+      feedbackPrefix: this.feedbackPrefix,
+      feedbackMessageClass: this.feedbackMessageClass,
+      displayMessage: this.displayMessage
+    });
   }
 
   determineFeedbackPrefix(): string {

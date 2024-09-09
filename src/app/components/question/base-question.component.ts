@@ -315,11 +315,7 @@ export abstract class BaseQuestionComponent
       this.selectedOption = option;
   
       // Determine the correct options and set the correct message
-      const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
-      this.correctMessage = this.quizService.setCorrectMessage(
-        correctOptions,
-        this.optionsToDisplay
-      );
+      this.updateCorrectMessageForQuestion();
   
       // Set the correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
@@ -329,6 +325,15 @@ export abstract class BaseQuestionComponent
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
+  }
+
+  updateCorrectMessageForQuestion(): void {
+    const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
+    this.correctMessage = this.quizService.setCorrectMessage(
+      correctOptions,
+      this.optionsToDisplay
+    );
+    console.log('BaseQuestionComponent - correctMessage updated:', this.correctMessage);
   }
 
   private mapQuestionType(type: QuestionType): 'single' | 'multiple' {
