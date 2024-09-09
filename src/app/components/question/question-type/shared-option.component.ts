@@ -265,7 +265,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   /* isSelectedOption(option: Option): boolean {
     return this.selectedOptions.has(option.optionId);
   } */
-  isSelectedOption(option: Option): boolean {
+  /* isSelectedOption(option: Option): boolean {
     const isSelected = this.selectedOptions.has(option.optionId);
     console.log('SharedOptionComponent - isSelectedOption:', {
       optionId: option.optionId,
@@ -275,7 +275,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       selectedOptions: Array.from(this.selectedOptions)
     });
     return isSelected;
-  }
+  } */
 
   /* isLastSelectedOption(option: Option): boolean {
     return this.showFeedback && this.lastSelectedOption === option;
@@ -531,6 +531,38 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   /* shouldShowFeedback(option: Option): boolean {
     return this.showFeedback && this.isLastSelectedOption(option);
   } */
+  /* shouldShowFeedback(option: Option): boolean {
+    const isSelected = this.isSelectedOption(option);
+    const shouldShow = this.showFeedback && isSelected;
+    console.log('SharedOptionComponent - shouldShowFeedback:', {
+      optionId: option.optionId,
+      text: option.text,
+      correct: option.correct,
+      isSelected,
+      showFeedback: this.showFeedback,
+      shouldShow
+    });
+    return shouldShow;
+  } */
+  /* isSelectedOption(option: Option): boolean {
+    return this.selectedOptions.has(option.optionId);
+  }
+
+  shouldShowFeedback(option: Option): boolean {
+    return this.showFeedback && this.isSelectedOption(option);
+  } */
+  isSelectedOption(option: Option): boolean {
+    const isSelected = this.selectedOptions.has(option.optionId);
+    console.log('SharedOptionComponent - isSelectedOption:', {
+      optionId: option.optionId,
+      text: option.text,
+      correct: option.correct,
+      isSelected,
+      selectedOptions: Array.from(this.selectedOptions)
+    });
+    return isSelected;
+  }
+
   shouldShowFeedback(option: Option): boolean {
     const isSelected = this.isSelectedOption(option);
     const shouldShow = this.showFeedback && isSelected;
