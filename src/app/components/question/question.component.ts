@@ -225,6 +225,7 @@ export class QuizQuestionComponent
     console.log('QuizStateService injected:', !!this.quizStateService);
 
     this.questionForm = this.fb.group({});
+    this.shouldDisplayContainer = true;
 
     this.sharedVisibilitySubscription =
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
