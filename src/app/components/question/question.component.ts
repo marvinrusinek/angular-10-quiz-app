@@ -161,7 +161,6 @@ export class QuizQuestionComponent
   isComponentDestroyed = false;
   lastMessage = '';
   private initialized = false;
-  feedbackForOption: boolean;
   shouldDisplayAnswers = false;
   feedbackText = '';
   displayExplanation = false;
