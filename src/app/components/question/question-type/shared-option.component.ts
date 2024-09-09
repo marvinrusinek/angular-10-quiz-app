@@ -113,6 +113,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         current: changes.correctMessage.currentValue
       });
       // this.onCorrectMessageChange(this.correctMessage);
+      this.correctMessage = changes.correctMessage.currentValue;
+      console.log('SharedOptionComponent - correctMessage updated:::', this.correctMessage);
     }
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
@@ -264,9 +266,19 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.selectedOptions.has(option.optionId);
   }
 
-  isLastSelectedOption(option: Option): boolean {
+  /* isLastSelectedOption(option: Option): boolean {
     return this.showFeedback && this.lastSelectedOption === option;
+  } */
+  isLastSelectedOption(option: Option): boolean {
+    const isLast = this.lastSelectedOption === option;
+    console.log('SharedOptionComponent - isLastSelectedOption:', {
+      option,
+      lastSelectedOption: this.lastSelectedOption,
+      isLast
+    });
+    return isLast;
   }
+
 
   updateOptionAndUI(
     optionBinding: OptionBindings,
@@ -504,8 +516,19 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     );
   }
 
-  shouldShowFeedback(option: Option): boolean {
+  /* shouldShowFeedback(option: Option): boolean {
     return this.showFeedback && this.isLastSelectedOption(option);
+  } */
+  shouldShowFeedback(option: Option): boolean {
+    const isLastSelected = this.isLastSelectedOption(option);
+    const shouldShow = this.showFeedback && isLastSelected;
+    console.log('SharedOptionComponent - shouldShowFeedback:', {
+      option,
+      showFeedback: this.showFeedback,
+      isLastSelectedOption: isLastSelected,
+      shouldShow
+    });
+    return shouldShow;
   }
 
   shouldShowIcon(option: Option): boolean {
