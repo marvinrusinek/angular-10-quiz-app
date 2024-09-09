@@ -314,11 +314,14 @@ export abstract class BaseQuestionComponent
   
       this.selectedOption = option;
   
-      // Determine the correct options and set the correct message
-      this.updateCorrectMessageForQuestion();
-  
+       // Determine the correct options
+      const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
+
       // Set the correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
+
+      // Update the correct message for the question
+      this.updateCorrectMessageForQuestion(correctOptions);
   
       // Trigger change detection to update the UI
       this.cdRef.detectChanges();
@@ -327,8 +330,10 @@ export abstract class BaseQuestionComponent
     }
   }
 
-  updateCorrectMessageForQuestion(): void {
-    const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
+  updateCorrectMessageForQuestion(correctOptions?: Option[]) {
+    if (!correctOptions) {
+      correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
+    }
     this.correctMessage = this.quizService.setCorrectMessage(
       correctOptions,
       this.optionsToDisplay
