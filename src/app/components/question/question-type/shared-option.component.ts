@@ -552,7 +552,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.showFeedback && this.isSelectedOption(option);
   } */
   isSelectedOption(option: Option): boolean {
-    return this.selectedOptions.has(option.optionId);
+    const isSelected = this.selectedOptions.has(option.optionId);
+    console.log('SharedOptionComponent - isSelectedOption:', {
+      optionId: option.optionId,
+      text: option.text,
+      correct: option.correct,
+      isSelected,
+      selectedOptions: Array.from(this.selectedOptions)
+    });
+    return isSelected;
   }
 
   shouldShowFeedback(option: Option): boolean {
