@@ -50,6 +50,7 @@ export abstract class BaseQuestionComponent
     index: number;
   }>();
   @Output() questionChange = new EventEmitter<QuizQuestion>();
+  @Output() correctMessageChange = new EventEmitter<string>();
   @Input() quizQuestionComponentOnOptionClicked!: (
     option: SelectedOption,
     index: number
@@ -338,6 +339,7 @@ export abstract class BaseQuestionComponent
       correctOptions,
       this.optionsToDisplay
     );
+    this.correctMessageChange.emit(this.correctMessage);
     console.log('BaseQuestionComponent - correctMessage updated:', this.correctMessage);
   }
 
