@@ -162,7 +162,6 @@ export class QuizQuestionComponent
   lastMessage = '';
   private initialized = false;
   feedbackForOption: boolean;
-  shouldRenderContainer = true;
   shouldDisplayAnswers = false;
   feedbackText = '';
   displayExplanation = false;
