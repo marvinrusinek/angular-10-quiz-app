@@ -262,8 +262,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return option.showIcon === true;
   }
 
-  isSelectedOption(option: Option): boolean {
+  /* isSelectedOption(option: Option): boolean {
     return this.selectedOptions.has(option.optionId);
+  } */
+  isSelectedOption(option: Option): boolean {
+    const isSelected = this.selectedOptions.has(option.optionId);
+    console.log('SharedOptionComponent - isSelectedOption:', {
+      optionId: option.optionId,
+      isSelected,
+      selectedOptions: Array.from(this.selectedOptions)
+    });
+    return isSelected;
   }
 
   /* isLastSelectedOption(option: Option): boolean {
@@ -274,7 +283,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('SharedOptionComponent - isLastSelectedOption:', {
       option,
       lastSelectedOption: this.lastSelectedOption,
-      isLast
+      isLast,
+      areEqual: JSON.stringify(option) === JSON.stringify(this.lastSelectedOption)
     });
     return isLast;
   }
@@ -520,12 +530,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.showFeedback && this.isLastSelectedOption(option);
   } */
   shouldShowFeedback(option: Option): boolean {
-    const isLastSelected = this.isLastSelectedOption(option);
-    const shouldShow = this.showFeedback && isLastSelected;
+    const isSelected = this.isSelectedOption(option);
+    const shouldShow = this.showFeedback && isSelected;
     console.log('SharedOptionComponent - shouldShowFeedback:', {
-      option,
+      optionId: option.optionId,
       showFeedback: this.showFeedback,
-      isLastSelectedOption: isLastSelected,
+      isSelected,
+      selectedOptions: Array.from(this.selectedOptions),
       shouldShow
     });
     return shouldShow;
