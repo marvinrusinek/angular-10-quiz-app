@@ -1851,6 +1851,26 @@ export class QuizQuestionComponent
     console.log('Answers:', this.answers);
   }
 
+  shouldRenderComponent(): boolean {
+    const shouldDisplayAnswers = this.checkIfComponentShouldDisplay();
+    return shouldDisplayAnswers;
+  }
+
+  private checkIfComponentShouldDisplay(): boolean {
+    return this.isFormValid() && this.hasQuestionData();
+  }
+
+  private isFormValid(): boolean {
+    // Implement form validation logic here
+    // For example:
+    return this.questionForm.valid;
+  }
+
+  private hasQuestionData(): boolean {
+    // Check if questionData exists and is not null
+    return !!this.questionData;
+  }
+
   private async checkAndHandleCorrectAnswer(): Promise<void> {
     const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
     console.log('ISCORRECT', isCorrect);

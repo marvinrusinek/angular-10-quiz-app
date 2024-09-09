@@ -3,7 +3,7 @@
 
 <!--<ang-music-player [audioList]="audioList"></ang-music-player>-->
 
-<ng-container *ngIf="shouldRenderContainer">
+<ng-container *ngIf="shouldRenderComponent">
   <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
     <ng-container #dynamicAnswerContainer></ng-container>
 
@@ -12,4 +12,4 @@
       <!-- Options content here -->
     </div>
   </form>
-</ng-container>
+</ng-container>"
