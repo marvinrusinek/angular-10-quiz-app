@@ -39,11 +39,11 @@ import { QuizQuestionComponent } from './question.component';
 export abstract class BaseQuestionComponent
   implements OnInit, OnChanges, OnDestroy, AfterViewInit
 {
-  @ViewChild('dynamicComponentContainer', {
+  @ViewChild('dynamicAnswerContainer', {
     read: ViewContainerRef,
     static: false
   })
-  dynamicComponentContainer!: ViewContainerRef;
+  dynamicAnswerContainer!: ViewContainerRef;
   @Output() explanationToDisplayChange = new EventEmitter<string>();
   @Output() optionClicked = new EventEmitter<{
     option: SelectedOption,
@@ -111,8 +111,8 @@ export abstract class BaseQuestionComponent
   }
 
   private initializeDynamicComponentIfNeeded(): void {
-    if (!this.containerInitialized && this.dynamicComponentContainer) {
-      this.dynamicComponentContainer.clear();
+    if (!this.containerInitialized && this.dynamicAnswerContainer) {
+      this.dynamicAnswerContainer.clear();
       this.loadDynamicComponent();
       this.containerInitialized = true;
       this.cdRef.detectChanges();

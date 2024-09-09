@@ -588,15 +588,15 @@ export class QuizQuestionComponent
   }
 
   async loadDynamicComponent(): Promise<void> {
-    if (this.dynamicComponentContainer) {
-      this.dynamicComponentContainer.clear();
+    if (this.dynamicAnswerContainer) {
+      this.dynamicAnswerContainer.clear();
 
       const isMultipleAnswer = await firstValueFrom(
         this.quizStateService.isMultipleAnswerQuestion(this.question)
       );
 
       const componentRef = await this.dynamicComponentService.loadComponent(
-        this.dynamicComponentContainer,
+        this.dynamicAnswerContainer,
         isMultipleAnswer
       );
       if (componentRef.instance) {
@@ -624,7 +624,7 @@ export class QuizQuestionComponent
       }
     } else {
       console.error(
-        'dynamicComponentContainer is still undefined in QuizQuestionComponent'
+        'dynamicAnswerContainer is still undefined in QuizQuestionComponent'
       );
     }
   }
