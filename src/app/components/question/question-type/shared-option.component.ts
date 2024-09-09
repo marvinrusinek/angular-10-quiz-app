@@ -110,8 +110,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (changes.correctMessage) {
       console.log('SharedOptionComponent - correctMessage changed:', {
         previous: changes.correctMessage.previousValue,
-        current: changes.correctMessage.currentValue,
-        firstChange: changes.correctMessage.firstChange
+        current: changes.correctMessage.currentValue
       });
       // this.onCorrectMessageChange(this.correctMessage);
     }
