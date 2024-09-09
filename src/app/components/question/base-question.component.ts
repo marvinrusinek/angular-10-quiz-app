@@ -330,7 +330,7 @@ export abstract class BaseQuestionComponent
     }
   }
 
-  updateCorrectMessageForQuestion(correctOptions?: Option[]) {
+  updateCorrectMessageForQuestion(correctOptions?: Option[]): void {
     if (!correctOptions) {
       correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
     }
