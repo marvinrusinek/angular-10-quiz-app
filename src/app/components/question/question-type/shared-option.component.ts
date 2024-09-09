@@ -108,8 +108,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
 
     if (changes.correctMessage) {
-      console.log('SharedOptionComponent - correctMessage received:', this.correctMessage);
-      this.onCorrectMessageChange(this.correctMessage);
+      console.log('SharedOptionComponent - correctMessage changed:', this.correctMessage);
+      // this.onCorrectMessageChange(this.correctMessage);
     }
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
