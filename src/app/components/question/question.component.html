@@ -5,6 +5,10 @@
 
 <ng-container *ngIf="shouldRenderComponent">
   <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
+    <app-base-question
+      [(correctMessage)]="questionCorrectMessage"
+    ></app-base-question>
+
     <ng-container #dynamicAnswerContainer></ng-container>
 
     <div *ngIf="isLoading" class="loading-spinner" aria-label="Loading"></div>
