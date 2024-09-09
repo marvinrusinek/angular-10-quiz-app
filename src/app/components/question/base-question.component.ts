@@ -342,6 +342,7 @@ export abstract class BaseQuestionComponent
     );
     this.correctMessageChange.emit(this.correctMessage);
     console.log('BaseQuestionComponent - updateCorrectMessageForQuestion, new correctMessage:', this.correctMessage);
+    this.cdRef.detectChanges();
   }
 
   private mapQuestionType(type: QuestionType): 'single' | 'multiple' {
