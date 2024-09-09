@@ -266,13 +266,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.selectedOptions.has(option.optionId);
   } */
   isSelectedOption(option: Option): boolean {
-    if (!option || !option.optionId) {
-      console.error('Invalid option:', option);
-      return false;
-    }
     const isSelected = this.selectedOptions.has(option.optionId);
     console.log('SharedOptionComponent - isSelectedOption:', {
-      option,
       optionId: option.optionId,
       isSelected,
       selectedOptions: Array.from(this.selectedOptions)
