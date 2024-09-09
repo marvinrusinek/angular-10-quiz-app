@@ -49,6 +49,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   lastSelectedOptionIndex: number | null = null;
   lastSelectedOption: Option | null = null;
   isNavigatingBackwards = false;
+  questionCorrectMessage = '';
 
   optionTextStyle = {
     color: 'black'
@@ -106,9 +107,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('showFeedback changed to:', this.showFeedback);
     }
 
+    if (changes.correctMessage) {
+      this.onCorrectMessageChange(this.correctMessage);
+    }
+
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
     }
+  }
+
+  onCorrectMessageChange(newMessage: string) {
+    this.questionCorrectMessage = newMessage;
+    console.log('SharedOptionComponent - questionCorrectMessage updated:', this.questionCorrectMessage);
   }
 
   initializeFromConfig(): void {

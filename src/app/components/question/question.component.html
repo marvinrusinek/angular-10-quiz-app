@@ -7,6 +7,7 @@
   <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
     <app-base-question
       [(correctMessage)]="questionCorrectMessage"
+      (correctMessageChange)="onCorrectMessageChange($event)"
     ></app-base-question>
 
     <ng-container #dynamicAnswerContainer></ng-container>
