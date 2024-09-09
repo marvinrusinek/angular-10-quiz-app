@@ -59,7 +59,7 @@ export class FeedbackComponent implements OnChanges {
     if (this.showFeedback) {
       this.displayMessage += this.feedbackPrefix;
       
-      if (this.correctMessage) {
+      if (this.selectedOption && !this.selectedOption.correct && this.correctMessage) {
         this.displayMessage += ` ${this.correctMessage}`;
       }
       
