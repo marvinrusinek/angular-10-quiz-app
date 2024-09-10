@@ -70,6 +70,7 @@ export abstract class BaseQuestionComponent
   );
   questionForm: FormGroup;
   selectedOption!: SelectedOption;
+  selectedOptionId: number | null = null;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
   private containerInitialized = false;
@@ -275,6 +276,8 @@ export abstract class BaseQuestionComponent
     option: SelectedOption,
     index: number
   ): Promise<void> {
+    this.selectedOptionId = option.optionId;
+
     if (!this.sharedOptionConfig) {
       console.error('sharedOptionConfig is not initialized');
       this.initializeSharedOptionConfig();
