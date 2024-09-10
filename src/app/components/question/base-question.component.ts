@@ -282,9 +282,8 @@ export abstract class BaseQuestionComponent
     this.lastSelectedOptionId = option.optionId;
     this.showFeedback = true;
 
-    console.log('Option clicked:', option);
-    console.log('Updated state:', {
-      selectedOptionId: this.selectedOptionId,
+    console.log('BQC: Option clicked:', {
+      optionId: option.optionId,
       lastSelectedOptionId: this.lastSelectedOptionId,
       showFeedback: this.showFeedback
     });

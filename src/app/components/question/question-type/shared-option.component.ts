@@ -547,6 +547,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.showFeedback && option.optionId === this.lastSelectedOptionId;
   } */
   shouldShowFeedback(option: Option): boolean {
+    console.log("MY LAST SELECTED OPTION ID", this.lastSelectedOptionId);
     return this.showFeedback && 
            this.isSelectedOption(option) && 
            option.optionId === this.lastSelectedOptionId;
