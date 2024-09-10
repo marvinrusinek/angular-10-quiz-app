@@ -51,6 +51,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   lastSelectedOption: Option | null = null;
   isNavigatingBackwards = false;
   questionCorrectMessage = '';
+  lastSelectedOptionId: number | null = null;
 
   optionTextStyle = {
     color: 'black'
@@ -291,7 +292,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     });
     return isLast;
   } */
-
+  isLastSelectedOption(option: Option): boolean {
+    return option.optionId === this.lastSelectedOptionId;
+  }
 
   updateOptionAndUI(
     optionBinding: OptionBindings,
@@ -351,6 +354,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     this.lastSelectedOption = option;
     this.lastSelectedOptionIndex = index;
+    this.lastSelectedOptionId = option.optionId;
     this.showFeedback = true;
   
     const optionBinding = this.optionBindings[index];
@@ -536,8 +540,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return this.selectedOptionId === option.optionId;
   }
 
-  shouldShowFeedback(option: Option): boolean {
+  /* shouldShowFeedback(option: Option): boolean {
     return this.showFeedback && this.isSelectedOption(option);
+  } */
+  shouldShowFeedback(option: Option): boolean {
+    return this.showFeedback && option.optionId === this.lastSelectedOptionId;
   }
   
   shouldShowIcon(option: Option): boolean {
