@@ -281,7 +281,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   /* isLastSelectedOption(option: Option): boolean {
     return this.showFeedback && this.lastSelectedOption === option;
   } */
-  isLastSelectedOption(option: Option): boolean {
+  /* isLastSelectedOption(option: Option): boolean {
     const isLast = this.lastSelectedOption === option;
     console.log('SharedOptionComponent - isLastSelectedOption:', {
       option,
@@ -290,7 +290,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       areEqual: JSON.stringify(option) === JSON.stringify(this.lastSelectedOption)
     });
     return isLast;
-  }
+  } */
 
 
   updateOptionAndUI(
@@ -529,22 +529,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     );
   }
 
-  /* shouldShowFeedback(option: Option): boolean {
-    return this.showFeedback && this.isLastSelectedOption(option);
-  } */
-  /* shouldShowFeedback(option: Option): boolean {
-    const isSelected = this.isSelectedOption(option);
-    const shouldShow = this.showFeedback && isSelected;
-    console.log('SharedOptionComponent - shouldShowFeedback:', {
-      optionId: option.optionId,
-      text: option.text,
-      correct: option.correct,
-      isSelected,
-      showFeedback: this.showFeedback,
-      shouldShow
-    });
-    return shouldShow;
-  } */
   /* isSelectedOption(option: Option): boolean {
     return this.selectedOptions.has(option.optionId);
   } */
@@ -555,7 +539,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   shouldShowFeedback(option: Option): boolean {
     return this.showFeedback && this.isSelectedOption(option);
   }
-
+  
   shouldShowIcon(option: Option): boolean {
     return this.showFeedback && this.isIconVisible(option);
   }
