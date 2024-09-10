@@ -62,7 +62,7 @@ export class FeedbackComponent implements OnChanges {
       : 'wrong-message';
   }
 
-  updateDisplayMessage(): void {
+  /* updateDisplayMessage(): void {
     this.displayMessage = '';
 
     if (this.showFeedback) {
@@ -78,5 +78,13 @@ export class FeedbackComponent implements OnChanges {
     }
 
     console.log('FeedbackComponent - Final display message:', this.displayMessage);
+  } */
+  private updateDisplayMessage(): void {
+    if (this.selectedOption?.correct) {
+      this.displayMessage = `You're right! ${this.feedback || ''}`;
+    } else {
+      this.displayMessage = `That's wrong. ${this.correctMessage} ${this.feedback || ''}`;
+    }
+    console.log('FeedbackComponent - updateDisplayMessage:', this.displayMessage);
   }
 }
