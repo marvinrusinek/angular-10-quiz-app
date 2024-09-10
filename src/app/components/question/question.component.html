@@ -5,10 +5,10 @@
 
 <ng-container *ngIf="shouldRenderComponent">
   <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
-    <app-base-question
+    <!--<app-base-question
       [(correctMessage)]="questionCorrectMessage"
       (correctMessageChange)="onCorrectMessageChange($event)"
-    ></app-base-question>
+    ></app-base-question>-->
 
     <ng-container #dynamicAnswerContainer></ng-container>
 
