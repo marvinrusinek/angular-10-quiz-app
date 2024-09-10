@@ -63,11 +63,10 @@ export class FeedbackComponent implements OnChanges {
   }
 
   private updateDisplayMessage(): void {
+    const prefix = this.determineFeedbackPrefix();
     const commonMessage = `${this.correctMessage} ${this.feedback || ''}`;
     
-    this.displayMessage = this.selectedOption?.correct
-      ? `You're right! ${commonMessage}`
-      : `That's wrong. ${commonMessage}`;
+    this.displayMessage = `${prefix}${commonMessage}`;
     
     console.log('FeedbackComponent - updateDisplayMessage:', this.displayMessage);
   }
