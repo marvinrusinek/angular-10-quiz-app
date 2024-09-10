@@ -62,26 +62,9 @@ export class FeedbackComponent implements OnChanges {
       : 'wrong-message';
   }
 
-  /* updateDisplayMessage(): void {
-    this.displayMessage = '';
-
-    if (this.showFeedback) {
-      this.displayMessage += this.feedbackPrefix;
-      
-      if (this.selectedOption && !this.selectedOption.correct && this.correctMessage) {
-        this.displayMessage += ` ${this.correctMessage}`;
-      }
-      
-      if (this.feedback) {
-        this.displayMessage += ` ${this.feedback}`;
-      }
-    }
-
-    console.log('FeedbackComponent - Final display message:', this.displayMessage);
-  } */
   private updateDisplayMessage(): void {
     if (this.selectedOption?.correct) {
-      this.displayMessage = `You're right! ${this.feedback || ''}`;
+      this.displayMessage = `You're right! ${this.correctMessage} ${this.feedback || ''}`;
     } else {
       this.displayMessage = `That's wrong. ${this.correctMessage} ${this.feedback || ''}`;
     }
