@@ -40,6 +40,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     option: SelectedOption,
     index: number
   ) => void;
+  @Input() selectedOptionId: number | null = null;
   optionBindings: OptionBindings[] = [];
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
@@ -544,8 +545,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     });
     return shouldShow;
   } */
-  isSelectedOption(option: Option): boolean {
+  /* isSelectedOption(option: Option): boolean {
     return this.selectedOptions.has(option.optionId);
+  } */
+  isSelectedOption(option: Option): boolean {
+    return this.selectedOptionId === option.optionId;
   }
 
   shouldShowFeedback(option: Option): boolean {
