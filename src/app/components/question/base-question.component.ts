@@ -70,6 +70,7 @@ export abstract class BaseQuestionComponent
   );
   questionForm: FormGroup;
   selectedOption!: SelectedOption;
+  selectedOptionId: number | null = null;
   lastSelectedOptionId: number | null = null;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
@@ -91,6 +92,7 @@ export abstract class BaseQuestionComponent
     this.initializeQuestionIfAvailable();
     this.initializeSharedOptionConfig();
     this.subscribeToQuestionChanges();
+    console.log('Initial options:', this.optionsToDisplay);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -276,7 +278,16 @@ export abstract class BaseQuestionComponent
     option: SelectedOption,
     index: number
   ): Promise<void> {
+    this.selectedOptionId = option.optionId;
     this.lastSelectedOptionId = option.optionId;
+    this.showFeedback = true;
+
+    console.log('Option clicked:', option);
+    console.log('Updated state:', {
+      selectedOptionId: this.selectedOptionId,
+      lastSelectedOptionId: this.lastSelectedOptionId,
+      showFeedback: this.showFeedback
+    });
 
     if (!this.sharedOptionConfig) {
       console.error('sharedOptionConfig is not initialized');
