@@ -283,61 +283,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       distinctUntilChanged(),
       map(([isLoading, isAnswered]) => !isLoading && isAnswered)
     );
-    /* this.isButtonEnabled$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
-      takeUntil(this.destroy$),
-      distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1]),
-      map(([isLoading, isAnswered]) => !isLoading && isAnswered),
-      shareReplay(1)
-    ); */
-    /* this.isButtonEnabled$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
-      takeUntil(this.destroy$),
-      distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1]),
-      map(([isLoading, isAnswered]) => {
-        console.log('isLoading:', isLoading, 'isAnswered:', isAnswered);
-        return !isLoading && isAnswered;
-      }),
-      tap(isEnabled => console.log('Button enabled:', isEnabled)),
-      shareReplay(1)
-    ); */
-    /* this.isButtonEnabled$ = combineLatest([
-      this.quizStateService.isLoading$,
-      this.quizStateService.isAnswered$
-    ]).pipe(
-      tap(([isLoading, isAnswered]) => console.log('Raw states:', { isLoading, isAnswered })),
-      map(([isLoading, isAnswered]) => !isLoading && isAnswered),
-      distinctUntilChanged(),
-      tap(isEnabled => console.log('Button enabled:', isEnabled))
-    );
 
-    // Subscribe to isButtonEnabled$ to see changes over time
-    this.subscription = this.isButtonEnabled$.subscribe(
-      isEnabled => console.log('isButtonEnabled$ emitted:', isEnabled)
-    );
-
-    // Log initial states
-    this.quizStateService.isLoading$.pipe(tap(isLoading => console.log('Initial isLoading:', isLoading))).subscribe();
-    this.quizStateService.isAnswered$.pipe(tap(isAnswered => console.log('Initial isAnswered:', isAnswered))).subscribe(); */
-
-    /* this.isButtonEnabled$ = combineLatest([
-      this.quizStateService.isLoading$,
-      this.quizStateService.isAnswered$
-    ]).pipe(
-      map(([isLoading, isAnswered]) => {
-        console.log('States updated:', { isLoading, isAnswered });
-        const isEnabled = !isLoading && isAnswered;
-        console.log('Button state:', isEnabled);
-        return isEnabled;
-      }),
-      shareReplay(1)
-    );
-
-    // Subscribe to see changes over time
-    this.subscription.add(
-      this.isButtonEnabled$.subscribe(isEnabled => 
-        console.log('Button enabled changed to:', isEnabled)
-      )
-    ); */
-        
     this.subscribeToSelectionMessage();
 
     // Initialize route parameters and subscribe to updates
