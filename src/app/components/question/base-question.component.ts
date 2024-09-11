@@ -71,11 +71,10 @@ export abstract class BaseQuestionComponent
   questionForm: FormGroup;
   selectedOption!: SelectedOption;
   selectedOptionId: number | null = null;
-  lastSelectedOptionId: number | null = null;
+  selectedOptionIndex: number | null = null;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
   private containerInitialized = false;
-  selectedOptionIndex: number | null = null;
 
   constructor(
     @Optional()
@@ -285,12 +284,6 @@ export abstract class BaseQuestionComponent
     index: number
   ): Promise<void> {
     this.updateSelectedOption(index);
-    
-    console.log('BQC: After processing:', {
-      index: index,
-      selectedOptionIndex: this.selectedOptionIndex,
-      showFeedback: this.showFeedback
-    });
 
     if (!this.sharedOptionConfig) {
       console.error('sharedOptionConfig is not initialized');
