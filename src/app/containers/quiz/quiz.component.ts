@@ -181,6 +181,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   nextButtonTooltip$: Observable<string>;
   nextButtonTooltip = 'Please select an option to continue...';
   buttonState$: Observable<boolean>;
+  isLoading$: Observable<boolean>;
+  isAnswered$: Observable<boolean>;
 
   shouldDisplayCorrectAnswers = false;
 
