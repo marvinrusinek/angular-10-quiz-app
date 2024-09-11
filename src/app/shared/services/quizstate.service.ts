@@ -249,15 +249,13 @@ export class QuizStateService {
     return this.loadingSubject.getValue();
   }
 
-   // Method to start loading
-   startLoading(): void {
+  startLoading(): void {
     if (!this.isLoading()) {
       console.log('Loading started');
       this.loadingSubject.next(true);
     }
   }
 
-  // Method to stop loading
   stopLoading(): void {
     if (this.isLoading()) {
       console.log('Loading stopped');
@@ -271,11 +269,6 @@ export class QuizStateService {
       console.log(`Answered state changed to: ${isAnswered}`);
       this.answeredSubject.next(isAnswered);  // Emit only if the value changes
     }
-  }
-
-  // Example usage when an answer is clicked
-  onAnswerSelected(option: Option): void {
-    this.setAnswerSelected(true);  // Mark as answered
   }
 
   resetState(): void {
