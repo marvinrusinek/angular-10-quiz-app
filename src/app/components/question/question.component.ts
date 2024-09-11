@@ -1350,7 +1350,11 @@ export class QuizQuestionComponent
     try {
       const questionState = this.initializeQuestionState();
       questionState.isAnswered = true;
-      this.quizStateService.setAnswered(true);
+
+      if (!this.quizStateService.isAnswered$) {
+        this.quizStateService.setAnswered(true);
+        this.quizStateService.setAnswerSelected(true);
+      }
 
       // Process the selected option
       await this.handleOptionProcessingAndFeedback(option, index);
