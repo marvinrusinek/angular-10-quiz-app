@@ -129,7 +129,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.initializeOptionBindings();
 
     console.log('SharedOptionComponent initialized with config:', this.config);
-    console.log('SharedOptionComponent type:', this.type);
   }
 
   private handleQuestionChange(change: SimpleChange): void {
