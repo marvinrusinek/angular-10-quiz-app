@@ -301,8 +301,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     ]).pipe(
       map(([isLoading, isAnswered]) => {
         console.log('Raw states:', { isLoading, isAnswered });
-        return !isLoading && isAnswered; // Always enable the button for now
+        return !isLoading && isAnswered;
       }),
+      distinctUntilChanged(),
       tap(isEnabled => console.log('Button enabled:', isEnabled))
     );
   

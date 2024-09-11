@@ -673,7 +673,8 @@ export class QuizQuestionComponent
     this.resetExplanation();
     this.resetTexts();
     this.isLoading = true;
-    this.quizStateService.setLoading(true);
+    // this.quizStateService.setLoading(true);
+    this.quizStateService.setLoading(false);
   
     // Clear previous data
     this.currentQuestion = null;
