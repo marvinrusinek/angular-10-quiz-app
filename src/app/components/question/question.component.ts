@@ -1340,22 +1340,26 @@ export class QuizQuestionComponent
     this.displayExplanation = false; // Reset display flag
     this.optionSelected.emit(option); // Emit the selected option
     this.quizStateService.setLoading(true);
+    this.quizStateService.startLoading();
+    this.quizStateService.setAnswerSelected(false);
 
     try {
       const questionState = this.initializeQuestionState();
       questionState.isAnswered = true;
       this.quizStateService.setAnswered(true);
 
+      // Process the selected option
       await this.handleOptionProcessingAndFeedback(option, index);
       await this.updateQuestionState(option);
       this.handleCorrectAnswers(option);
 
+      // Handle feedback display after processing
       this.updateFeedback(option);
       await this.finalizeOptionSelection(option, index, questionState);
     } catch (error) {
       this.handleError(error);
     } finally {
-      this.finalizeLoadingState();
+      this.finalizeLoadingState(); // Ensure loading state is finalized
     }
   }
 
