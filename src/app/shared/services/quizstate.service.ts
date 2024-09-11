@@ -234,12 +234,12 @@ export class QuizStateService {
   }
 
   setLoading(isLoading: boolean): void {
-    this.isLoadingSubject.next(isLoading);
+    this.loadingSubject.next(isLoading);
   }
   
   setAnswered(isAnswered: boolean): void {
     console.log('Emitting isAnswered:', isAnswered);
-    this.isAnsweredSubject.next(isAnswered);
+    this.answeredSubject.next(isAnswered);
   }
 
   setQuizQuestionCreated(): void {
@@ -271,9 +271,6 @@ export class QuizStateService {
   }
 
   // Set the answered state, but only if the state actually changes
-  /* setAnswerSelected(isAnswered: boolean): void {
-    this.answeredSubject.next(isAnswered);
-  } */
   setAnswerSelected(isAnswered: boolean): void {
     if (this.answeredSubject.getValue() !== isAnswered) {
       console.log(`Answered state changed to: ${isAnswered}`);
@@ -287,7 +284,7 @@ export class QuizStateService {
   }
 
   resetState(): void {
-    this.currentQuestionIndex$.next(0);
+    // this.currentQuestionIndex$.next(0);
     this.quizQuestionCreated = false;
   }
 }
