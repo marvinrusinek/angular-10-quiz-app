@@ -284,6 +284,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       map(([isLoading, isAnswered]) => !isLoading && isAnswered)
     );
 
+    // Subscribe to log state changes (for debugging)
+    this.isButtonEnabled$.subscribe(isEnabled => 
+      console.log('Button enabled:', isEnabled)
+    );
+
     this.subscribeToSelectionMessage();
 
     // Initialize route parameters and subscribe to updates
@@ -301,11 +306,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.checkIfAnswerSelected(true);
   }
 
-  /* private updateButtonState() {
-    const isEnabled = !this.quizStateService.isLoading && this.quizStateService.isAnswered$;
+  private updateButtonState() {
+    const isEnabled = !this.quizStateService.isLoading && this.quizStateService.isAnswered;
     console.log('Updating button state:', isEnabled);
     this.isButtonEnabledSubject.next(isEnabled);
-  } */
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();

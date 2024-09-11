@@ -676,8 +676,8 @@ export class QuizQuestionComponent
     // this.quizStateService.setLoading(true);
     // this.quizStateService.setLoading(false);
 
-    this.quizStateService.setLoading(true);
-    this.quizStateService.setAnswerSelected(false);
+    // this.quizStateService.setLoading(true);
+    // this.quizStateService.setAnswerSelected(false);
   
     // Clear previous data
     this.currentQuestion = null;

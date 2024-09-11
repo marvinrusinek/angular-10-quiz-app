@@ -36,14 +36,12 @@ export class QuizStateService {
 
   private loadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$: Observable<boolean> = this.loadingSubject.asObservable().pipe(
-    distinctUntilChanged(),
-    tap(isLoading => console.log('isLoading$ emitted:', isLoading))
+    distinctUntilChanged()
   );
   
-  answeredSubject = new BehaviorSubject<boolean>(false);
+  private answeredSubject = new BehaviorSubject<boolean>(false);
   isAnswered$: Observable<boolean> = this.answeredSubject.asObservable().pipe(
-    distinctUntilChanged(),
-    tap(isAnswered => console.log('isAnswered$ emitted:', isAnswered))
+    distinctUntilChanged()
   );
 
   constructor() {
