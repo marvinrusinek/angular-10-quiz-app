@@ -255,6 +255,10 @@ export class QuizStateService {
     return this.quizQuestionCreated;
   }
 
+  isLoading(): boolean {
+    return this.loadingSubject.getValue();
+  }
+
   startLoading(): void {
     // Emit only if the loading state has actually changed
     if (!this.loadingSubject.getValue()) {

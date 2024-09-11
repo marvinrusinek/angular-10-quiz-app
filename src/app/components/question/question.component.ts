@@ -1343,7 +1343,7 @@ export class QuizQuestionComponent
     this.quizStateService.setAnswerSelected(false);
 
     // Access the loadingSubject directly to get the current value
-    if (!this.quizStateService.isLoading$) {
+    if (!this.quizStateService.isLoading()) {
       this.quizStateService.startLoading();  // Start loading only if it's not already loading
     }
 
