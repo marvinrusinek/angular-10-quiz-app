@@ -333,7 +333,6 @@ export abstract class BaseQuestionComponent
 
       // Update the correct message for the question
       this.updateCorrectMessageForQuestion(correctOptions);
-      console.log('BaseQuestionComponent - onOptionClicked, correctMessage:', this.correctMessage);
   
       // Trigger change detection to update the UI
       this.cdRef.detectChanges();
@@ -351,7 +350,6 @@ export abstract class BaseQuestionComponent
       this.optionsToDisplay
     );
     this.correctMessageChange.emit(this.correctMessage);
-    console.log('BaseQuestionComponent - updateCorrectMessageForQuestion, new correctMessage:', this.correctMessage);
     this.cdRef.detectChanges();
   }
 
