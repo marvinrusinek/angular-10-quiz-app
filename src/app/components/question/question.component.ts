@@ -1340,8 +1340,12 @@ export class QuizQuestionComponent
     this.displayExplanation = false; // Reset display flag
     this.optionSelected.emit(option); // Emit the selected option
     this.quizStateService.setLoading(true);
-    this.quizStateService.startLoading();
     this.quizStateService.setAnswerSelected(false);
+
+    // Only trigger loading states once
+    if (!this.quizStateService.isLoading$.getValue()) {
+      this.quizStateService.startLoading();  // Start loading
+    }
 
     try {
       const questionState = this.initializeQuestionState();
