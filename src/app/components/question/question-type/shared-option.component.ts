@@ -41,6 +41,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     index: number
   ) => void;
   @Input() selectedOptionId: number | null = null;
+  @Input() selectedOptionIndex: number | null = null;
   optionBindings: OptionBindings[] = [];
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
