@@ -1342,9 +1342,9 @@ export class QuizQuestionComponent
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswerSelected(false);
 
-    // Only trigger loading states once
-    if (!this.quizStateService.isLoading$.getValue()) {
-      this.quizStateService.startLoading();  // Start loading
+    // Access the loadingSubject directly to get the current value
+    if (!this.quizStateService.isLoading$) {
+      this.quizStateService.startLoading();  // Start loading only if it's not already loading
     }
 
     try {
