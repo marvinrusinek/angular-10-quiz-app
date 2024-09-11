@@ -265,38 +265,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return option.showIcon === true;
   }
 
-  /* isSelectedOption(option: Option): boolean {
-    return this.selectedOptions.has(option.optionId);
-  } */
-  /* isSelectedOption(option: Option): boolean {
-    const isSelected = this.selectedOptions.has(option.optionId);
-    console.log('SharedOptionComponent - isSelectedOption:', {
-      optionId: option.optionId,
-      text: option.text,
-      correct: option.correct,
-      isSelected,
-      selectedOptions: Array.from(this.selectedOptions)
-    });
-    return isSelected;
-  } */
-
-  /* isLastSelectedOption(option: Option): boolean {
-    return this.showFeedback && this.lastSelectedOption === option;
-  } */
-  /* isLastSelectedOption(option: Option): boolean {
-    const isLast = this.lastSelectedOption === option;
-    console.log('SharedOptionComponent - isLastSelectedOption:', {
-      option,
-      lastSelectedOption: this.lastSelectedOption,
-      isLast,
-      areEqual: JSON.stringify(option) === JSON.stringify(this.lastSelectedOption)
-    });
-    return isLast;
-  } */
-  isLastSelectedOption(option: Option): boolean {
-    return option.optionId === this.lastSelectedOptionId;
-  }
-
   updateOptionAndUI(
     optionBinding: OptionBindings,
     idx: number,
@@ -534,26 +502,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     );
   }
 
-  /* isSelectedOption(option: Option): boolean {
-    return this.selectedOptions.has(option.optionId);
-  } */
   isSelectedOption(option: Option): boolean {
     return this.selectedOptionId === option.optionId;
   }
 
-  /* shouldShowFeedback(option: Option): boolean {
-    return this.showFeedback && this.isSelectedOption(option);
-  } */
-  /* shouldShowFeedback(option: Option): boolean {
-    return this.showFeedback && option.optionId === this.lastSelectedOptionId;
-  } */
   shouldShowFeedback(index: number): boolean {
-    console.log("SOC: Checking feedback for option", {
-      index: index,
-      selectedOptionIndex: this.selectedOptionIndex,
-      showFeedback: this.showFeedback
-    });
-
     return this.showFeedback && index === this.selectedOptionIndex;
   }
   
