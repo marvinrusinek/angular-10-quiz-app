@@ -321,12 +321,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
   
-    this.showFeedback = true;
-  
     const optionBinding = this.optionBindings[index];
     optionBinding.option.showIcon = true;
     this.iconVisibility[option.optionId] = true;
+
+    this.showFeedback = true;
     this.showFeedbackForOption[option.optionId] = true;
+    
     this.clickedOptionIds.add(option.optionId ?? index);
   
     if (this.config.type === 'single') {
