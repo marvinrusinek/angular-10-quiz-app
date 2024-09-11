@@ -278,12 +278,20 @@ export abstract class BaseQuestionComponent
     option: SelectedOption,
     index: number
   ): Promise<void> {
-    this.selectedOptionId = option.optionId;
-    this.lastSelectedOptionId = option.optionId;
-    this.showFeedback = true;
+    console.log('BQC: Raw option clicked:', option);
+    
+    if (option.optionId !== undefined) {
+      this.lastSelectedOptionId = option.optionId;
+      this.showFeedback = true;
+    } else {
+      console.warn('BQC: optionId is undefined, using index as fallback');
+      this.lastSelectedOptionId = index;
+      this.showFeedback = true;
+    }
 
-    console.log('BQC: Option clicked:', {
+    console.log('BQC: After processing:', {
       optionId: option.optionId,
+      index: index,
       lastSelectedOptionId: this.lastSelectedOptionId,
       showFeedback: this.showFeedback
     });
