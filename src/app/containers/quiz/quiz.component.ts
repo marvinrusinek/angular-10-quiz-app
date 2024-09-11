@@ -285,7 +285,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       map(([isLoading, isAnswered]) => !isLoading && isAnswered),
       shareReplay(1)
     ); */
-    this.isButtonEnabled$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
+    /* this.isButtonEnabled$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
       takeUntil(this.destroy$),
       distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1]),
       map(([isLoading, isAnswered]) => {
@@ -294,6 +294,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }),
       tap(isEnabled => console.log('Button enabled:', isEnabled)),
       shareReplay(1)
+    ); */
+    this.isButtonEnabled$ = combineLatest([
+      this.quizStateService.isLoading$,
+      this.quizStateService.isAnswered$
+    ]).pipe(
+      map(([isLoading, isAnswered]) => {
+        console.log('Raw states:', { isLoading, isAnswered });
+        return !isLoading && isAnswered; // Always enable the button for now
+      }),
+      tap(isEnabled => console.log('Button enabled:', isEnabled))
     );
   
     // Subscribe to see changes over time
@@ -1874,7 +1884,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         // Reset isAnsweredSubject to false before displaying the next question
         this.quizStateService.answeredSubject.next(false);
 
-        this.quizStateService.setAnswerSelected(false); // Reset answered state for the new question
+        this.quizStateService.setAnswerSelected(t); // Reset answered state for the new question
         this.quizStateService.setLoading(false); // Mark loading as complete
 
         // Prepare the next question for display
