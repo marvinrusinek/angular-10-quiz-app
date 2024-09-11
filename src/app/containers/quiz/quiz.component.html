@@ -81,7 +81,7 @@
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
               aria-label="Next Question"
-              [disabled]="(isButtonEnabled$ | async)"
+              [disabled]="!(isButtonEnabled$ | async)"
               [matTooltip]="getNextButtonTooltip() | async"
               matTooltipPosition="above"
             >
