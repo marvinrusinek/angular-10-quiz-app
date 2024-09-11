@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuestionState } from '../../shared/models/QuestionState.model';
@@ -35,10 +35,16 @@ export class QuizStateService {
   private quizQuestionCreated = false;
 
   private loadingSubject = new BehaviorSubject<boolean>(false);
-  public isLoading$: Observable<boolean> = this.loadingSubject.asObservable().pipe(distinctUntilChanged());
+  isLoading$: Observable<boolean> = this.loadingSubject.asObservable().pipe(
+    distinctUntilChanged(),
+    tap(isLoading => console.log('isLoading$ emitted:', isLoading))
+  );
   
   answeredSubject = new BehaviorSubject<boolean>(false);
-  public isAnswered$: Observable<boolean> = this.answeredSubject.asObservable().pipe(distinctUntilChanged());
+  isAnswered$: Observable<boolean> = this.answeredSubject.asObservable().pipe(
+    distinctUntilChanged(),
+    tap(isAnswered => console.log('isAnswered$ emitted:', isAnswered))
+  );
 
   constructor() {
     this.questionStates = new Map<number, QuestionState>();

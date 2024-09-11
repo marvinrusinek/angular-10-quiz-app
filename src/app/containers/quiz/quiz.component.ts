@@ -279,12 +279,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       distinctUntilChanged(),
       map(([isLoading, isAnswered]) => !isLoading && isAnswered)
     ); */
-    this.isButtonEnabled$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
+    /* this.isButtonEnabled$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
       takeUntil(this.destroy$),
       distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1]),
       map(([isLoading, isAnswered]) => !isLoading && isAnswered),
       shareReplay(1)
+    ); */
+    this.isButtonEnabled$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
+      takeUntil(this.destroy$),
+      distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1]),
+      map(([isLoading, isAnswered]) => {
+        console.log('isLoading:', isLoading, 'isAnswered:', isAnswered);
+        return !isLoading && isAnswered;
+      }),
+      tap(isEnabled => console.log('Button enabled:', isEnabled)),
+      shareReplay(1)
     );
+  
+    // Subscribe to see changes over time
+    this.isButtonEnabled$.subscribe();
         
     this.subscribeToSelectionMessage();
 
