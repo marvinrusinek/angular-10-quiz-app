@@ -34,6 +34,7 @@ import {
   filter,
   map,
   retry,
+  shareReplay,
   startWith,
   switchMap,
   take,
@@ -273,10 +274,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isLoading$ = this.quizStateService.isLoading$;
     this.isAnswered$ = this.quizStateService.isAnswered$; 
 
-    this.isButtonEnabled$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
+    /* this.isButtonEnabled$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
       takeUntil(this.destroy$),
       distinctUntilChanged(),
       map(([isLoading, isAnswered]) => !isLoading && isAnswered)
+    ); */
+    this.isButtonEnabled$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
+      takeUntil(this.destroy$),
+      distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1]),
+      map(([isLoading, isAnswered]) => !isLoading && isAnswered),
+      shareReplay(1)
     );
         
     this.subscribeToSelectionMessage();
@@ -836,7 +843,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
   getNextButtonTooltip(): Observable<string> {
     return this.isButtonEnabled$.pipe(
-      map((isEnabled) => (isEnabled ? 'Next Question »' : 'Please select an option to continue...'))
+      map(isEnabled => isEnabled ? 'Next Question »' : 'Please select an option to continue...'),
+      distinctUntilChanged()
     );
   }
 
