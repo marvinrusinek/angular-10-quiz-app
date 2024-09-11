@@ -51,8 +51,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   lastSelectedOptionIndex: number | null = null;
   lastSelectedOption: Option | null = null;
   isNavigatingBackwards = false;
-  questionCorrectMessage = '';
-  lastSelectedOptionId: number | null = null;
 
   optionTextStyle = {
     color: 'black'
@@ -130,11 +128,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (changes['showFeedback']) {
       console.log('SOC: showFeedback changed:', this.showFeedback);
     }
-  }
-
-  onCorrectMessageChange(newMessage: string) {
-    this.questionCorrectMessage = newMessage;
-    console.log('SharedOptionComponent - questionCorrectMessage updated:', this.questionCorrectMessage);
   }
 
   initializeFromConfig(): void {
