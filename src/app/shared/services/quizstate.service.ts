@@ -39,6 +39,9 @@ export class QuizStateService {
 
   private quizQuestionCreated = false;
 
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  public isLoading$ = this.loadingSubject.asObservable();
+
   constructor() {
     this.questionStates = new Map<number, QuestionState>();
   }
@@ -247,6 +250,14 @@ export class QuizStateService {
 
   getQuizQuestionCreated(): boolean {
     return this.quizQuestionCreated;
+  }
+
+  startLoading(): void {
+    this.loadingSubject.next(true);
+  }
+
+  stopLoading(): void {
+    this.loadingSubject.next(false);
   }
 
   resetState(): void {
