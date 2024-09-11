@@ -188,8 +188,15 @@ export class SelectedOptionService {
   }
 
   // Method to update the isAnswered state
-  setAnsweredState(isAnswered: boolean): void {
+  /* setAnsweredState(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
+  } */
+  setAnsweredState(isAnswered: boolean): void {
+    // Emit only if the answered state has actually changed
+    if (this.answeredSubject.getValue() !== isAnswered) {
+      console.log('Answered state set to', isAnswered);
+      this.answeredSubject.next(isAnswered);
+    }
   }
 
   getAnsweredState(): boolean {
