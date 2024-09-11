@@ -91,7 +91,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('SharedOptionComponent ngOnChanges called', changes);
     if (changes.config) {
       this.initializeFromConfig();
     }
@@ -102,10 +101,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     if (changes.optionsToDisplay) {
       this.initializeOptionBindings();
-    }
-
-    if (changes.showFeedback) {
-      console.log('showFeedback changed to:', this.showFeedback);
     }
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
