@@ -273,11 +273,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isLoading$ = this.quizStateService.isLoading$;
     this.isAnswered$ = this.quizStateService.isAnswered$; 
 
-    this.isLoading$.subscribe(isLoading => console.log('isLoading:', isLoading));
-    this.isAnswered$.subscribe(isAnswered => console.log('isAnswered:', isAnswered));
-    this.buttonState$.subscribe(buttonState => console.log('buttonState:', buttonState));
-
     this.buttonState$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
+      takeUntil(this.destroy$),
       distinctUntilChanged(),
       map(([isLoading, isAnswered]) => !isLoading && isAnswered)
     );
@@ -1856,7 +1853,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         // Reset isAnsweredSubject to false before displaying the next question
         this.quizStateService.answeredSubject.next(false);
 
-        this.quizStateService.setAnswered(false); // Reset answered state for the new question
+        this.quizStateService.setAnswerSelected(false); // Reset answered state for the new question
         this.quizStateService.setLoading(false); // Mark loading as complete
 
         // Prepare the next question for display
