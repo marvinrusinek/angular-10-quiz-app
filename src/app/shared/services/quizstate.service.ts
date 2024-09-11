@@ -256,11 +256,19 @@ export class QuizStateService {
   }
 
   startLoading(): void {
-    this.loadingSubject.next(true);
+    // Emit only if the loading state has actually changed
+    if (!this.loadingSubject.getValue()) {
+      console.log('Loading started');
+      this.loadingSubject.next(true);
+    }
   }
 
   stopLoading(): void {
-    this.loadingSubject.next(false);
+    // Emit only if the loading state has actually changed
+    if (this.loadingSubject.getValue()) {
+      console.log('Loading stopped');
+      this.loadingSubject.next(false);
+    }
   }
 
   setAnswerSelected(isAnswered: boolean): void {
