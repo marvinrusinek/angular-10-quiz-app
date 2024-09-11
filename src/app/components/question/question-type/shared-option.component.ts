@@ -108,25 +108,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('showFeedback changed to:', this.showFeedback);
     }
 
-    if (changes.correctMessage) {
-      console.log('SharedOptionComponent - correctMessage changed:', {
-        previous: changes.correctMessage.previousValue,
-        current: changes.correctMessage.currentValue
-      });
-      // this.onCorrectMessageChange(this.correctMessage);
-      this.correctMessage = changes.correctMessage.currentValue;
-      console.log('SharedOptionComponent - correctMessage updated:::', this.correctMessage);
-    }
-
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
-    }
-
-    if (changes['lastSelectedOptionId']) {
-      console.log('SOC: lastSelectedOptionId changed:', this.lastSelectedOptionId);
-    }
-    if (changes['showFeedback']) {
-      console.log('SOC: showFeedback changed:', this.showFeedback);
     }
   }
 
@@ -327,7 +310,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     this.showFeedback = true;
     this.showFeedbackForOption[option.optionId] = true;
-    
+
     this.clickedOptionIds.add(option.optionId ?? index);
   
     if (this.config.type === 'single') {
