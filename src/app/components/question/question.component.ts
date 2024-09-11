@@ -1352,7 +1352,6 @@ export class QuizQuestionComponent
       questionState.isAnswered = true;
 
       if (!this.quizStateService.isAnswered$) {
-        this.quizStateService.setAnswered(true);
         this.quizStateService.setAnswerSelected(true);
       }
 

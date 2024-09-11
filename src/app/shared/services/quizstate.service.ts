@@ -237,11 +237,6 @@ export class QuizStateService {
     this.loadingSubject.next(isLoading);
   }
   
-  setAnswered(isAnswered: boolean): void {
-    console.log('Emitting isAnswered:', isAnswered);
-    this.answeredSubject.next(isAnswered);
-  }
-
   setQuizQuestionCreated(): void {
     this.quizQuestionCreated = true;
   }
