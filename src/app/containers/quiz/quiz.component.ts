@@ -331,10 +331,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       shareReplay(1)
     );
 
+    this.currentQuestion$ = this.questionSubject.pipe(
+      tap(() => this.quizStateService.setLoading(true)),
+      switchMap(questionIndex => this.loadQuestion(questionIndex)),
+      tap(() => {
+        this.quizStateService.setLoading(false);
+        this.quizStateService.setAnswered(false);
+      }),
+      shareReplay(1)
+    );
+
     // Subscribe to see changes over time
     this.subscription.add(
       this.isButtonEnabled$.subscribe(isEnabled => 
         console.log('Button enabled changed to:', isEnabled)
+      )
+    );
+
+    this.subscription.add(
+      this.currentQuestion$.subscribe(question => 
+        console.log('Current question:', question)
       )
     );
         
