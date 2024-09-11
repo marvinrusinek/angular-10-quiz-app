@@ -182,9 +182,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   nextButtonTooltip = 'Please select an option to continue...';
   buttonState$: Observable<boolean>;
 
-  isLoading$ = this.quizStateService.isLoading$;
-  isAnswered$ = this.quizStateService.isAnswered$;
-
   shouldDisplayCorrectAnswers = false;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
@@ -271,15 +268,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }
     });
 
-    this.buttonState$ = combineLatest([
-      this.quizStateService.isLoading$,
-      this.quizStateService.isAnswered$
-    ]).pipe(
-        map(([isLoading, isAnswered]) => {
-          const buttonState = !isLoading && isAnswered;
-          return buttonState;
-        }),
-        startWith(false)
+    this.isLoading$ = this.quizStateService.isLoading$;
+    this.isAnswered$ = this.quizStateService.isAnswered$;
+
+    this.buttonState$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
+      map(([isLoading, isAnswered]) => !isLoading && isAnswered)
     );
 
     this.subscribeToSelectionMessage();
