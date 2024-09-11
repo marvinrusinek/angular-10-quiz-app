@@ -181,6 +181,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private navigationAbortController: AbortController | null = null;
   nextButtonTooltip$: Observable<string>;
   nextButtonTooltip = 'Please select an option to continue...';
+
+  // private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   isButtonEnabled$: Observable<boolean>;
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
@@ -191,6 +193,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   unsubscribe$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
   audioAvailable = true;
+
+  subscription: Subscription;
 
   constructor(
     private quizService: QuizService,
@@ -295,20 +299,44 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       tap(isEnabled => console.log('Button enabled:', isEnabled)),
       shareReplay(1)
     ); */
+    /* this.isButtonEnabled$ = combineLatest([
+      this.quizStateService.isLoading$,
+      this.quizStateService.isAnswered$
+    ]).pipe(
+      tap(([isLoading, isAnswered]) => console.log('Raw states:', { isLoading, isAnswered })),
+      map(([isLoading, isAnswered]) => !isLoading && isAnswered),
+      distinctUntilChanged(),
+      tap(isEnabled => console.log('Button enabled:', isEnabled))
+    );
+
+    // Subscribe to isButtonEnabled$ to see changes over time
+    this.subscription = this.isButtonEnabled$.subscribe(
+      isEnabled => console.log('isButtonEnabled$ emitted:', isEnabled)
+    );
+
+    // Log initial states
+    this.quizStateService.isLoading$.pipe(tap(isLoading => console.log('Initial isLoading:', isLoading))).subscribe();
+    this.quizStateService.isAnswered$.pipe(tap(isAnswered => console.log('Initial isAnswered:', isAnswered))).subscribe(); */
+
     this.isButtonEnabled$ = combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$
     ]).pipe(
       map(([isLoading, isAnswered]) => {
-        console.log('Raw states:', { isLoading, isAnswered });
-        return !isLoading && isAnswered;
+        console.log('States updated:', { isLoading, isAnswered });
+        const isEnabled = !isLoading && isAnswered;
+        console.log('Button state:', isEnabled);
+        return isEnabled;
       }),
-      distinctUntilChanged(),
-      tap(isEnabled => console.log('Button enabled:', isEnabled))
+      shareReplay(1)
     );
-  
+
     // Subscribe to see changes over time
-    this.isButtonEnabled$.subscribe();
+    this.subscription.add(
+      this.isButtonEnabled$.subscribe(isEnabled => 
+        console.log('Button enabled changed to:', isEnabled)
+      )
+    );
         
     this.subscribeToSelectionMessage();
 
@@ -325,6 +353,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
+  }
+
+  private updateButtonState() {
+    const isEnabled = !this.quizStateService.isLoading && this.quizStateService.isAnswered;
+    console.log('Updating button state:', isEnabled);
+    this.isButtonEnabledSubject.next(isEnabled);
   }
 
   ngOnDestroy(): void {
