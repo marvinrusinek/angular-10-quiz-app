@@ -321,9 +321,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
   
-    this.lastSelectedOption = option;
-    this.lastSelectedOptionIndex = index;
-    this.lastSelectedOptionId = option.optionId;
     this.showFeedback = true;
   
     const optionBinding = this.optionBindings[index];
