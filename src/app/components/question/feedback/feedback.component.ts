@@ -35,15 +35,6 @@ export class FeedbackComponent implements OnChanges {
     this.feedbackMessageClass = this.determineFeedbackMessageClass();
     this.feedbackPrefix = this.determineFeedbackPrefix();
     this.updateDisplayMessage();
-
-    console.log('FeedbackComponent - Updated feedback:', {
-      correctMessage: this.correctMessage,
-      selectedOption: this.selectedOption,
-      showFeedback: this.showFeedback,
-      feedbackPrefix: this.feedbackPrefix,
-      feedbackMessageClass: this.feedbackMessageClass,
-      displayMessage: this.displayMessage
-    });
   }
 
   determineFeedbackPrefix(): string {
