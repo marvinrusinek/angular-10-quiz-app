@@ -75,6 +75,7 @@ export abstract class BaseQuestionComponent
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
   private containerInitialized = false;
+  selectedOptionIndex: number | null = null;
 
   constructor(
     @Optional()
@@ -112,6 +113,11 @@ export abstract class BaseQuestionComponent
 
   ngOnDestroy(): void {
     this.currentQuestionSubscription?.unsubscribe();
+  }
+
+  private updateSelectedOption(index: number): void {
+    this.selectedOptionIndex = index;
+    this.showFeedback = true;
   }
 
   private initializeDynamicComponentIfNeeded(): void {
@@ -278,21 +284,11 @@ export abstract class BaseQuestionComponent
     option: SelectedOption,
     index: number
   ): Promise<void> {
-    console.log('BQC: Raw option clicked:', option);
+    this.updateSelectedOption(index);
     
-    if (option.optionId !== undefined) {
-      this.lastSelectedOptionId = option.optionId;
-      this.showFeedback = true;
-    } else {
-      console.warn('BQC: optionId is undefined, using index as fallback');
-      this.lastSelectedOptionId = index;
-      this.showFeedback = true;
-    }
-
     console.log('BQC: After processing:', {
-      optionId: option.optionId,
       index: index,
-      lastSelectedOptionId: this.lastSelectedOptionId,
+      selectedOptionIndex: this.selectedOptionIndex,
       showFeedback: this.showFeedback
     });
 
