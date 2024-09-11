@@ -29,11 +29,6 @@ export class QuizStateService {
   private correctAnswersTextSource = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
 
-  isLoadingSubject = new BehaviorSubject<boolean>(false);
-  isLoading$ = this.isLoadingSubject.asObservable();
-  isAnsweredSubject = new BehaviorSubject<boolean>(false);
-  isAnswered$ = this.isAnsweredSubject.asObservable();
-
   questionStates: Map<number, QuestionState> = new Map();
   private quizStates: { [quizId: string]: Map<number, QuestionState> } = {};
 
@@ -43,7 +38,7 @@ export class QuizStateService {
   public isLoading$ = this.loadingSubject.asObservable();
 
   private answeredSubject = new BehaviorSubject<boolean>(false);
-  public isAnswered$ = this.answeredSubject.asObservable();
+  public isAnswered$ = this.answeredSubject.asObservable().pipe(distinctUntilChanged());
 
   constructor() {
     this.questionStates = new Map<number, QuestionState>();
