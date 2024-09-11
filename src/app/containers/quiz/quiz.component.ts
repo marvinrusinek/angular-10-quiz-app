@@ -182,7 +182,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   nextButtonTooltip$: Observable<string>;
   nextButtonTooltip = 'Please select an option to continue...';
 
-  // private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
+  private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   isButtonEnabled$: Observable<boolean>;
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
@@ -301,11 +301,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.checkIfAnswerSelected(true);
   }
 
-  private updateButtonState() {
-    const isEnabled = !this.quizStateService.isLoading && this.quizStateService.isAnswered;
+  /* private updateButtonState() {
+    const isEnabled = !this.quizStateService.isLoading && this.quizStateService.isAnswered$;
     console.log('Updating button state:', isEnabled);
     this.isButtonEnabledSubject.next(isEnabled);
-  }
+  } */
 
   ngOnDestroy(): void {
     this.destroy$.next();
