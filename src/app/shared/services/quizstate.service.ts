@@ -259,17 +259,17 @@ export class QuizStateService {
     return this.loadingSubject.getValue();
   }
 
-  startLoading(): void {
-    // Emit only if the loading state has actually changed
-    if (!this.loadingSubject.getValue()) {
+   // Method to start loading
+   startLoading(): void {
+    if (!this.isLoading()) {
       console.log('Loading started');
       this.loadingSubject.next(true);
     }
   }
 
+  // Method to stop loading
   stopLoading(): void {
-    // Emit only if the loading state has actually changed
-    if (this.loadingSubject.getValue()) {
+    if (this.isLoading()) {
       console.log('Loading stopped');
       this.loadingSubject.next(false);
     }
