@@ -122,6 +122,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
     }
+
+    if (changes['lastSelectedOptionId']) {
+      console.log('SOC: lastSelectedOptionId changed:', this.lastSelectedOptionId);
+    }
+    if (changes['showFeedback']) {
+      console.log('SOC: showFeedback changed:', this.showFeedback);
+    }
   }
 
   onCorrectMessageChange(newMessage: string) {
