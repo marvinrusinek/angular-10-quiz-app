@@ -42,6 +42,9 @@ export class QuizStateService {
   private loadingSubject = new BehaviorSubject<boolean>(false);
   public isLoading$ = this.loadingSubject.asObservable();
 
+  private answeredSubject = new BehaviorSubject<boolean>(false);
+  public isAnswered$ = this.answeredSubject.asObservable();
+
   constructor() {
     this.questionStates = new Map<number, QuestionState>();
   }
@@ -258,6 +261,15 @@ export class QuizStateService {
 
   stopLoading(): void {
     this.loadingSubject.next(false);
+  }
+
+  setAnswerSelected(isAnswered: boolean): void {
+    this.answeredSubject.next(isAnswered);
+  }
+
+  // Example usage when an answer is clicked
+  onAnswerSelected(answer: Answer): void {
+    this.setAnswerSelected(true);  // Mark as answered
   }
 
   resetState(): void {
