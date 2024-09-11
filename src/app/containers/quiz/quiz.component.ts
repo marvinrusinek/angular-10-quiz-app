@@ -180,7 +180,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private navigationAbortController: AbortController | null = null;
   nextButtonTooltip$: Observable<string>;
   nextButtonTooltip = 'Please select an option to continue...';
-  buttonState$: Observable<boolean>;
+  isButtonEnabled$: Observable<boolean>;
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
 
@@ -273,7 +273,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isLoading$ = this.quizStateService.isLoading$;
     this.isAnswered$ = this.quizStateService.isAnswered$; 
 
-    this.buttonState$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
+    this.isButtonEnabled$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
       takeUntil(this.destroy$),
       distinctUntilChanged(),
       map(([isLoading, isAnswered]) => !isLoading && isAnswered)
