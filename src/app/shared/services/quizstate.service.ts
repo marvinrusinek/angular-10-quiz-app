@@ -280,7 +280,7 @@ export class QuizStateService {
   }
 
   // Example usage when an answer is clicked
-  onAnswerSelected(answer: Answer): void {
+  onAnswerSelected(option: Option): void {
     this.setAnswerSelected(true);  // Mark as answered
   }
 
