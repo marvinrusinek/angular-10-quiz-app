@@ -715,11 +715,6 @@ export class QuizQuestionComponent
       } else {
         this.updateExplanationDisplay(false);
       }
-      
-      // Fetch feedback
-      const correctOptions = this.currentQuestion.options.filter(option => option.correct);
-      this.feedbackText = await this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
-      this.feedbackText = this.feedbackText || 'No feedback available';
   
       // Update the selection message
       this.updateSelectionMessage(false);
