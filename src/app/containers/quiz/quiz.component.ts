@@ -273,17 +273,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isLoading$ = this.quizStateService.isLoading$;
     this.isAnswered$ = this.quizStateService.isAnswered$; 
 
-    /* this.buttonState$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
-      map(([isLoading, isAnswered]) => !isLoading && isAnswered)
-    ); */
     this.buttonState$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
-      distinctUntilChanged(),  // Prevent unnecessary re-emissions if the values haven't changed
-      map(([isLoading, isAnswered]) => {
-        return !isLoading && isAnswered;  // Enable the button only when not loading and answered
-      })
+      distinctUntilChanged(),
+      map(([isLoading, isAnswered]) => !isLoading && isAnswered)
     );
     
-
     this.subscribeToSelectionMessage();
 
     // Initialize route parameters and subscribe to updates
