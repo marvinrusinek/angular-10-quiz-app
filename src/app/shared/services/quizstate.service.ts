@@ -270,8 +270,15 @@ export class QuizStateService {
     }
   }
 
-  setAnswerSelected(isAnswered: boolean): void {
+  // Set the answered state, but only if the state actually changes
+  /* setAnswerSelected(isAnswered: boolean): void {
     this.answeredSubject.next(isAnswered);
+  } */
+  setAnswerSelected(isAnswered: boolean): void {
+    if (this.answeredSubject.getValue() !== isAnswered) {
+      console.log(`Answered state changed to: ${isAnswered}`);
+      this.answeredSubject.next(isAnswered);  // Emit only if the value changes
+    }
   }
 
   // Example usage when an answer is clicked
