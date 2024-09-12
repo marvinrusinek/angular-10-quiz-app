@@ -34,7 +34,7 @@ export class QuizStateService {
 
   private quizQuestionCreated = false;
 
-  private loadingSubject = new BehaviorSubject<boolean>(false);
+  loadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$: Observable<boolean> = this.loadingSubject.asObservable().pipe(
     distinctUntilChanged()
   );
