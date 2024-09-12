@@ -1725,19 +1725,22 @@ export class QuizQuestionComponent
   
     if (shouldDisplay) {
       this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-      .subscribe(
-        (explanationText: string) => {
-          this.explanationToDisplay = explanationText;
-          this.explanationToDisplayChange.emit(this.explanationToDisplay);
-          console.log(`Displaying explanation for question ${this.currentQuestionIndex}`);
-        },
-        (error) => {
-          console.error('Error fetching explanation:', error);
-          this.explanationToDisplay = 'Error loading explanation.';
-          this.explanationToDisplayChange.emit(this.explanationToDisplay);
-        }
-      );
+        .pipe(
+          tap((explanationText: string) => {
+            this.explanationToDisplay = explanationText;
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+            console.log(`Displaying explanation for question ${this.currentQuestionIndex}`);
+          }),
+          catchError((error) => {
+            console.error('Error fetching explanation:', error);
+            this.explanationToDisplay = 'Error loading explanation.';
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+            return of(null); // Return an observable to continue the stream
+          })
+        )
+        .subscribe();
     } else {
+      this.explanationToDisplay = '';
       console.log(`Explanation for question ${this.currentQuestionIndex} is not displayed`);
     }
   }
