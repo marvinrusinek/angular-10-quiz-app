@@ -721,19 +721,6 @@ export class QuizQuestionComponent
     }
   }
 
-  private updateExplanationDisplay(shouldDisplay: boolean): void {
-    this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
-    this.showExplanationChange.emit(shouldDisplay);
-    this.displayExplanation = shouldDisplay;
-  
-    if (shouldDisplay) {
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-      console.log(`Displaying explanation for question ${this.currentQuestionIndex}`);
-    } else {
-      console.log(`Explanation for question ${this.currentQuestionIndex} is not displayed`);
-    }
-  }
-
   async getFeedbackText(currentQuestion: QuizQuestion): Promise<string> {
     const correctOptions = currentQuestion.options.filter(
       (option) => option.correct
@@ -1721,6 +1708,19 @@ export class QuizQuestionComponent
       console.error('Error processing current question:', error);
       // Handle the error appropriately, maybe set a default explanation
       this.explanationTextService.setCurrentQuestionExplanation('Unable to load explanation.');
+    }
+  }
+
+  private updateExplanationDisplay(shouldDisplay: boolean): void {
+    this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
+    this.showExplanationChange.emit(shouldDisplay);
+    this.displayExplanation = shouldDisplay;
+  
+    if (shouldDisplay) {
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      console.log(`Displaying explanation for question ${this.currentQuestionIndex}`);
+    } else {
+      console.log(`Explanation for question ${this.currentQuestionIndex} is not displayed`);
     }
   }
 
