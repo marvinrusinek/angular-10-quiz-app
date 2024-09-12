@@ -275,25 +275,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }
     });
 
-    this.isLoading$ = this.quizStateService.isLoading$;
-    this.isAnswered$ = this.quizStateService.isAnswered$;
-
-    this.isButtonEnabled$ = combineLatest([
-      this.quizStateService.isLoading$,
-      this.quizStateService.isAnswered$
-    ]).pipe(
-      takeUntil(this.destroy$),
-      distinctUntilChanged(),
-      map(([isLoading, isAnswered]) => isLoading || !isAnswered)
-    );
-
-    // Subscribe to log state changes (for debugging)
-    this.isButtonEnabled$.subscribe(isEnabled => 
-      console.log('Button enabled:', isEnabled)
-    );
-
-    this.updateButtonState();
-
     this.subscribeToSelectionMessage();
 
     // Initialize route parameters and subscribe to updates
@@ -308,14 +289,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Fetch and display the current question
     this.initializeCurrentQuestion();
 
-    this.checkIfAnswerSelected(true);
-  }
+    this.initializeNextButtonState();
 
-  private updateButtonState(): void {
-    const isLoading = this.quizStateService.loadingSubject.getValue();
-    const isAnswered = this.quizStateService.answeredSubject.getValue();
-    console.log(`Updating button state: isLoading=${isLoading}, isAnswered=${isAnswered}`);
-    this.isButtonEnabledSubject.next(!isLoading && isAnswered);
+    this.checkIfAnswerSelected(true);
   }
 
   private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
@@ -346,6 +322,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     if (changes['currentQuestionIndex']) {
       this.loadCurrentQuestion();
     }
+  }
+
+  private initializeNextButtonState(): void {
+    this.isLoading$ = this.quizStateService.isLoading$;
+    this.isAnswered$ = this.quizStateService.isAnswered$;
+  
+    this.isButtonEnabled$ = combineLatest([
+      this.quizStateService.isLoading$,
+      this.quizStateService.isAnswered$
+    ]).pipe(
+      takeUntil(this.destroy$),
+      distinctUntilChanged(),
+      map(([isLoading, isAnswered]) => isLoading || !isAnswered)
+    );
   }
 
   onQuestionAnswered(question: QuizQuestion): void {
