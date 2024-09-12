@@ -332,9 +332,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     return isDisabled;
   } */
   isNextButtonDisabled(): boolean {
+    const currentQuestionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
     const isLoading = this.quizStateService.isLoading();
-    console.log('Next button check - isAnswered:', this.isCurrentQuestionAnswered, 'isLoading:', isLoading);
-    return !this.isCurrentQuestionAnswered || isLoading;
+    return !currentQuestionState.isAnswered || isLoading;
   }
 
   
