@@ -1453,12 +1453,12 @@ export class QuizQuestionComponent
 
   private updateFeedback(option: SelectedOption): void {
     this.updateFeedbackForOption(option);
-
+  
     console.log(
       'onOptionClicked - showFeedbackForOption:',
       this.showFeedbackForOption
     );
-
+  
     if (!option.correct) {
       console.log('Incorrect option selected.');
       for (const opt of this.optionsToDisplay) {
@@ -1471,8 +1471,13 @@ export class QuizQuestionComponent
         this.showFeedbackForOption
       );
     }
-
-    this.updateSelectedOption(option);
+  
+    // Find the index of the selected option
+    const selectedIndex = this.optionsToDisplay.findIndex(opt => opt.optionId === option.optionId);
+    if (selectedIndex !== -1) {
+      this.updateSelectedOption(selectedIndex);
+    }
+  
     this.selectedOptionService.setOptionSelected(true);
     this.selectedOptionService.setSelectedOption(option);
     this.selectedOptionService.setAnsweredState(true);
