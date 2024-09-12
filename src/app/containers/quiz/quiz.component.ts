@@ -836,17 +836,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   // Tooltip for next button
-  /* getNextButtonTooltip(): Observable<string> {
+  getNextButtonTooltip(): Observable<string> {
     return this.isAnswered$.pipe(
       map(isAnswered => isAnswered ? 'Next Question »' : 'Please select an option to continue...')
     );
-  } */
-  getNextButtonTooltip(): Observable<string> {
+  }
+  /* getNextButtonTooltip(): Observable<string> {
     return this.isButtonEnabled$.pipe(
       map(isEnabled => isEnabled ? 'Next Question »' : 'Please select an option to continue...'),
       distinctUntilChanged()
     );
-  }
+  } */
 
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
