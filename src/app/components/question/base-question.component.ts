@@ -236,7 +236,7 @@ export abstract class BaseQuestionComponent
     };
   }
   
-  protected onQuestionAnswered(event: any): void {
+  protected onQuestionAnswered(event: Event): void {
     console.log('Question answered in BaseQuestionComponent:', event);
       
     // Update the selected option if it exists in your component
