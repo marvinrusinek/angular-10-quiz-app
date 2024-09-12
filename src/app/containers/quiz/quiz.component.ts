@@ -832,14 +832,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   /****** End of functions responsible for handling navigation to a particular question using the URL. ******/
 
   shouldShowExplanation(index: number): boolean {
-    const questionState = this.quizStateService.getQuestionState(this.quizId, index);
-    return questionState.isAnswered && !!this.explanationToDisplay;
+    return !!this.explanationToDisplay;
   }
-
-  /* canMoveToNextQuestion(): boolean {
-    const currentQuestionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
-    return currentQuestionState.isAnswered || this.isAnswered;
-  } */
 
   // Tooltip for next button
   getNextButtonTooltip(): Observable<string> {
