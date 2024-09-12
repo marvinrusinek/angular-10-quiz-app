@@ -294,18 +294,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.checkIfAnswerSelected(true);
   }
 
-  private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
-    const isAnswered = await lastValueFrom(
-      this.quizService.isAnswered(this.currentQuestionIndex)
-    );
-    
-    // Update both services
-    this.quizStateService.setAnswered(isAnswered);
-    this.selectedOptionService.setAnsweredState(isAnswered);
-    
-    this.updateSelectionMessage(isAnswered, isFirstQuestion);
-  }
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -919,6 +907,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   refreshQuestionOnReset(): void {
     this.quizService.setCurrentQuestion(0);
     this.loadCurrentQuestion();
+  }
+
+  private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
+    const isAnswered = await lastValueFrom(
+      this.quizService.isAnswered(this.currentQuestionIndex)
+    );
+    
+    // Update both services
+    this.quizStateService.setAnswered(isAnswered);
+    this.selectedOptionService.setAnsweredState(isAnswered);
+    
+    this.updateSelectionMessage(isAnswered, isFirstQuestion);
   }
 
   checkAndDisplayCorrectAnswers(): void {
