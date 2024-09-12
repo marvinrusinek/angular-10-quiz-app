@@ -289,6 +289,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.log('Button enabled:', isEnabled)
     );
 
+    this.updateButtonState();
+
     this.subscribeToSelectionMessage();
 
     // Initialize route parameters and subscribe to updates
