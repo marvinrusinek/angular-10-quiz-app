@@ -287,6 +287,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       map(([isLoading, isAnswered]) => !isLoading && isAnswered)
     );
 
+    // Initialize the state
+    this.quizStateService.setLoading(false);
+    this.quizStateService.setAnswered(false);
+
     // Subscribe to log state changes (for debugging)
     this.isButtonEnabled$.subscribe(isEnabled => 
       console.log('Button enabled:', isEnabled)
