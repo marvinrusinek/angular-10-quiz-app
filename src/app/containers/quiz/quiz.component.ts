@@ -330,12 +330,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.updateSelectionMessage(isAnswered, isFirstQuestion);
   }
 
-  onQuestionAnswered(question: QuizQuestion): void {
-    console.log('Question answered in QuizComponent:', question);
-    this.quizStateService.setCurrentQuestion(question);
-    this.quizStateService.setAnswered(true);
-  }
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -357,6 +351,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   onQuestionAnswered(question: QuizQuestion): void {
     console.log('Question answered in QuizComponent:', question);
     this.quizStateService.setCurrentQuestion(question);
+    this.quizStateService.setAnswered(true);
   }
 
   onExplanationToDisplayChange(explanation: string): void {
