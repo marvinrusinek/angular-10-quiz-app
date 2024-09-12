@@ -236,10 +236,6 @@ export class QuizStateService {
       state.selectedOptions = [];
     }    
   }
-
-  setLoading(isLoading: boolean): void {
-    this.loadingSubject.next(isLoading);
-  }
   
   setQuizQuestionCreated(): void {
     this.quizQuestionCreated = true;
@@ -251,6 +247,16 @@ export class QuizStateService {
 
   isLoading(): boolean {
     return this.loadingSubject.getValue();
+  }
+
+  setLoading(isLoading: boolean): void {
+    console.log('QuizStateService: setLoading called with', isLoading);
+    this.loadingSubject.next(isLoading);
+  }
+
+  setAnswered(isAnswered: boolean) {
+    console.log('QuizStateService: setAnswered called with', isAnswered);
+    this.answeredSubject.next(isAnswered);
   }
 
   startLoading(): void {
