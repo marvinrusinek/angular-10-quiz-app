@@ -1879,6 +1879,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
+        this.quizService.answeredSubject.next(false);
+
         // Check if the question has already been answered
         const isAnswered = await this.isQuestionAnswered(
           this.currentQuestionIndex
