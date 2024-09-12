@@ -239,7 +239,7 @@ export abstract class BaseQuestionComponent
     };
   }
   
-  protected onQuestionAnswered(event: Event): void {
+  protected onQuestionAnswered(event: { option: SelectedOption }): void {
     console.log('Question answered in BaseQuestionComponent:', event);
       
     if (this.selectedOption !== undefined) {
