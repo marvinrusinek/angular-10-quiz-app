@@ -230,6 +230,9 @@ export abstract class BaseQuestionComponent
       isAnswerCorrect: false,
       feedback: '',
       highlightCorrectAfterIncorrect: false,
+      showCorrectMessage: false,
+      explanationText: '',
+      showExplanation: false,
       quizQuestionComponentOnOptionClicked: () => {},
       onOptionClicked: () => Promise.resolve(),
       onQuestionAnswered: () => {}
