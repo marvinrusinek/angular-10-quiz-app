@@ -170,7 +170,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   optionsToDisplay: Option[] = [];
   explanationToDisplay = '';
 
-  private isLoading = false;
+  isLoading = false;
+  isCurrentQuestionAnswered = false;
   private isQuizDataLoaded = false;
   private debounceNavigation = false;
 
@@ -313,9 +314,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private initializeNextButtonState(): void {
-    this.isLoading$ = this.quizStateService.isLoading$;
-    this.isAnswered$ = this.quizStateService.isAnswered$;
-  
     this.isButtonEnabled$ = combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$
@@ -324,6 +322,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       distinctUntilChanged(),
       map(([isLoading, isAnswered]) => isLoading || !isAnswered)
     );
+  }
+
+  isNextButtonEnabled(): boolean {
+    return this.isCurrentQuestionAnswered && !this.isLoading;
+  }
+  
+  private currentQuestionAnsweredSubject = new BehaviorSubject<boolean>(false);
+
+  onAnswerSelected(): void {
+    this.isCurrentQuestionAnswered = true;
   }
 
   onExplanationToDisplayChange(explanation: string): void {
@@ -1856,6 +1864,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
+    this.isCurrentQuestionAnswered = false;
 
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
