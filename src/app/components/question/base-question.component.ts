@@ -239,12 +239,10 @@ export abstract class BaseQuestionComponent
   protected onQuestionAnswered(event: Event): void {
     console.log('Question answered in BaseQuestionComponent:', event);
       
-    // Update the selected option if it exists in your component
     if (this.selectedOption !== undefined) {
       this.selectedOption = event.option;
     }
   
-    // Update showFeedback if it exists in your component
     if (this.showFeedback !== undefined) {
       this.showFeedback = true;
     }
