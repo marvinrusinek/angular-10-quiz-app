@@ -504,14 +504,6 @@ export class QuizQuestionComponent
     }
   }
 
-  onQuestionAnswered() {
-    //check if i still need this
-    console.log(
-      'Received questionAnswered event in QuizQuestionComponent, re-emitting to QuizComponent'
-    );
-    this.questionAnswered.emit(); // Re-emit the event as void
-  }
-
   onQuestionChange(question: QuizQuestion): void {
     this.questionAnswered.emit(question);
   }
