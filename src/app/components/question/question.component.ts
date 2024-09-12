@@ -1548,7 +1548,8 @@ export class QuizQuestionComponent
     this.selectionMessageService.resetMessage();
   }
 
-  private updateSelectedOption(option: SelectedOption): void {
+  private updateSelectedOption(index: number): void {
+    const option = this.question.options[index];
     const selectedOption: SelectedOption = {
       optionId: option.optionId,
       questionIndex: this.currentQuestionIndex,
