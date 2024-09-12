@@ -341,6 +341,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private currentQuestionAnsweredSubject = new BehaviorSubject<boolean>(false);
 
   onAnswerSelected(): void {
+    this.isAnswered = true;
     this.isCurrentQuestionAnswered = true;
   }
 
