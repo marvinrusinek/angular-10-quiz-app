@@ -35,14 +35,10 @@ export class QuizStateService {
   private quizQuestionCreated = false;
 
   loadingSubject = new BehaviorSubject<boolean>(false);
-  isLoading$: Observable<boolean> = this.loadingSubject.asObservable().pipe(
-    distinctUntilChanged()
-  );
+  isLoading$: Observable<boolean> = this.loadingSubject.asObservable();
   
   answeredSubject = new BehaviorSubject<boolean>(false);
-  isAnswered$: Observable<boolean> = this.answeredSubject.asObservable().pipe(
-    distinctUntilChanged()
-  );
+  isAnswered$: Observable<boolean> = this.answeredSubject.asObservable();
 
   constructor() {
     this.questionStates = new Map<number, QuestionState>();
