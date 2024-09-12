@@ -312,7 +312,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     const isLoading = this.quizStateService.loadingSubject.getValue();
     const isAnswered = this.quizStateService.answeredSubject.getValue();
     console.log(`Updating button state: isLoading=${isLoading}, isAnswered=${isAnswered}`);
-    // this.isButtonEnabledSubject.next(!isLoading && isAnswered);
+    this.isButtonEnabledSubject.next(!isLoading && isAnswered);
   }
 
   ngOnDestroy(): void {
