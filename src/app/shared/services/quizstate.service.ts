@@ -39,7 +39,7 @@ export class QuizStateService {
     distinctUntilChanged()
   );
   
-  private answeredSubject = new BehaviorSubject<boolean>(false);
+  answeredSubject = new BehaviorSubject<boolean>(false);
   isAnswered$: Observable<boolean> = this.answeredSubject.asObservable().pipe(
     distinctUntilChanged()
   );
