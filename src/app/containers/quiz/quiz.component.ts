@@ -836,6 +836,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     return questionState.isAnswered && !!this.explanationToDisplay;
   }
 
+  canMoveToNextQuestion(): boolean {
+    const currentQuestionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
+    return currentQuestionState.isAnswered || this.isAnswered;
+  }
+
   // Tooltip for next button
   getNextButtonTooltip(): Observable<string> {
     return this.isAnswered$.pipe(

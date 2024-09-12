@@ -90,6 +90,7 @@ export class QuizQuestionComponent
   @Output() isAnsweredChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
   @Output() isAnswered = false;
+  @Output() answerSelected = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<SelectedOption>();
   @Input() data: {
     questionText: string;
@@ -1567,6 +1568,9 @@ export class QuizQuestionComponent
     );
     this.selectedOptionService.setOptionSelected(true);
     this.isFirstQuestion = false; // Reset after the first option click
+    this.answerSelected.emit(true);
+    this.selectedOptionService.setOptionSelected(true);
+    this.selectedOptionService.setAnsweredState(true);
   }
 
   private async updateSelectionMessageBasedOnCurrentState(
