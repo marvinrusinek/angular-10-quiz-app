@@ -318,6 +318,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isButtonEnabledSubject.next(!isLoading && isAnswered);
   }
 
+  private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
+    const isAnswered = await lastValueFrom(
+      this.quizService.isAnswered(this.currentQuestionIndex)
+    );
+    
+    // Update both services
+    this.quizStateService.setAnswered(isAnswered);
+    this.selectedOptionService.setAnsweredState(isAnswered);
+    
+    this.updateSelectionMessage(isAnswered, isFirstQuestion);
+  }
+
+  onQuestionAnswered(question: QuizQuestion): void {
+    console.log('Question answered in QuizComponent:', question);
+    this.quizStateService.setCurrentQuestion(question);
+    this.quizStateService.setAnswered(true);
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -1825,14 +1843,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     return !this.formControl || this.formControl.valid === false;
   }
 
-  private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
-    const isAnswered = await lastValueFrom(
-      this.quizService.isAnswered(this.currentQuestionIndex)
-    );
-    this.selectedOptionService.setAnsweredState(isAnswered);
-    this.updateSelectionMessage(isAnswered, isFirstQuestion);
-  }
-
   loadCurrentQuestion(): void {
     this.quizService
       .getCurrentQuestionByIndex(this.quizId, this.currentQuestionIndex)
@@ -1883,6 +1893,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
         this.quizStateService.answeredSubject.next(false);
+        await this.checkIfAnswerSelected(false);
 
         // Check if the question has already been answered
         const isAnswered = await this.isQuestionAnswered(
