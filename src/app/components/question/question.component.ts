@@ -1701,6 +1701,7 @@ export class QuizQuestionComponent
     try {
       const explanationText = await this.getExplanationText(this.currentQuestionIndex);  
       this.explanationTextService.setCurrentQuestionExplanation(explanationText);
+      this.updateExplanationDisplay(true);
   
       const totalCorrectAnswers =
         this.quizService.getTotalCorrectAnswers(currentQuestion);
@@ -1723,8 +1724,19 @@ export class QuizQuestionComponent
     this.displayExplanation = shouldDisplay;
   
     if (shouldDisplay) {
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-      console.log(`Displaying explanation for question ${this.currentQuestionIndex}`);
+      this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+      .subscribe(
+        (explanationText: string) => {
+          this.explanationToDisplay = explanationText;
+          this.explanationToDisplayChange.emit(this.explanationToDisplay);
+          console.log(`Displaying explanation for question ${this.currentQuestionIndex}`);
+        },
+        (error) => {
+          console.error('Error fetching explanation:', error);
+          this.explanationToDisplay = 'Error loading explanation.';
+          this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        }
+      );
     } else {
       console.log(`Explanation for question ${this.currentQuestionIndex} is not displayed`);
     }
