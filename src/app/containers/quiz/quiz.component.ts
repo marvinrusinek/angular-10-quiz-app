@@ -331,10 +331,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('Next button disabled:', isDisabled, 'isAnswered:', currentQuestionState.isAnswered, 'isLoading:', isLoading);
     return isDisabled;
   } */
-  isNextButtonDisabled(): boolean {
+  /* isNextButtonDisabled(): boolean {
     const currentQuestionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
     const isLoading = this.quizStateService.isLoading();
     return !currentQuestionState.isAnswered || isLoading;
+  } */
+  isNextButtonDisabled(): boolean {
+    const currentQuestionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
+    const isLoading = this.quizStateService.isLoading();
+    return !currentQuestionState?.isAnswered || isLoading;
   }
 
   
