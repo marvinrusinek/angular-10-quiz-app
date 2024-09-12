@@ -324,8 +324,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
   }
 
-  isNextButtonEnabled(): boolean {
-    return this.isCurrentQuestionAnswered && !this.isLoading;
+  isNextButtonDisabled(): boolean {
+    const currentQuestionState = this.quizStateService.getQuestionState(this.currentQuestionIndex);
+    return !currentQuestionState.isAnswered || this.quizStateService.isLoading;
   }
   
   private currentQuestionAnsweredSubject = new BehaviorSubject<boolean>(false);
