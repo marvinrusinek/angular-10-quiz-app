@@ -49,6 +49,11 @@ export class SelectedOptionService {
     return this.selectedOptionSubject.value;
   }
 
+  // Method to get the current option selected state
+  getCurrentOptionSelectedState(): boolean {
+    return this.isOptionSelectedSubject.getValue();
+  }
+
   getShowFeedbackForOption(): { [optionId: number]: boolean } {
     return this.showFeedbackForOptionSubject.value;
   }
@@ -82,12 +87,6 @@ export class SelectedOptionService {
       this.isOptionSelectedSubject.next(isSelected);
     }
   }
-
-  // Method to get the current option selected state
-  getCurrentOptionSelectedState(): boolean {
-    return this.isOptionSelectedSubject.value;
-  }
-
 
   getSelectedOptionIndices(questionIndex: number): number[] {
     const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
