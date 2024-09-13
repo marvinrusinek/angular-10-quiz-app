@@ -292,6 +292,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Fetch and display the current question
     this.initializeCurrentQuestion();
 
+    // Initialize the form group with a control for the selected option
     this.formGroup = this.fb.group({
       selectedOption: [null]
     });
@@ -303,16 +304,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       startWith(false)
     );
 
+    // Subscribe to isAnswered$ for debugging
     this.isAnswered$.subscribe(value => {
       console.log('isAnswered$ emits:', value);
     });
 
     this.isButtonEnabled$ = this.isAnswered$;
   
+    // Initialize isLoading$ with an initial value
     this.isLoading$ = this.quizStateService.isLoading$.pipe(
       startWith(false)
     );
 
+    // Initialize the button state without overwriting observables
     this.initializeNextButtonState();
 
     this.checkIfAnswerSelected(true);
