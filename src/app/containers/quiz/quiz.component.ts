@@ -11,7 +11,7 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   BehaviorSubject,
@@ -187,6 +187,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   isButtonEnabled$: Observable<boolean>;
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
+  formGroup: FormGroup;
 
   shouldDisplayCorrectAnswers = false;
 
@@ -211,6 +212,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     private sharedVisibilityService: SharedVisibilityService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
+    private fb: FormBuilder,
     private ngZone: NgZone,
     private cdRef: ChangeDetectorRef
   ) {
@@ -289,6 +291,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Fetch and display the current question
     this.initializeCurrentQuestion();
+
+    this.formGroup = this.fb.group({
+      selectedOption: [null]
+    });
+
+    this.isAnswered$ = this.formGroup.get('selectedOption').valueChanges.pipe(
+      map(value => value !== null),
+      startWith(false)
+    );
+
+    this.isLoading$ = this.quizStateService.isLoading$;
 
     this.initializeNextButtonState();
 
