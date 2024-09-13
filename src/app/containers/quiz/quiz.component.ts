@@ -321,28 +321,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.selectedOptionService.isOptionSelected$()
     ]).pipe(
       takeUntil(this.destroy$),
-      distinctUntilChanged(),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
       map(([isLoading, isAnswered, isOptionSelected]) => {
         console.log('State changed:', { isLoading, isAnswered, isOptionSelected });
-        console.log('Current option selected state:', this.selectedOptionService.getCurrentOptionSelectedState());
         
-        const shouldBeEnabled = !isLoading && isOptionSelected && !isAnswered;
+        const shouldBeEnabled = !isLoading && !isAnswered && isOptionSelected;
         console.log('Button should be enabled:', shouldBeEnabled);
         console.log('Reasons:', {
           notLoading: !isLoading,
-          optionSelected: isOptionSelected,
-          notYetAnswered: !isAnswered
+          notYetAnswered: !isAnswered,
+          optionSelected: isOptionSelected
         });
         
         return shouldBeEnabled;
       }),
       tap(isEnabled => {
         console.log('Final button enabled state:', isEnabled);
-      })
+      }),
+      shareReplay(1)  // Ensure all subscribers get the same value
     );
   
     // Subscribe to the observable to ensure it's active
-    this.isButtonEnabled$.subscribe();
+    this.isButtonEnabled$.subscribe(isEnabled => {
+      console.log('isButtonEnabled$ emitted:', isEnabled);
+    });
   }
 
   ngOnDestroy(): void {
