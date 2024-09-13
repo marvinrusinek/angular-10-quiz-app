@@ -298,8 +298,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Create an observable that emits true when an option is selected
     this.isAnswered$ = this.formGroup.get('selectedOption').valueChanges.pipe(
-      map(value => value !== null),
-      startWith(false)
+      startWith(this.formGroup.get('selectedOption').value),
+      map(value => value !== null)
     );
 
     // Initialize isLoading$ with an initial value
