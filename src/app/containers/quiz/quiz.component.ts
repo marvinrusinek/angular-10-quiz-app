@@ -316,17 +316,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     ]).pipe(
       takeUntil(this.destroy$)
     ).subscribe(([isLoading, isAnswered, isOptionSelected]) => {
-      console.log('State changed in listener:', { isLoading, isAnswered, isOptionSelected });
+      console.log('QuizComponent: State changed:', { isLoading, isAnswered, isOptionSelected });
       this.updateButtonState(isLoading, isAnswered, isOptionSelected);
     });
   }
 
   private updateButtonState(isLoading: boolean, isAnswered: boolean, isOptionSelected: boolean): void {
-    console.log('Updating button state with:', { isLoading, isAnswered, isOptionSelected });
+    console.log('QuizComponent: Updating button state with:', { isLoading, isAnswered, isOptionSelected });
     
-    let shouldBeEnabled = !isLoading && isOptionSelected;
+    const shouldBeEnabled = !isLoading && isOptionSelected && !isAnswered;
 
-    console.log('Calculated button state:', shouldBeEnabled);
+    console.log('QuizComponent: Calculated button state:', shouldBeEnabled);
     this.isButtonEnabledSubject.next(shouldBeEnabled);
   }
 
