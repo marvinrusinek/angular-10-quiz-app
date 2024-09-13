@@ -328,14 +328,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       shouldBeEnabled = false;
     } else if (!isOptionSelected) {
       shouldBeEnabled = false;
-    } else if (isAnswered) {
-      shouldBeEnabled = true;
     } else {
       shouldBeEnabled = true;
     }
 
     console.log('Updating button state to:', shouldBeEnabled);
-    this.buttonStateSubject.next(shouldBeEnabled);
+    this.isButtonEnabledSubject.next(shouldBeEnabled);
   }
 
   ngOnDestroy(): void {
