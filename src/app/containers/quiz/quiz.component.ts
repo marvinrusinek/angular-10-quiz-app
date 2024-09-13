@@ -298,13 +298,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Create an observable that emits true when an option is selected
     this.isAnswered$ = this.formGroup.get('selectedOption').valueChanges.pipe(
-      map(value => {
-        console.log('selectedOption value:', value);
-        return value !== null;
-      }),
+      map(value => value !== null),
       distinctUntilChanged(),
       startWith(false)
     );
+
+    this.isAnswered$.subscribe(value => {
+      console.log('isAnswered$ emits:', value);
+    });
+
+    this.isButtonEnabled$ = this.isAnswered$;
   
     this.isLoading$ = this.quizStateService.isLoading$.pipe(
       startWith(false)
