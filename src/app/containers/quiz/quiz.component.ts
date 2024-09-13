@@ -320,7 +320,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     ]).pipe(
       takeUntil(this.destroy$),
       distinctUntilChanged(),
-      map(([isLoading, isAnswered]) => !isLoading && isAnswered && this.selectedOptionService.isOptionSelected$().pipe(distinctUntilChanged()))
+      map(([isLoading, isAnswered]) => isLoading || !isAnswered || !this.quizStateService.isOptionSelected$().pipe(distinctUntilChanged()))
     );
   }
 
