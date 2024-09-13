@@ -313,14 +313,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  private initializeNextButtonState(): void {
+  /* private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$
     ]).pipe(
       takeUntil(this.destroy$),
-      distinctUntilChanged(),
-      map(([isLoading, isAnswered]) => {
+      // map(([isLoading, isAnswered]) => {
         const isOptionSelected$ = this.quizStateService.isOptionSelected$();
         return isOptionSelected$.pipe(
           take(1),
@@ -329,10 +328,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return !isNextButtonDisabled; // Return true if the button should be enabled
           })
         );
-      }),
+      }), 
       switchMap(observable => observable)
+      // map(([isLoading, isAnswered]) => isLoading || !isAnswered)
+      // map(([isLoading, isAnswered]) => !isLoading && isAnswered)
+      map(([isLoading, isAnswered]) => !isLoading && isAnswered),
+      distinctUntilChanged()
+    );
+  } */
+  private initializeNextButtonState(): void {
+    this.isButtonEnabled$ = combineLatest([
+      this.isLoading$,
+      this.isAnswered$
+    ]).pipe(
+      map(([isLoading, isAnswered]) => {
+        console.log('isLoading:', isLoading, 'isAnswered:', isAnswered);
+        return !isLoading && isAnswered;
+      }),
+      distinctUntilChanged()
     );
   }
+  
 
   /* isNextButtonDisabled(): boolean {
     const currentQuestionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
