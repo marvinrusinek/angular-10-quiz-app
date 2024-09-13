@@ -317,16 +317,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.quizStateService.isLoading$,
-      this.quizStateService.isAnswered$
+      this.quizStateService.isAnswered$,
+      this.selectedOptionService.isOptionSelected$()
     ]).pipe(
       takeUntil(this.destroy$),
       distinctUntilChanged(),
-      map(([isLoading, isAnswered]) => {
-        if (this.selectedOptionService.isOptionSelected$().pipe(distinctUntilChanged())) {
-          return isLoading || !isAnswered;
-        } else {
-          return true;
-        }
+      map(([isLoading, isAnswered, isOptionSelected]) => {
+        console.log('State changed:', { isLoading, isAnswered, isOptionSelected });
+        
+        const shouldBeEnabled = !isLoading && isOptionSelected && !isAnswered;
+        console.log('Button should be enabled:', shouldBeEnabled);
+        console.log('Reasons:', {
+          notLoading: !isLoading,
+          optionSelected: isOptionSelected,
+          notYetAnswered: !isAnswered
+        });
+        
+        return shouldBeEnabled;
       })
     );
   }
