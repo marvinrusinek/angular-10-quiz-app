@@ -324,13 +324,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       map(([isLoading, isAnswered, isOptionSelected]) => {
         console.log('State changed:', { isLoading, isAnswered, isOptionSelected });
         
-        const shouldBeEnabled = !isLoading && isOptionSelected && !isAnswered;
+        let shouldBeEnabled: boolean;
+  
+        if (isLoading) {
+          // If loading, button should always be disabled
+          shouldBeEnabled = false;
+        } else if (isAnswered) {
+          // If answered, button should be enabled (to move to next question)
+          shouldBeEnabled = true;
+        } else {
+          // If not loading and not answered, button should be enabled only if an option is selected
+          shouldBeEnabled = isOptionSelected;
+        }
         
         console.log('Button should be enabled:', shouldBeEnabled);
         console.log('Reasons:', {
-          notLoading: !isLoading,
-          optionSelected: isOptionSelected,
-          notYetAnswered: !isAnswered
+          isLoading,
+          isAnswered,
+          isOptionSelected,
+          finalDecision: shouldBeEnabled
         });
         
         return shouldBeEnabled;
