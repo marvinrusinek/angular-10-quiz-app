@@ -334,8 +334,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         });
         
         return shouldBeEnabled;
+      }),
+      tap(isEnabled => {
+        console.log('Final button enabled state:', isEnabled);
       })
     );
+  
+    // Subscribe to the observable to ensure it's active
+    this.isButtonEnabled$.subscribe();
   }
 
   ngOnDestroy(): void {

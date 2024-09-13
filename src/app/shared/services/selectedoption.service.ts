@@ -193,10 +193,6 @@ export class SelectedOptionService {
     hasSelectedOptions ? this.setAnsweredState(true) : this.setAnsweredState(false);
   }
 
-  // Method to update the isAnswered state
-  /* setAnsweredState(isAnswered: boolean): void {
-    this.isAnsweredSubject.next(isAnswered);
-  } */
   setAnsweredState(isAnswered: boolean): void {
     // Emit only if the answered state has actually changed
     if (this.isAnsweredSubject.getValue() !== isAnswered) {
@@ -214,6 +210,10 @@ export class SelectedOptionService {
     this.selectedOptionSubject.next(null);
     this.showFeedbackForOptionSubject.next({});
     this.selectedOption = null;
+    this.isOptionSelectedSubject.next(false);
+  }
+
+  resetSelectedOption(): void {
     this.isOptionSelectedSubject.next(false);
   }
 }
