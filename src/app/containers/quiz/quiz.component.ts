@@ -320,7 +320,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     ]).pipe(
       takeUntil(this.destroy$),
       distinctUntilChanged(),
-      map(([isLoading, isAnswered]) => isLoading || !isAnswered || !this.quizStateService.isOptionSelected$().pipe(distinctUntilChanged()))
+      map(([isLoading, isAnswered]) => {
+        const isOptionSelected$ = this.quizStateService.isOptionSelected$();
+        return isOptionSelected$.pipe(
+          take(1),
+          map(isOptionSelected => {
+            const isNextButtonDisabled = isLoading || !isAnswered || !isOptionSelected;
+            return !isNextButtonDisabled; // Return true if the button should be enabled
+          })
+        );
+      }),
+      switchMap(observable => observable)
     );
   }
 
