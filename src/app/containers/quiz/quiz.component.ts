@@ -324,23 +324,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       map(([isLoading, isAnswered, isOptionSelected]) => {
         console.log('State changed:', { isLoading, isAnswered, isOptionSelected });
         
-        let shouldBeEnabled: boolean;
-        
-        if (!isAnswered) {
-          // If the question isn't answered, the button should be disabled
-          shouldBeEnabled = false;
-        } else {
-          // If the question is answered, apply the other conditions
-          // The button should be enabled when an option is selected
-          // and the question is not loading and not yet answered
-          shouldBeEnabled = isOptionSelected && !isLoading && !isAnswered;
-        }
+        const shouldBeEnabled = !isLoading && isOptionSelected && !isAnswered;
         
         console.log('Button should be enabled:', shouldBeEnabled);
         console.log('Reasons:', {
-          questionAnswered: isAnswered,
           notLoading: !isLoading,
-          optionSelected: isOptionSelected
+          optionSelected: isOptionSelected,
+          notYetAnswered: !isAnswered
         });
         
         return shouldBeEnabled;
@@ -353,9 +343,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
   
     // Subscribe to the observable to ensure it's active
-    this.isButtonEnabled$.subscribe(isEnabled => {
-      console.log('isButtonEnabled$ emitted:', isEnabled);
-    });
+    this.isButtonEnabled$.subscribe();
   }
 
   ngOnDestroy(): void {
