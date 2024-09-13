@@ -329,12 +329,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         if (isLoading) {
           // If loading, button should always be disabled
           shouldBeEnabled = false;
+        } else if (!isOptionSelected) {
+          // If no option is selected, button should be disabled
+          shouldBeEnabled = false;
         } else if (isAnswered) {
-          // If answered, button should be enabled (to move to next question)
+          // If an option is selected and the question is answered, enable the button to move to next question
           shouldBeEnabled = true;
         } else {
-          // If not loading and not answered, button should be enabled only if an option is selected
-          shouldBeEnabled = isOptionSelected;
+          // If an option is selected and the question is not answered, enable the button to submit the answer
+          shouldBeEnabled = true;
         }
         
         console.log('Button should be enabled:', shouldBeEnabled);
