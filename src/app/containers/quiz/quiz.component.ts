@@ -321,23 +321,39 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.selectedOptionService.isOptionSelected$()
     ]).pipe(
       takeUntil(this.destroy$),
-      tap(([isLoading, isAnswered, isOptionSelected]) => {
-        console.log('Raw state:', { isLoading, isAnswered, isOptionSelected });
-      }),
       map(([isLoading, isAnswered, isOptionSelected]) => {
-        const shouldBeEnabled = !isLoading && !isAnswered && isOptionSelected;
-        console.log('Calculated button state:', shouldBeEnabled);
+        console.log('State changed:', { isLoading, isAnswered, isOptionSelected });
+        
+        let shouldBeEnabled: boolean;
+        
+        if (!isAnswered) {
+          // If the question isn't answered, the button should be disabled
+          shouldBeEnabled = false;
+        } else {
+          // If the question is answered, apply the other conditions
+          shouldBeEnabled = !isLoading && isOptionSelected;
+        }
+        
+        console.log('Button should be enabled:', shouldBeEnabled);
+        console.log('Reasons:', {
+          questionAnswered: isAnswered,
+          notLoading: !isLoading,
+          optionSelected: isOptionSelected
+        });
+        
         return shouldBeEnabled;
       }),
       distinctUntilChanged(),
       tap(isEnabled => {
-        console.log('Final button state (after distinctUntilChanged):', isEnabled);
+        console.log('Final button enabled state:', isEnabled);
       }),
       shareReplay(1)
     );
   
-    // Subscribe to ensure the observable is active
-    this.isButtonEnabled$.subscribe();
+    // Subscribe to the observable to ensure it's active
+    this.isButtonEnabled$.subscribe(isEnabled => {
+      console.log('isButtonEnabled$ emitted:', isEnabled);
+    });
   }
 
   ngOnDestroy(): void {
