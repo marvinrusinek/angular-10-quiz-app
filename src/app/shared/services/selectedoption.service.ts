@@ -32,15 +32,16 @@ export class SelectedOptionService {
   }
 
   setSelectedOption(option: SelectedOption): void {
+    this.selectedOption = option;
     this.selectedOptionSubject.next(option);
+    this.isOptionSelectedSubject.next(true);
+
     const currentFeedback = { ...this.showFeedbackForOptionSubject.value };
     currentFeedback[option.optionId] = true;
     for (const key of Object.keys(currentFeedback)) {
       currentFeedback[key] = false;
     }
     this.showFeedbackForOptionSubject.next(currentFeedback);
-    this.selectedOption = option;
-    this.isOptionSelectedSubject.next(true);
     this.updateAnsweredState();
   }
 
