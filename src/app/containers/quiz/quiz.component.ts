@@ -296,12 +296,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       selectedOption: [null]
     });
 
+    // Create an observable that emits true when an option is selected
     this.isAnswered$ = this.formGroup.get('selectedOption').valueChanges.pipe(
       map(value => value !== null),
       startWith(false)
     );
 
-    this.isLoading$ = this.quizStateService.isLoading$;
+    // Initialize isLoading$ with an initial value
+    // this.isLoading$ = this.quizStateService.isLoading$;
+    this.isLoading$ = this.quizStateService.isLoading$.pipe(
+      startWith(false)
+    );
 
     this.initializeNextButtonState();
 
@@ -350,15 +355,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
   } */
   private initializeNextButtonState(): void {
-    this.isButtonEnabled$ = combineLatest([
-      this.isLoading$,
-      this.isAnswered$
-    ]).pipe(
-      map(([isLoading, isAnswered]) => {
-        console.log('isLoading:', isLoading, 'isAnswered:', isAnswered);
-        return !isLoading && isAnswered;
-      }),
-      distinctUntilChanged()
+    // Combine isAnswered$ and isLoading$ to determine if the button should be enabled
+    this.isButtonEnabled$ = combineLatest([this.isAnswered$, this.isLoading$]).pipe(
+      map(([isAnswered, isLoading]) => isAnswered && !isLoading)
     );
   }
   
