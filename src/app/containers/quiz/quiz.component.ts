@@ -305,7 +305,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
 
     // Subscribe to isAnswered$ for debugging
-    this.isAnswered$.subscribe(value => {
+    this.isAnswered$.pipe(takeUntil(this.destroy$)).subscribe(value => {
       console.log('isAnswered$ emits:', value);
     });
 
@@ -364,13 +364,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
   } */
   private initializeNextButtonState(): void {
+    // Combine isAnswered$ and isLoading$ to determine if the button should be enabled
     this.isButtonEnabled$ = combineLatest([this.isAnswered$, this.isLoading$]).pipe(
       map(([isAnswered, isLoading]) => {
-        const isEnabled = isAnswered && !isLoading;
-        console.log(`isButtonEnabled$ emits: ${isEnabled} (isAnswered: ${isAnswered}, isLoading: ${isLoading})`);
-        return isEnabled;
-      })
+        console.log(`isAnswered: ${isAnswered}, isLoading: ${isLoading}`);
+        return isAnswered && !isLoading;
+      }),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
     );
+
+    // Subscribe to isButtonEnabled$ for debugging
+    this.isButtonEnabled$.subscribe(enabled => {
+      console.log(`isButtonEnabled$ emits: ${enabled}`);
+    });
   }
   
   
