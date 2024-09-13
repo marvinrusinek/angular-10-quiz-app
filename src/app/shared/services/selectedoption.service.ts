@@ -27,6 +27,10 @@ export class SelectedOptionService {
 
   constructor(private quizService: QuizService) {}
 
+  get currentSelectedState(): boolean {
+    return this.isOptionSelectedSubject.getValue();
+  }
+
   setSelectedOption(option: SelectedOption): void {
     this.selectedOptionSubject.next(option);
     const currentFeedback = { ...this.showFeedbackForOptionSubject.value };
