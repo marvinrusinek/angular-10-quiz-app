@@ -324,6 +324,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       distinctUntilChanged(),
       map(([isLoading, isAnswered, isOptionSelected]) => {
         console.log('State changed:', { isLoading, isAnswered, isOptionSelected });
+        console.log('Current option selected state:', this.selectedOptionService.getCurrentOptionSelectedState());
         
         const shouldBeEnabled = !isLoading && isOptionSelected && !isAnswered;
         console.log('Button should be enabled:', shouldBeEnabled);
