@@ -40,6 +40,7 @@ export class SelectedOptionService {
     }
     this.showFeedbackForOptionSubject.next(currentFeedback);
     this.selectedOption = option;
+    this.isOptionSelectedSubject.next(true);
     this.updateAnsweredState();
   }
 
