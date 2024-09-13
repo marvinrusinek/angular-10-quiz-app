@@ -289,8 +289,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.log('Button enabled:', isEnabled)
     );
 
-    this.initializeButtonStateListener();
-
+    // this.initializeButtonStateListener();
+    this.subscribeToStateChanges();
+    
     this.subscribeToSelectionMessage();
 
     // Initialize route parameters and subscribe to updates
@@ -308,7 +309,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.checkIfAnswerSelected(true);
   }
 
-  private initializeButtonStateListener(): void {
+  /* private initializeButtonStateListener(): void {
     combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$,
@@ -327,6 +328,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     const shouldBeEnabled = !isLoading && isOptionSelected && !isAnswered;
 
     console.log('QuizComponent: Calculated button state:', shouldBeEnabled);
+    this.isButtonEnabledSubject.next(shouldBeEnabled);
+  } */
+
+  private subscribeToStateChanges(): void {
+    this.quizStateService.isLoading$.pipe(takeUntil(this.destroy$)).subscribe(isLoading => {
+      this.isLoading = isLoading;
+      this.updateButtonState();
+    });
+
+    this.quizStateService.isAnswered$.pipe(takeUntil(this.destroy$)).subscribe(isAnswered => {
+      this.isAnswered = isAnswered;
+      this.updateButtonState();
+    });
+
+    this.selectedOptionService.isOptionSelected$().pipe(takeUntil(this.destroy$)).subscribe(isOptionSelected => {
+      this.isOptionSelected = isOptionSelected;
+      this.updateButtonState();
+    });
+  }
+
+  private updateButtonState(): void {
+    const shouldBeEnabled = !this.isLoading && this.isOptionSelected && !this.isAnswered;
+    console.log('Updating button state:', { 
+      isLoading: this.isLoading, 
+      isAnswered: this.isAnswered, 
+      isOptionSelected: this.isOptionSelected, 
+      shouldBeEnabled 
+    });
     this.isButtonEnabledSubject.next(shouldBeEnabled);
   }
 
