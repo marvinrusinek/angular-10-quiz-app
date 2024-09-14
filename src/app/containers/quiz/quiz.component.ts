@@ -291,7 +291,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
 
     // this.initializeButtonStateListener();
-    this.subscribeToStateChanges();
+    // this.subscribeToStateChanges();
+    this.initializeNextButtonState();
 
     this.subscribeToSelectionMessage();
 
@@ -332,7 +333,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isButtonEnabledSubject.next(shouldBeEnabled);
   } */
 
-  private subscribeToStateChanges(): void {
+  /* private subscribeToStateChanges(): void {
     combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$,
@@ -348,6 +349,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private updateButtonState(isLoading: boolean, isAnswered: boolean, isOptionSelected: boolean): void {
     this.isButtonEnabled = !isLoading && isOptionSelected && !isAnswered;
     console.log('Button state updated:', this.isButtonEnabled);
+  } */
+
+  initializeNextButtonState(): void { 
+    this.isButtonEnabled$ = combineLatest([
+      this.quizStateService.isLoading$,
+      this.quizStateService.isAnswered$,
+      this.selectedOptionService.isOptionSelected$()
+    ]).pipe(
+      takeUntil(this.destroy$),
+      map(([isLoading, isAnswered, isOptionSelected]) => {
+        // Enable the button if not loading, not answered, and an option is selected
+        return !isLoading && isOptionSelected && !isAnswered;
+      }),
+      tap(isEnabled => {
+        console.log('Final button enabled state:', isEnabled);
+      })
+    );
+  
+    this.isButtonEnabled$.subscribe();
   }
 
   ngOnDestroy(): void {
