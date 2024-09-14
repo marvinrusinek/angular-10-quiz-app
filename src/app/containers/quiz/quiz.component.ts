@@ -303,7 +303,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.checkIfAnswerSelected(true);
   }
 
-  initializeNextButtonState(): void {
+  /* initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$,
@@ -334,6 +334,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.log('isButtonEnabled$ emitted:', isEnabled);
       this.cdRef.markForCheck();
     });
+  } */
+  initializeNextButtonState() {
+    this.isButtonEnabled$ = combineLatest([
+      this.quizStateService.isLoading$,
+      this.quizStateService.isAnswered$,
+      this.selectedOptionService.isOptionSelected$
+    ]).pipe(
+      map(([isLoading, isAnswered, isOptionSelected]) => 
+        !isLoading && !isAnswered && isOptionSelected
+      )
+    );
   }
 
 
