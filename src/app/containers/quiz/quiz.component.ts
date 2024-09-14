@@ -460,18 +460,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.markForCheck();
   } */
   initializeNextButtonState(): void {
-    console.log("MY TEST123");
     this.isButtonEnabled$ = combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$,
       this.selectedOptionService.isOptionSelected$(),
     ]).pipe(
       map(([isLoading, isAnswered, isOptionSelected]) => {
-        console.log('isLoading:', isLoading);
-        console.log('isAnswered:', isAnswered);
-        console.log('isOptionSelected:', isOptionSelected);
         const shouldEnable = !isLoading && !isAnswered && isOptionSelected;
-        console.log('Button should be enabled:', shouldEnable);
         return shouldEnable;
       }),
       distinctUntilChanged()
