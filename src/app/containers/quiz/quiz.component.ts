@@ -294,9 +294,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
 
     // Subscribe to log state changes (for debugging)
-    this.isButtonEnabled$.subscribe((isEnabled) =>
-      console.log('Button enabled:', isEnabled)
-    );
+    this.isButtonEnabled$.subscribe(isEnabled => {
+      console.log('Button enabled state changed:', isEnabled);
+    });
 
     // this.initializeButtonStateListener();
     // this.subscribeToStateChanges();
@@ -470,13 +470,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       isOptionSelected: this.selectedOptionService.isOptionSelected$()
     }).pipe(
       map(({ isLoading, isAnswered, isOptionSelected }) => {
-        return !isLoading && !isAnswered && isOptionSelected;
+        const isEnabled = !isLoading && !isAnswered && isOptionSelected;
+        return isEnabled;
       }),
       distinctUntilChanged()
     );
   
-    // Trigger change detection
-    this.isButtonEnabled$.subscribe(() => {
+    this.isButtonEnabled$.subscribe(isEnabled => {
+      console.log('Final button state:', isEnabled);
       this.cdRef.markForCheck();
     });
   }
