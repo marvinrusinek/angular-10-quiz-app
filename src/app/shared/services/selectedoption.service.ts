@@ -59,9 +59,9 @@ export class SelectedOptionService {
     
     // Set feedback for all other options to false
     for (const key of Object.keys(currentFeedback)) {
-        if (key !== option.optionId.toString()) {
-            currentFeedback[key] = false;
-        }
+      if (key !== option.optionId.toString()) {
+        currentFeedback[key] = false;
+      }
     }
     
     // Update the showFeedbackForOptionSubject with the new feedback state
