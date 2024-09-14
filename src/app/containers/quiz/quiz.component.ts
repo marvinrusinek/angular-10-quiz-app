@@ -417,28 +417,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isButtonEnabled$ = combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$,
-      this.selectedOptionService.isOptionSelected$() // Note the parentheses here
+      this.selectedOptionService.isOptionSelected$()
     ]).pipe(
       tap(([isLoading, isAnswered, isOptionSelected]) => {
         console.log('State changed:', { isLoading, isAnswered, isOptionSelected });
       }),
       map(([isLoading, isAnswered, isOptionSelected]) => {
-        let shouldEnable = false;
-        console.log("IS SELECTED", isOptionSelected);
-  
-        if (!isLoading && !isAnswered) {
-          if (isOptionSelected) {
-            shouldEnable = true;
-          } else {
-            // Additional conditional logic
-            // Check if an option is selected via another method if isOptionSelected is false
-            const currentOptionSelected = this.selectedOptionService.getCurrentOptionSelectedState();
-            if (currentOptionSelected) {
-              shouldEnable = true;
-            }
-          }
-        }
-  
+        const shouldEnable = !isLoading && !isAnswered && isOptionSelected;
         console.log('Button should be enabled:', shouldEnable);
         console.log('Reasons:', {
           notLoading: !isLoading,
