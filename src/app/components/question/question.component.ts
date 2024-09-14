@@ -1565,10 +1565,9 @@ export class QuizQuestionComponent
       selectedOption
     );
     this.selectedOptionService.setOptionSelected(true);
-    this.isFirstQuestion = false; // Reset after the first option click
-    this.answerSelected.emit(true);
-    this.selectedOptionService.setOptionSelected(true);
     this.selectedOptionService.setAnsweredState(true);
+    this.answerSelected.emit(true);
+    this.isFirstQuestion = false; // Reset after the first option click
   }
 
   private async updateSelectionMessageBasedOnCurrentState(
