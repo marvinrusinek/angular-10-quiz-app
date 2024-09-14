@@ -303,50 +303,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.checkIfAnswerSelected(true);
   }
 
-  /* initializeNextButtonState(): void {
-    this.isButtonEnabled$ = combineLatest([
-      this.quizStateService.isLoading$,
-      this.quizStateService.isAnswered$,
-      this.selectedOptionService.isOptionSelected$()
-    ]).pipe(
-      tap(([isLoading, isAnswered, isOptionSelected]) => {
-        console.log('State changed:', { isLoading, isAnswered, isOptionSelected });
-      }),
-      map(([isLoading, isAnswered, isOptionSelected]) => {
-        const shouldEnable = !isLoading && !isAnswered && isOptionSelected;
-        console.log('Button should be enabled:', shouldEnable);
-        console.log('Reasons:', {
-          notLoading: !isLoading,
-          notAnswered: !isAnswered,
-          optionSelected: isOptionSelected
-        });
-        return shouldEnable;
-      }),
+  initializeNextButtonState() {
+    this.isButtonEnabled$ = combineLatest({
+      isLoading: this.quizStateService.isLoading$,
+      isAnswered: this.quizStateService.isAnswered$,
+      isOptionSelected: this.selectedOptionService.isOptionSelected$()
+    }).pipe(
+      map(({ isLoading, isAnswered, isOptionSelected }) => 
+        !isLoading && !isAnswered && isOptionSelected
+      ),
       distinctUntilChanged(),
-      tap(isEnabled => {
-        console.log('Final button enabled state:', isEnabled);
-      }),
       shareReplay(1)
     );
-  
-    // Subscribe to ensure the observable stays active and trigger change detection
-    this.isButtonEnabled$.subscribe(isEnabled => {
-      console.log('isButtonEnabled$ emitted:', isEnabled);
-      this.cdRef.markForCheck();
-    });
-  } */
-  initializeNextButtonState() {
-    this.isButtonEnabled$ = combineLatest([
-      this.quizStateService.isLoading$,
-      this.quizStateService.isAnswered$,
-      this.selectedOptionService.isOptionSelected$
-    ]).pipe(
-      map(([isLoading, isAnswered, isOptionSelected]) => 
-        !isLoading && !isAnswered && isOptionSelected
-      )
-    );
   }
-
 
   ngOnDestroy(): void {
     this.destroy$.next();
