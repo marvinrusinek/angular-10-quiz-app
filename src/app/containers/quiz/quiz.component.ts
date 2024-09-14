@@ -284,8 +284,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.log('isOptionSelected$ emitted:', isSelected);
     });
 
-    // this.initializeButtonStateListener();
-    // this.subscribeToStateChanges();
     this.initializeNextButtonState();
 
     this.subscribeToSelectionMessage();

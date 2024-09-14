@@ -1321,6 +1321,7 @@ export class QuizQuestionComponent
     this.optionSelected.emit(option); // Emit the selected option
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswerSelected(false);
+    this.selectedOptionService.setSelectedOption(option);
 
     // Access the loadingSubject directly to get the current value
     if (!this.quizStateService.isLoading()) {
