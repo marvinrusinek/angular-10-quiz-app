@@ -449,38 +449,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isButtonEnabledSubject.next(shouldEnable);
     this.cdRef.markForCheck();
   } */
-  initializeNextButtonState(): void {
-    if (!this.quizStateService.isLoading$) {
-      console.error('isLoading$ is undefined');
-      return;
-    }
-    if (!this.quizStateService.isAnswered$) {
-      console.error('isAnswered$ is undefined');
-      return;
-    }
-    if (!this.selectedOptionService.isOptionSelected$) {
-      console.error('isOptionSelected$ is undefined');
-      return;
-    }
-  
-    this.isButtonEnabled$ = combineLatest({
-      isLoading: this.quizStateService.isLoading$,
-      isAnswered: this.quizStateService.isAnswered$,
-      isOptionSelected: this.selectedOptionService.isOptionSelected$()
-    }).pipe(
-      map(({ isLoading, isAnswered, isOptionSelected }) => {
-        return !isLoading && !isAnswered && isOptionSelected;
-      }),
-      distinctUntilChanged()
+  initializeNextButtonState() {
+    this.isButtonEnabled$ = combineLatest([
+      this.quizStateService.isLoading$,
+      this.quizStateService.isAnswered$,
+      this.selectedOptionService.isOptionSelected$
+    ]).pipe(
+      map(([isLoading, isAnswered, isOptionSelected]) => 
+        !isLoading && !isAnswered && isOptionSelected
+      )
     );
-  
-    // Log initial state
-    this.isButtonEnabled$.pipe(
-      take(1),
-      tap(isEnabled => {
-        console.log('Initial button state:', isEnabled);
-      })
-    ).subscribe();
   }
 
   ngOnDestroy(): void {
