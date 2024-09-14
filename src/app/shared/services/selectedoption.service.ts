@@ -23,7 +23,8 @@ export class SelectedOptionService {
   isAnsweredSubject = new BehaviorSubject<boolean>(false);
   isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable();
 
-  private showFeedbackForOptionSubject = new BehaviorSubject<{ [optionId: number]: boolean }>({});
+  // private showFeedbackForOptionSubject = new BehaviorSubject<{ [optionId: number]: boolean }>({});
+  private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
   showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
 
   constructor(private quizService: QuizService) {}
@@ -47,17 +48,25 @@ export class SelectedOptionService {
     console.log('Setting selected option:', option);
     this.selectedOptionSubject.next(option);
     console.log('Selected option set, current value:', this.selectedOptionSubject.getValue());
-  
+
     this.isOptionSelectedSubject.next(true);
-  
-    const currentFeedback = { ...this.showFeedbackForOptionSubject.value };
+
+    // Initialize currentFeedback with the current value from showFeedbackForOptionSubject
+    const currentFeedback: Record<string, boolean> = { ...this.showFeedbackForOptionSubject.value };
+    
+    // Set the selected option's feedback to true
     currentFeedback[option.optionId.toString()] = true;
+    
+    // Set feedback for all other options to false
     for (const key of Object.keys(currentFeedback)) {
-      if (key !== option.optionId.toString()) {
-        currentFeedback[key] = false;
-      }
+        if (key !== option.optionId.toString()) {
+            currentFeedback[key] = false;
+        }
     }
+    
+    // Update the showFeedbackForOptionSubject with the new feedback state
     this.showFeedbackForOptionSubject.next(currentFeedback);
+
     this.updateAnsweredState();
   }
 
