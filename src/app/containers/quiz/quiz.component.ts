@@ -369,17 +369,44 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     this.isButtonEnabled$.subscribe();
   } */
-  initializeNextButtonState(): void { 
-    this.isButtonEnabled$ = this.selectedOptionService.isOptionSelected$().pipe(
-        takeUntil(this.destroy$),
-        map(isOptionSelected => {
-            console.log('Is Option Selected:', isOptionSelected);
-            return isOptionSelected;
+  initializeNextButtonState(): void {
+    this.isButtonEnabled$ = combineLatest([
+        this.quizStateService.isLoading$,      // Emits true if the question is loading
+        this.quizStateService.isAnswered$,     // Emits true if the question is answered
+        this.selectedOptionService.isOptionSelected$() // Emits true if an option is selected
+    ]).pipe(
+        map(([isLoading, isAnswered, isOptionSelected]) => {
+            // Condition 1: If the question is loading, disable the button
+            if (isLoading) {
+                console.log('Button disabled because the question is still loading.');
+                return false;
+            }
+
+            // Condition 2: If the question is already answered, disable the button
+            if (isAnswered) {
+                console.log('Button disabled because the question has been answered.');
+                return false;
+            }
+
+            // Condition 3: If an option is selected, enable the button
+            if (isOptionSelected) {
+                console.log('Button enabled because an option is selected.');
+                return true;
+            }
+
+            // Default: Disable the button if no conditions are met
+            console.log('Button disabled because no option is selected.');
+            return false;
+        }),
+        tap(isEnabled => {
+            console.log('Final button enabled state:', isEnabled);
         })
     );
 
+    // Subscribe to ensure the observable stays active
     this.isButtonEnabled$.subscribe();
   }
+
 
   ngOnDestroy(): void {
     this.destroy$.next();
