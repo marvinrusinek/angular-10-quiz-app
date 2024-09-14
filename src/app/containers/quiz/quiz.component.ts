@@ -371,40 +371,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
   initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
-      this.quizStateService.isLoading$,
-      this.quizStateService.isAnswered$,
+      this.quizStateService.isLoading$, 
+      this.quizStateService.isAnswered$, 
       this.selectedOptionService.isOptionSelected$()
     ]).pipe(
-      tap(([isLoading, isAnswered, isOptionSelected]) => {
-        console.log('Raw state:', { isLoading, isAnswered, isOptionSelected });
-      }),
       map(([isLoading, isAnswered, isOptionSelected]) => {
-        if (isLoading) {
-          console.log('Button disabled: question is loading');
-          return false;
-        }
-        if (isAnswered) {
-          console.log('Button disabled: question is answered');
-          return false;
-        }
-        if (isOptionSelected) {
-          console.log('Button enabled: option is selected');
-          return true;
-        }
-        console.log('Button disabled: no option selected');
-        return false;
-      }),
-      tap(isEnabled => {
-        console.log('Final button state:', isEnabled);
-      }),
-      distinctUntilChanged(),
-      shareReplay(1)
+        // Enable the button only if not loading, not answered, and an option is selected
+        return !isLoading && !isAnswered && isOptionSelected;
+      })
     );
-  
-    // Subscribe to ensure the observable stays active
-    this.isButtonEnabled$.subscribe(isEnabled => {
-      console.log('isButtonEnabled$ emitted:', isEnabled);
-    });
+
+    // Force change detection if needed
+    this.isButtonEnabled$.subscribe(() => this.cdRef.detectChanges());
   }
 
 
