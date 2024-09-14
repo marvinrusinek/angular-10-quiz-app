@@ -379,53 +379,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
   } */
   /* initializeNextButtonState(): void {
-    this.isButtonEnabled$ = combineLatest([
-      this.quizStateService.isLoading$,
-      this.quizStateService.isAnswered$,
-      this.selectedOptionService.isOptionSelected$()
-    ]).pipe(
-      tap(([isLoading, isAnswered, isOptionSelected]) => {
-        console.log('State changed:', { isLoading, isAnswered, isOptionSelected });
-      }),
-      map(([isLoading, isAnswered, isOptionSelected]) => {
-        let shouldEnable = false;
-        console.log("IS SELECTED", isOptionSelected);
-  
-        if (!isLoading && !isAnswered) {
-          if (isOptionSelected) {
-            shouldEnable = true;
-          } else {
-            // Additional conditional logic
-            // Check if an option is selected via another method if isOptionSelected is false
-            const currentOptionSelected = this.selectedOptionService.getCurrentOptionSelectedState();
-            if (currentOptionSelected) {
-              shouldEnable = true;
-            }
-          }
-        }
-  
-        console.log('Button should be enabled:', shouldEnable);
-        console.log('Reasons:', {
-          notLoading: !isLoading,
-          notAnswered: !isAnswered,
-          optionSelected: isOptionSelected
-        });
-        return shouldEnable;
-      }),
-      distinctUntilChanged(),
-      tap(isEnabled => {
-        console.log('Final button enabled state:', isEnabled);
-      }),
-      shareReplay(1)
-    );
-  
-    // Subscribe to ensure the observable stays active and trigger change detection
-    this.isButtonEnabled$.subscribe(isEnabled => {
-      console.log('isButtonEnabled$ emitted:', isEnabled);
-      this.cdRef.markForCheck();
-    });
-  } */
-  /* initializeNextButtonState(): void {
     combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$,
@@ -449,7 +402,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isButtonEnabledSubject.next(shouldEnable);
     this.cdRef.markForCheck();
   } */
-  initializeNextButtonState() {
+  /* initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$,
@@ -459,7 +412,55 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         !isLoading && !isAnswered && isOptionSelected
       )
     );
+  } */
+  initializeNextButtonState(): void {
+    this.isButtonEnabled$ = combineLatest([
+      this.quizStateService.isLoading$,
+      this.quizStateService.isAnswered$,
+      this.selectedOptionService.isOptionSelected$
+    ]).pipe(
+      tap(([isLoading, isAnswered, isOptionSelected]) => {
+        console.log('State changed:', { isLoading, isAnswered, isOptionSelected });
+      }),
+      map(([isLoading, isAnswered, isOptionSelected]) => {
+        let shouldEnable = false;
+        console.log("IS SELECTED", isOptionSelected);
+
+        if (!isLoading && !isAnswered) {
+          if (isOptionSelected) {
+            shouldEnable = true;
+          } else {
+            // Additional conditional logic
+            // Check if an option is selected via another method if isOptionSelected is false
+            const currentOptionSelected = this.selectedOptionService.getCurrentOptionSelectedState();
+            if (currentOptionSelected) {
+              shouldEnable = true;
+            }
+          }
+        }
+
+        console.log('Button should be enabled:', shouldEnable);
+        console.log('Reasons:', {
+          notLoading: !isLoading,
+          notAnswered: !isAnswered,
+          optionSelected: isOptionSelected
+        });
+        return shouldEnable;
+      }),
+      distinctUntilChanged(),
+      tap(isEnabled => {
+        console.log('Final button enabled state:', isEnabled);
+      }),
+      shareReplay(1)
+    );
+
+    // Subscribe to ensure the observable stays active and trigger change detection
+    this.isButtonEnabled$.subscribe(isEnabled => {
+      console.log('isButtonEnabled$ emitted:', isEnabled);
+      this.cdRef.markForCheck();
+    });
   }
+
 
   ngOnDestroy(): void {
     this.destroy$.next();
