@@ -351,7 +351,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('Button state updated:', this.isButtonEnabled);
   } */
 
-  initializeNextButtonState(): void { 
+  /* initializeNextButtonState(): void { 
     this.isButtonEnabled$ = combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$,
@@ -367,6 +367,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       })
     );
   
+    this.isButtonEnabled$.subscribe();
+  } */
+  initializeNextButtonState(): void { 
+    this.isButtonEnabled$ = this.selectedOptionService.isOptionSelected$().pipe(
+        takeUntil(this.destroy$),
+        map(isOptionSelected => {
+            console.log('Is Option Selected:', isOptionSelected);
+            return isOptionSelected;
+        })
+    );
+
     this.isButtonEnabled$.subscribe();
   }
 
