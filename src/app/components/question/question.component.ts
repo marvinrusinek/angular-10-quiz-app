@@ -1330,7 +1330,7 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  /* public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     if (!option) {
       console.error('Option is undefined');
       return;
@@ -1369,6 +1369,42 @@ export class QuizQuestionComponent
       this.handleError(error);
     } finally {
       this.finalizeLoadingState(); // Ensure loading state is finalized
+    }
+  } */
+  public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+    if (!option) {
+      console.error('Option is undefined');
+      return;
+    }
+
+    this.displayExplanation = false;
+    this.optionSelected.emit(option);
+
+    // Update loading state
+    this.quizStateService.setLoading(true);
+
+    // Update selection state
+    this.selectedOptionService.selectOption(option.optionId);
+
+    try {
+      const questionState = this.initializeQuestionState();
+      questionState.isAnswered = true;
+
+      // Set the answered state
+      this.quizStateService.setAnswerSelected(true);
+
+      // Process the selected option
+      await this.handleOptionProcessingAndFeedback(option, index);
+      await this.updateQuestionState(option);
+      this.handleCorrectAnswers(option);
+
+      // Handle feedback display after processing
+      this.updateFeedback(option);
+      await this.finalizeOptionSelection(option, index, questionState);
+    } catch (error) {
+      this.handleError(error);
+    } finally {
+      this.finalizeLoadingState();
     }
   }
 
