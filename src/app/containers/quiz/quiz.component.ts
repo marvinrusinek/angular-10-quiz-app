@@ -279,6 +279,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isLoading$ = this.quizStateService.isLoading$;
     this.isAnswered$ = this.quizStateService.isAnswered$;
 
+    this.selectedOptionService.isOptionSelected$().subscribe((isSelected) => {
+      console.log('isOptionSelected$ emitted:', isSelected);
+    });
+
     this.isButtonEnabled$ = combineLatest([this.isLoading$, this.isAnswered$]).pipe(
       takeUntil(this.destroy$),
       distinctUntilChanged(),
@@ -384,7 +388,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       shareReplay(1)
     );
   } */
-  initializeNextButtonState(): void {
+  /* initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$,
@@ -430,7 +434,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.log('isButtonEnabled$ emitted:', isEnabled);
       this.cdRef.markForCheck();
     });
+  } */
+  initializeNextButtonState(): void {
+    this.isButtonEnabled$ = combineLatest([
+      this.quizStateService.isLoading$,
+      this.quizStateService.isAnswered$,
+      this.selectedOptionService.isOptionSelected$()
+    ]).pipe(
+      map(([isLoading, isAnswered, isOptionSelected]) => {
+        const shouldEnable = !isLoading && !isAnswered && isOptionSelected;
+        console.log('Button should be enabled:', shouldEnable);
+        return shouldEnable;
+      }),
+      distinctUntilChanged()
+    );
+  
+    // Trigger change detection when the button state changes
+    this.isButtonEnabled$.subscribe(() => {
+      this.cdRef.markForCheck();
+    });
   }
+  
   
   
 
