@@ -467,15 +467,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isButtonEnabled$ = combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$,
-      this.selectedOptionService.isOptionSelected$(),
+      this.selectedOptionService.isOptionSelected$
     ]).pipe(
       map(([isLoading, isAnswered, isOptionSelected]) => {
-        const shouldEnable = !isLoading && !isAnswered && isOptionSelected;
-        return shouldEnable;
+        return !isLoading && !isAnswered && isOptionSelected;
       }),
       distinctUntilChanged()
     );
-
+  
     // Trigger change detection
     this.isButtonEnabled$.subscribe(() => {
       this.cdRef.markForCheck();
@@ -1023,10 +1022,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
   getNextButtonTooltip(): Observable<string> {
     return this.isButtonEnabled$.pipe(
-      map((isEnabled) =>
-        isEnabled ? 'Next Question »' : 'Please select an option to continue...'
-      ),
-      distinctUntilChanged()
+      map(isEnabled => isEnabled ? 'Next Question »' : 'Please select an option to continue...')
     );
   }
 
