@@ -160,7 +160,6 @@ export class QuizQuestionComponent
   isLoadingQuestions = false;
   isFirstQuestion = true;
   isPaused = false;
-  isComponentDestroyed = false;
   lastMessage = '';
   private initialized = false;
   shouldDisplayAnswers = false;
@@ -463,7 +462,6 @@ export class QuizQuestionComponent
       'visibilitychange',
       this.onVisibilityChange.bind(this)
     );
-    this.isComponentDestroyed = true;
     this.destroy$.next();
     this.destroy$.complete();
     this.questionsObservableSubscription?.unsubscribe();
