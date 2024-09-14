@@ -371,40 +371,40 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
   initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
-        this.quizStateService.isLoading$,      // Emits true if the question is loading
-        this.quizStateService.isAnswered$,     // Emits true if the question is answered
-        this.selectedOptionService.isOptionSelected$() // Emits true if an option is selected
+      this.quizStateService.isLoading$,
+      this.quizStateService.isAnswered$,
+      this.selectedOptionService.isOptionSelected$()
     ]).pipe(
-        map(([isLoading, isAnswered, isOptionSelected]) => {
-            // Condition 1: If the question is loading, disable the button
-            if (isLoading) {
-                console.log('Button disabled because the question is still loading.');
-                return false;
-            }
-
-            // Condition 2: If the question is already answered, disable the button
-            if (isAnswered) {
-                console.log('Button disabled because the question has been answered.');
-                return false;
-            }
-
-            // Condition 3: If an option is selected, enable the button
-            if (isOptionSelected) {
-                console.log('Button enabled because an option is selected.');
-                return true;
-            }
-
-            // Default: Disable the button if no conditions are met
-            console.log('Button disabled because no option is selected.');
-            return false;
-        }),
-        tap(isEnabled => {
-            console.log('Final button enabled state:', isEnabled);
-        })
+      tap(([isLoading, isAnswered, isOptionSelected]) => {
+        console.log('Raw state:', { isLoading, isAnswered, isOptionSelected });
+      }),
+      map(([isLoading, isAnswered, isOptionSelected]) => {
+        if (isLoading) {
+          console.log('Button disabled: question is loading');
+          return false;
+        }
+        if (isAnswered) {
+          console.log('Button disabled: question is answered');
+          return false;
+        }
+        if (isOptionSelected) {
+          console.log('Button enabled: option is selected');
+          return true;
+        }
+        console.log('Button disabled: no option selected');
+        return false;
+      }),
+      tap(isEnabled => {
+        console.log('Final button state:', isEnabled);
+      }),
+      distinctUntilChanged(),
+      shareReplay(1)
     );
-
+  
     // Subscribe to ensure the observable stays active
-    this.isButtonEnabled$.subscribe();
+    this.isButtonEnabled$.subscribe(isEnabled => {
+      console.log('isButtonEnabled$ emitted:', isEnabled);
+    });
   }
 
 
