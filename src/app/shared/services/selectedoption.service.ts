@@ -90,15 +90,6 @@ export class SelectedOptionService {
     return this.isOptionSelectedSubject.asObservable();
   }
 
-  selectOption(optionId: string): void {
-    // Update selected option logic
-    this.isOptionSelectedSubject.next(true); // An option is selected
-  }
-
-  clearSelection(): void {
-    this.isOptionSelectedSubject.next(false); // No option selected
-  }
-
   // Method to set the option selected state
   setOptionSelected(isSelected: boolean): void {
     if (this.isOptionSelectedSubject.value !== isSelected) {
