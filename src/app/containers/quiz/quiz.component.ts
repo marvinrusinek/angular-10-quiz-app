@@ -284,20 +284,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.log('isOptionSelected$ emitted:', isSelected);
     });
 
-    this.isButtonEnabled$ = combineLatest([
-      this.isLoading$,
-      this.isAnswered$,
-    ]).pipe(
-      takeUntil(this.destroy$),
-      distinctUntilChanged(),
-      map(([isLoading, isAnswered]) => !isLoading && isAnswered)
-    );
-
-    // Subscribe to log state changes (for debugging)
-    this.isButtonEnabled$.subscribe(isEnabled => {
-      console.log('Button enabled state changed:', isEnabled);
-    });
-
     // this.initializeButtonStateListener();
     // this.subscribeToStateChanges();
     this.initializeNextButtonState();
@@ -464,22 +450,37 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.markForCheck();
   } */
   initializeNextButtonState(): void {
+    if (!this.quizStateService.isLoading$) {
+      console.error('isLoading$ is undefined');
+      return;
+    }
+    if (!this.quizStateService.isAnswered$) {
+      console.error('isAnswered$ is undefined');
+      return;
+    }
+    if (!this.selectedOptionService.isOptionSelected$) {
+      console.error('isOptionSelected$ is undefined');
+      return;
+    }
+  
     this.isButtonEnabled$ = combineLatest({
       isLoading: this.quizStateService.isLoading$,
       isAnswered: this.quizStateService.isAnswered$,
       isOptionSelected: this.selectedOptionService.isOptionSelected$()
     }).pipe(
       map(({ isLoading, isAnswered, isOptionSelected }) => {
-        const isEnabled = !isLoading && !isAnswered && isOptionSelected;
-        return isEnabled;
+        return !isLoading && !isAnswered && isOptionSelected;
       }),
       distinctUntilChanged()
     );
   
-    this.isButtonEnabled$.subscribe(isEnabled => {
-      console.log('Final button state:', isEnabled);
-      this.cdRef.markForCheck();
-    });
+    // Log initial state
+    this.isButtonEnabled$.pipe(
+      take(1),
+      tap(isEnabled => {
+        console.log('Initial button state:', isEnabled);
+      })
+    ).subscribe();
   }
 
   ngOnDestroy(): void {
