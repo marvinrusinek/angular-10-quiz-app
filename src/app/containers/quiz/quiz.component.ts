@@ -436,26 +436,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   } */
   initializeNextButtonState(): void {
-    this.isButtonEnabled$ = combineLatest([
+    combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$,
       this.selectedOptionService.isOptionSelected$()
     ]).pipe(
-      map(([isLoading, isAnswered, isOptionSelected]) => {
-        console.log('isLoading:', isLoading);
-        console.log('isAnswered:', isAnswered);
-        console.log('isOptionSelected:', isOptionSelected);
-        const shouldEnable = !isLoading && !isAnswered && isOptionSelected;
-        console.log('Button should be enabled:', shouldEnable);
-        return shouldEnable;
-      }),
-      distinctUntilChanged()
-    );
-  
-    // Trigger change detection
-    this.isButtonEnabled$.subscribe(() => {
-      this.cdRef.markForCheck();
+      takeUntil(this.destroy$)
+    ).subscribe(([isLoading, isAnswered, isOptionSelected]) => {
+      console.log('State changed:', { isLoading, isAnswered, isOptionSelected });
+      this.updateButtonState(isLoading, isAnswered, isOptionSelected);
     });
+  }
+  
+  private updateButtonState(isLoading: boolean, isAnswered: boolean, isOptionSelected: boolean): void {
+    const shouldEnable = !isLoading && !isAnswered && isOptionSelected;
+    console.log('Updating button state:', { 
+      isLoading, 
+      isAnswered, 
+      isOptionSelected, 
+      shouldEnable 
+    });
+    this.isButtonEnabledSubject.next(shouldEnable);
+    this.cdRef.markForCheck();
   }
   
 
