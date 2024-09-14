@@ -43,7 +43,11 @@ export class SelectedOptionService {
 
   setSelectedOption(option: SelectedOption): void {
     this.selectedOption = option;
+    
+    console.log('Setting selected option:', option);
     this.selectedOptionSubject.next(option);
+    console.log('Selected option set, current value:', this.selectedOptionSubject.getValue());
+
     this.isOptionSelectedSubject.next(true);
 
     const currentFeedback = { ...this.showFeedbackForOptionSubject.value };
