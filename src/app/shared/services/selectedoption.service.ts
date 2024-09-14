@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
@@ -27,20 +28,40 @@ export class SelectedOptionService {
 
   constructor(private quizService: QuizService) {}
 
+  get currentSelectedState(): boolean {
+    return this.isOptionSelectedSubject.getValue();
+  }
+
+  selectOption(optionId: number): void {
+    // Update selected option logic
+    this.isOptionSelectedSubject.next(true); // An option is selected
+  }
+
+  clearSelection(): void {
+    this.isOptionSelectedSubject.next(false); // No option selected
+  }
+
   setSelectedOption(option: SelectedOption): void {
+    this.selectedOption = option;
     this.selectedOptionSubject.next(option);
+    this.isOptionSelectedSubject.next(true);
+
     const currentFeedback = { ...this.showFeedbackForOptionSubject.value };
     currentFeedback[option.optionId] = true;
     for (const key of Object.keys(currentFeedback)) {
       currentFeedback[key] = false;
     }
     this.showFeedbackForOptionSubject.next(currentFeedback);
-    this.selectedOption = option;
     this.updateAnsweredState();
   }
 
   getSelectedOption(): SelectedOption | null {
     return this.selectedOptionSubject.value;
+  }
+
+  // Method to get the current option selected state
+  getCurrentOptionSelectedState(): boolean {
+    return this.isOptionSelectedSubject.getValue();
   }
 
   getShowFeedbackForOption(): { [optionId: number]: boolean } {
@@ -67,8 +88,10 @@ export class SelectedOptionService {
 
   // Observable to get the current option selected state
   isOptionSelected$(): Observable<boolean> {
-    return this.isOptionSelectedSubject.asObservable();
-  }
+    return this.isOptionSelectedSubject.asObservable().pipe(
+      tap((value) => console.log('isOptionSelected$ emitted:', value))
+    );
+  }  
 
   // Method to set the option selected state
   setOptionSelected(isSelected: boolean): void {
@@ -76,12 +99,6 @@ export class SelectedOptionService {
       this.isOptionSelectedSubject.next(isSelected);
     }
   }
-
-  // Method to get the current option selected state
-  getCurrentOptionSelectedState(): boolean {
-    return this.isOptionSelectedSubject.value;
-  }
-
 
   getSelectedOptionIndices(questionIndex: number): number[] {
     const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
@@ -187,10 +204,6 @@ export class SelectedOptionService {
     hasSelectedOptions ? this.setAnsweredState(true) : this.setAnsweredState(false);
   }
 
-  // Method to update the isAnswered state
-  /* setAnsweredState(isAnswered: boolean): void {
-    this.isAnsweredSubject.next(isAnswered);
-  } */
   setAnsweredState(isAnswered: boolean): void {
     // Emit only if the answered state has actually changed
     if (this.isAnsweredSubject.getValue() !== isAnswered) {
@@ -205,5 +218,13 @@ export class SelectedOptionService {
 
   resetAnsweredState(): void {
     this.isAnsweredSubject.next(false);
+    this.selectedOptionSubject.next(null);
+    this.showFeedbackForOptionSubject.next({});
+    this.selectedOption = null;
+    this.isOptionSelectedSubject.next(false);
+  }
+
+  resetSelectedOption(): void {
+    this.isOptionSelectedSubject.next(false);
   }
 }
