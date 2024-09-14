@@ -442,6 +442,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.selectedOptionService.isOptionSelected$()
     ]).pipe(
       map(([isLoading, isAnswered, isOptionSelected]) => {
+        console.log('isLoading:', isLoading);
+        console.log('isAnswered:', isAnswered);
+        console.log('isOptionSelected:', isOptionSelected);
         const shouldEnable = !isLoading && !isAnswered && isOptionSelected;
         console.log('Button should be enabled:', shouldEnable);
         return shouldEnable;
@@ -449,14 +452,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       distinctUntilChanged()
     );
   
-    // Trigger change detection when the button state changes
+    // Trigger change detection
     this.isButtonEnabled$.subscribe(() => {
       this.cdRef.markForCheck();
     });
-  }
-  
-  
-  
+  }  
 
   ngOnDestroy(): void {
     this.destroy$.next();
