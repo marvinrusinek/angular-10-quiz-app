@@ -1475,7 +1475,7 @@ export class QuizQuestionComponent
     // Find the index of the selected option
     const selectedIndex = this.optionsToDisplay.findIndex(opt => opt.optionId === option.optionId);
     if (selectedIndex !== -1) {
-      this.updateSelectedOption(selectedIndex);
+      this.processOptionSelectionAndUpdateState(selectedIndex);
     }
   
     this.selectedOptionService.setOptionSelected(true);
@@ -1553,7 +1553,7 @@ export class QuizQuestionComponent
     this.selectionMessageService.resetMessage();
   }
 
-  private updateSelectedOption(index: number): void {
+  private processOptionSelectionAndUpdateState(index: number): void {
     const option = this.question.options[index];
     const selectedOption: SelectedOption = {
       optionId: option.optionId,
