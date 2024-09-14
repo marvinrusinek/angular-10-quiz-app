@@ -1496,7 +1496,7 @@ export class QuizQuestionComponent
       );
     }
 
-    this.toggleSelectedOption(option);
+    this.handleOptionClick(option);
     this.selectedOptionService.setOptionSelected(true);
     this.selectedOptionService.setSelectedOption(option);
     this.selectedOptionService.setAnsweredState(true);
@@ -1572,7 +1572,7 @@ export class QuizQuestionComponent
     this.selectionMessageService.resetMessage();
   }
 
-  private toggleSelectedOption(option: SelectedOption): void {
+  private handleOptionClick(option: SelectedOption): void {
     const selectedOption: SelectedOption = {
       optionId: option.optionId,
       questionIndex: this.currentQuestionIndex,
