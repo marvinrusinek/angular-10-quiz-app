@@ -184,6 +184,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   isButtonEnabled$: Observable<boolean>;
+  isButtonEnabled = false;
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
 
@@ -291,7 +292,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // this.initializeButtonStateListener();
     this.subscribeToStateChanges();
-    
+
     this.subscribeToSelectionMessage();
 
     // Initialize route parameters and subscribe to updates
@@ -332,31 +333,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
 
   private subscribeToStateChanges(): void {
-    this.quizStateService.isLoading$.pipe(takeUntil(this.destroy$)).subscribe(isLoading => {
-      this.isLoading = isLoading;
-      this.updateButtonState();
-    });
-
-    this.quizStateService.isAnswered$.pipe(takeUntil(this.destroy$)).subscribe(isAnswered => {
-      this.isAnswered = isAnswered;
-      this.updateButtonState();
-    });
-
-    this.selectedOptionService.isOptionSelected$().pipe(takeUntil(this.destroy$)).subscribe(isOptionSelected => {
-      this.isOptionSelected = isOptionSelected;
-      this.updateButtonState();
+    combineLatest([
+      this.quizStateService.isLoading$,
+      this.quizStateService.isAnswered$,
+      this.selectedOptionService.isOptionSelected$()
+    ]).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(([isLoading, isAnswered, isOptionSelected]) => {
+      console.log('State changed:', { isLoading, isAnswered, isOptionSelected });
+      this.updateButtonState(isLoading, isAnswered, isOptionSelected);
     });
   }
 
-  private updateButtonState(): void {
-    const shouldBeEnabled = !this.isLoading && this.isOptionSelected && !this.isAnswered;
-    console.log('Updating button state:', { 
-      isLoading: this.isLoading, 
-      isAnswered: this.isAnswered, 
-      isOptionSelected: this.isOptionSelected, 
-      shouldBeEnabled 
-    });
-    this.isButtonEnabledSubject.next(shouldBeEnabled);
+  private updateButtonState(isLoading: boolean, isAnswered: boolean, isOptionSelected: boolean): void {
+    this.isButtonEnabled = !isLoading && isOptionSelected && !isAnswered;
+    console.log('Button state updated:', this.isButtonEnabled);
   }
 
   ngOnDestroy(): void {
