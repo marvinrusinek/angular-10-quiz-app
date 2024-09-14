@@ -1330,47 +1330,6 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  /* public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    if (!option) {
-      console.error('Option is undefined');
-      return;
-    }
-
-    this.displayExplanation = false; // Reset display flag
-    this.optionSelected.emit(option); // Emit the selected option
-    this.quizStateService.setLoading(true);
-    this.quizStateService.setAnswerSelected(false);
-    this.selectedOptionService.setOptionSelected(true);
-    this.selectedOptionService.setSelectedOption(option);
-    this.selectedOptionService.selectOption(option.optionId); 
-
-    // Access the loadingSubject directly to get the current value
-    if (!this.quizStateService.isLoading()) {
-      this.quizStateService.startLoading();  // Start loading only if it's not already loading
-    }
-
-    try {
-      const questionState = this.initializeQuestionState();
-      questionState.isAnswered = true;
-
-      if (!this.quizStateService.isAnswered$) {
-        this.quizStateService.setAnswerSelected(true);
-      }
-
-      // Process the selected option
-      await this.handleOptionProcessingAndFeedback(option, index);
-      await this.updateQuestionState(option);
-      this.handleCorrectAnswers(option);
-
-      // Handle feedback display after processing
-      this.updateFeedback(option);
-      await this.finalizeOptionSelection(option, index, questionState);
-    } catch (error) {
-      this.handleError(error);
-    } finally {
-      this.finalizeLoadingState(); // Ensure loading state is finalized
-    }
-  } */
   public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     if (!option) {
       console.error('Option is undefined');
