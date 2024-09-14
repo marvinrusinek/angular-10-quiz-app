@@ -395,6 +395,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }),
       map(([isLoading, isAnswered, isOptionSelected]) => {
         let shouldEnable = false;
+        console.log("IS SELECTED", isOptionSelected);
   
         if (!isLoading && !isAnswered) {
           if (isOptionSelected) {

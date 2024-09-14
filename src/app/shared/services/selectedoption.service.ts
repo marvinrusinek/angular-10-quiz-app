@@ -31,7 +31,7 @@ export class SelectedOptionService {
     return this.isOptionSelectedSubject.getValue();
   }
 
-  selectOption(optionId: string): void {
+  selectOption(optionId: number): void {
     // Update selected option logic
     this.isOptionSelectedSubject.next(true); // An option is selected
   }
