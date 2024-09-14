@@ -31,6 +31,15 @@ export class SelectedOptionService {
     return this.isOptionSelectedSubject.getValue();
   }
 
+  selectOption(optionId: string): void {
+    // Update selected option logic
+    this.isOptionSelectedSubject.next(true); // An option is selected
+  }
+
+  clearSelection(): void {
+    this.isOptionSelectedSubject.next(false); // No option selected
+  }
+
   setSelectedOption(option: SelectedOption): void {
     this.selectedOption = option;
     this.selectedOptionSubject.next(option);
