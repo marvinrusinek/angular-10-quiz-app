@@ -417,7 +417,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isButtonEnabled$ = combineLatest([
       this.quizStateService.isLoading$,
       this.quizStateService.isAnswered$,
-      this.selectedOptionService.isOptionSelected$
+      this.selectedOptionService.isOptionSelected$() // Note the parentheses here
     ]).pipe(
       tap(([isLoading, isAnswered, isOptionSelected]) => {
         console.log('State changed:', { isLoading, isAnswered, isOptionSelected });
@@ -425,7 +425,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       map(([isLoading, isAnswered, isOptionSelected]) => {
         let shouldEnable = false;
         console.log("IS SELECTED", isOptionSelected);
-
+  
         if (!isLoading && !isAnswered) {
           if (isOptionSelected) {
             shouldEnable = true;
@@ -438,7 +438,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             }
           }
         }
-
+  
         console.log('Button should be enabled:', shouldEnable);
         console.log('Reasons:', {
           notLoading: !isLoading,
@@ -453,7 +453,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }),
       shareReplay(1)
     );
-
+  
     // Subscribe to ensure the observable stays active and trigger change detection
     this.isButtonEnabled$.subscribe(isEnabled => {
       console.log('isButtonEnabled$ emitted:', isEnabled);
