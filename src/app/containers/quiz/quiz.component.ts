@@ -456,7 +456,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isButtonEnabled$.subscribe(() => {
       this.cdRef.markForCheck();
     });
-  }  
+  }
+  
 
   ngOnDestroy(): void {
     this.destroy$.next();
