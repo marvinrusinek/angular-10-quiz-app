@@ -376,19 +376,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.selectedOptionService.isOptionSelected$()
     ]).pipe(
       tap(([isLoading, isAnswered, isOptionSelected]) => {
-        // Log the values to debug
-        console.log('isLoading:', isLoading, 'isAnswered:', isAnswered, 'isOptionSelected:', isOptionSelected);
+        console.log('State changed:', { isLoading, isAnswered, isOptionSelected });
       }),
       map(([isLoading, isAnswered, isOptionSelected]) => {
-        // Enable the button only if not loading, not answered, and an option is selected
         const shouldEnable = !isLoading && !isAnswered && isOptionSelected;
         console.log('Button should be enabled:', shouldEnable);
+        console.log('Reasons:', {
+          notLoading: !isLoading,
+          notAnswered: !isAnswered,
+          optionSelected: isOptionSelected
+        });
         return shouldEnable;
-      })
+      }),
+      distinctUntilChanged(),
+      tap(isEnabled => {
+        console.log('Final button enabled state:', isEnabled);
+      }),
+      shareReplay(1)
     );
-
-    // Ensure the change detection reflects the changes
-    this.isButtonEnabled$.subscribe(() => this.cdRef.detectChanges());
+  
+    // Subscribe to ensure the observable stays active and trigger change detection
+    this.isButtonEnabled$.subscribe(isEnabled => {
+      console.log('isButtonEnabled$ emitted:', isEnabled);
+      this.cdRef.markForCheck();
+    });
   }
 
 
