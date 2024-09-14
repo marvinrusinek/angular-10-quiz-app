@@ -371,8 +371,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
   initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
-      this.quizStateService.isLoading$, 
-      this.quizStateService.isAnswered$, 
+      this.quizStateService.isLoading$,
+      this.quizStateService.isAnswered$,
       this.selectedOptionService.isOptionSelected$()
     ]).pipe(
       tap(([isLoading, isAnswered, isOptionSelected]) => {
@@ -381,27 +381,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       map(([isLoading, isAnswered, isOptionSelected]) => {
         const shouldEnable = !isLoading && !isAnswered && isOptionSelected;
         console.log('Button should be enabled:', shouldEnable);
-        console.log('Reasons:', {
-          notLoading: !isLoading,
-          notAnswered: !isAnswered,
-          optionSelected: isOptionSelected
-        });
         return shouldEnable;
       }),
       distinctUntilChanged(),
-      tap(isEnabled => {
-        console.log('Final button enabled state:', isEnabled);
-      }),
       shareReplay(1)
     );
   
-    // Subscribe to ensure the observable stays active and trigger change detection
+    // Subscribe to trigger change detection
     this.isButtonEnabled$.subscribe(isEnabled => {
       console.log('isButtonEnabled$ emitted:', isEnabled);
       this.cdRef.markForCheck();
     });
   }
-
 
   ngOnDestroy(): void {
     this.destroy$.next();
