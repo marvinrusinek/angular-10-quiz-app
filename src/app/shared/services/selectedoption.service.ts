@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
@@ -88,8 +88,10 @@ export class SelectedOptionService {
 
   // Observable to get the current option selected state
   isOptionSelected$(): Observable<boolean> {
-    return this.isOptionSelectedSubject.asObservable();
-  }  
+    return this.selectedOptionSubject.asObservable().pipe(
+      map(option => option !== null)
+    );
+  }
 
   // Method to set the option selected state
   setOptionSelected(isSelected: boolean): void {
