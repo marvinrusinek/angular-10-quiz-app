@@ -12,3 +12,4 @@ export interface Option {
   styleClass?: string;
 }
 type Options = Option[];
+type SelectedOption = Option;

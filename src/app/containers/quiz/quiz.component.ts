@@ -367,24 +367,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
     console.log('QuizComponent: Option selected:', event);
     
+    const selectedOption: SelectedOption = { ...event.option };
+    
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       if (event.checked) {
-        this.selectedOptionService.setSelectedOption(event.option);
-        this.disabled = false; // Enable the Next button
-        this.isAnswered = true; // Set isAnswered to true
+        this.selectedOptionService.setSelectedOption(selectedOption);
+        this.selectedOptions = [selectedOption];
+        this.disabled = false;
+        this.isAnswered = true;
       }
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      // Handle multiple selection
-      const selectedOption = this.selectedOptionService.getSelectedOption();
       if (event.checked) {
-        // Assuming setSelectedOption can handle multiple options
-        this.selectedOptionService.setSelectedOption([...selectedOption, event.option]);
+        this.selectedOptions.push(selectedOption);
       } else {
-        const updatedOptions = selectedOption.filter(o => o.optionId !== event.option.optionId);
-        this.selectedOptionService.setSelectedOption(updatedOptions);
+        this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== selectedOption.optionId);
       }
-      this.disabled = selectedOption.length === 0; // Enable Next if at least one option is selected
-      this.isAnswered = selectedOption.length > 0; // Set isAnswered to true if at least one option is selected
+      this.disabled = this.selectedOptions.length === 0;
+      this.isAnswered = this.selectedOptions.length > 0;
+      
+      // For multiple selection, we'll store the last selected option in the service
+      if (this.selectedOptions.length > 0) {
+        this.selectedOptionService.setSelectedOption(this.selectedOptions[this.selectedOptions.length - 1]);
+      } else {
+        this.selectedOptionService.clearSelectedOption();
+      }
     }
 
     console.log('QuizComponent: Next button disabled:', this.disabled);
