@@ -366,6 +366,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
   onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
     console.log('QuizComponent: Option selected:', event);
+    console.log('Before update - disabled:', this.disabled, 'isAnswered:', this.isAnswered);
     
     const selectedOption: Option = { ...event.option };
     
@@ -373,8 +374,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       if (event.checked) {
         this.selectedOptionService.setSelectedOption(selectedOption as SelectedOption);
         this.selectedOptions = [selectedOption];
-        this.disabled = false;
         this.isAnswered = true;
+      } else {
+        this.selectedOptions = [];
+        this.isAnswered = false;
       }
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
       if (event.checked) {
@@ -382,19 +385,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       } else {
         this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== selectedOption.optionId);
       }
-      this.disabled = this.selectedOptions.length === 0;
       this.isAnswered = this.selectedOptions.length > 0;
       
-      // For multiple selection, we'll store the last selected option in the service
       if (this.selectedOptions.length > 0) {
         this.selectedOptionService.setSelectedOption(this.selectedOptions[this.selectedOptions.length - 1] as SelectedOption);
       } else {
         this.selectedOptionService.clearSelectedOption();
       }
     }
-
-    console.log('QuizComponent: Next button disabled:', this.disabled);
-    console.log('QuizComponent: Is answered:', this.isAnswered);
+  
+    this.disabled = !this.isAnswered;
+  
+    console.log('After update - disabled:', this.disabled, 'isAnswered:', this.isAnswered);
+    console.log('selectedOptions:', this.selectedOptions);
+    
+    // Force change detection
     this.cdRef.detectChanges();
   }
 
