@@ -349,7 +349,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
   }
 
-  onOptionSelected(option: SelectedOption) {
+  onOptionSelected(option: SelectedOption): void {
     console.log('QuizComponent: Option selected:', option);
     this.selectedOptionService.setSelectedOption(option);
     this.isAnswered = false;
@@ -357,7 +357,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.detectChanges();
   }
 
-  updateNextButtonState() {
+  updateNextButtonState(): void {
     console.log('QuizComponent: Updating next button state');
     const isOptionSelected = this.selectedOptionService.getCurrentOptionSelectedState();
     this.disabled = !isOptionSelected || this.isAnswered;
@@ -365,7 +365,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.detectChanges();
   }
 
-  toggleNextButton() {
+  toggleNextButton(): void {
     console.log('QuizComponent: Toggling next button');
     this.disabled = false; // Always enable the button when an option is selected
     console.log('QuizComponent: Next button disabled:', this.disabled);
