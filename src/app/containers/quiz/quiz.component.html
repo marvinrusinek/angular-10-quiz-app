@@ -89,10 +89,6 @@
             </button>
           </div>
 
-          <p>Next button disabled: {{ disabled }}</p>
-          <p>Is answered: {{ isAnswered }}</p>
-          <button (click)="toggleNextQuestion()">Toggle Next Button</button>
-
           <div class="show-score-nav" [hidden]="shouldHideShowResultsButton">
             <button
               type="submit"
@@ -112,6 +108,9 @@
             </button>
           </div>
         </mat-card-actions>
+        <p>Next button disabled: {{ disabled }}</p>
+        <p>Is answered: {{ isAnswered }}</p>
+        <button (click)="toggleNextQuestion()">Toggle Next Button</button>
       </section>
 
       <!-- progress bar -->
