@@ -355,13 +355,41 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       });
   }
 
-  onOptionSelected(option: SelectedOption): void {
+  /* onOptionSelected(option: SelectedOption): void {
     console.log("MY TEST");
     console.log('QuizComponent: Option selected:', option);
     this.selectedOptionService.setSelectedOption(option);
     this.isAnswered = false;
     this.disabled = false;
     this.toggleNextButton();
+    this.cdRef.detectChanges();
+  } */
+
+  onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
+    console.log('QuizComponent: Option selected:', event);
+    
+    if (this.currentQuestion.type === QuestionType.Single) {
+      if (event.checked) {
+        this.selectedOptionService.setSelectedOption(event.option);
+        this.disabled = false; // Enable the Next button
+        this.isAnswered = true; // Set isAnswered to true
+      }
+    } else if (this.currentQuestion.type === QuestionType.Multiple) {
+      // Handle multiple selection
+      const selectedOption = this.selectedOptionService.getSelectedOption();
+      if (event.checked) {
+        // Assuming setSelectedOption can handle multiple options
+        this.selectedOptionService.setSelectedOption([...selectedOption, event.option]);
+      } else {
+        const updatedOptions = selectedOption.filter(o => o.optionId !== event.option.optionId);
+        this.selectedOptionService.setSelectedOption(updatedOptions);
+      }
+      this.disabled = selectedOption.length === 0; // Enable Next if at least one option is selected
+      this.isAnswered = selectedOption.length > 0; // Set isAnswered to true if at least one option is selected
+    }
+
+    console.log('QuizComponent: Next button disabled:', this.disabled);
+    console.log('QuizComponent: Is answered:', this.isAnswered);
     this.cdRef.detectChanges();
   }
 
