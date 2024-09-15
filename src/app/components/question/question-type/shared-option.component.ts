@@ -25,7 +25,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     index: number;
   }>();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
-  @Output() optionChanged = new EventEmitter<any>();
+  @Output() optionChanged = new EventEmitter<Option>();
+  @Output() optionSelected = new EventEmitter<{option: Option, index: number, checked: boolean, selectionType: 'single' | 'multiple'}>();
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
@@ -257,6 +258,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     // Apply attributes after updating the state
     this.applyAttributes(element, this.getOptionAttributes(optionBinding));
+  
+    // Determine the selection type and checked state
+    const selectionType = element.getAttribute('type') === 'radio' ? 'single' : 'multiple';
+    const checked = element.getAttribute('aria-checked') === 'true';
+
+    // Emit the optionSelected event
+    this.optionSelected.emit({ 
+      option: optionBinding.option, 
+      index: idx, 
+      checked: checked,
+      selectionType: selectionType
+    });
   
     // Force change detection to ensure the view updates
     this.cdRef.detectChanges();
