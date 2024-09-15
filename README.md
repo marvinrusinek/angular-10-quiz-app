@@ -1,55 +1,73 @@
-🚀 Welcome to the Angular Codelab Quiz App! 🧠
-Get ready to dive into the world of Angular with this engaging and interactive Quiz App. Whether you're a beginner looking to learn or an experienced developer wanting to test your skills, this app is the perfect tool to explore the Angular framework in a fun and challenging way.
+Angular Quiz App
+Overview
+This is a dynamic and interactive quiz application built with Angular, designed to present users with a series of questions across various categories. It features timed quizzes, multiple choice and single-answer questions, as well as explanations for each answer.
 
-🎯 Purpose of the App
-The Angular Quiz App is designed to be more than just a quiz—it's your gateway to mastering Angular. It’s tailored to cater to everyone, from those just starting out to seasoned developers, blending learning with fun to enhance your Angular knowledge.
-
-🛠️ Powered by Cutting-Edge Web Technology
-Experience the best of modern web development through:
-
-Angular: Build and enjoy dynamic, responsive user interfaces.
-TypeScript: Benefit from a strongly typed language that makes JavaScript development more robust and maintainable.
-RxJS: Utilize the power of reactive programming to handle data streams and event propagation seamlessly.
-Angular Material: Delight in a polished and modern UI, thanks to a suite of components that make the app look and feel great.
-🌟 What's Inside?
-The Angular Quiz App is a continuously evolving project. We’re regularly adding new features and updates to keep the experience fresh, engaging, and educational. Keep an eye out for the latest enhancements!
-
-🎉 Getting Started
-Ready to start your Angular journey? Here’s how you can dive in:
-
-Access the App
-You can directly access the quiz app online through StackBlitz:
-
-Launch the Quiz App
-Install and Run Locally
-If you prefer running the app on your local machine, follow these steps:
-
+Features
+Multiple Question Types: Support for multiple-answer and single-answer questions.
+Timer: Each question comes with a countdown timer to simulate a real-time quiz experience.
+Score Tracking: Keeps track of the user’s score based on correct answers.
+Explanations: Displays explanations for correct/incorrect answers after each question is answered.
+Navigation: Users can navigate between questions using 'Next' and 'Previous' buttons or directly using the URL.
+Responsive Design: Optimized for both desktop and mobile devices.
+Technologies Used
+Angular: Frontend framework
+TypeScript: Main programming language
+RxJS: Reactive programming with Observables
+SCSS: Styling with Sass
+Angular Material: UI components
+Installation
+Prerequisites
+Node.js (v12.x or above)
+Angular CLI (v10.x or above)
 Clone the Repository
 bash
 Copy code
-git clone https://github.com/your-username/angular-quiz-app.git
-Navigate to the Project Directory
-bash
-Copy code
-cd angular-quiz-app
-Install Dependencies Make sure you have Node.js installed. Then run:
+git clone https://github.com/yourusername/quiz-app.git
+cd quiz-app
+Install Dependencies
 bash
 Copy code
 npm install
-Run the App Start the development server:
+Run the App
 bash
 Copy code
 ng serve
-Open your browser and go to http://localhost:4200 to see the app in action.
-Start Quizzing
-Now you're all set to explore the quiz and test your Angular skills. Enjoy each challenge and learn something new along the way!
+Open your browser and navigate to http://localhost:4200.
 
-⭐ Show Your Support
-If you enjoy the app and find it helpful, consider starring the repository on GitHub. Your support means a lot and helps to improve the project!
+Usage
+Start the quiz by selecting a category or quiz set.
+Answer the questions by selecting one or more options.
+Navigate between questions using the 'Next' button or URL.
+Track your score and review explanations for the answers provided.
+Optionally, restart the quiz to try again.
+Folder Structure
+src/app/components: Contains all reusable components like quiz questions, timer, and options.
+src/app/services: Contains services for managing quiz data, navigation, and other business logic.
+src/app/models: Interfaces and models for question and quiz data structures.
+src/app/pipes: Custom pipes for formatting data (e.g., joining strings for explanations).
+src/styles: Global styles, including theme customization and SCSS variables.
+Development Workflow
+Adding a New Feature
+Create a new component or service under the respective folder.
+Update or create unit tests for your feature.
+Test your feature locally by running:
+bash
+Copy code
+ng test
+Debugging
+Ensure ng serve is running, then inspect the app using browser developer tools.
+Use the Angular ng commands to check components and debug issues.
+Contributing
+Contributions are welcome! To contribute:
 
-🔗 Explore More at Codelab
-For more exciting Angular content, tutorials, and resources, visit the Codelab website:
-
-Codelab.fun
-Get ready to level up your Angular expertise, enjoy the learning process, and most importantly—have fun!
-
+Fork the repository.
+Create a feature branch (git checkout -b feature-name).
+Commit your changes (git commit -m 'Add new feature').
+Push to the branch (git push origin feature-name).
+Open a pull request.
+Future Enhancements
+Implement user authentication for saving quiz progress.
+Add more question categories and question sets.
+Leaderboard system to track top performers.
+License
+This project is licensed under the MIT License. See the LICENSE file for details.
