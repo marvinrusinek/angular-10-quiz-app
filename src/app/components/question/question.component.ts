@@ -1502,7 +1502,7 @@ export class QuizQuestionComponent
 
     this.selectionMessageService.updateSelectionMessage(newMessage);
 
-    this.processCurrentQuestionState(currentQuestion, option, index);
+    // this.processCurrentQuestionState(currentQuestion, option, index);
 
     await this.handleCorrectnessAndTimer();
   }
@@ -1656,8 +1656,9 @@ export class QuizQuestionComponent
     option: SelectedOption,
     index: number
   ): void {
+    console.log('processCurrentQuestionState started', { currentQuestion, option, index });
     this.processCurrentQuestion(currentQuestion);
-    this.handleOptionSelection(option, index, currentQuestion);
+    // this.handleOptionSelection(option, index, currentQuestion);
     this.quizStateService.updateQuestionStateForExplanation(
       this.quizId,
       this.currentQuestionIndex
@@ -1792,6 +1793,10 @@ export class QuizQuestionComponent
     optionIndex: number,
     currentQuestion: QuizQuestion
   ): Promise<void> {
+    console.log("MY HANDLE OPTION SELECTION");
+    console.log('Option selected:', option);
+    console.log('Index:', optionIndex);
+    console.log('Current question:', currentQuestion);
     const questionIndex = this.currentQuestionIndex;
 
     // Ensure that optionIndex is being received correctly
@@ -1856,6 +1861,12 @@ export class QuizQuestionComponent
 
     // Reset answered state when a new option is selected
     this.isAnswered = false;
+
+    console.log('After option selection:', {
+      selected: this.selectedOption,
+      isAnswered: this.isAnswered,
+      currentSelectedState: this.selectedOptionService.getCurrentOptionSelectedState()
+    });
   }
 
   private processOptionSelection(
