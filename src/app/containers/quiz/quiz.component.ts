@@ -55,6 +55,7 @@ import { QuizComponentData } from '../../shared/models/QuizComponentData.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { Resource } from '../../shared/models/Resource.model';
+import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { QuizQuestionComponent } from '../../components/question/question.component';
 import { SharedOptionComponent } from '../../components/question/question-type/shared-option.component';
 import { QuizService } from '../../shared/services/quiz.service';
@@ -346,6 +347,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.updateNextButtonState();
       }
     );
+  }
+
+  onOptionSelected(option: SelectedOption) {
+    console.log('QuizComponent: Option selected:', option);
+    this.selectedOptionService.setSelectedOption(option);
+    this.isAnswered = false;
+    this.updateNextButtonState();
   }
 
   updateNextButtonState() {
@@ -1922,6 +1930,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
     this.disabled = true;
+    this.updateNextButtonState();
 
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {

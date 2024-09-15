@@ -26,7 +26,7 @@
             (answer)="selectedAnswer($event)"
             (isAnsweredChange)="onIsAnsweredChange($event)"
             (selectionMessageChange)="onSelectionMessageChange($event)"
-            (optionSelected)="toggleNextButton()"
+            (optionSelected)="onOptionSelected($event)"
           ></codelab-quiz-question>
         </ng-container>
       </ng-container>
@@ -89,7 +89,8 @@
             </button>
           </div>
 
-          <!--<button (click)="toggleNextButton()">Toggle Next Button</button>-->
+          <p>Next button disabled: {{ disabled }}</p>
+          <p>Is answered: {{ isAnswered }}</p>
 
           <div class="show-score-nav" [hidden]="shouldHideShowResultsButton">
             <button
