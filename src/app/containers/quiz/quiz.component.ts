@@ -313,53 +313,61 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isButtonEnabled$ = combineLatest({
       isLoading: this.quizStateService.isLoading$,
       isAnswered: this.quizStateService.isAnswered$,
-      isOptionSelected: this.selectedOptionService.isOptionSelected$()
+      isOptionSelected: this.selectedOptionService.isOptionSelected$(),
     }).pipe(
       map(({ isLoading, isAnswered, isOptionSelected }) => {
-        console.log('State update:', { isLoading, isAnswered, isOptionSelected });
-        
+        console.log('State update:', {
+          isLoading,
+          isAnswered,
+          isOptionSelected,
+        });
+
         // The button should be enabled when:
         // 1. The quiz is not loading
         // 2. An option is selected
         // 3. The question has not been answered yet (or we're ready for the next question)
         const shouldEnable = !isLoading && isOptionSelected && !isAnswered;
-        
+
         console.log('Button should be enabled:', shouldEnable);
         return shouldEnable;
       }),
       distinctUntilChanged(),
-      tap(isEnabled => console.log('Button enabled state changed:', isEnabled)),
+      tap((isEnabled) =>
+        console.log('Button enabled state changed:', isEnabled)
+      ),
       shareReplay(1)
     );
-  
+
     // Subscribe to log changes and trigger change detection if needed
-    this.isButtonEnabled$.subscribe(isEnabled => {
+    this.isButtonEnabled$.subscribe((isEnabled) => {
       console.log('isButtonEnabled$ emitted:', isEnabled);
       this.cdRef.markForCheck();
     });
   }
 
   subscribeToOptionSelection() {
-    this.optionSelectedSubscription = this.selectedOptionService.isOptionSelected$().subscribe(
-      isSelected => {
+    this.optionSelectedSubscription = this.selectedOptionService
+      .isOptionSelected$()
+      .subscribe((isSelected) => {
         console.log('Option selection changed:', isSelected);
         this.isOptionSelected = isSelected;
         this.updateNextButtonState();
-      }
-    );
+      });
   }
 
   onOptionSelected(option: SelectedOption): void {
     console.log('QuizComponent: Option selected:', option);
     this.selectedOptionService.setSelectedOption(option);
     this.isAnswered = false;
+    this.disabled = false;
     this.toggleNextButton();
     this.cdRef.detectChanges();
   }
 
   updateNextButtonState(): void {
     console.log('QuizComponent: Updating next button state');
-    const isOptionSelected = this.selectedOptionService.getCurrentOptionSelectedState();
+    const isOptionSelected =
+      this.selectedOptionService.getCurrentOptionSelectedState();
     this.disabled = !isOptionSelected || this.isAnswered;
     console.log('QuizComponent: Next button disabled:', this.disabled);
     this.cdRef.detectChanges();
@@ -367,7 +375,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   toggleNextButton(): void {
     console.log('QuizComponent: Toggling next button');
-    this.disabled = false; // Always enable the button when an option is selected
+    this.disabled = !this.disabled; // Always enable the button when an option is selected
     console.log('QuizComponent: Next button disabled:', this.disabled);
   }
 
@@ -913,7 +921,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
   getNextButtonTooltip(): Observable<string> {
     return this.isButtonEnabled$.pipe(
-      map(isEnabled => isEnabled ? 'Next Question »' : 'Please select an option to continue...')
+      map((isEnabled) =>
+        isEnabled ? 'Next Question »' : 'Please select an option to continue...'
+      )
     );
   }
 
@@ -1929,6 +1939,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
+    this.isAnswered = true;
     this.disabled = true;
     this.updateNextButtonState();
 
@@ -1943,7 +1954,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.isAnswered = false;
 
         // Reset isAnsweredSubject to false before displaying the next question
-        this.quizStateService.setAnswered(false)
+        this.quizStateService.setAnswered(false);
         this.quizStateService.answeredSubject.next(false);
 
         this.quizStateService.setAnswerSelected(false); // Reset answered state for the new question
