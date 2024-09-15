@@ -2375,3 +2375,4 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 }
+
