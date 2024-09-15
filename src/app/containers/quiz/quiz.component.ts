@@ -1920,8 +1920,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     this.isNavigating = true;
-    this.disabled = true;
     this.quizService.setIsNavigatingToPrevious(false);
+    this.disabled = true;
 
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
