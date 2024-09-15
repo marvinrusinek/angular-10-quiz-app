@@ -351,7 +351,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   updateNextButtonState() {
     console.log('QuizComponent: Updating next button state');
     const isOptionSelected = this.selectedOptionService.getCurrentOptionSelectedState();
-    this.disabled = !isOptionSelected; // This will enable the button when an option is selected
+    this.disabled = !isOptionSelected || this.isAnswered;
     console.log('QuizComponent: Next button disabled:', this.disabled);
     this.cdRef.detectChanges();
   }
