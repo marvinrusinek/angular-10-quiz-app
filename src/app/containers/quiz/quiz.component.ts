@@ -355,15 +355,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       });
   }
 
-  /* onOptionSelected(option: SelectedOption): void {
-    console.log("MY TEST");
-    console.log('QuizComponent: Option selected:', option);
-    this.selectedOptionService.setSelectedOption(option);
-    this.isAnswered = false;
-    this.disabled = false;
-    this.toggleNextButton();
-    this.cdRef.detectChanges();
-  } */
   onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
     console.log('QuizComponent: Option selected:', event);
     console.log('Before update - disabled:', this.disabled, 'isAnswered:', this.isAnswered);
