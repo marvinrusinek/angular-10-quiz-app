@@ -105,8 +105,7 @@ export class SelectedOptionService {
   isOptionSelected$(): Observable<boolean> {
     return this.selectedOptionSubject.pipe(
       map(option => option !== null),
-      distinctUntilChanged(),
-      tap(isSelected => console.log('isOptionSelected$ emitted::>>', isSelected))
+      distinctUntilChanged()
     );
   }
 
