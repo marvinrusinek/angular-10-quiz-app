@@ -129,7 +129,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   indexOfQuizId: number;
   status: QuizStatus;
   isNavigating = false;
-  disabled = false;
+  disabled = true;
   optionSelectedSubscription: Subscription;
 
   selectedOptions: Option[] = [];
@@ -288,7 +288,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
 
     // this.initializeNextButtonState();
-    this.subscribeToOptionSelection();
+    // this.subscribeToOptionSelection();
+    this.updateNextButtonState();
 
     this.subscribeToSelectionMessage();
 
@@ -348,8 +349,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   updateNextButtonState() {
-    this.disabled = !this.isOptionSelected || this.isAnswered;
-    console.log('Button state updated - isOptionSelected:', this.isOptionSelected, 'isAnswered:', this.isAnswered, 'disabled:', this.disabled);
+    const isOptionSelected = this.selectedOptionService.getCurrentOptionSelectedState();
+    const shouldBeEnabled = isOptionSelected && !this.isAnswered;
+    this.disabled = !shouldBeEnabled;
+    console.log('updateNextButtonState:', {
+      isOptionSelected,
+      isAnswered: this.isAnswered,
+      shouldBeEnabled,
+      disabled: this.disabled
+    });
   }
 
   ngOnDestroy(): void {
