@@ -129,7 +129,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   indexOfQuizId: number;
   status: QuizStatus;
   isNavigating = false;
-  isDisabled: boolean; // may use later
+  disabled = false;
+  optionSelectedSubscription: Subscription;
 
   selectedOptions: Option[] = [];
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
@@ -284,7 +285,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.log('isOptionSelected$ emitted:', isSelected);
     });
 
-    this.initializeNextButtonState();
+    // this.initializeNextButtonState();
+    this.updateNextButtonState();
 
     this.subscribeToSelectionMessage();
 
@@ -333,6 +335,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
+  updateNextButtonState() {
+    if (this.optionSelectedSubscription) {
+      this.optionSelectedSubscription.unsubscribe();
+    }
+    this.optionSelectedSubscription = this.selectedOptionService.isOptionSelected$().subscribe(
+      isOptionSelected => {
+        this.disabled = !isOptionSelected || this.isAnswered;
+        console.log('updateNextButtonState - isOptionSelected:', isOptionSelected, 'isAnswered:', this.isAnswered, 'disabled:', this.disabled);
+      }
+    );
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -342,6 +356,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.routeSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
     this.questionAndOptionsSubscription?.unsubscribe();
+    this.optionSelectedSubscription?.unsubscribe();
     this.timerService.stopTimer(null);
   }
 
