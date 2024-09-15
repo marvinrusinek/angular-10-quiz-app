@@ -353,7 +353,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('QuizComponent: Option selected:', option);
     this.selectedOptionService.setSelectedOption(option);
     this.isAnswered = false;
-    this.updateNextButtonState();
+    this.toggleNextButton();
+    this.cdRef.detectChanges();
   }
 
   updateNextButtonState() {
@@ -368,7 +369,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('QuizComponent: Toggling next button');
     this.disabled = false; // Always enable the button when an option is selected
     console.log('QuizComponent: Next button disabled:', this.disabled);
-    this.cdRef.detectChanges();
   }
 
   ngOnDestroy(): void {
