@@ -176,6 +176,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private isQuizDataLoaded = false;
   private debounceNavigation = false;
 
+  isOptionSelected = false;
+
   previousIndex: number | null = null;
   isQuestionIndexChanged = false;
   private isNavigatedByUrl = false;
@@ -286,7 +288,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
 
     // this.initializeNextButtonState();
-    this.updateNextButtonState();
+    this.subscribeToOptionSelection();
 
     this.subscribeToSelectionMessage();
 
@@ -335,16 +337,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  updateNextButtonState() {
-    if (this.optionSelectedSubscription) {
-      this.optionSelectedSubscription.unsubscribe();
-    }
+  subscribeToOptionSelection() {
     this.optionSelectedSubscription = this.selectedOptionService.isOptionSelected$().subscribe(
-      isOptionSelected => {
-        this.disabled = !isOptionSelected || this.isAnswered;
-        console.log('updateNextButtonState - isOptionSelected:', isOptionSelected, 'isAnswered:', this.isAnswered, 'disabled:', this.disabled);
+      isSelected => {
+        console.log('Option selection changed:', isSelected);
+        this.isOptionSelected = isSelected;
+        this.updateNextButtonState();
       }
     );
+  }
+
+  updateNextButtonState() {
+    this.disabled = !this.isOptionSelected || this.isAnswered;
+    console.log('Button state updated - isOptionSelected:', this.isOptionSelected, 'isAnswered:', this.isAnswered, 'disabled:', this.disabled);
   }
 
   ngOnDestroy(): void {
