@@ -1853,6 +1853,9 @@ export class QuizQuestionComponent
 
     // Ensure showFeedback remains true
     this.showFeedback = true;
+
+    // Reset answered state when a new option is selected
+    this.isAnswered = false;
   }
 
   private processOptionSelection(
