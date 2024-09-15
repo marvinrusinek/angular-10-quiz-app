@@ -11,6 +11,11 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
 import { HighlightOptionDirective } from '../../../directives/highlight-option.directive';
 
+interface MatElement {
+  checked: boolean;
+  _elementRef: { nativeElement: HTMLElement };
+}
+
 @Component({
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
@@ -26,7 +31,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }>();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
   @Output() optionChanged = new EventEmitter<Option>();
-  @Output() optionSelected = new EventEmitter<{option: Option, index: number, checked: boolean, selectionType: 'single' | 'multiple'}>();
+  @Output() optionSelected = new EventEmitter<{option: Option, index: number, checked: boolean}>();
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
@@ -246,32 +251,26 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   updateOptionAndUI(
     optionBinding: OptionBindings,
     idx: number,
-    element: HTMLElement
+    element: MatElement
   ): void {
     this.handleOptionClick(optionBinding.option, idx);
-    
+
     // Ensure showFeedback is set to true when an option is clicked
     this.showFeedback = true;
-  
+
     // Update showFeedbackForOption
     this.showFeedbackForOption[optionBinding.option.optionId] = true;
   
-    // Apply attributes after updating the state
-    this.applyAttributes(element, this.getOptionAttributes(optionBinding));
-  
-    // Determine the selection type and checked state
-    const selectionType = element.getAttribute('type') === 'radio' ? 'single' : 'multiple';
-    const checked = element.getAttribute('aria-checked') === 'true';
+    // Apply attributes
+    this.applyAttributes(element._elementRef.nativeElement, this.getOptionAttributes(optionBinding));
 
     // Emit the optionSelected event
     this.optionSelected.emit({ 
       option: optionBinding.option, 
       index: idx, 
-      checked: checked,
-      selectionType: selectionType
+      checked: element.checked
     });
   
-    // Force change detection to ensure the view updates
     this.cdRef.detectChanges();
   }
 
