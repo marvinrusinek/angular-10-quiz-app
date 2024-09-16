@@ -2120,6 +2120,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
+    this.isAnswered = false;
+    this.selectedOptions = [];
+    this.updateNextButtonState();
 
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
@@ -2128,8 +2131,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
         // Reset the state for the new question
         this.selectedOptionService.resetAnsweredState();
-        this.isAnswered = false;
-        this.selectedOptions = [];
         this.selectedOptionService.clearSelectedOption();
 
         // Reset isAnsweredSubject to false before displaying the next question
@@ -2158,7 +2159,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
         // Reset UI after preparing the question
         this.resetUI();
-        this.updateNextButtonState();
       } else {
         console.log('End of quiz reached.');
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
