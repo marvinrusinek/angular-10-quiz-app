@@ -484,7 +484,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('After update - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
     console.log('selectedOptions:', this.selectedOptions);
   } */
-  onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
+  /* onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
     console.log('QuizComponent: Option selected:', event);
     
     const selectedOption: Option = { ...event.option };
@@ -512,6 +512,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }, 0);
 
     this.updateNextButtonState();
+  } */
+  onOptionSelected(option: SelectedOption) {
+    console.log('QuizComponent: Option selected:', option);
+    
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = [option];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      const index = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
+      if (index === -1) {
+        this.selectedOptions.push(option);
+      } else {
+        this.selectedOptions.splice(index, 1);
+      }
+    }
+  
+    this.isAnswered = this.selectedOptions.length > 0;
+    this.updateNextButtonState();
+  
+    // Subscribe to the quizStateService to update the disabled state
+    this.quizStateService.getAnswerSelected().subscribe(answerSelected => {
+      this.isAnswered = answerSelected;
+      this.updateNextButtonState();
+    });
+  
+    console.log('After update - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
+    console.log('selectedOptions:', this.selectedOptions);
   }
 
   /* updateNextButtonState(): void {
@@ -535,7 +561,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('Next button disabled:', isDisabled);
     this.cdRef.detectChanges(); // Force change detection
   } */
-  updateNextButtonState(): void {
+  /* updateNextButtonState(): void {
     const isDisabled = !this.isAnswered;
     console.log('updateNextButtonState - Current disabled:', this.disabled, 'New disabled:', isDisabled);
     this.disabled = isDisabled;
@@ -546,6 +572,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     setTimeout(() => {
       console.log('updateNextButtonState timeout - disabled:', this.disabled);
     }, 0);
+  } */
+  updateNextButtonState(): void {
+    this.disabled = !this.isAnswered;
+    console.log('Next button disabled:', this.disabled);
+    this.cdRef.detectChanges();
   }
 
   /* toggleNextButton(): void {
