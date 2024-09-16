@@ -464,16 +464,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  /* toggleNextButton(): void {
+  toggleNextButton(): void {
     console.log('QuizComponent: Toggling next button');
     this.disabled = !this.disabled; // Always enable the button when an option is selected
     console.log('QuizComponent: Next button disabled:', this.disabled);
-  } */
-  toggleNextButton(): void {
-    if (this.nextButton && this.nextButton.nativeElement) {
-      this.nextButton.nativeElement.disabled = !this.nextButton.nativeElement.disabled;
-      console.log('Next button toggled, disabled:', this.nextButton.nativeElement.disabled);
-    }
   }
 
   ngOnDestroy(): void {
@@ -2036,7 +2030,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
-    this.updateNextButtonState();
+    this.isAnswered = true;
 
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
@@ -2047,8 +2041,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.selectedOptionService.resetAnsweredState();
         this.selectedOptionService.clearSelectedOption();
         this.isAnswered = false;
-        this.selectedOptions = [];
         this.disabled = true; // Disable the button for the new question
+        this.selectedOptions = [];
 
         // Reset isAnsweredSubject to false before displaying the next question
         this.quizStateService.setAnswered(false);
@@ -2076,6 +2070,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
         // Reset UI after preparing the question
         this.resetUI();
+
+        this.updateNextButtonState();
       } else {
         console.log('End of quiz reached.');
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
