@@ -503,8 +503,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   updateNextButtonState(): void {
     const isDisabled = !this.isAnswered;
     this.disabled = isDisabled;
-    this.isNextButtonDisabledSubject.next(isDisabled);
     console.log('Next button disabled:', isDisabled);
+    this.cdRef.detectChanges(); // Force change detection
   }
 
   /* toggleNextButton(): void {
@@ -2090,7 +2090,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         // Reset the state for the new question
         this.selectedOptionService.resetAnsweredState();
         this.isAnswered = false;
-        this.disabled = true; // Disable the button for the new question
         this.selectedOptions = [];
         this.selectedOptionService.clearSelectedOption();
 
@@ -2120,6 +2119,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
         // Reset UI after preparing the question
         this.resetUI();
+        this.updateNextButtonState();
       } else {
         console.log('End of quiz reached.');
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
