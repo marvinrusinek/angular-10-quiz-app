@@ -357,7 +357,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
     console.log('QuizComponent: Option selected:', event);
-    console.log('Before update - disabled:', this.disabled, 'isAnswered:', this.isAnswered);
     
     const selectedOption: Option = { ...event.option };
     
@@ -385,8 +384,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }
     }
   
-    this.disabled = !this.isAnswered;
-  
+    this.updateNextButtonState();
+    
     console.log('After update - disabled:', this.disabled, 'isAnswered:', this.isAnswered);
     console.log('selectedOptions:', this.selectedOptions);
     
