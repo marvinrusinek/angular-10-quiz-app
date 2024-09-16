@@ -1309,6 +1309,7 @@ export class QuizQuestionComponent
   }
 
   public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+    console.log("MY LOG 12345");
     if (!option) {
       console.error('Option is undefined');
       return;

@@ -265,6 +265,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.applyAttributes(element._elementRef.nativeElement, this.getOptionAttributes(optionBinding));
 
     // Emit the optionSelected event
+    console.log('About to emit optionSelected event', {
+      option: optionBinding.option,
+      index: idx,
+      checked: element.checked
+    });
     this.optionSelected.emit({ 
       option: optionBinding.option, 
       index: idx, 

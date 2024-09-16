@@ -514,6 +514,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.updateNextButtonState();
   } */
   onOptionSelected(option: SelectedOption) {
+    console.log("MY TEST123456");
     console.log('QuizComponent: Option selected:', option);
     
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
