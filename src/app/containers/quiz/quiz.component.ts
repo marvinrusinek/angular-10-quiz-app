@@ -510,6 +510,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     setTimeout(() => {
       console.log('After timeout - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
     }, 0);
+
+    this.updateNextButtonState();
   }
 
   /* updateNextButtonState(): void {
@@ -2123,6 +2125,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isAnswered = false;
     this.selectedOptions = [];
     this.updateNextButtonState();
+
+    console.log('After advancing - New question:', this.currentQuestion);
+    console.log('isAnswered:', this.isAnswered, 'disabled:', this.disabled);
+
+    this.cdRef.detectChanges();
 
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
