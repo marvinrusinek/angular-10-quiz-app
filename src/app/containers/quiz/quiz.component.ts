@@ -392,7 +392,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Force change detection
     this.cdRef.detectChanges();
   } */
-  onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
+  /* onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
     console.log('QuizComponent: Option selected:', event);
     
     const selectedOption: Option = { ...event.option };
@@ -414,6 +414,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('selectedOptions:', this.selectedOptions);
     
     this.cdRef.detectChanges();
+  } */
+  onOptionSelected(event: { option: Option; index: number; checked: boolean }) {
+    console.log('QuizComponent: Option selected:', event);
+
+    const selectedOption: Option = { ...event.option };
+
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = event.checked ? [selectedOption] : [];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      if (event.checked) {
+        this.selectedOptions.push(selectedOption);
+      } else {
+        this.selectedOptions = this.selectedOptions.filter(
+          (o) => o.optionId !== selectedOption.optionId
+        );
+      }
+    }
+
+    this.isAnswered = this.selectedOptions.length > 0;
+    this.updateNextButtonState();
+
+    console.log('After update - isAnswered:', this.isAnswered);
+    console.log('selectedOptions:', this.selectedOptions);
   }
 
   /* updateNextButtonState(): void {
@@ -424,18 +447,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('QuizComponent: Next button disabled:', this.disabled);
     this.cdRef.detectChanges();
   } */
-  updateNextButtonState(): void {
+  /* updateNextButtonState(): void {
     console.log('QuizComponent: Updating next button state');
     const isOptionSelected = this.selectedOptions.length > 0;
     this.disabled = !isOptionSelected;
     console.log('QuizComponent: Next button disabled:', this.disabled);
     this.cdRef.detectChanges();
+  } */
+  updateNextButtonState(): void {
+    if (this.nextButton && this.nextButton.nativeElement) {
+      this.nextButton.nativeElement.disabled = !this.isAnswered;
+      console.log(
+        'Next button disabled:',
+        this.nextButton.nativeElement.disabled
+      );
+    }
   }
 
-  toggleNextButton(): void {
+  /* toggleNextButton(): void {
     console.log('QuizComponent: Toggling next button');
     this.disabled = !this.disabled; // Always enable the button when an option is selected
     console.log('QuizComponent: Next button disabled:', this.disabled);
+  } */
+  toggleNextButton(): void {
+    if (this.nextButton && this.nextButton.nativeElement) {
+      this.nextButton.nativeElement.disabled = !this.nextButton.nativeElement.disabled;
+      console.log('Next button toggled, disabled:', this.nextButton.nativeElement.disabled);
+    }
   }
 
   ngOnDestroy(): void {
@@ -1998,9 +2036,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
-    this.isAnswered = true;
-    this.disabled = true; // Disable the button for the new question
-    this.selectedOptions = [];
     this.updateNextButtonState();
 
     try {
@@ -2012,6 +2047,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.selectedOptionService.resetAnsweredState();
         this.selectedOptionService.clearSelectedOption();
         this.isAnswered = false;
+        this.selectedOptions = [];
+        this.disabled = true; // Disable the button for the new question
 
         // Reset isAnsweredSubject to false before displaying the next question
         this.quizStateService.setAnswered(false);
