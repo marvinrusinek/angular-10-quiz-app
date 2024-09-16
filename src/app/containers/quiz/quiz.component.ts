@@ -355,7 +355,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       });
   }
 
-  onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
+  /* onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
     console.log('QuizComponent: Option selected:', event);
     
     const selectedOption: Option = { ...event.option };
@@ -390,6 +390,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('selectedOptions:', this.selectedOptions);
     
     // Force change detection
+    this.cdRef.detectChanges();
+  } */
+  onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
+    console.log('QuizComponent: Option selected:', event);
+    
+    const selectedOption: Option = { ...event.option };
+    
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = event.checked ? [selectedOption] : [];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      if (event.checked) {
+        this.selectedOptions.push(selectedOption);
+      } else {
+        this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== selectedOption.optionId);
+      }
+    }
+
+    this.isAnswered = this.selectedOptions.length > 0;
+    this.disabled = !this.isAnswered; // This line sets disabled to false when an option is selected
+
+    console.log('After update - disabled:', this.disabled, 'isAnswered:', this.isAnswered);
+    console.log('selectedOptions:', this.selectedOptions);
+    
     this.cdRef.detectChanges();
   }
 
@@ -1976,7 +1999,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
     this.isAnswered = true;
-    this.disabled = true;
+    this.disabled = true; // Disable the button for the new question
     this.selectedOptions = [];
     this.updateNextButtonState();
 
