@@ -98,6 +98,7 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
     }
 
     this.optionSelected.emit({ option, index, checked: true });
+    console.log('SAC: optionSelected emitted', { option, index, checked: true });
 
     console.log('SingleAnswerComponent - selectedOption set to', this.selectedOption);
     console.log('SingleAnswerComponent - showFeedback set to', this.showFeedback);
