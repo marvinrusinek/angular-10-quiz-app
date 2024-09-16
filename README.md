@@ -1,31 +1,32 @@
 <h2>Angular Quiz App</h2>
+
 <h4>Overview</h4>
 <p>This is a dynamic and interactive quiz application built with Angular, designed to present users with a series of questions across various categories. It features timed quizzes, multiple choice and single-answer questions, as well as explanations for each answer.</p>
 
 <h4>Features</h4>
 <ul>
-<li>Multiple Question Types: Support for multiple-answer and single-answer questions.</li>
-<li>Timer: Each question comes with a countdown timer to simulate a real-time quiz experience.</li>
-<li>Score Tracking: Keeps track of the user’s score based on correct answers.</li>
-<li>Explanations: Displays explanations for correct/incorrect answers after each question is answered.</li>
-<li>Navigation: Users can navigate between questions using 'Next' and 'Previous' buttons or directly using the URL.</li>
-<li>Responsive Design: Optimized for both desktop and mobile devices.</li>
+  <li>Multiple Question Types: Support for multiple-answer and single-answer questions.</li>
+  <li>Timer: Each question comes with a countdown timer to simulate a real-time quiz experience.</li>
+  <li>Score Tracking: Keeps track of the user’s score based on correct answers.</li>
+  <li>Explanations: Displays explanations for correct/incorrect answers after each question is answered.</li>
+  <li>Navigation: Users can navigate between questions using 'Next' and 'Previous' buttons or directly using the URL.</li>
+  <li>Responsive Design: Optimized for both desktop and mobile devices.</li>
 </ul>
 
 <h4>Technologies Used</h4>
 <ul>
-<li>Angular: Frontend framework</li>
-<li>TypeScript: Main programming language</li>
-<li>RxJS: Reactive programming with Observables</li>
-<li>SCSS: Styling with Sass</li>
-<li>Angular Material: UI components</li>
+  <li>Angular: Frontend framework</li>
+  <li>TypeScript: Main programming language</li>
+  <li>RxJS: Reactive programming with Observables</li>
+  <li>SCSS: Styling with Sass</li>
+  <li>Angular Material: UI components</li>
 </ul>
 
 <h4>Installation</h4>
 <h6>Prerequisites</h6>
 <ul>
-<li>Node.js (v12.x or above)</li>
-<li>Angular CLI (v10.x or above)</li>
+  <li>Node.js (v12.x or above)</li>
+  <li>Angular CLI (v10.x or above)</li>
 </ul>
 
 Clone the Repository
@@ -45,11 +46,11 @@ Open your browser and navigate to http://localhost:4200.
 
 <h4>Usage</h4>
 <ul>
-<li>Start the quiz by selecting a category or quiz set.</li>
-<li>Answer the questions by selecting one or more options.</li>
-<li>Navigate between questions using the 'Next' button or URL.</li>
-<li>Track your score and review explanations for the answers provided.</li>
-<li>Optionally, restart the quiz to try again.</li>
+  <li>Start the quiz by selecting a category or quiz set.</li>
+  <li>Answer the questions by selecting one or more options.</li>
+  <li>Navigate between questions using the 'Next' button or URL.</li>
+  <li>Track your score and review explanations for the answers provided.</li>
+  <li>Optionally, restart the quiz to try again.</li>
 </ul>
 
 <h4>Folder Structure</h4>
