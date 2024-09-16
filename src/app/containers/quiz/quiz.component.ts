@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ElementRef,
   HostListener,
   Input,
   NgZone,
@@ -94,7 +93,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   quizQuestionComponent!: QuizQuestionComponent;
   @ViewChild(SharedOptionComponent)
   sharedOptionComponent: SharedOptionComponent;
-  @ViewChild('nextButton') nextButton: ElementRef;
   @Input() data: {
     questionText: string;
     correctAnswersText?: string;
@@ -417,29 +415,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     
     this.cdRef.detectChanges();
   } */
-  onOptionSelected(event: { option: Option; index: number; checked: boolean }) {
+  onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
     console.log('QuizComponent: Option selected:', event);
-
+    
     const selectedOption: Option = { ...event.option };
-
+    
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = event.checked ? [selectedOption] : [];
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
       if (event.checked) {
         this.selectedOptions.push(selectedOption);
       } else {
-        this.selectedOptions = this.selectedOptions.filter(
-          (o) => o.optionId !== selectedOption.optionId
-        );
+        this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== selectedOption.optionId);
       }
     }
 
     this.isAnswered = this.selectedOptions.length > 0;
-    this.updateNextButtonState();
+    this.disabled = !this.isAnswered;
 
-    console.log('After update - isAnswered:', this.isAnswered);
+    console.log('After update - disabled:', this.disabled, 'isAnswered:', this.isAnswered);
     console.log('selectedOptions:', this.selectedOptions);
-  }
+    
+    // Ensure the change is detected
+    this.cdRef.detectChanges();
+}
 
   /* updateNextButtonState(): void {
     console.log('QuizComponent: Updating next button state');
@@ -2032,7 +2031,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
-    this.isAnswered = true;
 
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
@@ -2041,10 +2039,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
         // Reset the state for the new question
         this.selectedOptionService.resetAnsweredState();
-        this.selectedOptionService.clearSelectedOption();
         this.isAnswered = false;
         this.disabled = true; // Disable the button for the new question
         this.selectedOptions = [];
+        this.selectedOptionService.clearSelectedOption();
 
         // Reset isAnsweredSubject to false before displaying the next question
         this.quizStateService.setAnswered(false);
@@ -2072,8 +2070,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
         // Reset UI after preparing the question
         this.resetUI();
-
-        this.updateNextButtonState();
       } else {
         console.log('End of quiz reached.');
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
