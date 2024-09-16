@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  ElementRef,
   HostListener,
   Input,
   NgZone,
@@ -93,6 +94,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   quizQuestionComponent!: QuizQuestionComponent;
   @ViewChild(SharedOptionComponent)
   sharedOptionComponent: SharedOptionComponent;
+  @ViewChild('nextButton') nextButton: ElementRef;
   @Input() data: {
     questionText: string;
     correctAnswersText?: string;
