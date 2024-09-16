@@ -409,11 +409,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.detectChanges();
   }
 
-  /* toggleNextButton(): void {
+  toggleNextButton(): void {
     console.log('QuizComponent: Toggling next button');
     this.disabled = !this.disabled; // Always enable the button when an option is selected
     console.log('QuizComponent: Next button disabled:', this.disabled);
-  } */
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
