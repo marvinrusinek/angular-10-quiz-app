@@ -513,7 +513,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.updateNextButtonState();
   } */
-  onOptionSelected(option: SelectedOption) {
+  /* onOptionSelected(option: SelectedOption) {
     console.log("MY TEST123456");
     console.log('QuizComponent: Option selected:', option);
     
@@ -539,6 +539,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     console.log('After update - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
     console.log('selectedOptions:', this.selectedOptions);
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log('QuizComponent: onOptionSelected called', event);
+  
+    this.selectedOptions = [event.option];
+    this.isAnswered = true;
+    this.updateNextButtonState();
+  
+    console.log('After update - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
+    console.log('selectedOptions:', this.selectedOptions);
+  
+    this.cdRef.detectChanges();
   }
 
   /* updateNextButtonState(): void {
