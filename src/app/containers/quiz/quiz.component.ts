@@ -393,20 +393,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.detectChanges();
   }
 
-  updateNextButtonState(): void {
+  /* updateNextButtonState(): void {
     console.log('QuizComponent: Updating next button state');
     const isOptionSelected =
       this.selectedOptionService.getCurrentOptionSelectedState();
     this.disabled = !isOptionSelected || this.isAnswered;
     console.log('QuizComponent: Next button disabled:', this.disabled);
     this.cdRef.detectChanges();
+  } */
+  updateNextButtonState(): void {
+    console.log('QuizComponent: Updating next button state');
+    const isOptionSelected = this.selectedOptions.length > 0;
+    this.disabled = !isOptionSelected;
+    console.log('QuizComponent: Next button disabled:', this.disabled);
+    this.cdRef.detectChanges();
   }
 
-  toggleNextButton(): void {
+  /* toggleNextButton(): void {
     console.log('QuizComponent: Toggling next button');
     this.disabled = !this.disabled; // Always enable the button when an option is selected
     console.log('QuizComponent: Next button disabled:', this.disabled);
-  }
+  } */
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -1970,6 +1977,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.quizService.setIsNavigatingToPrevious(false);
     this.isAnswered = true;
     this.disabled = true;
+    this.selectedOptions = [];
     this.updateNextButtonState();
 
     try {
