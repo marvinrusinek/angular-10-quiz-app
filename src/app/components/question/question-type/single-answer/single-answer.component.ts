@@ -20,7 +20,6 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 export class SingleAnswerComponent extends BaseQuestionComponent implements OnInit {
   @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
-  
   quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
@@ -19,6 +19,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 })
 export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit {
   @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
+  @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
@@ -71,5 +72,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       console.log('Calling fetchAndSetExplanationText in QuizQuestionComponent from MultipleAnswerComponent');
       await (this as QuizQuestionComponent).fetchAndSetExplanationText();
     }
+
+    this.optionSelected.emit({ option, index, checked: true });
   }
 }
