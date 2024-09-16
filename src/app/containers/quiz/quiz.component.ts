@@ -131,6 +131,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   status: QuizStatus;
   isNavigating = false;
   disabled = true;
+  nextButtonDisabled = true;
   optionSelectedSubscription: Subscription;
 
   selectedOptions: Option[] = [];
@@ -484,7 +485,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('After update - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
     console.log('selectedOptions:', this.selectedOptions);
   } */
-  onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
+  /* onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
     console.log('QuizComponent: Option selected:', event);
     
     const selectedOption: Option = { ...event.option };
@@ -510,6 +511,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     setTimeout(() => {
       console.log('After timeout - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
     }, 0);
+  } */
+  onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
+    // ... existing code ...
+
+    this.isAnswered = this.selectedOptions.length > 0;
+    console.log('Before updateNextButtonState - isAnswered:', this.isAnswered, 'nextButtonDisabled:', this.nextButtonDisabled);
+    this.updateNextButtonState();
+
+    console.log('After update - isAnswered:', this.isAnswered, 'nextButtonDisabled:', this.nextButtonDisabled);
+    console.log('selectedOptions:', this.selectedOptions);
+
+    setTimeout(() => {
+      console.log('After timeout - isAnswered:', this.isAnswered, 'nextButtonDisabled:', this.nextButtonDisabled);
+    }, 0);
   }
 
   /* updateNextButtonState(): void {
@@ -533,7 +548,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('Next button disabled:', isDisabled);
     this.cdRef.detectChanges(); // Force change detection
   } */
-  updateNextButtonState(): void {
+  /* updateNextButtonState(): void {
     const isDisabled = !this.isAnswered;
     console.log('updateNextButtonState - Current disabled:', this.disabled, 'New disabled:', isDisabled);
     this.disabled = isDisabled;
@@ -543,6 +558,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Add a timeout to check if the state is correct after a short delay
     setTimeout(() => {
       console.log('updateNextButtonState timeout - disabled:', this.disabled);
+    }, 0);
+  } */
+  updateNextButtonState(): void {
+    const newDisabledState = !this.isAnswered;
+    console.log('updateNextButtonState - Current disabled:', this.nextButtonDisabled, 'New disabled:', newDisabledState);
+    this.nextButtonDisabled = newDisabledState;
+    console.log('Next button disabled:', this.nextButtonDisabled);
+    this.cdRef.detectChanges();
+    
+    setTimeout(() => {
+      console.log('updateNextButtonState timeout - disabled:', this.nextButtonDisabled);
     }, 0);
   }
 
@@ -559,7 +585,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('Next button toggled, disabled:', newDisabledState);
     this.cdRef.detectChanges(); // Force change detection
   } */
-  toggleNextButton(): void {
+  /* toggleNextButton(): void {
     const newDisabledState = !this.disabled;
     console.log('toggleNextButton - Current disabled:', this.disabled, 'New disabled:', newDisabledState);
     this.disabled = newDisabledState;
@@ -569,6 +595,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Add a timeout to check if the state is correct after a short delay
     setTimeout(() => {
       console.log('toggleNextButton timeout - disabled:', this.disabled);
+    }, 0);
+  } */
+  toggleNextButton(): void {
+    this.nextButtonDisabled = !this.nextButtonDisabled;
+    console.log('Next button toggled, disabled:', this.nextButtonDisabled);
+    this.cdRef.detectChanges();
+
+    setTimeout(() => {
+      console.log('toggleNextButton timeout - disabled:', this.nextButtonDisabled);
     }, 0);
   }
 
