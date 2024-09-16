@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
@@ -19,6 +19,8 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 })
 export class SingleAnswerComponent extends BaseQuestionComponent implements OnInit {
   @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
+  @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
+  
   quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
@@ -76,6 +78,8 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
   }
 
   public override async onOptionClicked(option: SelectedOption, index: number, event?: Event): Promise<void> {
+    console.log('SingleAnswerComponent: onOptionClicked called', option, index, event);
+
     await super.onOptionClicked(option, index); // call the inherited method in BQC
 
     // Check if this component is actually an instance of QuizQuestionComponent
@@ -93,6 +97,8 @@ export class SingleAnswerComponent extends BaseQuestionComponent implements OnIn
       binding.isSelected = binding.option === this.selectedOption;
       binding.showFeedbackForOption = { [index]: binding.isSelected };
     }
+
+    this.optionSelected.emit({ option, index, checked: true });
 
     console.log('SingleAnswerComponent - selectedOption set to', this.selectedOption);
     console.log('SingleAnswerComponent - showFeedback set to', this.showFeedback);

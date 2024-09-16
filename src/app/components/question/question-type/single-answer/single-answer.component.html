@@ -4,5 +4,5 @@
   [correctMessage]="correctMessage"
   [selectedOptionIndex]="selectedOptionIndex"
   (optionClicked)="onOptionClicked($event.option, $event.index)"
-  (optionSelected)="onOptionSelected($event)"
+  (optionSelected)="onOptionClicked($event.option, $event.index, $event)"
 ></app-shared-option>
