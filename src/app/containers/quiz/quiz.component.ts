@@ -463,7 +463,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('After update - isAnswered:', this.isAnswered);
     console.log('selectedOptions:', this.selectedOptions);
   } */
-  onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
+  /* onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
     console.log('QuizComponent: Option selected:', event);
     
     const selectedOption: Option = { ...event.option };
@@ -483,6 +483,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     console.log('After update - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
     console.log('selectedOptions:', this.selectedOptions);
+  } */
+  onOptionSelected(event: {option: Option, index: number, checked: boolean}) {
+    console.log('QuizComponent: Option selected:', event);
+    
+    const selectedOption: Option = { ...event.option };
+    
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = event.checked ? [selectedOption] : [];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      if (event.checked) {
+        this.selectedOptions.push(selectedOption);
+      } else {
+        this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== selectedOption.optionId);
+      }
+    }
+  
+    this.isAnswered = this.selectedOptions.length > 0;
+    console.log('Before updateNextButtonState - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
+    this.updateNextButtonState();
+  
+    console.log('After update - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
+    console.log('selectedOptions:', this.selectedOptions);
+  
+    // Add a timeout to check if the state is correct after a short delay
+    setTimeout(() => {
+      console.log('After timeout - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
+    }, 0);
   }
 
   /* updateNextButtonState(): void {
@@ -500,11 +527,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('QuizComponent: Next button disabled:', this.disabled);
     this.cdRef.detectChanges();
   } */
-  updateNextButtonState(): void {
+  /* updateNextButtonState(): void {
     const isDisabled = !this.isAnswered;
     this.disabled = isDisabled;
     console.log('Next button disabled:', isDisabled);
     this.cdRef.detectChanges(); // Force change detection
+  } */
+  updateNextButtonState(): void {
+    const isDisabled = !this.isAnswered;
+    console.log('updateNextButtonState - Current disabled:', this.disabled, 'New disabled:', isDisabled);
+    this.disabled = isDisabled;
+    console.log('Next button disabled:', isDisabled);
+    this.cdRef.detectChanges(); // Force change detection
+    
+    // Add a timeout to check if the state is correct after a short delay
+    setTimeout(() => {
+      console.log('updateNextButtonState timeout - disabled:', this.disabled);
+    }, 0);
   }
 
   /* toggleNextButton(): void {
@@ -514,11 +553,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.disabled = !this.disabled; // Always enable the button when an option is selected
     console.log('QuizComponent: Next button disabled:', this.disabled);
   } */
-  toggleNextButton(): void {
+  /* toggleNextButton(): void {
     const newDisabledState = !this.disabled;
     this.disabled = newDisabledState;
     console.log('Next button toggled, disabled:', newDisabledState);
     this.cdRef.detectChanges(); // Force change detection
+  } */
+  toggleNextButton(): void {
+    const newDisabledState = !this.disabled;
+    console.log('toggleNextButton - Current disabled:', this.disabled, 'New disabled:', newDisabledState);
+    this.disabled = newDisabledState;
+    console.log('Next button toggled, disabled:', newDisabledState);
+    this.cdRef.detectChanges(); // Force change detection
+  
+    // Add a timeout to check if the state is correct after a short delay
+    setTimeout(() => {
+      console.log('toggleNextButton timeout - disabled:', this.disabled);
+    }, 0);
   }
 
   ngOnDestroy(): void {
