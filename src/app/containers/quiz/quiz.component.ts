@@ -423,8 +423,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.markForCheck();
   } */
   onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
-    console.log("MYTEST OOS");
-    console.log('QuizComponent: onOptionSelected called', event);
+    console.log("Option selected:", event);
   
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = [event.option];
@@ -438,10 +437,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   
     this.isAnswered = this.selectedOptions.length > 0;
-    console.log('After update - isAnswered:', this.isAnswered);
-    console.log('selectedOptions:', this.selectedOptions);
+    this.quizStateService.setAnswerSelected(this.isAnswered);
+    
+    console.log("isAnswered updated:", this.isAnswered);
+    console.log("selectedOptions:", this.selectedOptions);
   
-    this.cdRef.markForCheck();
+    this.cdRef.detectChanges();
   }
 
   updateNextButtonState(): void {
