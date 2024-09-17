@@ -2050,6 +2050,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
           this.currentQuestionIndex
         );
         this.selectedOptionService.setAnsweredState(isAnswered);
+        this.isAnswered = isAnswered;
 
         // Clear the previous explanation
         this.quizQuestionComponent.explanationToDisplay = '';
