@@ -398,7 +398,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     this.cdRef.detectChanges();
   } */
-  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log("MYTEST OOS");
     console.log('QuizComponent: onOptionSelected called', event);
   
@@ -420,6 +420,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('selectedOptions:', this.selectedOptions);
   
     // Ensure the change is reflected in the view
+    this.cdRef.markForCheck();
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log("MYTEST OOS");
+    console.log('QuizComponent: onOptionSelected called', event);
+  
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = [event.option];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      const index = this.selectedOptions.findIndex(o => o.optionId === event.option.optionId);
+      if (index === -1 && event.checked) {
+        this.selectedOptions.push(event.option);
+      } else if (index !== -1 && !event.checked) {
+        this.selectedOptions.splice(index, 1);
+      }
+    }
+  
+    this.isAnswered = this.selectedOptions.length > 0;
+    console.log('After update - isAnswered:', this.isAnswered);
+    console.log('selectedOptions:', this.selectedOptions);
+  
     this.cdRef.markForCheck();
   }
 
