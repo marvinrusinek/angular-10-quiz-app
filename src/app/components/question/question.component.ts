@@ -1317,6 +1317,7 @@ export class QuizQuestionComponent
       return;
     }
 
+    this.isAnswered = true;
     this.displayExplanation = false; // Reset display flag
     this.optionSelected.emit(option); // Emit the selected option
     this.quizStateService.setLoading(true);
