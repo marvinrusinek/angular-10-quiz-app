@@ -419,7 +419,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('After update - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
     console.log('selectedOptions:', this.selectedOptions);
   
-    this.cdRef.detectChanges();
+    // Ensure the change is reflected in the view
+    this.cdRef.markForCheck();
   }
 
   updateNextButtonState(): void {
