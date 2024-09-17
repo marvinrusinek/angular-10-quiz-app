@@ -385,12 +385,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('After update - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
     console.log('selectedOptions:', this.selectedOptions);
   } */
-  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log("MYTEST OOS");
     console.log('QuizComponent: onOptionSelected called', event);
   
     this.selectedOptions = [event.option];
     this.isAnswered = true;
+    this.updateNextButtonState();
+  
+    console.log('After update - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
+    console.log('selectedOptions:', this.selectedOptions);
+  
+    this.cdRef.detectChanges();
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log("MYTEST OOS");
+    console.log('QuizComponent: onOptionSelected called', event);
+  
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = [event.option];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      const index = this.selectedOptions.findIndex(o => o.optionId === event.option.optionId);
+      if (index === -1 && event.checked) {
+        this.selectedOptions.push(event.option);
+      } else if (index !== -1 && !event.checked) {
+        this.selectedOptions.splice(index, 1);
+      }
+    }
+  
+    this.isAnswered = this.selectedOptions.length > 0;
     this.updateNextButtonState();
   
     console.log('After update - isAnswered:', this.isAnswered, 'disabled:', this.disabled);
