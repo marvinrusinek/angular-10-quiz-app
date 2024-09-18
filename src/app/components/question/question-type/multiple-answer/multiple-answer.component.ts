@@ -23,6 +23,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
+  selectedOptions: SelectedOption[] = [];
   sharedOptionConfig: SharedOptionConfig;
 
   constructor(
@@ -64,10 +65,10 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     }
   }
 
-  public override async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  public override async onOptionClicked(option: SelectedOption, index: number, event?: Event): Promise<void> {
     console.log('MultipleAnswerComponent: onOptionClicked called', option, index, event);
 
-    await super.onOptionClicked(option, index); // Calls BQC's implementation
+    await super.onOptionClicked(option, index); // call the inherited method in BQC
 
     // Check if this component is actually an instance of QuizQuestionComponent
     if (this instanceof QuizQuestionComponent) {
@@ -75,7 +76,44 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       await (this as QuizQuestionComponent).fetchAndSetExplanationText();
     }
 
-    this.optionSelected.emit({ option, index, checked: true });
-    console.log('MAC: optionSelected emitted', { option, index, checked: true });
+    console.log('MultipleAnswerComponent - Option clicked', event);
+    
+    // Toggle the selection of the clicked option
+    const optionIndex = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
+    if (optionIndex === -1) {
+      this.selectedOptions.push(option);
+    } else {
+      this.selectedOptions.splice(optionIndex, 1);
+    }
+    
+    this.showFeedback = true;
+    
+    // Update the isSelected state for all options
+    for (const binding of this.optionBindings) {
+      binding.isSelected = this.selectedOptions.some(o => o.optionId === binding.option.optionId);
+      binding.showFeedbackForOption = { [index]: binding.isSelected };
+    }
+
+    const isChecked = optionIndex === -1; // true if the option was added, false if it was removed
+    this.optionSelected.emit({ option, index, checked: isChecked });
+    console.log('MAC: optionSelected emitted', { option, index, checked: isChecked });
+
+    // Update the quiz state
+    this.quizStateService.setAnswerSelected(this.selectedOptions.length > 0);
+    this.quizStateService.setAnswered(this.selectedOptions.length > 0);
+
+    // Update the SelectedOptionService
+    if (this.selectedOptions.length > 0) {
+      this.selectedOptionService.setSelectedOption(this.selectedOptions[0]);
+      console.log("MAC: SelectedOptionService updated with:", this.selectedOptions[0]);
+    } else {
+      this.selectedOptionService.clearSelectedOption();
+      console.log("MAC: SelectedOptionService cleared");
+    }
+
+    console.log('MultipleAnswerComponent - selectedOptions set to', this.selectedOptions);
+    console.log('MultipleAnswerComponent - showFeedback set to', this.showFeedback);
+
+    this.cdRef.detectChanges();
   }
 }
