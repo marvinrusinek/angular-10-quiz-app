@@ -67,10 +67,10 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     }
   }
 
-  public override async onOptionClicked(option: SelectedOption, index: number, event?: Event): Promise<void> {
-    console.log('MultipleAnswerComponent: onOptionClicked called', option, index, event);
+  public override async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+    console.log('MultipleAnswerComponent: onOptionClicked called', option, index);
 
-    await super.onOptionClicked(option, index); // call the inherited method in BQC
+    await super.onOptionClicked(option, index); // Calls BQC's implementation
 
     // Check if this component is actually an instance of QuizQuestionComponent
     if (this instanceof QuizQuestionComponent) {
@@ -78,25 +78,15 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       await (this as QuizQuestionComponent).fetchAndSetExplanationText();
     }
 
-    console.log('MultipleAnswerComponent - Option clicked', event);
-    
     // Toggle the selection of the clicked option
     const optionIndex = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
-    if (optionIndex === -1) {
+    const isChecked = optionIndex === -1;
+    if (isChecked) {
       this.selectedOptions.push(option);
     } else {
       this.selectedOptions.splice(optionIndex, 1);
     }
-    
-    this.showFeedback = true;
-    
-    // Update the isSelected state for all options
-    for (const binding of this.optionBindings) {
-      binding.isSelected = this.selectedOptions.some(o => o.optionId === binding.option.optionId);
-      binding.showFeedbackForOption = { [index]: binding.isSelected };
-    }
 
-    const isChecked = optionIndex === -1; // true if the option was added, false if it was removed
     this.optionSelected.emit({ option, index, checked: isChecked });
     console.log('MAC: optionSelected emitted', { option, index, checked: isChecked });
 
@@ -112,9 +102,6 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       this.selectedOptionService.clearSelectedOption();
       console.log("MAC: SelectedOptionService cleared");
     }
-
-    console.log('MultipleAnswerComponent - selectedOptions set to', this.selectedOptions);
-    console.log('MultipleAnswerComponent - showFeedback set to', this.showFeedback);
 
     this.cdRef.detectChanges();
   }
