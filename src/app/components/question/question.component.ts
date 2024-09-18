@@ -91,7 +91,7 @@ export class QuizQuestionComponent
     new EventEmitter<boolean>();
   @Output() isAnswered = false;
   @Output() answerSelected = new EventEmitter<boolean>();
-  @Output() optionSelected = new EventEmitter<SelectedOption>();
+  @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   @Input() data: {
     questionText: string;
     explanationText?: string;
