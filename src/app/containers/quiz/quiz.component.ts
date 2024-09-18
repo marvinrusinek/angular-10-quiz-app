@@ -2034,14 +2034,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
-    // Check if an answer is selected before proceeding
-    this.isAnswered = this.quizQuestionComponent.isAnswered;
-    if (!this.isAnswered) {
-      console.warn('No answer selected. Cannot advance.');
+    const isEnabled = await firstValueFrom(this.isButtonEnabled$);
+    if (!isEnabled) {
+      console.warn('Next button is disabled. Cannot advance.');
       return;
     }
   
-    if (this.isNavigating || this.disabled) {
+    if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
