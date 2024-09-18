@@ -338,7 +338,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       tap((isEnabled) =>
         console.log('Button enabled state changed:', isEnabled)
       ),
-      shareReplay(1)
+      shareReplay({ bufferSize: 1, refCount: true })
     );
 
     // Subscribe to log changes and trigger change detection if needed

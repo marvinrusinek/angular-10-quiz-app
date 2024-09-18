@@ -18,7 +18,7 @@ export class CountdownService {
   isReset = new BehaviorSubject<number>(1);
 
   constructor() {
-    this.start$ = this.isStart.asObservable().pipe(shareReplay(1));
+    this.start$ = this.isStart.asObservable().pipe(shareReplay({ bufferSize: 1, refCount: true }));
     this.reset$ = this.isReset.asObservable();
     this.stop$ = this.isStop.asObservable();
     this.concat$ = of(null);
