@@ -139,8 +139,8 @@ export class SingleAnswerComponent
     console.log('SAC: optionSelected emitted', { option, index, checked: true });
   
     // Update the quiz state
-    this.quizService.setAnswerSelected(true);
-    this.quizService.setAnswered(true);
+    this.quizStateService.setAnswerSelected(true);
+    this.quizStateService.setAnswered(true);
   
     // Update the SelectedOptionService
     this.selectedOptionService.setSelectedOption(option);
