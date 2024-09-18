@@ -312,7 +312,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.checkIfAnswerSelected(true);
   }
 
-  initializeNextButtonState() {
+  /* initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest({
       isLoading: this.quizStateService.isLoading$,
       isAnswered: this.quizStateService.isAnswered$,
@@ -341,6 +341,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
+    // Subscribe to log changes and trigger change detection if needed
+    this.isButtonEnabled$.subscribe((isEnabled) => {
+      console.log('isButtonEnabled$ emitted:', isEnabled);
+      this.cdRef.markForCheck();
+    });
+  } */
+  initializeNextButtonState() {
+    this.isButtonEnabled$ = combineLatest({
+      isLoading: this.quizStateService.isLoading$,
+      isAnswered: this.quizStateService.isAnswered$,
+      isOptionSelected: this.selectedOptionService.isOptionSelected$(),
+    }).pipe(
+      map(({ isLoading, isAnswered, isOptionSelected }) => {
+        console.log('State update:', { isLoading, isAnswered, isOptionSelected });
+  
+        // The button should be enabled when:
+        // 1. The quiz is not loading
+        // 2. An option is selected
+        const shouldEnable = !isLoading && isOptionSelected;
+  
+        console.log('Button should be enabled:', shouldEnable);
+        return shouldEnable;
+      }),
+      distinctUntilChanged(),
+      tap((isEnabled) => console.log('Button enabled state changed:', isEnabled)),
+      shareReplay(1)
+    );
+  
     // Subscribe to log changes and trigger change detection if needed
     this.isButtonEnabled$.subscribe((isEnabled) => {
       console.log('isButtonEnabled$ emitted:', isEnabled);
