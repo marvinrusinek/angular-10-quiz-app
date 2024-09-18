@@ -444,6 +444,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.markForCheck();
   } */
   onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log("MY OOS LOG");
     console.log("Option selected:", event);
   
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
