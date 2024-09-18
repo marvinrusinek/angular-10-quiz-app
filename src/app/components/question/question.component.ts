@@ -1322,7 +1322,7 @@ export class QuizQuestionComponent
     this.optionSelected.emit(option); // Emit the selected option
 
     // Set various states
-    this.quizStateService.setLoading(true);
+    this.quizStateService.setLoading(false);
     this.quizStateService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
     this.selectedOptionService.setSelectedOption(option);
