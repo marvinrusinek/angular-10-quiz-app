@@ -1309,22 +1309,16 @@ export class QuizQuestionComponent
   }
 
   public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    console.log('QQC: onOptionClicked called', option, index);
     console.log("MY LOG 12345");
-    
     if (!option) {
       console.error('Option is undefined');
       return;
     }
 
-    this.isAnswered = true;
     this.displayExplanation = false; // Reset display flag
     this.optionSelected.emit(option); // Emit the selected option
-
-    // Set various states
-    this.quizStateService.setLoading(false);
-    this.quizStateService.setAnswered(true);
-    this.quizStateService.setAnswerSelected(true);
+    this.quizStateService.setLoading(true);
+    this.quizStateService.setAnswerSelected(false);
     this.selectedOptionService.setSelectedOption(option);
 
     // Access the loadingSubject directly to get the current value
@@ -1335,6 +1329,10 @@ export class QuizQuestionComponent
     try {
       const questionState = this.initializeQuestionState();
       questionState.isAnswered = true;
+
+      if (!this.quizStateService.isAnswered$) {
+        this.quizStateService.setAnswerSelected(true);
+      }
 
       // Process the selected option
       await this.handleOptionProcessingAndFeedback(option, index);

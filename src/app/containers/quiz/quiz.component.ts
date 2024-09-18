@@ -291,9 +291,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.log('isOptionSelected$ emitted:', isSelected);
     });
 
-    this.initializeNextButtonState();
+    // this.initializeNextButtonState();
     // this.subscribeToOptionSelection();
-    // this.updateNextButtonState();
+    this.updateNextButtonState();
 
     this.subscribeToSelectionMessage();
 
@@ -350,11 +350,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest({
       isLoading: this.quizStateService.isLoading$,
+      isAnswered: this.quizStateService.isAnswered$,
       isOptionSelected: this.selectedOptionService.isOptionSelected$(),
     }).pipe(
-      map(({ isLoading, isOptionSelected }) => {
-        console.log('State update:', { isLoading, isOptionSelected });
+      map(({ isLoading, isAnswered, isOptionSelected }) => {
+        console.log('State update:', { isLoading, isAnswered, isOptionSelected });
+  
+        // The button should be enabled when:
+        // 1. The quiz is not loading
+        // 2. An option is selected
         const shouldEnable = !isLoading && isOptionSelected;
+  
         console.log('Button should be enabled:', shouldEnable);
         return shouldEnable;
       }),
@@ -363,6 +369,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       shareReplay(1)
     );
   
+    // Subscribe to log changes and trigger change detection if needed
     this.isButtonEnabled$.subscribe((isEnabled) => {
       console.log('isButtonEnabled$ emitted:', isEnabled);
       this.cdRef.markForCheck();
@@ -444,7 +451,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.markForCheck();
   } */
   onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
-    console.log("MY OOS LOG");
     console.log("Option selected:", event);
   
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
@@ -459,18 +465,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   
     this.isAnswered = this.selectedOptions.length > 0;
-    
-    // Update services
     this.quizStateService.setAnswerSelected(this.isAnswered);
-    this.quizStateService.setAnswered(this.isAnswered);
     
-    // Update the SelectedOptionService
-    if (this.isAnswered) {
-      this.selectedOptionService.setSelectedOption(this.selectedOptions[0] as SelectedOption); // For single answer
-    } else {
-      this.selectedOptionService.clearSelectedOption();
-    }
-  
     console.log("isAnswered updated:", this.isAnswered);
     console.log("selectedOptions:", this.selectedOptions);
   
@@ -2043,8 +2039,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
-    if (this.isNavigating || !(await firstValueFrom(this.isButtonEnabled$))) {
-      console.warn('Navigation not possible. Aborting.');
+    // Check if an answer is selected before proceeding
+    this.isAnswered = this.quizQuestionComponent.isAnswered;
+    if (!this.isAnswered) {
+      console.warn('No answer selected. Cannot advance.');
+      return;
+    }
+  
+    if (this.isNavigating || this.disabled) {
+      console.warn('Navigation already in progress. Aborting.');
       return;
     }
   

@@ -270,14 +270,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       index: idx,
       checked: element.checked
     });
-    
-    // Emit all events
-    this.optionClicked.emit({ option: optionBinding.option, index: idx });
-    this.optionSelected.emit({ option: optionBinding.option, index: idx, checked: element.checked });
-    this.optionChanged.emit(optionBinding.option);
-    this.questionAnswered.emit(this.currentQuestion);
-
-    console.log('SharedOptionComponent: Events emitted');
+    this.optionSelected.emit({ 
+      option: optionBinding.option, 
+      index: idx, 
+      checked: element.checked
+    });
   
     this.cdRef.detectChanges();
   }
