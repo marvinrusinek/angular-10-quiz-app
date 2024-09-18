@@ -6,6 +6,7 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuestionType } from '../../../shared/models/question-type.enum';
 import { SelectedOption } from '../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
+import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
@@ -26,8 +27,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
   @Output() optionClicked = new EventEmitter<{
-    option: Option,
-    index: number;
+    option: SelectedOption,
+    index: number
   }>();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
   @Output() optionChanged = new EventEmitter<Option>();
@@ -63,6 +64,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   };
 
   constructor(
+    private quizService: QuizService,
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private userPreferenceService: UserPreferenceService,
@@ -375,8 +377,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     } else {
       console.debug('quizQuestionComponentOnOptionClicked is not defined in SharedOptionComponent');
     }
+
+    // Create a SelectedOption object from the Option
+    const selectedOption: SelectedOption = {
+      ...option,
+      questionIndex: this.quizService.currentQuestionIndex
+    };
   
-    this.optionClicked.emit({ option, index });
+    this.optionClicked.emit({ option: selectedOption, index });
   
     // Trigger change detection
     this.cdRef.detectChanges();
