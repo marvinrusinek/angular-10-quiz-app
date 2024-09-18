@@ -2040,7 +2040,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     if (this.isNavigating || !(await firstValueFrom(this.isButtonEnabled$))) {
-      console.warn('Navigation already in progress. Aborting.');
+      console.warn('Navigation not possible. Aborting.');
       return;
     }
   
