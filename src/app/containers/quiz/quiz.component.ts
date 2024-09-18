@@ -458,20 +458,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   
     this.isAnswered = this.selectedOptions.length > 0;
+    
+    // Update services
     this.quizStateService.setAnswerSelected(this.isAnswered);
+    this.quizStateService.setAnswered(this.isAnswered);
     
     // Update the SelectedOptionService
     if (this.isAnswered) {
-      this.selectedOptionService.setSelectedOption(this.selectedOptions[0]); // For single answer
+      this.selectedOptionService.setSelectedOption(this.selectedOptions[0] as SelectedOption); // For single answer
     } else {
       this.selectedOptionService.clearSelectedOption();
     }
-  
-    // Update other services
-    this.quizStateService.setAnswered(this.isAnswered);
-    
-    // Emit the selected option(s)
-    this.optionSelected.emit(event.option);
   
     console.log("isAnswered updated:", this.isAnswered);
     console.log("selectedOptions:", this.selectedOptions);
