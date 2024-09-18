@@ -253,6 +253,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       showFeedback: this.showFeedback,
       selectionMessage: this.selectionMessage,
     };
+
+    this.isButtonEnabled$ = this.selectedOptionService.isOptionSelected$().pipe(
+      tap(isEnabled => console.log('QuizComponent: Next button enabled:', isEnabled)),
+      shareReplay(1)
+    );
   }
 
   @HostListener('window:focus', ['$event'])
@@ -289,6 +294,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.selectedOptionService.isOptionSelected$().subscribe((isSelected) => {
       console.log('isOptionSelected$ emitted:', isSelected);
+    });
+
+    this.isButtonEnabled$.subscribe(isEnabled => {
+      console.log('QuizComponent: isButtonEnabled$ subscription:', isEnabled);
+      this.cdRef.markForCheck();
     });
 
     this.initializeNextButtonState();
@@ -460,7 +470,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     this.isAnswered = this.selectedOptions.length > 0;
     this.quizStateService.setAnswerSelected(this.isAnswered);
-    this.selectedOptionService.setSelectedOption((this.selectedOptions.length > 0 ? this.selectedOptions[0] : null) as SelectedOption);
+    // this.selectedOptionService.setSelectedOption((this.selectedOptions.length > 0 ? this.selectedOptions[0] : null) as SelectedOption);
+    this.selectedOptionService.setSelectedOption(event.option);
     
     console.log("isAnswered updated:", this.isAnswered);
     console.log("selectedOptions:", this.selectedOptions);
