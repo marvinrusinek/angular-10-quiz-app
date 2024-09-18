@@ -114,52 +114,41 @@ export class SingleAnswerComponent
     );
   }
 
-  public override async onOptionClicked(
-    option: SelectedOption,
-    index: number,
-    event?: Event
-  ): Promise<void> {
-    console.log(
-      'SingleAnswerComponent: onOptionClicked called',
-      option,
-      index,
-      event
-    );
-
+  public override async onOptionClicked(option: SelectedOption, index: number, event?: Event): Promise<void> {
+    console.log('SingleAnswerComponent: onOptionClicked called', option, index, event);
+  
     await super.onOptionClicked(option, index); // call the inherited method in BQC
-
+  
     // Check if this component is actually an instance of QuizQuestionComponent
     if (this instanceof QuizQuestionComponent) {
-      console.log(
-        'Calling fetchAndSetExplanationText in QuizQuestionComponent from SingleAnswerComponent'
-      );
+      console.log('Calling fetchAndSetExplanationText in QuizQuestionComponent from SingleAnswerComponent');
       await (this as QuizQuestionComponent).fetchAndSetExplanationText();
     }
-
+  
     console.log('SingleAnswerComponent - Option clicked', event);
     this.selectedOption = option;
     this.showFeedback = true;
-
+    
     // Update the isSelected state for all options
     for (const binding of this.optionBindings) {
       binding.isSelected = binding.option === this.selectedOption;
       binding.showFeedbackForOption = { [index]: binding.isSelected };
     }
-
+  
     this.optionSelected.emit({ option, index, checked: true });
-    console.log('SAC: optionSelected emitted', {
-      option,
-      index,
-      checked: true,
-    });
-
-    console.log(
-      'SingleAnswerComponent - selectedOption set to',
-      this.selectedOption
-    );
-    console.log(
-      'SingleAnswerComponent - showFeedback set to',
-      this.showFeedback
-    );
+    console.log('SAC: optionSelected emitted', { option, index, checked: true });
+  
+    // Update the quiz state
+    this.quizService.setAnswerSelected(true);
+    this.quizService.setAnswered(true);
+  
+    // Update the SelectedOptionService
+    this.selectedOptionService.setSelectedOption(option);
+    console.log("SAC: SelectedOptionService updated with:", option);
+  
+    console.log('SingleAnswerComponent - selectedOption set to', this.selectedOption);
+    console.log('SingleAnswerComponent - showFeedback set to', this.showFeedback);
+  
+    this.cdRef.detectChanges();
   }
 }
