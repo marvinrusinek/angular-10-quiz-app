@@ -401,11 +401,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.cdRef.markForCheck();
     });
   } */
-  initializeNextButtonState() {
+  /* initializeNextButtonState() {
     this.isButtonEnabled$ = this.selectedOptionService.isOptionSelected$().pipe(
       tap(isEnabled => console.log('QuizComponent: Next button enabled:', isEnabled)),
       shareReplay(1)
     );
+  } */
+  initializeNextButtonState() {
+    this.isButtonEnabled$ = combineLatest([
+      this.quizStateService.isLoading$,
+      this.selectedOptionService.isOptionSelected$()
+    ]).pipe(
+      map(([isLoading, isOptionSelected]) => {
+        console.log('Next button state update:', { isLoading, isOptionSelected });
+        return !isLoading && isOptionSelected;
+      }),
+      distinctUntilChanged(),
+      tap(isEnabled => console.log('Next button enabled:', isEnabled)),
+      shareReplay(1)
+    );
+
+    this.isButtonEnabled$.subscribe(isEnabled => {
+      this.disabled = !isEnabled;
+      this.cdRef.markForCheck();
+    });
   }
 
   subscribeToOptionSelection() {
