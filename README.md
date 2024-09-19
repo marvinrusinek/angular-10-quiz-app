@@ -1,12 +1,14 @@
 <h2>Angular Quiz App</h2>
 
 <h4>Overview</h4>
-<p>This is a dynamic and interactive quiz application built with Angular, designed to present users with a series of questions across various categories. It features timed quizzes, multiple choice and single-answer questions, as well as explanations for each answer.</p>
+<p>Hey everyone! 🎉</p>
+<p>I'm excited to share the Angular quiz app I've been working on! It's built entirely with Angular, and I would love for you to check it out.</p>
+<p>This dynamic and interactive quiz application built entirely with Angular is designed to present users with a series of questions across various milestones. It features timed quizzes, multiple-answer and single-answer questions, as well as explanations for each question. The app allows you to take engaging quizzes, navigate between questions smoothly, and provide real-time feedback based on your answers. The app is still a work in progress. I'm actively refining the functionality and optimizing the performance, with a few features still under development.</p>
 
 <h4>Features</h4>
 <ul>
   <li>Multiple Question Types: Support for multiple-answer and single-answer questions.</li>
-  <li>Timer: Each question comes with a countdown timer to simulate a real-time quiz experience.</li>
+  <li>Timer: Each question has a countdown timer to simulate a real-time quiz experience.</li>
   <li>Score Tracking: Keeps track of the user’s score based on correct answers.</li>
   <li>Explanations: Displays explanations for correct/incorrect answers after each question is answered.</li>
   <li>Navigation: Users can navigate between questions using 'Next' and 'Previous' buttons or directly using the URL.</li>
@@ -83,7 +85,10 @@ Open a pull request.
 <h4>Future Enhancements</h4>
 Implement user authentication for saving quiz progress.<br>
 Add more question categories and question sets.<br>
-Leaderboard system to track top performers.<br>
+Leaderboard system to track top performers.<be>
+
+<h4>Show Your Support</h4>
+<p>If you're interested in Angular or just love interactive quiz apps, please take a look and give it a ⭐ if you like it! Your feedback and support would mean a lot!</p>
 
 <h4>License</h4>
 This project is licensed under the MIT License. See the LICENSE file for details.
