@@ -3,7 +3,7 @@
 <h4>Overview</h4>
 <p>Hey everyone! 🎉</p>
 <p>I'm excited to share the Angular quiz app I've been working on! It's built entirely with Angular, and I would love for you to check it out.</p>
-<p>This dynamic and interactive quiz application built entirely with Angular is designed to present users with a series of questions across various milestones. It features timed quizzes, multiple-answer and single-answer questions, as well as explanations for each question. The app allows you to take engaging quizzes, navigate between questions smoothly, and provide real-time feedback based on your answers. The app is still a work in progress. I'm actively refining the functionality and optimizing the performance, with a few features still under development.</p>
+<p>This dynamic and interactive quiz application is designed to present users with a series of questions across various milestones. It features timed quizzes, multiple-answer and single-answer questions, as well as explanations for each question. The app allows you to take engaging quizzes, navigate between questions smoothly, and provide real-time feedback based on your answers. The app is still a work in progress, with ongoing refinements to functionality, performance optimization, and a few features still under development.</p>
 
 <h4>Features</h4>
 <ul>
