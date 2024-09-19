@@ -7,7 +7,6 @@ import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
-import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { QuizQuestionComponent } from '../../../../components/question/question.component';
 
@@ -31,7 +30,6 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
   constructor(
     protected quizService: QuizService,
-    protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
@@ -69,7 +67,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     }
   }
 
-  /* public override async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
+  public override async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     console.log('MultipleAnswerComponent: onOptionClicked called', option, index);
 
     await super.onOptionClicked(option, index); // Calls BQC's implementation
@@ -105,42 +103,6 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       console.log("MAC: SelectedOptionService cleared");
     }
 
-    this.cdRef.detectChanges();
-  } */
-  public override async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    console.log('MultipleAnswerComponent: onOptionClicked called', option, index);
-  
-    await super.onOptionClicked(option, index);
-  
-    // Toggle the selection of the clicked option
-    const optionIndex = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
-    const isChecked = optionIndex === -1;
-    if (isChecked) {
-      this.selectedOptions.push(option);
-    } else {
-      this.selectedOptions.splice(optionIndex, 1);
-    }
-  
-    // Update feedback for the clicked option
-    this.showFeedbackForOption[option.optionId] = isChecked;
-  
-    this.optionSelected.emit({ option, index, checked: isChecked });
-    console.log('MAC: optionSelected emitted', { option, index, checked: isChecked });
-  
-    // Update the quiz state
-    this.quizStateService.setAnswerSelected(this.selectedOptions.length > 0);
-    this.quizStateService.setAnswered(this.selectedOptions.length > 0);
-  
-    // Update the SelectedOptionService
-    if (this.selectedOptions.length > 0) {
-      this.selectedOptionService.setSelectedOption(this.selectedOptions[0]);
-      console.log("MAC: SelectedOptionService updated with:", this.selectedOptions[0]);
-    } else {
-      this.selectedOptionService.clearSelectedOption();
-      console.log("MAC: SelectedOptionService cleared");
-    }
-  
-    // Ensure the view is updated
     this.cdRef.detectChanges();
   }
 }

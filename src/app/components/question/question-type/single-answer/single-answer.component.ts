@@ -15,7 +15,6 @@ import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
-import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { QuizQuestionComponent } from '../../../../components/question/question.component';
 
@@ -49,7 +48,6 @@ export class SingleAnswerComponent
 
   constructor(
     protected quizService: QuizService,
-    protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
@@ -116,7 +114,7 @@ export class SingleAnswerComponent
     );
   }
 
-  /* public override async onOptionClicked(option: SelectedOption, index: number, event?: Event): Promise<void> {
+  public override async onOptionClicked(option: SelectedOption, index: number, event?: Event): Promise<void> {
     console.log('SingleAnswerComponent: onOptionClicked called', option, index, event);
   
     await super.onOptionClicked(option, index); // call the inherited method in BQC
@@ -151,42 +149,6 @@ export class SingleAnswerComponent
     console.log('SingleAnswerComponent - selectedOption set to', this.selectedOption);
     console.log('SingleAnswerComponent - showFeedback set to', this.showFeedback);
   
-    this.cdRef.detectChanges();
-  } */
-  public override async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
-    console.log('SingleAnswerComponent: onOptionClicked called', option, index);
-
-    await super.onOptionClicked(option, index);
-
-    // For single answer, we always replace the selected option
-    this.selectedOption = option;
-
-    // Update feedback for all options
-    if (this.currentQuestion && this.currentQuestion.options) {
-      for (const opt of this.currentQuestion.options) {
-        this.showFeedbackForOption[opt.optionId] = opt.optionId === option.optionId;
-      }
-    }
-
-    const isChecked = true; // In single answer, the clicked option is always selected
-    this.optionSelected.emit({ option, index, checked: isChecked });
-    console.log('SAC: optionSelected emitted', { option, index, checked: isChecked });
-
-    // Update the quiz state
-    this.quizStateService.setAnswerSelected(true);
-    this.quizStateService.setAnswered(true);
-
-    // Update the SelectedOptionService
-    this.selectedOptionService.setSelectedOption(option);
-    console.log("SAC: SelectedOptionService updated with:", option);
-
-    // If this component is actually an instance of QuizQuestionComponent
-    if (this instanceof QuizQuestionComponent) {
-      console.log('Calling fetchAndSetExplanationText in QuizQuestionComponent from SingleAnswerComponent');
-      await (this as QuizQuestionComponent).fetchAndSetExplanationText();
-    }
-
-    // Ensure the view is updated
     this.cdRef.detectChanges();
   }
 }
