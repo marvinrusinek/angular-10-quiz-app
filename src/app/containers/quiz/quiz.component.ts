@@ -536,9 +536,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log('QuizComponent: onOptionSelected called', event);
     
-    if (this.currentQuestion.type === 'single') {
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = [event.option];
-    } else if (this.currentQuestion.type === 'multiple') {
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
       const index = this.selectedOptions.findIndex(o => o.optionId === event.option.optionId);
       if (index === -1 && event.checked) {
         this.selectedOptions.push(event.option);
@@ -549,7 +549,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     const isAnswered = this.selectedOptions.length > 0;
     this.quizStateService.setAnswerSelected(isAnswered);
-    this.selectedOptionService.setSelectedOption(isAnswered ? this.selectedOptions[0] : null);
+    this.selectedOptionService.setSelectedOption((isAnswered ? this.selectedOptions[0] : null) as SelectedOption);
 
     console.log('QuizComponent: Updated selectedOptions', this.selectedOptions);
     console.log('QuizComponent: isAnswered', isAnswered);
