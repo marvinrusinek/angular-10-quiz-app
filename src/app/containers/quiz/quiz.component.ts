@@ -2103,6 +2103,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
     this.selectedOptions = [];
+    this.isAnswered = false;
+
     this.updateNextButtonState();
   
     console.log('After advancing - New question:', this.currentQuestion);
