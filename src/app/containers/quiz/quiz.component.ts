@@ -476,7 +476,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Ensure the change is reflected in the view
     this.cdRef.markForCheck();
   } */
-  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log('QuizComponent: onOptionSelected called', event);
 
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
@@ -498,6 +498,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('selectedOptions:', this.selectedOptions);
 
     this.cdRef.detectChanges();
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log('QuizComponent: onOptionSelected called', event);
+  
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = [event.option];
+      this.selectedOptionService.setSelectedOption(event.option);
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      const index = this.selectedOptions.findIndex(o => o.optionId === event.option.optionId);
+      if (index === -1 && event.checked) {
+        this.selectedOptions.push(event.option);
+      } else if (index !== -1 && !event.checked) {
+        this.selectedOptions.splice(index, 1);
+      }
+      this.selectedOptionService.setSelectedOption(this.selectedOptions.length > 0 ? this.selectedOptions[0] : null);
+    }
+  
+    this.isAnswered = this.selectedOptions.length > 0;
+    this.quizStateService.setAnswerSelected(this.isAnswered);
+  
+    console.log('After update - isAnswered:', this.isAnswered, 'selectedOptions:', this.selectedOptions);
+  
+    this.cdRef.markForCheck();
   }
 
   updateNextButtonState(): void {
