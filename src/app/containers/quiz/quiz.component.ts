@@ -379,7 +379,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.cdRef.markForCheck();
     });
   } */
-  initializeNextButtonState() {
+  /* initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest({
       isLoading: this.quizStateService.isLoading$,
       isOptionSelected: this.selectedOptionService.isOptionSelected$(),
@@ -400,6 +400,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.disabled = !isEnabled;
       this.cdRef.markForCheck();
     });
+  } */
+  initializeNextButtonState() {
+    this.isButtonEnabled$ = this.selectedOptionService.isOptionSelected$().pipe(
+      tap(isEnabled => console.log('QuizComponent: Next button enabled:', isEnabled)),
+      shareReplay(1)
+    );
   }
 
   subscribeToOptionSelection() {
@@ -499,7 +505,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.cdRef.detectChanges();
   } */
-  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log('QuizComponent: onOptionSelected called', event);
   
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
@@ -520,6 +526,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     console.log('After update - isAnswered:', this.isAnswered, 'selectedOptions:', this.selectedOptions);
   
+    this.cdRef.markForCheck();
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log('QuizComponent: onOptionSelected called', event);
+    this.selectedOptionService.setSelectedOption(event.option);
     this.cdRef.markForCheck();
   }
 
@@ -2090,6 +2101,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     const isEnabled = await firstValueFrom(this.isButtonEnabled$);
+    console.log('QuizComponent: Attempting to advance, button enabled:', isEnabled);
     if (!isEnabled) {
       console.warn('Next button is disabled. Cannot advance.');
       return;
