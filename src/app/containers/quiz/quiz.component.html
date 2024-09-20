@@ -90,9 +90,10 @@
             </button>
           </div>
           <p>Next button enabled: {{ isButtonEnabled$ | async }}
-          <button (click)="manualOverrideSubject.next(!manualOverrideSubject.value)">
+          <button (click)="toggleButtonState()">
             Toggle Button State
           </button>
+          
           <!--<p>Is Loading: {{ quizStateService.isLoading$ | async }}</p>
           <p>Is Option Selected: {{ selectedOptionService.isOptionSelected$() | async }}</p>-->
 
