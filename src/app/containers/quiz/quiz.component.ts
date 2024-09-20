@@ -358,11 +358,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       tap(isEnabled => console.log('isButtonEnabled$ emitted:', isEnabled)),
       shareReplay(1)
     );
-  
-    // Debug subscription
-    this.isButtonEnabled$.subscribe(isEnabled => {
+
+    this.isButtonEnabled$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(isEnabled => {
       console.log('Debug: isButtonEnabled$ subscription received:', isEnabled);
-      this.cdRef.markForCheck(); // Trigger change detection
+      this.cdRef.markForCheck();
     });
   }
 
