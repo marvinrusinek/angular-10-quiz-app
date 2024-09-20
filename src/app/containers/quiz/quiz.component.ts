@@ -361,10 +361,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   toggleButtonState() {
+    this.isButtonEnabled = !this.isButtonEnabled;
+    console.log('Button state manually toggled to:', this.isButtonEnabled);
+    this.cdRef.detectChanges();
+  }
+
+  /* toggleButtonState() {
     const currentValue = this.manualOverrideSubject.value;
     this.manualOverrideSubject.next(!currentValue);
     console.log('Manual override toggled to:', !currentValue);
-  }
+  } */
 
   subscribeToOptionSelection() {
     this.optionSelectedSubscription = this.selectedOptionService
@@ -1993,6 +1999,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
         // Reset states for the new question
         this.selectedOptionService.clearSelectedOption();
+        this.isButtonEnabled = false;
         this.quizStateService.setAnswered(false);
         this.quizStateService.setAnswerSelected(false);
         this.manualOverrideSubject.next(false);
