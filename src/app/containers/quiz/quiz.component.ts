@@ -190,7 +190,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   private manualOverrideSubject = new BehaviorSubject<boolean>(false);
   isButtonEnabled$: Observable<boolean>;
-  // isButtonEnabled = false;
+  isButtonEnabled = false;
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
 
@@ -391,7 +391,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       tap(isEnabled => console.log('Next button enabled:', isEnabled))
     );
   } */
-  initializeNextButtonState() {
+  /* initializeNextButtonState() {
     this.isButtonEnabled$ = this.selectedOptionService.isOptionSelected$().pipe(
       tap(isSelected => console.log('QuizComponent: isOptionSelected$ emitted:', isSelected)),
       map(isSelected => {
@@ -408,13 +408,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.isButtonEnabled = isEnabled;
       this.cdRef.markForCheck();
     });
+  } */
+  initializeNextButtonState() {
+    this.isButtonEnabled$ = this.selectedOptionService.isOptionSelected$().pipe(
+      tap(isSelected => console.log('QuizComponent: isOptionSelected$ emitted:', isSelected)),
+      map(isSelected => {
+        console.log('QuizComponent: Mapping isSelected to button enabled state:', isSelected);
+        return isSelected;
+      }),
+      distinctUntilChanged(),
+      tap(isEnabled => {
+        console.log('QuizComponent: Next button should be enabled:', isEnabled);
+        this.isButtonEnabled = isEnabled;
+        this.cdRef.markForCheck();
+      })
+    );
   }
 
-  /* toggleButtonState() {
+  toggleButtonState() {
     this.isButtonEnabled = !this.isButtonEnabled;
     console.log('Button state manually toggled to:', this.isButtonEnabled);
     this.cdRef.detectChanges();
-  } */
+  }
 
   /* toggleButtonState() {
     const currentValue = this.manualOverrideSubject.value;
@@ -2049,7 +2064,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
         // Reset states for the new question
         this.selectedOptionService.clearSelectedOption();
-        // this.isButtonEnabled = false;
+        this.isButtonEnabled = false;
         this.quizStateService.setAnswered(false);
         this.quizStateService.setAnswerSelected(false);
         this.manualOverrideSubject.next(false);
