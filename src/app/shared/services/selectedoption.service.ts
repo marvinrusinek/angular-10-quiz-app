@@ -43,14 +43,16 @@ export class SelectedOptionService {
   }
 
   setSelectedOption(option: SelectedOption): void {
+    console.log('SelectedOptionService: setSelectedOption called with', option);
     this.selectedOption = option;
     
-    console.log('Setting selected option:', option);
     this.selectedOptionSubject.next(option);
-    console.log('Selected option set, current value:', this.selectedOptionSubject.getValue());
-
-    this.isOptionSelectedSubject.next(true);
-
+    console.log('SelectedOptionService: Selected option set, current value:', this.selectedOptionSubject.getValue());
+  
+    const isSelected = option !== null;
+    this.isOptionSelectedSubject.next(isSelected);
+    console.log('SelectedOptionService: isOptionSelected updated to', isSelected);
+  
     // Initialize currentFeedback with the current value from showFeedbackForOptionSubject
     const currentFeedback: Record<string, boolean> = { ...this.showFeedbackForOptionSubject.value };
     
@@ -66,8 +68,10 @@ export class SelectedOptionService {
     
     // Update the showFeedbackForOptionSubject with the new feedback state
     this.showFeedbackForOptionSubject.next(currentFeedback);
-
+    console.log('SelectedOptionService: Updated feedback state', currentFeedback);
+  
     this.updateAnsweredState();
+    console.log('SelectedOptionService: Updated answered state');
   }
 
   getSelectedOption(): SelectedOption | null {
