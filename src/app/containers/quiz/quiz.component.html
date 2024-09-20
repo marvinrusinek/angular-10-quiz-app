@@ -88,9 +88,10 @@
               <i class="material-icons">navigate_next</i>
             </button>
           </div>
-          <p>Next button enabled: {{ isButtonEnabled$ | async }}</p>
+          <!--[disabled]="!(isButtonEnabled$ | async)"-->
+          <!--<p>Next button enabled: {{ isButtonEnabled$ | async }}</p>
           <p>Is Loading: {{ quizStateService.isLoading$ | async }}</p>
-          <p>Is Option Selected: {{ selectedOptionService.isOptionSelected$() | async }}</p>
+          <p>Is Option Selected: {{ selectedOptionService.isOptionSelected$() | async }}</p>-->
 
           <div class="show-score-nav" [hidden]="shouldHideShowResultsButton">
             <button
