@@ -381,7 +381,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.cdRef.markForCheck();
     });
   } */
-  initializeNextButtonState() {
+  /* initializeNextButtonState() {
     this.isButtonEnabled$ = this.selectedOptionService.isOptionSelected$().pipe(
       map(isSelected => {
         console.log('Option selected state:', isSelected);
@@ -390,6 +390,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       distinctUntilChanged(),
       tap(isEnabled => console.log('Next button enabled:', isEnabled))
     );
+  } */
+  initializeNextButtonState() {
+    this.isButtonEnabled$ = this.selectedOptionService.isOptionSelected$().pipe(
+      tap(isSelected => console.log('QuizComponent: isOptionSelected$ emitted:', isSelected)),
+      map(isSelected => {
+        console.log('QuizComponent: Mapping isSelected to button enabled state:', isSelected);
+        return isSelected;
+      }),
+      distinctUntilChanged(),
+      tap(isEnabled => console.log('QuizComponent: Next button should be enabled:', isEnabled))
+    );
+  
+    // Subscribe to update the component property
+    this.isButtonEnabled$.subscribe(isEnabled => {
+      console.log('QuizComponent: isButtonEnabled$ subscription received:', isEnabled);
+      this.isButtonEnabled = isEnabled;
+      this.cdRef.markForCheck();
+    });
   }
 
   /* toggleButtonState() {
