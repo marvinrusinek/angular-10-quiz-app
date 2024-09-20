@@ -83,6 +83,7 @@
               (window:keydown.Enter)="advanceToNextQuestion()"
               [disabled]="!(isButtonEnabled$ | async)"
               aria-label="Next Question"
+              [matTooltip]="(isButtonEnabled$ | async) ? 'Next Question>>' : 'Please select an option to continue...'"
               matTooltipPosition="above"
             >
               <i class="material-icons">navigate_next</i>
