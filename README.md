@@ -1,7 +1,7 @@
 <h2>Angular Quiz App</h2>
 
 <p>Hey everyone! 🎉</p>
-<p>I'm really excited to share the Angular quiz app I've been working on! It's about Angular and built entirely with Angular, and I would love for you to check it out.</p>
+<p>I'm really excited to share the Angular quiz app I've been working on! It's all about Angular and built entirely using Angular, and I would love for you to check it out.</p>
 <p>This dynamic and interactive quiz application is designed to present users with a series of questions across various milestones. It features timed quizzes, multiple-answer and single-answer questions, as well as explanations for each question. The app allows you to take engaging quizzes, navigate between questions smoothly, and provide real-time feedback based on your answers. The app is still a work in progress, with ongoing refinements to functionality, performance optimization, and a few features still under development.</p>
 
 <h4>Features</h4>
@@ -30,19 +30,19 @@
   <li>Angular CLI (v10.x or above)</li>
 </ul>
 
-Clone the Repository
-bash
-Copy code
-git clone https://github.com/yourusername/quiz-app.git
-cd quiz-app
-Install Dependencies
-bash
-Copy code
-npm install
-Run the App
-bash
-Copy code
-ng serve
+Clone the Repository<br>
+bash<br>
+Copy code<br>
+git clone https://github.com/yourusername/quiz-app.git<br>
+cd quiz-app<br>
+Install Dependencies<br>
+bash<br>
+Copy code<br>
+npm install<br>
+Run the App<br>
+bash<br>
+Copy code<br>
+ng serve<br>
 Open your browser and navigate to http://localhost:4200.
 
 <h4>Usage</h4>
@@ -66,14 +66,14 @@ Adding a New Feature<br>
 Create a new component or service under the respective folder.<br>
 Update or create unit tests for your feature.<br>
 Test your feature locally by running:
-bash
-Copy code
-ng test
-Debugging
-Ensure ng serve is running, then inspect the app using browser developer tools.
-Use the Angular ng commands to check components and debug issues.
-Contributing
-Contributions are welcome! To contribute:
+bash<br>
+Copy code<br>
+ng test<br>
+Debugging<br>
+Ensure ng serve is running, then inspect the app using browser developer tools.<br>
+Use the Angular ng commands to check components and debug issues.<br>
+Contributing<br>
+Contributions are welcome! To contribute:<br>
 
 Fork the repository.<br>
 Create a feature branch (git checkout -b feature-name).<br>
