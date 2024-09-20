@@ -357,7 +357,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       shareReplay(1)
     );
 
-    // Subscribe to log changes
     this.isButtonEnabled$.subscribe(isEnabled => {
       console.log('isButtonEnabled$ emitted:', isEnabled);
       this.cdRef.markForCheck();
