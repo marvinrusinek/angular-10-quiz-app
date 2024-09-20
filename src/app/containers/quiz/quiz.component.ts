@@ -393,6 +393,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.quizStateService.setAnswerSelected(isAnswered);
     this.selectedOptionService.setSelectedOption(event.option);
+    this.manualOverrideSubject.next(true);
 
     console.log('QuizComponent: Updated selectedOptions', this.selectedOptions);
     console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
