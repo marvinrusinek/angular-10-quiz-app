@@ -81,7 +81,7 @@
               (click)="advanceToNextQuestion()"
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
-              [disabled]="!(isButtonEnabled$ | async)"
+              [disabled]="!isButtonEnabled"
               aria-label="Next Question"
               [matTooltip]="(isButtonEnabled$ | async) ? 'Next Question>>' : 'Please select an option to continue...'"
               matTooltipPosition="above"
@@ -89,11 +89,14 @@
               <i class="material-icons">navigate_next</i>
             </button>
           </div>
-          <p>Next button enabled: {{ isButtonEnabled$ | async }}
+          <!--[disabled]="!(isButtonEnabled$ | async)"-->
+          <!--<p>Next button enabled: {{ isButtonEnabled$ | async }}
           <button (click)="toggleButtonState()">
             Toggle Button State
-          </button>
-          
+          </button>-->
+          <p>Next button enabled: {{ isButtonEnabled }}</p>
+          <button (click)="toggleButtonState()">Toggle Button State</button>
+
           <!--<p>Is Loading: {{ quizStateService.isLoading$ | async }}</p>
           <p>Is Option Selected: {{ selectedOptionService.isOptionSelected$() | async }}</p>-->
 
