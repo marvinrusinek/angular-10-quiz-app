@@ -359,7 +359,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       shareReplay(1)
     );
   } */
-  initializeNextButtonState() {
+  /* initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest([
       this.quizStateService.isLoading$,
       this.selectedOptionService.isOptionSelected$()
@@ -380,6 +380,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.disabled = !isEnabled;
       this.cdRef.markForCheck();
     });
+  } */
+  initializeNextButtonState() {
+    this.isButtonEnabled$ = this.selectedOptionService.isOptionSelected$().pipe(
+      map(isSelected => {
+        console.log('Option selected state:', isSelected);
+        return isSelected;
+      }),
+      distinctUntilChanged(),
+      tap(isEnabled => console.log('Next button enabled:', isEnabled))
+    );
   }
 
   /* toggleButtonState() {
