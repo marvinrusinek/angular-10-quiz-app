@@ -190,7 +190,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   private manualOverrideSubject = new BehaviorSubject<boolean>(false);
   isButtonEnabled$: Observable<boolean>;
-  isButtonEnabled = false;
+  // isButtonEnabled = false;
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
 
@@ -382,11 +382,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  toggleButtonState() {
+  /* toggleButtonState() {
     this.isButtonEnabled = !this.isButtonEnabled;
     console.log('Button state manually toggled to:', this.isButtonEnabled);
     this.cdRef.detectChanges();
-  }
+  } */
 
   /* toggleButtonState() {
     const currentValue = this.manualOverrideSubject.value;
@@ -2021,7 +2021,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
         // Reset states for the new question
         this.selectedOptionService.clearSelectedOption();
-        this.isButtonEnabled = false;
+        // this.isButtonEnabled = false;
         this.quizStateService.setAnswered(false);
         this.quizStateService.setAnswerSelected(false);
         this.manualOverrideSubject.next(false);
