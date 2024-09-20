@@ -293,10 +293,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isLoading$ = this.quizStateService.isLoading$;
     this.isAnswered$ = this.quizStateService.isAnswered$;
 
-    this.selectedOptionService.isOptionSelected$().subscribe((isSelected) => {
-      console.log('isOptionSelected$ emitted:', isSelected);
-    });
-
     this.isButtonEnabled$.subscribe(isEnabled => {
       console.log('QuizComponent: isButtonEnabled$ subscription:', isEnabled);
       this.cdRef.markForCheck();
@@ -305,6 +301,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.initializeNextButtonState();
     // this.subscribeToOptionSelection();
     // this.updateNextButtonState();
+
+    this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
+      console.log('Debug: isOptionSelected$ emitted', isSelected);
+    });
 
     this.subscribeToSelectionMessage();
 
