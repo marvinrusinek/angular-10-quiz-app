@@ -358,6 +358,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
   }
 
+  toggleButtonState() {
+    const currentValue = this.manualOverrideSubject.value;
+    this.manualOverrideSubject.next(!currentValue);
+    console.log('Manual override toggled to:', !currentValue);
+  }
+
   subscribeToOptionSelection() {
     this.optionSelectedSubscription = this.selectedOptionService
       .isOptionSelected$()
