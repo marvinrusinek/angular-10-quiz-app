@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { distinctUntilChanged, map, tap } from 'rxjs/operators';
+import { distinctUntilChanged, map, startWith, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
@@ -114,6 +114,7 @@ export class SelectedOptionService {
   } */
   isOptionSelected$(): Observable<boolean> {
     return this.selectedOption$.pipe(
+      startWith(this.selectedOption), // Emit the current state immediately when subscribed
       map(option => {
         const isSelected = option !== null;
         console.log('SelectedOptionService: isOptionSelected$ mapping', { option, isSelected });
