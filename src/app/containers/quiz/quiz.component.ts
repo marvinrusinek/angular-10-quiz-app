@@ -350,12 +350,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     ]).pipe(
       map(([isLoading, isOptionSelected, manualOverride]) => {
         console.log('Button state inputs:', { isLoading, isOptionSelected, manualOverride });
-        return !isLoading && (isOptionSelected || manualOverride);
+        const isEnabled = !isLoading && (isOptionSelected || manualOverride);
+        console.log('Next button should be enabled:', isEnabled);
+        return isEnabled;
       }),
       distinctUntilChanged(),
-      tap(isEnabled => console.log('Next button should be enabled:', isEnabled)),
+      tap(isEnabled => console.log('isButtonEnabled$ emitted:', isEnabled)),
       shareReplay(1)
     );
+
+    // Subscribe to log changes
+    this.isButtonEnabled$.subscribe(isEnabled => {
+      console.log('isButtonEnabled$ subscription:', isEnabled);
+      this.cdRef.markForCheck();
+    });
   }
 
   subscribeToOptionSelection() {
