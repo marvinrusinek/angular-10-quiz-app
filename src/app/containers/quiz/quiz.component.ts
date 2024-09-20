@@ -188,6 +188,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   nextButtonTooltip = 'Please select an option to continue...';
 
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
+  private manualOverrideSubject = new BehaviorSubject<boolean>(false);
   isButtonEnabled$: Observable<boolean>;
   isButtonEnabled = false;
   isLoading$: Observable<boolean>;
@@ -344,15 +345,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest([
       this.quizStateService.isLoading$,
-      this.selectedOptionService.isOptionSelected$()
+      this.selectedOptionService.isOptionSelected$(),
+      this.manualOverrideSubject
     ]).pipe(
-      map(([isLoading, isOptionSelected]) => {
-        console.log('Next button state update:', { isLoading, isOptionSelected });
-        return !isLoading && isOptionSelected;
+      map(([isLoading, isOptionSelected, manualOverride]) => {
+        console.log('Button state inputs:', { isLoading, isOptionSelected, manualOverride });
+        return !isLoading && (isOptionSelected || manualOverride);
       }),
       distinctUntilChanged(),
+      tap(isEnabled => console.log('Button should be enabled:', isEnabled)),
       shareReplay(1)
     );
+
+    // Subscribe to log changes
+    this.isButtonEnabled$.subscribe(isEnabled => {
+      console.log('isButtonEnabled$ emitted:', isEnabled);
+      this.cdRef.markForCheck();
+    });
   }
 
   subscribeToOptionSelection() {
