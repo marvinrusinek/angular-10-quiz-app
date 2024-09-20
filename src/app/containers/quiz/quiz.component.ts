@@ -2062,13 +2062,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.currentQuestionIndex++;
         this.quizService.setCurrentQuestion(this.currentQuestionIndex);
   
-        // Reset states for the new question
-        this.selectedOptionService.clearSelectedOption();
-        this.isButtonEnabled = false;
-        this.quizStateService.setAnswered(false);
-        this.quizStateService.setAnswerSelected(false);
-        this.manualOverrideSubject.next(false);
-        this.quizStateService.setLoading(true);
+        if (this.isButtonEnabled) {
+          // Reset states for the new question
+          this.selectedOptionService.clearSelectedOption();
+          this.isButtonEnabled = false;
+          this.quizStateService.setAnswered(false);
+          this.quizStateService.setAnswerSelected(false);
+          this.manualOverrideSubject.next(false);
+          this.quizStateService.setLoading(true);
+        } else {
+          console.warn('Next button is disabled. Cannot advance.');
+        }
   
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
