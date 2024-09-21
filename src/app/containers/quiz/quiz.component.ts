@@ -192,6 +192,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   isButtonEnabled$ = this.manualOverrideSubject.asObservable();
   // isButtonEnabled$: Observable<boolean>;
   isButtonEnabled = false;
+  isNextButtonEnabled = false;
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
 
@@ -520,24 +521,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.selectedOptions.splice(index, 1);
       }
     }
-  
-    const isAnswered = this.selectedOptions.length > 0;
-    console.log('QuizComponent: isAnswered', isAnswered);
-  
-    // this.quizStateService.setAnswerSelected(isAnswered);
-    this.quizStateService.setAnswerSelected(true);
-    // this.selectedOptionService.setSelectedOption(event.option);
-    this.selectedOptionService.setSelectedOption(isAnswered ? event.option : null);
-    
-    // this.manualOverrideSubject.next(true);
-    // Force update of button state
-    this.manualOverrideSubject.next(true);
-    this.manualOverrideSubject.next(false);
-    
-    console.log('QuizComponent: Updated selectedOptions', this.selectedOptions);
-    console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
-    console.log('QuizComponent: Calling setSelectedOption with', event.option);
-  
+
+    this.isNextButtonEnabled = this.selectedOptions.length > 0;
+    console.log('Next button enabled:', this.isNextButtonEnabled);
+
     this.cdRef.detectChanges();
   }
 
@@ -2177,6 +2164,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   } */
   async advanceToNextQuestion(): Promise<void> {
+    if (!this.isNextButtonEnabled) {
+      console.warn('Next button is disabled. Cannot advance.');
+      return;
+    }
+
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -2231,6 +2223,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
         this.updateNextButtonState();
         this.manualOverrideSubject.next(false);
+        this.selectedOptions = [];
+        this.isNextButtonEnabled = false;
       } else {
         console.log('End of quiz reached.');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
