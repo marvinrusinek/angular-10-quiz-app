@@ -483,6 +483,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.manualOverrideSubject.next(true);
     console.log('QuizComponent: Manual override set to', this.manualOverrideSubject.value);
     this.isButtonEnabled = true;
+    this.initializeNextButtonState();
 
     console.log('QuizComponent: Updated selectedOptions', this.selectedOptions);
     console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
