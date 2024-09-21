@@ -522,6 +522,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     const isAnswered = this.selectedOptions.length > 0;
     console.log('QuizComponent: isAnswered', isAnswered);
+
+    // Check if the question is answered
+    this.quizService.isAnswered(this.currentQuestionIndex).pipe(
+      take(1)
+    ).subscribe(isAnswered => {
+      console.log('QuizComponent: isAnswered updated to', isAnswered);
+      this.selectedOptionService.isAnsweredSubject.next(isAnswered);
+    });
   
     this.quizStateService.setAnswerSelected(isAnswered);
     this.selectedOptionService.setSelectedOption(event.option);
@@ -2224,6 +2232,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
         this.updateNextButtonState();
         this.manualOverrideSubject.next(false);
+        this.selectedOptionService.isAnsweredSubject.next(false);
         this.selectedOptions = [];
         this.isNextButtonEnabled = false;
       } else {
