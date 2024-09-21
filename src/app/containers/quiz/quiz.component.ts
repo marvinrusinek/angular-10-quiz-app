@@ -441,7 +441,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       tap(isEnabled => console.log('Next button should be enabled:', isEnabled))
     );
   } */
-  /* initializeNextButtonState() {
+  initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject,
       this.quizStateService.isLoading$,
@@ -450,18 +450,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       map(([isAnswered, isLoading, manualOverride]) => {
         console.log('Button state inputs:', { isAnswered, isLoading, manualOverride });
         return (isAnswered || manualOverride) && !isLoading;
-      }),
-      distinctUntilChanged()
-    );
-  } */
-  initializeNextButtonState() {
-    this.isButtonEnabled$ = combineLatest([
-      this.isAnsweredSubject,
-      this.quizStateService.isLoading$
-    ]).pipe(
-      map(([isAnswered, isLoading]) => {
-        console.log('Button state inputs:', { isAnswered, isLoading });
-        return isAnswered && !isLoading;
       }),
       distinctUntilChanged()
     );
