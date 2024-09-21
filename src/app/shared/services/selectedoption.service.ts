@@ -42,42 +42,32 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(false); // No option selected
   }
 
-  setSelectedOption(option: SelectedOption | null): void {
+  setSelectedOption(option: SelectedOption): void {
     console.log('SelectedOptionService: setSelectedOption called with', option);
-  
-    if (option === null) {
-      this.selectedOption = null;
-      this.selectedOptionSubject.next(null);
-      this.showFeedbackForOptionSubject.next({});
-      this.isOptionSelectedSubject.next(false);
-      console.log('SelectedOptionService: Option cleared, feedback reset');
-      this.updateAnsweredState();
-      return;
-    }
-  
     this.selectedOption = option;
+    
     this.selectedOptionSubject.next(option);
     console.log('SelectedOptionService: Selected option set, current value:', this.selectedOptionSubject.getValue());
   
-    this.isOptionSelectedSubject.next(true);
-    console.log('SelectedOptionService: isOptionSelected updated to true');
+    const isSelected = option !== null;
+    // this.isOptionSelectedSubject.next(true);
+    this.isOptionSelectedSubject.next(option !== null);
+    console.log('SelectedOptionService: isOptionSelected updated to', isSelected);
   
+    // Initialize currentFeedback with the current value from showFeedbackForOptionSubject
     const currentFeedback: Record<string, boolean> = { ...this.showFeedbackForOptionSubject.value };
-  
-    if (option.optionId !== undefined) {
-      // Set the selected option's feedback to true
-      currentFeedback[option.optionId.toString()] = true;
-  
-      // Set feedback for all other options to false
-      for (const key of Object.keys(currentFeedback)) {
-        if (key !== option.optionId.toString()) {
-          currentFeedback[key] = false;
-        }
+    
+    // Set the selected option's feedback to true
+    currentFeedback[option.optionId.toString()] = true;
+    
+    // Set feedback for all other options to false
+    for (const key of Object.keys(currentFeedback)) {
+      if (key !== option.optionId.toString()) {
+        currentFeedback[key] = false;
       }
-    } else {
-      console.warn('Option does not have a valid optionId', option);
     }
-  
+    
+    // Update the showFeedbackForOptionSubject with the new feedback state
     this.showFeedbackForOptionSubject.next(currentFeedback);
     console.log('SelectedOptionService: Updated feedback state', currentFeedback);
   
