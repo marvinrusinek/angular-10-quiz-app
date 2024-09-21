@@ -426,29 +426,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
   initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest([
-      this.selectedOptionService.isOptionSelected$(),
-      this.quizStateService.isLoading$
+      this.selectedOptionService.isAnsweredSubject,
+      this.quizStateService.isLoading$,
+      this.manualOverrideSubject
     ]).pipe(
-      map(([isOptionSelected, isLoading]) => {
-        console.log('Button state inputs:', { isOptionSelected, isLoading });
-        return isOptionSelected && !isLoading;
+      map(([isAnswered, isLoading, manualOverride]) => {
+        console.log('Button state inputs:', { isAnswered, isLoading, manualOverride });
+        return (isAnswered || manualOverride) && !isLoading;
       }),
-      distinctUntilChanged(),
-      tap(isEnabled => console.log('Next button should be enabled:', isEnabled))
+      distinctUntilChanged()
     );
   }
 
   toggleButtonState() {
-    this.isButtonEnabled = !this.isButtonEnabled;
-    console.log('Button state manually toggled to:', this.isButtonEnabled);
-    this.cdRef.detectChanges();
-  }
-
-  /* toggleButtonState() {
     const currentValue = this.manualOverrideSubject.value;
     this.manualOverrideSubject.next(!currentValue);
     console.log('Manual override toggled to:', !currentValue);
-  } */
+  }
 
   subscribeToOptionSelection() {
     this.optionSelectedSubscription = this.selectedOptionService
@@ -2080,6 +2074,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.quizStateService.setAnswered(false);
         this.quizStateService.setAnswerSelected(false);
         this.quizStateService.setLoading(true);
+        this.manualOverrideSubject.next(false);
   
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
