@@ -440,9 +440,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   toggleButtonState() {
-    this.isButtonEnabled = !this.isButtonEnabled;
-    console.log('Button state manually toggled to:', this.isButtonEnabled);
-    this.cdRef.detectChanges();
+    const currentValue = this.manualOverrideSubject.value;
+    this.manualOverrideSubject.next(!currentValue);
+    console.log('Manual override toggled to:', !currentValue);
   }
 
   /* toggleButtonState() {
