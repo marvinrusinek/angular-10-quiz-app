@@ -189,7 +189,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   private manualOverrideSubject = new BehaviorSubject<boolean>(false);
-  isButtonEnabled$: Observable<boolean>;
+  isButtonEnabled$ = this.manualOverrideSubject.asObservable();
+  // isButtonEnabled$: Observable<boolean>;
   isButtonEnabled = false;
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
