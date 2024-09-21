@@ -8,6 +8,7 @@ import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
+import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { QuizQuestionComponent } from '../../../../components/question/question.component';
 
@@ -31,6 +32,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
   constructor(
     protected quizService: QuizService,
+    protected quizStaetService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
