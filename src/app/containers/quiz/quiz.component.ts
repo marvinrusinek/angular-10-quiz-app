@@ -425,7 +425,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       })
     );
   } */
-  initializeNextButtonState() {
+  /* initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isOptionSelected$(),
       this.quizStateService.isLoading$,
@@ -437,6 +437,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }),
       distinctUntilChanged(),
       tap(isEnabled => console.log('Next button should be enabled:', isEnabled))
+    );
+  } */
+  initializeNextButtonState() {
+    this.isButtonEnabled$ = combineLatest([
+      this.selectedOptionService.isOptionSelected$(),
+      this.quizStateService.isLoading$,
+      this.manualOverrideSubject
+    ]).pipe(
+      map(([isOptionSelected, isLoading, manualOverride]) => {
+        console.log('Button state inputs:', { isOptionSelected, isLoading, manualOverride });
+        const isEnabled = (isOptionSelected || manualOverride) && !isLoading;
+        console.log('Next button should be enabled:', isEnabled);
+        return isEnabled;
+      }),
+      distinctUntilChanged(),
+      tap(isEnabled => {
+        if (isEnabled) {
+          console.log('Button enabled: Option selected or manual override active');
+        } else {
+          console.log('Button disabled: No option selected, loading, or manual override inactive');
+        }
+      })
     );
   }
 
