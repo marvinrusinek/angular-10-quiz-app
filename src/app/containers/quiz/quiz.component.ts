@@ -189,9 +189,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   private manualOverrideSubject = new BehaviorSubject<boolean>(false);
-  isButtonEnabled$ = this.manualOverrideSubject.asObservable();
-  // isButtonEnabled$: Observable<boolean>;
+  // isButtonEnabled$ = this.manualOverrideSubject.asObservable();
+  isButtonEnabled$: Observable<boolean>;
   isButtonEnabled = false;
+  private isOptionSelectedSubject = new BehaviorSubject<boolean>(false);
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
 
@@ -439,7 +440,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       tap(isEnabled => console.log('Next button should be enabled:', isEnabled))
     );
   } */
-  initializeNextButtonState() {
+  /* initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isOptionSelected$(),
       this.quizStateService.isLoading$,
@@ -459,6 +460,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
           console.log('Button disabled: No option selected, loading, or manual override inactive');
         }
       })
+    );
+  } */
+  initializeNextButtonState() {
+    this.isButtonEnabled$ = this.isOptionSelectedSubject.pipe(
+      distinctUntilChanged(),
+      tap(isEnabled => console.log('Next button should be enabled:', isEnabled))
     );
   }
 
@@ -505,6 +512,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedOptionService.setSelectedOption(event.option);
     this.manualOverrideSubject.next(true);
     console.log('QuizComponent: Manual override set to', this.manualOverrideSubject.value);
+    this.isOptionSelectedSubject.next(true);
     this.isButtonEnabled = true;
     this.initializeNextButtonState();
 
@@ -2156,7 +2164,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
   
-    const isEnabled = await firstValueFrom(this.isButtonEnabled$.pipe(take(1)));
+    // const isEnabled = await firstValueFrom(this.isButtonEnabled$.pipe(take(1)));
+    const isEnabled = this.isOptionSelectedSubject.value;
     if (!isEnabled) {
       console.warn('Next button is disabled. Cannot advance.');
       return;
@@ -2178,6 +2187,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
         // After successful navigation, reset the manual override
         this.manualOverrideSubject.next(false);
+        this.isOptionSelectedSubject.next(false);
   
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
