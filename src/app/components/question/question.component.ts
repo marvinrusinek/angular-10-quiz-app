@@ -1323,6 +1323,15 @@ export class QuizQuestionComponent
 
     this.displayExplanation = false; // Reset display flag
     this.optionSelected.emit({ option, index, checked: true }); // Emit the selected option
+
+    this.quizService.isAnswered(this.currentQuestionIndex).pipe(
+      take(1)
+    ).subscribe(isAnswered => {
+      this.isAnswered = isAnswered;
+      console.log('QuizQuestionComponent: isAnswered updated to', this.isAnswered);
+      this.isAnsweredChange.emit(this.isAnswered);
+    });
+
     this.toggleButtonState.emit();
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswerSelected(false);
