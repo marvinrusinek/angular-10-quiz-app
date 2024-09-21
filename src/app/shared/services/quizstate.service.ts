@@ -255,6 +255,11 @@ export class QuizStateService {
     this.answeredSubject.next(isAnswered);
   }
 
+  setAnswerSelected(isSelected: boolean): void {
+    console.log('QuizStateService: setAnswerSelected called with', isSelected);
+    this.answeredSubject.next(isSelected);
+  }
+
   startLoading(): void {
     if (!this.isLoading()) {
       console.log('Loading started');
@@ -266,14 +271,6 @@ export class QuizStateService {
     if (this.isLoading()) {
       console.log('Loading stopped');
       this.loadingSubject.next(false);
-    }
-  }
-
-  // Set the answered state, but only if the state actually changes
-  setAnswerSelected(isAnswered: boolean): void {
-    if (this.answeredSubject.getValue() !== isAnswered) {
-      console.log(`Answered state changed to: ${isAnswered}`);
-      this.answeredSubject.next(isAnswered);  // Emit only if the value changes
     }
   }
 
