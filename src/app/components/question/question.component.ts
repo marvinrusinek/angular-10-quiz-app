@@ -1308,6 +1308,11 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
+  onOptionChange(option: any, index: number, checked: boolean) {
+    console.log('QuizQuestionComponent: onOptionChange', { option, index, checked });
+    this.optionSelected.emit({ option, index, checked });
+  }
+
   public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     console.log("MY LOG 12345");
     if (!option) {
