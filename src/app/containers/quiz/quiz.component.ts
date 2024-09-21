@@ -195,6 +195,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   isNextButtonEnabled = false;
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
+  private isAnsweredSubject = new BehaviorSubject<boolean>(false);
 
   shouldDisplayCorrectAnswers = false;
 
@@ -440,7 +441,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       tap(isEnabled => console.log('Next button should be enabled:', isEnabled))
     );
   } */
-  initializeNextButtonState() {
+  /* initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject,
       this.quizStateService.isLoading$,
@@ -449,6 +450,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       map(([isAnswered, isLoading, manualOverride]) => {
         console.log('Button state inputs:', { isAnswered, isLoading, manualOverride });
         return (isAnswered || manualOverride) && !isLoading;
+      }),
+      distinctUntilChanged()
+    );
+  } */
+  initializeNextButtonState() {
+    this.isButtonEnabled$ = combineLatest([
+      this.isAnsweredSubject,
+      this.quizStateService.isLoading$
+    ]).pipe(
+      map(([isAnswered, isLoading]) => {
+        console.log('Button state inputs:', { isAnswered, isLoading });
+        return isAnswered && !isLoading;
       }),
       distinctUntilChanged()
     );
@@ -533,6 +546,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     this.quizStateService.setAnswerSelected(isAnswered);
     this.selectedOptionService.setSelectedOption(event.option);
+
+    // Set isAnswered to true when an option is selected
+    this.isAnsweredSubject.next(true);
   
     console.log('QuizComponent: Updated selectedOptions', this.selectedOptions);
     console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
