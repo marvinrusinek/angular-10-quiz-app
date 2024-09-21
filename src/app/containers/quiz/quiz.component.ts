@@ -516,18 +516,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.selectedOptions.splice(index, 1);
       }
     }
-  
+
     const isAnswered = this.selectedOptions.length > 0;
     console.log('QuizComponent: isAnswered', isAnswered);
-  
+
     this.quizStateService.setAnswerSelected(isAnswered);
     this.selectedOptionService.setSelectedOption(event.option);
-    this.selectedOptionService.setOptionSelected(true);
-  
+    this.manualOverrideSubject.next(true);
+    console.log('QuizComponent: Manual override set to', this.manualOverrideSubject.value);
+    this.isOptionSelectedSubject.next(true);
+    this.isButtonEnabled = true;
+    this.initializeNextButtonState();
+
     console.log('QuizComponent: Updated selectedOptions', this.selectedOptions);
     console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
-    console.log('QuizComponent: Calling setSelectedOption with', event.option);
-  
+    console.log('QuizComponent: Calling setSelectedOption with', isAnswered ? this.selectedOptions[0] : null);
+
     this.cdRef.markForCheck();
   }
 
