@@ -425,7 +425,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       })
     );
   } */
-  initializeNextButtonState() {
+  /* initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isOptionSelected$(),
       this.quizStateService.isLoading$,
@@ -434,6 +434,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       map(([isOptionSelected, isLoading, manualOverride]) => {
         console.log('Button state inputs:', { isOptionSelected, isLoading, manualOverride });
         return (isOptionSelected || manualOverride) && !isLoading;
+      }),
+      distinctUntilChanged(),
+      tap(isEnabled => console.log('Next button should be enabled:', isEnabled))
+    );
+  } */
+  initializeNextButtonState() {
+    this.isButtonEnabled$ = combineLatest([
+      this.selectedOptionService.isOptionSelected$(),
+      this.quizStateService.isLoading$
+    ]).pipe(
+      map(([isOptionSelected, isLoading]) => {
+        console.log('Button state inputs:', { isOptionSelected, isLoading });
+        return isOptionSelected && !isLoading;
       }),
       distinctUntilChanged(),
       tap(isEnabled => console.log('Next button should be enabled:', isEnabled))
@@ -505,18 +518,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.selectedOptions.splice(index, 1);
       }
     }
-  
+
     const isAnswered = this.selectedOptions.length > 0;
     console.log('QuizComponent: isAnswered', isAnswered);
-  
+
     this.quizStateService.setAnswerSelected(isAnswered);
     this.selectedOptionService.setSelectedOption(event.option);
-  
+
     console.log('QuizComponent: Updated selectedOptions', this.selectedOptions);
     console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
     console.log('QuizComponent: Calling setSelectedOption with', event.option);
-  
-    // this.cdRef.markForCheck();
+
     this.cdRef.detectChanges();
   }
 
