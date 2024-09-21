@@ -1326,7 +1326,7 @@ export class QuizQuestionComponent
 
     this.quizService.isAnswered(this.currentQuestionIndex).pipe(
       take(1)
-    ).subscribe(isAnswered => {
+    ).subscribe((isAnswered: boolean) => {
       this.isAnswered = isAnswered;
       console.log('QuizQuestionComponent: isAnswered updated to', this.isAnswered);
       this.isAnsweredChange.emit(this.isAnswered);
