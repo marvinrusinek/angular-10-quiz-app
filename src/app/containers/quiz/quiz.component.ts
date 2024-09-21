@@ -411,12 +411,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.detectChanges();
   }
 
-  /* toggleNextButton(): void {
-    const newDisabledState = !this.disabled;
-    this.disabled = newDisabledState;
-    console.log('Next button toggled, disabled:', newDisabledState);
-    this.cdRef.detectChanges(); // Force change detection
-  } */
   toggleNextButton(): void {
     const newDisabledState = !this.disabled;
     this.disabled = newDisabledState;
