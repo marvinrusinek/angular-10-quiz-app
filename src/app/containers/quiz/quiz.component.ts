@@ -2153,6 +2153,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.quizStateService.setAnswered(false);
         this.quizStateService.setAnswerSelected(false);
         this.quizStateService.setLoading(true);
+
+        // After successful navigation, reset the manual override
+        this.manualOverrideSubject.next(false);
   
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
