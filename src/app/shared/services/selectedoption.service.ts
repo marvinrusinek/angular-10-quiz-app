@@ -242,8 +242,10 @@ export class SelectedOptionService {
   setAnsweredState(isAnswered: boolean): void {
     // Emit only if the answered state has actually changed
     if (this.isAnsweredSubject.getValue() !== isAnswered) {
-      console.log('Answered state set to', isAnswered);
+      console.log('SelectedOptionService: Answered state set to', isAnswered);
       this.isAnsweredSubject.next(isAnswered);
+    } else {
+      console.log('SelectedOptionService: Answered state unchanged, still', isAnswered);
     }
   }
 
