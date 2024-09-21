@@ -27,6 +27,7 @@
             (isAnsweredChange)="onIsAnsweredChange($event)"
             (selectionMessageChange)="onSelectionMessageChange($event)"
             (optionSelected)="onOptionSelected($event)"
+            (isAnsweredChange)="onIsAnsweredChange($event)"
           ></codelab-quiz-question>
         </ng-container>
       </ng-container>
@@ -81,7 +82,7 @@
               (click)="advanceToNextQuestion()"
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
-              [disabled]="!(isButtonEnabled$ | async)"
+              [disabled]="!isNextButtonEnabled"
               aria-label="Next Question"
               [matTooltip]="(isButtonEnabled$ | async) ? 'Next Question>>' : 'Please select an option to continue...'"
               matTooltipPosition="above"
