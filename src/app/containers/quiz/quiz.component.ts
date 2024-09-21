@@ -9,7 +9,7 @@ import {
   OnDestroy,
   OnInit,
   SimpleChanges,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
@@ -25,7 +25,7 @@ import {
   of,
   Subject,
   Subscription,
-  throwError,
+  throwError
 } from 'rxjs';
 import {
   catchError,
@@ -35,11 +35,10 @@ import {
   map,
   retry,
   shareReplay,
-  startWith,
   switchMap,
   take,
   takeUntil,
-  tap,
+  tap
 } from 'rxjs/operators';
 
 import { Utils } from '../../shared/utils/utils';
