@@ -2267,6 +2267,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
           // Reset the isAnswered state in the child component
           this.quizQuestionComponent.isAnswered = false;
+          this.isNextButtonEnabled = false;
         }
   
         // Reset UI after preparing the question
