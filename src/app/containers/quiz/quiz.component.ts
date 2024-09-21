@@ -192,6 +192,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   isButtonEnabled$ = this.manualOverrideSubject.asObservable();
   // isButtonEnabled$: Observable<boolean>;
   isButtonEnabled = false;
+  isNextButtonEnabled = false;
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
 
@@ -492,7 +493,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.cdRef.markForCheck();
   } */
-  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log('QuizComponent: onOptionSelected called', event);
     
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
@@ -518,6 +519,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     // this.cdRef.markForCheck();
     this.cdRef.detectChanges();
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log('QuizComponent: onOptionSelected called', JSON.stringify(event));
+    
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      console.log('Single answer question');
+      this.selectedOptions = [event.option];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      console.log('Multiple answer question');
+      const index = this.selectedOptions.findIndex(o => o.optionId === event.option.optionId);
+      if (index === -1 && event.checked) {
+        this.selectedOptions.push(event.option);
+      } else if (index !== -1 && !event.checked) {
+        this.selectedOptions.splice(index, 1);
+      }
+    }
+
+    console.log('Selected options:', JSON.stringify(this.selectedOptions));
+
+    this.isNextButtonEnabled = this.selectedOptions.length > 0;
+    console.log('Next button enabled:', this.isNextButtonEnabled);
+
+    console.log('Calling detectChanges');
+    this.cdRef.detectChanges();
+    console.log('detectChanges called');
   }
 
   updateNextButtonState(): void {
@@ -2156,6 +2182,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   } */
   async advanceToNextQuestion(): Promise<void> {
+    if (!this.isNextButtonEnabled) {
+      console.warn('Next button is disabled. Cannot advance.');
+      return;
+    }
+
+    this.quizStateService.setLoading(true);
+
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -2179,7 +2212,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.selectedOptionService.clearSelectedOption();
         this.quizStateService.setAnswered(false);
         this.quizStateService.setAnswerSelected(false);
-        this.quizStateService.setLoading(true);
 
         // After successful navigation, reset the manual override
         this.manualOverrideSubject.next(false);
@@ -2210,6 +2242,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
         this.updateNextButtonState();
         this.manualOverrideSubject.next(false);
+        this.selectedOptions = [];
+        this.isNextButtonEnabled = false;
       } else {
         console.log('End of quiz reached.');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
