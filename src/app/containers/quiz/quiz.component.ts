@@ -516,7 +516,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
     console.log('QuizComponent: Calling setSelectedOption with', event.option);
   
-    this.cdRef.markForCheck();
+    // this.cdRef.markForCheck();
+    this.cdRef.detectChanges();
   }
 
   updateNextButtonState(): void {
