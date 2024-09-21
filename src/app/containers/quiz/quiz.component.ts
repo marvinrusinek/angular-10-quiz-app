@@ -1491,6 +1491,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   onIsAnsweredChange(isAnswered: boolean) {
     this.isAnswered = isAnswered;
+    this.isNextButtonEnabled = isAnswered;
   }
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
