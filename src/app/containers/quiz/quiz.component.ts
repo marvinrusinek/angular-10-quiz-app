@@ -2224,6 +2224,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
         // After successful navigation, reset the manual override
         this.manualOverrideSubject.next(false);
+        this.isAnsweredSubject.next(false);
   
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
