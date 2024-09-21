@@ -427,11 +427,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isOptionSelected$(),
-      this.quizStateService.isLoading$
+      this.quizStateService.isLoading$,
+      this.manualOverrideSubject
     ]).pipe(
-      map(([isOptionSelected, isLoading]) => {
-        console.log('Button state inputs:', { isOptionSelected, isLoading });
-        return isOptionSelected && !isLoading;
+      map(([isOptionSelected, isLoading, manualOverride]) => {
+        console.log('Button state inputs:', { isOptionSelected, isLoading, manualOverride });
+        return (isOptionSelected || manualOverride) && !isLoading;
       }),
       distinctUntilChanged(),
       tap(isEnabled => console.log('Next button should be enabled:', isEnabled))
@@ -496,6 +497,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.detectChanges();
   }
 
+  /* toggleNextButton(): void {
+    const newDisabledState = !this.disabled;
+    this.disabled = newDisabledState;
+    console.log('Next button toggled, disabled:', newDisabledState);
+    this.cdRef.detectChanges(); // Force change detection
+  } */
   toggleNextButton(): void {
     const newDisabledState = !this.disabled;
     this.disabled = newDisabledState;
