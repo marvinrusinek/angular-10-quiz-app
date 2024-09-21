@@ -424,7 +424,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       })
     );
   } */
-  initializeNextButtonState() {
+  /* initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject,
       this.quizStateService.isLoading$,
@@ -433,6 +433,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       map(([isAnswered, isLoading, manualOverride]) => {
         console.log('Button state inputs:', { isAnswered, isLoading, manualOverride });
         return (isAnswered || manualOverride) && !isLoading;
+      }),
+      distinctUntilChanged()
+    );
+  } */
+  initializeNextButtonState() {
+    this.isButtonEnabled$ = combineLatest([
+      this.selectedOptionService.isAnsweredSubject,
+      this.quizStateService.isLoading$
+    ]).pipe(
+      map(([isAnswered, isLoading]) => {
+        console.log('Button state inputs:', { isAnswered, isLoading });
+        return isAnswered && !isLoading;
       }),
       distinctUntilChanged()
     );
@@ -454,7 +466,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       });
   }
   
-  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log('QuizComponent: onOptionSelected called', event);
     
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
@@ -481,6 +493,37 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
     console.log('QuizComponent: Calling setSelectedOption with', isAnswered ? this.selectedOptions[0] : null);
 
+    this.cdRef.markForCheck();
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log('QuizComponent: onOptionSelected called', event);
+    
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = [event.option];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      const index = this.selectedOptions.findIndex(o => o.optionId === event.option.optionId);
+      if (index === -1 && event.checked) {
+        this.selectedOptions.push(event.option);
+      } else if (index !== -1 && !event.checked) {
+        this.selectedOptions.splice(index, 1);
+      }
+    }
+  
+    const isAnswered = this.selectedOptions.length > 0;
+    console.log('QuizComponent: isAnswered', isAnswered);
+  
+    // Update the selected option in your service
+    this.selectedOptionService.setSelectedOption(event.option);
+  
+    // Set isAnswered to true when an option is selected
+    this.selectedOptionService.setAnsweredState(isAnswered);
+    this.quizStateService.setAnswerSelected(isAnswered);
+    this.isButtonEnabled = isAnswered;
+  
+    console.log('QuizComponent: Updated selectedOptions', this.selectedOptions);
+    console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
+    console.log('QuizComponent: Calling setSelectedOption with', event.option);
+  
     this.cdRef.markForCheck();
   }
 
