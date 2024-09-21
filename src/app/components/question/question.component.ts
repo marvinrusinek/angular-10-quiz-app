@@ -92,6 +92,7 @@ export class QuizQuestionComponent
   @Output() isAnswered = false;
   @Output() answerSelected = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
+  @Output() toggleButtonState = new EventEmitter<void>();
   @Input() data: {
     questionText: string;
     explanationText?: string;
@@ -1322,6 +1323,7 @@ export class QuizQuestionComponent
 
     this.displayExplanation = false; // Reset display flag
     this.optionSelected.emit({ option, index, checked: true }); // Emit the selected option
+    this.toggleButtonState.emit();
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswerSelected(false);
     this.selectedOptionService.setSelectedOption(option);
