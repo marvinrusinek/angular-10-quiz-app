@@ -92,7 +92,6 @@ export class QuizQuestionComponent
   @Output() isAnswered = false;
   @Output() answerSelected = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
-  @Output() toggleButtonState = new EventEmitter<void>();
   @Input() data: {
     questionText: string;
     explanationText?: string;
@@ -1309,11 +1308,6 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  onOptionChange(option: any, index: number, checked: boolean) {
-    console.log('QuizQuestionComponent: onOptionChange', { option, index, checked });
-    this.optionSelected.emit({ option, index, checked });
-  }
-
   public async onOptionClicked(option: SelectedOption, index: number): Promise<void> {
     console.log("MY LOG 12345");
     if (!option) {
@@ -1323,16 +1317,6 @@ export class QuizQuestionComponent
 
     this.displayExplanation = false; // Reset display flag
     this.optionSelected.emit({ option, index, checked: true }); // Emit the selected option
-
-    this.quizService.isAnswered(this.currentQuestionIndex).pipe(
-      take(1)
-    ).subscribe((isAnswered: boolean) => {
-      this.isAnswered = isAnswered;
-      console.log('QuizQuestionComponent: isAnswered updated to', this.isAnswered);
-      this.isAnsweredChange.emit(this.isAnswered);
-    });
-
-    this.toggleButtonState.emit();
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswerSelected(false);
     this.selectedOptionService.setSelectedOption(option);
@@ -2120,11 +2104,7 @@ export class QuizQuestionComponent
     this.isOptionSelected = true;
     this.isAnswered = this.selectedOptions.length > 0;
     this.isAnswerSelectedChange.emit(this.isAnswered);
-    this.optionSelected.emit({ 
-      option: option, 
-      index: optionIndex, 
-      checked: true
-    });
+    this.optionSelected.emit(option);
 
     this.selectionChanged.emit({
       question: currentQuestion,

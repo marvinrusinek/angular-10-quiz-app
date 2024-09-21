@@ -189,13 +189,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   private manualOverrideSubject = new BehaviorSubject<boolean>(false);
-  isButtonEnabled$ = this.manualOverrideSubject.asObservable();
-  // isButtonEnabled$: Observable<boolean>;
+  isButtonEnabled$: Observable<boolean>;
   isButtonEnabled = false;
-  isNextButtonEnabled = false;
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
-  private isAnsweredSubject = new BehaviorSubject<boolean>(false);
 
   shouldDisplayCorrectAnswers = false;
 
@@ -296,10 +293,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isLoading$ = this.quizStateService.isLoading$;
     this.isAnswered$ = this.quizStateService.isAnswered$;
 
-    this.initializeNextButtonState();
     this.isButtonEnabled$.subscribe(isEnabled => {
-      console.log('Next button enabled state changed:', isEnabled);
+      console.log('QuizComponent: isButtonEnabled$ subscription:', isEnabled);
+      this.cdRef.markForCheck();
     });
+
+    this.initializeNextButtonState();
     // this.subscribeToOptionSelection();
     // this.updateNextButtonState();
 
@@ -425,66 +424,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       })
     );
   } */
-  /* initializeNextButtonState() {
+  initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isOptionSelected$(),
-      this.quizStateService.isLoading$,
-      this.manualOverrideSubject
+      this.quizStateService.isLoading$
     ]).pipe(
-      map(([isOptionSelected, isLoading, manualOverride]) => {
-        console.log('Button state inputs:', { isOptionSelected, isLoading, manualOverride });
-        return (isOptionSelected || manualOverride) && !isLoading;
+      map(([isOptionSelected, isLoading]) => {
+        console.log('Button state inputs:', { isOptionSelected, isLoading });
+        return isOptionSelected && !isLoading;
       }),
       distinctUntilChanged(),
       tap(isEnabled => console.log('Next button should be enabled:', isEnabled))
     );
-  } */
-  /* initializeNextButtonState() {
-    this.isButtonEnabled$ = combineLatest([
-      this.selectedOptionService.isAnsweredSubject,
-      this.quizStateService.isLoading$,
-      this.manualOverrideSubject
-    ]).pipe(
-      map(([isAnswered, isLoading, manualOverride]) => {
-        console.log('Button state inputs:', { isAnswered, isLoading, manualOverride });
-        return (isAnswered || manualOverride) && !isLoading;
-      }),
-      distinctUntilChanged()
-    );
-  } */
-  /* initializeNextButtonState() {
-    this.isButtonEnabled$ = combineLatest([
-      this.isAnsweredSubject,
-      this.quizStateService.isLoading$,
-      this.manualOverrideSubject
-    ]).pipe(
-      map(([isAnswered, isLoading, manualOverride]) => {
-        console.log('Button state inputs:', { isAnswered, isLoading, manualOverride });
-        return (isAnswered || manualOverride) && !isLoading;
-      }),
-      distinctUntilChanged()
-    );
-  } */
-  initializeNextButtonState() {
-    this.isButtonEnabled$ = combineLatest([
-      this.isAnsweredSubject,
-      this.quizStateService.isLoading$,
-      this.manualOverrideSubject
-    ]).pipe(
-      map(([isAnswered, isLoading, manualOverride]) => {
-        console.log('Button state inputs:', { isAnswered, isLoading, manualOverride });
-        const isEnabled = (isAnswered || manualOverride) && !isLoading;
-        console.log('Calculated button enabled state:', isEnabled);
-        return isEnabled;
-      }),
-      distinctUntilChanged()
-    );
   }
 
   toggleButtonState() {
-    const currentValue = this.manualOverrideSubject.value;
-    this.manualOverrideSubject.next(!currentValue);
-    console.log('Manual override toggled to:', !currentValue);
+    this.isButtonEnabled = !this.isButtonEnabled;
+    console.log('Button state manually toggled to:', this.isButtonEnabled);
+    this.cdRef.detectChanges();
   }
 
   /* toggleButtonState() {
@@ -503,7 +460,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       });
   }
   
-  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log('QuizComponent: onOptionSelected called', event);
     
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
@@ -525,59 +482,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.manualOverrideSubject.next(true);
     console.log('QuizComponent: Manual override set to', this.manualOverrideSubject.value);
     this.isButtonEnabled = true;
-    this.initializeNextButtonState();
 
     console.log('QuizComponent: Updated selectedOptions', this.selectedOptions);
     console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
     console.log('QuizComponent: Calling setSelectedOption with', isAnswered ? this.selectedOptions[0] : null);
 
     this.cdRef.markForCheck();
-  } */
-  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
-    console.log('QuizComponent: onOptionSelected called', event);
-    
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = [event.option];
-    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      const index = this.selectedOptions.findIndex(o => o.optionId === event.option.optionId);
-      if (index === -1 && event.checked) {
-        this.selectedOptions.push(event.option);
-      } else if (index !== -1 && !event.checked) {
-        this.selectedOptions.splice(index, 1);
-      }
-    }
-  
-    const isAnswered = this.selectedOptions.length > 0;
-    console.log('QuizComponent: isAnswered', isAnswered);
-
-    // Check if the question is answered
-    this.quizService.isAnswered(this.currentQuestionIndex).pipe(
-      take(1)
-    ).subscribe(isAnswered => {
-      console.log('QuizComponent: isAnswered updated to', isAnswered);
-      this.selectedOptionService.isAnsweredSubject.next(isAnswered);
-    });
-  
-    this.quizStateService.setAnswerSelected(isAnswered);
-    this.selectedOptionService.setSelectedOption(event.option);
-
-    // Set isAnswered to true when an option is selected
-    this.isAnsweredSubject.next(true);
-
-    console.log('isAnswered set to true');
-    this.cdRef.detectChanges();
-    
-    // Force update of button state
-    this.isButtonEnabled$.pipe(take(1)).subscribe(isEnabled => {
-      console.log('Button state after option selected:', isEnabled);
-    });
-  
-    console.log('QuizComponent: Updated selectedOptions', this.selectedOptions);
-    console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
-    console.log('QuizComponent: Calling setSelectedOption with', event.option);
-  
-    // this.cdRef.markForCheck();
-    this.cdRef.detectChanges();
   }
 
   updateNextButtonState(): void {
@@ -586,12 +496,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.detectChanges();
   }
 
-  /* toggleNextButton(): void {
-    const newDisabledState = !this.disabled;
-    this.disabled = newDisabledState;
-    console.log('Next button toggled, disabled:', newDisabledState);
-    this.cdRef.detectChanges(); // Force change detection
-  } */
   toggleNextButton(): void {
     const newDisabledState = !this.disabled;
     this.disabled = newDisabledState;
@@ -1528,10 +1432,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   onIsAnsweredChange(isAnswered: boolean) {
-    console.log('QuizComponent: onIsAnsweredChange called with', isAnswered);
     this.isAnswered = isAnswered;
-    this.isNextButtonEnabled = isAnswered;
-    this.cdRef.detectChanges();
   }
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
@@ -2154,70 +2055,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   /************************ paging functions *********************/
-  /* async advanceToNextQuestion(): Promise<void> {
-    if (this.isNavigating) {
-      console.warn('Navigation already in progress. Aborting.');
-      return;
-    }
-  
-    const isEnabled = await firstValueFrom(this.isButtonEnabled$.pipe(take(1)));
-    if (!isEnabled) {
-      console.warn('Next button is disabled. Cannot advance.');
-      return;
-    }
-  
-    this.isNavigating = true;
-    this.quizService.setIsNavigatingToPrevious(false);
-  
-    try {
-      if (this.currentQuestionIndex < this.totalQuestions - 1) {
-        this.currentQuestionIndex++;
-        this.quizService.setCurrentQuestion(this.currentQuestionIndex);
-  
-        // Reset states for the new question
-        this.selectedOptionService.clearSelectedOption();
-        this.quizStateService.setAnswered(false);
-        this.quizStateService.setAnswerSelected(false);
-        this.quizStateService.setLoading(true);
-  
-        // Prepare the next question for display
-        await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-  
-        // Check if the question has already been answered
-        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-        this.selectedOptionService.setAnsweredState(isAnswered);
-        this.isAnswered = isAnswered;
-  
-        // Clear the previous explanation
-        if (this.quizQuestionComponent) {
-          this.quizQuestionComponent.explanationToDisplay = '';
-  
-          // Only fetch and display explanation if the question has been answered
-          if (this.isAnswered) {
-            await this.quizQuestionComponent.fetchAndSetExplanationText();
-          }
-  
-          // Reset the isAnswered state in the child component
-          this.quizQuestionComponent.isAnswered = false;
-        }
-  
-        // Reset UI after preparing the question
-        this.resetUI();
-  
-        this.updateNextButtonState();
-      } else {
-        console.log('End of quiz reached.');
-        await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
-      }
-    } catch (error) {
-      console.error('Error occurred while advancing to the next question:', error);
-    } finally {
-      this.isNavigating = false;
-      this.quizService.setIsNavigatingToPrevious(false);
-      this.quizStateService.setLoading(false);
-      this.cdRef.detectChanges();
-    }
-  } */
   async advanceToNextQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -2243,10 +2080,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.quizStateService.setAnswered(false);
         this.quizStateService.setAnswerSelected(false);
         this.quizStateService.setLoading(true);
-
-        // After successful navigation, reset the manual override
-        this.manualOverrideSubject.next(false);
-        this.isAnsweredSubject.next(false);
   
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
@@ -2273,11 +2106,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.resetUI();
   
         this.updateNextButtonState();
-        this.isAnsweredSubject.next(false);
-        this.manualOverrideSubject.next(false);
-        this.selectedOptionService.isAnsweredSubject.next(false);
-        this.selectedOptions = [];
-        this.isNextButtonEnabled = false;
       } else {
         console.log('End of quiz reached.');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
