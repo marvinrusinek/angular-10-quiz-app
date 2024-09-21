@@ -2132,7 +2132,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
   
-    if (!this.isButtonEnabled) {
+    const isEnabled = await firstValueFrom(this.isButtonEnabled$.pipe(take(1)));
+    if (!isEnabled) {
       console.warn('Next button is disabled. Cannot advance.');
       return;
     }
@@ -2176,6 +2177,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.resetUI();
   
         this.updateNextButtonState();
+        this.manualOverrideSubject.next(false);
       } else {
         console.log('End of quiz reached.');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
