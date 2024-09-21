@@ -2055,7 +2055,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   /************************ paging functions *********************/
-  async advanceToNextQuestion(): Promise<void> {
+  /* async advanceToNextQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -2063,6 +2063,69 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     const isEnabled = await firstValueFrom(this.isButtonEnabled$.pipe(take(1)));
     if (!isEnabled) {
+      console.warn('Next button is disabled. Cannot advance.');
+      return;
+    }
+  
+    this.isNavigating = true;
+    this.quizService.setIsNavigatingToPrevious(false);
+  
+    try {
+      if (this.currentQuestionIndex < this.totalQuestions - 1) {
+        this.currentQuestionIndex++;
+        this.quizService.setCurrentQuestion(this.currentQuestionIndex);
+  
+        // Reset states for the new question
+        this.selectedOptionService.clearSelectedOption();
+        this.quizStateService.setAnswered(false);
+        this.quizStateService.setAnswerSelected(false);
+        this.quizStateService.setLoading(true);
+  
+        // Prepare the next question for display
+        await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+  
+        // Check if the question has already been answered
+        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+        this.selectedOptionService.setAnsweredState(isAnswered);
+        this.isAnswered = isAnswered;
+  
+        // Clear the previous explanation
+        if (this.quizQuestionComponent) {
+          this.quizQuestionComponent.explanationToDisplay = '';
+  
+          // Only fetch and display explanation if the question has been answered
+          if (this.isAnswered) {
+            await this.quizQuestionComponent.fetchAndSetExplanationText();
+          }
+  
+          // Reset the isAnswered state in the child component
+          this.quizQuestionComponent.isAnswered = false;
+        }
+  
+        // Reset UI after preparing the question
+        this.resetUI();
+  
+        this.updateNextButtonState();
+      } else {
+        console.log('End of quiz reached.');
+        await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+      }
+    } catch (error) {
+      console.error('Error occurred while advancing to the next question:', error);
+    } finally {
+      this.isNavigating = false;
+      this.quizService.setIsNavigatingToPrevious(false);
+      this.quizStateService.setLoading(false);
+      this.cdRef.detectChanges();
+    }
+  } */
+  async advanceToNextQuestion(): Promise<void> {
+    if (this.isNavigating) {
+      console.warn('Navigation already in progress. Aborting.');
+      return;
+    }
+  
+    if (!this.isButtonEnabled) {
       console.warn('Next button is disabled. Cannot advance.');
       return;
     }
