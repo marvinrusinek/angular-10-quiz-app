@@ -50,7 +50,8 @@ export class SelectedOptionService {
     console.log('SelectedOptionService: Selected option set, current value:', this.selectedOptionSubject.getValue());
   
     const isSelected = option !== null;
-    this.isOptionSelectedSubject.next(isSelected);
+    this.isOptionSelectedSubject.next(true);
+    // this.isOptionSelectedSubject.next(isSelected);
     console.log('SelectedOptionService: isOptionSelected updated to', isSelected);
   
     // Initialize currentFeedback with the current value from showFeedbackForOptionSubject
