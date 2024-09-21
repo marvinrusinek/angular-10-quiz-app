@@ -2124,7 +2124,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
         // Check if the question has already been answered
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-        this.selectedOptionService.setAnsweredState(isAnswered);
+        // this.selectedOptionService.setAnsweredState(isAnswered);
+        this.selectedOptionService.setAnsweredState(false);
         this.isAnswered = isAnswered;
   
         // Clear the previous explanation
