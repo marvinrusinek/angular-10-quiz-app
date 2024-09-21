@@ -192,7 +192,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   isButtonEnabled$ = this.manualOverrideSubject.asObservable();
   // isButtonEnabled$: Observable<boolean>;
   isButtonEnabled = false;
-  isNextButtonEnabled = false;
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
 
@@ -295,11 +294,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isLoading$ = this.quizStateService.isLoading$;
     this.isAnswered$ = this.quizStateService.isAnswered$;
 
-    this.initializeNextButtonState();
     this.isButtonEnabled$.subscribe(isEnabled => {
-      console.log('isButtonEnabled$ subscription:', isEnabled);
+      console.log('QuizComponent: isButtonEnabled$ subscription:', isEnabled);
       this.cdRef.markForCheck();
     });
+
+    this.initializeNextButtonState();
     // this.subscribeToOptionSelection();
     // this.updateNextButtonState();
 
@@ -425,7 +425,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       })
     );
   } */
-  /* initializeNextButtonState() {
+  initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isOptionSelected$(),
       this.quizStateService.isLoading$,
@@ -437,22 +437,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }),
       distinctUntilChanged(),
       tap(isEnabled => console.log('Next button should be enabled:', isEnabled))
-    );
-  } */
-  initializeNextButtonState() {
-    this.isButtonEnabled$ = combineLatest([
-      this.selectedOptionService.isOptionSelected$(),
-      this.quizStateService.isLoading$,
-      this.manualOverrideSubject
-    ]).pipe(
-      map(([isOptionSelected, isLoading, manualOverride]) => {
-        console.log('Button state inputs:', { isOptionSelected, isLoading, manualOverride });
-        const isEnabled = (isOptionSelected || manualOverride) && !isLoading;
-        console.log('Next button should be enabled:', isEnabled);
-        return isEnabled;
-      }),
-      distinctUntilChanged(),
-      tap(isEnabled => console.log('isButtonEnabled$ emitted:', isEnabled))
     );
   }
 
@@ -521,10 +505,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.selectedOptions.splice(index, 1);
       }
     }
-
-    this.isNextButtonEnabled = this.selectedOptions.length > 0;
-    console.log('Next button enabled:', this.isNextButtonEnabled);
-
+  
+    const isAnswered = this.selectedOptions.length > 0;
+    console.log('QuizComponent: isAnswered', isAnswered);
+  
+    this.quizStateService.setAnswerSelected(isAnswered);
+    this.selectedOptionService.setSelectedOption(event.option);
+  
+    console.log('QuizComponent: Updated selectedOptions', this.selectedOptions);
+    console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
+    console.log('QuizComponent: Calling setSelectedOption with', event.option);
+  
+    // this.cdRef.markForCheck();
     this.cdRef.detectChanges();
   }
 
@@ -2164,11 +2156,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   } */
   async advanceToNextQuestion(): Promise<void> {
-    if (!this.isNextButtonEnabled) {
-      console.warn('Next button is disabled. Cannot advance.');
-      return;
-    }
-
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -2223,8 +2210,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
         this.updateNextButtonState();
         this.manualOverrideSubject.next(false);
-        this.selectedOptions = [];
-        this.isNextButtonEnabled = false;
       } else {
         console.log('End of quiz reached.');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
