@@ -548,6 +548,40 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.logCurrentState();
   }
 
+  toggleOption(optionId: string | number) {
+    console.log('toggleOption called with optionId:', optionId);
+    
+    if (!this.currentQuestion) {
+      console.error('No current question set');
+      return;
+    }
+  
+    const option = this.currentQuestion.options.find(o => o.optionId === optionId);
+    if (!option) {
+      console.error('Option not found');
+      return;
+    }
+  
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = [option];
+    } else {
+      const index = this.selectedOptions.findIndex(o => o.optionId === optionId);
+      if (index === -1) {
+        this.selectedOptions.push(option);
+      } else {
+        this.selectedOptions.splice(index, 1);
+      }
+    }
+  
+    this.isNextButtonEnabled = this.selectedOptions.length > 0;
+  
+    console.log('Updated selected options:', this.selectedOptions);
+    console.log('Updated isNextButtonEnabled:', this.isNextButtonEnabled);
+  
+    this.cdRef.detectChanges();
+    this.logCurrentState();
+  }
+
   private isAnyOptionSelected(): boolean {
     const result = this.selectedOptions.length > 0;
     console.log(
