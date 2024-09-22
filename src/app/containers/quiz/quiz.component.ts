@@ -551,7 +551,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.logCurrentState();
   }
 
-  toggleOption(event: { option: SelectedOption, index: number, checked: boolean }) {
+  /* toggleOption(event: { option: SelectedOption, index: number, checked: boolean }) {
     console.log('QuizComponent: toggleOption called', event);
   
     if (!this.currentQuestion) {
@@ -580,6 +580,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Force change detection
     this.cdRef.detectChanges();
+  } */
+
+  toggleOption(option: any) {
+    console.log('Toggle option called:', option);
+    if (this.currentQuestion.type === 'SingleAnswer') {
+      this.selectedOptions = [option];
+    } else {
+      const index = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
+      if (index === -1) {
+        this.selectedOptions.push(option);
+      } else {
+        this.selectedOptions.splice(index, 1);
+      }
+    }
+    this.isNextButtonEnabled = this.selectedOptions.length > 0;
+    console.log('Selected options:', this.selectedOptions);
+    console.log('Next button enabled:', this.isNextButtonEnabled);
+  }
+
+  testOptionSelection() {
+    const testOption = { optionId: 'test', text: 'Test Option' };
+    this.toggleOption(testOption);
   }
 
   onQuizQuestionOptionSelected(event: any) {
@@ -587,13 +609,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.toggleOption(event);
   }
 
-  testOptionSelection() {
+  /* testOptionSelection() {
     const testOption: SelectedOption = {
       optionId: 'test',
       text: 'Test Option'
     };
     this.toggleOption({option: testOption, index: 0, checked: true});
-  }
+  } */
 
   private isAnyOptionSelected(): boolean {
     const result = this.selectedOptions.length > 0;
