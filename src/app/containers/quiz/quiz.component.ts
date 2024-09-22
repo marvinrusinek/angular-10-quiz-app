@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -88,7 +89,7 @@ type AnimationState = 'animationStarted' | 'none';
     UserPreferenceService,
   ],
 })
-export class QuizComponent implements OnInit, OnDestroy, OnChanges {
+export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   @ViewChild(QuizQuestionComponent)
   quizQuestionComponent!: QuizQuestionComponent;
   @ViewChild(SharedOptionComponent)
@@ -474,6 +475,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Force update of button state
     this.isNextButtonEnabled = this.selectedOptions.length > 0;
     console.log('isNextButtonEnabled after update:', this.isNextButtonEnabled);
+
+    this.checkAndUpdateButtonState();
   
     // Force change detection
     this.cdRef.detectChanges();
@@ -560,6 +563,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.logFullState('After resetQuestionState');
   }
 
+  private checkAndUpdateButtonState(): void {
+    const shouldBeEnabled = this.selectedOptions.length > 0;
+    if (this.isNextButtonEnabled !== shouldBeEnabled) {
+      console.log(`Updating button state from ${this.isNextButtonEnabled} to ${shouldBeEnabled}`);
+      this.isNextButtonEnabled = shouldBeEnabled;
+      this.cdRef.detectChanges();
+    }
+  }
+
   logFullState(context: string) {
     console.log(`--- Full State Log (${context}) ---`);
     console.log('currentQuestion:', JSON.stringify(this.currentQuestion, null, 2));
@@ -600,6 +612,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     if (changes['currentQuestionIndex']) {
       this.loadCurrentQuestion();
     }
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.checkAndUpdateButtonState();
+      this.logFullState('After ngAfterViewInit');
+    }, 0);
   }
 
   onQuestionAnswered(question: QuizQuestion): void {
