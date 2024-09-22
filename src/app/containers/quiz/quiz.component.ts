@@ -695,7 +695,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.cdRef.detectChanges();
     this.logFullState('After onOptionSelected');
   } */
-  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log('QuizComponent: onOptionSelected called', event);
   
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
@@ -711,6 +711,37 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isNextButtonEnabled = this.selectedOptions.length > 0;
     this.currentQuestionAnswered = this.isNextButtonEnabled;
     this.isButtonEnabledSubject.next(this.isNextButtonEnabled);  // Make sure this line is present
+  
+    console.log('After option selection:', {
+      selectedOptions: this.selectedOptions,
+      isNextButtonEnabled: this.isNextButtonEnabled,
+      currentQuestionAnswered: this.currentQuestionAnswered,
+      isButtonEnabledSubject: this.isButtonEnabledSubject.value
+    });
+  
+    this.cdRef.detectChanges();
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log('QuizComponent: onOptionSelected called', event);
+  
+    this.quizStateService.setLoading(false);  // Ensure loading is set to false
+  
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = event.checked ? [event.option] : [];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      if (event.checked) {
+        this.selectedOptions.push(event.option);
+      } else {
+        this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== event.option.optionId);
+      }
+    }
+  
+    this.isNextButtonEnabled = this.selectedOptions.length > 0;
+    this.currentQuestionAnswered = this.isNextButtonEnabled;
+    this.isButtonEnabledSubject.next(this.isNextButtonEnabled);
+  
+    // Update SelectedOptionService
+    this.selectedOptionService.setSelectedOption(event.option);
   
     console.log('After option selection:', {
       selectedOptions: this.selectedOptions,
