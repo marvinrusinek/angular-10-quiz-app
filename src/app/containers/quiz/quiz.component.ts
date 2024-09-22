@@ -2648,7 +2648,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         selectedOptionsCount: this.selectedOptions.length
       });
     
-      if (!this.isButtonEnabled || !this.currentQuestionAnswered) {
+      const isEnabled = this.isButtonEnabledSubject.value;
+      if (!isEnabled || !this.isButtonEnabled || !this.isNextButtonEnabled || !this.currentQuestionAnswered) {
         console.warn('Cannot advance: Next button is disabled or question not answered.');
         return;
       }
