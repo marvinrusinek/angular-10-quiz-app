@@ -91,8 +91,10 @@
             </button>
           </div>
           <!--[disabled]="!(isButtonEnabled$ | async)"-->
-          <p>Debug: Next button enabled: {{isButtonEnabled$ | async}}</p>
+          <p>Debug: Next button enabled: {{isNextButtonEnabled}}</p>
           <p>Debug: Selected options count: {{selectedOptions.length}}</p>
+          <p>Debug: Selected options: {{selectedOptions | json}}</p>
+          <p>Debug: Current question type: {{currentQuestion?.type}}</p>
           <!-- <p>Next button enabled: {{ isButtonEnabled$ | async }}</p>-->
           <!--<button (click)="toggleButtonState()">
             Toggle Button State
