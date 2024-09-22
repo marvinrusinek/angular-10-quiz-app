@@ -516,7 +516,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Force change detection
     this.cdRef.detectChanges();
   } */
-  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log('QuizComponent: onOptionSelected called', event);
   
     // Log the state before any changes
@@ -553,6 +553,48 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     setTimeout(() => {
       console.log('Verification - Selected options:', this.selectedOptions);
       console.log('Verification - isNextButtonEnabled:', this.isNextButtonEnabled);
+    }, 0);
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log('QuizComponent: onOptionSelected called', event);
+  
+    // Log the state before any changes
+    console.log('Before update - Selected options:', this.selectedOptions);
+    console.log('Before update - isNextButtonEnabled:', this.isNextButtonEnabled);
+  
+    // Update selected options
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = event.checked ? [event.option] : [];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      if (event.checked) {
+        this.selectedOptions.push(event.option);
+      } else {
+        this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== event.option.optionId);
+      }
+    }
+  
+    // Log the updated selected options
+    console.log('After update - Selected options:', this.selectedOptions);
+  
+    // Update button state
+    this.isNextButtonEnabled = this.selectedOptions.length > 0;
+    this.currentQuestionAnswered = this.isNextButtonEnabled;
+    this.isButtonEnabledSubject.next(this.isNextButtonEnabled);
+  
+    console.log('After update - isNextButtonEnabled:', this.isNextButtonEnabled);
+    console.log('After update - currentQuestionAnswered:', this.currentQuestionAnswered);
+  
+    // Force change detection
+    this.cdRef.detectChanges();
+  
+    // Log the final state
+    this.logFullState('After onOptionSelected');
+  
+    // Verify that the changes have been applied
+    setTimeout(() => {
+      console.log('Verification - Selected options:', this.selectedOptions);
+      console.log('Verification - isNextButtonEnabled:', this.isNextButtonEnabled);
+      console.log('Verification - currentQuestionAnswered:', this.currentQuestionAnswered);
     }, 0);
   }
 
@@ -2329,13 +2371,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
-    if (this.isNavigating) {
-      console.warn('Navigation already in progress. Aborting.');
-      return;
-    }
-
-    if (!this.currentQuestionAnswered) {
-      console.warn('Current question is not answered. Cannot advance.');
+    if (this.isNavigating || !this.currentQuestionAnswered) {
+      console.warn('Cannot advance: navigation in progress or question not answered.');
       return;
     }
 
