@@ -456,7 +456,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.cdRef.markForCheck();
     this.cdRef.detectChanges();
   } */
-  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log('QuizComponent: onOptionSelected called', event);
   
     if (!this.currentQuestion) {
@@ -490,6 +490,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Force change detection
     this.cdRef.detectChanges();
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number}): void {
+    console.log('QuizComponent: onOptionSelected called', event);
+  
+    if (!this.currentQuestion) {
+      console.error('No current question set');
+      return;
+    }
+  
+    // Always set the selected option, regardless of question type
+    this.selectedOptions = [event.option];
+    
+    console.log('Updated selected options:', this.selectedOptions);
+  
+    // Update button state
+    this.isNextButtonEnabled = true;
+    console.log('Updated isNextButtonEnabled:', this.isNextButtonEnabled);
+  
+    // Force change detection
+    this.cdRef.detectChanges();
+    
+    // Log the state after a short delay
+    setTimeout(() => this.logCurrentState(), 0);
+  }
+  
+  logCurrentState() {
+    console.log('Current state:');
+    console.log('Current question:', this.currentQuestion);
+    console.log('Selected options:', this.selectedOptions);
+    console.log('Is next button enabled:', this.isNextButtonEnabled);
   }
 
  
