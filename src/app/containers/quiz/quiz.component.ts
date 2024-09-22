@@ -456,10 +456,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.cdRef.markForCheck();
     }
   } */
-  private updateNextButtonState(): void {
+  /* private updateNextButtonState(): void {
     const shouldBeEnabled = this.isAnyOptionSelected();
     console.log(`Updating Next button state: ${shouldBeEnabled}`);
     this.isButtonEnabledSubject.next(shouldBeEnabled);
+  } */
+  private updateNextButtonState(): void {
+    const shouldBeEnabled = this.selectedOptions.length > 0;
+    console.log(`updateNextButtonState: shouldBeEnabled = ${shouldBeEnabled}`);
+    console.log(`updateNextButtonState: current isButtonEnabledSubject value = ${this.isButtonEnabledSubject.value}`);
+    this.isButtonEnabledSubject.next(shouldBeEnabled);
+    console.log(`updateNextButtonState: new isButtonEnabledSubject value = ${this.isButtonEnabledSubject.value}`);
   }
 
   private resetQuestionState(): void {
