@@ -552,28 +552,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   toggleOption(event: { option: SelectedOption, index: number, checked: boolean }) {
-    console.log('toggleOption called with event:', JSON.stringify(event));
-    
+    console.log('QuizComponent: toggleOption called', event);
+  
     if (!this.currentQuestion) {
       console.error('No current question set');
       return;
     }
   
-    console.log('Current question:', JSON.stringify(this.currentQuestion));
-  
-    // Handle both test case and actual quiz selection
-    const option = event.option.optionId ? event.option : this.currentQuestion.options[event.index];
-    const checked = event.checked !== undefined ? event.checked : true;
-  
-    console.log('Processing option:', JSON.stringify(option), 'Checked:', checked);
+    console.log('Current question:', this.currentQuestion);
   
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = checked ? [option] : [];
+      this.selectedOptions = event.checked ? [event.option] : [];
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      const index = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
-      if (index === -1 && checked) {
-        this.selectedOptions.push(option);
-      } else if (index !== -1 && !checked) {
+      const index = this.selectedOptions.findIndex(o => o.optionId === event.option.optionId);
+      if (index === -1 && event.checked) {
+        this.selectedOptions.push(event.option);
+      } else if (index !== -1 && !event.checked) {
         this.selectedOptions.splice(index, 1);
       }
     }
@@ -581,14 +575,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const isEnabled = this.selectedOptions.length > 0;
     this.isButtonEnabledSubject.next(isEnabled);
   
-    console.log('Updated selected options:', JSON.stringify(this.selectedOptions));
+    console.log('Updated selected options:', this.selectedOptions);
     console.log('Updated isNextButtonEnabled:', isEnabled);
   
     // Force change detection
     this.cdRef.detectChanges();
-    
-    // Log the final state
-    // this.logCurrentState();
   }
 
   onQuizQuestionOptionSelected(event: any) {
