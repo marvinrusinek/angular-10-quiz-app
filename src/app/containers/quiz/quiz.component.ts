@@ -581,10 +581,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Force change detection
     this.cdRef.detectChanges();
   } */
-
-  toggleOption(option: any) {
-    console.log('Toggle option called:', option);
-    if (this.currentQuestion.type === 'SingleAnswer') {
+  toggleOption(event: any) {
+    console.log('Toggle option called:', event);
+    
+    let option: any;
+    if (event.option) {
+      // This is from the quiz question component
+      option = event.option;
+    } else {
+      // This is from the test button or direct click
+      option = event;
+    }
+  
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = [option];
     } else {
       const index = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
@@ -594,10 +603,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.selectedOptions.splice(index, 1);
       }
     }
+  
     this.isNextButtonEnabled = this.selectedOptions.length > 0;
     console.log('Selected options:', this.selectedOptions);
     console.log('Next button enabled:', this.isNextButtonEnabled);
-  }
+  }  
 
   testOptionSelection() {
     const testOption = { optionId: 'test', text: 'Test Option' };
