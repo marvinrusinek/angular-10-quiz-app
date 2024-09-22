@@ -498,7 +498,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.detectChanges();
   }
 
-  private resetQuestionState(): void {
+  /* private resetQuestionState(): void {
     console.log('Resetting question state');
     this.selectedOptions = [];
     this.isNextButtonEnabled = false;
@@ -514,6 +514,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.selectedOptions
     );
     console.log('Button enabled:', this.isButtonEnabledSubject.value);
+  } */
+  private resetQuestionState(): void {
+    console.log('Resetting question state');
+    this.selectedOptions = [];
+    this.isNextButtonEnabled = false;
+    
+    if (this.currentQuestion && this.currentQuestion.options) {
+      for (const option of this.currentQuestion.options) {
+        if (option.selected) {
+          console.log(`Clearing selected state for option: ${option.optionId}`);
+          option.selected = false;
+        }
+      }
+    }
+    
+    this.logFullState('After resetQuestionState');
+  }
+
+  logFullState(context: string) {
+    console.log(`--- Full State Log (${context}) ---`);
+    console.log('currentQuestion:', JSON.stringify(this.currentQuestion, null, 2));
+    console.log('selectedOptions:', JSON.stringify(this.selectedOptions, null, 2));
+    console.log('isNextButtonEnabled:', this.isNextButtonEnabled);
+    console.log('---------------------------');
   }
 
   logCurrentState(context: string): void {
