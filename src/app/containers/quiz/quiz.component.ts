@@ -208,6 +208,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private isNextButtonDisabledSubject = new BehaviorSubject<boolean>(true);
   isNextButtonDisabled$ = this.isNextButtonDisabledSubject.asObservable();
 
+  currentQuestionAnswered = false;
+
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
@@ -634,8 +636,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   
     this.isNextButtonEnabled = this.selectedOptions.length > 0;
+    this.currentQuestionAnswered = this.isNextButtonEnabled;
     console.log('Selected options:', this.selectedOptions);
     console.log('Next button enabled:', this.isNextButtonEnabled);
+    console.log('Current question answered:', this.currentQuestionAnswered);
   }
 
   onQuizQuestionOptionSelected(event: any) {
@@ -713,6 +717,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private resetQuestionState(): void {
     console.log('Resetting question state');
     this.selectedOptions = [];
+    this.currentQuestionAnswered = false;
     this.isNextButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
     
@@ -2323,6 +2328,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   async advanceToNextQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
+      return;
+    }
+
+    if (!this.currentQuestionAnswered) {
+      console.warn('Current question is not answered. Cannot advance.');
       return;
     }
 
