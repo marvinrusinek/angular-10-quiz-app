@@ -302,6 +302,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.markForCheck();
     });
 
+    this.isButtonEnabledSubject.next(false);
+    this.selectedOptions = [];
+
     this.resetQuestionState();
     this.initializeNextButtonState();
     // this.subscribeToOptionSelection();
@@ -647,6 +650,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('Resetting question state');
     this.selectedOptions = [];
     this.isNextButtonEnabled = false;
+    this.isButtonEnabledSubject.next(false);
     
     if (this.currentQuestion && this.currentQuestion.options) {
       for (const option of this.currentQuestion.options) {
