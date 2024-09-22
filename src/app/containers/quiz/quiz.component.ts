@@ -2533,17 +2533,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     console.log('advanceToNextQuestion called');
-    console.log('Current state - isNavigating:', this.isNavigating);
-    console.log('Current state - currentQuestionAnswered:', this.currentQuestionAnswered);
     
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
   
-    const isEnabled = await firstValueFrom(this.isButtonEnabled$.pipe(take(1)));
-    console.log('Current state - isEnabled:', isEnabled);
-
+    const isEnabled = this.isButtonEnabledSubject.value;
     console.log('Pre-check state:', {
       isEnabled,
       isNextButtonEnabled: this.isNextButtonEnabled,
@@ -2552,11 +2548,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     if (!isEnabled || !this.isNextButtonEnabled || !this.currentQuestionAnswered) {
       console.warn('Cannot advance: Next button is disabled or question not answered.');
-      console.log('isEnabled:', isEnabled);
-      console.log('Current state:', {
-        isNextButtonEnabled: this.isNextButtonEnabled,
-        currentQuestionAnswered: this.currentQuestionAnswered
-      });
       return;
     }
 
