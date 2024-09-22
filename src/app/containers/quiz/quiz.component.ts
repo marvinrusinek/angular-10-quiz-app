@@ -435,7 +435,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private isAnyOptionSelected(): boolean {
-    return this.selectedOptions.length > 0;
+    const result = this.selectedOptions.length > 0;
+    console.log(`isAnyOptionSelected: ${result}, selectedOptions:`, this.selectedOptions);
+    return result;
   }
 
   /* updateNextButtonState(): void {
