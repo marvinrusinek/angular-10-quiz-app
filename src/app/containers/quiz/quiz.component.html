@@ -26,7 +26,7 @@
             (answer)="selectedAnswer($event)"
             (isAnsweredChange)="onIsAnsweredChange($event)"
             (selectionMessageChange)="onSelectionMessageChange($event)"
-            (optionSelected)="onOptionSelected($event)"
+            (optionSelected)="onOptionSelected($event); logEvent($event)"
             (isAnsweredChange)="onIsAnsweredChange($event)"
           ></codelab-quiz-question>
         </ng-container>
