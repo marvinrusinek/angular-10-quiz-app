@@ -2417,14 +2417,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
+    console.log('advanceToNextQuestion called');
+    console.log('Current state - isNavigating:', this.isNavigating);
+    console.log('Current state - currentQuestionAnswered:', this.currentQuestionAnswered);
+    
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
   
     const isEnabled = await firstValueFrom(this.isButtonEnabled$.pipe(take(1)));
+    console.log('Current state - isEnabled:', isEnabled);
+  
     if (!isEnabled || !this.currentQuestionAnswered) {
       console.warn('Cannot advance: Next button is disabled or question not answered.');
+      console.log('isEnabled:', isEnabled);
+      console.log('currentQuestionAnswered:', this.currentQuestionAnswered);
       return;
     }
 
