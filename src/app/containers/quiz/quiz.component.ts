@@ -589,6 +589,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.logCurrentState();
   }
 
+  onQuizQuestionOptionSelected(event: any) {
+    console.log('QuizComponent received optionSelected event:', event);
+    this.toggleOption(event);
+  }
+
   testOptionSelection() {
     const testOption: SelectedOption = {
       optionId: 'test',
