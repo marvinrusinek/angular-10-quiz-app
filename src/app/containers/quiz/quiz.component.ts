@@ -2012,11 +2012,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
   
-    const isEnabled = await firstValueFrom(this.isButtonEnabled$.pipe(take(1)));
+    /* const isEnabled = await firstValueFrom(this.isButtonEnabled$.pipe(take(1)));
     if (!isEnabled) {
       console.warn('Next button is disabled. Cannot advance.');
       return;
-    }
+    } */
   
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
@@ -2032,6 +2032,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.quizStateService.setAnswerSelected(false);
         this.quizStateService.setLoading(true);
         this.manualOverrideSubject.next(false);
+        this.selectedOptions = []; // Clear selected options
+        this.updateNextButtonState();
   
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
