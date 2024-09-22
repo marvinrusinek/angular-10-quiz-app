@@ -298,6 +298,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.cdRef.markForCheck();
     });
 
+    this.resetQuestionState();
     this.initializeNextButtonState();
     // this.subscribeToOptionSelection();
     this.updateNextButtonState();
@@ -470,9 +471,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private resetQuestionState(): void {
+    console.log('Resetting question state');
     this.selectedOptions = [];
     this.updateNextButtonState();
-    console.log('Question state reset. Button enabled:', this.isButtonEnabled);
+    console.log('Question state reset. Selected options:', this.selectedOptions);
+    console.log('Button enabled:', this.isButtonEnabledSubject.value);
   }
 
   toggleNextButton(): void {
