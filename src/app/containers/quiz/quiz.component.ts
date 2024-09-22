@@ -519,21 +519,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
   
-    if (!this.currentQuestion.type) {
-      console.error('Current question has no type');
-      return;
-    }
-  
     console.log('Current question type:', this.currentQuestion.type);
   
     // Update selected options
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = event.checked ? [event.option] : [];
+      // For single answer, always set the selected option
+      this.selectedOptions = [event.option];
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      if (event.checked) {
+      // For multiple answer, toggle the option
+      const index = this.selectedOptions.findIndex(o => o.optionId === event.option.optionId);
+      if (index === -1) {
         this.selectedOptions.push(event.option);
       } else {
-        this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== event.option.optionId);
+        this.selectedOptions.splice(index, 1);
       }
     }
   
@@ -547,7 +545,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.cdRef.detectChanges();
   
     // Log the final state
-    setTimeout(() => this.logCurrentState(), 0);
+    this.logCurrentState();
   }
 
   private isAnyOptionSelected(): boolean {
