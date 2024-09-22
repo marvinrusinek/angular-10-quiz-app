@@ -305,6 +305,11 @@ export class QuizQuestionComponent
         this.resetState();
       }
     );
+
+    setTimeout(() => {
+      console.log("Emitting test event");
+      this.optionSelected.emit({option: {} as SelectedOption, index: 0, checked: true});
+    }, 1000);
   
     try {
       const quizId =
