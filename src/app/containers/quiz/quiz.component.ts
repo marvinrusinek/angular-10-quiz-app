@@ -548,7 +548,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.logCurrentState();
   }
 
-  toggleOption(optionId: string | number) {
+  toggleOption(event: { option: SelectedOption, index: number, checked: boolean }) {
+    const optionId = event.option.optionId;
     console.log('toggleOption called with optionId:', optionId);
     
     if (!this.currentQuestion) {
@@ -556,19 +557,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
   
-    const option = this.currentQuestion.options.find(o => o.optionId === optionId);
+    const option = event.option;
     if (!option) {
       console.error('Option not found');
       return;
     }
   
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = [option];
+      this.selectedOptions = event.checked ? [option] : [];
     } else {
       const index = this.selectedOptions.findIndex(o => o.optionId === optionId);
-      if (index === -1) {
+      if (index === -1 && event.checked) {
         this.selectedOptions.push(option);
-      } else {
+      } else if (index !== -1 && !event.checked) {
         this.selectedOptions.splice(index, 1);
       }
     }
