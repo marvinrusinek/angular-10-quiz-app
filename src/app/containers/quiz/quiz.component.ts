@@ -295,25 +295,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('Quiz ID is not provided in the route');
       }
     });
-
+  
     this.isLoading$ = this.quizStateService.isLoading$;
     this.isAnswered$ = this.quizStateService.isAnswered$;
-
-    this.resetQuestionState();
+  
     this.initializeNextButtonState();
-    // this.subscribeToOptionSelection();
     this.updateNextButtonState();
-    this.logCurrentState('After ngOnInit');
-
+  
     this.isButtonEnabled$.subscribe(isEnabled => {
       this.isButtonEnabled = isEnabled;
       this.isNextButtonEnabled = isEnabled;
       console.log('isButtonEnabled$ updated:', isEnabled);
       this.cdRef.markForCheck();
     });
-
-    this.isButtonEnabledSubject.next(false);
-    this.selectedOptions = [];
+  
+    // Move resetQuestionState here
+    this.resetQuestionState();
+  
+    this.logCurrentState('After ngOnInit');
 
     this.selectedOptionService.isOptionSelected$().subscribe((isSelected) => {
       console.log('Debug: isOptionSelected$ emitted', isSelected);
