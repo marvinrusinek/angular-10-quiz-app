@@ -405,15 +405,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.logCurrentState('After onOptionSelected');
 
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = [event.option];
+      // Deselect all options first
+      this.currentQuestion.options.forEach(opt => opt.selected = false);
+      // Then select the new option
+      event.option.selected = event.checked;
+      this.selectedOptions = event.checked ? [event.option] : [];
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      const index = this.selectedOptions.findIndex(
-        (o) => o.optionId === event.option.optionId
-      );
-      if (index === -1 && event.checked) {
+      event.option.selected = event.checked;
+      if (event.checked) {
         this.selectedOptions.push(event.option);
-      } else if (index !== -1 && !event.checked) {
-        this.selectedOptions.splice(index, 1);
+      } else {
+        this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== event.option.optionId);
       }
     }
 
