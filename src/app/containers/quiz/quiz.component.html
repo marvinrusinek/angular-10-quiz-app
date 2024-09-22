@@ -82,7 +82,7 @@
               (click)="advanceToNextQuestion()"
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
-              [disabled]="!isNextButtonEnabled"
+              [disabled]="!(isButtonEnabled$ | async)"
               aria-label="Next Question"
               [matTooltip]="(isButtonEnabled$ | async) ? 'Next Question>>' : 'Please select an option to continue...'"
               matTooltipPosition="above"
@@ -90,6 +90,7 @@
               <i class="material-icons">navigate_next</i>
             </button>
           </div>
+          <!--[disabled]="!isNextButtonEnabled"-->
           <!--[disabled]="!(isButtonEnabled$ | async)"-->
           <p>Debug: Next button enabled: {{isNextButtonEnabled}}</p>
           <p>Debug: Selected options count: {{selectedOptions.length}}</p>
