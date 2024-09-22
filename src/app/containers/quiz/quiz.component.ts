@@ -552,12 +552,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   toggleOption(event: { option: SelectedOption, index: number, checked: boolean }) {
-    console.log('toggleOption called with event:', event);
+    console.log('toggleOption called with event:', JSON.stringify(event));
     
     if (!this.currentQuestion) {
       console.error('No current question set');
       return;
     }
+  
+    console.log('Current question:', JSON.stringify(this.currentQuestion));
   
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = event.checked ? [event.option] : [];
@@ -573,7 +575,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const isEnabled = this.selectedOptions.length > 0;
     this.isButtonEnabledSubject.next(isEnabled);
   
-    console.log('Updated selected options:', this.selectedOptions);
+    console.log('Updated selected options:', JSON.stringify(this.selectedOptions));
     console.log('Updated isNextButtonEnabled:', isEnabled);
   
     // Force change detection
