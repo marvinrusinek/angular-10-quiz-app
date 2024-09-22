@@ -335,7 +335,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.checkIfAnswerSelected(true);
   }
 
-  initializeNextButtonState() {
+  /* initializeNextButtonState() {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject,
       this.quizStateService.isLoading$,
@@ -346,6 +346,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }),
       distinctUntilChanged()
     );
+  } */
+  private initializeNextButtonState(): void {
+    this.isNextButtonEnabled = false;
+    this.isButtonEnabled = false;
+    this.isButtonEnabledSubject.next(false);
+    console.log('Next button state initialized:', {
+      isNextButtonEnabled: this.isNextButtonEnabled,
+      isButtonEnabled: this.isButtonEnabled
+    });
   }
 
   toggleButtonState() {
