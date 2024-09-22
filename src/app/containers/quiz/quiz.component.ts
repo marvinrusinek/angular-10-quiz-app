@@ -555,7 +555,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('Verification - isNextButtonEnabled:', this.isNextButtonEnabled);
     }, 0);
   } */
-  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log('QuizComponent: onOptionSelected called', event);
   
     // Log the state before any changes
@@ -596,6 +596,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('Verification - isNextButtonEnabled:', this.isNextButtonEnabled);
       console.log('Verification - currentQuestionAnswered:', this.currentQuestionAnswered);
     }, 0);
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log('QuizComponent: onOptionSelected called', event);
+  
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = event.checked ? [event.option] : [];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      if (event.checked) {
+        this.selectedOptions.push(event.option);
+      } else {
+        this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== event.option.optionId);
+      }
+    }
+  
+    this.isNextButtonEnabled = this.selectedOptions.length > 0;
+    this.currentQuestionAnswered = this.isNextButtonEnabled;
+    this.isButtonEnabledSubject.next(this.isNextButtonEnabled);
+  
+    console.log('After update - isNextButtonEnabled:', this.isNextButtonEnabled);
+    console.log('After update - currentQuestionAnswered:', this.currentQuestionAnswered);
+  
+    this.cdRef.detectChanges();
   }
 
   /* toggleOption(event: { option: SelectedOption, index: number, checked: boolean }) {
