@@ -2023,11 +2023,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
   
-    /* const isEnabled = await firstValueFrom(this.isButtonEnabled$.pipe(take(1)));
+    const isEnabled = await firstValueFrom(this.isButtonEnabled$.pipe(take(1)));
     if (!isEnabled) {
       console.warn('Next button is disabled. Cannot advance.');
       return;
-    } */
+    }
   
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
