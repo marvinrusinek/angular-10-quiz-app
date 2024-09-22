@@ -299,6 +299,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isLoading$ = this.quizStateService.isLoading$;
     this.isAnswered$ = this.quizStateService.isAnswered$;
 
+    this.resetQuestionState();
+    this.initializeNextButtonState();
+    // this.subscribeToOptionSelection();
+    this.updateNextButtonState();
+    this.logCurrentState('After ngOnInit');
+
     this.isButtonEnabled$.subscribe(isEnabled => {
       this.isButtonEnabled = isEnabled;
       this.isNextButtonEnabled = isEnabled;
@@ -308,12 +314,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.isButtonEnabledSubject.next(false);
     this.selectedOptions = [];
-
-    this.resetQuestionState();
-    this.initializeNextButtonState();
-    // this.subscribeToOptionSelection();
-    this.updateNextButtonState();
-    this.logCurrentState('After ngOnInit');
 
     this.selectedOptionService.isOptionSelected$().subscribe((isSelected) => {
       console.log('Debug: isOptionSelected$ emitted', isSelected);
