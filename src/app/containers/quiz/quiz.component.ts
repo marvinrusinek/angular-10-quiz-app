@@ -519,38 +519,39 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log('QuizComponent: onOptionSelected called', event);
   
-    if (!this.currentQuestion) {
-      console.error('No current question set');
-      return;
-    }
-  
-    console.log('Current question type:', this.currentQuestion.type);
+    // Log the state before any changes
+    console.log('Before update - Selected options:', this.selectedOptions);
+    console.log('Before update - isNextButtonEnabled:', this.isNextButtonEnabled);
   
     // Update selected options
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      // For single answer, always set the selected option
-      this.selectedOptions = [event.option];
+      this.selectedOptions = event.checked ? [event.option] : [];
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      // For multiple answer, toggle the option
-      const index = this.selectedOptions.findIndex(o => o.optionId === event.option.optionId);
-      if (index === -1) {
+      if (event.checked) {
         this.selectedOptions.push(event.option);
       } else {
-        this.selectedOptions.splice(index, 1);
+        this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== event.option.optionId);
       }
     }
   
+    // Log the updated selected options
+    console.log('After update - Selected options:', this.selectedOptions);
+  
     // Update button state
     this.isNextButtonEnabled = this.selectedOptions.length > 0;
-  
-    console.log('Updated selected options:', this.selectedOptions);
-    console.log('Updated isNextButtonEnabled:', this.isNextButtonEnabled);
+    console.log('After update - isNextButtonEnabled:', this.isNextButtonEnabled);
   
     // Force change detection
     this.cdRef.detectChanges();
   
     // Log the final state
-    this.logCurrentState();
+    this.logFullState('After onOptionSelected');
+  
+    // Verify that the changes have been applied
+    setTimeout(() => {
+      console.log('Verification - Selected options:', this.selectedOptions);
+      console.log('Verification - isNextButtonEnabled:', this.isNextButtonEnabled);
+    }, 0);
   }
 
   /* toggleOption(event: { option: SelectedOption, index: number, checked: boolean }) {
