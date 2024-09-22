@@ -953,6 +953,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.selectedOptions = [];
     this.currentQuestionAnswered = false;
     this.isNextButtonEnabled = false;
+    this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
     
     if (this.currentQuestion && this.currentQuestion.options) {
@@ -967,7 +968,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('Question state reset:', {
       selectedOptions: this.selectedOptions,
       isNextButtonEnabled: this.isNextButtonEnabled,
-      currentQuestionAnswered: this.currentQuestionAnswered
+      currentQuestionAnswered: this.currentQuestionAnswered,
+      isButtonEnabled: this.isButtonEnabled
     });
 
     this.cdRef.detectChanges();
