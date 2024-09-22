@@ -552,26 +552,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   toggleOption(event: { option: SelectedOption, index: number, checked: boolean }) {
-    const optionId = event.option.optionId;
-    console.log('toggleOption called with optionId:', optionId);
+    console.log('toggleOption called with event:', event);
     
     if (!this.currentQuestion) {
       console.error('No current question set');
       return;
     }
   
-    const option = event.option;
-    if (!option) {
-      console.error('Option not found');
-      return;
-    }
-  
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = event.checked ? [option] : [];
+      this.selectedOptions = event.checked ? [event.option] : [];
     } else {
-      const index = this.selectedOptions.findIndex(o => o.optionId === optionId);
+      const index = this.selectedOptions.findIndex(o => o.optionId === event.option.optionId);
       if (index === -1 && event.checked) {
-        this.selectedOptions.push(option);
+        this.selectedOptions.push(event.option);
       } else if (index !== -1 && !event.checked) {
         this.selectedOptions.splice(index, 1);
       }
@@ -583,8 +576,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('Updated selected options:', this.selectedOptions);
     console.log('Updated isNextButtonEnabled:', isEnabled);
   
+    // Force change detection
     this.cdRef.detectChanges();
-    // this.logCurrentState();
+  
+    // Log the current state
+    this.logCurrentState();
   }
 
   private isAnyOptionSelected(): boolean {
