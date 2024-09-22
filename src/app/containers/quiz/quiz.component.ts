@@ -356,7 +356,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log("logEvent called with:", event);
   }
   
-  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log("MY TEST OOS");
     console.log('QuizComponent: onOptionSelected called', event);
     console.log("onOptionSelected called with event:", event);
@@ -388,12 +388,63 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('QuizComponent: Calling setSelectedOption with', event.option);
   
     this.cdRef.markForCheck();
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log("MY TEST OOS");
+    console.log('QuizComponent: onOptionSelected called', event);
+    console.log("onOptionSelected called with event:", event);
+    
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = [event.option];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      const index = this.selectedOptions.findIndex(o => o.optionId === event.option.optionId);
+      if (index === -1 && event.checked) {
+        this.selectedOptions.push(event.option);
+      } else if (index !== -1 && !event.checked) {
+        this.selectedOptions.splice(index, 1);
+      }
+    }
+  
+    // Update the selected options (this is redundant given the above logic, but included as requested)
+    if (event.checked) {
+      if (!this.selectedOptions.some(o => o.optionId === event.option.optionId)) {
+        this.selectedOptions.push(event.option);
+      }
+    } else {
+      this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== event.option.optionId);
+    }
+  
+    const isAnswered = this.selectedOptions.length > 0;
+    console.log('QuizComponent: isAnswered', isAnswered);
+  
+    // Update the selected option in your service
+    this.selectedOptionService.setSelectedOption(event.option);
+  
+    // Set isAnswered to true when an option is selected
+    this.selectedOptionService.setAnsweredState(isAnswered);
+    this.quizStateService.setAnswerSelected(isAnswered);
+    
+    // Update the button state
+    this.updateNextButtonState();
+  
+    console.log('QuizComponent: Updated selectedOptions', this.selectedOptions);
+    console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
+    console.log('QuizComponent: Calling setSelectedOption with', event.option);
+  
+    this.cdRef.markForCheck();
   }
 
-  updateNextButtonState(): void {
+  /* updateNextButtonState(): void {
     this.disabled = !this.isAnswered;
     console.log('Next button disabled:', this.disabled);
     this.cdRef.detectChanges();
+  } */
+  updateNextButtonState(): void {
+    const isEnabled = this.selectedOptions.length > 0;
+    console.log("Updating Next button state to:", isEnabled);
+    this.isButtonEnabled = isEnabled;
+    // If you're using an observable for button state, uncomment the next line
+    // this.isButtonEnabled$.next(isEnabled);
   }
 
   toggleNextButton(): void {
