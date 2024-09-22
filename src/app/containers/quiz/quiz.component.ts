@@ -964,6 +964,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     }
 
+    this.quizStateService.setAnswered(false);
+    this.quizStateService.setLoading(false);
+
     console.log('Question state reset:', {
       selectedOptions: this.selectedOptions,
       isNextButtonEnabled: this.isNextButtonEnabled,
