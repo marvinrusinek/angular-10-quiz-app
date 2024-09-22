@@ -351,6 +351,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.updateNextButtonState();
       });
   }
+
+  logEvent(event: any) {
+    console.log("logEvent called with:", event);
+  }
   
   onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log("MY TEST OOS");
