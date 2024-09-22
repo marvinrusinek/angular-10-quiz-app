@@ -581,7 +581,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Force change detection
     this.cdRef.detectChanges();
   } */
-  toggleOption(event: any) {
+  /* toggleOption(event: any) {
     console.log('Toggle option called:', event);
     
     let option: any;
@@ -607,11 +607,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isNextButtonEnabled = this.selectedOptions.length > 0;
     console.log('Selected options:', this.selectedOptions);
     console.log('Next button enabled:', this.isNextButtonEnabled);
-  }  
-
-  testOptionSelection() {
-    const testOption = { optionId: 'test', text: 'Test Option' };
-    this.toggleOption(testOption);
+  } */
+  toggleOption(eventOrOption: any) {
+    console.log('Toggle option called with:', eventOrOption);
+  
+    let option: any;
+    if (eventOrOption.option) {
+      // This is an event from a child component
+      option = eventOrOption.option;
+    } else {
+      // This is a direct option click or from test selection
+      option = eventOrOption;
+    }
+  
+    console.log('Processing option:', option);
+  
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = [option];
+    } else {
+      const index = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
+      if (index === -1) {
+        this.selectedOptions.push(option);
+      } else {
+        this.selectedOptions.splice(index, 1);
+      }
+    }
+  
+    this.isNextButtonEnabled = this.selectedOptions.length > 0;
+    console.log('Selected options:', this.selectedOptions);
+    console.log('Next button enabled:', this.isNextButtonEnabled);
   }
 
   onQuizQuestionOptionSelected(event: any) {
