@@ -402,6 +402,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('MY TEST OOS');
     console.log('QuizComponent: onOptionSelected called', event);
     console.log('onOptionSelected called with event:', event);
+    this.logCurrentState('After onOptionSelected');
 
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = [event.option];
