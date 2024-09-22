@@ -426,6 +426,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     
     // Update the button state
     this.updateNextButtonState();
+
+    // Force update of isButtonEnabled$
+    this.isButtonEnabledSubject.next(this.selectedOptions.length > 0);
   
     console.log('QuizComponent: Updated selectedOptions', this.selectedOptions);
     console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
