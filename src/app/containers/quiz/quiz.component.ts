@@ -352,35 +352,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       });
   }
   
-  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
-    console.log('QuizComponent: onOptionSelected called', event);
-    
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = [event.option];
-    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      const index = this.selectedOptions.findIndex(o => o.optionId === event.option.optionId);
-      if (index === -1 && event.checked) {
-        this.selectedOptions.push(event.option);
-      } else if (index !== -1 && !event.checked) {
-        this.selectedOptions.splice(index, 1);
-      }
-    }
-
-    const isAnswered = this.selectedOptions.length > 0;
-    console.log('QuizComponent: isAnswered', isAnswered);
-
-    this.quizStateService.setAnswerSelected(isAnswered);
-    this.selectedOptionService.setSelectedOption(event.option);
-    this.manualOverrideSubject.next(true);
-    console.log('QuizComponent: Manual override set to', this.manualOverrideSubject.value);
-    this.isButtonEnabled = true;
-
-    console.log('QuizComponent: Updated selectedOptions', this.selectedOptions);
-    console.log('QuizComponent: Calling setAnswerSelected with', isAnswered);
-    console.log('QuizComponent: Calling setSelectedOption with', isAnswered ? this.selectedOptions[0] : null);
-
-    this.cdRef.markForCheck();
-  } */
   onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log
     console.log('QuizComponent: onOptionSelected called', event);
