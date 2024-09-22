@@ -574,13 +574,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     }
   
-    this.isNextButtonEnabled = this.selectedOptions.length > 0;
+    const isEnabled = this.selectedOptions.length > 0;
+    this.isButtonEnabledSubject.next(isEnabled);
   
     console.log('Updated selected options:', this.selectedOptions);
-    console.log('Updated isNextButtonEnabled:', this.isNextButtonEnabled);
+    console.log('Updated isNextButtonEnabled:', isEnabled);
   
     this.cdRef.detectChanges();
-    this.logCurrentState();
+    // this.logCurrentState();
   }
 
   private isAnyOptionSelected(): boolean {
