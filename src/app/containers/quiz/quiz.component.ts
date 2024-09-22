@@ -2614,7 +2614,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /************************ paging functions *********************/
-  async advanceToNextQuestion(): Promise<void> {
+  /* async advanceToNextQuestion(): Promise<void> {
     console.log('advanceToNextQuestion called');
     
     if (this.isNavigating) {
@@ -2632,7 +2632,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (!isEnabled || !this.isNextButtonEnabled || !this.currentQuestionAnswered) {
       console.warn('Cannot advance: Next button is disabled or question not answered.');
       return;
-    }
+    } */
+    async advanceToNextQuestion(): Promise<void> {
+      console.log('advanceToNextQuestion called');
+      
+      if (this.isNavigating) {
+        console.warn('Navigation already in progress. Aborting.');
+        return;
+      }
+    
+      console.log('Pre-navigation state:', {
+        isButtonEnabled: this.isButtonEnabled,
+        isNextButtonEnabled: this.isNextButtonEnabled,
+        currentQuestionAnswered: this.currentQuestionAnswered,
+        selectedOptionsCount: this.selectedOptions.length
+      });
+    
+      if (!this.isButtonEnabled || !this.currentQuestionAnswered) {
+        console.warn('Cannot advance: Next button is disabled or question not answered.');
+        return;
+      }
 
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
