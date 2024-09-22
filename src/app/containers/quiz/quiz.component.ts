@@ -762,7 +762,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     this.cdRef.detectChanges();
   } */
-  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log('QuizComponent: onOptionSelected called', event);
   
     this.quizStateService.setLoading(false);
@@ -789,6 +789,42 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       selectedOptions: this.selectedOptions,
       isNextButtonEnabled: this.isNextButtonEnabled,
       currentQuestionAnswered: this.currentQuestionAnswered,
+      isButtonEnabledSubject: this.isButtonEnabledSubject.value
+    });
+  
+    this.cdRef.detectChanges();
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log('QuizComponent: onOptionSelected called', event);
+  
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = event.checked ? [event.option] : [];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      if (event.checked) {
+        this.selectedOptions.push(event.option);
+      } else {
+        this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== event.option.optionId);
+      }
+    }
+  
+    const isOptionSelected = this.selectedOptions.length > 0;
+    this.isNextButtonEnabled = isOptionSelected;
+    this.currentQuestionAnswered = isOptionSelected;
+    this.isButtonEnabled = isOptionSelected;
+    this.isButtonEnabledSubject.next(isOptionSelected);
+  
+    // Update SelectedOptionService
+    this.selectedOptionService.setSelectedOption(event.option);
+  
+    // Update QuizStateService
+    this.quizStateService.setAnswered(isOptionSelected);
+    this.quizStateService.setLoading(false);
+  
+    console.log('After option selection:', {
+      selectedOptions: this.selectedOptions,
+      isNextButtonEnabled: this.isNextButtonEnabled,
+      currentQuestionAnswered: this.currentQuestionAnswered,
+      isButtonEnabled: this.isButtonEnabled,
       isButtonEnabledSubject: this.isButtonEnabledSubject.value
     });
   
