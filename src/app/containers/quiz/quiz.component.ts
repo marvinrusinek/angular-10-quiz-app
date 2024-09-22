@@ -555,7 +555,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         }
       }
     }
-    
+
+    this.cdRef.detectChanges();
     this.logFullState('After resetQuestionState');
   }
 
