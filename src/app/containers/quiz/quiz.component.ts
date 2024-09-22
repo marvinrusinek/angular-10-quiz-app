@@ -305,6 +305,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.initializeNextButtonState();
     // this.subscribeToOptionSelection();
     this.updateNextButtonState();
+    this.logCurrentState('After ngOnInit');
 
     this.selectedOptionService.isOptionSelected$().subscribe((isSelected) => {
       console.log('Debug: isOptionSelected$ emitted', isSelected);
