@@ -585,6 +585,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.logCurrentState();
   }
 
+  testOptionSelection() {
+    const testOption: SelectedOption = {
+      optionId: 'test',
+      text: 'Test Option'
+    };
+    this.toggleOption({option: testOption, index: 0, checked: true});
+  }
+
   private isAnyOptionSelected(): boolean {
     const result = this.selectedOptions.length > 0;
     console.log(
