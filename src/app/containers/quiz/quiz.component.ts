@@ -452,6 +452,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  private resetQuestionState(): void {
+    this.selectedOptions = [];
+    this.updateNextButtonState();
+    console.log('Question state reset. Button enabled:', this.isButtonEnabled);
+  }
+
   toggleNextButton(): void {
     const newDisabledState = !this.disabled;
     this.disabled = newDisabledState;
@@ -2037,7 +2043,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.quizStateService.setAnswerSelected(false);
         this.quizStateService.setLoading(true);
         this.manualOverrideSubject.next(false);
-        this.selectedOptions = []; // Clear selected options
         this.updateNextButtonState();
   
         // Prepare the next question for display
@@ -2064,6 +2069,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
         // Reset UI after preparing the question
         this.resetUI();
+        this.resetQuestionState();
   
         this.updateNextButtonState();
       } else {
