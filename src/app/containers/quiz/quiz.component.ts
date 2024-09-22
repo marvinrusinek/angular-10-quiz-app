@@ -559,7 +559,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
   
-    console.log('Current question type:', this.currentQuestion.type);
+    console.log('Current question:', JSON.stringify(this.currentQuestion));
   
     // Handle both test case and actual quiz selection
     const option = event.option.optionId ? event.option : this.currentQuestion.options[event.index];
@@ -586,6 +586,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Force change detection
     this.cdRef.detectChanges();
+    
+    // Log the final state
+    // this.logCurrentState();
   }
 
   onQuizQuestionOptionSelected(event: any) {
