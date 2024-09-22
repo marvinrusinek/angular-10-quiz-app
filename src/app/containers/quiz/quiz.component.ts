@@ -441,10 +441,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
   updateNextButtonState(): void {
     const isEnabled = this.selectedOptions.length > 0;
-    console.log("Updating Next button state to:", isEnabled);
+    console.log("Updating Next button state. Selected options:", this.selectedOptions);
+    console.log("New button state:", isEnabled);
     this.isButtonEnabled = isEnabled;
-    // If you're using an observable for button state, uncomment the next line
-    // this.isButtonEnabled$.next(isEnabled);
+    this.cdRef.markForCheck(); // Ensure change detection runs
   }
 
   toggleNextButton(): void {
