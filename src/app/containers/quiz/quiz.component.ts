@@ -526,11 +526,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Update selected options
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = event.checked ? [event.option] : [];
+      this.currentQuestion.type = QuestionType.SingleAnswer;
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
       if (event.checked) {
         this.selectedOptions.push(event.option);
       } else {
         this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== event.option.optionId);
+        this.currentQuestion.type = QuestionType.MultipleAnswer;
       }
     }
   
