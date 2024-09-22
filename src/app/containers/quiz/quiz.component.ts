@@ -491,7 +491,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Force change detection
     this.cdRef.detectChanges();
   } */
-  onOptionSelected(event: {option: SelectedOption, index: number}): void {
+  /* onOptionSelected(event: {option: SelectedOption, index: number}): void {
     console.log('QuizComponent: onOptionSelected called', event);
   
     if (!this.currentQuestion) {
@@ -499,30 +499,57 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
   
-    // Always set the selected option, regardless of question type
+    // Update selected options
     this.selectedOptions = [event.option];
     
-    console.log('Updated selected options:', this.selectedOptions);
-  
     // Update button state
     this.isNextButtonEnabled = true;
+  
+    console.log('State after option selection:');
+    this.logCurrentState();
+  
+    // Force change detection
+    this.cdRef.detectChanges();
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log('QuizComponent: onOptionSelected called', event);
+  
+    if (!this.currentQuestion) {
+      console.error('No current question set');
+      return;
+    }
+  
+    if (!this.currentQuestion.type) {
+      console.error('Current question has no type');
+      return;
+    }
+  
+    console.log('Current question type:', this.currentQuestion.type);
+  
+    // Update selected options
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = event.checked ? [event.option] : [];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      if (event.checked) {
+        this.selectedOptions.push(event.option);
+      } else {
+        this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== event.option.optionId);
+      }
+    }
+  
+    // Update button state
+    this.isNextButtonEnabled = this.selectedOptions.length > 0;
+  
+    console.log('Updated selected options:', this.selectedOptions);
     console.log('Updated isNextButtonEnabled:', this.isNextButtonEnabled);
   
     // Force change detection
     this.cdRef.detectChanges();
-    
-    // Log the state after a short delay
+  
+    // Log the final state
     setTimeout(() => this.logCurrentState(), 0);
   }
-  
-  logCurrentState() {
-    console.log('Current state:');
-    console.log('Current question:', this.currentQuestion);
-    console.log('Selected options:', this.selectedOptions);
-    console.log('Is next button enabled:', this.isNextButtonEnabled);
-  }
 
- 
   private isAnyOptionSelected(): boolean {
     const result = this.selectedOptions.length > 0;
     console.log(
