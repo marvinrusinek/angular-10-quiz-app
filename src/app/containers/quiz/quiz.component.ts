@@ -394,7 +394,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     this.cdRef.markForCheck();
   } */
-  onOptionSelected(event: {
+  /* onOptionSelected(event: {
     option: SelectedOption;
     index: number;
     checked: boolean;
@@ -454,8 +454,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.cdRef.markForCheck();
     this.cdRef.detectChanges();
+  } */
+  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+    console.log('QuizComponent: onOptionSelected called', event);
+  
+    // Force update of selected options
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = event.checked ? [event.option] : [];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      if (event.checked) {
+        this.selectedOptions.push(event.option);
+      } else {
+        this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== event.option.optionId);
+      }
+    }
+  
+    console.log('Selected options after update:', this.selectedOptions);
+    
+    // Force update of button state
+    this.isNextButtonEnabled = this.selectedOptions.length > 0;
+    console.log('isNextButtonEnabled after update:', this.isNextButtonEnabled);
+  
+    // Force change detection
+    this.cdRef.detectChanges();
+  
+    // Log the final state
+    this.logFullState('After onOptionSelected');
   }
 
+ 
   private isAnyOptionSelected(): boolean {
     const result = this.selectedOptions.length > 0;
     console.log(
