@@ -193,6 +193,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   isButtonEnabled = false;
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
+  isNextButtonEnabled = false;
 
   shouldDisplayCorrectAnswers = false;
 
@@ -436,6 +437,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('QuizComponent: Calling setSelectedOption with', event.option);
   
     this.cdRef.markForCheck();
+    this.cdRef.detectChanges();
   }
 
   private isAnyOptionSelected(): boolean {
@@ -462,12 +464,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log(`Updating Next button state: ${shouldBeEnabled}`);
     this.isButtonEnabledSubject.next(shouldBeEnabled);
   } */
-  private updateNextButtonState(): void {
+  /* private updateNextButtonState(): void {
     const shouldBeEnabled = this.selectedOptions.length > 0;
     console.log(`updateNextButtonState: shouldBeEnabled = ${shouldBeEnabled}`);
     console.log(`updateNextButtonState: current isButtonEnabledSubject value = ${this.isButtonEnabledSubject.value}`);
     this.isButtonEnabledSubject.next(shouldBeEnabled);
     console.log(`updateNextButtonState: new isButtonEnabledSubject value = ${this.isButtonEnabledSubject.value}`);
+  } */
+  private updateNextButtonState(): void {
+    this.isNextButtonEnabled = this.selectedOptions.length > 0;
+    console.log(`updateNextButtonState: isNextButtonEnabled set to ${this.isNextButtonEnabled}`);
+    this.cdRef.detectChanges();
   }
 
   private resetQuestionState(): void {
