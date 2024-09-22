@@ -559,18 +559,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
   
-    console.log('Current question:', JSON.stringify(this.currentQuestion));
+    console.log('Current question type:', this.currentQuestion.type);
   
     // Handle both test case and actual quiz selection
     const option = event.option.optionId ? event.option : this.currentQuestion.options[event.index];
     const checked = event.checked !== undefined ? event.checked : true;
   
-    console.log('Processed option:', JSON.stringify(option));
-    console.log('Checked:', checked);
+    console.log('Processing option:', JSON.stringify(option), 'Checked:', checked);
   
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = checked ? [option] : [];
-    } else {
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
       const index = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
       if (index === -1 && checked) {
         this.selectedOptions.push(option);
@@ -587,9 +586,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Force change detection
     this.cdRef.detectChanges();
-  
-    // Log the current state
-    this.logCurrentState();
   }
 
   onQuizQuestionOptionSelected(event: any) {
