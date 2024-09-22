@@ -477,6 +477,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('isNextButtonEnabled after update:', this.isNextButtonEnabled);
 
     this.checkAndUpdateButtonState();
+
+    // Verify that the changes have been applied
+    setTimeout(() => {
+      console.log('Verification - Selected options:', this.selectedOptions);
+      console.log('Verification - isNextButtonEnabled:', this.isNextButtonEnabled);
+    }, 0);
   
     // Force change detection
     this.cdRef.detectChanges();
