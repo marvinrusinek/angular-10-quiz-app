@@ -565,6 +565,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const option = event.option.optionId ? event.option : this.currentQuestion.options[event.index];
     const checked = event.checked !== undefined ? event.checked : true;
   
+    console.log('Processed option:', JSON.stringify(option));
+    console.log('Checked:', checked);
+  
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = checked ? [option] : [];
     } else {
