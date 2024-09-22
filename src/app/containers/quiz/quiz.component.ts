@@ -459,7 +459,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log('QuizComponent: onOptionSelected called', event);
   
-    // Force update of selected options
+    // Update selected options
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = event.checked ? [event.option] : [];
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
