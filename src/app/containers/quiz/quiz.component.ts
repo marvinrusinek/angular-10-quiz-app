@@ -426,63 +426,7 @@ export class QuizComponent
     this.cdRef.detectChanges();
   }
 
-  /* toggleOption(event: { option: SelectedOption, index: number, checked: boolean }) {
-    console.log('QuizComponent: toggleOption called', event);
-  
-    if (!this.currentQuestion) {
-      console.error('No current question set');
-      return;
-    }
-  
-    console.log('Current question:', this.currentQuestion);
-  
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = event.checked ? [event.option] : [];
-    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      const index = this.selectedOptions.findIndex(o => o.optionId === event.option.optionId);
-      if (index === -1 && event.checked) {
-        this.selectedOptions.push(event.option);
-      } else if (index !== -1 && !event.checked) {
-        this.selectedOptions.splice(index, 1);
-      }
-    }
-  
-    const isEnabled = this.selectedOptions.length > 0;
-    this.isButtonEnabledSubject.next(isEnabled);
-  
-    console.log('Updated selected options:', this.selectedOptions);
-    console.log('Updated isNextButtonEnabled:', isEnabled);
-  
-    // Force change detection
-    this.cdRef.detectChanges();
-  } */
-  /* toggleOption(event: any) {
-    console.log('Toggle option called:', event);
-    
-    let option: any;
-    if (event.option) {
-      // This is from the quiz question component
-      option = event.option;
-    } else {
-      // This is from the test button or direct click
-      option = event;
-    }
-  
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = [option];
-    } else {
-      const index = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
-      if (index === -1) {
-        this.selectedOptions.push(option);
-      } else {
-        this.selectedOptions.splice(index, 1);
-      }
-    }
-  
-    this.isNextButtonEnabled = this.selectedOptions.length > 0;
-    console.log('Selected options:', this.selectedOptions);
-    console.log('Next button enabled:', this.isNextButtonEnabled);
-  } */
+
   toggleOption(eventOrOption: any) {
     console.log('Toggle option called with:', eventOrOption);
 
