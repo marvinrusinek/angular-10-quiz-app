@@ -311,6 +311,8 @@ export class QuizComponent
       this.cdRef.markForCheck();
     });
 
+    this.nextButtonTooltip$ = this.getNextButtonTooltip();
+
     // Move resetQuestionState here
     this.resetQuestionState();
 
