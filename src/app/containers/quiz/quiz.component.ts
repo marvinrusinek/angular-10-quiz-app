@@ -426,54 +426,6 @@ export class QuizComponent
     this.cdRef.detectChanges();
   }
 
-
-  toggleOption(eventOrOption: any) {
-    console.log('Toggle option called with:', eventOrOption);
-
-    let option: any;
-    if (eventOrOption.option) {
-      // This is an event from a child component
-      option = eventOrOption.option;
-    } else {
-      // This is a direct option click or from test selection
-      option = eventOrOption;
-    }
-
-    console.log('Processing option:', option);
-
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = [option];
-    } else {
-      const index = this.selectedOptions.findIndex(
-        (o) => o.optionId === option.optionId
-      );
-      if (index === -1) {
-        this.selectedOptions.push(option);
-      } else {
-        this.selectedOptions.splice(index, 1);
-      }
-    }
-
-    this.isNextButtonEnabled = this.selectedOptions.length > 0;
-    this.currentQuestionAnswered = this.isNextButtonEnabled;
-    console.log('Selected options:', this.selectedOptions);
-    console.log('Next button enabled:', this.isNextButtonEnabled);
-    console.log('Current question answered:', this.currentQuestionAnswered);
-  }
-
-  onQuizQuestionOptionSelected(event: any) {
-    console.log('QuizComponent received optionSelected event:', event);
-    this.toggleOption(event);
-  }
-
-  /* testOptionSelection() {
-    const testOption: SelectedOption = {
-      optionId: 'test',
-      text: 'Test Option'
-    };
-    this.toggleOption({option: testOption, index: 0, checked: true});
-  } */
-
   private isAnyOptionSelected(): boolean {
     const result = this.selectedOptions.length > 0;
     console.log(
