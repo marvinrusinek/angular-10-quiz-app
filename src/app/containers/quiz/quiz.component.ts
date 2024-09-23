@@ -2119,24 +2119,19 @@ export class QuizComponent
   }
 
   /************************ paging functions *********************/
-  /* if (!isEnabled || !this.isNextButtonEnabled || !this.currentQuestionAnswered) { */
   async advanceToNextQuestion(): Promise<void> {
     console.log('advanceToNextQuestion called');
-
-    if (!this.isNextButtonEnabled || this.isLoading) {
-      return;
-    }
-
+  
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
-
+  
     const isEnabledSubject = this.isButtonEnabledSubject.value;
     const isEnabledObservable = await firstValueFrom(
       this.isButtonEnabled$.pipe(take(1))
     );
-
+  
     console.log('Pre-navigation state:', {
       isButtonEnabled: this.isButtonEnabled,
       isNextButtonEnabled: this.isNextButtonEnabled,
@@ -2144,27 +2139,30 @@ export class QuizComponent
       selectedOptionsCount: this.selectedOptions.length,
       isEnabledSubject,
       isEnabledObservable,
+      isLoading: this.isLoading
     });
-
+  
     if (
       !isEnabledSubject ||
       !isEnabledObservable ||
-      !this.currentQuestionAnswered
+      !this.isNextButtonEnabled ||
+      !this.currentQuestionAnswered ||
+      this.isLoading
     ) {
       console.warn(
-        'Cannot advance: Next button is disabled or question not answered.'
+        'Cannot advance: Next button is disabled, question not answered, or quiz is loading.'
       );
       return;
     }
-
+  
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
-
+  
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
         this.quizService.setCurrentQuestion(this.currentQuestionIndex);
-
+  
         // Reset states for the new question
         this.selectedOptionService.clearSelectedOption();
         this.quizStateService.setAnswered(false);
@@ -2172,35 +2170,34 @@ export class QuizComponent
         this.quizStateService.setLoading(true);
         this.manualOverrideSubject.next(false);
         this.updateNextButtonState();
-
+  
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-
+  
         // Check if the question has already been answered
         const isAnswered = await this.isQuestionAnswered(
           this.currentQuestionIndex
         );
-        // this.selectedOptionService.setAnsweredState(isAnswered);
         this.selectedOptionService.setAnsweredState(false);
         this.isAnswered = isAnswered;
-
+  
         // Clear the previous explanation
         if (this.quizQuestionComponent) {
           this.quizQuestionComponent.explanationToDisplay = '';
-
+  
           // Only fetch and display explanation if the question has been answered
           if (this.isAnswered) {
             await this.quizQuestionComponent.fetchAndSetExplanationText();
           }
-
+  
           // Reset the isAnswered state in the child component
           this.quizQuestionComponent.isAnswered = false;
         }
-
+  
         // Reset UI after preparing the question
         this.resetUI();
         this.resetQuestionState();
-
+  
         this.updateNextButtonState();
       } else {
         console.log('End of quiz reached.');
