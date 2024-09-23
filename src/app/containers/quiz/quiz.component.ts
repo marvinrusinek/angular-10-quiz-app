@@ -2249,6 +2249,10 @@ export class QuizComponent
   async advanceToNextQuestion(): Promise<void> {
     console.log('advanceToNextQuestion called');
 
+    if (!this.isNextButtonEnabled || this.isLoading) {
+      return;
+    }
+
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;

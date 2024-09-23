@@ -26,7 +26,7 @@
             (answer)="selectedAnswer($event)"
             (isAnsweredChange)="onIsAnsweredChange($event)"
             (selectionMessageChange)="onSelectionMessageChange($event)"
-            (optionSelected)="toggleOption($event)"
+            (optionSelected)="onOptionSelected($event)"
             (isAnsweredChange)="onIsAnsweredChange($event)"
           ></codelab-quiz-question>
         </ng-container>
@@ -35,6 +35,7 @@
         <p>No question available.</p>
       </ng-template>
     </mat-card-content>
+    <!--(optionSelected)="toggleOption($event)"-->
 <!--(optionSelected)="logEvent($event); onOptionSelected($event)"-->
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- instructions message -->
