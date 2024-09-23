@@ -2685,11 +2685,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       isEnabledObservable
     });
 
-    /* if (!isEnabledSubject || !isEnabledObservable || !this.currentQuestionAnswered) {
-      console.warn('Cannot advance: Next button is disabled or question not answered.');
-      return;
-    } */
-    if (!isEnabled || !this.currentQuestionAnswered) {
+    if (!isEnabledSubject || !isEnabledObservable || !this.currentQuestionAnswered) {
       console.warn('Cannot advance: Next button is disabled or question not answered.');
       return;
     }
