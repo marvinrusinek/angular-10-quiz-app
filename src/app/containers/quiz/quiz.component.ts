@@ -303,9 +303,10 @@ export class QuizComponent
       }
     });
 
+    this.subscribeToOptionSelection();
+
     this.initializeNextButtonState();
     this.updateNextButtonState();
-
     this.isButtonEnabled$.subscribe((isEnabled) => {
       this.isButtonEnabled = isEnabled;
       this.isNextButtonEnabled = isEnabled;
@@ -315,14 +316,7 @@ export class QuizComponent
 
     // Move resetQuestionState here
     this.resetQuestionState();
-
     this.logCurrentState('After ngOnInit');
-
-    this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
-      console.log('Debug: isOptionSelected$ emitted', isSelected);
-      this.isNextButtonEnabled = isSelected;
-      this.cdRef.detectChanges();
-    });
 
     this.subscribeToSelectionMessage();
 
@@ -341,22 +335,32 @@ export class QuizComponent
     this.checkIfAnswerSelected(true);
   }
 
-  /* initializeNextButtonState() {
+  private initializeNextButtonState(): void {
+    // Initialize local properties
+    this.isNextButtonEnabled = false;
+    this.isButtonEnabled = false;
+    this.isButtonEnabledSubject.next(false);
+  
+    // Set up the observable for button state
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject,
       this.quizStateService.isLoading$,
     ]).pipe(
       map(([isAnswered, isLoading]) => {
-        console.log('Button state inputs:', { isAnswered, isLoading });
-        return isAnswered && !isLoading;
+        const isEnabled = isAnswered && !isLoading;
+        console.log('Button state inputs:', { isAnswered, isLoading, isEnabled });
+        return isEnabled;
       }),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      tap(isEnabled => {
+        this.isNextButtonEnabled = isEnabled;
+        this.isButtonEnabled = isEnabled;
+        this.isButtonEnabledSubject.next(isEnabled);
+        this.cdRef.markForCheck(); // Trigger change detection
+      }),
+      shareReplay(1) // This ensures that multiple async pipes share the same execution
     );
-  } */
-  private initializeNextButtonState(): void {
-    this.isNextButtonEnabled = false;
-    this.isButtonEnabled = false;
-    this.isButtonEnabledSubject.next(false);
+  
     console.log('Next button state initialized:', {
       isNextButtonEnabled: this.isNextButtonEnabled,
       isButtonEnabled: this.isButtonEnabled,
@@ -369,13 +373,16 @@ export class QuizComponent
     console.log('Manual override toggled to:', !currentValue);
   }
 
-  subscribeToOptionSelection() {
+  private subscribeToOptionSelection() {
     this.optionSelectedSubscription = this.selectedOptionService
       .isOptionSelected$()
+      .pipe(takeUntil(this.destroy$))
       .subscribe((isSelected) => {
         console.log('Option selection changed:', isSelected);
         this.isOptionSelected = isSelected;
+        this.isNextButtonEnabled = isSelected;
         this.updateNextButtonState();
+        this.cdRef.detectChanges();
       });
   }
 
