@@ -1236,10 +1236,8 @@ export class QuizComponent
     );
   } */
   getNextButtonTooltip(): Observable<string> {
-    return this.isButtonEnabled$.pipe(
-      map((isEnabled) =>
-        isEnabled ? 'Next Question »' : 'Please select an option to continue...'
-      )
+    return this.selectedOptionService.isOptionSelected$().pipe(
+      map(isSelected => isSelected ? 'Next Question »' : 'Please select an option to continue...')
     );
   }
 
