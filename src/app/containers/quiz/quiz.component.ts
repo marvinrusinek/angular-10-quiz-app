@@ -415,7 +415,7 @@ export class QuizComponent
   
     this.cdRef.detectChanges();
   } */
-  onOptionSelected(event: {
+  /* onOptionSelected(event: {
     option: SelectedOption;
     index: number;
     checked: boolean;
@@ -451,6 +451,48 @@ export class QuizComponent
       isButtonEnabled: this.isButtonEnabled,
     });
 
+    this.cdRef.detectChanges();
+  } */
+  onOptionSelected(event: {
+    option: SelectedOption;
+    index: number;
+    checked: boolean;
+  }): void {
+    console.log('onOptionSelected called with:', event);
+  
+    const { option, checked } = event;
+  
+    console.log('Processing option:', option);
+  
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = checked ? [option] : [];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      if (checked) {
+        this.selectedOptions.push(option);
+      } else {
+        this.selectedOptions = this.selectedOptions.filter(
+          o => o.optionId !== option.optionId
+        );
+      }
+    }
+  
+    const isOptionSelected = this.selectedOptions.length > 0;
+    this.isNextButtonEnabled = isOptionSelected;
+    this.currentQuestionAnswered = isOptionSelected;
+    this.isButtonEnabled = isOptionSelected;
+    this.isButtonEnabledSubject.next(isOptionSelected);
+  
+    // Update services
+    this.selectedOptionService.setSelectedOption(option);
+    this.quizStateService.setAnswered(isOptionSelected);
+  
+    console.log('After option selection:', {
+      selectedOptions: this.selectedOptions,
+      isNextButtonEnabled: this.isNextButtonEnabled,
+      currentQuestionAnswered: this.currentQuestionAnswered,
+      isButtonEnabled: this.isButtonEnabled,
+    });
+  
     this.cdRef.detectChanges();
   }
 
