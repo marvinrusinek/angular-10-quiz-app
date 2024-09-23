@@ -285,6 +285,11 @@ export class QuizComponent
     } else {
       console.warn('Current question index is undefined.');
     }
+
+    this.isLoading$ = this.quizStateService.isLoading$;
+    this.isAnswered$ = this.quizStateService.isAnswered$;
+
+    this.nextButtonTooltip$ = this.getNextButtonTooltip();
   }
 
   async ngOnInit(): Promise<void> {
@@ -298,9 +303,6 @@ export class QuizComponent
       }
     });
 
-    this.isLoading$ = this.quizStateService.isLoading$;
-    this.isAnswered$ = this.quizStateService.isAnswered$;
-
     this.initializeNextButtonState();
     this.updateNextButtonState();
 
@@ -311,15 +313,15 @@ export class QuizComponent
       this.cdRef.markForCheck();
     });
 
-    this.nextButtonTooltip$ = this.getNextButtonTooltip();
-
     // Move resetQuestionState here
     this.resetQuestionState();
 
     this.logCurrentState('After ngOnInit');
 
-    this.selectedOptionService.isOptionSelected$().subscribe((isSelected) => {
+    this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
       console.log('Debug: isOptionSelected$ emitted', isSelected);
+      this.isNextButtonEnabled = isSelected;
+      this.cdRef.detectChanges();
     });
 
     this.subscribeToSelectionMessage();
