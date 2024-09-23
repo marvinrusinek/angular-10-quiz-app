@@ -399,8 +399,6 @@ export class QuizComponent
   
     const { option, checked } = event;
   
-    console.log('Processing option:', option);
-  
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = checked ? [option] : [];
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
@@ -421,6 +419,7 @@ export class QuizComponent
   
     // Update services
     this.selectedOptionService.setSelectedOption(option);
+    this.selectedOptionService.setOptionSelected(isOptionSelected);
     this.quizStateService.setAnswered(isOptionSelected);
   
     console.log('After option selection:', {
