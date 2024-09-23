@@ -10,7 +10,7 @@ import {
   OnDestroy,
   OnInit,
   SimpleChanges,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
@@ -89,7 +89,9 @@ type AnimationState = 'animationStarted' | 'none';
     UserPreferenceService,
   ],
 })
-export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
+export class QuizComponent
+  implements OnInit, OnDestroy, OnChanges, AfterViewInit
+{
   @ViewChild(QuizQuestionComponent)
   quizQuestionComponent!: QuizQuestionComponent;
   @ViewChild(SharedOptionComponent)
@@ -295,23 +297,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('Quiz ID is not provided in the route');
       }
     });
-  
+
     this.isLoading$ = this.quizStateService.isLoading$;
     this.isAnswered$ = this.quizStateService.isAnswered$;
-  
+
     this.initializeNextButtonState();
     this.updateNextButtonState();
-  
-    this.isButtonEnabled$.subscribe(isEnabled => {
+
+    this.isButtonEnabled$.subscribe((isEnabled) => {
       this.isButtonEnabled = isEnabled;
       this.isNextButtonEnabled = isEnabled;
       console.log('isButtonEnabled$ updated:', isEnabled);
       this.cdRef.markForCheck();
     });
-  
+
     // Move resetQuestionState here
     this.resetQuestionState();
-  
+
     this.logCurrentState('After ngOnInit');
 
     this.selectedOptionService.isOptionSelected$().subscribe((isSelected) => {
@@ -353,7 +355,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isButtonEnabledSubject.next(false);
     console.log('Next button state initialized:', {
       isNextButtonEnabled: this.isNextButtonEnabled,
-      isButtonEnabled: this.isButtonEnabled
+      isButtonEnabled: this.isButtonEnabled,
     });
   }
 
@@ -377,7 +379,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('logEvent called with:', event);
   }
 
-  onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
+  /* onOptionSelected(event: {option: SelectedOption, index: number, checked: boolean}): void {
     console.log('QuizComponent: onOptionSelected called', event);
   
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
@@ -407,6 +409,44 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       isButtonEnabled: this.isButtonEnabled
     });
   
+    this.cdRef.detectChanges();
+  } */
+  onOptionSelected(event: {
+    option: SelectedOption;
+    index: number;
+    checked: boolean;
+  }): void {
+    console.log('QuizComponent: onOptionSelected called', event);
+
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = event.checked ? [event.option] : [];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      if (event.checked) {
+        this.selectedOptions.push(event.option);
+      } else {
+        this.selectedOptions = this.selectedOptions.filter(
+          (o) => o.optionId !== event.option.optionId
+        );
+      }
+    }
+
+    const isOptionSelected = this.selectedOptions.length > 0;
+    this.isNextButtonEnabled = isOptionSelected;
+    this.currentQuestionAnswered = isOptionSelected;
+    this.isButtonEnabled = isOptionSelected;
+    this.isButtonEnabledSubject.next(isOptionSelected);
+
+    // Update services
+    this.selectedOptionService.setSelectedOption(event.option);
+    this.quizStateService.setAnswered(isOptionSelected);
+
+    console.log('After option selection:', {
+      selectedOptions: this.selectedOptions,
+      isNextButtonEnabled: this.isNextButtonEnabled,
+      currentQuestionAnswered: this.currentQuestionAnswered,
+      isButtonEnabled: this.isButtonEnabled,
+    });
+
     this.cdRef.detectChanges();
   }
 
@@ -469,7 +509,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   toggleOption(eventOrOption: any) {
     console.log('Toggle option called with:', eventOrOption);
-  
+
     let option: any;
     if (eventOrOption.option) {
       // This is an event from a child component
@@ -478,20 +518,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // This is a direct option click or from test selection
       option = eventOrOption;
     }
-  
+
     console.log('Processing option:', option);
-  
+
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = [option];
     } else {
-      const index = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
+      const index = this.selectedOptions.findIndex(
+        (o) => o.optionId === option.optionId
+      );
       if (index === -1) {
         this.selectedOptions.push(option);
       } else {
         this.selectedOptions.splice(index, 1);
       }
     }
-  
+
     this.isNextButtonEnabled = this.selectedOptions.length > 0;
     this.currentQuestionAnswered = this.isNextButtonEnabled;
     console.log('Selected options:', this.selectedOptions);
@@ -578,7 +620,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isNextButtonEnabled = false;
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
-    
+
     if (this.currentQuestion && this.currentQuestion.options) {
       for (const option of this.currentQuestion.options) {
         if (option.selected) {
@@ -595,7 +637,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       selectedOptions: this.selectedOptions,
       isNextButtonEnabled: this.isNextButtonEnabled,
       currentQuestionAnswered: this.currentQuestionAnswered,
-      isButtonEnabled: this.isButtonEnabled
+      isButtonEnabled: this.isButtonEnabled,
     });
 
     this.cdRef.detectChanges();
@@ -605,7 +647,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private checkAndUpdateButtonState(): void {
     const shouldBeEnabled = this.selectedOptions.length > 0;
     if (this.isNextButtonEnabled !== shouldBeEnabled) {
-      console.log(`Updating button state from ${this.isNextButtonEnabled} to ${shouldBeEnabled}`);
+      console.log(
+        `Updating button state from ${this.isNextButtonEnabled} to ${shouldBeEnabled}`
+      );
       this.isNextButtonEnabled = shouldBeEnabled;
       this.cdRef.detectChanges();
     }
@@ -613,8 +657,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   logFullState(context: string) {
     console.log(`--- Full State Log (${context}) ---`);
-    console.log('currentQuestion:', JSON.stringify(this.currentQuestion, null, 2));
-    console.log('selectedOptions:', JSON.stringify(this.selectedOptions, null, 2));
+    console.log(
+      'currentQuestion:',
+      JSON.stringify(this.currentQuestion, null, 2)
+    );
+    console.log(
+      'selectedOptions:',
+      JSON.stringify(this.selectedOptions, null, 2)
+    );
     console.log('isNextButtonEnabled:', this.isNextButtonEnabled);
     console.log('---------------------------');
   }
@@ -2196,14 +2246,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   /* if (!isEnabled || !this.isNextButtonEnabled || !this.currentQuestionAnswered) { */
   async advanceToNextQuestion(): Promise<void> {
     console.log('advanceToNextQuestion called');
-      
+
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
-    
+
     const isEnabledSubject = this.isButtonEnabledSubject.value;
-    const isEnabledObservable = await firstValueFrom(this.isButtonEnabled$.pipe(take(1)));
+    const isEnabledObservable = await firstValueFrom(
+      this.isButtonEnabled$.pipe(take(1))
+    );
 
     console.log('Pre-navigation state:', {
       isButtonEnabled: this.isButtonEnabled,
@@ -2211,11 +2263,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       currentQuestionAnswered: this.currentQuestionAnswered,
       selectedOptionsCount: this.selectedOptions.length,
       isEnabledSubject,
-      isEnabledObservable
+      isEnabledObservable,
     });
 
-    if (!isEnabledSubject || !isEnabledObservable || !this.currentQuestionAnswered) {
-      console.warn('Cannot advance: Next button is disabled or question not answered.');
+    if (
+      !isEnabledSubject ||
+      !isEnabledObservable ||
+      !this.currentQuestionAnswered
+    ) {
+      console.warn(
+        'Cannot advance: Next button is disabled or question not answered.'
+      );
       return;
     }
 
