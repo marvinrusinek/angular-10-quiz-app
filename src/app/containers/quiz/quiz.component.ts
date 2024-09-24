@@ -426,14 +426,14 @@ export class QuizComponent
       }
     }
 
-    this.isNextButtonEnabled = this.selectedOptions.length > 0;
+    /* this.isNextButtonEnabled = this.selectedOptions.length > 0;
     this.currentQuestionAnswered = this.isNextButtonEnabled;
     console.log('Next button enabled:', this.isNextButtonEnabled);
 
-    this.logButtonState();
-    this.cdRef.detectChanges();
+    this.logButtonState(); */
 
-    // this.updateNextButtonState();
+    this.updateNextButtonState();
+    this.cdRef.detectChanges();
   
     /* const isOptionSelected = this.selectedOptions.length > 0;
     this.isNextButtonEnabled = isOptionSelected;
