@@ -2212,6 +2212,7 @@ export class QuizComponent
       );
     } finally {
       this.isNavigating = false;
+      this.updateNextButtonState();
       this.quizService.setIsNavigatingToPrevious(false);
       this.quizStateService.setLoading(false);
       this.cdRef.detectChanges();
