@@ -1321,7 +1321,11 @@ export class QuizQuestionComponent
     }
 
     this.displayExplanation = false; // Reset display flag
-    this.optionSelected.emit({ option, index, checked: true }); // Emit the selected option
+
+    const checked = !option.selected; // Toggle the checked state
+    option.selected = checked; // Update the option's selected state
+    this.optionSelected.emit({ option, index, checked }); // Emit the selected option
+    
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswerSelected(false);
     this.selectedOptionService.setSelectedOption(option);
