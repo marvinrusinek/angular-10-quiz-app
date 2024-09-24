@@ -377,7 +377,7 @@ export class QuizComponent
     this.optionSelectedSubscription = this.selectedOptionService
       .isOptionSelected$()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((isSelected) => {
+      .subscribe((isSelected: boolean) => {
         console.log('Option selection changed:', isSelected);
         this.isOptionSelected = isSelected;
         this.isNextButtonEnabled = isSelected;
