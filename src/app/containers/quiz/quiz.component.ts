@@ -1141,9 +1141,24 @@ export class QuizComponent
       map(isAnswered => isAnswered ? 'Next Question »' : 'Please select an option to continue...')
     );
   } */
-  getNextButtonTooltip(): Observable<string> {
+  /* getNextButtonTooltip(): Observable<string> {
     return this.selectedOptionService.isOptionSelected$().pipe(
       map(isSelected => isSelected ? 'Next Question »' : 'Please select an option to continue...')
+    );
+  } */
+  getNextButtonTooltip(): Observable<string> {
+    return combineLatest([
+      this.selectedOptionService.isOptionSelected$(),
+      this.isButtonEnabled$
+    ]).pipe(
+      map(([isSelected, isEnabled]) => {
+        if (isEnabled && isSelected) {
+          return 'Next Question »';
+        } else {
+          return 'Please select an option to continue...';
+        }
+      }),
+      distinctUntilChanged()
     );
   }
 
