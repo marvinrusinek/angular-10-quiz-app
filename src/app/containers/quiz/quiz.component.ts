@@ -582,7 +582,7 @@ export class QuizComponent
     const newDisabledState = !this.disabled;
     this.disabled = newDisabledState;
     console.log('Next button toggled, disabled:', newDisabledState);
-    
+
     this.isNextButtonEnabled = !this.isNextButtonEnabled;
     console.log('Manually toggled next button to:', this.isNextButtonEnabled);
     this.cdRef.detectChanges(); // Force change detection
@@ -2145,7 +2145,7 @@ export class QuizComponent
   }
 
   /************************ paging functions *********************/
-  async advanceToNextQuestion(): Promise<void> {
+  /* async advanceToNextQuestion(): Promise<void> {
     console.log('advanceToNextQuestion called');
     this.logButtonState();
   
@@ -2226,6 +2226,97 @@ export class QuizComponent
         this.resetQuestionState();
   
         this.updateNextButtonState();
+      } else {
+        console.log('End of quiz reached.');
+        await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+      }
+    } catch (error) {
+      console.error(
+        'Error occurred while advancing to the next question:',
+        error
+      );
+    } finally {
+      this.isNavigating = false;
+      this.quizService.setIsNavigatingToPrevious(false);
+      this.quizStateService.setLoading(false);
+      this.updateNextButtonState();
+      this.logButtonState();
+      this.cdRef.detectChanges();
+    }
+  } */
+  async advanceToNextQuestion(): Promise<void> {
+    console.log('advanceToNextQuestion called');
+    this.logButtonState();
+  
+    if (this.isNavigating) {
+      console.warn('Navigation already in progress. Aborting.');
+      return;
+    }
+  
+    const isEnabledSubject = this.isButtonEnabledSubject.value;
+    const isEnabledObservable = await firstValueFrom(
+      this.isButtonEnabled$.pipe(take(1))
+    );
+  
+    console.log('Pre-navigation state:', {
+      isButtonEnabled: this.isButtonEnabled,
+      isNextButtonEnabled: this.isNextButtonEnabled,
+      currentQuestionAnswered: this.currentQuestionAnswered,
+      selectedOptionsCount: this.selectedOptions.length,
+      isEnabledSubject,
+      isEnabledObservable,
+      isLoading: this.isLoading
+    });
+  
+    // Simplified condition to allow navigation
+    if (this.isLoading) {
+      console.warn('Cannot advance: Quiz is loading.');
+      return;
+    }
+  
+    this.isNavigating = true;
+    this.quizService.setIsNavigatingToPrevious(false);
+  
+    try {
+      if (this.currentQuestionIndex < this.totalQuestions - 1) {
+        this.currentQuestionIndex++;
+        this.quizService.setCurrentQuestion(this.currentQuestionIndex);
+  
+        // Reset states for the new question
+        this.selectedOptionService.clearSelectedOption();
+        this.quizStateService.setAnswered(false);
+        this.quizStateService.setAnswerSelected(false);
+        this.quizStateService.setLoading(true);
+        this.manualOverrideSubject.next(false);
+  
+        // Prepare the next question for display
+        await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+  
+        // Check if the question has already been answered
+        const isAnswered = await this.isQuestionAnswered(
+          this.currentQuestionIndex
+        );
+        this.selectedOptionService.setAnsweredState(false);
+        this.isAnswered = isAnswered;
+  
+        // Clear the previous explanation
+        if (this.quizQuestionComponent) {
+          this.quizQuestionComponent.explanationToDisplay = '';
+  
+          // Only fetch and display explanation if the question has been answered
+          if (this.isAnswered) {
+            await this.quizQuestionComponent.fetchAndSetExplanationText();
+          }
+  
+          // Reset the isAnswered state in the child component
+          this.quizQuestionComponent.isAnswered = false;
+        }
+  
+        // Reset UI after preparing the question
+        this.resetUI();
+        this.resetQuestionState();
+  
+        console.log('Navigation to next question completed');
       } else {
         console.log('End of quiz reached.');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
