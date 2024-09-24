@@ -433,6 +433,10 @@ export class QuizComponent
     this.logButtonState(); */
 
     this.updateNextButtonState();
+    console.log('After option selection:', {
+      selectedOptions: this.selectedOptions,
+      isNextButtonEnabled: this.isNextButtonEnabled
+    });
     this.cdRef.detectChanges();
   
     /* const isOptionSelected = this.selectedOptions.length > 0;
