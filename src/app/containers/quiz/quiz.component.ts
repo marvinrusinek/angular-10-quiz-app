@@ -582,6 +582,9 @@ export class QuizComponent
     const newDisabledState = !this.disabled;
     this.disabled = newDisabledState;
     console.log('Next button toggled, disabled:', newDisabledState);
+    
+    this.isNextButtonEnabled = !this.isNextButtonEnabled;
+    console.log('Manually toggled next button to:', this.isNextButtonEnabled);
     this.cdRef.detectChanges(); // Force change detection
   }
 
