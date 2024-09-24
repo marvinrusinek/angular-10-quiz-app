@@ -2250,12 +2250,12 @@ export class QuizComponent
     console.log('advanceToNextQuestion called');
     this.logButtonState();
   
-    if (this.isNavigating) {
-      console.warn('Navigation already in progress. Aborting.');
+    if (this.isNavigating || this.isLoading || !this.isNextButtonEnabled) {
+      console.warn('Cannot advance: Navigation in progress, quiz is loading, or button is disabled.');
       return;
     }
   
-    const isEnabledSubject = this.isButtonEnabledSubject.value;
+    /* const isEnabledSubject = this.isButtonEnabledSubject.value;
     const isEnabledObservable = await firstValueFrom(
       this.isButtonEnabled$.pipe(take(1))
     );
@@ -2274,7 +2274,7 @@ export class QuizComponent
     if (this.isLoading) {
       console.warn('Cannot advance: Quiz is loading.');
       return;
-    }
+    } */
   
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
