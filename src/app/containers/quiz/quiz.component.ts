@@ -410,8 +410,10 @@ export class QuizComponent
         );
       }
     }
+
+    this.updateNextButtonState();
   
-    const isOptionSelected = this.selectedOptions.length > 0;
+    /* const isOptionSelected = this.selectedOptions.length > 0;
     this.isNextButtonEnabled = isOptionSelected;
     this.currentQuestionAnswered = isOptionSelected;
     this.isButtonEnabled = isOptionSelected;
@@ -427,7 +429,7 @@ export class QuizComponent
       isNextButtonEnabled: this.isNextButtonEnabled,
       currentQuestionAnswered: this.currentQuestionAnswered,
       isButtonEnabled: this.isButtonEnabled,
-    });
+    }); */
   
     this.cdRef.detectChanges();
   }
