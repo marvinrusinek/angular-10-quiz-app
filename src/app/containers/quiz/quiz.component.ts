@@ -411,7 +411,12 @@ export class QuizComponent
       }
     }
 
-    this.updateNextButtonState();
+    this.isNextButtonEnabled = this.selectedOptions.length > 0;
+    this.currentQuestionAnswered = this.isNextButtonEnabled;
+    console.log('Next button enabled:', this.isNextButtonEnabled);
+    this.cdRef.detectChanges();
+
+    // this.updateNextButtonState();
   
     /* const isOptionSelected = this.selectedOptions.length > 0;
     this.isNextButtonEnabled = isOptionSelected;
@@ -430,8 +435,7 @@ export class QuizComponent
       currentQuestionAnswered: this.currentQuestionAnswered,
       isButtonEnabled: this.isButtonEnabled,
     }); */
-  
-    this.cdRef.detectChanges();
+    // this.cdRef.detectChanges();
   }
 
   private isAnyOptionSelected(): boolean {
