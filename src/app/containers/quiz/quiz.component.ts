@@ -394,8 +394,13 @@ export class QuizComponent
     option: SelectedOption;
     index: number;
     checked: boolean;
-  }): void {
-    console.log('onOptionSelected called with:', event);
+  }, isUserAction: boolean = true): void {
+    console.log('onOptionSelected called with:', event, 'isUserAction:', isUserAction);
+
+    if (!isUserAction) {
+      console.log('Skipping processing as this is not a user action');
+      return;
+    }
   
     const { option, checked } = event;
   
