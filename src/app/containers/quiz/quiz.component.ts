@@ -187,7 +187,9 @@ export class QuizComponent
   private isNavigatedByUrl = false;
   private currentNavigationToken = 0;
   private navigationAbortController: AbortController | null = null;
-  nextButtonTooltip$: Observable<string>;
+  // nextButtonTooltip$: Observable<string>;
+  private nextButtonTooltipSubject = new BehaviorSubject<string>('Please select an option to continue...');
+  nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
   nextButtonTooltip = 'Please select an option to continue...';
 
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
@@ -1160,6 +1162,12 @@ export class QuizComponent
       }),
       distinctUntilChanged()
     );
+  }
+
+  updateNextButtonTooltip(isSelected: boolean): void {
+    const tooltipText = isSelected ? 'Next Question »' : 'Please select an option to continue...';
+    this.nextButtonTooltipSubject.next(tooltipText);
+    console.log('Tooltip updated:', tooltipText);
   }
 
   updateQuestionDisplayForShuffledQuestions(): void {
