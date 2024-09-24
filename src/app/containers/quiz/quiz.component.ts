@@ -390,6 +390,16 @@ export class QuizComponent
     console.log('logEvent called with:', event);
   }
 
+  private logButtonState() {
+    console.log('Button State:', {
+      isNextButtonEnabled: this.isNextButtonEnabled,
+      selectedOptionsLength: this.selectedOptions.length,
+      currentQuestionIndex: this.currentQuestionIndex,
+      totalQuestions: this.totalQuestions,
+      isNavigating: this.isNavigating
+    });
+  }
+
   onOptionSelected(event: {
     option: SelectedOption;
     index: number;
@@ -419,6 +429,8 @@ export class QuizComponent
     this.isNextButtonEnabled = this.selectedOptions.length > 0;
     this.currentQuestionAnswered = this.isNextButtonEnabled;
     console.log('Next button enabled:', this.isNextButtonEnabled);
+
+    this.logButtonState();
     this.cdRef.detectChanges();
 
     // this.updateNextButtonState();
@@ -2132,6 +2144,7 @@ export class QuizComponent
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     console.log('advanceToNextQuestion called');
+    this.logButtonState();
   
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -2224,6 +2237,7 @@ export class QuizComponent
       this.quizService.setIsNavigatingToPrevious(false);
       this.quizStateService.setLoading(false);
       this.updateNextButtonState();
+      this.logButtonState();
       this.cdRef.detectChanges();
     }
   }
