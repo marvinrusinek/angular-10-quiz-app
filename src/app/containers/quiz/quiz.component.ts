@@ -467,10 +467,10 @@ export class QuizComponent
     console.log(`updateNextButtonState: new isButtonEnabledSubject value = ${this.isButtonEnabledSubject.value}`);
   } */
   private updateNextButtonState(): void {
-    this.isNextButtonEnabled = this.selectedOptions.length > 0;
-    console.log(
-      `updateNextButtonState: isNextButtonEnabled set to ${this.isNextButtonEnabled}`
-    );
+    const isEnabled = this.selectedOptions.length > 0 && !this.isLoading;
+    this.isNextButtonEnabled = isEnabled;
+    this.isButtonEnabledSubject.next(isEnabled);
+    console.log(`Next button enabled: ${isEnabled}`);
     this.cdRef.detectChanges();
   }
 
