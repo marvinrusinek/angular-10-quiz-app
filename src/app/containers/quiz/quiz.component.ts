@@ -492,8 +492,10 @@ export class QuizComponent
   private updateNextButtonState(): void {
     const isEnabled = this.selectedOptions.length > 0 && !this.isLoading;
     this.isNextButtonEnabled = isEnabled;
+    this.isButtonEnabled = isEnabled;
     this.isButtonEnabledSubject.next(isEnabled);
-    console.log(`Next button enabled: ${isEnabled}`);
+    this.currentQuestionAnswered = isEnabled;
+    console.log(`updateNextButtonState: isNextButtonEnabled set to ${isEnabled}`);
     this.cdRef.detectChanges();
   }
 
