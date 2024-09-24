@@ -83,7 +83,7 @@
               (click)="advanceToNextQuestion()"
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
-              [disabled]="!isNextButtonEnabled || (isLoading$ | async)"
+              [disabled]="!isNextButtonEnabled"
               aria-label="Next Question"
               [matTooltip]="nextButtonTooltip$ | async"
               matTooltipPosition="above"
@@ -94,6 +94,7 @@
           <p>Debug: isNextButtonEnabled: {{isNextButtonEnabled}}</p>
           <p>Debug: selectedOptions length: {{selectedOptions.length}}</p>
           <p>Debug: currentQuestionAnswered: {{currentQuestionAnswered}}</p>
+          <!--[disabled]="!isNextButtonEnabled || (isLoading$ | async)"-->
           <!--[disabled]="!isButtonEnabled || !currentQuestionAnswered || (isLoading$ | async)"-->
           <!--[disabled]="!isButtonEnabled || !isNextButtonEnabled || !currentQuestionAnswered"-->
           <!--<p>Debug: Button enabled: {{isButtonEnabled}}</p>
