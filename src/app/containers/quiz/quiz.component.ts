@@ -269,6 +269,8 @@ export class QuizComponent
       ),
       shareReplay(1)
     );
+
+    this.updateNextButtonTooltip(false);
   }
 
   @HostListener('window:focus', ['$event'])
