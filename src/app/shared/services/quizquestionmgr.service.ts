@@ -27,7 +27,7 @@ export class QuizQuestionManagerService {
   getNumberOfCorrectAnswersText(
     numberOfCorrectAnswers: number | undefined
   ): string {
-    if (numberOfCorrectAnswers === undefined || numberOfCorrectAnswers === 0) {
+    if ((numberOfCorrectAnswers ?? 0) === 0) {
       return 'No correct answers';
     }
 
