@@ -2582,9 +2582,9 @@ export class QuizComponent
     options: Option[],
     explanationText: string
   ): void {
-    this.questionToDisplay = questionText || 'No question text available';
-    this.optionsToDisplay = options || [];
-    this.explanationToDisplay = explanationText || 'No explanation available';
+    this.questionToDisplay = questionText ?? 'No question text available';
+    this.optionsToDisplay = options ?? [];
+    this.explanationToDisplay = explanationText ?? 'No explanation available';
   }
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
