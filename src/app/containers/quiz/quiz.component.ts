@@ -273,6 +273,7 @@ export class QuizComponent
 
     this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
       this.isCurrentQuestionAnswered = isSelected;
+      this.updateNextButtonState();
     });
 
     this.updateNextButtonTooltip(false);
@@ -508,7 +509,8 @@ export class QuizComponent
   } */
   private updateNextButtonState(): void {
     const isEnabled = this.selectedOptions.length > 0 && !this.isLoading;
-    this.isNextButtonEnabled = isEnabled;
+    // this.isNextButtonEnabled = isEnabled;
+    this.isNextButtonEnabled = this.checkIfCurrentQuestionAnswered();
     this.isButtonEnabled = isEnabled;
     this.isButtonEnabledSubject.next(isEnabled);
     this.nextButtonTooltipSubject.next(this.isNextButtonEnabled ? 'Next Question »' : 'Please select an option to continue...');
