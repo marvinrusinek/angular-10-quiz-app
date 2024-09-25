@@ -96,11 +96,8 @@ export class QuizStateService {
       this.quizStates[quizId] = new Map<number, QuestionState>();
     }
   
-    let state = this.quizStates[quizId].get(questionId);
-    if (state === undefined) {
-      state = this.createDefaultQuestionState();
-      this.quizStates[quizId].set(questionId, state); // Store the default state in the quiz's state map
-    }
+    let state = this.quizStates[quizId].get(questionId) ?? this.createDefaultQuestionState();
+    this.quizStates[quizId].set(questionId, state); // Store the default state in the quiz's state map
   
     return state;
   }
