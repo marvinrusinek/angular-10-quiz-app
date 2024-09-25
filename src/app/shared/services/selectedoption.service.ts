@@ -117,14 +117,17 @@ export class SelectedOptionService {
   } */
   isOptionSelected$(): Observable<boolean> {
     return this.selectedOption$.pipe(
-      startWith(this.selectedOption), // Emit the current state immediately when subscribed
+      startWith(this.selectedOptionSubject.value), // Emit the current state immediately when subscribed
       map(option => {
         const isSelected = option !== null;
         console.log('SelectedOptionService: isOptionSelected$ mapping', { option, isSelected });
         return isSelected;
       }),
       distinctUntilChanged(),
-      tap(isSelected => console.log('SelectedOptionService: isOptionSelected$ emitting', isSelected))
+      tap(isSelected => {
+        this.isOptionSelectedSubject.next(isSelected);
+        console.log('SelectedOptionService: isOptionSelected$ emitting', isSelected);
+      })
     );
   }
 
