@@ -241,12 +241,7 @@ export class QuizDataService implements OnDestroy {
       }
   
       const question = await firstValueFrom(observable);
-      if (!question) {
-        console.error('No question received for the given index');
-        return;
-      }
-  
-      this.question = question;
+      this.question = question ?? null;
     } catch (error) {
       console.error('Error setting question:', error);
     }
