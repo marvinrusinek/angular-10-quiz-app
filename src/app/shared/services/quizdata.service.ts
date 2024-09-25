@@ -263,7 +263,7 @@ export class QuizDataService implements OnDestroy {
       return;
     }
 
-    const numCorrectAnswers = question.options.filter((option) => option.correct).length;
+    const numCorrectAnswers = question.options.filter((option) => option?.correct ?? false).length;
     question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
     this.questionType = question.type;
   }
