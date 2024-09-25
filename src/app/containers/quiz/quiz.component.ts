@@ -2195,12 +2195,22 @@ export class QuizComponent
   async advanceToNextQuestion(): Promise<void> {
     console.log('advanceToNextQuestion called');
     this.logButtonState();
-  
-    if (this.isNavigating || this.isLoading || !this.isNextButtonEnabled) {
-      console.warn('Cannot advance: Navigation in progress, quiz is loading, or button is disabled.');
+
+    if (this.isNavigating) {
+      console.warn('Cannot advance: Navigation in progress.');
       return;
     }
-  
+
+    if (this.isLoading) {
+      console.warn('Cannot advance: Quiz is loading.');
+      return;
+    }
+
+    if (!this.isNextButtonEnabled) {
+      console.warn('Cannot advance: Next button is disabled.');
+      return;
+    }
+
     console.log('Pre-navigation state:', {
       isButtonEnabled: this.isButtonEnabled,
       isNextButtonEnabled: this.isNextButtonEnabled,
@@ -2208,52 +2218,52 @@ export class QuizComponent
       selectedOptionsCount: this.selectedOptions.length,
       isLoading: this.isLoading
     });
-  
+
     if (!this.checkIfCurrentQuestionAnswered()) {
       console.warn('Please select an option to continue.');
       return;
     }
-  
+
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(false);
-  
+
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
         this.quizService.setCurrentQuestion(this.currentQuestionIndex);
-  
+
         // Reset states for the new question
         this.selectedOptionService.clearSelectedOption();
         this.quizStateService.setAnswered(false);
         this.quizStateService.setAnswerSelected(false);
         this.quizStateService.setLoading(true);
         this.manualOverrideSubject.next(false);
-  
+
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-  
+
         // Check if the question has already been answered
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         this.selectedOptionService.setAnsweredState(false);
         this.isAnswered = isAnswered;
-  
+
         // Clear the previous explanation
         if (this.quizQuestionComponent) {
           this.quizQuestionComponent.explanationToDisplay = '';
-  
+
           // Only fetch and display explanation if the question has been answered
           if (this.isAnswered) {
             await this.quizQuestionComponent.fetchAndSetExplanationText();
           }
-  
+
           // Reset the isAnswered state in the child component
           this.quizQuestionComponent.isAnswered = false;
         }
-  
+
         // Reset UI after preparing the question
         this.resetUI();
         this.resetQuestionState();
-  
+
         console.log('Navigation to next question completed');
       } else {
         console.log('End of quiz reached.');
