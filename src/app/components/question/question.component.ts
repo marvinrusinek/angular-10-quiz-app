@@ -2151,7 +2151,7 @@ export class QuizQuestionComponent
       console.log(`Raw explanation for question ${this.currentQuestionIndex}:`, questionData.explanation);
 
       // Use the raw explanation as a fallback
-      let explanationText = questionData.explanation || 'No explanation available';
+      let explanationText = questionData.explanation ?? 'No explanation available';
 
       // Process the explanation text
       const processedExplanation = await this.processExplanationText(questionData, this.currentQuestionIndex);
