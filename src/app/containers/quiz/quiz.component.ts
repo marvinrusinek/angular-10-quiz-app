@@ -1260,9 +1260,9 @@ export class QuizComponent
       const explanation = await firstValueFrom(explanationObservable);
 
       const transformedData: QuizQuestion = {
-        questionText: rawData.questionText,
+        questionText: rawData.questionText ?? '',
         options: [],
-        explanation: explanation,
+        explanation: explanation ?? '',
         type: this.quizDataService.questionType as QuestionType,
       };
       return transformedData;
