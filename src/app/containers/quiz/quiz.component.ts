@@ -524,7 +524,6 @@ export class QuizComponent
     const isEnabled = this.selectedOptions.length > 0 && !this.isLoading;
     this.isNextButtonEnabled = isEnabled;
     console.log(`updateNextButtonState: isNextButtonEnabled set to ${isEnabled}`);
-    this.cdRef.detectChanges();
   }
 
   /* private resetQuestionState(): void {
