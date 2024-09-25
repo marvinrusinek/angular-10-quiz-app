@@ -21,7 +21,7 @@ export class CodelabQuizHeaderComponent {
   ) {
     this.currentQuiz$ = this.quizDataService.quizzes$.pipe(
       map((quizzes: Quiz[]) => 
-        quizzes.find((quiz: Quiz) => quiz.quizId === this.quizService.quizId)
+        quizzes.find((quiz: Quiz) => quiz.quizId === this.quizService.quizId) ?? null
       )
     );
   }
