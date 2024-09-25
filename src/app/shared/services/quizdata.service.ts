@@ -215,13 +215,8 @@ export class QuizDataService implements OnDestroy {
         }
 
         const explanationTexts = quiz.questions.map((question) => {
-          // Check if explanation is defined and not null
-          if (typeof question.explanation === 'string') {
-            return question.explanation ?? '';
-          } else {
-            return '';
-          }
-        });
+          return typeof question.explanation === 'string' ? question.explanation : '';
+        }) ?? [];
 
         return of(explanationTexts);
       }),
