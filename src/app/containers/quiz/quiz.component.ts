@@ -92,10 +92,10 @@ type AnimationState = 'animationStarted' | 'none';
 export class QuizComponent
   implements OnInit, OnDestroy, OnChanges, AfterViewInit
 {
-  @ViewChild(QuizQuestionComponent)
+  @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
-  @ViewChild(SharedOptionComponent)
-  sharedOptionComponent: SharedOptionComponent;
+  @ViewChild(SharedOptionComponent, { static: false })
+  sharedOptionComponent!: SharedOptionComponent;
   @Input() data: {
     questionText: string;
     correctAnswersText?: string;
@@ -523,11 +523,6 @@ export class QuizComponent
   updateNextButtonState(): void {
     const isEnabled = this.selectedOptions.length > 0 && !this.isLoading;
     this.isNextButtonEnabled = isEnabled;
-    this.isButtonEnabled = isEnabled;
-    this.isButtonEnabledSubject.next(isEnabled);
-    this.nextButtonTooltipSubject.next(this.isNextButtonEnabled ? 'Next Question »' : 'Please select an option to continue...');
-    this.currentQuestionAnswered = isEnabled;
-    this.nextButtonTooltip = this.isNextButtonEnabled ? 'Next Question »' : 'Please select an option to continue...';
     console.log(`updateNextButtonState: isNextButtonEnabled set to ${isEnabled}`);
     this.cdRef.detectChanges();
   }
