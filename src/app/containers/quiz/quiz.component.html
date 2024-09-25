@@ -83,9 +83,9 @@
               (click)="advanceToNextQuestion()"
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
-              [matTooltip]="nextButtonTooltip$ | async"
+              [disabled]="!isNextButtonEnabled"
               aria-label="Next Question"
-              [matTooltip]="nextButtonTooltip"
+              [matTooltip]="nextButtonTooltip$ | async"
               matTooltipPosition="above"
             >
               <i class="material-icons">navigate_next</i>
