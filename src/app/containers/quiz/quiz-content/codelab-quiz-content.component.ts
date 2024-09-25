@@ -487,7 +487,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ]).pipe(
       map(
         ([explanationText, selectedOptionExplanation]) =>
-          selectedOptionExplanation || explanationText
+          selectedOptionExplanation ?? explanationText ?? 'No explanation available'
       )
     );
 
