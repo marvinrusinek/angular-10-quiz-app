@@ -37,9 +37,9 @@ export class SelectedOptionService {
     // Update selected option logic
     this.isOptionSelectedSubject.next(true); // An option is selected
   } */
-  selectOption(optionId: number): void {
-    console.log('selectOption called with:', optionId);
-    const selectedOption: SelectedOption = { id: optionId };
+  selectOption(optionId: number, questionIndex: number, text: string): void {
+    console.log('selectOption called with:', { optionId, questionIndex, text });
+    const selectedOption: SelectedOption = { optionId, questionIndex, text };
     this.selectedOptionSubject.next(selectedOption);
   }
 
