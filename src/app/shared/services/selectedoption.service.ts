@@ -33,6 +33,7 @@ export class SelectedOptionService {
     return this.isOptionSelectedSubject.getValue();
   }
 
+  // Method to update the selected option state - not sure if this is being used...
   /* selectOption(optionId: number): void {
     // Update selected option logic
     this.isOptionSelectedSubject.next(true); // An option is selected
