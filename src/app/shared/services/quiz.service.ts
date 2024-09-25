@@ -1107,7 +1107,7 @@ export class QuizService implements OnDestroy {
       }
       return questions[previousAnswers.indexOf(answer)].options.find(
         (option) => option.text === answer
-      ).text;
+      ).text ?? '';
     });
   }
 
