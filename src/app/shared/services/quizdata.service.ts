@@ -143,7 +143,7 @@ export class QuizDataService implements OnDestroy {
         const question = quiz.questions[questionIndex];
   
         // Check for undefined options and handle accordingly
-        const options = question.options || [];
+        const options = question.options ?? [];
         if (options.length === 0) {
           console.warn(`No options found for question at index ${questionIndex}`);
         }
@@ -217,7 +217,7 @@ export class QuizDataService implements OnDestroy {
         const explanationTexts = quiz.questions.map((question) => {
           // Check if explanation is defined and not null
           if (typeof question.explanation === 'string') {
-            return question.explanation;
+            return question.explanation ?? '';
           } else {
             return '';
           }
