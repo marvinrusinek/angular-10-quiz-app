@@ -1668,6 +1668,11 @@ export class QuizComponent
     return this.currentQuestionIndex === this.totalQuestions - 1;
   }
 
+  // Method to check if the current question is answered
+  isCurrentQuestionAnswered(): boolean {
+    return this.selectedOptionService.isOptionSelected();
+  }
+
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (
       !selectedQuiz ||
