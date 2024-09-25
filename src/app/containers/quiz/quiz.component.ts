@@ -181,6 +181,7 @@ export class QuizComponent
   private debounceNavigation = false;
 
   isOptionSelected = false;
+  private isCurrentQuestionAnswered = false;
 
   previousIndex: number | null = null;
   isQuestionIndexChanged = false;
@@ -269,6 +270,10 @@ export class QuizComponent
       ),
       shareReplay(1)
     );
+
+    this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
+      this.isCurrentQuestionAnswered = isSelected;
+    });
 
     this.updateNextButtonTooltip(false);
   }
@@ -1666,11 +1671,6 @@ export class QuizComponent
 
   isLastQuestion(): boolean {
     return this.currentQuestionIndex === this.totalQuestions - 1;
-  }
-
-  // Method to check if the current question is answered
-  isCurrentQuestionAnswered(): boolean {
-    return this.selectedOptionService.isOptionSelected();
   }
 
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
