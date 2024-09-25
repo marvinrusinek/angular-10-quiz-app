@@ -1509,7 +1509,7 @@ export class QuizComponent
         return null;
       }
 
-      const [question, options] = result;
+      const [question, options] = result ?? [null, null];
       this.handleQuestion(question);
       this.handleOptions(options);
     } catch (error) {
