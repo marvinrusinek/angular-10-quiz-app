@@ -272,6 +272,7 @@ export class QuizComponent
     );
 
     this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
+      console.log('isOptionSelected$ emitted:', isSelected);
       this.isCurrentQuestionAnswered = isSelected;
       this.updateNextButtonState();
     });
