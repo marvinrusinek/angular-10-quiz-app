@@ -1740,7 +1740,7 @@ export class QuizQuestionComponent
       this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
         .pipe(
           tap((explanationText: string) => {
-            this.explanationToDisplay = explanationText;
+            this.explanationToDisplay = explanationText ?? 'No explanation available';
             this.explanationToDisplayChange.emit(this.explanationToDisplay);
             console.log(`Displaying explanation for question ${this.currentQuestionIndex}`);
           }),
