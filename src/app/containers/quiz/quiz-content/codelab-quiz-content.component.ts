@@ -565,7 +565,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.combinedText$ = this.combinedQuestionData$.pipe(
       map(data => {
         console.log('Final Combined Question Data (Map):', data);
-        return this.constructDisplayText(data);
+        return this.constructDisplayText(data) ?? 'No question data available';
       }),
       catchError(error => {
         console.error('Error processing combined text:', error);
