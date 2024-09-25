@@ -33,9 +33,14 @@ export class SelectedOptionService {
     return this.isOptionSelectedSubject.getValue();
   }
 
-  selectOption(optionId: number): void {
+  /* selectOption(optionId: number): void {
     // Update selected option logic
     this.isOptionSelectedSubject.next(true); // An option is selected
+  } */
+  selectOption(optionId: number): void {
+    console.log('selectOption called with:', optionId);
+    const selectedOption: SelectedOption = { id: optionId };
+    this.selectedOptionSubject.next(selectedOption);
   }
 
   clearSelection(): void {
