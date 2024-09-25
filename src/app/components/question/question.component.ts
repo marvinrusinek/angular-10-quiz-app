@@ -1393,7 +1393,7 @@ export class QuizQuestionComponent
         // Process the explanation text
         const processedExplanation = await this.processExplanationText(questionData, this.currentQuestionIndex);
         
-        let explanationText = processedExplanation?.explanation || questionData.explanation || 'No explanation available';
+        let explanationText = processedExplanation?.explanation ?? questionData.explanation ?? 'No explanation available';
   
         console.log(`Explanation text for question ${this.currentQuestionIndex}:`, explanationText);
   
