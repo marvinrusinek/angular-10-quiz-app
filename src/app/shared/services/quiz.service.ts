@@ -914,7 +914,7 @@ export class QuizService implements OnDestroy {
       this.quizData[0].questions.length > 0
     ) {
       // Return the first question of the first quiz as the fallback question
-      return this.quizData[0].questions[0];
+      return this.quizData[0].questions[0] ?? null;
     } else {
       // Fallback to a more generic error handling if no questions are available
       console.error('No questions available for fallback.');
