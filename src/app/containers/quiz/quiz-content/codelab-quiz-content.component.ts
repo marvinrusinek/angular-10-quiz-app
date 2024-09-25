@@ -494,7 +494,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     // Subscribe to explanationText$ and update the explanation text accordingly
     explanationText$.subscribe((explanationText) => {
       if (this.quizService.areQuestionsEqual(question, this.question)) {
-        this.explanationText = explanationText as string;
+        this.explanationText = explanationText as string ?? null;
       } else {
         this.explanationText = null;
       }
