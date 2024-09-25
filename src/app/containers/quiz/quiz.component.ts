@@ -446,7 +446,7 @@ export class QuizComponent
     const isOptionSelected = this.selectedOptions.length > 0;
     this.selectedOptionService.setOptionSelected(isOptionSelected);
     this.updateNextButtonState();
-    this.updateNextButtonTooltip(isOptionSelected);
+    // this.updateNextButtonTooltip(isOptionSelected);
 
     console.log('After option selection:', {
       selectedOptions: this.selectedOptions,
