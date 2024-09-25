@@ -321,7 +321,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   
       await Promise.all(
         questions.map(async (question, index) => {
-          const explanation = this.explanationTexts[index] || 'No explanation available';
+          const explanation = this.explanationTexts[index] ?? 'No explanation available';
           this.explanationTextService.storeFormattedExplanation(index, explanation, question);
         })
       );
