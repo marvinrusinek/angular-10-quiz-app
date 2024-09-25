@@ -83,7 +83,7 @@
               (click)="advanceToNextQuestion()"
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
-              [disabled]="!isNextButtonEnabled"
+              [matTooltip]="nextButtonTooltip$ | async"
               aria-label="Next Question"
               [matTooltip]="nextButtonTooltip"
               matTooltipPosition="above"
