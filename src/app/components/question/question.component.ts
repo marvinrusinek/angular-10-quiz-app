@@ -2217,7 +2217,7 @@ export class QuizQuestionComponent
           if (formattedExplanation) {
             this.explanationToDisplay = formattedExplanation;
           } else {
-            const rawExplanation = questionData.explanation || '';
+            const rawExplanation = questionData.explanation ?? '';
             const processedExplanation = await this.processExplanationText(questionData, questionIndex);
             
             if (processedExplanation) {
