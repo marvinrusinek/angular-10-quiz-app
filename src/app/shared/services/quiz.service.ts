@@ -274,10 +274,8 @@ export class QuizService implements OnDestroy {
       }
 
       // If no quiz is selected or found, default to the first quiz
-      if (!selectedQuiz) {
-        selectedQuiz = this.quizData[0];
-        this.quizId = selectedQuiz.quizId;
-      }
+      selectedQuiz = selectedQuiz ?? this.quizData[0];
+      this.quizId = selectedQuiz.quizId;
 
       if (
         Array.isArray(selectedQuiz.questions) &&
