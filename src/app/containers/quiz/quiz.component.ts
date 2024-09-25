@@ -1133,7 +1133,7 @@ export class QuizComponent
     if (index in this.explanationTextService.formattedExplanations) {
       const explanationObj =
         this.explanationTextService.formattedExplanations[index];
-      this.explanationToDisplay = explanationObj.explanation;
+      this.explanationToDisplay = explanationObj?.explanation ?? 'No explanation available for this question.';
     } else {
       this.explanationToDisplay = 'No explanation available for this question.';
       console.error('Missing formatted explanation for index:', index);
