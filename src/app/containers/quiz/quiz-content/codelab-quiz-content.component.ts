@@ -584,7 +584,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private constructDisplayText(data: CombinedQuestionDataType): string {
-    let displayText = data.questionText || '';
+    let displayText = data.questionText ?? '';
 
     if (data.isExplanationDisplayed) {
       if (data.explanationText) {

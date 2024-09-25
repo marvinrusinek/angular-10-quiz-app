@@ -724,7 +724,7 @@ export class QuizService implements OnDestroy {
               } else {
                 console.error(
                   `Options are not properly defined for question:::>> ${
-                    question.questionText || 'undefined'
+                    question.questionText ?? 'undefined'
                   }`
                 );
                 console.log('Question index:', qIndex, 'Question:', question);
