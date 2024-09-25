@@ -197,7 +197,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   private loadQuizDataFromRoute(): void {
     this.activatedRoute.paramMap.subscribe(async params => {
       const quizId = params.get('quizId');
-      const questionIndex = params.get('questionIndex') ? +params.get('questionIndex') : 1;
+      const questionIndex = +params.get('questionIndex') ?? 1;
       const zeroBasedIndex = questionIndex - 1;
       
       if (quizId) {
