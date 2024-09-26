@@ -252,14 +252,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   updateOptionAndUI(
     optionBinding: OptionBindings,
-    idx: number,
+    index: number,
     element: MatElement
   ): void {
     console.log("MY UPDATE OPTION");
-    this.handleOptionClick(optionBinding.option, idx);
+    this.handleOptionClick(optionBinding.option, index);
 
     // Update the selected option index
-    this.selectedOptionIndex = idx;
+    this.selectedOptionIndex = index;
 
     // Ensure showFeedback is set to true when an option is clicked
     this.showFeedback = true;
@@ -273,7 +273,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     // Emit the optionSelected event
     const eventData = {
       option: optionBinding.option,
-      index: idx,
+      index: index,
       checked: element.checked
     };
     console.log("Emitting event from updateOptionAndUI:", eventData);
