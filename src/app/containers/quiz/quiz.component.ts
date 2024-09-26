@@ -518,7 +518,6 @@ export class QuizComponent
     this.currentQuestionAnswered = isEnabled;
     this.nextButtonTooltip = this.isNextButtonEnabled ? 'Next Question »' : 'Please select an option to continue...';
     console.log(`updateNextButtonState: isNextButtonEnabled set to ${isEnabled}`);
-    this.cdRef.detectChanges();
   }
   /* updateNextButtonState(): void {
     const isEnabled = this.selectedOptions.length > 0 && !this.isLoading;
