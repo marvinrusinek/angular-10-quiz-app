@@ -6,6 +6,7 @@ import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
+import { DynamicComponentService } from '../../../../shared/services/dynamic-component.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
@@ -30,13 +31,15 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   optionBindings: OptionBindings[] = [];
 
   constructor(
+    protected dynamicComponentService: DynamicComponentService,
     protected quizService: QuizService,
-    protected quizStatService: QuizStateService,
+    protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
   ) {
-    super(quizService, selectedOptionService, fb, cdRef);
+    // super(quizService, selectedOptionService, fb, cdRef);
+    super(null, fb, dynamicComponentService, quizService, quizStateService, selectedOptionService, cdRef);
   }
 
   async ngOnInit(): Promise<void> {
