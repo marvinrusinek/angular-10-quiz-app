@@ -258,6 +258,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log("MY UPDATE OPTION");
     this.handleOptionClick(optionBinding.option, idx);
 
+    // Update the selected option index
+    this.selectedOptionIndex = idx;
+
     // Ensure showFeedback is set to true when an option is clicked
     this.showFeedback = true;
 
