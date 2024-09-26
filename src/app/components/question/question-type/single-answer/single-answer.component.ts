@@ -52,7 +52,6 @@ export class SingleAnswerComponent
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
   ) {
-    // super(quizService, selectedOptionService, fb, cdRef);
     super(null, fb, dynamicComponentService, quizService, quizStateService, selectedOptionService, cdRef);
   }
 

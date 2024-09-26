@@ -3,7 +3,6 @@ import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
 import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
-import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { DynamicComponentService } from '../../../../shared/services/dynamic-component.service';
@@ -38,7 +37,6 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
   ) {
-    // super(quizService, selectedOptionService, fb, cdRef);
     super(null, fb, dynamicComponentService, quizService, quizStateService, selectedOptionService, cdRef);
   }
 
