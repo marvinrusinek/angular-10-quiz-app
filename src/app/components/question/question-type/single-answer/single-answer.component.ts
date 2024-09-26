@@ -34,11 +34,7 @@ export class SingleAnswerComponent
 {
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent: QuizQuestionComponent;
-  @Output() optionSelected = new EventEmitter<{
-    option: SelectedOption;
-    index: number;
-    checked: boolean;
-  }>();
+  @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   quizQuestionComponentOnOptionClicked: (
     option: SelectedOption,
     index: number
