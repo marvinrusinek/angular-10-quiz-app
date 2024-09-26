@@ -14,6 +14,7 @@ import { FormBuilder } from '@angular/forms';
 import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
+import { DynamicComponentService } from '../../../../shared/services/dynamic-component.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
@@ -48,18 +49,20 @@ export class SingleAnswerComponent
   optionBindings: OptionBindings[] = [];
 
   constructor(
+    protected dynamicComponentService: DynamicComponentService,
     protected quizService: QuizService,
     protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
   ) {
-    super(quizService, selectedOptionService, fb, cdRef);
+    // super(quizService, selectedOptionService, fb, cdRef);
+    super(null, fb, dynamicComponentService, quizService, quizStateService, selectedOptionService, cdRef);
   }
 
   async ngOnInit(): Promise<void> {
     console.log('SingleAnswerComponent - ngOnInit');
-    console.log('SingleAnswerComponent - questionData:', this.questionData);
+    // console.log('SingleAnswerComponent - questionData:', this.questionData);
     await super.ngOnInit();
     console.log(
       'SingleAnswerComponent - after super.ngOnInit, sharedOptionConfig:',
@@ -71,10 +74,10 @@ export class SingleAnswerComponent
       'SingleAnswerComponent after init - sharedOptionConfig:',
       this.sharedOptionConfig
     );
-    console.log(
+    /* console.log(
       'SingleAnswerComponent after init - questionData:',
       this.questionData
-    );
+    ); */
   }
 
   ngOnChanges(changes: SimpleChanges) {
