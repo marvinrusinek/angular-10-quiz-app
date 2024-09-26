@@ -31,7 +31,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
   constructor(
     protected quizService: QuizService,
-    protected quizStateService: QuizStateService,
+    protected quizStatService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
