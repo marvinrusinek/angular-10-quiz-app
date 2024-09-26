@@ -508,7 +508,7 @@ export class QuizComponent
     this.isButtonEnabledSubject.next(shouldBeEnabled);
     console.log(`updateNextButtonState: new isButtonEnabledSubject value = ${this.isButtonEnabledSubject.value}`);
   } */
-  /* private updateNextButtonState(): void {
+  private updateNextButtonState(): void {
     const isEnabled = this.selectedOptions.length > 0 && !this.isLoading;
     // this.isNextButtonEnabled = isEnabled;
     this.isNextButtonEnabled = this.checkIfCurrentQuestionAnswered();
@@ -519,12 +519,12 @@ export class QuizComponent
     this.nextButtonTooltip = this.isNextButtonEnabled ? 'Next Question »' : 'Please select an option to continue...';
     console.log(`updateNextButtonState: isNextButtonEnabled set to ${isEnabled}`);
     this.cdRef.detectChanges();
-  } */
-  updateNextButtonState(): void {
+  }
+  /* updateNextButtonState(): void {
     const isEnabled = this.selectedOptions.length > 0 && !this.isLoading;
     this.isNextButtonEnabled = isEnabled;
     console.log(`updateNextButtonState: isNextButtonEnabled set to ${isEnabled}`);
-  }
+  } */
 
   /* private resetQuestionState(): void {
     console.log('Resetting question state');
