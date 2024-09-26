@@ -41,7 +41,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   }
 
   async ngOnInit(): Promise<void> {
-    await super.ngOnInit(); // Make sure to call the parent's ngOnInit first
+    await super.ngOnInit();
     await this.initializeMultipleAnswerConfig();
     this.initializeSharedOptionConfig();
   }
