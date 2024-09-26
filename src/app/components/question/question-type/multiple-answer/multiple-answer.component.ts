@@ -106,6 +106,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       console.log("MAC: SelectedOptionService cleared");
     }
 
+    this.showFeedback = true;
     this.cdRef.detectChanges();
   }
 }
