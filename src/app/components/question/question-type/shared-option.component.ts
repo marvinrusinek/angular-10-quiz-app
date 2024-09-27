@@ -520,11 +520,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   ensureOptionIds(): void {
-    this.optionsToDisplay.forEach((option, index) => {
+    for (const [index, option] of this.optionsToDisplay.entries()) {
       if (option.optionId === undefined) {
         option.optionId = index;
       }
-    });
+    }
   }
 
   shouldShowFeedback(index: number, optionId: number | null): boolean {
