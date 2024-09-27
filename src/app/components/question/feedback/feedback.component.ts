@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { Option } from '../../../shared/models/Option.model';
-import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 
 @Component({
   selector: 'codelab-quiz-feedback',
@@ -18,7 +17,7 @@ export class FeedbackComponent implements OnChanges {
   feedbackPrefix: string;
   displayMessage = '';
 
-  constructor(private selectedOptionService: SelectedOptionService) {}
+  constructor() {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.shouldUpdateFeedback(changes)) {
