@@ -433,6 +433,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.isSubmitted = false;
     this.showFeedback = false;
     this.selectedOption = null;
+    this.selectedOptionIndex = null;
+    this.selectedOptionId = null;
     this.selectedOptions.clear();
     this.clickedOptionIds.clear();
     this.showFeedbackForOption = {};
