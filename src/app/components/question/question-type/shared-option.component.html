@@ -16,7 +16,7 @@
       </ng-container>
 
       <codelab-quiz-feedback
-        *ngIf="optionBinding.option.feedback && shouldShowFeedback(idx)"
+        *ngIf="optionBinding.option.feedback && shouldShowFeedback(optionBinding.option.optionId)"
         [options]="optionsToDisplay"
         [question]="currentQuestion"
         [selectedOption]="optionBinding.option"
@@ -28,7 +28,7 @@
     </label>
   </div>
 </ng-container>
-
+<!--*ngIf="optionBinding.option.feedback && shouldShowFeedback(idx)"-->
 <!-- option content template -->
 <ng-template #optionContent let-option="option" let-idx="idx">
   <div class="option-content">
