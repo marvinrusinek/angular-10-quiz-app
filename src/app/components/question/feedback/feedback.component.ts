@@ -18,17 +18,19 @@ export class FeedbackComponent implements OnChanges {
   feedbackPrefix: string;
   displayMessage = '';
 
-  constructor(private selectedOptionService: SelectedOptionService) {
-    //const option = this.selectedOptionService.selectedOption;
-    //this.selectedOption = option 
-    //  ? { ...option, correct: !!option.correct } 
-    //  : { text: '', correct: false, optionId: -1 };
-  }
+  constructor(private selectedOptionService: SelectedOptionService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.selectedOption || changes.correctMessage || changes.showFeedback || changes.feedback) {
+    if (this.shouldUpdateFeedback(changes)) {
       this.updateFeedback();
     }
+  }
+
+  private shouldUpdateFeedback(changes: SimpleChanges): boolean {
+    return 'selectedOption' in changes ||
+           'correctMessage' in changes || 
+           'showFeedback' in changes || 
+           'feedback' in changes;
   }
 
   private updateFeedback(): void {
