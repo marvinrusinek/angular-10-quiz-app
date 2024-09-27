@@ -184,18 +184,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   getOptionAttributes(optionBinding: OptionBindings) {
     return {
       appHighlightOption: '',
-      '[attr.aria-label]': 'optionBinding.ariaLabel',
-      '[isSelected]': 'optionBinding.isSelected',
-      '[isCorrect]': 'optionBinding.isCorrect',
-      '[showFeedback]': 'optionBinding.showFeedback',
-      '[showFeedbackForOption]': 'optionBinding.showFeedbackForOption',
+      '[attr.aria-label]': optionBinding.ariaLabel,
+      '[isSelected]': optionBinding.isSelected,
+      '[isCorrect]': optionBinding.isCorrect,
+      '[showFeedback]': optionBinding.showFeedback,
+      '[showFeedbackForOption]': optionBinding.showFeedbackForOption,
       '[highlightCorrectAfterIncorrect]':
-        'optionBinding.highlightCorrectAfterIncorrect',
-      '[allOptions]': 'optionBinding.allOptions',
-      '[type]': 'optionBinding.type',
-      '[checked]': 'optionBinding.isSelected',
-      '[disabled]': 'optionBinding.disabled',
-      '(change)': 'optionBinding.change()'
+        optionBinding.highlightCorrectAfterIncorrect,
+      '[allOptions]': optionBinding.allOptions,
+      '[type]': optionBinding.type,
+      '[checked]': optionBinding.isSelected,
+      '[disabled]': optionBinding.disabled,
+      '(change)': optionBinding.change()
     };
   }
 
@@ -274,7 +274,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     const optionId = optionBinding.option.optionId ?? index;
     this.showFeedbackForOption[optionId] = true;
     console.log('showFeedbackForOption updated:', this.showFeedbackForOption);
-    
+
     if (optionBinding.option.optionId === undefined) {
       console.error('optionId is undefined for option:', optionBinding.option);
     }
