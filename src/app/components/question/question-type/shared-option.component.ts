@@ -262,7 +262,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     // Update the selected option index
     this.selectedOptionIndex = index;
-    this.selectedOptionId = optionBinding.option.optionId !== undefined ? optionBinding.option.optionId : index; // Use index as fallback
+    this.selectedOptionId = optionBinding.option.optionId ?? index; // Use index as fallback
     console.log('selectedOptionIndex set to:', this.selectedOptionIndex);
     console.log('selectedOptionId set to:', this.selectedOptionId);
 
