@@ -508,7 +508,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   shouldShowFeedback(index: number): boolean {
-    return this.showFeedback && this.selectedOptionIndex !== null && index === this.selectedOptionIndex;
+    const result = this.showFeedback && this.selectedOptionIndex !== null && index === this.selectedOptionIndex;
+    console.log('shouldShowFeedback called with index:', index, 'result:', result); // Debug log
+    return result;
   }
   
   shouldShowIcon(option: Option): boolean {
