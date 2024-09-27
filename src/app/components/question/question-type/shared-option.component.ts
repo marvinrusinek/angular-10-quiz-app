@@ -273,6 +273,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     // Update showFeedbackForOption
     const optionId = optionBinding.option.optionId ?? index;
     this.showFeedbackForOption[optionId] = true;
+    console.log('showFeedbackForOption updated:', this.showFeedbackForOption);
+    
     if (optionBinding.option.optionId === undefined) {
       console.error('optionId is undefined for option:', optionBinding.option);
     }
