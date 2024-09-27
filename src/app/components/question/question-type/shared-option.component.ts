@@ -79,6 +79,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (!this.showFeedbackForOption) {
       this.showFeedbackForOption = {};
     }
+    this.ensureOptionIds();
 
     console.log('Received config:', this.config);
     if (
@@ -109,6 +110,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     if (changes.optionsToDisplay) {
       this.initializeOptionBindings();
+      this.ensureOptionIds();
     }
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
@@ -515,6 +517,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOptionId === option.optionId;
+  }
+
+  ensureOptionIds(): void {
+    this.optionsToDisplay.forEach((option, index) => {
+      if (option.optionId === undefined) {
+        option.optionId = index;
+      }
+    });
   }
 
   shouldShowFeedback(index: number, optionId: number | null): boolean {
