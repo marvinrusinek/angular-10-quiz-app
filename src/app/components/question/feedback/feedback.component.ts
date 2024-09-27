@@ -32,9 +32,13 @@ export class FeedbackComponent implements OnChanges {
   }
 
   private updateFeedback(): void {
-    this.feedbackMessageClass = this.determineFeedbackMessageClass();
-    this.feedbackPrefix = this.determineFeedbackPrefix();
-    this.updateDisplayMessage();
+    if (this.showFeedback) {
+      this.feedbackMessageClass = this.determineFeedbackMessageClass();
+      this.feedbackPrefix = this.determineFeedbackPrefix();
+      this.updateDisplayMessage();
+    } else {
+      this.displayMessage = '';
+    }
   }
 
   determineFeedbackPrefix(): string {
