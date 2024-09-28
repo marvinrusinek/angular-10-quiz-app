@@ -549,7 +549,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     const resultForOption = this.showFeedbackForOption[optionId] ?? false;
     const finalResult = result || resultForOption;
     console.log('shouldDisplayFeedback called with index:', index, 'optionId:', optionId, 'result:', finalResult); // Debug log
-    console.log('optionBinding.option.feedback:', optionBinding.option.feedback); // Debug log
+    console.log('optionBinding.option.feedback:', optionBinding.option.feedback);
     return !!optionBinding.option.feedback && finalResult;
   }
   
