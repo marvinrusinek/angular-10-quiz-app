@@ -523,9 +523,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   ensureOptionIds(): void {
     for (const [index, option] of this.optionsToDisplay.entries()) {
-      if (option.optionId === undefined) {
-        option.optionId = index;
-      }
+      option.optionId = option.optionId ?? index;
     }
   }
 
