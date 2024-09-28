@@ -338,9 +338,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('Question already submitted, ignoring click');
       return;
     }
-
-    // Use index as a fallback for optionId
-    const optionId = option.optionId ?? index;
   
     // Check if the option has already been clicked
     if (this.clickedOptionIds.has(option.optionId ?? index)) {
@@ -355,12 +352,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     const optionBinding = this.optionBindings[index];
     optionBinding.option.showIcon = true;
-    this.iconVisibility[optionId] = true;
+    this.iconVisibility[option.optionId] = true;
 
     this.showFeedback = true;
-    this.showFeedbackForOption[optionId ?? index] = true;
+    this.showFeedbackForOption[option.optionId ?? index] = true;
 
-    this.clickedOptionIds.add(optionId ?? index);
+    this.clickedOptionIds.add(option.optionId ?? index);
   
     if (this.config.type === 'single') {
       // For single-select, update only the clicked option
@@ -370,7 +367,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
       this.selectedOption = option;
       this.selectedOptions.clear();
-      this.selectedOptions.add(optionId);
+      this.selectedOptions.add(option.optionId);
   
       // Store the selected option
       this.selectedOptionService.setSelectedOption(option as SelectedOption);
@@ -378,15 +375,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // For multiple-select, toggle the selection
       option.selected = !option.selected;
       if (option.selected) {
-        this.selectedOptions.add(optionId);
+        this.selectedOptions.add(option.optionId);
       } else {
-        this.selectedOptions.delete(optionId);
+        this.selectedOptions.delete(option.optionId);
       }
     }
   
     optionBinding.isSelected = option.selected;
     optionBinding.showFeedback = this.showFeedback;
-    this.showIconForOption[optionId] = option.selected;
+    this.showIconForOption[option.optionId] = option.selected;
   
     this.updateHighlighting();
   
@@ -424,7 +421,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     // Update selectedOptionIndex and showFeedbackForOption
     this.selectedOptionIndex = index;
-    this.showFeedbackForOption[optionId ?? index] = true;
+    this.showFeedbackForOption[option.optionId ?? index] = true;
   
     // Trigger change detection
     this.cdRef.detectChanges();
@@ -507,7 +504,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return '';
   }
 
-  getFeedbackConfig(optionBinding: FeedbackProps) {
+  getFeedbackProps(optionBinding: FeedbackProps) {
     return {
       options: this.optionsToDisplay,
       question: this.currentQuestion,
