@@ -126,7 +126,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   initializeFromConfig(): void {
-    console.log("TEST CONFIG");
     if (!this.config) {
       console.error('SharedOptionComponent: config is not provided');
       return;
@@ -139,7 +138,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     // Ensure feedback property is set
     for (const [idx, option] of this.optionsToDisplay.entries()) {
-      console.log(`Option ${idx} before setting feedback:`, option);
       if (!option.feedback) {
         const optionBinding = this.optionBindings[idx];
         if (optionBinding && optionBinding.option) {
