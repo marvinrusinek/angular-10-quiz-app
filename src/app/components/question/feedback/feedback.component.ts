@@ -11,8 +11,8 @@ import { Option } from '../../../shared/models/Option.model';
 export class FeedbackComponent implements OnChanges {
   @Input() correctMessage: string;
   @Input() selectedOption: Option & { correct: boolean };
-  @Input() showFeedback = false;
   @Input() feedback = '';
+  @Input() showFeedback = false;
   feedbackMessageClass: string;
   feedbackPrefix: string;
   displayMessage = '';
