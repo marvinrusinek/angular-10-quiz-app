@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
+import { FeedbackProps } from '../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../shared/models/Option.model';
 
 @Component({
@@ -9,7 +10,7 @@ import { Option } from '../../../shared/models/Option.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FeedbackComponent implements OnChanges {
-  @Input() feedbackConfig: any;
+  @Input() feedbackConfig: FeedbackProps;
   @Input() correctMessage: string;
   @Input() selectedOption: Option & { correct: boolean };
   @Input() feedback = '';
@@ -26,25 +27,10 @@ export class FeedbackComponent implements OnChanges {
     }
   }
 
-  /* private shouldUpdateFeedback(changes: SimpleChanges): boolean {
-    return 'selectedOption' in changes ||
-           'correctMessage' in changes || 
-           'showFeedback' in changes || 
-           'feedback' in changes;
-  } */
   private shouldUpdateFeedback(changes: SimpleChanges): boolean {
     return 'feedbackConfig' in changes;
   }
 
-  /* private updateFeedback(): void {
-    if (this.showFeedback) {
-      this.feedbackMessageClass = this.determineFeedbackMessageClass();
-      this.feedbackPrefix = this.determineFeedbackPrefix();
-      this.updateDisplayMessage();
-    } else {
-      this.displayMessage = '';
-    }
-  } */
   private updateFeedback(): void {
     if (this.feedbackConfig && this.feedbackConfig.showFeedback) {
       this.feedbackMessageClass = this.determineFeedbackMessageClass();
@@ -55,15 +41,6 @@ export class FeedbackComponent implements OnChanges {
     }
   }
 
-  /* determineFeedbackPrefix(): string {
-    if (!this.selectedOption) {
-      return '';
-    }
-    
-    return this.selectedOption.correct
-      ? "You're right! " 
-      : "That's wrong. ";
-  } */
   private determineFeedbackPrefix(): string {
     if (!this.feedbackConfig || !this.feedbackConfig.selectedOption) {
       return '';
@@ -74,22 +51,12 @@ export class FeedbackComponent implements OnChanges {
       : "That's wrong. ";
   }
 
-  /* determineFeedbackMessageClass(): string {
-    return this.selectedOption && this.selectedOption.correct 
-      ? 'correct-message' 
-      : 'wrong-message';
-  } */
   private determineFeedbackMessageClass(): string {
     return this.feedbackConfig && this.feedbackConfig.selectedOption && this.feedbackConfig.selectedOption.correct 
       ? 'correct-message' 
       : 'wrong-message';
   }
 
-  /* private updateDisplayMessage(): void {
-    const prefix = this.determineFeedbackPrefix();
-    const commonMessage = `${this.correctMessage} ${this.feedback || ''}`;
-    this.displayMessage = `${prefix}${commonMessage}`;
-  } */
   private updateDisplayMessage(): void {
     if (this.feedbackConfig) {
       const prefix = this.determineFeedbackPrefix();
