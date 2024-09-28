@@ -1,6 +1,6 @@
-<section class="message" *ngIf="showFeedback">
+<section class="message" *ngIf="feedbackConfig.showFeedback">
   <div class="feedback-message" [ngClass]="feedbackMessageClass">
-    <mat-icon class="material-icons" *ngIf="selectedOption?.correct; else wrongIcon">
+    <mat-icon class="material-icons" *ngIf="feedbackConfig.selectedOption?.correct; else wrongIcon">
       sentiment_very_satisfied
     </mat-icon>
     <ng-template #wrongIcon>
