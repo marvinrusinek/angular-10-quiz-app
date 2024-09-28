@@ -17,11 +17,6 @@ interface MatElement {
   _elementRef: { nativeElement: HTMLElement };
 }
 
-interface FeedbackProps {
-  option: Option;
-  idx: number;
-}
-
 @Component({
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
