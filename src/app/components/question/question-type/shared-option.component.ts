@@ -135,8 +135,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     // Ensure feedback property is set
     for (const [idx, option] of this.optionsToDisplay.entries()) {
-      if (!option.feedback) {
+      if (!option.feedback && this.optionBindings[idx]) {
         option.feedback = this.optionBindings[idx].option.feedback;
+        console.log(`Setting feedback for option ${idx}: ${option.feedback}`);
       }
     }
     
