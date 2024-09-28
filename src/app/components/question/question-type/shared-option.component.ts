@@ -425,6 +425,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     // Update selectedOptionIndex and showFeedbackForOption
     this.selectedOptionIndex = index;
     this.showFeedbackForOption[optionId ?? index] = true;
+
+    // Assign feedbackConfig using getFeedbackProps
+    this.feedbackConfig[index] = this.getFeedbackProps(optionBinding);
   
     // Trigger change detection
     this.cdRef.detectChanges();
@@ -507,14 +510,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return '';
   }
 
-  getFeedbackProps(optionBinding: FeedbackProps) {
+  getFeedbackProps(optionBinding: OptionBindings, idx: number): any {
     return {
       options: this.optionsToDisplay,
       question: this.currentQuestion,
       selectedOption: optionBinding.option,
       correctMessage: this.correctMessage,
       feedback: optionBinding.option.feedback,
-      showFeedback: this.showFeedback
+      showFeedback: this.showFeedback,
+      idx: idx
     };
   }
 
