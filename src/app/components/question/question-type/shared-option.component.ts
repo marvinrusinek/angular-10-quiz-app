@@ -404,6 +404,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     };
   
     this.optionClicked.emit({ option: selectedOption, index });
+
+    // Update selectedOptionIndex and showFeedbackForOption
+    this.selectedOptionIndex = index;
+    this.showFeedbackForOption[option.optionId ?? index] = true;
   
     // Trigger change detection
     this.cdRef.detectChanges();
