@@ -504,7 +504,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return '';
   }
 
-  getFeedbackProps(optionBinding: FeedbackProps) {
+  getFeedbackConfig(optionBinding: FeedbackProps) {
     return {
       options: this.optionsToDisplay,
       question: this.currentQuestion,
