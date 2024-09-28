@@ -427,7 +427,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedbackForOption[optionId ?? index] = true;
 
     // Assign feedbackConfig using getFeedbackProps
-    this.feedbackConfig[index] = this.getFeedbackBindings(optionBinding.option, index);
+    this.feedbackConfig[index] = this.getFeedbackBindings(option, index);
     console.log("MY FB CONFIG", this.feedbackConfig[index]);
   
     // Trigger change detection
