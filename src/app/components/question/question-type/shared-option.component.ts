@@ -135,6 +135,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.highlightCorrectAfterIncorrect = this.config.highlightCorrectAfterIncorrect || false;
     this.shouldResetBackground = this.config.shouldResetBackground || false;
 
+    this.initializeOptionBindings();
+
     console.log('SharedOptionComponent initialized with config:', this.config);
   }
 
@@ -143,6 +145,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     
     // Reset the component state
     this.resetState();
+    this.initializeOptionBindings();
   
     // Check if this is not the first change (i.e., we're navigating between questions)
     if (!change.firstChange) {
@@ -529,6 +532,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     const finalResult = result || resultForOption;
     console.log('shouldShowFeedback called with index:', index, 'optionId:', optionId, 'result:', finalResult); // Debug log
     return finalResult;
+  }
+
+  shouldDisplayFeedback(optionBinding: OptionBindings, index: number): boolean {
+    const optionId = optionBinding.option.optionId !== undefined ? optionBinding.option.optionId : index;
+    return optionBinding.option && optionBinding.option.feedback && this.shouldShowFeedback(index, optionId);
   }
   
   shouldShowIcon(option: Option): boolean {
