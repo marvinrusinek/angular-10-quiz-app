@@ -256,7 +256,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     index: number,
     element: MatElement
   ): void {
-    console.log("MY UPDATE OPTION");
+    console.log("updateOptionAndUI called with index:", index, "optionBinding:", optionBinding);
     this.handleOptionClick(optionBinding.option, index);
 
     // Update the selected option index
