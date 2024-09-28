@@ -427,7 +427,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedbackForOption[optionId ?? index] = true;
 
     // Assign feedbackConfig using getFeedbackProps
-    this.feedbackConfig[index] = this.getFeedbackPro(optionBinding, index);
+    this.feedbackConfig[index] = this.getFeedbackBindings(optionBinding, index);
   
     // Trigger change detection
     this.cdRef.detectChanges();
@@ -559,7 +559,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   initializeFeedbackBindings(): void {
     this.feedbackBindings = this.optionBindings.map((optionBinding, idx) =>
-      this.getFeedbackP(optionBinding, idx)
+      this.getFeedbackBindings(optionBinding, idx)
     );
   }
 
