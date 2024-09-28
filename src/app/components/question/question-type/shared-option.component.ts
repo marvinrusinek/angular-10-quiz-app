@@ -535,12 +535,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   shouldDisplayFeedback(optionBinding: OptionBindings, index: number): boolean {
-    const optionId = optionBinding.option.optionId !== undefined ? optionBinding.option.optionId : index;
-    const result = this.showFeedback && this.selectedOptionIndex !== null && index === this.selectedOptionIndex;
+    const optionId = optionBinding.option.optionId ?? index;
+    const result = this.showFeedback && this.selectedOptionIndex === index;
     const resultForOption = this.showFeedbackForOption[optionId] ?? false;
     const finalResult = result || resultForOption;
     console.log('shouldDisplayFeedback called with index:', index, 'optionId:', optionId, 'result:', finalResult); // Debug log
-    return optionBinding.option && optionBinding.option.feedback && finalResult;
+    return !!optionBinding.option.feedback && finalResult;
   }
   
   shouldShowIcon(option: Option): boolean {
