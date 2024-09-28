@@ -134,12 +134,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.currentQuestion = this.config.currentQuestion;
     this.optionsToDisplay = this.config.optionsToDisplay || [];
 
+    this.initializeOptionBindings();
+
     // Ensure feedback property is set
     for (const [idx, option] of this.optionsToDisplay.entries()) {
       if (!option.feedback) {
         const optionBinding = this.optionBindings[idx];
         if (optionBinding && optionBinding.option) {
           option.feedback = optionBinding.option.feedback;
+          console.log("MY OPTION FEEDBACK", option.feedback);
           console.log(`Setting feedback for option ${idx}: ${option.feedback}`);
         } else {
           console.warn(`No optionBinding found for index ${idx}`);
@@ -156,7 +159,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.highlightCorrectAfterIncorrect = this.config.highlightCorrectAfterIncorrect || false;
     this.shouldResetBackground = this.config.shouldResetBackground || false;
 
-    this.initializeOptionBindings();
     this.initializeFeedbackBindings();
 
     console.log('SharedOptionComponent initialized with config:', this.config);
