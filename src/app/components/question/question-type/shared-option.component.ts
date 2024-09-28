@@ -56,6 +56,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @Input() selectedOptionIndex: number | null = null;
   optionBindings: OptionBindings[] = [];
   feedbackBindings: any[] = [];
+  feedbackConfig: any[] = [];
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
   isSubmitted = false;
@@ -338,9 +339,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('Question already submitted, ignoring click');
       return;
     }
+
+    const optionId = option.optionId ?? index;
   
     // Check if the option has already been clicked
-    if (this.clickedOptionIds.has(option.optionId ?? index)) {
+    if (this.clickedOptionIds.has(optionId ?? index)) {
       console.log('Option already selected, ignoring click');
       return;
     }
@@ -352,12 +355,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     const optionBinding = this.optionBindings[index];
     optionBinding.option.showIcon = true;
-    this.iconVisibility[option.optionId] = true;
+    this.iconVisibility[optionId] = true;
 
     this.showFeedback = true;
-    this.showFeedbackForOption[option.optionId ?? index] = true;
+    this.showFeedbackForOption[optionId ?? index] = true;
 
-    this.clickedOptionIds.add(option.optionId ?? index);
+    this.clickedOptionIds.add(optionId ?? index);
   
     if (this.config.type === 'single') {
       // For single-select, update only the clicked option
@@ -367,7 +370,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
       this.selectedOption = option;
       this.selectedOptions.clear();
-      this.selectedOptions.add(option.optionId);
+      this.selectedOptions.add(optionId);
   
       // Store the selected option
       this.selectedOptionService.setSelectedOption(option as SelectedOption);
@@ -375,15 +378,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // For multiple-select, toggle the selection
       option.selected = !option.selected;
       if (option.selected) {
-        this.selectedOptions.add(option.optionId);
+        this.selectedOptions.add(optionId);
       } else {
-        this.selectedOptions.delete(option.optionId);
+        this.selectedOptions.delete(optionId);
       }
     }
   
     optionBinding.isSelected = option.selected;
     optionBinding.showFeedback = this.showFeedback;
-    this.showIconForOption[option.optionId] = option.selected;
+    this.showIconForOption[optionId] = option.selected;
   
     this.updateHighlighting();
   
@@ -421,7 +424,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     // Update selectedOptionIndex and showFeedbackForOption
     this.selectedOptionIndex = index;
-    this.showFeedbackForOption[option.optionId ?? index] = true;
+    this.showFeedbackForOption[optionId ?? index] = true;
   
     // Trigger change detection
     this.cdRef.detectChanges();
