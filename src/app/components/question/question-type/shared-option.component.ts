@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChildren } from '@angular/core';
 
+import { FeedbackProps } from '../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../shared/models/Option.model';
 import { OptionBindings } from '../../../shared/models/OptionBindings.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -523,7 +524,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     };
   }
 
-  getFeedbackBindings(option: Option, idx: number): any {
+  getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     return {
       options: this.optionsToDisplay,
       question: this.currentQuestion,
