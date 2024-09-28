@@ -282,23 +282,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     index: number,
     element: MatElement
   ): void {
-    console.log("updateOptionAndUI called with index:", index, "optionBinding:", optionBinding);
     this.handleOptionClick(optionBinding.option, index);
 
     // Update the selected option index
     this.selectedOptionIndex = index;
     this.selectedOptionId = optionBinding.option.optionId ?? index; // Use index as fallback
-    console.log('selectedOptionIndex set to:', this.selectedOptionIndex);
-    console.log('selectedOptionId set to:', this.selectedOptionId);
 
     // Ensure showFeedback is set to true when an option is clicked
     this.showFeedback = true;
-    console.log('showFeedback set to:', this.showFeedback);
 
     // Update showFeedbackForOption
     const optionId = optionBinding.option.optionId ?? index;
     this.showFeedbackForOption[optionId] = true;
-    console.log('showFeedbackForOption updated:', this.showFeedbackForOption);
 
     if (optionBinding.option.optionId === undefined) {
       console.error('optionId is undefined for option:', optionBinding.option);
