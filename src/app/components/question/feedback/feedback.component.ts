@@ -26,15 +26,27 @@ export class FeedbackComponent implements OnChanges {
     }
   }
 
-  private shouldUpdateFeedback(changes: SimpleChanges): boolean {
+  /* private shouldUpdateFeedback(changes: SimpleChanges): boolean {
     return 'selectedOption' in changes ||
            'correctMessage' in changes || 
            'showFeedback' in changes || 
            'feedback' in changes;
+  } */
+  private shouldUpdateFeedback(changes: SimpleChanges): boolean {
+    return 'feedbackConfig' in changes;
   }
 
-  private updateFeedback(): void {
+  /* private updateFeedback(): void {
     if (this.showFeedback) {
+      this.feedbackMessageClass = this.determineFeedbackMessageClass();
+      this.feedbackPrefix = this.determineFeedbackPrefix();
+      this.updateDisplayMessage();
+    } else {
+      this.displayMessage = '';
+    }
+  } */
+  private updateFeedback(): void {
+    if (this.feedbackConfig && this.feedbackConfig.showFeedback) {
       this.feedbackMessageClass = this.determineFeedbackMessageClass();
       this.feedbackPrefix = this.determineFeedbackPrefix();
       this.updateDisplayMessage();
@@ -43,7 +55,7 @@ export class FeedbackComponent implements OnChanges {
     }
   }
 
-  determineFeedbackPrefix(): string {
+  /* determineFeedbackPrefix(): string {
     if (!this.selectedOption) {
       return '';
     }
@@ -51,17 +63,40 @@ export class FeedbackComponent implements OnChanges {
     return this.selectedOption.correct
       ? "You're right! " 
       : "That's wrong. ";
+  } */
+  private determineFeedbackPrefix(): string {
+    if (!this.feedbackConfig || !this.feedbackConfig.selectedOption) {
+      return '';
+    }
+    
+    return this.feedbackConfig.selectedOption.correct
+      ? "You're right! " 
+      : "That's wrong. ";
   }
 
-  determineFeedbackMessageClass(): string {
+  /* determineFeedbackMessageClass(): string {
     return this.selectedOption && this.selectedOption.correct 
+      ? 'correct-message' 
+      : 'wrong-message';
+  } */
+  private determineFeedbackMessageClass(): string {
+    return this.feedbackConfig && this.feedbackConfig.selectedOption && this.feedbackConfig.selectedOption.correct 
       ? 'correct-message' 
       : 'wrong-message';
   }
 
-  private updateDisplayMessage(): void {
+  /* private updateDisplayMessage(): void {
     const prefix = this.determineFeedbackPrefix();
     const commonMessage = `${this.correctMessage} ${this.feedback || ''}`;
     this.displayMessage = `${prefix}${commonMessage}`;
+  } */
+  private updateDisplayMessage(): void {
+    if (this.feedbackConfig) {
+      const prefix = this.determineFeedbackPrefix();
+      const commonMessage = `${this.feedbackConfig.correctMessage} ${this.feedbackConfig.feedback || ''}`;
+      this.displayMessage = `${prefix}${commonMessage}`;
+    } else {
+      this.displayMessage = '';
+    }
   }
 }
