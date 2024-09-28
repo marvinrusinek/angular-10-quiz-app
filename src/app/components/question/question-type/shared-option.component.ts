@@ -144,13 +144,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         const optionBinding = this.optionBindings[idx];
         if (optionBinding && optionBinding.option) {
           option.feedback = optionBinding.option.feedback;
-          console.log("MY OPTION FEEDBACK", option.feedback);
-          console.log(`Setting feedback for option ${idx}: ${option.feedback}`);
         } else {
           console.warn(`No optionBinding found for index ${idx}`);
         }
       }
-      console.log(`Option ${idx} after setting feedback:`, option);
     }
   
     const questionType = this.config.currentQuestion.type;
