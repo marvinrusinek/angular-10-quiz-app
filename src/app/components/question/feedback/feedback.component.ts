@@ -9,6 +9,7 @@ import { Option } from '../../../shared/models/Option.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FeedbackComponent implements OnChanges {
+  @Input() feedbackConfig: any;
   @Input() correctMessage: string;
   @Input() selectedOption: Option & { correct: boolean };
   @Input() feedback = '';
