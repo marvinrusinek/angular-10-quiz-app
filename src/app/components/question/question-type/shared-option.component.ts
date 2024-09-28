@@ -558,8 +558,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   initializeFeedbackBindings(): void {
-    this.feedbackBindings = this.optionsToDisplay.map((option, idx) =>
-      this.getFeedbackProps({ option, idx })
+    this.feedbackBindings = this.optionBindings.map((optionBinding, idx) =>
+      this.getFeedbackProps(optionBinding, idx)
     );
   }
 
