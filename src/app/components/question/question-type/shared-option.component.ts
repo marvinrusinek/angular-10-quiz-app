@@ -534,14 +534,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     };
   }
 
-  getFeedbackBindings(optionBinding: OptionBindings, idx: number): any {
-    console.log("OPT BIN", optionBinding.option.feedback);
+  getFeedbackBindings(option: Option, idx: number): any {
+    console.log("OPT BIN", option.feedback); // Add this log to check feedback
     const feedbackProps = {
       options: this.optionsToDisplay,
       question: this.currentQuestion,
-      selectedOption: optionBinding.option,
+      selectedOption: option,
       correctMessage: this.correctMessage,
-      feedback: optionBinding.option.feedback,
+      feedback: option.feedback,
       showFeedback: this.showFeedback,
       idx: idx
     };
