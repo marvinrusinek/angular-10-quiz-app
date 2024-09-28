@@ -532,7 +532,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getFeedbackBindings(option: Option, idx: number): any {
-    const feedbackProps = {
+    return {
       options: this.optionsToDisplay,
       question: this.currentQuestion,
       selectedOption: option,
@@ -541,8 +541,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       showFeedback: this.showFeedback,
       idx: idx
     };
-    console.log('Feedback Props:', feedbackProps);
-    return feedbackProps;
   }
 
   initializeOptionBindings(): void {
