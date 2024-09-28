@@ -134,11 +134,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.optionsToDisplay = this.config.optionsToDisplay || [];
 
     // Ensure feedback property is set
-    this.optionsToDisplay.forEach((option, idx) => {
+    for (const [idx, option] of this.optionsToDisplay.entries()) {
       if (!option.feedback) {
         option.feedback = this.optionBindings[idx].option.feedback;
       }
-    });
+    }
     
     const questionType = this.config.currentQuestion.type;
     this.type = this.convertQuestionType(questionType);
