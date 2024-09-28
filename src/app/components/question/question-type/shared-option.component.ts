@@ -17,6 +17,11 @@ interface MatElement {
   _elementRef: { nativeElement: HTMLElement };
 }
 
+interface FeedbackProps {
+  option: Option;
+  idx: number;
+}
+
 @Component({
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
@@ -481,7 +486,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return '';
   }
 
-  getFeedbackProps(optionBinding: OptionBindings) {
+  getFeedbackProps(optionBinding: FeedbackProps) {
     return {
       options: this.optionsToDisplay,
       question: this.currentQuestion,
