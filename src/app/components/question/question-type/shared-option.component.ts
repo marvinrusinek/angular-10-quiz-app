@@ -50,6 +50,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @Input() selectedOptionId: number | null = null;
   @Input() selectedOptionIndex: number | null = null;
   optionBindings: OptionBindings[] = [];
+  feedbackBindings: any[] = [];
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
   isSubmitted = false;
@@ -110,6 +111,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     if (changes.optionsToDisplay) {
       this.initializeOptionBindings();
+      this.initializeFeedbackBindings();
     }
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
@@ -513,6 +515,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   initializeOptionBindings(): void {
     this.optionBindings = this.optionsToDisplay.map((option, idx) =>
       this.getOptionBindings(option, idx)
+    );
+  }
+
+  initializeFeedbackBindings(): void {
+    this.feedbackBindings = this.optionsToDisplay.map((option, idx) =>
+      this.getFeedbackProps({ option, idx })
     );
   }
 
