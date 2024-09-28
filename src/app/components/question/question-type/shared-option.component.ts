@@ -125,6 +125,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   initializeFromConfig(): void {
+    console.log("TEST CONFIG");
     if (!this.config) {
       console.error('SharedOptionComponent: config is not provided');
       return;
@@ -156,6 +157,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.shouldResetBackground = this.config.shouldResetBackground || false;
 
     this.initializeOptionBindings();
+    this.initializeFeedbackBindings();
 
     console.log('SharedOptionComponent initialized with config:', this.config);
   }
@@ -535,9 +537,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   initializeOptionBindings(): void {
-    this.optionBindings = this.optionsToDisplay.map((option, idx) =>
-      this.getOptionBindings(option, idx)
-    );
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const optionBinding = this.getOptionBindings(option, idx);
+      // Ensure feedback property is set
+      if (!option.feedback) {
+        option.feedback = optionBinding.option.feedback;
+        console.log(`Setting feedback for option ${idx}: ${option.feedback}`);
+      }
+      return optionBinding;
+    });
   }
 
   initializeFeedbackBindings(): void {
