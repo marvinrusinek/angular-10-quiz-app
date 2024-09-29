@@ -347,6 +347,7 @@ export class QuizComponent
   }
 
   private initializeNextButtonState(): void {
+    console.log("MY INBS");
     // Initialize local properties
     this.isNextButtonEnabled = false;
     this.isButtonEnabled = false;
