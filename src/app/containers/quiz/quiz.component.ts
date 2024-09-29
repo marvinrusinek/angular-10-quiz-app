@@ -355,7 +355,7 @@ export class QuizComponent
     // Set up the observable for button state
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject,
-      this.quizStateService.isLoading$,
+      this.quizStateService.isLoading$
     ]).pipe(
       map(([isAnswered, isLoading]) => {
         const isEnabled = isAnswered && !isLoading;
