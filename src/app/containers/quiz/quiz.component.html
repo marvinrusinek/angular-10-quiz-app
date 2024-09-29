@@ -86,6 +86,7 @@
               aria-label="Next Question"
               [matTooltip]="nextButtonTooltip$ | async"
               matTooltipPosition="above"
+              [disabled]="!(isButtonEnabled$ | async)"
             >
               <i class="material-icons">navigate_next</i>
             </button>
