@@ -247,7 +247,7 @@ export class QuizStateService {
     this.loadingSubject.next(isLoading);
   }
 
-  setAnswered(isAnswered: boolean) {
+  setAnswered(isAnswered: boolean): void {
     console.log('QuizStateService: setAnswered called with', isAnswered);
     this.answeredSubject.next(isAnswered);
   }
