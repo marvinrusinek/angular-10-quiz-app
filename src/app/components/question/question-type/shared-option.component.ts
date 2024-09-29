@@ -61,6 +61,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   lastSelectedOptionIndex: number | null = null;
   lastSelectedOption: Option | null = null;
   isNavigatingBackwards = false;
+  isOptionSelected = false;
 
   optionTextStyle = {
     color: 'black'
@@ -316,6 +317,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     // Update highlighting
     this.updateHighlighting();
+
+    // Set the selection state to true
+    this.isOptionSelected = true;
+
+    // Update the isAnswered state
+    this.selectedOptionService.isAnsweredSubject.next(true);
   
     this.cdRef.detectChanges();
   }
