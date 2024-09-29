@@ -71,8 +71,9 @@ export class SelectedOptionService {
     const currentFeedback: Record<string, boolean> = { ...this.showFeedbackForOptionSubject.value };
   
     // Set feedback to true for all options
-    if (option.optionId !== undefined) {
-      currentFeedback[option.optionId.toString()] = true;
+    const optionIdKey = (option.optionId ?? '').toString();
+    if (optionIdKey) {
+      currentFeedback[optionIdKey] = true;
     }
   
     // Don't set feedback for other options to false
