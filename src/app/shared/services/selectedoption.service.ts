@@ -23,15 +23,15 @@ export class SelectedOptionService {
   isAnsweredSubject = new BehaviorSubject<boolean>(false);
   isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable();
 
-  // private showFeedbackForOptionSubject = new BehaviorSubject<{ [optionId: number]: boolean }>({});
   private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
   showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
 
   constructor(private quizService: QuizService) {}
 
-  get currentSelectedState(): boolean {
+  // potentially remove...
+  /* get currentSelectedState(): boolean {
     return this.isOptionSelectedSubject.getValue();
-  }
+  } */
 
   // Method to update the selected option state
   selectOption(optionId: number, questionIndex: number, text: string): void {
