@@ -2133,9 +2133,13 @@ export class QuizComponent
   }
 
   private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
+    console.log('checkIfAnswerSelected called:', { isFirstQuestion });
+  
     const isAnswered = await lastValueFrom(
       this.quizService.isAnswered(this.currentQuestionIndex)
     );
+    console.log('isAnswered from quizService:', isAnswered);
+  
     this.selectedOptionService.setAnsweredState(isAnswered);
     this.updateSelectionMessage(isAnswered, isFirstQuestion);
   }
