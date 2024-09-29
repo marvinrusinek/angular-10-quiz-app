@@ -113,12 +113,6 @@ export class SelectedOptionService {
   }
 
   // Observable to get the current option selected state
-  /* isOptionSelected$(): Observable<boolean> {
-    return this.selectedOptionSubject.pipe(
-      map(option => option !== null),
-      distinctUntilChanged()
-    );
-  } */
   isOptionSelected$(): Observable<boolean> {
     return this.selectedOption$.pipe(
       startWith(this.selectedOptionSubject.value), // Emit the current state immediately when subscribed
