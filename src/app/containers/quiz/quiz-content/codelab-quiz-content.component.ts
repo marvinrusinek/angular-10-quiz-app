@@ -636,9 +636,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.quizService.getCurrentOptions()
     ]).pipe(
       map(([currentQuestion, currentOptions]) => {
-        console.log('Current Question:', currentQuestion);
-        console.log('Current Options:', currentOptions);
-
         if (!currentQuestion) {
           return { currentQuestion: null, currentOptions: [] };
         }
