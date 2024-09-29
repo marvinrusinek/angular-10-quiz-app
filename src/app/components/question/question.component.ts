@@ -1074,7 +1074,7 @@ export class QuizQuestionComponent
     if (this.optionSelectionSubscription) {
       this.optionSelectionSubscription.unsubscribe();
     }
-
+  
     this.optionSelectionSubscription = this.selectedOptionService
       .isOptionSelected$()
       .pipe(
@@ -1083,17 +1083,21 @@ export class QuizQuestionComponent
         takeUntil(this.destroy$)
       )
       .subscribe(async (isSelected: boolean) => {
+        console.log('Option selection changed:', { isSelected });
+  
         try {
           this.isOptionSelected = isSelected;
-
+  
           const isAnswered =
             isSelected ||
             (await this.isQuestionAnswered(this.currentQuestionIndex));
+          console.log('isAnswered after option selection:', isAnswered);
+  
           this.selectedOptionService.setAnsweredState(isAnswered);
-
+  
           if (this.shouldUpdateMessageOnSelection(isSelected)) {
             await this.updateSelectionBasedOnState(isSelected);
-
+  
             // Check for asynchronous state changes
             await this.checkAsynchronousStateChanges();
           }
