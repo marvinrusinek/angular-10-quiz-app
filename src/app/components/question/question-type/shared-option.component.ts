@@ -543,6 +543,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
       allOptions: this.optionsToDisplay,
       type: this.type,
+      appHighlightOption: '',
       appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
       appHighlightReset: this.shouldResetBackground,
       appResetBackground: this.shouldResetBackground,
@@ -551,6 +552,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       change: () => this.handleOptionClick(option as SelectedOption, idx),
       disabled: option.selected,
       ariaLabel: 'Option ' + (idx + 1),
+      checked: this.isSelectedOption(option)
     };
   }
 
