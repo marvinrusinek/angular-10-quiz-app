@@ -14,6 +14,7 @@ export interface OptionBindings {
   appResetBackground: boolean;
   optionsToDisplay: Option[];
   isSelected: boolean;
+  checked: boolean;
   change: () => void;
   disabled: boolean;
   ariaLabel: string;
