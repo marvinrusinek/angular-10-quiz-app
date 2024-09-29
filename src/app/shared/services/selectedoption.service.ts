@@ -34,14 +34,11 @@ export class SelectedOptionService {
   }
 
   // Method to update the selected option state
-  /* selectOption(optionId: number): void {
-    // Update selected option logic
-    this.isOptionSelectedSubject.next(true); // An option is selected
-  } */
   selectOption(optionId: number, questionIndex: number, text: string): void {
     console.log('selectOption called with:', { optionId, questionIndex, text });
     const selectedOption: SelectedOption = { optionId, questionIndex, text };
     this.selectedOptionSubject.next(selectedOption);
+    this.isOptionSelectedSubject.next(true); // Indicate that an option is selected
   }
 
   clearSelection(): void {
