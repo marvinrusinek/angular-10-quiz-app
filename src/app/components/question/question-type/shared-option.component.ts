@@ -199,7 +199,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.cdRef.detectChanges();
   }
 
-  getOptionAttributes(optionBinding: OptionBindings) {
+  getOptionAttributes(optionBinding: OptionBindings): OptionBindings {
     return {
       appHighlightOption: '',
       'attr.aria-label': optionBinding.ariaLabel,
@@ -212,7 +212,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       type: optionBinding.type,
       checked: optionBinding.isSelected,
       disabled: optionBinding.disabled,
-      change: optionBinding.change()
+      change: optionBinding.change
     };
   }
 

@@ -1,6 +1,7 @@
 import { Option } from './Option.model';
 
 export interface OptionBindings {
+  appHighlightOption: string;
   option: Option;
   isCorrect: boolean;
   showFeedback: boolean;
