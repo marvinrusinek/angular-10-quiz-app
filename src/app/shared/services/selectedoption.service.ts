@@ -76,6 +76,13 @@ export class SelectedOptionService {
     // Don't set feedback for other options to false
     this.showFeedbackForOptionSubject.next(currentFeedback);
     console.log('SelectedOptionService: Updated feedback state', currentFeedback);
+
+    // Update selectedOptionsMap
+    if (!this.selectedOptionsMap.has(option.questionIndex)) {
+      this.selectedOptionsMap.set(option.questionIndex, []);
+    }
+    this.selectedOptionsMap.get(option.questionIndex)!.push(option);
+    console.log('SelectedOptionService: Updated selectedOptionsMap', this.selectedOptionsMap);
   
     this.updateAnsweredState();
     console.log('SelectedOptionService: Updated answered state');
