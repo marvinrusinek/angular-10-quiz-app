@@ -202,16 +202,22 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   getOptionAttributes(optionBinding: OptionBindings): OptionBindings {
     return {
       appHighlightOption: '',
+      ariaLabel: optionBinding.ariaLabel,
       isSelected: optionBinding.isSelected,
       isCorrect: optionBinding.isCorrect,
       showFeedback: optionBinding.showFeedback,
       showFeedbackForOption: optionBinding.showFeedbackForOption,
       highlightCorrectAfterIncorrect: optionBinding.highlightCorrectAfterIncorrect,
-      allOptions: optionBinding.allOptions,
       type: optionBinding.type,
       checked: optionBinding.isSelected,
       disabled: optionBinding.disabled,
-      change: optionBinding.change
+      change: optionBinding.change,
+      option: optionBinding.option,
+      optionsToDisplay: optionBinding.optionsToDisplay,
+      allOptions: optionBinding.allOptions,
+      appHighlightInputType: optionBinding.appHighlightInputType,
+      appHighlightReset: optionBinding.appHighlightReset,
+      appResetBackground: optionBinding.appResetBackground
     };
   }
 
