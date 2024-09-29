@@ -269,7 +269,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return option.showIcon === true;
   }
 
-  updateOptionAndUI(
+  /* updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
     element: MatElement
@@ -302,6 +302,59 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     };
     console.log("Emitting event from updateOptionAndUI:", eventData);
     this.optionSelected.emit(eventData);
+  
+    this.cdRef.detectChanges();
+  } */
+  updateOptionAndUI(
+    optionBinding: OptionBindings,
+    index: number,
+    element: MatElement
+  ): void {
+    this.handleOptionClick(optionBinding.option, index);
+  
+    // Update the selected option index
+    this.selectedOptionIndex = index;
+    this.selectedOptionId = optionBinding.option.optionId ?? index; // Use index as fallback
+  
+    // Ensure showFeedback is set to true when an option is clicked
+    this.showFeedback = true;
+  
+    // Update showFeedbackForOption
+    const optionId = optionBinding.option.optionId ?? index;
+    this.showFeedbackForOption[optionId] = true;
+  
+    if (optionBinding.option.optionId === undefined) {
+      console.error('optionId is undefined for option:', optionBinding.option);
+    }
+  
+    // Apply attributes
+    this.applyAttributes(element._elementRef.nativeElement, this.getOptionAttributes(optionBinding));
+  
+    // Emit the optionSelected event
+    const eventData = {
+      option: optionBinding.option,
+      index: index,
+      checked: element.checked
+    };
+    console.log("Emitting event from updateOptionAndUI:", eventData);
+    this.optionSelected.emit(eventData);
+  
+    // Handle single-select logic
+    if (this.type === 'single') {
+      // Clear all other selections
+      this.optionBindings.forEach((binding, idx) => {
+        if (idx !== index) {
+          binding.isSelected = false;
+          binding.option.selected = false;
+          this.showFeedbackForOption[binding.option.optionId ?? idx] = false;
+        }
+      });
+  
+      // Set the selected option
+      optionBinding.isSelected = true;
+      optionBinding.option.selected = true;
+      this.selectedOption = optionBinding.option;
+    }
   
     this.cdRef.detectChanges();
   }
