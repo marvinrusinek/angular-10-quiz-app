@@ -202,7 +202,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   getOptionAttributes(optionBinding: OptionBindings): OptionBindings {
     return {
       appHighlightOption: '',
-      'attr.aria-label': optionBinding.ariaLabel,
       isSelected: optionBinding.isSelected,
       isCorrect: optionBinding.isCorrect,
       showFeedback: optionBinding.showFeedback,
@@ -297,7 +296,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedbackForOption[optionId] = true;
 
     // Apply attributes
-    this.applyAttributes(element._elementRef.nativeElement, this.getOptionAttributes(optionBinding));
+    const attributes = this.getOptionAttributes(optionBinding);
+    this.applyAttributes(element._elementRef.nativeElement, attributes);
+
+    // Set the aria-label attribute directly
+    element._elementRef.nativeElement.setAttribute('aria-label', optionBinding.ariaLabel);
   
     // Emit the optionSelected event
     const eventData = {
