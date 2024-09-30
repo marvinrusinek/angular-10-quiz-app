@@ -438,6 +438,8 @@ export class QuizComponent
       }
     }
 
+    this.selectedOptionService.toggleSelectedOption(this.currentQuestionIndex, option);
+
     /* this.isNextButtonEnabled = this.selectedOptions.length > 0;
     this.currentQuestionAnswered = this.isNextButtonEnabled;
     console.log('Next button enabled:', this.isNextButtonEnabled);
