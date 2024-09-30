@@ -29,7 +29,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   highlightDirectives!: QueryList<HighlightOptionDirective>;
   @Output() optionClicked = new EventEmitter<{
     option: SelectedOption,
-    index: number
+    index: number,
+    checked: boolean
   }>();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
   @Output() optionChanged = new EventEmitter<Option>();
@@ -441,7 +442,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       questionIndex: this.quizService.currentQuestionIndex
     };
   
-    this.optionClicked.emit({ option: selectedOption, index });
+    this.optionClicked.emit({ option: selectedOption, index, checked: true });
 
     // Update selectedOptionIndex and showFeedbackForOption
     this.selectedOptionIndex = index;
