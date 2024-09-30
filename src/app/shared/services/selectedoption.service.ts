@@ -242,9 +242,14 @@ export class SelectedOptionService {
     this.updateAnsweredState();
   }
   
-  private updateAnsweredState(): void {
+  /* private updateAnsweredState(): void {
     const hasSelectedOptions = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
     hasSelectedOptions ? this.setAnsweredState(true) : this.setAnsweredState(false);
+  } */
+  private updateAnsweredState(): void {
+    const hasSelectedOptions = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
+    console.log('SelectedOptionService: Calculated hasSelectedOptions:', hasSelectedOptions);
+    this.setAnsweredState(hasSelectedOptions);
   }
 
   setAnsweredState(isAnswered: boolean): void {
