@@ -176,6 +176,8 @@ export class SelectedOptionService {
 
   // Method to add or remove a selected option for a question
   toggleSelectedOption(questionIndex: number, option: SelectedOption): void {
+    console.log('toggleSelectedOption called with', { questionIndex, option });
+
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
@@ -192,6 +194,8 @@ export class SelectedOptionService {
     }
 
     this.selectedOptionsMap.set(questionIndex, options);
+    console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
+    
     this.updateAnsweredState();
   }
 
