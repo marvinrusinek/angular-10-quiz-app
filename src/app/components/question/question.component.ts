@@ -1351,7 +1351,7 @@ export class QuizQuestionComponent
       }
 
       // Process the selected option
-      await this.handleOptionProcessingAndFeedback(option, index);
+      await this.handleOptionProcessingAndFeedback(option, index, checked);
       await this.updateQuestionState(option);
       this.handleCorrectAnswers(option);
 
@@ -1371,11 +1371,11 @@ export class QuizQuestionComponent
     return questionState;
   }
 
-  private async handleOptionProcessingAndFeedback(option: SelectedOption, index: number): Promise<void> {
+  private async handleOptionProcessingAndFeedback(option: SelectedOption, index: number, checked: boolean): Promise<void> {
     console.log(`Handling option processing and feedback for question ${this.currentQuestionIndex}, option ${index}`);
   
     try {
-      await super.onOptionClicked(option, index);
+      await super.onOptionClicked(option, index, checked);
   
       this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
       this.selectedOption = { ...option, optionId: index + 1 };
