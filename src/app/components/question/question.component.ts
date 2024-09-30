@@ -1318,7 +1318,8 @@ export class QuizQuestionComponent
   }
 
   public async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
-    console.log("MY LOG 12345");
+    console.log('onOptionClicked called with:', { option, index, checked });
+
     if (!option) {
       console.error('Option is undefined');
       return;
@@ -1328,7 +1329,7 @@ export class QuizQuestionComponent
 
     const isChecked = !option.selected; // Toggle the checked state
     option.selected = isChecked; // Update the option's selected state
-    this.optionSelected.emit({ option, index, checked }); // Emit the selected option
+    this.optionSelected.emit({ option, index, checked: isChecked }); // Emit the selected option
     
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswerSelected(false);
