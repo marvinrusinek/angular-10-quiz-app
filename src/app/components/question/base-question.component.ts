@@ -280,7 +280,7 @@ export abstract class BaseQuestionComponent
 
   public async onOptionClicked(
     option: SelectedOption,
-    index: number
+    index: number, checked: boolean
   ): Promise<void> {
     this.updateSelectedOption(index);
 
