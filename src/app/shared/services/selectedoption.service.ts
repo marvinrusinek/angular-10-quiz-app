@@ -244,6 +244,7 @@ export class SelectedOptionService {
   
   private updateAnsweredState(): void {
     const hasSelectedOptions = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
+    console.log('SelectedOptionService: Calculated hasSelectedOptions:', hasSelectedOptions);
     hasSelectedOptions ? this.setAnsweredState(true) : this.setAnsweredState(false);
   }
 
