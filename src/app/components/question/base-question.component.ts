@@ -280,7 +280,8 @@ export abstract class BaseQuestionComponent
 
   public async onOptionClicked(
     option: SelectedOption,
-    index: number, checked: boolean
+    index: number,
+    checked: boolean
   ): Promise<void> {
     this.updateSelectedOption(index);
 
@@ -307,7 +308,7 @@ export abstract class BaseQuestionComponent
         }
       } else {
         // For multiple selection, toggle the clicked option
-        option.selected = !option.selected;
+        option.selected = checked;
       }
   
       this.sharedOptionConfig.selectedOption = option;
