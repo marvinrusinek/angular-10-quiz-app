@@ -1326,6 +1326,9 @@ export class QuizQuestionComponent
       return;
     }
 
+    // Call the base class method
+    await super.onOptionClicked(option, index, checked);
+
     this.displayExplanation = false; // Reset display flag
 
     const isChecked = !option.selected; // Toggle the checked state
