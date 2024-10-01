@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChildren } from '@angular/core';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatRadioButton } from '@angular/material/radio';
 
 import { FeedbackProps } from '../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -276,9 +278,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   updateOptionAndUI(
-    optionBinding: OptionBindings,
+    optionBinding: any, 
     index: number,
-    element: MatElement
+    element: MatCheckbox | MatRadioButton
   ): void {
     // Prevent selecting an option more than once
     if (optionBinding.isSelected) {
@@ -286,7 +288,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
   
-    this.handleOptionClick(optionBinding.option, index);
+    this.handleOptionClick(optionBinding.option as SelectedOption, index, element.checked);
   
     // Update the selected option index
     this.selectedOptionIndex = index;
@@ -356,7 +358,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  async handleOptionClick(option: Option, index: number): Promise<void> {
+  async handleOptionClick(option: SelectedOption, index: number, checked: boolean): Promise<void> {
     if (this.isSubmitted) {
       console.log('Question already submitted, ignoring click');
       return;
