@@ -1,3 +1,6 @@
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatRadioButton } from '@angular/material/radio';
+
 import { Option } from './Option.model';
 
 export interface OptionBindings {
@@ -15,7 +18,7 @@ export interface OptionBindings {
   optionsToDisplay: Option[];
   isSelected: boolean;
   checked: boolean;
-  change: () => void;
+  change: (element: MatCheckbox | MatRadioButton) => void;
   disabled: boolean;
   ariaLabel: string;
 }
