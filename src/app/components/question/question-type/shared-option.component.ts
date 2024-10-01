@@ -447,9 +447,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     // Emit the event to the parent component (QuizQuestionComponent)
     this.optionClicked.emit({ option: selectedOption, index, checked: true });
 
-    // Call onOptionClicked in the parent component
-    this.onOptionClicked(selectedOption, index, checked);
-
     // Update selectedOptionIndex and showFeedbackForOption
     this.selectedOptionIndex = index;
     this.showFeedbackForOption[optionId ?? index] = true;
