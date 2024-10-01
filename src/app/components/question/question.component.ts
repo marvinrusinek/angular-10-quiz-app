@@ -1322,59 +1322,59 @@ export class QuizQuestionComponent
     console.log('onOptionClicked called with:', { option, index, checked });
 
     if (!option) {
-        console.error('Option is undefined');
-        return;
+      console.error('Option is undefined');
+      return;
     }
 
     try {
-        // Call the base class method
-        await super.onOptionClicked(option, index, checked);
+      // Call the base class method
+      await super.onOptionClicked(option, index, checked);
 
-        this.displayExplanation = false; // Reset display flag
+      this.displayExplanation = false; // Reset display flag
 
-        const isChecked = !option.selected; // Toggle the checked state
-        option.selected = isChecked; // Update the option's selected state
-        this.optionSelected.emit({ option, index, checked: isChecked }); // Emit the selected option
+      const isChecked = !option.selected; // Toggle the checked state
+      option.selected = isChecked; // Update the option's selected state
+      this.optionSelected.emit({ option, index, checked: isChecked }); // Emit the selected option
 
-        // Set loading state and reset answer selected state
-        this.quizStateService.setLoading(true);
-        this.quizStateService.setAnswerSelected(false);
+      // Set loading state and reset answer selected state
+      this.quizStateService.setLoading(true);
+      this.quizStateService.setAnswerSelected(false);
 
-        // Update selected option services
-        this.selectedOptionService.setSelectedOption(option);
-        this.selectedOptionService.selectOption(option.optionId, this.currentQuestionIndex, option.text);
-        this.selectedOptionService.toggleSelectedOption(this.currentQuestionIndex, option);
+      // Update selected option services
+      this.selectedOptionService.setSelectedOption(option);
+      this.selectedOptionService.selectOption(option.optionId, this.currentQuestionIndex, option.text);
+      this.selectedOptionService.toggleSelectedOption(this.currentQuestionIndex, option);
 
-        // Ensure loading state is started if not already loading
-        if (!this.quizStateService.isLoading()) {
-            this.quizStateService.startLoading();
-        }
+      // Ensure loading state is started if not already loading
+      if (!this.quizStateService.isLoading()) {
+        this.quizStateService.startLoading();
+      }
 
-        // Initialize question state and mark as answered
-        const questionState = this.initializeQuestionState();
+      // Initialize question state and mark as answered
+      const questionState = this.initializeQuestionState();
         questionState.isAnswered = true;
 
-        // Set answer selected state if not already set
-        if (!this.quizStateService.isAnswered$) {
-            this.quizStateService.setAnswerSelected(true);
-        }
+      // Set answer selected state if not already set
+      if (!this.quizStateService.isAnswered$) {
+        this.quizStateService.setAnswerSelected(true);
+      }
 
-        // Process the selected option and update question state
-        await this.handleOptionProcessingAndFeedback(option, index, checked);
-        await this.updateQuestionState(option);
+      // Process the selected option and update question state
+      await this.handleOptionProcessingAndFeedback(option, index, checked);
+      await this.updateQuestionState(option);
 
-        // Handle correct answers and update feedback
-        this.handleCorrectAnswers(option);
-        this.updateFeedback(option);
+      // Handle correct answers and update feedback
+      this.handleCorrectAnswers(option);
+      this.updateFeedback(option);
 
-        // Finalize option selection
-        await this.finalizeOptionSelection(option, index, questionState);
+      // Finalize option selection
+      await this.finalizeOptionSelection(option, index, questionState);
     } catch (error) {
-        // Handle any errors that occur during the process
-        this.handleError(error);
+      // Handle any errors that occur during the process
+      this.handleError(error);
     } finally {
-        // Ensure loading state is finalized
-        this.finalizeLoadingState();
+      // Ensure loading state is finalized
+      this.finalizeLoadingState();
     }
   }
 
