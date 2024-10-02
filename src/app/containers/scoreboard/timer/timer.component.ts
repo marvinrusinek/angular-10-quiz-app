@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { concat, Observable } from 'rxjs';
-import { first, map } from 'rxjs/operators';
+import { catchError, first, map } from 'rxjs/operators';
 
 import { TimerService } from '../../../shared/services/timer.service';
 import { CountdownService } from '../../../shared/services/countdown.service';
@@ -20,7 +20,7 @@ enum TimerType {
 export class TimerComponent implements OnInit {
   timerType = TimerType;
   timeLeft$!: Observable<number>;
-  answer: number;
+  answer = 0;
   timePerQuestion = 30;
   time$: Observable<number>;
   start$: Observable<number>;
@@ -42,6 +42,11 @@ export class TimerComponent implements OnInit {
     this.concat$ = concat(
       this.start$.pipe(first(), map(value => +value)),
       this.reset$.pipe(first(), map(value => +value))
+    ).pipe(
+      catchError(err => {
+        console.error('Error in concat$', err);
+        return [];
+      })
     ) as Observable<number>;
   
     // Default timer setup
@@ -51,16 +56,18 @@ export class TimerComponent implements OnInit {
   setTimerType(type: TimerType): void {
     if (this.currentTimerType !== type) {
       this.currentTimerType = type;
-      switch (type) {
-        case TimerType.Countdown:
-          this.timeLeft$ = this.countdownService.startCountdown(this.timePerQuestion);
-          break;
-        case TimerType.Stopwatch:
-          this.timeLeft$ = this.stopwatchService.startStopwatch();
-          break;
-        default:
-          console.error(`Invalid timer type: ${type}`);
-      }
+      this.timeLeft$ = this.getTimeObservable(type);
+    }
+  }
+  
+  private getTimeObservable(type: TimerType): Observable<number> {
+    switch (type) {
+      case TimerType.Countdown:
+        return this.countdownService.startCountdown(this.timePerQuestion);
+      case TimerType.Stopwatch:
+        return this.stopwatchService.startStopwatch();
+      default:
+        throw new Error(`Invalid timer type: ${type}`);
     }
   }
 }
