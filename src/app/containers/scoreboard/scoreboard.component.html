@@ -1,4 +1,4 @@
-<mat-jumbotron>
+<!--<mat-jumbotron>
   <mat-jumbotron-content>
     <section class="scoreboard">
       <codelab-scoreboard-score class="scoreboard-score"></codelab-scoreboard-score>
@@ -7,5 +7,17 @@
       </span>
       <codelab-scoreboard-timer class="scoreboard-timer"></codelab-scoreboard-timer>
     </section>
+  </mat-jumbotron-content>
+</mat-jumbotron>-->
+
+<mat-jumbotron>
+  <mat-jumbotron-content>
+    <main class="scoreboard">
+      <codelab-scoreboard-score class="scoreboard__score"></codelab-scoreboard-score>
+      <span class="scoreboard__badge" i18n *ngIf="badgeText" role="status">
+        {{ badgeText }}
+      </span>
+      <codelab-scoreboard-timer class="scoreboard__timer"></codelab-scoreboard-timer>
+    </main>
   </mat-jumbotron-content>
 </mat-jumbotron>
