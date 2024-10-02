@@ -9,7 +9,7 @@ export class SelectionMessageService {
 
   selectionMessage$: Observable<string> = this.selectionMessageSubject
     .asObservable()
-    .pipe<string>(
+    .pipe(
       distinctUntilChanged(),
       debounceTime(100)
     );
