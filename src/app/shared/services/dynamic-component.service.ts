@@ -1,4 +1,4 @@
-import { Injectable, ComponentFactoryResolver, ViewContainerRef, Type } from '@angular/core';
+import { ComponentRef, Injectable, ComponentFactoryResolver, ViewContainerRef, Type } from '@angular/core';
 
 import { MultipleAnswerComponent } from '../../components/question/question-type/multiple-answer/multiple-answer.component';
 import { SingleAnswerComponent } from '../../components/question/question-type/single-answer/single-answer.component';
@@ -7,7 +7,7 @@ import { SingleAnswerComponent } from '../../components/question/question-type/s
 export class DynamicComponentService {
   constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
 
-  async loadComponent<T>(container: ViewContainerRef, multipleAnswer: boolean): Promise<ComponentRef<T>> {
+  public async loadComponent<T>(container: ViewContainerRef, multipleAnswer: boolean): Promise<ComponentRef<T>> {
     const component = multipleAnswer
       ? (await this.importComponent('multiple')).MultipleAnswerComponent as Type<T>
       : (await this.importComponent('single')).SingleAnswerComponent as Type<T>;
