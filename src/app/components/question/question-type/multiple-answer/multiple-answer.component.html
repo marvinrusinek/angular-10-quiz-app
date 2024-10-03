@@ -2,4 +2,5 @@
   [type]="'multiple'"
   [config]="sharedOptionConfig"
   [correctMessage]="correctMessage"
+  (optionSelected)="onOptionClicked($event.option, $event.index, $event.checked)"
 ></app-shared-option>
