@@ -453,6 +453,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     // Assign feedbackConfig using getFeedbackProps
     this.feedbackConfig[index] = this.getFeedbackBindings(option, index);
+
+    this.currentFeedbackConfig = 
   
     // Trigger change detection
     this.cdRef.detectChanges();
