@@ -280,13 +280,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   ): void {
     const checked = element.checked;
 
-    this.currentFeedbackConfig = this.getFeedbackBindings(optionBinding.option, index);
-
     // Prevent selecting an option more than once
     if (optionBinding.isSelected) {
       console.log("Option already selected:", optionBinding.option);
       return;
     }
+
+    this.currentFeedbackConfig = this.getFeedbackBindings(optionBinding.option, index);
   
     this.handleOptionClick(optionBinding.option as SelectedOption, index, element.checked);
   
