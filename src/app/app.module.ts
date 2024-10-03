@@ -23,6 +23,7 @@ import { IonicModule } from '@ionic/angular';
 import { AngMusicPlayerModule } from 'ang-music-player';
 
 import { AppComponent } from './app.component';
+import { BaseQuestionComponent } from './components/question/base-question.component';
 import { IntroductionComponent } from './containers/introduction/introduction.component';
 import { QuizComponent } from './containers/quiz/quiz.component';
 import { QuizQuestionComponent } from './components/question/question.component';
@@ -67,6 +68,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
 @NgModule({
   declarations: [
     AppComponent,
+    BaseQuestionComponent,
     IntroductionComponent,
     QuizQuestionComponent,
     QuizComponent,
