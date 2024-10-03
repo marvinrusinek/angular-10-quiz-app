@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  ComponentRef,
   ComponentFactoryResolver,
   ElementRef,
   EventEmitter,
@@ -586,17 +587,18 @@ export class QuizQuestionComponent
   async loadDynamicComponent(): Promise<void> {
     if (this.dynamicAnswerContainer) {
       this.dynamicAnswerContainer.clear();
-
+  
       const isMultipleAnswer = await firstValueFrom(
         this.quizStateService.isMultipleAnswerQuestion(this.question)
       );
-
-      const componentRef = await this.dynamicComponentService.loadComponent(
+  
+      const componentRef: ComponentRef<BaseQuestionComponent> = await this.dynamicComponentService.loadComponent(
         this.dynamicAnswerContainer,
         isMultipleAnswer
       );
+  
       if (componentRef.instance) {
-        const instance = componentRef.instance as DynamicComponent;
+        const instance = componentRef.instance as BaseQuestionComponent;
         instance.questionForm = this.questionForm;
         instance.question = this.question;
         instance.optionsToDisplay = [...this.optionsToDisplay];
@@ -616,9 +618,7 @@ export class QuizQuestionComponent
         console.error('Component instance is undefined');
       }
     } else {
-      console.error(
-        'dynamicAnswerContainer is still undefined in QuizQuestionComponent'
-      );
+      console.error('dynamicAnswerContainer is still undefined in QuizQuestionComponent');
     }
   }
 
