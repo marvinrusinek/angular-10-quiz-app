@@ -274,7 +274,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   updateOptionAndUI(
-    optionBinding: any, 
+    optionBinding: OptionBindings, 
     index: number,
     element: MatCheckbox | MatRadioButton
   ): void {
