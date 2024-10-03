@@ -278,7 +278,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     element: MatCheckbox | MatRadioButton
   ): void {
     const checked = element.checked;
-    
+
     // Prevent selecting an option more than once
     if (optionBinding.isSelected) {
       console.log("Option already selected:", optionBinding.option);
@@ -312,7 +312,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     const eventData = {
       option: optionBinding.option,
       index: index,
-      checked: element.checked
+      checked: checked
     };
     console.log("Emitting event from updateOptionAndUI:", eventData);
     this.optionSelected.emit(eventData);
