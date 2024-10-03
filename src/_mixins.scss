@@ -35,7 +35,7 @@
   @include leader;
 }
 
-span.scoreboard {
+span.scoreboard__time {
   @include scoreboard-span;
 }
 
