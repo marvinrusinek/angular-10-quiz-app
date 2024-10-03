@@ -15,11 +15,6 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
 import { HighlightOptionDirective } from '../../../directives/highlight-option.directive';
 
-interface MatElement {
-  checked: boolean;
-  _elementRef: { nativeElement: HTMLElement };
-}
-
 @Component({
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
