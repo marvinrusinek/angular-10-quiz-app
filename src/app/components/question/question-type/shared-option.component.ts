@@ -51,6 +51,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   optionBindings: OptionBindings[] = [];
   feedbackBindings: any[] = [];
   feedbackConfig: any[] = [];
+  currentFeedbackConfig: any;
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
   isSubmitted = false;
@@ -278,6 +279,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     element: MatCheckbox | MatRadioButton
   ): void {
     const checked = element.checked;
+
+    this.currentFeedbackConfig = this.getFeedbackBindings(optionBinding.option, index);
 
     // Prevent selecting an option more than once
     if (optionBinding.isSelected) {
