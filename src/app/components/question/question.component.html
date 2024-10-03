@@ -1,9 +1,15 @@
 <ng-container *ngIf="shouldRenderComponent">
   <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
+    <!-- Dynamic component container -->
     <ng-container #dynamicAnswerContainer></ng-container>
 
-    <div *ngIf="isLoading" class="loading-spinner" aria-label="Loading"></div>
-    <div *ngIf="shouldDisplayOptions">
+    <!-- Loading spinner -->
+    <div *ngIf="isLoading" class="loading-spinner" aria-label="Loading">
+      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+    </div>
+
+    <!-- Options content -->
+    <div *ngIf="shouldDisplayOptions" class="options-container">
       <!-- Options content here -->
     </div>
   </form>
