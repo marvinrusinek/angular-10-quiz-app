@@ -215,6 +215,7 @@ export class QuizQuestionComponent
     protected el: ElementRef
   ) {
     super(
+      null,
       fb,
       dynamicComponentService,
       quizService,
