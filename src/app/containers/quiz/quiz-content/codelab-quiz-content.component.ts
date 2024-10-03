@@ -687,7 +687,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     });
 
     const { currentQuestion, currentOptions } = currentQuizData;
-    console.log("MY CQ123", currentQuestion);
 
     if (!this.currentQuestion) {
       console.error('No current question found in data:', currentQuizData);
