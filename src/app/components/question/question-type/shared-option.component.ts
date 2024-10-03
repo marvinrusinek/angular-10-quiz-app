@@ -317,7 +317,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     // Set the selected option
     optionBinding.isSelected = true;
-    optionBinding.option.selected = true;
+    optionBinding.option.selected = checked;
     this.selectedOption = optionBinding.option;
   
     // Update highlighting
