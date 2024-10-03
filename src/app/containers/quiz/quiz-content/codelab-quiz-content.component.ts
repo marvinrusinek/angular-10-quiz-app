@@ -539,17 +539,30 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           isExplanationDisplayed,
           formattedExplanation
         });
-      
+    
+        // Check if currentQuestion is null and handle it
+        if (!currentQuizData.currentQuestion) {
+          console.warn('No current question found in data:', currentQuizData);
+          return of({
+            currentQuestion: { questionText: 'No question available' }, // Provide a default object
+            currentOptions: [],
+            options: [],
+            questionText: 'No question available',
+            explanationText: '',
+            correctAnswersText: '',
+            isExplanationDisplayed: false,
+            isNavigatingToPrevious: false
+          } as CombinedQuestionDataType);
+        }
+    
         // Ensure currentQuizData is an object with all necessary properties
         const completeQuizData: CombinedQuestionDataType = {
           ...currentQuizData,
-          questionText: '',
-          currentQuestion: null,
-          options: [],
+          questionText: currentQuizData.currentQuestion.questionText || 'No question text available',
           isNavigatingToPrevious: false,
           isExplanationDisplayed
         };
-      
+    
         return this.calculateCombinedQuestionData(
           completeQuizData, // Pass the complete object
           +numberOfCorrectAnswers,
@@ -560,10 +573,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       catchError((error: Error) => {
         console.error('Error combining quiz data:', error);
         return of({
-          currentQuestion: null,
+          currentQuestion: { questionText: 'Error loading question' }, // Provide a default object
           currentOptions: [],
           options: [],
-          questionText: '',
+          questionText: 'Error loading question',
           explanationText: '',
           correctAnswersText: '',
           isExplanationDisplayed: false,
