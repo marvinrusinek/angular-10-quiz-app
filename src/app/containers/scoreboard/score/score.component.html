@@ -4,7 +4,7 @@
       <button
         mat-button
         [matMenuTriggerFor]="displayScoreMenu"
-        aria-label="score display menu"
+        aria-label="Score display menu"
       >
         <span class="leader" i18n>Score &#x25BC;</span>
       </button>
@@ -13,7 +13,9 @@
           mat-menu-item
           name="numerical"
           data-i18n="numerical"
+          aria-label="Display numerical score"
           (click)="toggleScoreDisplay('numerical')"
+          i18n="@@numerical"
         >
           Numerical
         </button>
@@ -21,7 +23,9 @@
           mat-menu-item
           name="percentage"
           data-i18n="percentage"
+          aria-label="Display percentage score"
           (click)="toggleScoreDisplay('percentage')"
+          i18n="@@percentage"
         >
           Percentage
         </button>
