@@ -596,23 +596,20 @@ export class QuizQuestionComponent
         isMultipleAnswer
       );
       if (componentRef.instance) {
-        componentRef.instance.questionForm = this.questionForm;
-        componentRef.instance.question = this.question;
-        componentRef.instance.optionsToDisplay = [...this.optionsToDisplay];
-
-        componentRef.instance.quizQuestionComponentOnOptionClicked =
-          this.onOptionClicked.bind(this);
-
-        // Directly pass the onOptionClicked method to the dynamic component
-        if (typeof componentRef.instance.onOptionClicked === 'undefined') {
+        const instance = componentRef.instance as DynamicComponent;
+        instance.questionForm = this.questionForm;
+        instance.question = this.question;
+        instance.optionsToDisplay = [...this.optionsToDisplay];
+  
+        instance.quizQuestionComponentOnOptionClicked = this.onOptionClicked.bind(this);
+  
+        if (typeof instance.onOptionClicked === 'undefined') {
           console.log('Setting onOptionClicked in dynamic component');
-          componentRef.instance.onOptionClicked = this.onOptionClicked.bind(this);
+          instance.onOptionClicked = this.onOptionClicked.bind(this);
         } else {
-          console.warn(
-            'onOptionClicked is already defined on the dynamic component'
-          );
+          console.warn('onOptionClicked is already defined on the dynamic component');
         }
-
+  
         componentRef.changeDetectorRef.markForCheck();
         console.log('Change detection triggered for dynamic component');
       } else {
