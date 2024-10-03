@@ -286,7 +286,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.currentFeedbackConfig = this.getFeedbackBindings(optionBinding.option, index);
+    // this.currentFeedbackConfig = this.getFeedbackBindings(optionBinding.option, index);
   
     this.handleOptionClick(optionBinding.option as SelectedOption, index, element.checked);
   
@@ -452,9 +452,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedbackForOption[optionId ?? index] = true;
 
     // Assign feedbackConfig using getFeedbackProps
-    this.feedbackConfig[index] = this.getFeedbackBindings(option, index);
-
-    this.currentFeedbackConfig = 
+    this.currentFeedbackConfig = this.getFeedbackBindings(option, index);
+    this.feedbackConfig[index] = this.currentFeedbackConfig;
   
     // Trigger change detection
     this.cdRef.detectChanges();
