@@ -681,7 +681,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         currentQuestion: null,
         currentOptions: [],
         options: [],
-        questionText: '',
+        questionText: 'No question available',
         explanationText: '',
         correctAnswersText: '',
         isExplanationDisplayed: false,
