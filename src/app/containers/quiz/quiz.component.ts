@@ -2620,29 +2620,22 @@ export class QuizComponent
     this.timerService.resetTimer();
   }
 
-  setDisplayStateForExplanationsAfterRestart(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const explanationObservable =
-        this.explanationTextService.getFormattedExplanationTextForQuestion(
-          this.currentQuestionIndex
-        );
-
-      explanationObservable.subscribe({
-        next: (explanation: string) => {
-          if (explanation) {
-            this.explanationTextService.setExplanationText(explanation);
-            this.explanationTextService.setShouldDisplayExplanation(true);
-            resolve();
-          } else {
-            console.warn('No explanation available for the first question');
-            reject('No explanation available');
-          }
-        },
-        error: (error) => {
-          console.error('Error fetching explanation:', error);
-          reject('Error fetching explanation');
-        },
-      });
-    });
+  async setDisplayStateForExplanationsAfterRestart(): Promise<void> {
+    try {
+      const explanationObservable = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+  
+      const explanation = await firstValueFrom(explanationObservable);
+  
+      if (explanation) {
+        this.explanationTextService.setExplanationText(explanation);
+        this.explanationTextService.setShouldDisplayExplanation(true);
+      } else {
+        console.warn('No explanation available for the first question');
+        throw new Error('No explanation available');
+      }
+    } catch (error) {
+      console.error('Error fetching explanation:', error);
+      throw new Error('Error fetching explanation');
+    }
   }
 }
