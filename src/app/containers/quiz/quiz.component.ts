@@ -326,6 +326,7 @@ export class QuizComponent
       this.cdRef.markForCheck();
     });
     this.initializeTooltip();
+    this.updateTooltipOnSelection();
     // this.updateTooltipOnSelection();
 
     // Move resetQuestionState here
@@ -1165,6 +1166,13 @@ export class QuizComponent
       }),
       distinctUntilChanged()
     );
+  }
+
+  private updateTooltipOnSelection(): void {
+    this.getNextButtonTooltip().subscribe((tooltipText: string) => {
+      this.nextButtonTooltipSubject.next(tooltipText);
+      console.log('Tooltip updated:', tooltipText); // Debugging line
+    });
   }
 
   updateNextButtonTooltip(isSelected: boolean): void {
