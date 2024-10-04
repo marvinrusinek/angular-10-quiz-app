@@ -330,7 +330,8 @@ export class QuizComponent
       this.cdRef.markForCheck();
     });
     this.initializeTooltip();
-    this.updateTooltipOnSelection();
+    //this.updateTooltipBasedOnSelection();
+    this.updateTooltipUsingCombinedLogic();
     // this.updateTooltipOnSelection();
 
     // Move resetQuestionState here
@@ -1144,7 +1145,7 @@ export class QuizComponent
     });
   }
 
-  private updateTooltipOnSelection(): void {
+  private updateTooltipBasedOnSelection(): void {
     this.isOptionSelected$
       .pipe(
         map(isSelected => {
@@ -1172,7 +1173,7 @@ export class QuizComponent
     );
   }
 
-  private updateTooltipOnSelection(): void {
+  private updateTooltipUsingCombinedLogic(): void {
     this.getNextButtonTooltip().subscribe((tooltipText: string) => {
       this.nextButtonTooltipSubject.next(tooltipText);
       console.log('Tooltip updated:', tooltipText); // Debugging line
