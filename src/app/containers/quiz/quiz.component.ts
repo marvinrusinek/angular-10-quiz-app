@@ -2445,9 +2445,14 @@ export class QuizComponent
     options: Option[],
     explanationText: string
   ): void {
-    this.questionToDisplay = questionText ?? 'No question text available';
-    this.optionsToDisplay = options ?? [];
-    this.explanationToDisplay = explanationText ?? 'No explanation available';
+    // Set the question text, providing a default if none is available
+    this.questionToDisplay = questionText || 'No question text available';
+  
+    // Set the options to display, defaulting to an empty array if none are provided
+    this.optionsToDisplay = Array.isArray(options) ? options : [];
+  
+    // Set the explanation text, providing a default if none is available
+    this.explanationToDisplay = explanationText || 'No explanation available';
   }
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
