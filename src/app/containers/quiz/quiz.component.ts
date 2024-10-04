@@ -2395,57 +2395,49 @@ export class QuizComponent
     }
   }
 
-  private async fetchQuestionDetails(
-    questionIndex: number
-  ): Promise<QuizQuestion> {
-    const questionTextObservable =
-      this.quizService.getQuestionTextForIndex(questionIndex);
-    const questionText = await firstValueFrom(questionTextObservable); // Resolve Observable
-
-    if (!questionText) {
-      console.error('No question text found for index:', questionIndex);
+  private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
+    try {
+      // Fetch the question text
+      const questionTextObservable = this.quizService.getQuestionTextForIndex(questionIndex);
+      const questionText = await firstValueFrom(questionTextObservable);
+  
+      if (!questionText) {
+        console.error('No question text found for index:', questionIndex);
+        throw new Error('Question text not found');
+      }
+  
+      // Fetch the options
+      const options = await this.quizService.getNextOptions(questionIndex);
+  
+      if (!Array.isArray(options) || options.length === 0) {
+        console.error('Invalid or empty options for question at index:', questionIndex);
+        throw new Error('Options not found or invalid');
+      }
+  
+      // Fetch the explanation
+      const explanationOrObservable = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      const explanation = typeof explanationOrObservable === 'string'
+        ? explanationOrObservable
+        : await firstValueFrom(explanationOrObservable);
+  
+      if (!explanation) {
+        console.warn('No explanation text found for question at index:', questionIndex);
+      }
+  
+      // Determine the question type
+      const type = options.length > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
+  
+      // Create the QuizQuestion object
+      const question: QuizQuestion = { questionText, options, explanation, type };
+  
+      // Set the question type in the quiz data service
+      this.quizDataService.setQuestionType(question);
+  
+      return question;
+    } catch (error) {
+      console.error('Error fetching question details:', error);
+      throw error; // Re-throw the error to handle it upstream if necessary
     }
-
-    const optionsPromise = this.quizService.getNextOptions(questionIndex);
-    const options = await optionsPromise; // Resolve Promise
-    if (!Array.isArray(options)) {
-      console.error('Options are not an array:', options);
-    }
-
-    if (options.length === 0) {
-      console.warn('No options found for question at index:', questionIndex);
-    }
-
-    // Determine if explanation is a string or Observable
-    const explanationOrObservable =
-      this.explanationTextService.getFormattedExplanationTextForQuestion(
-        questionIndex
-      );
-    let explanation: string;
-
-    if (typeof explanationOrObservable === 'string') {
-      explanation = explanationOrObservable;
-    } else {
-      explanation = await firstValueFrom(explanationOrObservable); // Resolve Observable
-    }
-
-    if (!explanation) {
-      console.warn(
-        'No explanation text found for question at index:',
-        questionIndex
-      );
-    }
-
-    const type =
-      options.length > 1
-        ? QuestionType.MultipleAnswer
-        : QuestionType.SingleAnswer;
-
-    let question: QuizQuestion = { questionText, options, explanation, type };
-
-    this.quizDataService.setQuestionType(question);
-
-    return question;
   }
 
   private setQuestionDetails(
