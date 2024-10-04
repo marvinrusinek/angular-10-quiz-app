@@ -1128,6 +1128,13 @@ export class QuizComponent
     return !!this.explanationToDisplay;
   }
 
+  private initializeTooltip(): void {
+    this.getNextButtonTooltip().subscribe((tooltipText: string) => {
+      this.nextButtonTooltipSubject.next(tooltipText);
+      console.log('Tooltip updated:', tooltipText);
+    });
+  }
+
   // Tooltip for next button
   getNextButtonTooltip(): Observable<string> {
     return combineLatest([
@@ -1139,13 +1146,6 @@ export class QuizComponent
       }),
       distinctUntilChanged()
     );
-  }
-
-  private initializeTooltip(): void {
-    this.getNextButtonTooltip().subscribe((tooltipText: string) => {
-      this.nextButtonTooltipSubject.next(tooltipText);
-      console.log('Tooltip updated:', tooltipText);
-    });
   }
 
   updateNextButtonTooltip(isSelected: boolean): void {
