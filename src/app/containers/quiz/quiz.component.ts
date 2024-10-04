@@ -202,6 +202,7 @@ export class QuizComponent
   isLoading$: Observable<boolean>;
   isAnswered$: Observable<boolean>;
   isNextButtonEnabled = false;
+  isOptionSelected$: Observable<boolean>;
 
   shouldDisplayCorrectAnswers = false;
 
@@ -324,7 +325,8 @@ export class QuizComponent
       console.log('isButtonEnabled$ updated:', isEnabled);
       this.cdRef.markForCheck();
     });
-    this.initializeTooltip();
+    // this.initializeTooltip();
+    this.updateTooltipOnSelection();
 
     // Move resetQuestionState here
     this.resetQuestionState();
@@ -1137,8 +1139,23 @@ export class QuizComponent
     });
   }
 
+  private updateTooltipOnSelection(): void {
+    this.isOptionSelected$
+      .pipe(
+        map(isSelected => {
+          return isSelected ? 'Next Question »' : 'Please select an option to continue...';
+        }),
+        distinctUntilChanged()
+      )
+      .subscribe((tooltipText: string) => {
+        this.nextButtonTooltipSubject.next(tooltipText);
+        console.log('Tooltip updated:', tooltipText);
+      });
+  }
+
+
   // Tooltip for next button
-  getNextButtonTooltip(): Observable<string> {
+  /* getNextButtonTooltip(): Observable<string> {
     return combineLatest([
       this.selectedOptionService.isOptionSelected$(),
       this.isButtonEnabled$
@@ -1148,7 +1165,7 @@ export class QuizComponent
       }),
       distinctUntilChanged()
     );
-  }
+  } */
 
   updateNextButtonTooltip(isSelected: boolean): void {
     const tooltipText = isSelected ? 'Next Question »' : 'Please select an option to continue...';
