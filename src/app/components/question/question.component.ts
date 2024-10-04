@@ -41,7 +41,6 @@ import {
 
 import { Utils } from '../../shared/utils/utils';
 import { AudioItem } from '../../shared/models/AudioItem.model';
-import { QuestionType } from '../../shared/models/question-type.enum';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
 import { QuestionState } from '../../shared/models/QuestionState.model';
