@@ -2529,24 +2529,36 @@ export class QuizComponent
 
   // Reset UI immediately before navigating
   private resetUI(): void {
+    // Reset the current question and options
     this.question = null;
     this.optionsToDisplay = [];
-
+  
+    // Log the reset action for debugging purposes
     console.log('QuizComponent - resetUI called');
+  
+    // Reset the quiz question component if it exists
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.resetFeedback();
       this.quizQuestionComponent.resetState();
     }
-
+  
+    // Reset the quiz service state
     this.quizService.resetAll();
+  
+    // Start the timer with a default duration
     this.timerService.startTimer(30);
-
+  
+    // Trigger background reset
     this.resetBackgroundService.setShouldResetBackground(true);
-
+  
+    // Trigger state and feedback resets
     this.resetStateService.triggerResetFeedback();
     this.resetStateService.triggerResetState();
-
+  
+    // Clear selected options
     this.selectedOptionService.clearOptions();
+  
+    // Reset explanation state
     this.explanationTextService.resetExplanationState();
   }
 
