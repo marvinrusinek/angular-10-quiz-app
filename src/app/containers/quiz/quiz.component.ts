@@ -326,7 +326,6 @@ export class QuizComponent
       this.cdRef.markForCheck();
     });
     this.initializeTooltip();
-    this.updateTooltipUsingCombinedLogic();
 
     // Move resetQuestionState here
     this.resetQuestionState();
@@ -1141,21 +1140,15 @@ export class QuizComponent
   // Tooltip for next button
   getNextButtonTooltip(): Observable<string> {
     return combineLatest([
-      this.selectedOptionService.isOptionSelected$(),
+      this.isOptionSelected$,
       this.isButtonEnabled$
     ]).pipe(
       map(([isSelected, isEnabled]) => {
+        console.log('isSelected:', isSelected, 'isEnabled:', isEnabled); // Debugging line
         return isEnabled && isSelected ? 'Next Question »' : 'Please select an option to continue...';
       }),
       distinctUntilChanged()
     );
-  }
-
-  private updateTooltipUsingCombinedLogic(): void {
-    this.getNextButtonTooltip().subscribe((tooltipText: string) => {
-      this.nextButtonTooltipSubject.next(tooltipText);
-      console.log('Tooltip updated:', tooltipText);
-    });
   }
 
   updateQuestionDisplayForShuffledQuestions(): void {
