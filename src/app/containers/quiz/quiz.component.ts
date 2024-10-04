@@ -2352,44 +2352,47 @@ export class QuizComponent
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
     try {
+      // Start the animation
       this.animationState$.next('animationStarted');
+  
+      // Fetch quiz data
       const quizData: Quiz = await firstValueFrom(
         this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
       );
-
-      if (
-        !quizData ||
-        !Array.isArray(quizData.questions) ||
-        quizData.questions.length === 0
-      ) {
+  
+      // Validate quiz data
+      if (!quizData?.questions?.length) {
         console.warn('Quiz data is unavailable or has no questions.');
         return;
       }
-
-      const isValidIndex = await firstValueFrom(
-        of(this.quizService.isValidQuestionIndex(questionIndex, quizData))
-      );
+  
+      // Validate question index
+      const isValidIndex = this.quizService.isValidQuestionIndex(questionIndex, quizData);
       if (!isValidIndex) {
         console.warn('Invalid question index. Aborting.');
         return;
       }
-
+  
+      // Fetch question details
       const questionDetails = await this.fetchQuestionDetails(questionIndex);
-      if (questionDetails) {
-        const { questionText, options, explanation } = questionDetails;
-
-        // Resolve options if it is a promise
-        const resolvedOptions = await Promise.resolve(options);
-
-        this.currentQuestion = { ...questionDetails, options: resolvedOptions };
-        this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-        this.setQuestionDetails(questionText, resolvedOptions, explanation);
-
-        await this.quizService.checkIfAnsweredCorrectly();
-        await this.resetUIAndNavigate(questionIndex);
-      } else {
+      if (!questionDetails) {
         console.warn('No question details found for index:', questionIndex);
+        return;
       }
+  
+      // Destructure and resolve options
+      const { questionText, options, explanation } = questionDetails;
+      const resolvedOptions = await Promise.resolve(options);
+  
+      // Update current question and state
+      this.currentQuestion = { ...questionDetails, options: resolvedOptions };
+      this.quizStateService.updateCurrentQuestion(this.currentQuestion);
+      this.setQuestionDetails(questionText, resolvedOptions, explanation);
+  
+      // Check if the question is answered correctly and reset UI
+      await this.quizService.checkIfAnsweredCorrectly();
+      await this.resetUIAndNavigate(questionIndex);
+  
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
     }
