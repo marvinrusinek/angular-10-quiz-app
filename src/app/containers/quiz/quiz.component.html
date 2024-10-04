@@ -20,7 +20,7 @@
 
         <ng-container *ngIf="optionsToDisplay">
           <codelab-quiz-question
-            *ngIf="showQuizQuestion && isContentAvailable"
+            *ngIf="isContentAvailable"
             [quizData]="quizComponentData"
             (answer)="selectedAnswer($event)"
             (optionSelected)="onOptionSelected($event, true)"
