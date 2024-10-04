@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -92,7 +91,7 @@ type AnimationState = 'animationStarted' | 'none';
   ],
 })
 export class QuizComponent
-  implements OnInit, OnDestroy, OnChanges, AfterViewInit
+  implements OnInit, OnDestroy, OnChanges
 {
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
@@ -488,14 +487,15 @@ export class QuizComponent
 
   private updateNextButtonState(): void {
     const isEnabled = this.selectedOptions.length > 0 && !this.isLoading;
-    this.isNextButtonEnabled = isEnabled;
-    // this.isNextButtonEnabled = this.checkIfCurrentQuestionAnswered();
-    this.isButtonEnabled = isEnabled;
-    this.isButtonEnabledSubject.next(isEnabled);
-    this.nextButtonTooltipSubject.next(this.isNextButtonEnabled ? 'Next Question »' : 'Please select an option to continue...');
-    this.currentQuestionAnswered = isEnabled;
-    this.nextButtonTooltip = this.isNextButtonEnabled ? 'Next Question »' : 'Please select an option to continue...';
-    // console.log(`updateNextButtonState: isNextButtonEnabled set to ${isEnabled}`);
+    if (this.isNextButtonEnabled !== isEnabled) {
+      console.log(`Updating button state from ${this.isNextButtonEnabled} to ${isEnabled}`);
+      this.isNextButtonEnabled = isEnabled;
+      this.isButtonEnabled = isEnabled;
+      this.isButtonEnabledSubject.next(isEnabled);
+      this.nextButtonTooltipSubject.next(isEnabled ? 'Next Question »' : 'Please select an option to continue...');
+      this.currentQuestionAnswered = isEnabled;
+      this.cdRef.detectChanges();
+    }
   }
 
   /* private resetQuestionState(): void {
@@ -544,17 +544,6 @@ export class QuizComponent
 
     this.cdRef.detectChanges();
     this.logFullState('After resetQuestionState');
-  }
-
-  private checkAndUpdateButtonState(): void {
-    const shouldBeEnabled = this.selectedOptions.length > 0;
-    if (this.isNextButtonEnabled !== shouldBeEnabled) {
-      console.log(
-        `Updating button state from ${this.isNextButtonEnabled} to ${shouldBeEnabled}`
-      );
-      this.isNextButtonEnabled = shouldBeEnabled;
-      this.cdRef.detectChanges();
-    }
   }
 
   logFullState(context: string) {
@@ -606,13 +595,6 @@ export class QuizComponent
     if (changes['currentQuestionIndex']) {
       this.loadCurrentQuestion();
     }
-  }
-
-  ngAfterViewInit() {    
-    setTimeout(() => {
-      this.checkAndUpdateButtonState();
-      this.logFullState('After ngAfterViewInit');
-    }, 0);
   }
 
   onQuestionAnswered(question: QuizQuestion): void {
