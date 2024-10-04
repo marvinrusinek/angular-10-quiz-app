@@ -1129,16 +1129,6 @@ export class QuizComponent
   }
 
   // Tooltip for next button
-  /* getNextButtonTooltip(): Observable<string> {
-    return this.isAnswered$.pipe(
-      map(isAnswered => isAnswered ? 'Next Question »' : 'Please select an option to continue...')
-    );
-  } */
-  /* getNextButtonTooltip(): Observable<string> {
-    return this.selectedOptionService.isOptionSelected$().pipe(
-      map(isSelected => isSelected ? 'Next Question »' : 'Please select an option to continue...')
-    );
-  } */
   getNextButtonTooltip(): Observable<string> {
     return combineLatest([
       this.selectedOptionService.isOptionSelected$(),
