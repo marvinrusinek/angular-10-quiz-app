@@ -2122,26 +2122,24 @@ export class QuizComponent
   loadCurrentQuestion(): void {
     this.quizService
       .getCurrentQuestionByIndex(this.quizId, this.currentQuestionIndex)
-      .subscribe(
-        (question: QuizQuestion) => {
+      .pipe(
+        tap((question: QuizQuestion) => {
           this.question = question;
           if (this.question) {
-            this.optionsToDisplay =
-              this.quizService.getOptions(this.currentQuestionIndex) || [];
+            this.optionsToDisplay = this.quizService.getOptions(this.currentQuestionIndex) || [];
             this.ngZone.run(() => {
               this.cdRef.detectChanges();
             });
           } else {
-            console.error(
-              'Failed to load question at index:',
-              this.currentQuestionIndex
-            );
+            console.error('Failed to load question at index:', this.currentQuestionIndex);
           }
-        },
-        (error) => {
+        }),
+        catchError((error) => {
           console.error('Error fetching question:', error);
-        }
-      );
+          return of(null); // Return a fallback observable if needed
+        })
+      )
+      .subscribe();
   }
 
   // Method to check if the current question is answered
