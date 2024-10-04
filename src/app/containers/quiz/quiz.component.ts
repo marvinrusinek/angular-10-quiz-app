@@ -2069,20 +2069,27 @@ export class QuizComponent
   } // might remove
 
   selectedAnswer(option: Option): void {
+    // Mark the question as answered
     this.answered = true;
+  
+    // Check if the answer is correct
     this.quizService.checkIfAnsweredCorrectly();
-
-    const correctAnswers = this.question.options.filter(
-      (option) => option.correct
-    );
-    this.correctAnswers = correctAnswers;
-
-    if (correctAnswers.length > 1 && this.answers.indexOf(option) === -1) {
-      this.answers.push(option);
+  
+    // Get all correct answers for the question
+    this.correctAnswers = this.question.options.filter(opt => opt.correct);
+  
+    // Handle multiple correct answers
+    if (this.correctAnswers.length > 1) {
+      // Add the option to answers if it's not already included
+      if (!this.answers.includes(option)) {
+        this.answers.push(option);
+      }
     } else {
-      this.answers[0] = option;
+      // For single correct answer, replace the first element
+      this.answers = [option];
     }
-
+  
+    // Notify subscribers of the selected option
     this.selectedOption$.next(option);
   }
 
