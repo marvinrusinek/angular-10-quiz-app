@@ -2289,7 +2289,8 @@ export class QuizComponent
     this.quizQuestionComponent
       .fetchAndProcessCurrentQuestion()
       .then(() => {
-        this.quizQuestionComponent.loadDynamicComponent(); // Ensure the dynamic component is reloaded with new options
+         // Reload the dynamic component with new options
+        this.quizQuestionComponent.loadDynamicComponent();
       })
       .catch((error) => {
         console.error('Error advancing to the next question:', error);
