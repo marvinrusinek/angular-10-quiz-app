@@ -2570,45 +2570,24 @@ export class QuizComponent
 
   restartQuiz(): void {
     // Reset quiz-related services and states
-    this.quizService.resetAll();
-    this.quizStateService.createDefaultQuestionState();
-    this.quizStateService.clearSelectedOptions();
-    this.selectionMessageService.resetMessage();
-    this.explanationTextService.setShouldDisplayExplanation(false);
-    this.explanationTextService.resetExplanationText();
-
-    // Trigger reset in various services
-    this.resetStateService.triggerResetFeedback();
-    this.resetStateService.triggerResetState();
-    this.currentQuestionIndex = 0;
-    this.progressPercentage = 0;
-    this.score = 0;
-    this.timerService.stopTimer();
-    this.timerService.resetTimer();
-
+    this.resetQuizState();
+  
     // Set the current question index to the first question
     this.quizService.setCurrentQuestionIndex(0);
-
+  
     // Navigate to the first question
-    this.router
-      .navigate(['/question', this.quizId, 1])
+    this.router.navigate(['/question', this.quizId, 1])
       .then(async () => {
         if (this.quizQuestionComponent) {
           try {
             await this.quizQuestionComponent.fetchAndProcessCurrentQuestion();
-            // Ensure the dynamic component is reloaded with new options
             this.quizQuestionComponent.loadDynamicComponent();
             this.resetUI();
           } catch (error) {
-            console.error(
-              'Error fetching and displaying the first question:',
-              error
-            );
+            console.error('Error fetching and displaying the first question:', error);
           }
         } else {
-          console.error(
-            'quizQuestionComponent or fetchAndProcessCurrentQuestion function not available'
-          );
+          console.error('quizQuestionComponent or fetchAndProcessCurrentQuestion function not available');
         }
         this.initializeFirstQuestion();
         this.quizService.updateBadgeText(1, this.totalQuestions);
@@ -2616,6 +2595,29 @@ export class QuizComponent
       .catch((error) => {
         console.error('Error during quiz restart:', error);
       });
+  }
+  
+  private resetQuizState(): void {
+    // Reset all quiz-related services
+    this.quizService.resetAll();
+    this.quizStateService.createDefaultQuestionState();
+    this.quizStateService.clearSelectedOptions();
+    this.selectionMessageService.resetMessage();
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.resetExplanationText();
+  
+    // Trigger reset in various services
+    this.resetStateService.triggerResetFeedback();
+    this.resetStateService.triggerResetState();
+  
+    // Reset UI-related states
+    this.currentQuestionIndex = 0;
+    this.progressPercentage = 0;
+    this.score = 0;
+  
+    // Reset the timer
+    this.timerService.stopTimer();
+    this.timerService.resetTimer();
   }
 
   setDisplayStateForExplanationsAfterRestart(): Promise<void> {
