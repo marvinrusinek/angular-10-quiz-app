@@ -2456,9 +2456,19 @@ export class QuizComponent
   }
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
-    this.resetUI();
-    this.explanationTextService.resetStateBetweenQuestions();
-    await this.navigateToQuestion(questionIndex);
+    try {
+      // Reset the user interface to its initial state
+      this.resetUI();
+  
+      // Reset the explanation text state between questions
+      this.explanationTextService.resetStateBetweenQuestions();
+  
+      // Navigate to the specified question index
+      await this.navigateToQuestion(questionIndex);
+    } catch (error) {
+      console.error('Error during UI reset and navigation:', error);
+      // Handle the error appropriately, e.g., show a user-friendly message
+    }
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
