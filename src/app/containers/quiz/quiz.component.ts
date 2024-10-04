@@ -280,8 +280,6 @@ export class QuizComponent
       this.isCurrentQuestionAnswered = isSelected;
       this.updateNextButtonState();
     });
-
-    this.updateNextButtonTooltip(false);
   }
 
   @HostListener('window:focus', ['$event'])
@@ -455,7 +453,6 @@ export class QuizComponent
     this.selectedOptionService.setOptionSelected(isOptionSelected);
     this.quizStateService.setAnswerSelected(isOptionSelected);
     this.updateNextButtonState();
-    // this.updateNextButtonTooltip(isOptionSelected);
 
     console.log('After option selection:', {
       selectedOptions: this.selectedOptions,
@@ -1176,12 +1173,6 @@ export class QuizComponent
       this.nextButtonTooltipSubject.next(tooltipText);
       console.log('Tooltip updated:', tooltipText); // Debugging line
     });
-  }
-
-  updateNextButtonTooltip(isSelected: boolean): void {
-    const tooltipText = isSelected ? 'Next Question »' : 'Please select an option to continue...';
-    this.nextButtonTooltipSubject.next(tooltipText);
-    console.log('Tooltip updated:', tooltipText);
   }
 
   updateQuestionDisplayForShuffledQuestions(): void {
