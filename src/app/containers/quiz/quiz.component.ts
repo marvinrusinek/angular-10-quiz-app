@@ -2269,14 +2269,19 @@ export class QuizComponent
   }
 
   advanceToResults(): void {
+    // Reset all quiz-related states
     this.quizService.resetAll();
+  
+    // Stop the timer and capture the elapsed time
     this.timerService.stopTimer((elapsedTime: number) => {
       this.elapsedTimeDisplay = elapsedTime;
     });
+  
+    // Reset the timer for future use
     this.timerService.resetTimer();
-
-    this.quizService
-      .checkIfAnsweredCorrectly()
+  
+    // Check if the answers are correct and navigate to results
+    this.quizService.checkIfAnsweredCorrectly()
       .then(() => {
         this.quizService.navigateToResults();
       })
