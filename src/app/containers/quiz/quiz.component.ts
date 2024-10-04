@@ -2319,21 +2319,16 @@ export class QuizComponent
   }
 
   initializeQuestionForDisplay(questionIndex: number): void {
-    if (
-      !Array.isArray(this.questions) ||
-      questionIndex >= this.questions.length
-    ) {
+    // Validate the questions array and the question index
+    if (!Array.isArray(this.questions) || questionIndex >= this.questions.length) {
       console.error(`Questions not loaded or invalid index: ${questionIndex}`);
       return;
     }
-
+  
     // Retrieve the state for the current question
-    const questionState = this.quizStateService.getQuestionState(
-      this.quizId,
-      questionIndex
-    );
-
-    // Set explanation display based on whether the question has been answered
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+  
+    // Determine if the question has been answered and set the explanation display accordingly
     if (questionState?.isAnswered) {
       this.explanationToDisplay = questionState.explanationText;
       this.quizService.shouldDisplayExplanation = true;
