@@ -1154,7 +1154,6 @@ export class QuizComponent
       });
   }
 
-
   // Tooltip for next button
   getNextButtonTooltip(): Observable<string> {
     return combineLatest([
@@ -1171,7 +1170,7 @@ export class QuizComponent
   private updateTooltipUsingCombinedLogic(): void {
     this.getNextButtonTooltip().subscribe((tooltipText: string) => {
       this.nextButtonTooltipSubject.next(tooltipText);
-      console.log('Tooltip updated:', tooltipText); // Debugging line
+      console.log('Tooltip updated:', tooltipText);
     });
   }
 
