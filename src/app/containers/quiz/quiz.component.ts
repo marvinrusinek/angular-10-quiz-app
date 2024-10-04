@@ -299,10 +299,6 @@ export class QuizComponent
 
     this.isLoading$ = this.quizStateService.isLoading$;
     this.isAnswered$ = this.quizStateService.isAnswered$;
-
-    // this.nextButtonTooltip$ = this.getNextButtonTooltip();
-    const tooltipText = this.getNextButtonTooltip().toString();
-    this.nextButtonTooltipSubject.next(tooltipText);
   }
 
   async ngOnInit(): Promise<void> {
@@ -326,6 +322,7 @@ export class QuizComponent
       console.log('isButtonEnabled$ updated:', isEnabled);
       this.cdRef.markForCheck();
     });
+    this.initializeTooltip();
 
     // Move resetQuestionState here
     this.resetQuestionState();
@@ -1152,6 +1149,13 @@ export class QuizComponent
       }),
       distinctUntilChanged()
     );
+  }
+
+  private initializeTooltip(): void {
+    this.getNextButtonTooltip().subscribe((tooltipText: string) => {
+      this.nextButtonTooltipSubject.next(tooltipText);
+      console.log('Tooltip updated:', tooltipText);
+    });
   }
 
   updateNextButtonTooltip(isSelected: boolean): void {
