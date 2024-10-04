@@ -2093,37 +2093,6 @@ export class QuizComponent
     this.selectedOption$.next(option);
   }
 
-  // maybe remove, but has correctAnswerOptions...
-  async displayQuestion(quizId: string): Promise<void> {
-    try {
-      const currentQuestionObservable: Observable<QuizQuestion[]> =
-        this.quizDataService.getQuestionsForQuiz(quizId);
-
-      currentQuestionObservable.subscribe((currentQuestions) => {
-        if (currentQuestions && currentQuestions.length > 0) {
-          for (const currentQuestion of currentQuestions) {
-            if (currentQuestion && currentQuestion.options) {
-              const correctAnswerOptions: Option[] =
-                currentQuestion.options.filter((option) => option.correct);
-
-              this.quizDataService.setQuestionType(currentQuestion);
-
-              // Display the question and options on the screen for each question
-              this.currentQuestion = currentQuestion;
-              this.options = currentQuestion.options;
-            } else {
-              console.log('Current question or options are undefined.');
-            }
-          }
-        } else {
-          console.log('No questions found for the quiz.');
-        }
-      });
-    } catch (error) {
-      console.error('Error fetching and displaying the questions:', error);
-    }
-  }
-
   shouldDisplayExplanation(): boolean {
     return this.quizService.shouldExplanationBeDisplayed();
   }
