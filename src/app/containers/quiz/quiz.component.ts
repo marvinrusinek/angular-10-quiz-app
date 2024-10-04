@@ -2258,7 +2258,10 @@ export class QuizComponent
       this.currentQuestionIndex = previousQuestionIndex;
 
       if (this.sharedOptionComponent) {
+        console.log('Navigating backwards');
         this.sharedOptionComponent.isNavigatingBackwards = true;
+      } else {
+        console.error('SharedOptionComponent is not available when navigating backwards');
       }
 
       // Combine fetching data and initializing question state into a single method
