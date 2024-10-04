@@ -2298,12 +2298,24 @@ export class QuizComponent
 
   // combined method for preparing question data and UI
   async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
-    this.advanceAndProcessNextQuestion();
-    await this.fetchAndSetQuestionData(questionIndex);
-    this.initializeQuestionForDisplay(questionIndex);
-    // this.updateQuestionDisplay(questionIndex);
-    this.updateQuestionStateAndExplanation(questionIndex);
-    this.updateNavigationAndExplanationState();
+    try {
+      // Advance to the next question and process any necessary logic
+      this.advanceAndProcessNextQuestion();
+  
+      // Fetch and set the question data asynchronously
+      await this.fetchAndSetQuestionData(questionIndex);
+  
+      // Initialize the question for display
+      this.initializeQuestionForDisplay(questionIndex);
+  
+      // Update the question state and explanation
+      this.updateQuestionStateAndExplanation(questionIndex);
+  
+      // Update navigation and explanation state
+      this.updateNavigationAndExplanationState();
+    } catch (error) {
+      console.error('Error preparing question for display:', error);
+    }
   }
 
   initializeQuestionForDisplay(questionIndex: number): void {
