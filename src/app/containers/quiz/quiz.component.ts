@@ -323,9 +323,7 @@ export class QuizComponent
     this.isButtonEnabled$.subscribe((isEnabled) => {
       this.isButtonEnabled = isEnabled;
       this.isNextButtonEnabled = isEnabled;
-      this.buttonStyle = {
-        opacity: isEnabled ? '1' : '0.5'
-      };
+      this.buttonStyle = { opacity: isEnabled ? '1' : '0.5' };
       console.log('isButtonEnabled$ updated:', isEnabled);
       this.cdRef.markForCheck();
     });
