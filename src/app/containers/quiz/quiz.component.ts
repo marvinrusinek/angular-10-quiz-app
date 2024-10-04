@@ -1148,11 +1148,7 @@ export class QuizComponent
       this.isButtonEnabled$
     ]).pipe(
       map(([isSelected, isEnabled]) => {
-        if (isEnabled && isSelected) {
-          return 'Next Question »';
-        } else {
-          return 'Please select an option to continue...';
-        }
+        return isEnabled && isSelected ? 'Next Question »' : 'Please select an option to continue...';
       }),
       distinctUntilChanged()
     );
