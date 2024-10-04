@@ -326,9 +326,7 @@ export class QuizComponent
       this.cdRef.markForCheck();
     });
     this.initializeTooltip();
-    //this.updateTooltipBasedOnSelection();
     this.updateTooltipUsingCombinedLogic();
-    // this.updateTooltipOnSelection();
 
     // Move resetQuestionState here
     this.resetQuestionState();
@@ -1138,20 +1136,6 @@ export class QuizComponent
       this.nextButtonTooltipSubject.next(tooltipText);
       console.log('Tooltip updated:', tooltipText);
     });
-  }
-
-  private updateTooltipBasedOnSelection(): void {
-    this.isOptionSelected$
-      .pipe(
-        map(isSelected => {
-          return isSelected ? 'Next Question »' : 'Please select an option to continue...';
-        }),
-        distinctUntilChanged()
-      )
-      .subscribe((tooltipText: string) => {
-        this.nextButtonTooltipSubject.next(tooltipText);
-        console.log('Tooltip updated:', tooltipText);
-      });
   }
 
   // Tooltip for next button
