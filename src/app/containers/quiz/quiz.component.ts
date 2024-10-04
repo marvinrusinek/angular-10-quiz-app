@@ -607,6 +607,19 @@ export class QuizComponent
   }
 
   ngAfterViewInit() {
+    console.log('ngAfterViewInit called');
+    if (this.quizQuestionComponent) {
+      console.log('QuizQuestionComponent instance:', this.quizQuestionComponent);
+    } else {
+      console.error('QuizQuestionComponent is not initialized');
+    }
+
+    if (this.sharedOptionComponent) {
+      console.log('SharedOptionComponent instance:', this.sharedOptionComponent);
+    } else {
+      console.error('SharedOptionComponent is not initialized');
+    }
+    
     setTimeout(() => {
       this.checkAndUpdateButtonState();
       this.logFullState('After ngAfterViewInit');
