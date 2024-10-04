@@ -300,7 +300,9 @@ export class QuizComponent
     this.isLoading$ = this.quizStateService.isLoading$;
     this.isAnswered$ = this.quizStateService.isAnswered$;
 
-    this.nextButtonTooltip$ = this.getNextButtonTooltip();
+    // this.nextButtonTooltip$ = this.getNextButtonTooltip();
+    const tooltipText = this.getNextButtonTooltip().toString();
+    this.nextButtonTooltipSubject.next(tooltipText);
   }
 
   async ngOnInit(): Promise<void> {
