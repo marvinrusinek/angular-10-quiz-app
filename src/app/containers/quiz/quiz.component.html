@@ -82,7 +82,7 @@
               [matTooltip]="nextButtonTooltip$ | async"
               matTooltipPosition="above"
               [disabled]="!(isButtonEnabled$ | async)"
-              [ngStyle]="{ 'opacity': (isButtonEnabled$ | async) ? '1' : '0.5' }"
+              [ngStyle]="buttonStyle"
             >
               <i class="material-icons">navigate_next</i>
             </button>
