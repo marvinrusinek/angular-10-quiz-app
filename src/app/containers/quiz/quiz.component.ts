@@ -420,7 +420,7 @@ export class QuizComponent
       return;
     }
 
-    const { option, index, checked } = event;
+    const { option, checked } = event;
 
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = checked ? [option] : [];
