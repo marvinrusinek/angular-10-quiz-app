@@ -51,9 +51,19 @@ export class SelectedOptionService {
   }
 
   setSelectedOption(option: SelectedOption | null): void {
-    if (option && (option.optionId == null || option.questionIndex == null || !option.text)) {
-      console.error('Invalid SelectedOption data:', option);
-      return;
+    if (option) {
+      if (option.optionId == null) {
+        console.error('Invalid SelectedOption data: Missing optionId', option);
+        return;
+      }
+      if (option.questionIndex == null) {
+        console.error('Invalid SelectedOption data: Missing questionIndex', option);
+        return;
+      }
+      if (!option.text) {
+        console.error('Invalid SelectedOption data: Missing text', option);
+        return;
+      }
     }
   
     console.log('SelectedOptionService: setSelectedOption called with', option);
