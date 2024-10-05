@@ -51,6 +51,11 @@ export class SelectedOptionService {
   }
 
   setSelectedOption(option: SelectedOption | null): void {
+    if (option && (option.optionId == null || option.questionIndex == null || !option.text)) {
+      console.error('Invalid SelectedOption data:', option);
+      return;
+    }
+  
     console.log('SelectedOptionService: setSelectedOption called with', option);
   
     if (option === null) {
@@ -65,7 +70,7 @@ export class SelectedOptionService {
   
     this.selectedOption = option;
     this.selectedOptionSubject.next(option);
-    console.log('SelectedOptionService: Selected option set, current value:', this.selectedOptionSubject.getValue());
+    console.log('SelectedOptionService: Selected option set, current value:', this.selectedOptionSubject.value);
   
     this.isOptionSelectedSubject.next(true);
     console.log('SelectedOptionService: isOptionSelected updated to true');
@@ -81,7 +86,7 @@ export class SelectedOptionService {
     // Don't set feedback for other options to false
     this.showFeedbackForOptionSubject.next(currentFeedback);
     console.log('SelectedOptionService: Updated feedback state', currentFeedback);
-
+  
     // Update selectedOptionsMap
     if (!this.selectedOptionsMap.has(option.questionIndex)) {
       this.selectedOptionsMap.set(option.questionIndex, []);
