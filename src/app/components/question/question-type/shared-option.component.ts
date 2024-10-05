@@ -61,7 +61,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   lastSelectedOption: Option | null = null;
   isNavigatingBackwards = false;
   isOptionSelected = false;
-  optionDisplayText: string;
 
   optionTextStyle = {
     color: 'black'
@@ -527,8 +526,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getOptionBindings(option: Option, idx: number): OptionBindings {
-    const optionDisplayText = this.getOptionDisplayText(option, idx);
-
     return {
       option: {
         ...option,
