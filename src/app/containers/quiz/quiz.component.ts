@@ -412,20 +412,16 @@ export class QuizComponent
     });
   }
 
-  onOptionSelected(event: {
-    option: SelectedOption;
-    index: number;
-    checked: boolean;
-  }, isUserAction: boolean = true): void {
+  onOptionSelected(event: { option: SelectedOption; index: number; checked: boolean }, isUserAction: boolean = true): void {
     console.log('onOptionSelected called with:', event, 'isUserAction:', isUserAction);
 
     if (!isUserAction) {
       console.log('Skipping processing as this is not a user action');
       return;
     }
-  
+
     const { option, checked } = event;
-  
+
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = checked ? [option] : [];
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
@@ -438,12 +434,6 @@ export class QuizComponent
       }
     }
 
-    /* this.isNextButtonEnabled = this.selectedOptions.length > 0;
-    this.currentQuestionAnswered = this.isNextButtonEnabled;
-    console.log('Next button enabled:', this.isNextButtonEnabled);
-
-    this.logButtonState(); */
-
     this.isNextButtonEnabled = this.selectedOptions.length > 0;
     this.isOptionSelected = this.selectedOptions.length > 0;
     this.selectedOptionService.setOptionSelected(this.isOptionSelected);
@@ -455,25 +445,6 @@ export class QuizComponent
       isNextButtonEnabled: this.isNextButtonEnabled
     });
     this.cdRef.detectChanges();
-  
-    /* const isOptionSelected = this.selectedOptions.length > 0;
-    this.isNextButtonEnabled = isOptionSelected;
-    this.currentQuestionAnswered = isOptionSelected;
-    this.isButtonEnabled = isOptionSelected;
-    this.isButtonEnabledSubject.next(isOptionSelected);
-  
-    // Update services
-    this.selectedOptionService.setSelectedOption(option);
-    this.selectedOptionService.setOptionSelected(isOptionSelected);
-    this.quizStateService.setAnswered(isOptionSelected);
-  
-    console.log('After option selection:', {
-      selectedOptions: this.selectedOptions,
-      isNextButtonEnabled: this.isNextButtonEnabled,
-      currentQuestionAnswered: this.currentQuestionAnswered,
-      isButtonEnabled: this.isButtonEnabled,
-    }); */
-    // this.cdRef.detectChanges();
   }
 
   private isAnyOptionSelected(): boolean {
