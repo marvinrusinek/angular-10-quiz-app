@@ -10,7 +10,13 @@
 
     <!-- Options content -->
     <div *ngIf="shouldDisplayOptions" class="options-container">
-      <!-- Options content here -->
+      <div *ngFor="let optionBinding of optionBindings; let idx = index; trackBy: trackByOption">
+        <app-shared-option
+          [optionBinding]="optionBinding"
+          [index]="idx"
+          (optionSelected)="onOptionClicked($event.option, $event.index, $event.checked)"
+        ></app-shared-option>
+      </div>
     </div>
   </form>
 </ng-container>
