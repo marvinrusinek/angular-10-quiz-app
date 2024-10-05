@@ -426,7 +426,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     // Call the onOptionClicked method from the config
     if (this.config && this.config.onOptionClicked) {
-      await this.config.onOptionClicked(option, index);
+      await this.config.onOptionClicked(option, index, checked);
     }
   
     // Call the quizQuestionComponentOnOptionClicked method if it exists
