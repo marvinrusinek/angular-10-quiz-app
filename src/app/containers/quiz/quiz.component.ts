@@ -434,6 +434,7 @@ export class QuizComponent
       }
     }
 
+    console.log("MY SEL LENGTH", this.selectedOptions.length);
     this.isNextButtonEnabled = this.selectedOptions.length > 0;
     this.isOptionSelected = this.selectedOptions.length > 0;
     this.selectedOptionService.setOptionSelected(this.isOptionSelected);
