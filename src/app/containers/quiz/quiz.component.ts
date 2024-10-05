@@ -444,7 +444,7 @@ export class QuizComponent
 
     this.logButtonState(); */
 
-    const isOptionSelected = this.selectedOptions.length > 0;
+    this.isOptionSelected = this.selectedOptions.length > 0;
     this.selectedOptionService.setOptionSelected(isOptionSelected);
     this.quizStateService.setAnswerSelected(isOptionSelected);
     this.updateNextButtonState();
