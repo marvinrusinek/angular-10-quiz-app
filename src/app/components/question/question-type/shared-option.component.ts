@@ -363,8 +363,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.optionDisplayText = this.getOptionDisplayText(option, index);
-
     const optionId = option.optionId ?? index;
   
     // Check if the option has already been clicked
@@ -529,6 +527,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getOptionBindings(option: Option, idx: number): OptionBindings {
+    const optionDisplayText = this.getOptionDisplayText(option, idx);
+
     return {
       option: {
         ...option,
@@ -549,7 +549,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       change: (element: MatCheckbox | MatRadioButton) => this.handleOptionClick(option as SelectedOption, idx, element.checked),
       disabled: option.selected,
       ariaLabel: 'Option ' + (idx + 1),
-      checked: this.isSelectedOption(option)
+      checked: this.isSelectedOption(option),
+      displayText: optionDisplayText
     };
   }
 
