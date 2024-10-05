@@ -81,7 +81,6 @@ export class SelectedOptionService {
       currentFeedback[optionIdKey] = true;
     }
   
-    // Don't set feedback for other options to false
     this.showFeedbackForOptionSubject.next(currentFeedback);
     console.log('SelectedOptionService: Updated feedback state', currentFeedback);
   
@@ -146,8 +145,12 @@ export class SelectedOptionService {
 
   // Method to set the option selected state
   setOptionSelected(isSelected: boolean): void {
+    // Check if the new state is different from the current state
     if (this.isOptionSelectedSubject.value !== isSelected) {
+      console.log(`Updating isOptionSelected state from ${this.isOptionSelectedSubject.value} to ${isSelected}`);
       this.isOptionSelectedSubject.next(isSelected);
+    } else {
+      console.log(`isOptionSelected state remains unchanged: ${isSelected}`);
     }
   }
 
