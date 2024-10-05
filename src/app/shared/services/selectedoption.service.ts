@@ -35,6 +35,11 @@ export class SelectedOptionService {
 
   // Method to update the selected option state
   selectOption(optionId: number, questionIndex: number, text: string): void {
+    if (optionId == null || questionIndex == null || !text) {
+      console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
+      return;
+    }
+  
     console.log('selectOption called with:', { optionId, questionIndex, text });
     const selectedOption: SelectedOption = { optionId, questionIndex, text };
     this.selectedOptionSubject.next(selectedOption);
