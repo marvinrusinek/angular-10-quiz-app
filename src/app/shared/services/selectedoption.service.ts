@@ -51,30 +51,18 @@ export class SelectedOptionService {
   }
 
   setSelectedOption(option: SelectedOption | null): void {
-    if (option) {
-      if (option.optionId === null) {
-        console.error('Invalid SelectedOption data: Missing optionId', option);
-        return;
-      }
-      if (option.questionIndex === null) {
-        console.error('Invalid SelectedOption data: Missing questionIndex', option);
-        return;
-      }
-      if (!option.text) {
-        console.error('Invalid SelectedOption data: Missing text', option);
-        return;
-      }
-    }
-  
-    console.log('SelectedOptionService: setSelectedOption called with', option);
-  
     if (option === null) {
+      console.log('SelectedOptionService: Clearing selected option');
       this.selectedOption = null;
       this.selectedOptionSubject.next(null);
       this.showFeedbackForOptionSubject.next({});
       this.isOptionSelectedSubject.next(false);
-      console.log('SelectedOptionService: Option cleared, feedback reset');
       this.updateAnsweredState();
+      return;
+    }
+  
+    if (option.optionId === null || option.questionIndex === null || !option.text) {
+      console.error('Invalid SelectedOption data:', option);
       return;
     }
   
