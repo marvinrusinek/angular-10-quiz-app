@@ -1,17 +1,15 @@
 <ng-container *ngIf="optionsToDisplay?.length; else noOptions">
-  <div *ngFor="let optionBinding of optionBindings; let idx = index; trackBy: trackByOption">
+  <div *ngFor="let optionBinding of optionBindings; let idx = index; trackBy: trackByOption" (optionSelected)="onOptionClicked($event.option, $event.index, $event.checked)">
     <label class="options">
       <ng-container [ngSwitch]="optionBinding.type">
         <mat-checkbox *ngSwitchCase="'multiple'" #checkbox appHighlightOption
-          (change)="updateOptionAndUI(optionBinding, idx, checkbox)"
-          (optionSelected)="onOptionClicked($event.option, $event.index, $event.checked)">
+          (change)="updateOptionAndUI(optionBinding, idx, checkbox)">
           <ng-container *ngTemplateOutlet="optionContent; context: { option: optionBinding.option, idx: idx }">
           </ng-container>
         </mat-checkbox>
 
         <mat-radio-button *ngSwitchCase="'single'" #radio appHighlightOption
-          (change)="updateOptionAndUI(optionBinding, idx, radio)"
-          (optionSelected)="onOptionClicked($event.option, $event.index, $event.checked)">
+          (change)="updateOptionAndUI(optionBinding, idx, radio)">
           <ng-container *ngTemplateOutlet="optionContent; context: { option: optionBinding.option, idx: idx }">
           </ng-container>
         </mat-radio-button>
