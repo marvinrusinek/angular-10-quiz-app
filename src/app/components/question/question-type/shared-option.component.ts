@@ -549,8 +549,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       change: (element: MatCheckbox | MatRadioButton) => this.handleOptionClick(option as SelectedOption, idx, element.checked),
       disabled: option.selected,
       ariaLabel: 'Option ' + (idx + 1),
-      checked: this.isSelectedOption(option),
-      displayText: optionDisplayText
+      checked: this.isSelectedOption(option)
     };
   }
 
