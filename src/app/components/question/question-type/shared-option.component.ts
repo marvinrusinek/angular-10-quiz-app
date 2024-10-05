@@ -61,6 +61,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   lastSelectedOption: Option | null = null;
   isNavigatingBackwards = false;
   isOptionSelected = false;
+  optionDisplayText: string;
 
   optionTextStyle = {
     color: 'black'
@@ -361,6 +362,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('Question already submitted, ignoring click');
       return;
     }
+
+    this.optionDisplayText = this.getOptionDisplayText(option, index);
 
     const optionId = option.optionId ?? index;
   
