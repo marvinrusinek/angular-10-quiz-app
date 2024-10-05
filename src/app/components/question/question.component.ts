@@ -1314,7 +1314,7 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
+  async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
     console.log("MYTEST123456");
     console.log('onOptionClicked called with:', { option, index, checked });
 
