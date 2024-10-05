@@ -52,11 +52,11 @@ export class SelectedOptionService {
 
   setSelectedOption(option: SelectedOption | null): void {
     if (option) {
-      if (option.optionId == null) {
+      if (option.optionId === null) {
         console.error('Invalid SelectedOption data: Missing optionId', option);
         return;
       }
-      if (option.questionIndex == null) {
+      if (option.questionIndex === null) {
         console.error('Invalid SelectedOption data: Missing questionIndex', option);
         return;
       }
