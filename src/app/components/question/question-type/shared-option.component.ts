@@ -285,8 +285,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log("Option already selected:", optionBinding.option);
       return;
     }
-
-    // this.currentFeedbackConfig = this.getFeedbackBindings(optionBinding.option, index);
   
     this.handleOptionClick(optionBinding.option as SelectedOption, index, element.checked);
   
