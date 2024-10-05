@@ -438,15 +438,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.debug('quizQuestionComponentOnOptionClicked is not defined in SharedOptionComponent');
     }
 
-    // Create a SelectedOption object from the Option
-    const selectedOption: SelectedOption = {
-      ...option,
-      questionIndex: this.quizService.currentQuestionIndex
-    };
-  
-    // Emit the event to the parent component (QuizQuestionComponent)
-    this.optionClicked.emit({ option: selectedOption, index, checked: true });
-
     // Update selectedOptionIndex and showFeedbackForOption
     this.selectedOptionIndex = index;
     this.showFeedbackForOption[optionId ?? index] = true;
