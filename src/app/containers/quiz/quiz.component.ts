@@ -351,7 +351,7 @@ export class QuizComponent
     console.log("MY INBS");
     // Initialize local properties
     this.isNextButtonEnabled = false;
-    this.isButtonEnabled = false;
+    // this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
   
     // Set up the observable for button state
@@ -375,8 +375,7 @@ export class QuizComponent
     );
   
     console.log('Next button state initialized:', {
-      isNextButtonEnabled: this.isNextButtonEnabled,
-      isButtonEnabled: this.isButtonEnabled,
+      isNextButtonEnabled: this.isNextButtonEnabled
     });
   }
 
