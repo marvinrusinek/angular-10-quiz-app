@@ -61,6 +61,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   lastSelectedOption: Option | null = null;
   isNavigatingBackwards = false;
   isOptionSelected = false;
+  optionIconClass: string;
 
   optionTextStyle = {
     color: 'black'
@@ -279,6 +280,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     element: MatCheckbox | MatRadioButton
   ): void {
     const checked = element.checked;
+
+    this.optionIconClass = this.getOptionIconClass(optionBinding.option);
 
     // Prevent selecting an option more than once
     if (optionBinding.isSelected) {
