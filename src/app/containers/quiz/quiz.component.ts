@@ -202,7 +202,7 @@ export class QuizComponent
   isAnswered$: Observable<boolean>;
   isNextButtonEnabled = false;
   isOptionSelected$: Observable<boolean>;
-  buttonStyle: { [key: string]: string } = {};
+  nextButtonStyle: { [key: string]: string } = {};
 
   shouldDisplayCorrectAnswers = false;
 
@@ -320,7 +320,7 @@ export class QuizComponent
     this.isButtonEnabled$.subscribe((isEnabled) => {
       this.isButtonEnabled = isEnabled;
       this.isNextButtonEnabled = isEnabled;
-      this.buttonStyle = { opacity: isEnabled ? '1' : '0.5' };
+      this.nextButtonStyle = { opacity: isEnabled ? '1' : '0.5' };
       console.log('isButtonEnabled$ updated:', isEnabled);
       this.cdRef.markForCheck();
     });
@@ -444,9 +444,10 @@ export class QuizComponent
 
     this.logButtonState(); */
 
+    this.isNextButtonEnabled = this.selectedOptions.length > 0;
     this.isOptionSelected = this.selectedOptions.length > 0;
-    this.selectedOptionService.setOptionSelected(isOptionSelected);
-    this.quizStateService.setAnswerSelected(isOptionSelected);
+    this.selectedOptionService.setOptionSelected(this.isOptionSelected);
+    this.quizStateService.setAnswerSelected(this.isOptionSelected);
     this.updateNextButtonState();
 
     console.log('After option selection:', {
