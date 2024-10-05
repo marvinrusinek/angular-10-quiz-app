@@ -23,7 +23,7 @@
             *ngIf="isContentAvailable"
             [quizData]="quizComponentData"
             (answer)="selectedAnswer($event)"
-            (optionSelected)="onOptionSelected($event, true)"
+            (optionSelected)="onOptionSelected($event)"
           ></codelab-quiz-question>
         </ng-container>
       </ng-container>
