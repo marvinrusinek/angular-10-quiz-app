@@ -85,13 +85,13 @@ export class SingleAnswerComponent
     }
   }
 
-  ngAfterViewInit() {
+  /* ngAfterViewInit() {
     if (this.quizQuestionComponent) {
       console.log('QuizQuestionComponent is available');
     } else {
       console.error('QuizQuestionComponent is not available');
     }
-  }
+  } */
 
   loadDynamicComponent(): void {}
 
