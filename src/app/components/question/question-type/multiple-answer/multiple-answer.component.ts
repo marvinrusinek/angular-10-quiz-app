@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
@@ -19,7 +19,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
     '../shared-option.component.scss'
   ]
 })
-export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit {
+export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit, AfterViewInit {
   @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
@@ -44,6 +44,14 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     await super.ngOnInit();
     await this.initializeMultipleAnswerConfig();
     this.initializeSharedOptionConfig();
+  }
+
+  ngAfterViewInit() {
+    if (this.quizQuestionComponent) {
+      console.log('QuizQuestionComponent is available');
+    } else {
+      console.error('QuizQuestionComponent is not available');
+    }
   }
 
   loadDynamicComponent(): void {}

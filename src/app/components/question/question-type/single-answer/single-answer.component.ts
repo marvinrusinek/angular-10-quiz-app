@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   EventEmitter,
@@ -30,7 +31,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 })
 export class SingleAnswerComponent
   extends BaseQuestionComponent
-  implements OnInit
+  implements OnInit, OnChanges, AfterViewInit
 {
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent: QuizQuestionComponent;
@@ -81,6 +82,14 @@ export class SingleAnswerComponent
         'SingleAnswerComponent - questionData changed:',
         changes.questionData.currentValue
       );
+    }
+  }
+
+  ngAfterViewInit() {
+    if (this.quizQuestionComponent) {
+      console.log('QuizQuestionComponent is available');
+    } else {
+      console.error('QuizQuestionComponent is not available');
     }
   }
 
