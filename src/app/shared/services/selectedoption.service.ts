@@ -55,7 +55,14 @@ export class SelectedOptionService {
   }
 
   deselectOption() {
-    this.selectedOptionSubject.next({ option: null, isSelected: false });
+    const deselectedOption: SelectedOption = {
+      optionId: null,
+      questionIndex: null,
+      text: null
+    };
+  
+    this.selectedOptionSubject.next(deselectedOption);
+    this.isOptionSelectedSubject.next(false); // Indicate that no option is selected
   }
 
   clearSelection(): void {
