@@ -199,7 +199,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.cdRef.detectChanges();
   }
 
-  getOptionContext(optionBinding: any, idx: number) {
+  getOptionContext(optionBinding: OptionBindings, idx: number) {
     return { option: optionBinding.option, idx: idx };
   }
 
