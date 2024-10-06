@@ -129,7 +129,7 @@ export class SingleAnswerComponent
     await super.onOptionClicked(option, index, checked); // call the inherited method in BQC
     console.log("QQC", this.quizQuestionComponent);
 
-    if (this.quizQuestionComponent) {
+    if (!this.quizQuestionComponent) {
       console.log('Calling onOptionClicked in QuizQuestionComponent');
       await this.quizQuestionComponent?.onOptionClicked(option, index, checked);
     } else {

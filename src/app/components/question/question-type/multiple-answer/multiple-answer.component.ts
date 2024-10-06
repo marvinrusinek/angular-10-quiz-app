@@ -83,7 +83,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
     await super.onOptionClicked(option, index, checked); // Calls BQC's implementation
 
-    if (this.quizQuestionComponent) {
+    if (!this.quizQuestionComponent) {
       console.log('Calling onOptionClicked in QuizQuestionComponent');
       await this.quizQuestionComponent?.onOptionClicked(option, index, checked);
     } else {
