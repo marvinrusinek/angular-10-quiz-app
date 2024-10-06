@@ -36,8 +36,7 @@ import { QuizQuestionComponent } from './question.component';
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export abstract class BaseQuestionComponent
-  implements OnInit, OnChanges, OnDestroy, AfterViewInit
+export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit
 {
   @ViewChild('dynamicAnswerContainer', {
     read: ViewContainerRef,
