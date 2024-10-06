@@ -85,7 +85,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
     if (this.quizQuestionComponent) {
       console.log('Calling onOptionClicked in QuizQuestionComponent');
-      await this.quizQuestionComponent.onOptionClicked(option, index, checked);
+      await this.quizQuestionComponent?.onOptionClicked(option, index, checked);
     } else {
       console.error('QuizQuestionComponent is not available');
     }
