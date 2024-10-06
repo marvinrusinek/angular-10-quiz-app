@@ -138,8 +138,9 @@ export class SingleAnswerComponent
   
     // Check if this component is actually an instance of QuizQuestionComponent
     if (this instanceof QuizQuestionComponent) {
-      console.log('Calling fetchAndSetExplanationText in QuizQuestionComponent from SingleAnswerComponent');
+      console.log('Calling fetchAndSetExplanationText in QuizQuestionComponent from MultipleAnswerComponent');
       await (this as QuizQuestionComponent).fetchAndSetExplanationText();
+      await (this as QuizQuestionComponent).onOptionClicked(option, index, checked);
     }
   
     console.log('SingleAnswerComponent - Option clicked', event);

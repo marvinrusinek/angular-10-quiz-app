@@ -94,6 +94,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     if (this instanceof QuizQuestionComponent) {
       console.log('Calling fetchAndSetExplanationText in QuizQuestionComponent from MultipleAnswerComponent');
       await (this as QuizQuestionComponent).fetchAndSetExplanationText();
+      await (this as QuizQuestionComponent).onOptionClicked(option, index, checked);
     }
 
     // Toggle the selection of the clicked option
