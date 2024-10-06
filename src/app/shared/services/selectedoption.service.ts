@@ -41,9 +41,21 @@ export class SelectedOptionService {
     }
   
     console.log('selectOption called with:', { optionId, questionIndex, text });
+  
+    // Create the selected option object
     const selectedOption: SelectedOption = { optionId, questionIndex, text };
+  
+    // Emit the selected option
     this.selectedOptionSubject.next(selectedOption);
+  
+    // Emit the selection status
     this.isOptionSelectedSubject.next(true); // Indicate that an option is selected
+  
+    console.log('Selected option emitted:', selectedOption);
+  }
+
+  deselectOption() {
+    this.selectedOptionSubject.next({ option: null, isSelected: false });
   }
 
   clearSelection(): void {
