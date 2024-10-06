@@ -34,7 +34,7 @@ export class SingleAnswerComponent
   implements OnInit, OnChanges, AfterViewInit
 {
   @ViewChild(QuizQuestionComponent, { static: false })
-  quizQuestionComponent: QuizQuestionComponent;
+  quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   quizQuestionComponentOnOptionClicked: (
     option: SelectedOption,
@@ -127,6 +127,7 @@ export class SingleAnswerComponent
     console.log('SingleAnswerComponent: onOptionClicked called', option, index, checked);
   
     await super.onOptionClicked(option, index, checked); // call the inherited method in BQC
+    console.log("QQC", this.quizQuestionComponent);
 
     if (this.quizQuestionComponent) {
       console.log('Calling onOptionClicked in QuizQuestionComponent');
