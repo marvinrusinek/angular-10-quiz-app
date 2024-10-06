@@ -79,16 +79,15 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   }
 
   public override async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
-    console.log('MultipleAnswerComponent: onOptionClicked called', option, index);
-
-    await super.onOptionClicked(option, index, checked); // Calls BQC's implementation
-
     if (this.quizQuestionComponent) {
       console.log('Calling onOptionClicked in QuizQuestionComponent');
       await this.quizQuestionComponent.onOptionClicked(option, index, checked);
     } else {
       console.error('QuizQuestionComponent is not available');
     }
+    console.log('MultipleAnswerComponent: onOptionClicked called', option, index);
+
+    await super.onOptionClicked(option, index, checked); // Calls BQC's implementation
 
     // Check if this component is actually an instance of QuizQuestionComponent
     if (this instanceof QuizQuestionComponent) {
