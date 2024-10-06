@@ -19,7 +19,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
     '../shared-option.component.scss'
   ]
 })
-export class MultipleAnswerComponent extends QuizQuestionComponent implements OnInit, AfterViewInit {
+export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit, AfterViewInit {
   @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;

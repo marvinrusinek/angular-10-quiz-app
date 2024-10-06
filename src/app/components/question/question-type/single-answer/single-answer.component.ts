@@ -30,7 +30,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
   ],
 })
 export class SingleAnswerComponent
-  extends QuizQuestionComponent
+  extends BaseQuestionComponent
   implements OnInit, OnChanges, AfterViewInit
 {
   @ViewChild(QuizQuestionComponent, { static: false })
