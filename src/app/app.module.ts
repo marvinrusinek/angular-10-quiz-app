@@ -120,7 +120,10 @@ import { QuizGuard } from './router/guards/quiz.guard';
   exports: [
     HighlightOptionDirective,
     ResetBackgroundDirective,
-    MatExpansionModule
+    MatExpansionModule,
+    QuizQuestionComponent,
+    SingleAnswerComponent,
+    MultipleAnswerComponent
   ],
   bootstrap: [AppComponent],
   entryComponents: [
