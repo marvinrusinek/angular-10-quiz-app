@@ -125,12 +125,12 @@ export class SingleAnswerComponent
 
   public override async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
     console.log('SingleAnswerComponent: onOptionClicked called', option, index, checked);
-    /* if (this.quizQuestionComponent) {
+    if (this.quizQuestionComponent) {
       console.log('Calling onOptionClicked in QuizQuestionComponent');
       await this.quizQuestionComponent.onOptionClicked(option, index, checked);
     } else {
       console.error('QuizQuestionComponent is not available');
-    } */
+    }
   
     await super.onOptionClicked(option, index, checked); // call the inherited method in BQC
     console.log("QQC", this.quizQuestionComponent);
