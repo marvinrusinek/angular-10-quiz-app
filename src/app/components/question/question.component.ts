@@ -248,8 +248,9 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    super.ngOnInit();
-  
+    // super.ngOnInit();
+    super.ngOnInit ? super.ngOnInit() : null;
+
     this.initializeData();
   
     this.quizStateService.isLoading$.subscribe((isLoading) => {
