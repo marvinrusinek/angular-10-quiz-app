@@ -394,7 +394,8 @@ export class QuizQuestionComponent
   }
 
   async ngAfterViewInit(): Promise<void> {
-    await super.ngAfterViewInit();
+    // await super.ngAfterViewInit();
+    super.ngAfterViewInit ? super.ngAfterViewInit() : null;
     // this.updateSelectionMessage(this.isAnswered);
     this.setInitialMessage();
   }
@@ -463,6 +464,7 @@ export class QuizQuestionComponent
   }
 
   ngOnDestroy(): void {
+    super.ngOnDestroy ? super.ngOnDestroy() : null;
     document.removeEventListener(
       'visibilitychange',
       this.onVisibilityChange.bind(this)
