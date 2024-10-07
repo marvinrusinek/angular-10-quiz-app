@@ -85,9 +85,7 @@ type AnimationState = 'animationStarted' | 'none';
     QuizDataService,
     QuizStateService,
     ExplanationTextService,
-    UserPreferenceService,
-    QuizQuestionComponent,
-    SharedOptionComponent
+    UserPreferenceService
   ],
 })
 export class QuizComponent
