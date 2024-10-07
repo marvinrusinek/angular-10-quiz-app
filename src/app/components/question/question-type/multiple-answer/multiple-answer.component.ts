@@ -46,13 +46,13 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     this.initializeSharedOptionConfig();
   }
 
-  /* ngAfterViewInit() {
+  ngAfterViewInit() {
     if (this.quizQuestionComponent) {
       console.log('QuizQuestionComponent is available');
     } else {
       console.error('QuizQuestionComponent is not available');
     }
-  } */
+  }
 
   loadDynamicComponent(): void {}
 

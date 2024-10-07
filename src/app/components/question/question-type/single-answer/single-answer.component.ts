@@ -85,13 +85,13 @@ export class SingleAnswerComponent
     }
   }
 
-  /* ngAfterViewInit() {
+  ngAfterViewInit() {
     if (this.quizQuestionComponent) {
       console.log('QuizQuestionComponent is available');
     } else {
       console.error('QuizQuestionComponent is not available');
     }
-  } */
+  }
 
   loadDynamicComponent(): void {}
 
@@ -130,7 +130,7 @@ export class SingleAnswerComponent
     } else {
       console.error('QuizQuestionComponent is not available');
     }
-    
+
     console.log('SingleAnswerComponent: onOptionClicked called', option, index, checked);
   
     await super.onOptionClicked(option, index, checked); // call the inherited method in BQC
