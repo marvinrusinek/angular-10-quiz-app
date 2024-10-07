@@ -86,10 +86,6 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     } else {
       console.error('QuizQuestionComponent is not available');
     } */
-    if (!this.quizQuestionComponent) {
-      console.error('QuizQuestionComponent is not available');
-      return; // Exit early if the component is not available
-    }
 
     await super.onOptionClicked(option, index, checked); // Calls BQC's implementation
 

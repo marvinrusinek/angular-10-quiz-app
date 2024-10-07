@@ -131,10 +131,6 @@ export class SingleAnswerComponent
     } else {
       console.error('QuizQuestionComponent is not available');
     } */
-    if (!this.quizQuestionComponent) {
-      console.error('QuizQuestionComponent is not available');
-      return; // Exit early if the component is not available
-    }
   
     await super.onOptionClicked(option, index, checked); // call the inherited method in BQC
     console.log("QQC", this.quizQuestionComponent);
