@@ -9,7 +9,7 @@ export class QuizQuestionCommunicationService {
 
   optionClicked$ = this.optionClickedSource.asObservable();
 
-  emitOptionClicked(option: SelectedOption, index: number, checked: boolean) {
+  emitOptionClicked(option: SelectedOption, index: number, checked: boolean): void {
     this.optionClickedSource.next({option, index, checked});
   }
 }
