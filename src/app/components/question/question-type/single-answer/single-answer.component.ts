@@ -149,8 +149,16 @@ export class SingleAnswerComponent
       console.error('QuizQuestionComponent is not available');
     }
 
+    const updatedOption: SelectedOption = {
+      ...option,
+      optionId: option.optionId ?? index,
+      questionIndex: option.questionIndex ?? this.question?.questionIndex ?? 0,
+      text: option.text || `Option ${index + 1}`,
+      // Include other properties from the SelectedOption model as needed
+    };
+
     // Emit the option clicked event
-    this.quizQuestionCommunicationService.emitOptionClicked(option, index, checked);
+    this.quizQuestionCommunicationService.emitOptionClicked(updatedOption, index, checked);
   
     await super.onOptionClicked(option, index, checked); // call the inherited method in BQC
     console.log("QQC", this.quizQuestionComponent);
