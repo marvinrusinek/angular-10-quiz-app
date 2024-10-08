@@ -84,12 +84,16 @@ export class SingleAnswerComponent
     }
   }
 
-  ngAfterViewInit() {
-    if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent is available');
-    } else {
-      console.error('QuizQuestionComponent is not available');
-    }
+  ngAfterViewInit(): void {
+    // Remove the if-else check and use setTimeout to ensure the view is fully initialized
+    setTimeout(() => {
+      if (this.quizQuestionComponent) {
+        console.log('QuizQuestionComponent is available');
+      } else {
+        console.error('QuizQuestionComponent is not available');
+      }
+      this.cdRef.detectChanges();
+    });
   }
 
   loadDynamicComponent(): void {}
