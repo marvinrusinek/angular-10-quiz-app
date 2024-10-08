@@ -6,6 +6,7 @@ import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { DynamicComponentService } from '../../../../shared/services/dynamic-component.service';
+import { QuizQuestionCommunicationService } from '../../../../shared/services/quiz-question-communication.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
@@ -31,6 +32,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
   constructor(
     protected dynamicComponentService: DynamicComponentService,
+    protected quizQuestionCommunicationService: QuizQuestionCommunicationService,
     protected quizService: QuizService,
     protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
