@@ -29,7 +29,6 @@ import { DynamicComponentService } from '../../shared/services/dynamic-component
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
-import { QuizQuestionComponent } from './question.component';
 
 @Component({
   selector: 'app-base-question',
