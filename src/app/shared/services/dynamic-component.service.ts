@@ -35,4 +35,25 @@ export class DynamicComponentService {
       return { SingleAnswerComponent: module.SingleAnswerComponent };
     }
   }
+
+  findComponentByType<T>(component: any, type: Type<T>): T | null {
+    if (component instanceof type) {
+      return component;
+    }
+
+    if (component.viewContainerRef) {
+      const viewRef = component.viewContainerRef;
+      for (let i = 0; i < viewRef.length; i++) {
+        const childComponentRef = viewRef.get(i) as ComponentRef<any>;
+        if (childComponentRef) {
+          const result = this.findComponentByType(childComponentRef.instance, type);
+          if (result) {
+            return result;
+          }
+        }
+      }
+    }
+
+    return null;
+  }
 }
