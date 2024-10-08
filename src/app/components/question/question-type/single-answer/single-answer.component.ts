@@ -39,7 +39,6 @@ export class SingleAnswerComponent
   // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
   viewContainerRef!: ViewContainerRef;
-
   quizQuestionComponent: QuizQuestionComponent | undefined;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   quizQuestionComponentOnOptionClicked: (
@@ -92,17 +91,25 @@ export class SingleAnswerComponent
     }
   }
 
-  ngAfterViewInit(): void {
+  async ngAfterViewInit(): Promise<void> {
     console.log('ngAfterViewInit called');
 
+    // Load the QuizQuestionComponent dynamically
+    const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
+      this.viewContainerRef,
+      false // Adjust as needed for Single/MultipleAnswerComponent
+    );
+
+    // Store the reference to the dynamically loaded component
+    this.quizQuestionComponent = componentRef.instance;
+
     if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent is available');
+      console.log('QuizQuestionComponent dynamically loaded and available');
     } else {
-      console.warn('QuizQuestionComponent is not available in ngAfterViewInit. Attempting alternative ways.');
-      this.findQuizQuestionComponent();
+      console.error('Failed to dynamically load QuizQuestionComponent');
     }
 
-    // Detect changes only if necessary
+    // Trigger change detection if needed
     this.cdRef.detectChanges();
   }
 
