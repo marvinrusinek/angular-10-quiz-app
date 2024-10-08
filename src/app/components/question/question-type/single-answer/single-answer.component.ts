@@ -88,19 +88,20 @@ export class SingleAnswerComponent
 
   ngAfterViewInit(): void {
     console.log('ngAfterViewInit called');
-    setTimeout(() => {
-      if (this.quizQuestionComponent) {
-        console.log('QuizQuestionComponent is available');
-      } else {
-        console.warn('QuizQuestionComponent is not available. Attempting to find it in the component tree.');
-        this.findQuizQuestionComponent();
-      }
-      this.cdRef.detectChanges();
-    });
+
+    if (this.quizQuestionComponent) {
+      console.log('QuizQuestionComponent is available');
+    } else {
+      console.warn('QuizQuestionComponent is not available in ngAfterViewInit. Attempting alternative ways.');
+      this.findQuizQuestionComponent();
+    }
+
+    // Detect changes only if necessary
+    this.cdRef.detectChanges();
   }
 
   private findQuizQuestionComponent(): void {
-    // Attempt to find QuizQuestionComponent in the component tree
+    // Attempt to find QuizQuestionComponent in the component tree using the service
     const componentRef = this.dynamicComponentService.findComponentByType(this, QuizQuestionComponent);
     if (componentRef) {
       this.quizQuestionComponent = componentRef;
