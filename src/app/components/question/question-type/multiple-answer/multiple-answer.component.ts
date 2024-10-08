@@ -109,8 +109,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       ...option,
       optionId: option.optionId ?? index,
       questionIndex: option.questionIndex ?? this.quizService.getCurrentQuestionIndex(),
-      text: option.text || `Option ${index + 1}`,
-      // Include other properties from the SelectedOption model as needed
+      text: option.text || `Option ${index + 1}`
     };
 
     // Emit the option clicked event
