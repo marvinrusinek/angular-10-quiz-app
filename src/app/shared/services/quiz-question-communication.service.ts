@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+
 import { SelectedOption } from '../models/SelectedOption.model';
 
 @Injectable({ providedIn: 'root' })
