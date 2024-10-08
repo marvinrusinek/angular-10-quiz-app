@@ -36,24 +36,28 @@ export class DynamicComponentService {
     }
   }
 
-  findComponentByType<T>(component: any, type: Type<T>): T | null {
-    if (component instanceof type) {
-      return component;
+  findComponentByType<T>(parentComponent: any, type: Type<T>): T | null {
+    if (parentComponent instanceof type) {
+      return parentComponent;
     }
-
-    if (component.viewContainerRef) {
-      const viewRef = component.viewContainerRef;
+  
+    // Check if parent component has child components (e.g., using ViewChild or ContentChild)
+    if (parentComponent.viewContainerRef) {
+      const viewRef = parentComponent.viewContainerRef;
       for (let i = 0; i < viewRef.length; i++) {
         const childComponentRef = viewRef.get(i) as ComponentRef<any>;
-        if (childComponentRef) {
-          const result = this.findComponentByType(childComponentRef.instance, type);
-          if (result) {
-            return result;
-          }
+        if (childComponentRef && childComponentRef.instance instanceof type) {
+          return childComponentRef.instance;
+        }
+  
+        // Recursively search children
+        const result = this.findComponentByType(childComponentRef.instance, type);
+        if (result) {
+          return result;
         }
       }
     }
-
+  
     return null;
-  }
+  }  
 }
