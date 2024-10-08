@@ -14,7 +14,8 @@ export class DynamicComponentService {
 
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     container.clear();
-    return container.createComponent(componentFactory);
+    const componentRef = container.createComponent(componentFactory);
+    return componentRef;
   }
 
   private async importComponent(
