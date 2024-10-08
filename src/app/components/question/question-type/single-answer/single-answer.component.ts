@@ -148,6 +148,9 @@ export class SingleAnswerComponent
     } else {
       console.error('QuizQuestionComponent is not available');
     }
+
+    // Emit the option clicked event
+    this.quizQuestionCommunicationService.emitOptionClicked(option, index, checked);
   
     await super.onOptionClicked(option, index, checked); // call the inherited method in BQC
     console.log("QQC", this.quizQuestionComponent);

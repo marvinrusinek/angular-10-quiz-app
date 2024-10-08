@@ -105,6 +105,9 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       console.error('QuizQuestionComponent is not available');
     }
 
+    // Emit the option clicked event
+    this.quizQuestionCommunicationService.emitOptionClicked(option, index, checked);
+
     await super.onOptionClicked(option, index, checked); // Calls BQC's implementation
 
     // Check if this component is actually an instance of QuizQuestionComponent
