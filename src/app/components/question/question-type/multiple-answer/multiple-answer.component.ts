@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterContentChecked, AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
@@ -20,7 +20,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
     '../shared-option.component.scss'
   ]
 })
-export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit, AfterViewInit {
+export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit, AfterViewInit, AfterContentChecked {
   @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
