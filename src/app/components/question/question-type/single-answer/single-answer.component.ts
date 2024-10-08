@@ -33,7 +33,7 @@ export class SingleAnswerComponent
   extends BaseQuestionComponent
   implements OnInit, OnChanges, AfterViewInit
 {
-  @ViewChild(QuizQuestionComponent) quizQuestionComponent!: QuizQuestionComponent;
+  @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   quizQuestionComponentOnOptionClicked: (
     option: SelectedOption,
