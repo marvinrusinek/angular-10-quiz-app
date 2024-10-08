@@ -2,9 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { SelectedOption } from '../models/SelectedOption.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class QuizQuestionCommunicationService {
   private optionClickedSource = new Subject<{option: SelectedOption, index: number, checked: boolean}>();
 
