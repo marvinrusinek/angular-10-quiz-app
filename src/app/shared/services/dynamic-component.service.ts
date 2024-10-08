@@ -1,4 +1,4 @@
-import { ComponentRef, Injectable, ComponentFactoryResolver, ViewContainerRef, Type } from '@angular/core';
+import { ComponentFactoryResolver, ComponentRef, Injectable, Type, ViewContainerRef } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class DynamicComponentService {
