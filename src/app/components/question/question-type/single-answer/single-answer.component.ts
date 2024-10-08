@@ -34,7 +34,7 @@ export class SingleAnswerComponent
   extends BaseQuestionComponent
   implements OnInit, OnChanges, AfterViewInit
 {
-  @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent?: QuizQuestionComponent;
+  @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   quizQuestionComponentOnOptionClicked: (
     option: SelectedOption,
@@ -98,6 +98,14 @@ export class SingleAnswerComponent
 
     // Detect changes only if necessary
     this.cdRef.detectChanges();
+  }
+
+  ngAfterContentChecked(): void {
+    if (this.quizQuestionComponent) {
+      console.log('QuizQuestionComponent is available');
+    } else {
+      console.warn('QuizQuestionComponent is still not available.');
+    }
   }
 
   private findQuizQuestionComponent(): void {

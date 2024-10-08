@@ -21,7 +21,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
   ]
 })
 export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit, AfterViewInit {
-  @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent?: QuizQuestionComponent;
+  @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
@@ -60,6 +60,14 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
     // Detect changes only if necessary
     this.cdRef.detectChanges();
+  }
+
+  ngAfterContentChecked(): void {
+    if (this.quizQuestionComponent) {
+      console.log('QuizQuestionComponent is available');
+    } else {
+      console.warn('QuizQuestionComponent is still not available.');
+    }
   }
 
   private findQuizQuestionComponent(): void {
