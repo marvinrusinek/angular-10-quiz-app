@@ -9,6 +9,7 @@ import {
   Output,
   SimpleChanges,
   ViewChild,
+  ViewContainerRef
 } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
@@ -35,7 +36,11 @@ export class SingleAnswerComponent
   extends BaseQuestionComponent
   implements OnInit, OnChanges, AfterViewInit, AfterContentChecked
 {
-  @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
+  // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
+  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
+  viewContainerRef!: ViewContainerRef;
+
+  quizQuestionComponent: QuizQuestionComponent | undefined;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   quizQuestionComponentOnOptionClicked: (
     option: SelectedOption,
