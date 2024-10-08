@@ -33,7 +33,7 @@ export class SingleAnswerComponent
   extends BaseQuestionComponent
   implements OnInit, OnChanges, AfterViewInit
 {
-  @ViewChild(QuizQuestionComponent, { static: false })
+  @ViewChild(QuizQuestionComponent)
   quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   quizQuestionComponentOnOptionClicked: (
@@ -53,7 +53,7 @@ export class SingleAnswerComponent
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
   ) {
-    super(null, fb, dynamicComponentService, quizService, quizStateService, selectedOptionService, cdRef);
+    super(fb, dynamicComponentService, quizService, quizStateService, selectedOptionService, cdRef);
   }
 
   async ngOnInit(): Promise<void> {
