@@ -141,6 +141,7 @@ export class SingleAnswerComponent
   }
 
   public override async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
+    console.log('SingleAnswerComponent: onOptionClicked called', new Error().stack);
     console.log('SingleAnswerComponent: onOptionClicked called', option, index, checked);
     if (this.quizQuestionComponent) {
       console.log('Calling onOptionClicked in QuizQuestionComponent');
