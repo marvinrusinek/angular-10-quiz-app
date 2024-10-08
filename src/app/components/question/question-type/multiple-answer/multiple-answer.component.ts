@@ -47,15 +47,27 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   }
 
   ngAfterViewInit(): void {
-    // Remove the if-else check and use setTimeout to ensure the view is fully initialized
+    console.log('ngAfterViewInit called');
     setTimeout(() => {
       if (this.quizQuestionComponent) {
         console.log('QuizQuestionComponent is available');
       } else {
-        console.error('QuizQuestionComponent is not available');
+        console.warn('QuizQuestionComponent is not available. Attempting to find it in the component tree.');
+        this.findQuizQuestionComponent();
       }
       this.cdRef.detectChanges();
     });
+  }
+
+  private findQuizQuestionComponent(): void {
+    // Attempt to find QuizQuestionComponent in the component tree
+    const componentRef = this.dynamicComponentService.findComponentByType(this, QuizQuestionComponent);
+    if (componentRef) {
+      this.quizQuestionComponent = componentRef;
+      console.log('QuizQuestionComponent found in the component tree');
+    } else {
+      console.error('QuizQuestionComponent not found in the component tree');
+    }
   }
 
   loadDynamicComponent(): void {}
