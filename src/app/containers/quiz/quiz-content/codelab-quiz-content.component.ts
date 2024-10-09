@@ -837,26 +837,53 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     // Combining the logic to determine if the correct answers text should be displayed
     this.shouldDisplayCorrectAnswers$ = combineLatest([
       this.shouldDisplayCorrectAnswers$.pipe(
-        map(value => value ?? false), // Default to `false` if value is `undefined`
+        startWith(false), // Ensuring it has an initial value
+        tap(value => {
+          if (value === undefined) {
+            console.error('shouldDisplayCorrectAnswers$ emitted undefined!');
+          }
+        }),
+        map(value => value ?? false), // Fallback to false if value is undefined
         distinctUntilChanged()
       ),
       this.isExplanationDisplayed$.pipe(
-        map(value => value ?? false), // Default to `false` if value is `undefined`
+        startWith(false), // Ensuring it has an initial value
+        tap(value => {
+          if (value === undefined) {
+            console.error('isExplanationDisplayed$ emitted undefined!');
+          }
+        }),
+        map(value => value ?? false), // Fallback to false if value is undefined
         distinctUntilChanged()
       )
     ]).pipe(
+      tap(([shouldDisplayCorrectAnswers, isExplanationDisplayed]) => {
+        console.log('Combined shouldDisplayCorrectAnswers and isExplanationDisplayed:', {
+          shouldDisplayCorrectAnswers,
+          isExplanationDisplayed
+        });
+      }),
       map(([shouldDisplayCorrectAnswers, isExplanationDisplayed]) =>
         shouldDisplayCorrectAnswers && !isExplanationDisplayed
       ),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      catchError(error => {
+        console.error('Error in shouldDisplayCorrectAnswers$ observable:', error);
+        return of(false); // Default to not displaying correct answers in case of error
+      })
     );
-  
+
     // Display correctAnswersText only if the above conditions are met
     this.displayCorrectAnswersText$ = this.shouldDisplayCorrectAnswers$.pipe(
-      switchMap(shouldDisplay => 
-        shouldDisplay ? this.correctAnswersText$ : of(null)
-      ),
-      distinctUntilChanged()
+      switchMap(shouldDisplay => {
+        console.log('switchMap - shouldDisplay:', shouldDisplay);
+        return shouldDisplay ? this.correctAnswersText$ : of(null);
+      }),
+      distinctUntilChanged(),
+      catchError(error => {
+        console.error('Error in displayCorrectAnswersText$ observable:', error);
+        return of(null); // Default to null in case of error
+      })
     );
   }
 
