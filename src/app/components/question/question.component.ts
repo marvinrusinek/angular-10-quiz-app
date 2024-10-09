@@ -226,7 +226,7 @@ export class QuizQuestionComponent
     console.log('QuizStateService injected:', !!this.quizStateService);
 
     this.questionForm = this.fb.group({});
-    this.shouldRenderComponent = true;
+    this.shouldRenderComponent = this.checkIfComponentShouldDisplay();
 
     this.sharedVisibilitySubscription =
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
@@ -1917,11 +1917,6 @@ export class QuizQuestionComponent
 
   private logDebugInformation(): void {
     console.log('Answers:', this.answers);
-  }
-
-  shouldRenderComponent(): boolean {
-    const shouldDisplayAnswers = this.checkIfComponentShouldDisplay();
-    return shouldDisplayAnswers;
   }
 
   private checkIfComponentShouldDisplay(): boolean {
