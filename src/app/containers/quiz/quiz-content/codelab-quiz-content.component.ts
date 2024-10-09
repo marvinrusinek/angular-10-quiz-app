@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, EMPTY, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -654,10 +654,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
-    return combineLatest([
+    return combineLatest(
       this.quizService.getCurrentQuestion() ?? EMPTY,
       this.quizService.getCurrentOptions() ?? of([])
-    ]).pipe(
+    ).pipe(
       map(([currentQuestion, currentOptions]) => {
         console.log('Combining current question:', currentQuestion);
         console.log('Combining current options:', currentOptions);
@@ -671,7 +671,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of({ currentQuestion: null, currentOptions: [] });
       })
     );
-  }  
+  }
 
   private calculateCombinedQuestionData(
     currentQuizData: CombinedQuestionDataType,
