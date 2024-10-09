@@ -559,10 +559,22 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     });
 
     this.combinedQuestionData$ = combineLatest([
-      currentQuizAndOptions$,
-      this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$,
-      this.formattedExplanation$
+      currentQuizAndOptions$.pipe(
+        map(value => value ?? {}), // Default to an empty object if value is `undefined`
+        distinctUntilChanged()
+      ),
+      this.numberOfCorrectAnswers$.pipe(
+        map(value => value ?? 0), // Default to `0` if value is `undefined`
+        distinctUntilChanged()
+      ),
+      this.isExplanationTextDisplayed$.pipe(
+        map(value => value ?? false), // Default to `false` if value is `undefined`
+        distinctUntilChanged()
+      ),
+      this.formattedExplanation$.pipe(
+        map(value => value ?? ''), // Default to an empty string if value is `undefined`
+        distinctUntilChanged()
+      )
     ]).pipe(
       switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
         console.log('Data Received for Combination:', {
