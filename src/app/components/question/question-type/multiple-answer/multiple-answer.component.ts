@@ -63,7 +63,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       } else {
         console.warn('viewContainerRef is still not available after delay in ngAfterViewInit');
       }
-    }, 100); // Add a delay to ensure view is fully initialized
+    }, 100);
   }
   
   ngAfterViewChecked(): void {
