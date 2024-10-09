@@ -655,11 +655,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
     return combineLatest([
-      this.quizService.getCurrentQuestion(),
-      this.quizService.getCurrentOptions()
+      this.quizService.getCurrentQuestion() ?? EMPTY,
+      this.quizService.getCurrentOptions() ?? of([])
     ]).pipe(
       map(([currentQuestion, currentOptions]) => {
-        // Handle potential null or undefined values to ensure safe combination
+        console.log('Combining current question:', currentQuestion);
+        console.log('Combining current options:', currentOptions);
         return {
           currentQuestion: currentQuestion || null,
           currentOptions: Array.isArray(currentOptions) ? currentOptions : []
@@ -667,7 +668,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }),
       catchError(error => {
         console.error('Error combining current question and options:', error);
-        // Fallback to avoid undefined values
         return of({ currentQuestion: null, currentOptions: [] });
       })
     );
