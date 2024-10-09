@@ -99,17 +99,6 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     }
   }
 
-  private findQuizQuestionComponent(): void {
-    // Attempt to find QuizQuestionComponent in the component tree using the service
-    const componentRef = this.dynamicComponentService.findComponentByType(this, QuizQuestionComponent);
-    if (componentRef) {
-      this.quizQuestionComponent = componentRef;
-      console.log('QuizQuestionComponent found in the component tree');
-    } else {
-      console.error('QuizQuestionComponent not found in the component tree');
-    }
-  }
-
   loadDynamicComponent(): void {}
 
   private async initializeMultipleAnswerConfig(): Promise<void> {

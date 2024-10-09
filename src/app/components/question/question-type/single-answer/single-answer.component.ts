@@ -139,17 +139,6 @@ export class SingleAnswerComponent
     }
   }
 
-  private findQuizQuestionComponent(): void {
-    // Attempt to find QuizQuestionComponent in the component tree using the service
-    const componentRef = this.dynamicComponentService.findComponentByType(this, QuizQuestionComponent);
-    if (componentRef) {
-      this.quizQuestionComponent = componentRef;
-      console.log('QuizQuestionComponent found in the component tree');
-    } else {
-      console.error('QuizQuestionComponent not found in the component tree');
-    }
-  }
-
   loadDynamicComponent(): void {}
 
   public override async initializeSharedOptionConfig(): Promise<void> {
