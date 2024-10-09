@@ -405,8 +405,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   // Function to handle the display of correct answers
   private handleCorrectAnswersDisplay(question: QuizQuestion): void {
-    const isMultipleAnswer$ = this.quizStateService.isMultipleAnswerQuestion(question);
-    const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$;
+    const isMultipleAnswer$ = this.quizStateService.isMultipleAnswerQuestion(question).pipe(
+        map(value => value ?? false), // Default to `false` if value is `undefined`
+        distinctUntilChanged()
+    );
+    const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$.pipe(
+        map(value => value ?? false), // Default to `false` if value is `undefined`
+        distinctUntilChanged()
+    );
 
     combineLatest([isMultipleAnswer$, isExplanationDisplayed$])
       .pipe(
@@ -419,6 +425,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
             // For all other cases, display correct answers
             return of(isMultipleAnswer && !isExplanationDisplayed);
           }
+        }),
+        catchError(error => {
+          console.error('Error in handleCorrectAnswersDisplay:', error);
+          return of(false); // Default to not displaying correct answers in case of error
         })
       )
       .subscribe((shouldDisplayCorrectAnswers: boolean) => {
