@@ -850,27 +850,20 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
-    const quizId = this.getCurrentQuizId(); // Retrieve the current quiz ID
+    const quizId = this.getCurrentQuizId();
     return this.findQuizByQuizId(quizId).pipe(
       map((quiz) => {
         if (!quiz || !Array.isArray(quiz.questions) || quiz.questions.length === 0) {
           console.error('Invalid quiz data or no questions available');
           throw new Error('No questions available');
         }
-  
-        const questions = quiz.questions;
-        const currentQuestionIndex =
-          this.currentQuestionIndex >= 0 &&
-          this.currentQuestionIndex < questions.length
-            ? this.currentQuestionIndex
-            : 0;
-  
-        return questions[currentQuestionIndex];
+        return quiz.questions[this.currentQuestionIndex >= 0 && this.currentQuestionIndex < quiz.questions.length
+          ? this.currentQuestionIndex
+          : 0];
       }),
       catchError((error: Error) => {
         console.error('Error fetching current question:', error);
-        // Return EMPTY to complete the Observable without emitting undefined
-        return EMPTY;
+        return EMPTY; // Return an EMPTY observable to avoid emitting undefined
       })
     );
   }  
