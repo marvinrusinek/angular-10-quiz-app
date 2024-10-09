@@ -56,13 +56,13 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
   ngAfterViewInit(): void {
     if (this.viewContainerRef) {
-      console.log('viewContainerRef is available in ngAfterViewInit');
+      console.log('viewContainerRef is available in ngAfterViewInit for MAC');
       this.loadQuizQuestionComponent();
-      this.hasComponentLoaded = true; // Prevent loading the component multiple times
+      this.hasComponentLoaded = true; // Prevent loading multiple times
     } else {
-      console.warn('viewContainerRef is not available in ngAfterViewInit');
+      console.warn('viewContainerRef is not available in ngAfterViewInit for MAC');
     }
-  }  
+  }
 
   private async loadQuizQuestionComponent(): Promise<void> {
     try {
