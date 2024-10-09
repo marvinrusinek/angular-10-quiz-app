@@ -202,10 +202,10 @@ export class SingleAnswerComponent
     console.log('SingleAnswerComponent: onOptionClicked called', new Error().stack);
     console.log('SingleAnswerComponent: onOptionClicked called', option, index, checked);
 
-    if (!this.isQuizQuestionComponentLoaded || !this.quizQuestionComponent) {
+    /* if (!this.isQuizQuestionComponentLoaded || !this.quizQuestionComponent) {
       console.warn('QuizQuestionComponent is not available when clicking an option.');
       return;
-    }
+    } */
 
     /* if (this.quizQuestionComponent) {
       console.log('Calling onOptionClicked in QuizQuestionComponent');
