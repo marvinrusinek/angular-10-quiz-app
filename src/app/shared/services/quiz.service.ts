@@ -911,15 +911,16 @@ export class QuizService implements OnDestroy {
     return of(currentQuestion.options);
   }
 
-  getFallbackQuestion(): QuizQuestion {
+  getFallbackQuestion(): QuizQuestion | null {
     // Check if quizData is available and has at least one question
     if (
       Array.isArray(this.quizData) &&
       this.quizData.length > 0 &&
+      Array.isArray(this.quizData[0].questions) && // Ensure questions is an array
       this.quizData[0].questions.length > 0
     ) {
       // Return the first question of the first quiz as the fallback question
-      return this.quizData[0].questions[0] ?? null;
+      return this.quizData[0].questions[0];
     } else {
       // Fallback to a more generic error handling if no questions are available
       console.error('No questions available for fallback.');
