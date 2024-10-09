@@ -37,7 +37,7 @@ export class SingleAnswerComponent
   implements OnInit, OnChanges, AfterViewInit, AfterContentChecked
 {
   // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
-  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
+  @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
   viewContainerRef!: ViewContainerRef;
   @Output() componentLoaded = new EventEmitter<QuizQuestionComponent>();
   quizQuestionComponent: QuizQuestionComponent | undefined;

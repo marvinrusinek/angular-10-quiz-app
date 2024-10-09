@@ -22,7 +22,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 })
 export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit, AfterViewInit, AfterContentChecked {
   // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
-  @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
+  @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
   viewContainerRef!: ViewContainerRef;
   @Output() componentLoaded = new EventEmitter<QuizQuestionComponent>();
   quizQuestionComponent: QuizQuestionComponent | undefined;
