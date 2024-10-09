@@ -52,7 +52,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     this.initializeSharedOptionConfig();
   }
 
-  async ngAfterViewInit(): Promise<void> {
+  /* async ngAfterViewInit(): Promise<void> {
     console.log('ngAfterViewInit called');
 
     try {
@@ -74,6 +74,21 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       }
     } catch (error) {
       console.error('Error loading QuizQuestionComponent:', error);
+    }
+  } */
+  async ngAfterViewInit(): Promise<void> {
+    if (this.viewContainerRef) {
+      try {
+        const componentRef = await this.dynamicComponentService.loadComponent(
+          this.viewContainerRef,
+          true // Assuming true or false based on condition
+        );
+        // Further actions can be done here after loading the component
+      } catch (error) {
+        console.error('Error loading QuizQuestionComponent:', error);
+      }
+    } else {
+      console.error('viewContainerRef is not available in ngAfterViewInit');
     }
   }
 
