@@ -8,22 +8,22 @@ export class DynamicComponentService {
     container: ViewContainerRef,
     multipleAnswer: boolean
   ): Promise<ComponentRef<T>> {
-    if (!container) {
-      throw new Error('ViewContainerRef is undefined, cannot load the component');
-    }
-
     const component = multipleAnswer
       ? (await this.importComponent('multiple')).MultipleAnswerComponent as Type<T>
       : (await this.importComponent('single')).SingleAnswerComponent as Type<T>;
 
-    // Clear the container and create the component
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     container.clear();
-    return container.createComponent(component);
+    const componentRef = container.createComponent(componentFactory);
+    return componentRef;
   }
 
   private async importComponent(
     type: string
-  ): Promise<{ MultipleAnswerComponent?: Type<any>; SingleAnswerComponent?: Type<any> }> {
+  ): Promise<{
+    MultipleAnswerComponent?: Type<any>;
+    SingleAnswerComponent?: Type<any>;
+  }> {
     if (type === 'multiple') {
       const module = await import(
         '../../components/question/question-type/multiple-answer/multiple-answer.component'
