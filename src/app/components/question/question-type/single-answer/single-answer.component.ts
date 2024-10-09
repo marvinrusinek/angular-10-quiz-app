@@ -117,14 +117,28 @@ export class SingleAnswerComponent
       console.error('Error loading QuizQuestionComponent:', error);
     }
   } */
-  async ngAfterViewInit(): Promise<void> {
+  ngAfterViewInit(): void {
     console.log('ngAfterViewInit called');
+    // Note that we are not trying to load the component here, just logging the lifecycle stage.
+  }
 
-    if (!this.viewContainerRef) {
-      console.error('viewContainerRef is not available in ngAfterViewInit');
+  ngAfterViewChecked(): void {
+    // Check if the component has already been loaded
+    if (this.hasComponentLoaded) {
       return;
     }
 
+    // Only proceed if viewContainerRef is available
+    if (this.viewContainerRef) {
+      console.log('viewContainerRef is now available in ngAfterViewChecked');
+      this.loadQuizQuestionComponent();
+      this.hasComponentLoaded = true; // Prevent loading the component multiple times
+    } else {
+      console.warn('viewContainerRef is still not available in ngAfterViewChecked');
+    }
+  }
+
+  private async loadQuizQuestionComponent(): Promise<void> {
     try {
       // Load the QuizQuestionComponent dynamically and capture the reference immediately
       const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
@@ -137,7 +151,6 @@ export class SingleAnswerComponent
 
       if (this.quizQuestionComponent) {
         console.log('QuizQuestionComponent dynamically loaded and available');
-        this.isQuizQuestionComponentLoaded = true; // Set the flag to true
       } else {
         console.error('Failed to dynamically load QuizQuestionComponent');
       }
@@ -146,14 +159,6 @@ export class SingleAnswerComponent
       this.cdRef.detectChanges();
     } catch (error) {
       console.error('Error loading QuizQuestionComponent:', error);
-    }
-  }
-
-  ngAfterContentChecked(): void {
-    if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent is available');
-    } else {
-      console.warn('QuizQuestionComponent is still not available.');
     }
   }
 
