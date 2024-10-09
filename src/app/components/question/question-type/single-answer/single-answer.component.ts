@@ -50,6 +50,7 @@ export class SingleAnswerComponent
   selectedOption: SelectedOption | null = null;
   sharedOptionConfig: SharedOptionConfig;
   optionBindings: OptionBindings[] = [];
+  isQuizQuestionComponentLoaded = false;
 
   constructor(
     protected dynamicComponentService: DynamicComponentService,
