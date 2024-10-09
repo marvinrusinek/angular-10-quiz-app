@@ -792,11 +792,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
-      this.nextQuestion$.pipe(startWith(null)),
-      this.previousQuestion$.pipe(startWith(null)),
-      this.explanationTextService.formattedExplanation$.pipe(startWith('')),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
-      this.quizStateService.currentQuestionIndex$.pipe(startWith(0))
+      this.nextQuestion$.pipe(startWith(null), distinctUntilChanged()),
+      this.previousQuestion$.pipe(startWith(null), distinctUntilChanged()),
+      this.explanationTextService.formattedExplanation$.pipe(startWith(''), distinctUntilChanged()),
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
+      this.quizStateService.currentQuestionIndex$.pipe(startWith(0), distinctUntilChanged())
     ]).pipe(
       switchMap(params => this.determineTextToDisplay(params as [QuizQuestion | null, QuizQuestion | null, string, boolean, number])),
       distinctUntilChanged(),
