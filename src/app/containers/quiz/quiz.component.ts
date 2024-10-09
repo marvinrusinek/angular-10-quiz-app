@@ -345,6 +345,11 @@ export class QuizComponent
     this.checkIfAnswerSelected(true);
   }
 
+  onQuizQuestionComponentLoaded(quizQuestionComponent: QuizQuestionComponent): void {
+    console.log('QuizQuestionComponent is now available', quizQuestionComponent);
+    // Perform actions that depend on the availability of QuizQuestionComponent here
+  }
+
   private initializeNextButtonState(): void {
     console.log("MY INBS");
     // Initialize local properties
