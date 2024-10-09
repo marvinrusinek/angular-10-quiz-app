@@ -654,10 +654,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
-    return combineLatest(
+    return combineLatest([
       this.quizService.getCurrentQuestion() ?? EMPTY,
       this.quizService.getCurrentOptions() ?? of([])
-    ).pipe(
+    ]).pipe(
       map(([currentQuestion, currentOptions]) => {
         console.log('Combining current question:', currentQuestion);
         console.log('Combining current options:', currentOptions);
