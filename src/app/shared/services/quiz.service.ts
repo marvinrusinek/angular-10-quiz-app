@@ -1157,7 +1157,7 @@ export class QuizService implements OnDestroy {
           }),
           catchError(error => {
             console.error('Error in combinedQuestionData$:', error);
-            return of(null); // Use a valid fallback to ensure the observable never emits `undefined`
+            return of(null);
           })
         );
       } else {
