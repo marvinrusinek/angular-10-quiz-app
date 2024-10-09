@@ -1099,18 +1099,16 @@ export class QuizComponent
   // Tooltip for next button
   getNextButtonTooltip(): Observable<string> {
     return combineLatest([
-      this.isOptionSelected$.pipe(
-        map((value) => value ?? false), // Default to `false` if value is `undefined`
-        distinctUntilChanged()
-      ),
-      this.isButtonEnabled$.pipe(
-        map((value) => value ?? false), // Default to `false` if value is `undefined`
-        distinctUntilChanged()
-      )
+      this.isOptionSelected$,
+      this.isButtonEnabled$
     ]).pipe(
       map(([isSelected, isEnabled]) => {
-        console.log('isSelected:', isSelected, 'isEnabled:', isEnabled); // Debugging line
-        return isEnabled && isSelected ? 'Next Question »' : 'Please select an option to continue...';
+        // Ensure that neither is undefined by providing safe fallbacks.
+        const safeIsSelected = isSelected ?? false;
+        const safeIsEnabled = isEnabled ?? false;
+
+        console.log('isSelected:', safeIsSelected, 'isEnabled:', safeIsEnabled); // Debugging line
+        return safeIsEnabled && safeIsSelected ? 'Next Question »' : 'Please select an option to continue...';
       }),
       distinctUntilChanged()
     );
