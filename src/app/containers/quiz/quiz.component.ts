@@ -1397,26 +1397,68 @@ export class QuizComponent
     ) => ({
       questionText: question?.questionText ?? null,
       correctAnswersText: null,
-      options,
+      options: options ?? [] // Fallback to an empty array if options are null or undefined
     });
 
     // Combine nextQuestion$ and nextOptions$ using combineLatest
     this.combinedQuestionData$ = combineLatest([
-      this.quizService.nextQuestion$,
-      this.quizService.nextOptions$,
-    ]).pipe(
-      switchMap(([nextQuestion, nextOptions]) =>
-        nextQuestion
-          ? of(createQuestionData(nextQuestion, nextOptions))
-          : combineLatest([
-              this.quizService.previousQuestion$,
-              this.quizService.previousOptions$,
-            ]).pipe(
-              map(([previousQuestion, previousOptions]) =>
-                createQuestionData(previousQuestion, previousOptions)
-              )
-            )
+      this.quizService.nextQuestion$.pipe(
+        map(value => {
+          if (value === undefined) {
+            console.warn('nextQuestion$ emitted undefined, defaulting to null');
+            return null;
+          }
+          return value;
+        }),
+        distinctUntilChanged()
+      ),
+      this.quizService.nextOptions$.pipe(
+        map(value => {
+          if (value === undefined) {
+            console.warn('nextOptions$ emitted undefined, defaulting to empty array');
+            return [];
+          }
+          return value;
+        }),
+        distinctUntilChanged()
       )
+    ]).pipe(
+      switchMap(([nextQuestion, nextOptions]) => {
+        if (nextQuestion) {
+          return of(createQuestionData(nextQuestion, nextOptions));
+        } else {
+          return combineLatest([
+            this.quizService.previousQuestion$.pipe(
+              map(value => {
+                if (value === undefined) {
+                  console.warn('previousQuestion$ emitted undefined, defaulting to null');
+                  return null;
+                }
+                return value;
+              }),
+              distinctUntilChanged()
+            ),
+            this.quizService.previousOptions$.pipe(
+              map(value => {
+                if (value === undefined) {
+                  console.warn('previousOptions$ emitted undefined, defaulting to empty array');
+                  return [];
+                }
+                return value;
+              }),
+              distinctUntilChanged()
+            )
+          ]).pipe(
+            map(([previousQuestion, previousOptions]) =>
+              createQuestionData(previousQuestion, previousOptions)
+            )
+          );
+        }
+      }),
+      catchError(error => {
+        console.error('Error in createQuestionData:', error);
+        return of(createQuestionData(null, [])); // Fallback if an error occurs
+      })
     );
   }
 
