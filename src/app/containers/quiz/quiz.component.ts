@@ -354,13 +354,18 @@ export class QuizComponent
     console.log("MY INBS");
     // Initialize local properties
     this.isNextButtonEnabled = false;
-    // this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
   
     // Set up the observable for button state
     this.isButtonEnabled$ = combineLatest([
-      this.selectedOptionService.isAnsweredSubject,
-      this.quizStateService.isLoading$
+      this.selectedOptionService.isAnsweredSubject.pipe(
+        map((value) => value ?? false), // Default to `false` if value is `undefined`
+        distinctUntilChanged()
+      ),
+      this.quizStateService.isLoading$.pipe(
+        map((value) => value ?? true), // Default to `true` if value is `undefined`
+        distinctUntilChanged()
+      )
     ]).pipe(
       map(([isAnswered, isLoading]) => {
         const isEnabled = isAnswered && !isLoading;
@@ -376,7 +381,7 @@ export class QuizComponent
       }),
       shareReplay(1) // This ensures that multiple async pipes share the same execution
     );
-  
+
     console.log('Next button state initialized:', {
       isNextButtonEnabled: this.isNextButtonEnabled
     });
