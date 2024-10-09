@@ -1,5 +1,5 @@
 import {
-  AfterContentChecked,
+  AfterViewChecked,
   AfterViewInit,
   ChangeDetectorRef,
   Component,
@@ -34,7 +34,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 })
 export class SingleAnswerComponent
   extends BaseQuestionComponent
-  implements OnInit, OnChanges, AfterViewInit, AfterContentChecked
+  implements OnInit, OnChanges, AfterViewChecked, AfterViewInit
 {
   // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
