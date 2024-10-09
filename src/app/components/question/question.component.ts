@@ -225,8 +225,7 @@ export class QuizQuestionComponent
 
     console.log('QuizStateService injected:', !!this.quizStateService);
 
-    this.questionForm = this.fb.group({});
-    this.shouldRenderComponent = this.checkIfComponentShouldDisplay();
+    this.initializeForm();
 
     this.sharedVisibilitySubscription =
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
@@ -1919,19 +1918,28 @@ export class QuizQuestionComponent
     console.log('Answers:', this.answers);
   }
 
-  private checkIfComponentShouldDisplay(): boolean {
-    return this.isFormValid() && this.hasQuestionData();
+  initializeForm(): void {
+    this.questionForm = this.fb.group({});
+    
+    this.updateRenderComponentState();
+  }
+
+  private updateRenderComponentState(): void {
+    // Check if both the form is valid and question data is available
+    //if (this.isFormValid() && this.hasQuestionData()) {
+    //  console.log('Both form and question data are ready, rendering component');
+      this.shouldRenderComponent = true;
+    //} else {
+    //  console.log('Form or question data is not ready yet');
+    //}
   }
 
   private isFormValid(): boolean {
-    // Implement form validation logic here
-    // For example:
-    return this.questionForm.valid;
+    return this.questionForm?.valid ?? false; // Check form validity, ensure form is defined
   }
 
   private hasQuestionData(): boolean {
-    // Check if questionData exists and is not null
-    return !!this.questionData;
+    return !!this.questionData; // Check if question data is available
   }
 
   private async checkAndHandleCorrectAnswer(): Promise<void> {
