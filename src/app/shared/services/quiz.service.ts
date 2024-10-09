@@ -877,34 +877,38 @@ export class QuizService implements OnDestroy {
 
   // Get the current options for the current quiz and question
   getCurrentOptions(): Observable<Option[]> {
+    // Check if quizData is a valid array
     if (!Array.isArray(this.quizData)) {
       console.error('quizData is not an array or is undefined:', this.quizData);
-      return of([]);
+      return of([]); // Return an empty array if quizData is invalid
     }
-
+  
     // Find the current quiz based on the quizId
     const quiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
     if (!quiz) {
       console.warn(`No quiz found for quizId: ${this.quizId}`);
       return of([]); // Return an empty array if no quiz is found
     }
-
+  
     // Get the current question index
     let currentQuestionIndex = this.getCurrentQuestionIndex();
-
+  
     // Validate the current question index
-    const isValidIndex =
-      currentQuestionIndex >= 0 && currentQuestionIndex < quiz.questions.length;
+    const isValidIndex = currentQuestionIndex >= 0 && currentQuestionIndex < quiz.questions.length;
     if (!isValidIndex) {
-      console.warn(`Invalid currentQuestionIndex: ${currentQuestionIndex}`);
+      console.warn(`Invalid currentQuestionIndex: ${currentQuestionIndex}. Falling back to index 0.`);
       currentQuestionIndex = 0; // Fallback to the first question
     }
-
-    // Get the options for the current question, or default to an empty array
-    const options = quiz.questions[currentQuestionIndex]?.options || [];
-
+  
+    // Get the options for the current question
+    const currentQuestion = quiz.questions[currentQuestionIndex];
+    if (!currentQuestion || !Array.isArray(currentQuestion.options)) {
+      console.warn(`No options found for question at index: ${currentQuestionIndex}`);
+      return of([]); // Return an empty array if no valid options are found
+    }
+  
     // Return the options as an Observable array
-    return of(options);
+    return of(currentQuestion.options);
   }
 
   getFallbackQuestion(): QuizQuestion {
