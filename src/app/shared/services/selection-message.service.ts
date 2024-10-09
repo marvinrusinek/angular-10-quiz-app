@@ -39,7 +39,14 @@ export class SelectionMessageService {
   }  
 
   // Method to update the message
-  updateSelectionMessage(message: string): void {
+  updateSelectionMessage(message: string | undefined): void {
+    // Ensure the message is defined and not empty
+    if (typeof message === 'undefined' || message === null) {
+      console.warn('[updateSelectionMessage] Provided message is undefined or null, ignoring update.');
+      return; // Do not proceed if the message is not valid
+    }
+  
+    // Check if the new message is different from the current value
     if (this.selectionMessageSubject.value !== message) {
       console.log(`[updateSelectionMessage] Changing message from "${this.selectionMessageSubject.value}" to "${message}"`);
       this.selectionMessageSubject.next(message);
