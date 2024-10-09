@@ -24,6 +24,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: false })
   viewContainerRef!: ViewContainerRef;
+  @Output() componentLoaded = new EventEmitter<QuizQuestionComponent>();
   quizQuestionComponent: QuizQuestionComponent | undefined;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
@@ -54,23 +55,26 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   async ngAfterViewInit(): Promise<void> {
     console.log('ngAfterViewInit called');
 
-    // Load the QuizQuestionComponent dynamically
-    const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
-      this.viewContainerRef,
-      false // Adjust as needed for Single/MultipleAnswerComponent
-    );
+    try {
+      // Load the QuizQuestionComponent dynamically
+      const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
+        this.viewContainerRef,
+        false // Adjust as needed for Single/MultipleAnswerComponent
+      );
 
-    // Store the reference to the dynamically loaded component
-    this.quizQuestionComponent = componentRef.instance;
+      // Store the reference to the dynamically loaded component
+      this.quizQuestionComponent = componentRef.instance;
 
-    if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent dynamically loaded and available');
-    } else {
-      console.error('Failed to dynamically load QuizQuestionComponent');
+      if (this.quizQuestionComponent) {
+        console.log('QuizQuestionComponent dynamically loaded and available');
+        // Emit event indicating the component is loaded
+        this.componentLoaded.emit(this.quizQuestionComponent);
+      } else {
+        console.error('Failed to dynamically load QuizQuestionComponent');
+      }
+    } catch (error) {
+      console.error('Error loading QuizQuestionComponent:', error);
     }
-
-    // Trigger change detection if needed
-    this.cdRef.detectChanges();
   }
 
   ngAfterContentChecked(): void {
