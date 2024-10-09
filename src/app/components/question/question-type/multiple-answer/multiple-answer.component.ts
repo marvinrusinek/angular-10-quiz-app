@@ -34,6 +34,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   sharedOptionConfig: SharedOptionConfig;
   optionBindings: OptionBindings[] = [];
   isQuizQuestionComponentLoaded = false;
+  hasComponentLoaded = false;
 
   constructor(
     protected dynamicComponentService: DynamicComponentService,
