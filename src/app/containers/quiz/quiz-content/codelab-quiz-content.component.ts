@@ -155,17 +155,30 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   private initializeExplanationTextObservable(): void {
     combineLatest([
-      this.quizStateService.currentQuestion$,
-      this.explanationTextService.isExplanationTextDisplayed$
+      this.quizStateService.currentQuestion$.pipe(
+        map(value => value ?? null), // Default to `null` if value is `undefined`
+        distinctUntilChanged()
+      ),
+      this.explanationTextService.isExplanationTextDisplayed$.pipe(
+        map(value => value ?? false), // Default to `false` if value is `undefined`
+        distinctUntilChanged()
+      )
     ]).pipe(
       takeUntil(this.destroy$),
-      withLatestFrom(this.questionRendered), // Ensure questionRendered is true
+      withLatestFrom(this.questionRendered.pipe(
+        map(value => value ?? false), // Default to `false` if value is `undefined`
+        distinctUntilChanged()
+      )),
       switchMap(([[question, isDisplayed], rendered]) => {
         if (question && isDisplayed && rendered) {
           return this.fetchExplanationTextAfterRendering(question);
         } else {
           return of('');
         }
+      }),
+      catchError(error => {
+        console.error('Error fetching explanation text:', error);
+        return of(''); // Emit an empty string in case of an error
       })
     ).subscribe((explanation: string) => {
       this.explanationToDisplay = explanation;
