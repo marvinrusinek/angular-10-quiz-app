@@ -1926,20 +1926,16 @@ export class QuizQuestionComponent
 
   private updateRenderComponentState(): void {
     // Check if both the form is valid and question data is available
-    //if (this.isFormValid() && this.hasQuestionData()) {
-    //  console.log('Both form and question data are ready, rendering component');
-      this.shouldRenderComponent = true;
-    //} else {
-    //  console.log('Form or question data is not ready yet');
-    //}
+    if (this.isFormValid()) {
+     console.log('Both form and question data are ready, rendering component');
+    this.shouldRenderComponent = true;
+    } else {
+      console.log('Form or question data is not ready yet');
+    }
   }
 
   private isFormValid(): boolean {
     return this.questionForm?.valid ?? false; // Check form validity, ensure form is defined
-  }
-
-  private hasQuestionData(): boolean {
-    return !!this.questionData; // Check if question data is available
   }
 
   private async checkAndHandleCorrectAnswer(): Promise<void> {
