@@ -836,19 +836,27 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   private setupCorrectAnswersTextDisplay(): void {
     // Combining the logic to determine if the correct answers text should be displayed
     this.shouldDisplayCorrectAnswers$ = combineLatest([
-      this.shouldDisplayCorrectAnswers$,
-      this.isExplanationDisplayed$
+      this.shouldDisplayCorrectAnswers$.pipe(
+        map(value => value ?? false), // Default to `false` if value is `undefined`
+        distinctUntilChanged()
+      ),
+      this.isExplanationDisplayed$.pipe(
+        map(value => value ?? false), // Default to `false` if value is `undefined`
+        distinctUntilChanged()
+      )
     ]).pipe(
       map(([shouldDisplayCorrectAnswers, isExplanationDisplayed]) =>
         shouldDisplayCorrectAnswers && !isExplanationDisplayed
-      )
+      ),
+      distinctUntilChanged()
     );
   
     // Display correctAnswersText only if the above conditions are met
     this.displayCorrectAnswersText$ = this.shouldDisplayCorrectAnswers$.pipe(
       switchMap(shouldDisplay => 
         shouldDisplay ? this.correctAnswersText$ : of(null)
-      )
+      ),
+      distinctUntilChanged()
     );
   }
 
