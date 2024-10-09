@@ -51,6 +51,7 @@ export class SingleAnswerComponent
   sharedOptionConfig: SharedOptionConfig;
   optionBindings: OptionBindings[] = [];
   isQuizQuestionComponentLoaded = false;
+  hasComponentLoaded = false;
 
   constructor(
     protected dynamicComponentService: DynamicComponentService,
@@ -93,30 +94,6 @@ export class SingleAnswerComponent
     }
   }
 
-  /* async ngAfterViewInit(): Promise<void> {
-    console.log('ngAfterViewInit called');
-
-    try {
-      // Load the QuizQuestionComponent dynamically
-      const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
-        this.viewContainerRef,
-        false // Adjust as needed for Single/MultipleAnswerComponent
-      );
-
-      // Store the reference to the dynamically loaded component
-      this.quizQuestionComponent = componentRef.instance;
-
-      if (this.quizQuestionComponent) {
-        console.log('QuizQuestionComponent dynamically loaded and available');
-        // Emit event indicating the component is loaded
-        this.componentLoaded.emit(this.quizQuestionComponent);
-      } else {
-        console.error('Failed to dynamically load QuizQuestionComponent');
-      }
-    } catch (error) {
-      console.error('Error loading QuizQuestionComponent:', error);
-    }
-  } */
   ngAfterViewInit(): void {
     console.log('ngAfterViewInit called');
     // Note that we are not trying to load the component here, just logging the lifecycle stage.
