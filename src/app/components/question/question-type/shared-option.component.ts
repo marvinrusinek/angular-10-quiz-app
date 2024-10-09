@@ -73,7 +73,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     private selectedOptionService: SelectedOptionService,
     private userPreferenceService: UserPreferenceService,
     private cdRef: ChangeDetectorRef
-  ) {}
+  ) {
+    this.shouldRenderComponent = true;
+  }
 
   ngOnInit(): void {
     console.log('SharedOptionComponent ngOnInit called');
