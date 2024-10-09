@@ -167,6 +167,7 @@ export class QuizQuestionComponent
   displayExplanation = false;
   private tabVisible = true;
   sharedOptionConfig: SharedOptionConfig;
+  shouldRenderComponent = false;
 
   explanationTextSubject = new BehaviorSubject<string>('');
   feedbackTextSubject = new BehaviorSubject<string>('');
