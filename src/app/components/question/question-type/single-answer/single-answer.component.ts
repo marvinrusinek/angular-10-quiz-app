@@ -128,7 +128,7 @@ export class SingleAnswerComponent
       // Load the QuizQuestionComponent dynamically
       const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
         this.viewContainerRef,
-        true // Adjust as needed based on the condition (true for multiple-answer, false for single-answer)
+        true // Adjust as needed for MultipleAnswerComponent/SingleAnswerComponent
       );
 
       // Store the reference to the dynamically loaded component
@@ -136,6 +136,7 @@ export class SingleAnswerComponent
 
       if (this.quizQuestionComponent) {
         console.log('QuizQuestionComponent dynamically loaded and available');
+        this.isQuizQuestionComponentLoaded = true; // Set the flag to true
       } else {
         console.error('Failed to dynamically load QuizQuestionComponent');
       }
@@ -199,12 +200,18 @@ export class SingleAnswerComponent
   public override async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
     console.log('SingleAnswerComponent: onOptionClicked called', new Error().stack);
     console.log('SingleAnswerComponent: onOptionClicked called', option, index, checked);
-    if (this.quizQuestionComponent) {
+
+    if (!this.isQuizQuestionComponentLoaded || !this.quizQuestionComponent) {
+      console.warn('QuizQuestionComponent is not available when clicking an option.');
+      return;
+    }
+
+    /* if (this.quizQuestionComponent) {
       console.log('Calling onOptionClicked in QuizQuestionComponent');
       await this.quizQuestionComponent.onOptionClicked(option, index, checked);
     } else {
       console.error('QuizQuestionComponent is not available');
-    }
+    } */
 
     const updatedOption: SelectedOption = {
       ...option,
