@@ -505,13 +505,22 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   updateExplanationForQuestion(question: QuizQuestion): void {
     // Combine explanationTextService's observable with selectedOptionExplanation$
     const explanationText$ = combineLatest([
-      this.explanationTextService.getExplanationText$(),
-      this.selectedOptionService.selectedOptionExplanation$,
-    ]).pipe(
-      map(
-        ([explanationText, selectedOptionExplanation]) =>
-          selectedOptionExplanation ?? explanationText ?? 'No explanation available'
+      this.explanationTextService.getExplanationText$().pipe(
+        map(value => value ?? 'No explanation available'), // Default to 'No explanation available' if value is `undefined`
+        distinctUntilChanged()
+      ),
+      this.selectedOptionService.selectedOptionExplanation$.pipe(
+        map(value => value ?? null), // Default to `null` if value is `undefined`
+        distinctUntilChanged()
       )
+    ]).pipe(
+      map(([explanationText, selectedOptionExplanation]) =>
+        selectedOptionExplanation ?? explanationText ?? 'No explanation available'
+      ),
+      catchError(error => {
+        console.error('Error in updateExplanationForQuestion:', error);
+        return of('No explanation available'); // Emit default message in case of error
+      })
     );
 
     // Subscribe to explanationText$ and update the explanation text accordingly
