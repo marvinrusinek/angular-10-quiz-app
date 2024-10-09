@@ -654,13 +654,18 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
-    return combineLatest([
-      this.quizService.getCurrentQuestion(),
-      this.quizService.getCurrentOptions()
-    ]).pipe(
+    const question$ = this.quizService.getCurrentQuestion();
+    const options$ = this.quizService.getCurrentOptions();
+  
+    console.log('Before combining question$: ', question$);
+    console.log('Before combining options$: ', options$);
+  
+    return combineLatest([question$, options$]).pipe(
       map(([currentQuestion, currentOptions]) => {
-        console.log('Combining current question:', currentQuestion);
-        console.log('Combining current options:', currentOptions);
+        console.log('Emission in combineLatest - currentQuestion:', currentQuestion);
+        console.log('Emission in combineLatest - currentOptions:', currentOptions);
+        
+        // Ensure that emitted values are either properly defined or replaced with fallback values
         return {
           currentQuestion: currentQuestion ?? null,
           currentOptions: Array.isArray(currentOptions) ? currentOptions : []
@@ -672,6 +677,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     );
   }
+  
 
   private calculateCombinedQuestionData(
     currentQuizData: CombinedQuestionDataType,

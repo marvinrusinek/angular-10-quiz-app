@@ -1150,9 +1150,16 @@ export class QuizService implements OnDestroy {
           isExplanationDisplayed: true,
         };
         this.combinedQuestionDataSubject.next(combinedQuestionData);
-        this.combinedQuestionData$ = combineLatest([
-          this.combinedQuestionDataSubject.asObservable(),
-        ]).pipe(map(([combinedData]) => combinedData));
+        this.combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable().pipe(
+          map(combinedData => {
+            console.log('Emitting combined data:', combinedData);
+            return combinedData;
+          }),
+          catchError(error => {
+            console.error('Error in combinedQuestionData$:', error);
+            return of(null); // Use a valid fallback to ensure the observable never emits `undefined`
+          })
+        );
       } else {
         // Set combinedQuestionData with default or placeholder values
         const defaultCombinedQuestionData: CombinedQuestionDataType = {
