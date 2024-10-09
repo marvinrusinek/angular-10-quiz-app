@@ -95,14 +95,24 @@ export class SingleAnswerComponent
   }
 
   ngAfterViewInit(): void {
-    if (this.viewContainerRef) {
-      console.log('viewContainerRef is available in ngAfterViewInit for SAC');
-      this.loadQuizQuestionComponent();
-      this.hasComponentLoaded = true; // Prevent loading multiple times
-    } else {
-      console.warn('viewContainerRef is not available in ngAfterViewInit for SAC');
-    }
+    setTimeout(() => {
+      if (this.viewContainerRef) {
+        console.log('viewContainerRef is available in ngAfterViewInit after delay');
+        this.loadQuizQuestionComponent();
+        this.hasComponentLoaded = true;
+      } else {
+        console.warn('viewContainerRef is still not available after delay in ngAfterViewInit');
+      }
+    }, 100); // Add a delay to ensure view is fully initialized
   }
+  
+  ngAfterViewChecked(): void {
+    if (!this.hasComponentLoaded && this.viewContainerRef) {
+      console.log('viewContainerRef is now available in ngAfterViewChecked');
+      this.loadQuizQuestionComponent();
+      this.hasComponentLoaded = true;
+    }
+  }  
 
   private async loadQuizQuestionComponent(): Promise<void> {
     try {
