@@ -79,35 +79,42 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   } */
   async ngAfterViewInit(): Promise<void> {
     console.log('ngAfterViewInit called');
-
+  
     if (!this.viewContainerRef) {
       console.error('viewContainerRef is not available in ngAfterViewInit');
       return;
     }
-
+  
     try {
       // Load the QuizQuestionComponent dynamically
       const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
         this.viewContainerRef,
         true // Adjust as needed for MultipleAnswerComponent/SingleAnswerComponent
       );
-
+  
       // Store the reference to the dynamically loaded component
       this.quizQuestionComponent = componentRef.instance;
-
+  
       if (this.quizQuestionComponent) {
         console.log('QuizQuestionComponent dynamically loaded and available');
         this.isQuizQuestionComponentLoaded = true; // Set the flag to true
+  
+        // Listen for the optionClicked event and pass it to QuizQuestionComponent
+        this.optionClicked.subscribe(({ currentQuestion, optionIndex }) => {
+          if (this.quizQuestionComponent) {
+            this.quizQuestionComponent.handleOptionClicked(currentQuestion, optionIndex);
+          }
+        });
       } else {
         console.error('Failed to dynamically load QuizQuestionComponent');
       }
-
+  
       // Trigger change detection to make sure the dynamically loaded component is displayed
       this.cdRef.detectChanges();
     } catch (error) {
       console.error('Error loading QuizQuestionComponent:', error);
     }
-  }
+  }  
 
   ngAfterContentChecked(): void {
     if (this.quizQuestionComponent) {
