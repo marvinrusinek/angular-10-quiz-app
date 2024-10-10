@@ -1105,12 +1105,12 @@ export class QuizComponent
     return defer((): Observable<string> => {
       return combineLatest([
         this.selectedOptionService.isOptionSelected$().pipe(
-          startWith(false), // Adding a default value to ensure a valid initial state
+          startWith(false),
           distinctUntilChanged(),
           tap(value => console.log('isOptionSelected$ emitted:', value))
         ),
         this.isButtonEnabled$.pipe(
-          startWith(false), // Adding a default value to ensure a valid initial state
+          startWith(false),
           distinctUntilChanged(),
           tap(value => console.log('isButtonEnabled$ emitted:', value))
         )
