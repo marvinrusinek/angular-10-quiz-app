@@ -1192,9 +1192,9 @@ export class QuizService implements OnDestroy {
         isExplanationDisplayed: false,
       };
       this.combinedQuestionDataSubject.next(errorStateCombinedQuestionData);
-      this.combinedQuestionData$ = combineLatest([
-        this.combinedQuestionDataSubject.asObservable(),
-      ]).pipe(map(([combinedData]) => combinedData));
+      this.combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable().pipe(
+        map((combinedData) => combinedData)
+      );      
     }
   }
 
