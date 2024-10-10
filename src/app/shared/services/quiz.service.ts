@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import {
   BehaviorSubject,
-  combineLatest,
   firstValueFrom,
   Observable,
   of,
