@@ -1103,15 +1103,19 @@ export class QuizComponent
   // Tooltip for next button
   getNextButtonTooltip(): Observable<string> {
     return defer(() => {
-      // Both observables are expected to be initialized, no need for checks
+      // Both observables are now guaranteed to be initialized since we are using BehaviorSubjects
       return combineLatest([
-        this.isOptionSelected$.pipe(
+        this.selectedOptionService.isOptionSelected$().pipe(
           distinctUntilChanged(),
-          tap(value => console.log('isOptionSelected$ emitted:', value)) // Debugging to trace emitted values
+          tap(value => {
+            console.log('isOptionSelected$ emitted:', value);
+          })
         ),
         this.isButtonEnabled$.pipe(
           distinctUntilChanged(),
-          tap(value => console.log('isButtonEnabled$ emitted:', value)) // Debugging to trace emitted values
+          tap(value => {
+            console.log('isButtonEnabled$ emitted:', value);
+          })
         )
       ]).pipe(
         map(([isSelected, isEnabled]) => {
@@ -1126,6 +1130,7 @@ export class QuizComponent
       );
     });
   }
+  
 
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
