@@ -700,24 +700,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
     const question$ = this.quizService.getCurrentQuestion().pipe(
       map(value => value ?? null), // Default to `null` if value is `undefined`
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      tap(value => console.log('Emission in question$: ', value)) // Add log here to see actual values emitted
     );
+
     const options$ = this.quizService.getCurrentOptions().pipe(
       map(value => Array.isArray(value) ? value : []), // Default to empty array if value is not an array or `undefined`
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      tap(value => console.log('Emission in options$: ', value)) // Add log here to see actual values emitted
     );
-  
-    console.log('Before combining question$: ', question$);
-    console.log('Before combining options$: ', options$);
-  
+
     return combineLatest([question$, options$]).pipe(
       map(([currentQuestion, currentOptions]) => {
         console.log('Emission in combineLatest - currentQuestion:', currentQuestion);
         console.log('Emission in combineLatest - currentOptions:', currentOptions);
         
         return {
-          currentQuestion: currentQuestion ?? null,
-          currentOptions: currentOptions
+          currentQuestion,
+          currentOptions
         };
       }),
       catchError(error => {
@@ -726,7 +726,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     );
   }
-  
 
   private calculateCombinedQuestionData(
     currentQuizData: CombinedQuestionDataType,
