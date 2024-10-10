@@ -1103,34 +1103,15 @@ export class QuizComponent
   // Tooltip for next button
   getNextButtonTooltip(): Observable<string> {
     return defer(() => {
-      // If observables are not yet initialized, wait until they are
-      if (!this.isOptionSelected$ || !this.isButtonEnabled$) {
-        console.error('Tooltip streams are not ready at the moment of subscription.');
-        return of('Please select an option to continue...');
-      }
-  
+      // Both observables are expected to be initialized, no need for checks
       return combineLatest([
         this.isOptionSelected$.pipe(
-          startWith(false), // Ensure there is an initial value to work with
           distinctUntilChanged(),
-          tap(value => {
-            if (value === undefined) {
-              console.warn('isOptionSelected$ emitted undefined');
-            } else {
-              console.log('isOptionSelected$ emitted:', value);
-            }
-          })
+          tap(value => console.log('isOptionSelected$ emitted:', value)) // Debugging to trace emitted values
         ),
         this.isButtonEnabled$.pipe(
-          startWith(false), // Ensure there is an initial value to work with
           distinctUntilChanged(),
-          tap(value => {
-            if (value === undefined) {
-              console.warn('isButtonEnabled$ emitted undefined');
-            } else {
-              console.log('isButtonEnabled$ emitted:', value);
-            }
-          })
+          tap(value => console.log('isButtonEnabled$ emitted:', value)) // Debugging to trace emitted values
         )
       ]).pipe(
         map(([isSelected, isEnabled]) => {
@@ -1143,12 +1124,8 @@ export class QuizComponent
           return of('Please select an option to continue...');
         })
       );
-    }) as Observable<string>;
+    });
   }
-  
-  
-  
-  
 
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
