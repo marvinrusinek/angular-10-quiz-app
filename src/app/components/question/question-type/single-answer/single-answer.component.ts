@@ -262,12 +262,12 @@ export class SingleAnswerComponent
       return;
     } */
 
-    /* if (this.quizQuestionComponent) {
+    if (this.quizQuestionComponent) {
       console.log('Calling onOptionClicked in QuizQuestionComponent');
       await this.quizQuestionComponent.onOptionClicked(option, index, checked);
     } else {
       console.error('QuizQuestionComponent is not available');
-    } */
+    }
 
     const updatedOption: SelectedOption = {
       ...option,
