@@ -2204,13 +2204,6 @@ export class QuizComponent
         // Set the current question in the quiz service
         this.quizService.setCurrentQuestion(this.currentQuestionIndex);
   
-        // Clear and reload the appropriate question component
-        if (this.viewContainerRef) {
-          this.viewContainerRef.clear();
-        }
-  
-        await this.loadQuizQuestionComponent(); // Make sure this loads the correct component
-  
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
   
