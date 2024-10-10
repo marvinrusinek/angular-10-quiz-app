@@ -16,6 +16,7 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   BehaviorSubject,
   combineLatest,
+  defer,
   EMPTY,
   firstValueFrom,
   forkJoin,
@@ -1101,20 +1102,29 @@ export class QuizComponent
 
   // Tooltip for next button
   getNextButtonTooltip(): Observable<string> {
-    return combineLatest([
-      this.isOptionSelected$,
-      this.isButtonEnabled$
-    ]).pipe(
-      map(([isSelected, isEnabled]) => {
-        // Ensure that neither is undefined by providing safe fallbacks.
-        const safeIsSelected = isSelected ?? false;
-        const safeIsEnabled = isEnabled ?? false;
-
-        console.log('isSelected:', safeIsSelected, 'isEnabled:', safeIsEnabled); // Debugging line
-        return safeIsEnabled && safeIsSelected ? 'Next Question »' : 'Please select an option to continue...';
-      }),
-      distinctUntilChanged()
-    );
+    return defer((): Observable<string> => {
+      if (!this.isOptionSelected$ || !this.isButtonEnabled$) {
+        console.error('Tooltip streams are not ready. Skipping combination.');
+        return of('Please select an option to continue...');
+      }
+  
+      return combineLatest([
+        this.isOptionSelected$.pipe(
+          distinctUntilChanged(),
+          tap(value => console.log('isOptionSelected$ emitted:', value)) // Debugging to trace emitted values
+        ),
+        this.isButtonEnabled$.pipe(
+          distinctUntilChanged(),
+          tap(value => console.log('isButtonEnabled$ emitted:', value)) // Debugging to trace emitted values
+        )
+      ]).pipe(
+        map(([isSelected, isEnabled]) => {
+          console.log('Combining values:', { isSelected, isEnabled });
+          return isEnabled && isSelected ? 'Next Question »' : 'Please select an option to continue...';
+        }),
+        distinctUntilChanged()
+      );
+    }) as Observable<string>;
   }
 
   updateQuestionDisplayForShuffledQuestions(): void {
