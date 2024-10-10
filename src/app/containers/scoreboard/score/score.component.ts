@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, distinctUntilChanged, map, takeUntil } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, map, startWith, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
