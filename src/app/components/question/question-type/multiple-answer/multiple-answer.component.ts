@@ -110,7 +110,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       }
     });
   } */
-  ngAfterContentInit(): void {
+  /* ngAfterContentInit(): void {
     // Log to see the length of viewContainerRefs at content init
     console.log('ngAfterContentInit called, viewContainerRefs length:', this.viewContainerRefs.length);
   
@@ -123,7 +123,35 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     } else {
       console.warn('No viewContainerRef available after content init');
     }
+  } */
+  ngAfterContentInit(): void {
+    console.log('ngAfterContentInit called');
+  
+    // Check if `viewContainerRefs` is defined before accessing it
+    if (this.viewContainerRefs && this.viewContainerRefs.length !== undefined) {
+      // Subscribe to changes to handle updates dynamically
+      this.viewContainerRefs.changes.subscribe(() => {
+        this.handleViewContainerRef();
+      });
+  
+      // Initial check to handle already available instances
+      this.handleViewContainerRef();
+    } else {
+      console.warn('viewContainerRefs is undefined or not ready in ngAfterContentInit');
+    }
   }
+
+  private handleViewContainerRef(): void {
+    if (this.viewContainerRefs && this.viewContainerRefs.length > 0) {
+      console.log('viewContainerRefs available:', this.viewContainerRefs);
+      this.viewContainerRef = this.viewContainerRefs.first; // Assign the first available ViewContainerRef
+      this.loadQuizQuestionComponent();
+      this.hasComponentLoaded = true; // Prevent further attempts to load
+    } else {
+      console.warn('No viewContainerRef available in handleViewContainerRef');
+    }
+  }
+  
   
   private async loadQuizQuestionComponent(): Promise<void> {
     try {
