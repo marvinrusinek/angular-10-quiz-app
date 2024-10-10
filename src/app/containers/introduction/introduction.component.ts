@@ -64,7 +64,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       tap(quiz => this.logQuizLoaded(quiz)),
       takeUntil(this.destroy$)
     ).subscribe({
-      next: quiz => this.handleLoadedQuiz(quiz),
+      next: (quiz: Quiz) => this.handleLoadedQuiz(quiz),
       error: error => this.handleError(error)
     });
   }
