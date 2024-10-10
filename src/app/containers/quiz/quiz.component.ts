@@ -360,12 +360,12 @@ export class QuizComponent
     // Set up the observable for button state
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
-        startWith(false), // Add initial value to prevent undefined issues
+        startWith(false),
         distinctUntilChanged(),
         tap(value => console.log('[initializeNextButtonState] isAnsweredSubject emitted:', value))
       ),
       this.quizStateService.isLoading$.pipe(
-        startWith(false), // Add initial value to prevent undefined issues
+        startWith(false),
         distinctUntilChanged(),
         tap(value => console.log('[initializeNextButtonState] isLoading$ emitted:', value))
       )
@@ -382,7 +382,7 @@ export class QuizComponent
         this.isButtonEnabledSubject.next(isEnabled);
         this.cdRef.markForCheck(); // Trigger change detection
       }),
-      shareReplay(1) // This ensures that multiple async pipes share the same execution
+      shareReplay(1) // ensures that multiple async pipes share the same execution
     );
   
     console.log('Next button state initialized:', {
