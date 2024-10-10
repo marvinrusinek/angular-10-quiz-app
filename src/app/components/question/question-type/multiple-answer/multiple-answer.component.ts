@@ -130,23 +130,31 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   ngAfterContentInit(): void {
     console.log('ngAfterContentInit called');
   
-    // Check if `viewContainerRefs` is defined before accessing it
-    if (this.viewContainerRefs && this.viewContainerRefs.length !== undefined) {
-      // Subscribe to changes to handle updates dynamically
-      this.viewContainerRefs.changes.subscribe(() => {
+    // Delay to ensure `viewContainerRefs` is populated properly
+    setTimeout(() => {
+      if (this.viewContainerRefs && this.viewContainerRefs.length > 0) {
+        console.log('viewContainerRefs available after delay:', this.viewContainerRefs);
+        this.handleViewContainerRef(); // Initial load
+      } else {
+        console.warn('viewContainerRefs is still not ready after delay in ngAfterContentInit');
+      }
+  
+      // Subscribe to changes in `viewContainerRefs` to handle dynamically added views
+      this.viewContainerRefs?.changes.subscribe(() => {
+        console.log('viewContainerRefs changed:', this.viewContainerRefs);
         this.handleViewContainerRef();
       });
-  
-      // Initial check to handle already available instances
-      this.handleViewContainerRef();
-    } else {
-      console.warn('viewContainerRefs is undefined or not ready in ngAfterContentInit');
-    }
+    }, 500); // Adjust delay as needed
   }
-
+  
   private handleViewContainerRef(): void {
+    if (this.hasComponentLoaded) {
+      console.log('Component already loaded, skipping handleViewContainerRef.');
+      return;
+    }
+  
     if (this.viewContainerRefs && this.viewContainerRefs.length > 0) {
-      console.log('viewContainerRefs available:', this.viewContainerRefs);
+      console.log('viewContainerRefs available in handleViewContainerRef:', this.viewContainerRefs);
       this.viewContainerRef = this.viewContainerRefs.first; // Assign the first available ViewContainerRef
       this.loadQuizQuestionComponent();
       this.hasComponentLoaded = true; // Prevent further attempts to load
@@ -155,7 +163,6 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     }
   }
   
-  
   private async loadQuizQuestionComponent(): Promise<void> {
     if (this.hasComponentLoaded) {
       console.log('QuizQuestionComponent already loaded, skipping load.');
@@ -163,21 +170,22 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     }
   
     try {
+      // Load the QuizQuestionComponent dynamically and capture the reference immediately
       const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
         this.viewContainerRef,
-        true
+        true // Adjust as needed for MultipleAnswerComponent/SingleAnswerComponent
       );
   
       this.quizQuestionComponent = componentRef.instance;
   
       if (this.quizQuestionComponent) {
         console.log('QuizQuestionComponent dynamically loaded and available');
-        this.quizQuestionComponentLoadedSubject.next(true); // Notify that component is loaded
-        this.hasComponentLoaded = true;
+        this.hasComponentLoaded = true; // Set the flag here to prevent further attempts
       } else {
         console.error('Failed to dynamically load QuizQuestionComponent');
       }
   
+      // Trigger change detection to make sure the dynamically loaded component is displayed
       this.cdRef.detectChanges();
     } catch (error) {
       console.error('Error loading QuizQuestionComponent:', error);
