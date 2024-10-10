@@ -107,14 +107,18 @@ export class SingleAnswerComponent
   }
   
   ngAfterViewChecked(): void {
-    if (!this.hasComponentLoaded && this.viewContainerRef) {
+    if (this.hasComponentLoaded) {
+      return; // Exit if the component is already loaded
+    }
+  
+    if (this.viewContainerRef) {
       console.log('viewContainerRef is available in ngAfterViewChecked');
       this.loadQuizQuestionComponent();
-      this.hasComponentLoaded = true; // Ensure the component is loaded only once
-    } else if (!this.viewContainerRef) {
+      this.hasComponentLoaded = true; // Mark as loaded to prevent repeated loading
+    } else {
       console.warn('viewContainerRef is still not available in ngAfterViewChecked');
     }
-  }  
+  }
 
   private async loadQuizQuestionComponent(): Promise<void> {
     try {
