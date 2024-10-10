@@ -55,31 +55,20 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   }
 
   ngAfterViewInit(): void {
+    // Trigger change detection to ensure view is updated
+    this.cdRef.detectChanges();
+  
+    // Add a small delay to ensure view initialization is complete
     setTimeout(() => {
       if (this.viewContainerRef) {
         console.log('viewContainerRef is available in ngAfterViewInit after delay');
         this.loadQuizQuestionComponent();
-        this.hasComponentLoaded = true;
+        this.hasComponentLoaded = true; // Mark as loaded to prevent further attempts
       } else {
         console.warn('viewContainerRef is still not available after delay in ngAfterViewInit');
       }
-    }, 1000);
+    }, 100); // You can experiment with the delay time, but 100ms is generally sufficient
   }
-  
-  ngAfterViewChecked(): void {
-    if (this.hasComponentLoaded) {
-      return; // Exit if the component is already loaded
-    }
-  
-    if (this.viewContainerRef) {
-      console.log('viewContainerRef is available in ngAfterViewChecked');
-      this.loadQuizQuestionComponent();
-      this.hasComponentLoaded = true; // Mark as loaded to prevent repeated loading
-    } else {
-      console.warn('viewContainerRef is still not available in ngAfterViewChecked');
-    }
-  }
-  
   
   private async loadQuizQuestionComponent(): Promise<void> {
     try {
