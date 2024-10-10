@@ -1,4 +1,4 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild, ViewContainerRef } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 
@@ -20,7 +20,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
     '../shared-option.component.scss'
   ]
 })
-export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit, AfterViewChecked, AfterViewInit {
+export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit, AfterViewInit {
   // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
   viewContainerRef!: ViewContainerRef;
