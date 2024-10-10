@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterContentInit, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild, ViewContainerRef } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
@@ -22,7 +22,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
     '../shared-option.component.scss'
   ]
 })
-export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit, AfterViewInit, AfterContentInit {
+export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit, AfterContentInit {
   // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
   viewContainerRef!: ViewContainerRef;
@@ -71,7 +71,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       }
     }, 200); // Adjust delay if needed to give Angular enough time to stabilize
   } */
-  ngAfterViewInit(): void {
+  /* ngAfterViewInit(): void {
     setTimeout(() => {
       if (this.viewContainerRef) {
         console.log('viewContainerRef is available in ngAfterViewInit after delay');
@@ -87,7 +87,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     ).subscribe(() => {
       this.loadQuizQuestionComponent();
     });
-  }
+  } */
 
   ngAfterContentInit(): void {
     console.log('ngAfterContentInit called');
