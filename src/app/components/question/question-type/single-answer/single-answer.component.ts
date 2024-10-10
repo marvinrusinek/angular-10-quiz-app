@@ -273,17 +273,18 @@ export class SingleAnswerComponent
       return;
     } */
 
-    // Subscribe to quizQuestionComponentLoaded$ to ensure component is loaded
-    this.quizQuestionComponentLoaded$.pipe(
-      take(1) // Take only one value (we only need to know once)
-    ).subscribe(isLoaded => {
+    try {
+      // Wait until the component is loaded
+      const isLoaded = await firstValueFrom(this.quizQuestionComponentLoaded$.pipe(take(1)));
       if (isLoaded && this.quizQuestionComponent) {
         console.log('Calling onOptionClicked in QuizQuestionComponent');
-        this.quizQuestionComponent.onOptionClicked(option, index, checked);
+        await this.quizQuestionComponent.onOptionClicked(option, index, checked);
       } else {
-        console.error('QuizQuestionComponent is not available');
+        console.error('QuizQuestionComponent is still not available after waiting.');
       }
-    });
+    } catch (error) {
+      console.error('Error waiting for QuizQuestionComponent to load:', error);
+    }
 
     const updatedOption: SelectedOption = {
       ...option,
