@@ -94,19 +94,18 @@ export class SingleAnswerComponent
   }
 
   ngAfterViewInit(): void {
-    // Trigger change detection to ensure view is updated
-    this.cdRef.detectChanges();
+    this.cdRef.detectChanges(); // Force change detection to stabilize the view
   
-    // Add a small delay to ensure view initialization is complete
+    // Add a delay to allow view initialization to complete
     setTimeout(() => {
       if (this.viewContainerRef) {
         console.log('viewContainerRef is available in ngAfterViewInit after delay');
-        this.loadQuizQuestionComponent();
-        this.hasComponentLoaded = true; // Mark as loaded to prevent further attempts
+        this.loadQuizQuestionComponent(); // Load component if viewContainerRef is available
+        this.hasComponentLoaded = true; // Set flag to prevent duplicate loading
       } else {
         console.warn('viewContainerRef is still not available after delay in ngAfterViewInit');
       }
-    }, 100); // You can experiment with the delay time, but 100ms is generally sufficient
+    }, 200); // Adjust delay if needed to give Angular enough time to stabilize
   }
 
   private async loadQuizQuestionComponent(): Promise<void> {
