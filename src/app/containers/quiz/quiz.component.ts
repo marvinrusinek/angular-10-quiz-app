@@ -1103,20 +1103,15 @@ export class QuizComponent
   // Tooltip for next button
   getNextButtonTooltip(): Observable<string> {
     return defer(() => {
-      // Double-check that both observables are initialized
-      if (!this.isOptionSelected$) {
-        console.error('isOptionSelected$ is not initialized.');
-        return of('Please select an option to continue...');
-      }
-      if (!this.isButtonEnabled$) {
-        console.error('isButtonEnabled$ is not initialized.');
+      // If observables are not yet initialized, wait until they are
+      if (!this.isOptionSelected$ || !this.isButtonEnabled$) {
+        console.error('Tooltip streams are not ready at the moment of subscription.');
         return of('Please select an option to continue...');
       }
   
-      // Now, we can safely create the combined observable
       return combineLatest([
         this.isOptionSelected$.pipe(
-          startWith(false), // Ensure an initial value is provided
+          startWith(false), // Ensure there is an initial value to work with
           distinctUntilChanged(),
           tap(value => {
             if (value === undefined) {
@@ -1127,7 +1122,7 @@ export class QuizComponent
           })
         ),
         this.isButtonEnabled$.pipe(
-          startWith(false), // Ensure an initial value is provided
+          startWith(false), // Ensure there is an initial value to work with
           distinctUntilChanged(),
           tap(value => {
             if (value === undefined) {
@@ -1150,6 +1145,7 @@ export class QuizComponent
       );
     }) as Observable<string>;
   }
+  
   
   
   
