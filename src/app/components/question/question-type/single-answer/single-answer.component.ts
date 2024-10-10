@@ -205,7 +205,7 @@ export class SingleAnswerComponent
     try {
       const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
         this.viewContainerRef,
-        true
+        false
       );
   
       this.quizQuestionComponent = componentRef.instance;
