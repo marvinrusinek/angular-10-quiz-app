@@ -46,23 +46,24 @@ export class ScoreComponent implements OnInit, OnDestroy {
   private setupScoreSubscription(): void {
     this.scoreSubscription = combineLatest([
       this.correctAnswersCount$.pipe(
-        map(value => value ?? 0), // Default to `0` if value is `undefined`
         takeUntil(this.unsubscribeTrigger$),
-        distinctUntilChanged()
+        distinctUntilChanged(),
+        tap(count => console.log('Correct Answers Count:', count)) // Log emitted values
       ),
       this.totalQuestions$.pipe(
-        map(value => value ?? 0), // Default to `0` if value is `undefined`
-        distinctUntilChanged()
+        startWith(0), // Provide a default value to ensure it's never undefined
+        distinctUntilChanged(),
+        tap(total => console.log('Total Questions:', total))
       ),
       this.quizService.getAllQuestions().pipe(
-        map(value => value ?? []), // Default to `[]` if value is `undefined`
-        distinctUntilChanged()
+        startWith([]), // Default to an empty array if no questions are available yet
+        tap(questions => console.log('All Questions:', questions))
       )
     ]).pipe(
       map(this.processScoreData),
       catchError(error => {
-        console.error('Error processing score data:', error);
-        return of(null); // Return `null` as a fallback to handle error gracefully
+        console.error('Error combining score data:', error);
+        return of(null); // Gracefully handle the error and continue the stream
       })
     ).subscribe({
       next: this.handleScoreUpdate,
