@@ -101,34 +101,36 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   }
   
   private async loadQuizQuestionComponent(): Promise<void> {
-    // If the component is already loaded, skip loading again
     if (this.hasComponentLoaded) {
       console.log('QuizQuestionComponent already loaded, skipping load.');
       return;
     }
   
     try {
-      // Check if viewContainerRef exists, and clear the current component before loading a new one
+      // Ensure that the current component container is cleared before loading a new one
       if (this.viewContainerRef) {
-        console.log('Clearing current component in viewContainerRef.');
-        this.viewContainerRef.clear(); // Clear the current component before loading a new one
+        console.log('Clearing viewContainerRef before loading new component.');
+        this.viewContainerRef.clear();
       } else {
         console.error('viewContainerRef is not available.');
         return;
       }
   
-      // Load the QuizQuestionComponent dynamically and capture the reference immediately
+      // Determine if you need to load SingleAnswerComponent or MultipleAnswerComponent
+      const isMultipleAnswer = this.quizService.isMultipleAnswerQuestion(this.currentQuestionIndex); 
+  
+      // Load the appropriate component dynamically
       const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
         this.viewContainerRef,
-        true
+        isMultipleAnswer // true or false based on whether it's multiple-answer or single-answer
       );
   
-      // Assign the new component instance
+      // Assign the component reference to the local variable
       this.quizQuestionComponent = componentRef.instance;
   
       if (this.quizQuestionComponent) {
         console.log('QuizQuestionComponent dynamically loaded and available');
-        this.hasComponentLoaded = true; // Set the flag here to prevent further attempts
+        this.hasComponentLoaded = true; // Prevent further attempts to load
         this.quizQuestionComponentLoaded.emit(); // Notify listeners that the component is loaded
       } else {
         console.error('Failed to dynamically load QuizQuestionComponent');
