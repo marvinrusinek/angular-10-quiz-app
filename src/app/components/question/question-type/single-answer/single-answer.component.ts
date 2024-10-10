@@ -119,7 +119,7 @@ export class SingleAnswerComponent
       // Load the QuizQuestionComponent dynamically
       const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
         this.viewContainerRef,
-        false // Specify the correct component type: true/false for MAC or SAC
+        false // for SAC
       );
   
       // Store the reference to the dynamically loaded component

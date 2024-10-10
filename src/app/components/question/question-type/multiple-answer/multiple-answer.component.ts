@@ -80,7 +80,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       // Load the QuizQuestionComponent dynamically
       const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
         this.viewContainerRef,
-        true // Specify the correct component type: true/false for MAC or SAC
+        true // for MAC
       );
   
       // Store the reference to the dynamically loaded component
