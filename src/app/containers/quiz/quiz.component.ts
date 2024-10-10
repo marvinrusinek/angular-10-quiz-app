@@ -351,7 +351,8 @@ export class QuizComponent
   }
 
   private initializeNextButtonState(): void {
-    console.log("MY INBS");
+    console.log("Initializing Next Button State");
+
     // Initialize local properties
     this.isNextButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
@@ -359,12 +360,14 @@ export class QuizComponent
     // Set up the observable for button state
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
-        map((value) => value ?? false), // Default to `false` if value is `undefined`
-        distinctUntilChanged()
+        startWith(false), // Ensure an initial value of `false` for isAnswered
+        distinctUntilChanged(),
+        tap(value => console.log('isAnsweredSubject emitted:', value)) // Debugging to ensure proper value emission
       ),
       this.quizStateService.isLoading$.pipe(
-        map((value) => value ?? true), // Default to `true` if value is `undefined`
-        distinctUntilChanged()
+        startWith(true), // Ensure an initial value of `true` for isLoading
+        distinctUntilChanged(),
+        tap(value => console.log('isLoading$ emitted:', value)) // Debugging to ensure proper value emission
       )
     ]).pipe(
       map(([isAnswered, isLoading]) => {
