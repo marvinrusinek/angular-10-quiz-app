@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
-import { catchError, EMPTY, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, EMPTY, filter, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -55,6 +55,16 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   private initializeComponent(): void {
     this.subscribeToRouteParameters();
     this.handleQuizSelectionAndFetchQuestions();
+  
+    this.selectedQuiz$
+      .pipe(
+        takeUntil(this.destroy$),
+        filter((quiz) => quiz !== null), // Ensure we proceed only if there's a valid quiz
+        tap((quiz) => console.log('Quiz is ready:', quiz))
+      )
+      .subscribe(() => {
+        this.cdRef.markForCheck();
+      });
   }
 
   private subscribeToRouteParameters(): void {
