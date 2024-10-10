@@ -1344,6 +1344,7 @@ export class QuizQuestionComponent
       this.selectedOptionService.setSelectedOption(option);
       this.selectedOptionService.selectOption(option.optionId, this.currentQuestionIndex, option.text);
       this.selectedOptionService.toggleSelectedOption(this.currentQuestionIndex, option);
+      this.selectedOptionService.isAnsweredSubject.next(true);
 
       // Ensure loading state is started if not already loading
       if (!this.quizStateService.isLoading()) {
