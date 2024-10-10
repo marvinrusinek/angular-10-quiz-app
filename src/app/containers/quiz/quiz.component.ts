@@ -1102,23 +1102,20 @@ export class QuizComponent
 
   // Tooltip for next button
   getNextButtonTooltip(): Observable<string> {
-    return defer(() => {
-      // Both observables are now guaranteed to be initialized since we are using BehaviorSubjects
+    return defer((): Observable<string> => {
       return combineLatest([
         this.selectedOptionService.isOptionSelected$().pipe(
+          startWith(false), // Adding a default value to ensure a valid initial state
           distinctUntilChanged(),
-          tap(value => {
-            console.log('isOptionSelected$ emitted:', value);
-          })
+          tap(value => console.log('isOptionSelected$ emitted:', value))
         ),
         this.isButtonEnabled$.pipe(
+          startWith(false), // Adding a default value to ensure a valid initial state
           distinctUntilChanged(),
-          tap(value => {
-            console.log('isButtonEnabled$ emitted:', value);
-          })
+          tap(value => console.log('isButtonEnabled$ emitted:', value))
         )
       ]).pipe(
-        map(([isSelected, isEnabled]) => {
+        map(([isSelected, isEnabled]: [boolean, boolean]) => {
           console.log('Combining values:', { isSelected, isEnabled });
           return isEnabled && isSelected ? 'Next Question »' : 'Please select an option to continue...';
         }),
@@ -1130,7 +1127,6 @@ export class QuizComponent
       );
     });
   }
-  
 
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
