@@ -1174,9 +1174,9 @@ export class QuizService implements OnDestroy {
           isExplanationDisplayed: false,
         };
         this.combinedQuestionDataSubject.next(defaultCombinedQuestionData);
-        this.combinedQuestionData$ = combineLatest([
-          this.combinedQuestionDataSubject.asObservable(),
-        ]).pipe(map(([combinedData]) => combinedData));
+        this.combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable().pipe(
+          map((combinedData) => combinedData)
+        );        
       }
     } catch (error) {
       console.error('Error in initializeCombinedQuestionData:', error);
