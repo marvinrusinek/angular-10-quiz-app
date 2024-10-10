@@ -1,4 +1,5 @@
 import {
+  AfterContentInit,
   AfterViewInit,
   ChangeDetectorRef,
   Component,
@@ -35,7 +36,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 })
 export class SingleAnswerComponent
   extends BaseQuestionComponent
-  implements OnInit, OnChanges, AfterViewInit
+  implements OnInit, OnChanges, AfterViewInit, AfterContentInit
 {
   // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
   @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
@@ -127,6 +128,21 @@ export class SingleAnswerComponent
       this.loadQuizQuestionComponent();
     });
   }
+
+  ngAfterContentInit(): void {
+    console.log('ngAfterContentInit called');
+  
+    setTimeout(() => {
+      if (this.viewContainerRef) {
+        console.log('viewContainerRef is available in ngAfterContentInit after delay');
+        this.loadQuizQuestionComponent();
+        this.hasComponentLoaded = true; // Prevent further attempts
+      } else {
+        console.warn('viewContainerRef is still not available after delay in ngAfterContentInit');
+      }
+    }, 200); // Adjust the delay if necessary
+  }
+  
 
   private async loadQuizQuestionComponent(): Promise<void> {
     try {
