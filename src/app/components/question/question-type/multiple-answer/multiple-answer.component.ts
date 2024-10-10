@@ -237,6 +237,13 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       }
     });
 
+    if (this.quizQuestionComponent) {
+      console.log('Calling onOptionClicked in QuizQuestionComponent');
+      await this.quizQuestionComponent.onOptionClicked(option, index, checked);
+    } else {
+      console.error('QuizQuestionComponent is still not available even after waiting.');
+    }
+
     const updatedOption: SelectedOption = {
       ...option,
       optionId: option.optionId ?? index,
