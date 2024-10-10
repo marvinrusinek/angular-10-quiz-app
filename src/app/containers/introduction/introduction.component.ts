@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
-import { catchError, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, EMPTY, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -78,9 +78,15 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     const quizId = params['quizId'];
     if (!quizId) {
       console.error('No quiz ID found in route parameters');
-      return throwError(() => new Error('No quiz ID found in route parameters'));
+      return EMPTY; // Return EMPTY if no quizId is available
     }
-    return this.quizDataService.getQuiz(quizId);
+  
+    return this.quizDataService.getQuiz(quizId).pipe(
+      catchError((error) => {
+        console.error('Error fetching quiz:', error);
+        return EMPTY; // Handle the error by returning EMPTY to keep the Observable flow intact
+      })
+    );
   }
   
   private logQuizLoaded(quiz: Quiz | null): void {
