@@ -78,15 +78,10 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     const quizId = params['quizId'];
     if (!quizId) {
       console.error('No quiz ID found in route parameters');
-      return of(null); // Return an empty Observable instead of throwError
+      return throwError(() => new Error('No quiz ID found in route parameters'));
     }
-    return this.quizDataService.getQuiz(quizId).pipe(
-      catchError((error) => {
-        console.error('Error fetching quiz:', error);
-        return of(null); // Return `null` in case of an error
-      })
-    );
-  }  
+    return this.quizDataService.getQuiz(quizId);
+  }
   
   private logQuizLoaded(quiz: Quiz | null): void {
     // console.log('Quiz loaded:', quiz);
@@ -166,17 +161,13 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('No quiz selected');
       return;
     }
-  
-    if (!this.selectedQuiz) {
-      console.error('Quiz data is not ready.');
-      return;
-    }
-  
+
     const highlightPreference = this.userPreferenceService.getHighlightPreference();
     console.log('Highlight preference when starting quiz:', highlightPreference);
-  
+
     this.router.navigate(['/question', quizId, 1], { state: { shouldShuffleOptions: this.shouldShuffleOptions } })
       .then(success => {
+        // console.log('Navigation promise resolved:', success);
         if (success) {
           console.log('Navigation successful');
         } else {
@@ -185,8 +176,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       })
       .catch(error => {
         console.error('Navigation error:', error);
-      });
-  }  
+      });    
+  }
   
   public get milestone(): string {
     const milestone = this.selectedQuiz?.milestone || 'Milestone not found';
