@@ -71,22 +71,28 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   
   private async loadQuizQuestionComponent(): Promise<void> {
     try {
-      // Load the QuizQuestionComponent dynamically and capture the reference immediately
+      // Ensure that viewContainerRef is defined before trying to load the component
+      if (!this.viewContainerRef) {
+        console.error('Cannot load component: viewContainerRef is not available');
+        return;
+      }
+  
+      // Load the QuizQuestionComponent dynamically
       const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
         this.viewContainerRef,
-        true // Adjust as needed for MultipleAnswerComponent/SingleAnswerComponent
+        true // Specify the correct component type: true/false for MAC or SAC
       );
-
+  
       // Store the reference to the dynamically loaded component
       this.quizQuestionComponent = componentRef.instance;
-
+  
       if (this.quizQuestionComponent) {
         console.log('QuizQuestionComponent dynamically loaded and available');
       } else {
         console.error('Failed to dynamically load QuizQuestionComponent');
       }
-
-      // Trigger change detection to make sure the dynamically loaded component is displayed
+  
+      // Trigger change detection to ensure the dynamically loaded component is displayed
       this.cdRef.detectChanges();
     } catch (error) {
       console.error('Error loading QuizQuestionComponent:', error);
