@@ -6,8 +6,10 @@ import {
   OnChanges,
   OnInit,
   Output,
+  QueryList,
   SimpleChanges,
   ViewChild,
+  ViewChildren,
   ViewContainerRef
 } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
@@ -38,8 +40,10 @@ export class SingleAnswerComponent
   implements OnInit, OnChanges, AfterContentInit
 {
   // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
-  @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
-  viewContainerRef!: ViewContainerRef;
+  //@ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
+  //viewContainerRef!: ViewContainerRef;
+  @ViewChildren('dynamicAnswerContainer', { read: ViewContainerRef })
+  viewContainerRefs!: QueryList<ViewContainerRef>;
   @Output() componentLoaded = new EventEmitter<QuizQuestionComponent>();
   quizQuestionComponent: QuizQuestionComponent | undefined;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();

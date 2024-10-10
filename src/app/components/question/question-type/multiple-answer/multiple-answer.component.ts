@@ -1,4 +1,4 @@
-import { AfterContentInit, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterContentInit, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, QueryList, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
@@ -24,8 +24,10 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 })
 export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit, AfterContentInit {
   // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
-  @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
-  viewContainerRef!: ViewContainerRef;
+  // @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
+  // viewContainerRef!: ViewContainerRef;
+  @ViewChildren('dynamicAnswerContainer', { read: ViewContainerRef })
+  viewContainerRefs!: QueryList<ViewContainerRef>;
   @Output() componentLoaded = new EventEmitter<QuizQuestionComponent>();
   quizQuestionComponent: QuizQuestionComponent | undefined;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
