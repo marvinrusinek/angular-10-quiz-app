@@ -2,7 +2,7 @@ import { AfterContentInit, ChangeDetectorRef, Component, EventEmitter, OnInit, O
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
+import { filter, firstValueFrom, take } from 'rxjs/operators';
 
 import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
