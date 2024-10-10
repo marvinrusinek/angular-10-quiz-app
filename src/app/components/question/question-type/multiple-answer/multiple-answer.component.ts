@@ -35,6 +35,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   optionBindings: OptionBindings[] = [];
   isQuizQuestionComponentLoaded = false;
   hasComponentLoaded = false;
+  private viewContainerReady$ = new BehaviorSubject<boolean>(false);
 
   constructor(
     protected dynamicComponentService: DynamicComponentService,
@@ -54,7 +55,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     this.initializeSharedOptionConfig();
   }
 
-  ngAfterViewInit(): void {
+  /* ngAfterViewInit(): void {
     this.cdRef.detectChanges(); // Force change detection to stabilize the view
   
     // Add a delay to allow view initialization to complete
@@ -67,6 +68,23 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
         console.warn('viewContainerRef is still not available after delay in ngAfterViewInit');
       }
     }, 200); // Adjust delay if needed to give Angular enough time to stabilize
+  } */
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      if (this.viewContainerRef) {
+        console.log('viewContainerRef is available in ngAfterViewInit after delay');
+        this.viewContainerReady$.next(true);
+      } else {
+        console.warn('viewContainerRef is still not available after delay in ngAfterViewInit');
+      }
+    }, 100); // You can adjust the delay
+  
+    this.viewContainerReady$.pipe(
+      filter(isReady => isReady), // Only proceed if viewContainer is ready
+      take(1) // Take the first emission
+    ).subscribe(() => {
+      this.loadQuizQuestionComponent();
+    });
   }
   
   private async loadQuizQuestionComponent(): Promise<void> {
