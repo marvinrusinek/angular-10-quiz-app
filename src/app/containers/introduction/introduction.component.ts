@@ -173,7 +173,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   onStartQuiz(quizId: string): void {
-    if (!quizId || !this.selectedQuiz) {
+    if (!quizId) {
       console.error('Quiz data is not ready.');
       return;
     }
