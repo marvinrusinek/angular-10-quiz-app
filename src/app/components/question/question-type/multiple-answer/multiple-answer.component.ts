@@ -28,6 +28,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   // viewContainerRef!: ViewContainerRef;
   @ViewChildren('dynamicAnswerContainer', { read: ViewContainerRef })
   viewContainerRefs!: QueryList<ViewContainerRef>;
+  viewContainerRef!: ViewContainerRef;
   @Output() componentLoaded = new EventEmitter<QuizQuestionComponent>();
   quizQuestionComponent: QuizQuestionComponent | undefined;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
