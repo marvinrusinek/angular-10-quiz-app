@@ -42,6 +42,9 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   hasComponentLoaded = false;
   private viewContainerReady$ = new BehaviorSubject<boolean>(false);
 
+  private quizQuestionComponentLoadedSubject = new BehaviorSubject<boolean>(false);
+  quizQuestionComponentLoaded$ = this.quizQuestionComponentLoadedSubject.asObservable();
+
   constructor(
     protected dynamicComponentService: DynamicComponentService,
     protected quizQuestionCommunicationService: QuizQuestionCommunicationService,
@@ -154,34 +157,32 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   
   
   private async loadQuizQuestionComponent(): Promise<void> {
-    try {
-      // Ensure that viewContainerRef is defined before trying to load the component
-      if (!this.viewContainerRef) {
-        console.error('Cannot load component: viewContainerRef is not available');
-        return;
-      }
+    if (this.hasComponentLoaded) {
+      console.log('QuizQuestionComponent already loaded, skipping load.');
+      return;
+    }
   
-      // Load the QuizQuestionComponent dynamically
+    try {
       const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
         this.viewContainerRef,
-        true // true to load MultipleAnswerComponent 
+        true
       );
   
-      // Store the reference to the dynamically loaded component
       this.quizQuestionComponent = componentRef.instance;
   
       if (this.quizQuestionComponent) {
         console.log('QuizQuestionComponent dynamically loaded and available');
+        this.quizQuestionComponentLoadedSubject.next(true); // Notify that component is loaded
+        this.hasComponentLoaded = true;
       } else {
         console.error('Failed to dynamically load QuizQuestionComponent');
       }
   
-      // Trigger change detection to ensure the dynamically loaded component is displayed
       this.cdRef.detectChanges();
     } catch (error) {
       console.error('Error loading QuizQuestionComponent:', error);
     }
-  }
+  }  
 
   loadDynamicComponent(): void {}
 
