@@ -1102,25 +1102,39 @@ export class QuizComponent
 
   // Tooltip for next button
   getNextButtonTooltip(): Observable<string> {
-    return defer((): Observable<string> => {
-      if (!this.isOptionSelected$ || !this.isButtonEnabled$) {
-        console.error('Tooltip streams are not ready. Skipping combination.');
+    return defer(() => {
+      // Double-check that both observables are initialized
+      if (!this.isOptionSelected$) {
+        console.error('isOptionSelected$ is not initialized.');
+        return of('Please select an option to continue...');
+      }
+      if (!this.isButtonEnabled$) {
+        console.error('isButtonEnabled$ is not initialized.');
         return of('Please select an option to continue...');
       }
   
+      // Now, we can safely create the combined observable
       return combineLatest([
         this.isOptionSelected$.pipe(
-          startWith(false), // Provide an initial default value
+          startWith(false), // Ensure an initial value is provided
           distinctUntilChanged(),
           tap(value => {
-            console.log('isOptionSelected$ emitted:', value);
+            if (value === undefined) {
+              console.warn('isOptionSelected$ emitted undefined');
+            } else {
+              console.log('isOptionSelected$ emitted:', value);
+            }
           })
         ),
         this.isButtonEnabled$.pipe(
-          startWith(false), // Provide an initial default value
+          startWith(false), // Ensure an initial value is provided
           distinctUntilChanged(),
           tap(value => {
-            console.log('isButtonEnabled$ emitted:', value);
+            if (value === undefined) {
+              console.warn('isButtonEnabled$ emitted undefined');
+            } else {
+              console.log('isButtonEnabled$ emitted:', value);
+            }
           })
         )
       ]).pipe(
@@ -1136,6 +1150,8 @@ export class QuizComponent
       );
     }) as Observable<string>;
   }
+  
+  
   
 
   updateQuestionDisplayForShuffledQuestions(): void {
