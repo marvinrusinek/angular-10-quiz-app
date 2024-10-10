@@ -129,19 +129,23 @@ export class SingleAnswerComponent
   } */
 
   ngAfterContentInit(): void {
-    console.log('ngAfterContentInit called');
-    setTimeout(() => {
+    new Promise<void>((resolve) => {
+      setTimeout(() => {
+        if (this.viewContainerRef) {
+          console.log('viewContainerRef is available in ngAfterContentInit after delay');
+          resolve();
+        } else {
+          console.warn('viewContainerRef is still not available after delay in ngAfterContentInit');
+          resolve(); // Resolve the promise even if it's not ready (for testing)
+        }
+      }, 500); // Adjust delay if necessary
+    }).then(() => {
       if (this.viewContainerRef) {
-        console.log('viewContainerRef is available in ngAfterContentInit after delay');
         this.loadQuizQuestionComponent();
-        this.hasComponentLoaded = true; // Prevent further attempts to load
-      } else {
-        console.warn('viewContainerRef is still not available after delay in ngAfterContentInit');
+        this.hasComponentLoaded = true; // Prevent duplicate loads
       }
-    }, 1000); // Use a longer delay to check for timing issues
+    });
   }
-  
-  
 
   private async loadQuizQuestionComponent(): Promise<void> {
     try {
