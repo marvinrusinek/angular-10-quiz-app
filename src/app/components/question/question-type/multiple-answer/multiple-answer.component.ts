@@ -91,17 +91,17 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
   ngAfterContentInit(): void {
     console.log('ngAfterContentInit called');
-  
     setTimeout(() => {
       if (this.viewContainerRef) {
         console.log('viewContainerRef is available in ngAfterContentInit after delay');
         this.loadQuizQuestionComponent();
-        this.hasComponentLoaded = true; // Prevent further attempts
+        this.hasComponentLoaded = true; // Prevent further attempts to load
       } else {
         console.warn('viewContainerRef is still not available after delay in ngAfterContentInit');
       }
-    }, 200); // Adjust the delay if necessary
+    }, 1000); // Use a longer delay to check for timing issues
   }
+  
   
   private async loadQuizQuestionComponent(): Promise<void> {
     try {
