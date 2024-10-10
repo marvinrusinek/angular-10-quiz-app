@@ -106,7 +106,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     }
   }
   
-  private handleLoadedQuiz(quiz: Quiz): void {
+  private handleLoadedQuiz(quiz: Quiz | null): void {
     if (quiz) {
       this.selectedQuiz$.next(quiz);
       this.quiz = quiz;
