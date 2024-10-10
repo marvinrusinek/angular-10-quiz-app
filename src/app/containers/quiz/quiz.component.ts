@@ -2297,10 +2297,10 @@ export class QuizComponent
     });
   
     // Ensure the current question is answered before advancing
-    if (!this.checkIfCurrentQuestionAnswered()) {
+    /* if (!this.checkIfCurrentQuestionAnswered()) {
       console.warn('Please select an option to continue.');
       return;
-    }
+    } */
   
     // Set navigating state to true
     this.isNavigating = true;

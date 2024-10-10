@@ -165,18 +165,29 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   }
   
   private async loadQuizQuestionComponent(): Promise<void> {
+    // If the component is already loaded, skip loading again
     if (this.hasComponentLoaded) {
       console.log('QuizQuestionComponent already loaded, skipping load.');
       return;
     }
   
     try {
+      // Check if viewContainerRef exists, and clear the current component before loading a new one
+      if (this.viewContainerRef) {
+        console.log('Clearing current component in viewContainerRef.');
+        this.viewContainerRef.clear(); // Clear the current component before loading a new one
+      } else {
+        console.error('viewContainerRef is not available.');
+        return;
+      }
+  
       // Load the QuizQuestionComponent dynamically and capture the reference immediately
       const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
         this.viewContainerRef,
-        true // Adjust as needed for MultipleAnswerComponent/SingleAnswerComponent
+        true
       );
   
+      // Assign the new component instance
       this.quizQuestionComponent = componentRef.instance;
   
       if (this.quizQuestionComponent) {
