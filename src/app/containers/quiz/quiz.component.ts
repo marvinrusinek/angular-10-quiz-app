@@ -1110,22 +1110,33 @@ export class QuizComponent
   
       return combineLatest([
         this.isOptionSelected$.pipe(
+          startWith(false), // Provide an initial default value
           distinctUntilChanged(),
-          tap(value => console.log('isOptionSelected$ emitted:', value)) // Debugging to trace emitted values
+          tap(value => {
+            console.log('isOptionSelected$ emitted:', value);
+          })
         ),
         this.isButtonEnabled$.pipe(
+          startWith(false), // Provide an initial default value
           distinctUntilChanged(),
-          tap(value => console.log('isButtonEnabled$ emitted:', value)) // Debugging to trace emitted values
+          tap(value => {
+            console.log('isButtonEnabled$ emitted:', value);
+          })
         )
       ]).pipe(
         map(([isSelected, isEnabled]) => {
           console.log('Combining values:', { isSelected, isEnabled });
           return isEnabled && isSelected ? 'Next Question »' : 'Please select an option to continue...';
         }),
-        distinctUntilChanged()
+        distinctUntilChanged(),
+        catchError((error: Error) => {
+          console.error('Error in getNextButtonTooltip:', error);
+          return of('Please select an option to continue...');
+        })
       );
     }) as Observable<string>;
   }
+  
 
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
