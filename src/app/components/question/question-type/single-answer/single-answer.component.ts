@@ -132,7 +132,7 @@ export class SingleAnswerComponent
     });
   } */
 
-  ngAfterContentInit(): void {
+  /* ngAfterContentInit(): void {
     new Promise<void>((resolve) => {
       setTimeout(() => {
         if (this.viewContainerRef) {
@@ -149,6 +149,20 @@ export class SingleAnswerComponent
         this.hasComponentLoaded = true; // Prevent duplicate loads
       }
     });
+  } */
+  ngAfterContentInit(): void {
+    // Log to see the length of viewContainerRefs at content init
+    console.log('ngAfterContentInit called, viewContainerRefs length:', this.viewContainerRefs.length);
+  
+    // Access the container reference if available
+    if (this.viewContainerRefs.length > 0) {
+      console.log('viewContainerRefs available:', this.viewContainerRefs);
+      this.viewContainerRef = this.viewContainerRefs.first;
+      this.loadQuizQuestionComponent();
+      this.hasComponentLoaded = true;
+    } else {
+      console.warn('No viewContainerRef available after content init');
+    }
   }
 
   private async loadQuizQuestionComponent(): Promise<void> {
