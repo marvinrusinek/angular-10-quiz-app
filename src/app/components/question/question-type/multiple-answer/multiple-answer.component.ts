@@ -215,12 +215,17 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       return;
     } */
 
-    if (this.quizQuestionComponent) {
-      console.log('Calling onOptionClicked in QuizQuestionComponent');
-      await this.quizQuestionComponent.onOptionClicked(option, index, checked);
-    } else {
-      console.error('QuizQuestionComponent is not available');
-    }
+    // Subscribe to quizQuestionComponentLoaded$ to ensure component is loaded
+    this.quizQuestionComponentLoaded$.pipe(
+      take(1) // Take only one value (we only need to know once)
+    ).subscribe(isLoaded => {
+      if (isLoaded && this.quizQuestionComponent) {
+        console.log('Calling onOptionClicked in QuizQuestionComponent');
+        this.quizQuestionComponent.onOptionClicked(option, index, checked);
+      } else {
+        console.error('QuizQuestionComponent is not available');
+      }
+    });
 
     const updatedOption: SelectedOption = {
       ...option,
