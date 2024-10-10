@@ -44,6 +44,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
   private quizQuestionComponentLoadedSubject = new BehaviorSubject<boolean>(false);
   quizQuestionComponentLoaded$ = this.quizQuestionComponentLoadedSubject.asObservable();
+  public quizQuestionComponentLoaded = new EventEmitter<void>();
 
   constructor(
     protected dynamicComponentService: DynamicComponentService,
@@ -181,6 +182,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
       if (this.quizQuestionComponent) {
         console.log('QuizQuestionComponent dynamically loaded and available');
         this.hasComponentLoaded = true; // Set the flag here to prevent further attempts
+        this.quizQuestionComponentLoaded.emit(); // Notify listeners that the component is loaded
       } else {
         console.error('Failed to dynamically load QuizQuestionComponent');
       }
