@@ -1,7 +1,4 @@
-import { AfterContentInit, ChangeDetectorRef, Component,
-  ComponentRef, EventEmitter, OnChanges, OnInit, Output,
-  QueryList, SimpleChanges, ViewChildren, ViewContainerRef
-} from '@angular/core';
+import { AfterContentInit, ChangeDetectorRef, Component, ComponentRef, EventEmitter, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChildren, ViewContainerRef } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
