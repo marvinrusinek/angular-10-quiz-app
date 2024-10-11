@@ -2231,7 +2231,6 @@ export class QuizComponent
       this.cdRef.markForCheck(); // Trigger change detection for any UI updates
     }
   }
-  
 
   async advanceToPreviousQuestion(): Promise<void> {
     if (this.isNavigating) {
