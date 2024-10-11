@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ComponentRef, EventEmitter, OnInit, Output, QueryList, ViewChildren, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ComponentRef, EventEmitter, OnInit, Output, QueryList, SimpleChanges, ViewChildren, ViewContainerRef } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
@@ -248,5 +248,9 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     this.selectedOption = option;
     this.showFeedback = true;
     this.cdRef.detectChanges();
+  }
+
+  loadDynamicComponent(): void {
+    console.log('loadDynamicComponent is not used in MultipleAnswerComponent');
   }
 }

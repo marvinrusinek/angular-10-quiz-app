@@ -274,4 +274,8 @@ export class SingleAnswerComponent
   
     this.cdRef.detectChanges();
   }
+
+  loadDynamicComponent(): void {
+    console.log('loadDynamicComponent is not used in SingleAnswerComponent');
+  }
 }
