@@ -166,7 +166,7 @@ export class SingleAnswerComponent
         // Load the component dynamically by specifying the type as 'multiple' or 'single'
         return this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
           this.viewContainerRef,
-          questionType
+          questionType // Corrected to match updated parameter type
         );
       })
     ).subscribe({
@@ -189,7 +189,7 @@ export class SingleAnswerComponent
         console.error('Error loading QuizQuestionComponent:', error);
       }
     });
-  }
+  }  
 
   loadDynamicComponent(): void {}
 
