@@ -121,7 +121,7 @@ export class SingleAnswerComponent
         console.log('viewContainerRefs changed:', this.viewContainerRefs);
         this.handleViewContainerRef();
       });
-    }, 500); // Adjust delay as needed
+    }, 500);
   }
   
   private handleViewContainerRef(): void {
