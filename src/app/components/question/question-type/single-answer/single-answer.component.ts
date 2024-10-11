@@ -1,4 +1,4 @@
-import { AfterContentInit, ChangeDetectorRef, Component, ComponentRef, EventEmitter, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChildren, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ComponentRef, EventEmitter, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChildren, ViewContainerRef } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
@@ -24,7 +24,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
 })
 export class SingleAnswerComponent
   extends BaseQuestionComponent
-  implements OnInit, OnChanges, AfterContentInit
+  implements OnInit, OnChanges, AfterViewInit
 {
   @ViewChildren('dynamicAnswerContainer', { read: ViewContainerRef })
   viewContainerRefs!: QueryList<ViewContainerRef>;
@@ -88,7 +88,7 @@ export class SingleAnswerComponent
     }
   }
   
-  ngAfterContentInit(): void {
+  ngAfterViewInit(): void {
     console.log('ngAfterContentInit called');
   
     // Delay to ensure `viewContainerRefs` is populated properly
