@@ -226,9 +226,4 @@ export class AnswerComponent
 
     this.cdRef.detectChanges();
   }
-
-  // Empty implementation to satisfy the abstract method from BaseQuestionComponent
-  loadDynamicComponent(): void {
-    console.log('loadDynamicComponent is not used in AnswerComponent');
-  }
 }

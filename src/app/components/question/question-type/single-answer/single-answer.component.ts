@@ -172,7 +172,7 @@ export class SingleAnswerComponent
     });
   }  
 
-  loadDynamicComponent(): void {}
+  //loadDynamicComponent(): void {}
 
   public override async initializeSharedOptionConfig(): Promise<void> {
     await super.initializeSharedOptionConfig();

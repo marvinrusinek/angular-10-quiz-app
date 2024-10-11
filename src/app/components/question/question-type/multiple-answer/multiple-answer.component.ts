@@ -153,7 +153,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     });
   }
 
-  loadDynamicComponent(): void {}
+  //loadDynamicComponent(): void {}
 
   private async initializeMultipleAnswerConfig(): Promise<void> {
     if (!this.sharedOptionConfig) {
