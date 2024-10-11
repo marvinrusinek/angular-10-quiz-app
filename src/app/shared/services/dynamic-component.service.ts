@@ -6,16 +6,15 @@ export class DynamicComponentService {
 
   public async loadComponent<T>(
     container: ViewContainerRef,
-    multipleAnswer: boolean
+    questionType: 'multiple' | 'single'
   ): Promise<ComponentRef<T>> {
-    const component = multipleAnswer
+    const component = questionType === 'multiple'
       ? (await this.importComponent('multiple')).MultipleAnswerComponent as Type<T>
       : (await this.importComponent('single')).SingleAnswerComponent as Type<T>;
-
+  
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     container.clear();
-    const componentRef = container.createComponent(componentFactory);
-    return componentRef;
+    return container.createComponent(componentFactory);
   }
 
   private async importComponent(

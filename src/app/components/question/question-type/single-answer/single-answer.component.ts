@@ -2,6 +2,7 @@ import {
   AfterContentInit,
   ChangeDetectorRef,
   Component,
+  ComponentRef,
   EventEmitter,
   OnChanges,
   OnInit,
@@ -15,9 +16,10 @@ import {
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
+import { filter, switchMap, take } from 'rxjs/operators';
 
 import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
+import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { DynamicComponentService } from '../../../../shared/services/dynamic-component.service';
@@ -141,48 +143,53 @@ export class SingleAnswerComponent
     }
   }
   
-  private async loadQuizQuestionComponent(): Promise<void> {
+  private loadQuizQuestionComponent(): void {
     if (this.hasComponentLoaded) {
       console.log('QuizQuestionComponent already loaded, skipping load.');
       return;
     }
   
-    try {
-      // Ensure that the current component container is cleared before loading a new one
-      if (this.viewContainerRef) {
-        console.log('Clearing viewContainerRef before loading new component.');
-        this.viewContainerRef.clear();
-      } else {
-        console.error('viewContainerRef is not available.');
-        return;
-      }
-  
-      // Determine if you need to load SingleAnswerComponent or MultipleAnswerComponent
-      const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(this.quizService.currentQuestionIndex);
-  
-      // Load the appropriate component dynamically
-      const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
-        this.viewContainerRef,
-        isMultipleAnswer // true or false based on whether it's multiple-answer or single-answer
-      );
-  
-      // Assign the component reference to the local variable
-      this.quizQuestionComponent = componentRef.instance;
-  
-      if (this.quizQuestionComponent) {
-        console.log('QuizQuestionComponent dynamically loaded and available');
-        this.hasComponentLoaded = true; // Prevent further attempts to load
-        this.quizQuestionComponentLoaded.emit(); // Notify listeners that the component is loaded
-      } else {
-        console.error('Failed to dynamically load QuizQuestionComponent');
-      }
-  
-      // Trigger change detection to make sure the dynamically loaded component is displayed
-      this.cdRef.detectChanges();
-    } catch (error) {
-      console.error('Error loading QuizQuestionComponent:', error);
+    // Ensure that the current component container is cleared before loading a new one
+    if (this.viewContainerRef) {
+      console.log('Clearing viewContainerRef before loading new component.');
+      this.viewContainerRef.clear();
+    } else {
+      console.error('viewContainerRef is not available.');
+      return;
     }
-  }  
+  
+    this.quizService.getCurrentQuestion().pipe(
+      switchMap((currentQuestion: QuizQuestion) => {
+        const questionType = this.quizStateService.isMultipleAnswerQuestion(currentQuestion) ? 'multiple' : 'single';
+        console.log('Question type:', questionType);
+  
+        // Load the component dynamically by specifying the type as 'multiple' or 'single'
+        return this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
+          this.viewContainerRef,
+          questionType
+        );
+      })
+    ).subscribe({
+      next: (componentRef: ComponentRef<QuizQuestionComponent>) => {
+        // Assign the component reference to the local variable
+        this.quizQuestionComponent = componentRef.instance;
+  
+        if (this.quizQuestionComponent) {
+          console.log('QuizQuestionComponent dynamically loaded and available');
+          this.hasComponentLoaded = true; // Prevent further attempts to load
+          this.quizQuestionComponentLoaded.emit(); // Notify listeners that the component is loaded
+        } else {
+          console.error('Failed to dynamically load QuizQuestionComponent');
+        }
+  
+        // Trigger change detection to make sure the dynamically loaded component is displayed
+        this.cdRef.markForCheck();
+      },
+      error: (error) => {
+        console.error('Error loading QuizQuestionComponent:', error);
+      }
+    });
+  }
 
   loadDynamicComponent(): void {}
 
