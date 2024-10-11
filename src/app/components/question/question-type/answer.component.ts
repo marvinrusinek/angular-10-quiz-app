@@ -14,11 +14,12 @@ import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 import { BaseQuestionComponent } from '../../../components/question/base-question.component';
-import { QuizQuestionComponent } from '../../../../components/question/question.component';
+import { QuizQuestionComponent } from '../../../components/question/question.component';
 
 @Component({
   selector: 'codelab-answer',
-  templateUrl: './answer.component.html'
+  templateUrl: './answer.component.html',
+
 })
 export class AnswerComponent
   extends BaseQuestionComponent
