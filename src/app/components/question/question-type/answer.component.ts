@@ -3,12 +3,11 @@ import {
   OnInit, Output, QueryList, ViewChildren, ViewContainerRef 
 } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
 
-import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
-import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
-import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
-import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
+import { OptionBindings } from '../../../shared/models/OptionBindings.model';
+import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
+import { SelectedOption } from '../../../shared/models/SelectedOption.model';
+import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
 import { DynamicComponentService } from '../../../shared/services/dynamic-component.service';
 import { QuizQuestionCommunicationService } from '../../../shared/services/quiz-question-communication.service';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -29,6 +28,9 @@ export class AnswerComponent
   viewContainerRefs!: QueryList<ViewContainerRef>;
   viewContainerRef!: ViewContainerRef;
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
+  @Output() quizQuestionComponentLoaded = new EventEmitter<void>();
+  @Input() type!: 'single' | 'multiple';
+  @Input() isMultipleAnswer: boolean; // Input to determine the type of question (single or multiple answer)
 
   quizQuestionComponent: QuizQuestionComponent | undefined;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
@@ -37,11 +39,6 @@ export class AnswerComponent
   sharedOptionConfig: SharedOptionConfig;
   optionBindings: OptionBindings[] = [];
   hasComponentLoaded = false;
-
-  @Output() quizQuestionComponentLoaded = new EventEmitter<void>();
-
-  // Input to determine the type of question (single or multiple answer)
-  @Input() isMultipleAnswer: boolean;
 
   constructor(
     protected dynamicComponentService: DynamicComponentService,
@@ -228,5 +225,10 @@ export class AnswerComponent
     }
 
     this.cdRef.detectChanges();
+  }
+
+  // Empty implementation to satisfy the abstract method from BaseQuestionComponent
+  loadDynamicComponent(): void {
+    console.log('loadDynamicComponent is not used in AnswerComponent');
   }
 }
