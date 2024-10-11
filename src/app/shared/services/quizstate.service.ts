@@ -40,6 +40,9 @@ export class QuizStateService {
   answeredSubject = new BehaviorSubject<boolean>(false);
   isAnswered$: Observable<boolean> = this.answeredSubject.asObservable();
 
+  private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
+  isNextButtonEnabled$ = this.isNextButtonEnabledSubject.asObservable();
+
   constructor() {
     this.questionStates = new Map<number, QuestionState>();
   }
@@ -207,6 +210,10 @@ export class QuizStateService {
 
   setExplanationDisplayed(isDisplayed: boolean): void {
     this.explanationDisplayedSubject.next(isDisplayed);
+  }
+
+  setNextButtonEnabled(enabled: boolean): void {
+    this.isNextButtonEnabledSubject.next(enabled);
   }
 
   isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
