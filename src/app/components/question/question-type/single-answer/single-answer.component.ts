@@ -229,7 +229,7 @@ export class SingleAnswerComponent
     }
 
     // For single answer questions, only one option can be selected at a time
-    this.selectedOption = [option]; 
+    this.selectedOption = option;
 
     this.optionSelected.emit({ option, index, checked: true });
     console.log('SingleAnswerComponent: optionSelected emitted', { option, index, checked: true });
