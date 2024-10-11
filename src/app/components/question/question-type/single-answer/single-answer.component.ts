@@ -170,9 +170,7 @@ export class SingleAnswerComponent
         console.error('Could not determine whether question is multiple answer.');
       }
     });
-  }  
-
-  //loadDynamicComponent(): void {}
+  }
 
   public override async initializeSharedOptionConfig(): Promise<void> {
     await super.initializeSharedOptionConfig();
