@@ -158,7 +158,7 @@ export class SingleAnswerComponent
       }
   
       // Determine if you need to load SingleAnswerComponent or MultipleAnswerComponent
-      const isMultipleAnswer = this.quizService.isMultipleAnswerQuestion(this.currentQuestionIndex); 
+      const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(this.quizService.currentQuestionIndex);
   
       // Load the appropriate component dynamically
       const componentRef = await this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
