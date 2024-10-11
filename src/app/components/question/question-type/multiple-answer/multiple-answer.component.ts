@@ -1,4 +1,4 @@
-import { AfterContentInit, ChangeDetectorRef, Component, ComponentRef, EventEmitter, OnInit, Output, QueryList, ViewChildren, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ComponentRef, EventEmitter, OnInit, Output, QueryList, ViewChildren, ViewContainerRef } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
@@ -22,7 +22,7 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
     '../shared-option.component.scss'
   ]
 })
-export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit, AfterContentInit {
+export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit, AfterViewInit {
   @ViewChildren('dynamicAnswerContainer', { read: ViewContainerRef })
   viewContainerRefs!: QueryList<ViewContainerRef>;
   viewContainerRef!: ViewContainerRef;
@@ -60,7 +60,7 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     this.initializeSharedOptionConfig();
   }
 
-  ngAfterContentInit(): void {
+  ngAfterViewInit(): void {
     console.log('ngAfterContentInit called');
   
     // Delay to ensure `viewContainerRefs` is populated properly
