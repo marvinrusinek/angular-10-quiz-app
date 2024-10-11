@@ -57,7 +57,6 @@ export class SingleAnswerComponent
   optionBindings: OptionBindings[] = [];
   isQuizQuestionComponentLoaded = false;
   hasComponentLoaded = false;
-  private viewContainerReady$ = new BehaviorSubject<boolean>(false);
 
   private quizQuestionComponentLoadedSubject = new BehaviorSubject<boolean>(false);
   quizQuestionComponentLoaded$ = this.quizQuestionComponentLoadedSubject.asObservable();

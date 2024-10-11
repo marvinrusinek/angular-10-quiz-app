@@ -38,7 +38,6 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   optionBindings: OptionBindings[] = [];
   isQuizQuestionComponentLoaded = false;
   hasComponentLoaded = false;
-  private viewContainerReady$ = new BehaviorSubject<boolean>(false);
 
   private quizQuestionComponentLoadedSubject = new BehaviorSubject<boolean>(false);
   quizQuestionComponentLoaded$ = this.quizQuestionComponentLoadedSubject.asObservable();
