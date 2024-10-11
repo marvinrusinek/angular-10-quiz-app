@@ -274,8 +274,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
 
-  // protected abstract loadDynamicComponent(): void;
-
   public async onOptionClicked(
     option: SelectedOption,
     index: number,
