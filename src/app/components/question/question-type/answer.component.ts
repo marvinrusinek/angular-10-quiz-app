@@ -182,7 +182,7 @@ export class AnswerComponent
       ...option,
       optionId: option.optionId ?? index,
       questionIndex: option.questionIndex ?? this.quizService.getCurrentQuestionIndex(),
-      text: option.text || `Option ${index + 1}`
+      text: option.text || `Option ${index + 1}`,
     };
 
     // Emit the option clicked event
@@ -190,26 +190,24 @@ export class AnswerComponent
 
     await super.onOptionClicked(option, index, checked); // Calls BQC's implementation
 
-    console.log('AnswerComponent - Option clicked', event);
-    this.selectedOption = option;
-    this.showFeedback = true;
-
-    if (this.isMultipleAnswer) {
-      // Multiple answer logic: toggle selection
+    // Toggle the selection of the clicked option for multiple or single answer type
+    if (this.sharedOptionConfig?.type === 'multiple') {
       const optionIndex = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
       const isChecked = optionIndex === -1;
       if (isChecked) {
         this.selectedOptions.push(option);
       } else {
-        this.selectedOptions.splice(optionIndex, 1);
+         this.selectedOptions.splice(optionIndex, 1);
       }
     } else {
-      // Single answer logic: only one option can be selected
-      this.selectedOptions = [option];
+      this.selectedOptions = [option]; // For single answer, just store the selected option
     }
 
-    this.optionSelected.emit({ option, index, checked: this.isMultipleAnswer ? checked : true });
+    this.optionSelected.emit({ option, index, checked: true });
     console.log('AnswerComponent: optionSelected emitted', { option, index, checked: true });
+
+    // Update the feedback state
+    // this.updateFeedbackState(option, index);
 
     // Update the quiz state
     this.quizStateService.setAnswerSelected(this.selectedOptions.length > 0);
@@ -217,13 +215,15 @@ export class AnswerComponent
 
     // Update the SelectedOptionService
     if (this.selectedOptions.length > 0) {
-      this.selectedOptionService.setSelectedOption(this.selectedOptions[0]);
-      console.log('AnswerComponent: SelectedOptionService updated with:', this.selectedOptions[0]);
+        this.selectedOptionService.setSelectedOption(this.selectedOptions[0]);
+        console.log('AnswerComponent: SelectedOptionService updated with:', this.selectedOptions[0]);
     } else {
-      this.selectedOptionService.clearSelectedOption();
-      console.log('AnswerComponent: SelectedOptionService cleared');
+        this.selectedOptionService.clearSelectedOption();
+        console.log('AnswerComponent: SelectedOptionService cleared');
     }
 
+    this.selectedOption = option;
+    this.showFeedback = true;
     this.cdRef.detectChanges();
   }
 }
