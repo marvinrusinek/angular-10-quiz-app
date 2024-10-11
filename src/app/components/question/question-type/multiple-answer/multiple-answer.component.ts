@@ -60,6 +60,15 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
     this.initializeSharedOptionConfig();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.questionData) {
+      console.log(
+        'SingleAnswerComponent - questionData changed:',
+        changes.questionData.currentValue
+      );
+    }
+  }
+
   ngAfterViewInit(): void {
     console.log('ngAfterContentInit called');
   
