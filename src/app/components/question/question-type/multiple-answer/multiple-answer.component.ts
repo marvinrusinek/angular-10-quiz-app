@@ -23,9 +23,6 @@ import { QuizQuestionComponent } from '../../../../components/question/question.
   ]
 })
 export class MultipleAnswerComponent extends BaseQuestionComponent implements OnInit, AfterContentInit {
-  // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
-  // @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
-  // viewContainerRef!: ViewContainerRef;
   @ViewChildren('dynamicAnswerContainer', { read: ViewContainerRef })
   viewContainerRefs!: QueryList<ViewContainerRef>;
   viewContainerRef!: ViewContainerRef;

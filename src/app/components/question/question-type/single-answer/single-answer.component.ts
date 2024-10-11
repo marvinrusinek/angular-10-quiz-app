@@ -41,9 +41,6 @@ export class SingleAnswerComponent
   extends BaseQuestionComponent
   implements OnInit, OnChanges, AfterContentInit
 {
-  // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent;
-  //@ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
-  //viewContainerRef!: ViewContainerRef;
   @ViewChildren('dynamicAnswerContainer', { read: ViewContainerRef })
   viewContainerRefs!: QueryList<ViewContainerRef>;
   viewContainerRef!: ViewContainerRef;
