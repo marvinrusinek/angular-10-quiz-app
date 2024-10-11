@@ -606,6 +606,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   shouldShowFeedback(index: number): boolean {
     // Check if the current index matches the selected option index
     return this.selectedOptionIndex === index;
+    // return !!this.showFeedbackForOption && this.showFeedbackForOption[index];
   }
 
   isAnswerCorrect(): boolean {
