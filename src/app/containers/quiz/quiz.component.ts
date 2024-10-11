@@ -2182,7 +2182,6 @@ export class QuizComponent
   async advanceToNextQuestion(): Promise<void> {
     console.log('advanceToNextQuestion called, currentQuestionIndex:', this.currentQuestionIndex);
   
-    // Prevent navigation if already navigating or quiz is still loading
     if (this.isNavigating || this.isLoading) {
       console.warn('Cannot advance: Navigation in progress or quiz is loading.');
       return;
@@ -2207,25 +2206,16 @@ export class QuizComponent
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
   
-        // Check if the current question has already been answered
-        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-        this.selectedOptionService.setAnsweredState(isAnswered);
-        this.isAnswered = isAnswered;
+        // Reset state for the new question
+        this.quizStateService.setAnswered(false); // Mark the new question as unanswered
+        this.quizStateService.setNextButtonEnabled(false); // Disable the Next button initially
+        this.isNextButtonEnabled = false;
   
-        // Clear the previous explanation and fetch explanation if answered
+        // Clear previous explanations if needed
         if (this.quizQuestionComponent) {
           this.quizQuestionComponent.explanationToDisplay = '';
-  
-          if (this.isAnswered) {
-            await this.quizQuestionComponent.fetchAndSetExplanationText();
-          }
-  
           this.quizQuestionComponent.isAnswered = false;
         }
-  
-        // Reset UI and state after preparing the question
-        this.resetUI();
-        this.resetQuestionState();
   
         console.log('Navigation to next question completed');
       } else {
@@ -2235,14 +2225,13 @@ export class QuizComponent
     } catch (error) {
       console.error('Error occurred while advancing to the next question:', error);
     } finally {
-      // Reset navigation/loading flags
       this.isNavigating = false;
       this.quizStateService.setLoading(false);
       this.updateNextButtonState();
-      this.logButtonState();
-      this.cdRef.detectChanges();
+      this.cdRef.markForCheck(); // Trigger change detection for any UI updates
     }
-  }  
+  }
+  
 
   async advanceToPreviousQuestion(): Promise<void> {
     if (this.isNavigating) {
