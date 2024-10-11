@@ -206,6 +206,9 @@ export class SingleAnswerComponent
     // Set the index of the selected option
     this.selectedOptionIndex = index;
 
+    // Set the selected option
+    this.selectedOption = option;
+
     // Update feedback visibility
     this.showFeedback = true;
 
