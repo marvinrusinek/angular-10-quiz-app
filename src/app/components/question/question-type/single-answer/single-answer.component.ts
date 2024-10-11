@@ -158,35 +158,35 @@ export class SingleAnswerComponent
       return;
     }
   
-    this.quizService.getCurrentQuestion().pipe(
-      switchMap((currentQuestion: QuizQuestion) => {
-        const questionType = this.quizStateService.isMultipleAnswerQuestion(currentQuestion) ? 'multiple' : 'single';
-        console.log('Question type:', questionType);
+    // Get the current question and determine the component to load
+    this.quizService.getCurrentQuestion().subscribe((currentQuestion: QuizQuestion) => {
+      const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
+      console.log('Is Multiple Answer:', isMultipleAnswer);
   
-        // Load the component dynamically by specifying the type as 'multiple' or 'single'
-        return this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
+      if (typeof isMultipleAnswer === 'boolean') {
+        // Load the component dynamically based on whether it is multiple-answer or single-answer
+        this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
           this.viewContainerRef,
-          questionType // Corrected to match updated parameter type
-        );
-      })
-    ).subscribe({
-      next: (componentRef: ComponentRef<QuizQuestionComponent>) => {
-        // Assign the component reference to the local variable
-        this.quizQuestionComponent = componentRef.instance;
+          isMultipleAnswer // Boolean value to determine which component to load
+        ).then((componentRef: ComponentRef<QuizQuestionComponent>) => {
+          // Assign the component reference to the local variable
+          this.quizQuestionComponent = componentRef.instance;
   
-        if (this.quizQuestionComponent) {
-          console.log('QuizQuestionComponent dynamically loaded and available');
-          this.hasComponentLoaded = true; // Prevent further attempts to load
-          this.quizQuestionComponentLoaded.emit(); // Notify listeners that the component is loaded
-        } else {
-          console.error('Failed to dynamically load QuizQuestionComponent');
-        }
+          if (this.quizQuestionComponent) {
+            console.log('QuizQuestionComponent dynamically loaded and available');
+            this.hasComponentLoaded = true; // Prevent further attempts to load
+            this.quizQuestionComponentLoaded.emit(); // Notify listeners that the component is loaded
+          } else {
+            console.error('Failed to dynamically load QuizQuestionComponent');
+          }
   
-        // Trigger change detection to make sure the dynamically loaded component is displayed
-        this.cdRef.markForCheck();
-      },
-      error: (error) => {
-        console.error('Error loading QuizQuestionComponent:', error);
+          // Trigger change detection to make sure the dynamically loaded component is displayed
+          this.cdRef.markForCheck();
+        }).catch((error) => {
+          console.error('Error loading QuizQuestionComponent:', error);
+        });
+      } else {
+        console.error('Could not determine whether question is multiple answer.');
       }
     });
   }  
