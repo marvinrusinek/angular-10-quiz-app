@@ -1,0 +1,7 @@
+<app-shared-option
+  [type]="isMultipleAnswer ? 'multiple' : 'single'"
+  [config]="sharedOptionConfig"
+  [correctMessage]="correctMessage"
+  (optionSelected)="onOptionClicked($event)"
+  (componentLoaded)="onQuizQuestionComponentLoaded($event)"
+></app-shared-option>
