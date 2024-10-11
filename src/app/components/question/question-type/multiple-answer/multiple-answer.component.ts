@@ -178,6 +178,12 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   public override async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
     console.log('MultipleAnswerComponent: onOptionClicked called', option, index, checked);
 
+    // Set the index of the selected option
+    this.selectedOptionIndex = index;
+
+    // Update feedback visibility
+    this.showFeedback = true;
+
     // Wait for the QuizQuestionComponentLoaded event
     await new Promise<void>((resolve) => {
         if (this.hasComponentLoaded && this.quizQuestionComponent) {
