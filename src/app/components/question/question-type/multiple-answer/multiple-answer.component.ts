@@ -186,30 +186,32 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
     // Wait for the QuizQuestionComponentLoaded event
     await new Promise<void>((resolve) => {
-        if (this.hasComponentLoaded && this.quizQuestionComponent) {
-            resolve(); // Component is already loaded
-        } else {
-            this.quizQuestionComponentLoaded.subscribe(() => {
-                console.log('QuizQuestionComponent is now available');
-                resolve();
-            });
-        }
+      if (this.hasComponentLoaded && this.quizQuestionComponent) {
+        resolve(); // Component is already loaded
+      } else {
+        this.quizQuestionComponentLoaded.subscribe(() => {
+          console.log('QuizQuestionComponent is now available');
+          resolve();
+        });
+      }
     });
 
     if (this.quizQuestionComponent) {
-        console.log('Calling onOptionClicked in QuizQuestionComponent');
-        await this.quizQuestionComponent.onOptionClicked(option, index, checked);
+      console.log('Calling onOptionClicked in QuizQuestionComponent');
+      await this.quizQuestionComponent.onOptionClicked(option, index, checked);
     } else {
-        console.error('QuizQuestionComponent is still not available even after waiting.');
+      console.error('QuizQuestionComponent is still not available even after waiting.');
     }
 
     // Toggle the selection of the clicked option for multiple answer questions
     const optionIndex = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
     const isChecked = optionIndex === -1;
     if (isChecked) {
-        this.selectedOptions.push(option);
+      this.selectedOptions.push(option);
+      this.showFeedbackForOption[option.optionId] = true;
     } else {
-        this.selectedOptions.splice(optionIndex, 1);
+      this.selectedOptions.splice(optionIndex, 1);
+      this.showFeedbackForOption[option.optionId] = false;
     }
 
     this.optionSelected.emit({ option, index, checked: isChecked });
@@ -217,9 +219,9 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
     // Update feedback for each selected option
     if (isChecked) {
-        this.showFeedbackForOption[option.optionId] = true;
+      this.showFeedbackForOption[option.optionId] = true;
     } else {
-        delete this.showFeedbackForOption[option.optionId];
+      delete this.showFeedbackForOption[option.optionId];
     }
 
     // Update the quiz state
@@ -228,11 +230,11 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
     // Update the SelectedOptionService
     if (this.selectedOptions.length > 0) {
-        this.selectedOptionService.setSelectedOption(this.selectedOptions[0]);
-        console.log('MultipleAnswerComponent: SelectedOptionService updated with:', this.selectedOptions[0]);
+      this.selectedOptionService.setSelectedOption(this.selectedOptions[0]);
+      console.log('MultipleAnswerComponent: SelectedOptionService updated with:', this.selectedOptions[0]);
     } else {
-        this.selectedOptionService.clearSelectedOption();
-        console.log('MultipleAnswerComponent: SelectedOptionService cleared');
+      this.selectedOptionService.clearSelectedOption();
+      console.log('MultipleAnswerComponent: SelectedOptionService cleared');
     }
 
     this.selectedOption = option;
