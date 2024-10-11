@@ -176,61 +176,45 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
   }
 
   public override async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
-    console.log('MultipleAnswerComponent: onOptionClicked called', option, index);
-    /* if (!this.isQuizQuestionComponentLoaded || !this.quizQuestionComponent) {
-      console.warn('QuizQuestionComponent is not available when clicking an option.');
-      return;
-    } */
+    console.log('MultipleAnswerComponent: onOptionClicked called', option, index, checked);
 
     // Wait for the QuizQuestionComponentLoaded event
     await new Promise<void>((resolve) => {
-      if (this.hasComponentLoaded && this.quizQuestionComponent) {
-        resolve(); // Component is already loaded
-      } else {
-        this.quizQuestionComponentLoaded.subscribe(() => {
-          console.log('QuizQuestionComponent is now available');
-          resolve();
-        });
-      }
+        if (this.hasComponentLoaded && this.quizQuestionComponent) {
+            resolve(); // Component is already loaded
+        } else {
+            this.quizQuestionComponentLoaded.subscribe(() => {
+                console.log('QuizQuestionComponent is now available');
+                resolve();
+            });
+        }
     });
 
     if (this.quizQuestionComponent) {
-      console.log('Calling onOptionClicked in QuizQuestionComponent');
-      await this.quizQuestionComponent.onOptionClicked(option, index, checked);
+        console.log('Calling onOptionClicked in QuizQuestionComponent');
+        await this.quizQuestionComponent.onOptionClicked(option, index, checked);
     } else {
-      console.error('QuizQuestionComponent is still not available even after waiting.');
+        console.error('QuizQuestionComponent is still not available even after waiting.');
     }
 
-    const updatedOption: SelectedOption = {
-      ...option,
-      optionId: option.optionId ?? index,
-      questionIndex: option.questionIndex ?? this.quizService.getCurrentQuestionIndex(),
-      text: option.text || `Option ${index + 1}`
-    };
-
-    // Emit the option clicked event
-    this.quizQuestionCommunicationService.emitOptionClicked(updatedOption, index, checked);
-
-    await super.onOptionClicked(option, index, checked); // Calls BQC's implementation
-
-    // Check if this component is actually an instance of QuizQuestionComponent
-    if (this instanceof QuizQuestionComponent) {
-      console.log('Calling fetchAndSetExplanationText in QuizQuestionComponent from MultipleAnswerComponent');
-      await (this as QuizQuestionComponent).fetchAndSetExplanationText();
-      await (this as QuizQuestionComponent).onOptionClicked(option, index, checked);
-    }
-
-    // Toggle the selection of the clicked option
+    // Toggle the selection of the clicked option for multiple answer questions
     const optionIndex = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
     const isChecked = optionIndex === -1;
     if (isChecked) {
-      this.selectedOptions.push(option);
+        this.selectedOptions.push(option);
     } else {
-      this.selectedOptions.splice(optionIndex, 1);
+        this.selectedOptions.splice(optionIndex, 1);
     }
 
     this.optionSelected.emit({ option, index, checked: isChecked });
-    console.log('MAC: optionSelected emitted', { option, index, checked: isChecked });
+    console.log('MultipleAnswerComponent: optionSelected emitted', { option, index, checked: isChecked });
+
+    // Update feedback for each selected option
+    if (isChecked) {
+        this.showFeedbackForOption[option.optionId] = true;
+    } else {
+        delete this.showFeedbackForOption[option.optionId];
+    }
 
     // Update the quiz state
     this.quizStateService.setAnswerSelected(this.selectedOptions.length > 0);
@@ -238,15 +222,16 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
     // Update the SelectedOptionService
     if (this.selectedOptions.length > 0) {
-      this.selectedOptionService.setSelectedOption(this.selectedOptions[0]);
-      console.log("MAC: SelectedOptionService updated with:", this.selectedOptions[0]);
+        this.selectedOptionService.setSelectedOption(this.selectedOptions[0]);
+        console.log('MultipleAnswerComponent: SelectedOptionService updated with:', this.selectedOptions[0]);
     } else {
-      this.selectedOptionService.clearSelectedOption();
-      console.log("MAC: SelectedOptionService cleared");
+        this.selectedOptionService.clearSelectedOption();
+        console.log('MultipleAnswerComponent: SelectedOptionService cleared');
     }
 
     this.selectedOption = option;
     this.showFeedback = true;
+
     this.cdRef.detectChanges();
   }
 

@@ -201,77 +201,47 @@ export class SingleAnswerComponent
   }
 
   public override async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
-    console.log('SingleAnswerComponent: onOptionClicked called', new Error().stack);
     console.log('SingleAnswerComponent: onOptionClicked called', option, index, checked);
-
-    /* if (!this.isQuizQuestionComponentLoaded || !this.quizQuestionComponent) {
-      console.warn('QuizQuestionComponent is not available when clicking an option.');
-      return;
-    } */
 
     // Wait for the QuizQuestionComponentLoaded event
     await new Promise<void>((resolve) => {
-      if (this.hasComponentLoaded && this.quizQuestionComponent) {
-        resolve(); // Component is already loaded
-      } else {
-        this.quizQuestionComponentLoaded.subscribe(() => {
-          console.log('QuizQuestionComponent is now available');
-          resolve();
-        });
-      }
+        if (this.hasComponentLoaded && this.quizQuestionComponent) {
+            resolve(); // Component is already loaded
+        } else {
+            this.quizQuestionComponentLoaded.subscribe(() => {
+                console.log('QuizQuestionComponent is now available');
+                resolve();
+            });
+        }
     });
 
     if (this.quizQuestionComponent) {
-      console.log('Calling onOptionClicked in QuizQuestionComponent');
-      await this.quizQuestionComponent.onOptionClicked(option, index, checked);
+        console.log('Calling onOptionClicked in QuizQuestionComponent');
+        await this.quizQuestionComponent.onOptionClicked(option, index, checked);
     } else {
-      console.error('QuizQuestionComponent is still not available even after waiting.');
+        console.error('QuizQuestionComponent is still not available even after waiting.');
     }
 
-    const updatedOption: SelectedOption = {
-      ...option,
-      optionId: option.optionId ?? index,
-      questionIndex: option.questionIndex ?? this.quizService.getCurrentQuestionIndex(),
-      text: option.text || `Option ${index + 1}`
-    }; 
+    // For single answer questions, only one option can be selected at a time
+    this.selectedOptions = [option]; 
 
-    // Emit the option clicked event
-    this.quizQuestionCommunicationService.emitOptionClicked(updatedOption, index, checked);
-  
-    await super.onOptionClicked(option, index, checked); // call the inherited method in BQC
-    console.log("QQC", this.quizQuestionComponent);
-  
-    // Check if this component is actually an instance of QuizQuestionComponent
-    if (this instanceof QuizQuestionComponent) {
-      console.log('Calling fetchAndSetExplanationText in QuizQuestionComponent from MultipleAnswerComponent');
-      await (this as QuizQuestionComponent).fetchAndSetExplanationText();
-      await (this as QuizQuestionComponent).onOptionClicked(option, index, checked);
-    }
-  
-    console.log('SingleAnswerComponent - Option clicked', event);
-    this.selectedOption = option;
-    this.showFeedback = true;
-    
-    // Update the isSelected state for all options
-    for (const binding of this.optionBindings) {
-      binding.isSelected = binding.option === this.selectedOption;
-      binding.showFeedbackForOption = { [index]: binding.isSelected };
-    }
-  
     this.optionSelected.emit({ option, index, checked: true });
-    console.log('SAC: optionSelected emitted', { option, index, checked: true });
-  
+    console.log('SingleAnswerComponent: optionSelected emitted', { option, index, checked: true });
+
+    // Update feedback for the selected option only
+    this.showFeedbackForOption = { [option.optionId]: true };
+
     // Update the quiz state
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
-  
+
     // Update the SelectedOptionService
     this.selectedOptionService.setSelectedOption(option);
-    console.log("SAC: SelectedOptionService updated with:", option);
-  
-    console.log('SingleAnswerComponent - selectedOption set to', this.selectedOption);
-    console.log('SingleAnswerComponent - showFeedback set to', this.showFeedback);
-  
+    console.log('SingleAnswerComponent: SelectedOptionService updated with:', option);
+
+    this.selectedOption = option;
+    this.showFeedback = true;
+
     this.cdRef.detectChanges();
   }
 
