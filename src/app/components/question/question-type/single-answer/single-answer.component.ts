@@ -1,22 +1,10 @@
-import {
-  AfterContentInit,
-  ChangeDetectorRef,
-  Component,
-  ComponentRef,
-  EventEmitter,
-  OnChanges,
-  OnInit,
-  Output,
-  QueryList,
-  SimpleChanges,
-  ViewChild,
-  ViewChildren,
-  ViewContainerRef
+import { AfterContentInit, ChangeDetectorRef, Component,
+  ComponentRef, EventEmitter, OnChanges, OnInit, Output,
+  QueryList, SimpleChanges, ViewChildren, ViewContainerRef
 } from '@angular/core';
 import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
-import { filter, switchMap, take } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 
 import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
