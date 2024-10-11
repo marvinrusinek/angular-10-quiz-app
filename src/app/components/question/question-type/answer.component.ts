@@ -10,20 +10,17 @@ import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
-import { DynamicComponentService } from '../../../../shared/services/dynamic-component.service';
-import { QuizQuestionCommunicationService } from '../../../../shared/services/quiz-question-communication.service';
-import { QuizService } from '../../../../shared/services/quiz.service';
-import { QuizStateService } from '../../../../shared/services/quizstate.service';
-import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
+import { DynamicComponentService } from '../../../shared/services/dynamic-component.service';
+import { QuizQuestionCommunicationService } from '../../../shared/services/quiz-question-communication.service';
+import { QuizService } from '../../../shared/services/quiz.service';
+import { QuizStateService } from '../../../shared/services/quizstate.service';
+import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
+import { BaseQuestionComponent } from '../../../components/question/base.component';
 import { QuizQuestionComponent } from '../../../../components/question/question.component';
 
 @Component({
   selector: 'codelab-answer',
-  templateUrl: './answer.component.html',
-  styleUrls: [
-    './answer.component.scss',
-    '../shared-option.component.scss',
-  ],
+  templateUrl: './answer.component.html'
 })
 export class AnswerComponent
   extends BaseQuestionComponent
