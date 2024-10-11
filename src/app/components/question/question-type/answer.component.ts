@@ -1,8 +1,7 @@
 import { 
-  AfterViewInit, ChangeDetectorRef, Component, ComponentRef, EventEmitter, 
+  AfterViewInit, ChangeDetectorRef, Component, ComponentRef, EventEmitter, Input,
   OnInit, Output, QueryList, ViewChildren, ViewContainerRef 
 } from '@angular/core';
-import { BaseQuestionComponent } from '../../base-question.component';
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
@@ -15,7 +14,7 @@ import { QuizQuestionCommunicationService } from '../../../shared/services/quiz-
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
-import { BaseQuestionComponent } from './components/question/base.component';
+import { BaseQuestionComponent } from '../../../components/question/base-question.component';
 import { QuizQuestionComponent } from '../../../../components/question/question.component';
 
 @Component({
