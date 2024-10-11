@@ -227,4 +227,8 @@ export class AnswerComponent
     this.showFeedback = true;
     this.cdRef.detectChanges();
   }
+
+  loadDynamicComponent(): void {
+    console.log('loadDynamicComponent is not used in AnswerComponent');
+  }
 }
