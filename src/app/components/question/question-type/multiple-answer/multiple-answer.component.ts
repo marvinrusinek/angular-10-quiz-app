@@ -177,13 +177,13 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
 
   public override async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
     console.log('MultipleAnswerComponent: onOptionClicked called', option, index, checked);
-
+  
     // Set the index of the selected option
     this.selectedOptionIndex = index;
-
+  
     // Update feedback visibility
     this.showFeedback = true;
-
+  
     // Wait for the QuizQuestionComponentLoaded event
     await new Promise<void>((resolve) => {
       if (this.hasComponentLoaded && this.quizQuestionComponent) {
@@ -195,53 +195,51 @@ export class MultipleAnswerComponent extends BaseQuestionComponent implements On
         });
       }
     });
-
+  
     if (this.quizQuestionComponent) {
       console.log('Calling onOptionClicked in QuizQuestionComponent');
       await this.quizQuestionComponent.onOptionClicked(option, index, checked);
     } else {
       console.error('QuizQuestionComponent is still not available even after waiting.');
     }
-
+  
     // Toggle the selection of the clicked option for multiple answer questions
     const optionIndex = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
     const isChecked = optionIndex === -1;
+  
     if (isChecked) {
       this.selectedOptions.push(option);
-      this.showFeedbackForOption[option.optionId] = true;
     } else {
       this.selectedOptions.splice(optionIndex, 1);
-      this.showFeedbackForOption[option.optionId] = false;
     }
-
+  
+    // Update feedback for each selected option
+    this.showFeedbackForOption[option.optionId] = isChecked;
+  
+    // Emit the option clicked event
     this.optionSelected.emit({ option, index, checked: isChecked });
     console.log('MultipleAnswerComponent: optionSelected emitted', { option, index, checked: isChecked });
-
-    // Update feedback for each selected option
-    if (isChecked) {
-      this.showFeedbackForOption[option.optionId] = true;
-    } else {
-      delete this.showFeedbackForOption[option.optionId];
-    }
-
+  
     // Update the quiz state
-    this.quizStateService.setAnswerSelected(this.selectedOptions.length > 0);
-    this.quizStateService.setAnswered(this.selectedOptions.length > 0);
-
+    const isOptionSelected = this.selectedOptions.length > 0;
+    this.quizStateService.setAnswerSelected(isOptionSelected);
+    this.quizStateService.setAnswered(isOptionSelected);
+  
     // Update the SelectedOptionService
-    if (this.selectedOptions.length > 0) {
+    if (isOptionSelected) {
       this.selectedOptionService.setSelectedOption(this.selectedOptions[0]);
       console.log('MultipleAnswerComponent: SelectedOptionService updated with:', this.selectedOptions[0]);
     } else {
       this.selectedOptionService.clearSelectedOption();
       console.log('MultipleAnswerComponent: SelectedOptionService cleared');
     }
-
+  
+    // Update the selected option for single-answer feedback
     this.selectedOption = option;
-    this.showFeedback = true;
-
+  
+    // Trigger change detection to ensure UI updates
     this.cdRef.detectChanges();
-  }
+  }  
 
   loadDynamicComponent(): void {
     console.log('loadDynamicComponent is not used in MultipleAnswerComponent');

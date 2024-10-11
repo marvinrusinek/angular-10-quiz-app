@@ -202,57 +202,51 @@ export class SingleAnswerComponent
 
   public override async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
     console.log('SingleAnswerComponent: onOptionClicked called', option, index, checked);
-
+  
     // Set the index of the selected option
     this.selectedOptionIndex = index;
-
-    // Set the selected option
-    this.selectedOption = option;
-
-    // Update feedback visibility
-    this.showFeedback = true;
-
-    // Wait for the QuizQuestionComponentLoaded event
-    await new Promise<void>((resolve) => {
-        if (this.hasComponentLoaded && this.quizQuestionComponent) {
-            resolve(); // Component is already loaded
-        } else {
-            this.quizQuestionComponentLoaded.subscribe(() => {
-                console.log('QuizQuestionComponent is now available');
-                resolve();
-            });
-        }
-    });
-
-    if (this.quizQuestionComponent) {
-        console.log('Calling onOptionClicked in QuizQuestionComponent');
-        await this.quizQuestionComponent.onOptionClicked(option, index, checked);
-    } else {
-        console.error('QuizQuestionComponent is still not available even after waiting.');
-    }
-
+  
     // For single answer questions, only one option can be selected at a time
     this.selectedOption = option;
-
+  
+    // Update feedback visibility and for the selected option only
+    this.showFeedbackForOption = { [option.optionId]: true };
+    this.showFeedback = true;
+  
+    // Emit the option clicked event
     this.optionSelected.emit({ option, index, checked });
     console.log('SingleAnswerComponent: optionSelected emitted', { option, index, checked: true });
-
-    // Update feedback for the selected option only
-    this.showFeedbackForOption = { [option.optionId]: true };
-
-    // Update the quiz state
+  
+    // Wait for the QuizQuestionComponentLoaded event
+    await new Promise<void>((resolve) => {
+      if (this.hasComponentLoaded && this.quizQuestionComponent) {
+        resolve(); // Component is already loaded
+      } else {
+        this.quizQuestionComponentLoaded.subscribe(() => {
+          console.log('QuizQuestionComponent is now available');
+          resolve();
+        });
+      }
+    });
+  
+    if (this.quizQuestionComponent) {
+      console.log('Calling onOptionClicked in QuizQuestionComponent');
+      await this.quizQuestionComponent.onOptionClicked(option, index, checked);
+    } else {
+      console.error('QuizQuestionComponent is still not available even after waiting.');
+    }
+  
+    // Update the quiz state to indicate that an answer is selected
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
-
+  
     // Update the SelectedOptionService
     this.selectedOptionService.setSelectedOption(option);
     console.log('SingleAnswerComponent: SelectedOptionService updated with:', option);
-
-    this.selectedOption = option;
-    this.showFeedback = true;
-
+  
+    // Trigger change detection to ensure UI updates
     this.cdRef.detectChanges();
-  }
+  }  
 
   loadDynamicComponent(): void {
     console.log('loadDynamicComponent is not used in SingleAnswerComponent');
