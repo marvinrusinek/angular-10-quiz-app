@@ -198,7 +198,7 @@ export class AnswerComponent
       if (isChecked) {
         this.selectedOptions.push(option);
       } else {
-         this.selectedOptions.splice(optionIndex, 1);
+        this.selectedOptions.splice(optionIndex, 1);
       }
     } else {
       this.selectedOptions = [option]; // For single answer, just store the selected option
@@ -216,11 +216,11 @@ export class AnswerComponent
 
     // Update the SelectedOptionService
     if (this.selectedOptions.length > 0) {
-        this.selectedOptionService.setSelectedOption(this.selectedOptions[0]);
-        console.log('AnswerComponent: SelectedOptionService updated with:', this.selectedOptions[0]);
+      this.selectedOptionService.setSelectedOption(this.selectedOptions[0]);
+      console.log('AnswerComponent: SelectedOptionService updated with:', this.selectedOptions[0]);
     } else {
-        this.selectedOptionService.clearSelectedOption();
-        console.log('AnswerComponent: SelectedOptionService cleared');
+      this.selectedOptionService.clearSelectedOption();
+      console.log('AnswerComponent: SelectedOptionService cleared');
     }
 
     this.selectedOption = option;
