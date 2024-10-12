@@ -565,8 +565,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       options: this.optionsToDisplay,
       question: this.currentQuestion,
       selectedOption: option,
-      correctMessage: this.correctMessage,
-      feedback: option.feedback ?? 'No feedback available',  // Fallback if feedback is undefined or null
+      correctMessage: this.correctMessage ?? 'No correct message available',
+      feedback: option.feedback ?? 'No feedback available',
       showFeedback: showFeedback,
       idx: idx
     };
