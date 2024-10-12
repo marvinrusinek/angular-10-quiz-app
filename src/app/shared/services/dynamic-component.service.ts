@@ -24,7 +24,7 @@ export class DynamicComponentService {
   }  
 
   private async importComponent(type: string): Promise<{ AnswerComponent?: Type<any> }> {
-    const module = await import('../../components/question/answer.component');
+    const module = await import('../../components/question/question-type/answer.component');
     return { AnswerComponent: module.AnswerComponent };
   }  
 
