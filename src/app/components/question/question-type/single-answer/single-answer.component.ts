@@ -209,31 +209,34 @@ export class SingleAnswerComponent
     // For single answer questions, only one option can be selected at a time
     this.selectedOption = option;
   
-    // Update feedback visibility and for the selected option only
-    this.showFeedbackForOption = { [option.optionId]: true };
-    this.showFeedback = true;
-  
+    // Update feedback visibility for the selected option only
+    // Clear previous feedback and set it for the currently selected option
+    this.showFeedbackForOption = {}; // Clear previous feedback
+    this.showFeedbackForOption[option.optionId] = true; // Set feedback for current option
+
+    console.log('SingleAnswerComponent: showFeedbackForOption updated to:', this.showFeedbackForOption);
+    
     // Emit the option clicked event
     this.optionSelected.emit({ option, index, checked });
     console.log('SingleAnswerComponent: optionSelected emitted', { option, index, checked: true });
   
     // Wait for the QuizQuestionComponentLoaded event
     await new Promise<void>((resolve) => {
-      if (this.hasComponentLoaded && this.quizQuestionComponent) {
-        resolve(); // Component is already loaded
-      } else {
-        this.quizQuestionComponentLoaded.subscribe(() => {
-          console.log('QuizQuestionComponent is now available');
-          resolve();
-        });
-      }
+        if (this.hasComponentLoaded && this.quizQuestionComponent) {
+            resolve(); // Component is already loaded
+        } else {
+            this.quizQuestionComponentLoaded.subscribe(() => {
+                console.log('QuizQuestionComponent is now available');
+                resolve();
+            });
+        }
     });
   
     if (this.quizQuestionComponent) {
-      console.log('Calling onOptionClicked in QuizQuestionComponent');
-      await this.quizQuestionComponent.onOptionClicked(option, index, checked);
+        console.log('Calling onOptionClicked in QuizQuestionComponent');
+        await this.quizQuestionComponent.onOptionClicked(option, index, checked);
     } else {
-      console.error('QuizQuestionComponent is still not available even after waiting.');
+        console.error('QuizQuestionComponent is still not available even after waiting.');
     }
   
     // Update the quiz state to indicate that an answer is selected
@@ -246,7 +249,7 @@ export class SingleAnswerComponent
   
     // Trigger change detection to ensure UI updates
     this.cdRef.detectChanges();
-  }  
+  }
 
   loadDynamicComponent(): void {
     console.log('loadDynamicComponent is not used in SingleAnswerComponent');
