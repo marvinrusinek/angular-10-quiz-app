@@ -79,39 +79,56 @@ export class SelectedOptionService {
       this.updateAnsweredState();
       return;
     }
-  
-    if (option.optionId === null || option.questionIndex === null || !option.text) {
-      console.error('Invalid SelectedOption data:', option);
-      return;
+
+    // Handle multiple options if option is an array
+    if (Array.isArray(option)) {
+      option.forEach(opt => {
+        if (opt.optionId === null || opt.questionIndex === null || !opt.text) {
+          console.error('Invalid SelectedOption data:', opt);
+          return;
+        }
+        
+        this.handleSingleOption(opt);
+      });
+    } else {
+      // Handle single option
+      if (option.optionId === null || option.questionIndex === null || !option.text) {
+        console.error('Invalid SelectedOption data:', option);
+        return;
+      }
+
+      this.handleSingleOption(option);
     }
-  
+    
+    this.updateAnsweredState();
+    console.log('SelectedOptionService: Updated answered state');
+}
+
+private handleSingleOption(option: SelectedOption): void {
     this.selectedOption = option;
     this.selectedOptionSubject.next(option);
     console.log('SelectedOptionService: Selected option set, current value:', this.selectedOptionSubject.value);
-  
+
     this.isOptionSelectedSubject.next(true);
     console.log('SelectedOptionService: isOptionSelected updated to true');
-  
+
     const currentFeedback: Record<string, boolean> = { ...this.showFeedbackForOptionSubject.value };
-  
+
     // Set feedback to true for the selected option
     const optionIdKey = (option.optionId ?? '').toString();
     if (optionIdKey) {
       currentFeedback[optionIdKey] = true;
     }
-  
+
     this.showFeedbackForOptionSubject.next(currentFeedback);
     console.log('SelectedOptionService: Updated feedback state', currentFeedback);
-  
+
     // Update selectedOptionsMap
     if (!this.selectedOptionsMap.has(option.questionIndex)) {
       this.selectedOptionsMap.set(option.questionIndex, []);
     }
     this.selectedOptionsMap.get(option.questionIndex)!.push(option);
     console.log('SelectedOptionService: Updated selectedOptionsMap', this.selectedOptionsMap);
-  
-    this.updateAnsweredState();
-    console.log('SelectedOptionService: Updated answered state');
   }
 
   getSelectedOption(): SelectedOption | SelectedOption[] {
@@ -127,11 +144,24 @@ export class SelectedOptionService {
     return this.showFeedbackForOptionSubject.value;
   }
 
-  isSelectedOption(option: Option): boolean {
+  /* isSelectedOption(option: Option): boolean {
     const selectedOption = this.getSelectedOption();
     const showFeedbackForOption = this.getShowFeedbackForOption();
     return selectedOption?.optionId === option.optionId && !!showFeedbackForOption[option.optionId];
+  } */
+  isSelectedOption(option: Option): boolean {
+    const selectedOption = this.getSelectedOption();
+  
+    // Check if selectedOption is an array (multiple selected options)
+    if (Array.isArray(selectedOption)) {
+      // Loop through each selected option and check if the current option is selected
+      return selectedOption.some(opt => opt.optionId === option.optionId);
+    }
+  
+    // If selectedOption is a single object, perform a direct comparison
+    return selectedOption?.optionId === option.optionId;
   }
+  
 
   clearSelectedOption(): void {
     this.selectedOption = null;
