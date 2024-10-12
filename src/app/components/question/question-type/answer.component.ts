@@ -32,7 +32,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   optionBindings: OptionBindings[] = [];
   isQuizQuestionComponentLoaded = false;
   hasComponentLoaded = false;
-  type: 'single' | 'multiple';
+  type: 'single' | 'multiple'; // Store the type (single or multiple answer)
 
   private quizQuestionComponentLoadedSubject = new BehaviorSubject<boolean>(false);
   quizQuestionComponentLoaded$ = this.quizQuestionComponentLoadedSubject.asObservable();
