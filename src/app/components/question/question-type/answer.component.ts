@@ -204,6 +204,10 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       console.log('AnswerComponent: SelectedOptionService cleared');
     }
 
+    // Set the feedback for the selected option
+    this.feedback = option.feedback ?? 'No feedback available';
+    console.log('Feedback for selected option:', this.feedback);
+
     // Trigger change detection to ensure UI updates
     this.cdRef.detectChanges();
   }
