@@ -558,7 +558,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
-    const showFeedback = this.isSelectedOption(option); // Ensure this option is selected 
+    const showFeedback = this.selectedOptionService.isSelectedOption(option); // Ensure this option is selected 
 
     const feedbackProps: FeedbackProps = {
       options: this.optionsToDisplay,
