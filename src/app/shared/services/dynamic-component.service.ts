@@ -18,24 +18,10 @@ export class DynamicComponentService {
     return componentRef;
   }
 
-  private async importComponent(
-    type: string
-  ): Promise<{
-    MultipleAnswerComponent?: Type<any>;
-    SingleAnswerComponent?: Type<any>;
-  }> {
-    if (type === 'multiple') {
-      const module = await import(
-        '../../components/question/question-type/multiple-answer/multiple-answer.component'
-      );
-      return { MultipleAnswerComponent: module.MultipleAnswerComponent };
-    } else {
-      const module = await import(
-        '../../components/question/question-type/single-answer/single-answer.component'
-      );
-      return { SingleAnswerComponent: module.SingleAnswerComponent };
-    }
-  }
+  private async importComponent(type: string): Promise<{ AnswerComponent?: Type<any> }> {
+    const module = await import('../../components/question/answer.component');
+    return { AnswerComponent: module.AnswerComponent };
+  }  
 
   findComponentByType<T>(parentComponent: any, type: Type<T>): T | null {
     if (parentComponent instanceof type) {
