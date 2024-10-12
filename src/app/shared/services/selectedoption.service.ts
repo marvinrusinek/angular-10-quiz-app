@@ -70,7 +70,7 @@ export class SelectedOptionService {
   }
 
   setSelectedOption(option: SelectedOption | SelectedOption[]): void {
-    if (option === null) {
+    if (!option) {
       console.log('SelectedOptionService: Clearing selected option');
       this.selectedOption = null;
       this.selectedOptionSubject.next(null);
@@ -86,7 +86,7 @@ export class SelectedOptionService {
     // Handle multiple options if option is an array
     if (Array.isArray(option)) {
       option.forEach(opt => {
-        if (opt.optionId === null || opt.questionIndex === null || !opt.text) {
+        if (opt.optionId === undefined || opt.questionIndex === undefined || !opt.text) {
           console.error('Invalid SelectedOption data:', opt);
           return;
         }
@@ -101,7 +101,7 @@ export class SelectedOptionService {
       });
     } else {
       // Handle single option
-      if (option.optionId === null || option.questionIndex === null || !option.text) {
+      if (option.optionId === undefined || option.questionIndex === undefined || !option.text) {
         console.error('Invalid SelectedOption data:', option);
         return;
       }
@@ -122,7 +122,7 @@ export class SelectedOptionService {
     // Update the answered state
     this.updateAnsweredState();
     console.log('SelectedOptionService: Updated answered state');
-  }
+  }  
   
   private handleSingleOption(option: SelectedOption): void {
     this.selectedOption = option;
