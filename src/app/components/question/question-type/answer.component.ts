@@ -33,6 +33,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   isQuizQuestionComponentLoaded = false;
   hasComponentLoaded = false;
   type: 'single' | 'multiple'; // Store the type (single or multiple answer)
+  selectedOptionIndex: number = -1;
 
   private quizQuestionComponentLoadedSubject = new BehaviorSubject<boolean>(false);
   quizQuestionComponentLoaded$ = this.quizQuestionComponentLoadedSubject.asObservable();
@@ -158,10 +159,10 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   public override async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
     console.log('AnswerComponent: onOptionClicked called', option, index, checked);
 
-    // Set the index of the selected option
-    this.selectedOptionIndex = index;
-
     if (this.type === 'single') {
+      // Set the index of the selected option
+      this.selectedOptionIndex = index;
+
       // For single answer questions, only one option can be selected at a time
       this.selectedOption = option;
       this.showFeedbackForOption = { [option.optionId]: true };
