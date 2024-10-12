@@ -1,9 +1,3 @@
-
-<codelab-question-answer 
-  [question]="currentQuestion" 
-  [isMultipleAnswer]="isMultipleAnswer">
-</codelab-question-answer>
-
 <ng-container *ngIf="optionsToDisplay?.length; else noOptions">
   <div *ngFor="let optionBinding of optionBindings; let idx = index; trackBy: trackByOption">
     <label class="options">
