@@ -558,13 +558,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
+    const showFeedback = this.isSelectedOption(option); // Ensure this option is selected 
+
     const feedbackProps: FeedbackProps = {
       options: this.optionsToDisplay,
       question: this.currentQuestion,
       selectedOption: option,
       correctMessage: this.correctMessage,
       feedback: option.feedback,
-      showFeedback: this.showFeedback,
+      showFeedback: showFeedback,
       idx: idx
     };
     // console.log('Feedback Props:', feedbackProps);
