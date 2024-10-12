@@ -576,9 +576,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   initializeOptionBindings(): void {
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       const optionBinding = this.getOptionBindings(option, idx);
+
+      // Log the original option and fallback details for debugging
+      if (!option.feedback) {
+        console.warn(`Feedback is missing for option at index ${idx}:`, option);
+      }
   
       // Ensure feedback property is set and has a fallback
-      option.feedback = option.feedback ?? optionBinding.option.feedback ?? 'No feedback available';
+      option.feedback = option.feedback ?? optionBinding.option.feedback ?? 'No feedback available....';
   
       return optionBinding;
     });
