@@ -605,17 +605,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   /* shouldShowFeedback(index: number): boolean {
     // Check if the current index matches the selected option index
-    // return this.selectedOptionIndex === index;
-
-    // Check if the feedback should be shown for the option with the given index
-    const option = this.optionBindings[index]?.option.optionId;
-    return !!this.showFeedbackForOption[option];
+    return this.selectedOptionIndex === index;
   } */
-  /* shouldShowFeedback(index: number): boolean {
-    // Get the corresponding option ID from the optionBindings
+  shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings[index]?.option?.optionId;
 
-    // If optionId is valid, check if feedback should be displayed
     if (optionId !== undefined) {
         const shouldShow = this.showFeedbackForOption[optionId] === true;
         console.log(`Checking feedback for optionId: ${optionId}, shouldShow: ${shouldShow}`);
@@ -624,12 +618,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     console.log(`Invalid option index: ${index}, no feedback to show`);
     return false;
-  } */
-  shouldShowFeedback(index: number): boolean {
-    // Check if the current index matches the selected option index
-    const shouldShow = this.selectedOptionIndex === index;
-    console.log(`Checking feedback visibility for option index: ${index}, shouldShow: ${shouldShow}`);
-    return shouldShow;
   }
 
   isAnswerCorrect(): boolean {

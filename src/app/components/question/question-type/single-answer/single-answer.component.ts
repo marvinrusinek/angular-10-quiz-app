@@ -206,47 +206,39 @@ export class SingleAnswerComponent
     // Set the index of the selected option
     this.selectedOptionIndex = index;
   
-    // For single answer questions, only one option can be selected at a time
-    this.selectedOption = option;
-  
     // Clear previous feedback and update for the current selected option
     this.showFeedbackForOption = {}; // Clear previous feedback
     this.showFeedbackForOption[option.optionId] = true; // Set feedback for the current option
 
     // Emit the option clicked event
     this.optionSelected.emit({ option, index, checked });
-    console.log('SingleAnswerComponent: optionSelected emitted', { option, index, checked: true });
   
-    // Wait for the QuizQuestionComponentLoaded event
+    // Handle the quiz question component loading
     await new Promise<void>((resolve) => {
       if (this.hasComponentLoaded && this.quizQuestionComponent) {
-        resolve(); // Component is already loaded
+        resolve();
       } else {
         this.quizQuestionComponentLoaded.subscribe(() => {
-          console.log('QuizQuestionComponent is now available');
           resolve();
         });
       }
     });
   
     if (this.quizQuestionComponent) {
-      console.log('Calling onOptionClicked in QuizQuestionComponent');
       await this.quizQuestionComponent.onOptionClicked(option, index, checked);
-    } else {
-      console.error('QuizQuestionComponent is still not available even after waiting.');
     }
   
-    // Update the quiz state to indicate that an answer is selected
+    // Update quiz state
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
   
     // Update the SelectedOptionService
     this.selectedOptionService.setSelectedOption(option);
-    console.log('SingleAnswerComponent: SelectedOptionService updated with:', option);
   
-    // Trigger change detection to ensure UI updates
+    // Trigger change detection
     this.cdRef.detectChanges();
   }
+
 
   loadDynamicComponent(): void {
     console.log('loadDynamicComponent is not used in SingleAnswerComponent');
