@@ -27,8 +27,6 @@ import { IntroductionComponent } from './containers/introduction/introduction.co
 import { QuizComponent } from './containers/quiz/quiz.component';
 import { QuizQuestionComponent } from './components/question/question.component';
 import { SharedOptionComponent } from './components/question/question-type/shared-option.component';
-import { MultipleAnswerComponent } from './components/question/question-type/multiple-answer/multiple-answer.component';
-import { SingleAnswerComponent } from './components/question/question-type/single-answer/single-answer.component';
 import { FeedbackComponent } from './components/question/feedback/feedback.component';
 import { QuizSelectionComponent } from './containers/quiz-selection/quiz-selection.component';
 import { ResultsComponent } from './containers/results/results.component';
@@ -72,8 +70,6 @@ import { QuizGuard } from './router/guards/quiz.guard';
     QuizQuestionComponent,
     QuizComponent,
     SharedOptionComponent,
-    MultipleAnswerComponent,
-    SingleAnswerComponent,
     FeedbackComponent,
     QuizSelectionComponent,
     ResultsComponent,
