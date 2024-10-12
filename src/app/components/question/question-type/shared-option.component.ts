@@ -621,8 +621,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   } */
   // Determines if feedback should be shown for the option
   shouldShowFeedback(index: number): boolean {
-    const optionId = this.optionsToDisplay[index]?.optionId;
-    return this.showFeedbackForOption[optionId] === true;
+    const optionId = this.optionsToDisplay[index]?.optionId ?? -1;
+    // Check if feedback should be shown (skipping if optionId is -1 or some invalid value)
+    return optionId !== -1 && this.showFeedbackForOption[optionId] === true
   }
 
   isAnswerCorrect(): boolean {
