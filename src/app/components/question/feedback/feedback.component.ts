@@ -10,7 +10,15 @@ import { Option } from '../../../shared/models/Option.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FeedbackComponent implements OnChanges {
-  @Input() feedbackConfig: FeedbackProps;
+  @Input() feedbackConfig: FeedbackProps = {
+    options: [],
+    question: null,
+    selectedOption: null,
+    correctMessage: '',
+    feedback: '',
+    showFeedback: false,
+    idx: -1
+  };  // Default fallback
   @Input() correctMessage: string;
   @Input() selectedOption: Option & { correct: boolean };
   @Input() feedback = '';
