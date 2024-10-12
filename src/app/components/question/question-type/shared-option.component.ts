@@ -447,7 +447,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.selectedOptionIndex = index;
     this.showFeedbackForOption[optionId ?? index] = true;
 
-    // Assign feedbackConfig using getFeedbackProps
+    // Generate feedback bindings for the selected option
     this.currentFeedbackConfig = this.getFeedbackBindings(option, index);
     this.feedbackConfig[index] = this.currentFeedbackConfig;
   
