@@ -138,7 +138,7 @@ export class SelectedOptionService {
     }
     this.selectedOptionsMap.get(option.questionIndex)!.push(option);
     console.log('SelectedOptionService: Updated selectedOptionsMap', this.selectedOptionsMap);
-  }
+  }  
 
   getSelectedOption(): SelectedOption | SelectedOption[] {
     return this.selectedOptionSubject.value;
