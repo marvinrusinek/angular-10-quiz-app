@@ -53,6 +53,11 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     await super.ngOnInit();
     await this.initializeAnswerConfig();
     this.initializeSharedOptionConfig();
+
+    this.quizService.getCurrentQuestion().subscribe((currentQuestion: QuizQuestion) => {
+      const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
+      this.type = isMultipleAnswer ? 'multiple' : 'single';
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
