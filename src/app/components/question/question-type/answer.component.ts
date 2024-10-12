@@ -176,7 +176,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     }
 
     // Update feedback visibility
-    this.showFeedback = true;
+    // this.showFeedback = true;
 
     // Emit the option clicked event
     this.optionSelected.emit({ option, index, checked });
