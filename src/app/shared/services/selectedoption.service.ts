@@ -8,7 +8,7 @@ import { QuizService } from '../../shared/services/quiz.service';
 
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
-  selectedOption: SelectedOption | null = null;
+  selectedOption: SelectedOption | SelectedOption[] = null;
   selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
   private selectedOptionIndices: { [key: number]: number[] } = {};
 
@@ -69,7 +69,7 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(false); // No option selected
   }
 
-  setSelectedOption(option: SelectedOption | null): void {
+  setSelectedOption(option: SelectedOption | SelectedOption[]): void {
     if (option === null) {
       console.log('SelectedOptionService: Clearing selected option');
       this.selectedOption = null;
@@ -114,7 +114,7 @@ export class SelectedOptionService {
     console.log('SelectedOptionService: Updated answered state');
   }
 
-  getSelectedOption(): SelectedOption | null {
+  getSelectedOption(): SelectedOption | SelectedOption[] {
     return this.selectedOptionSubject.value;
   }
 

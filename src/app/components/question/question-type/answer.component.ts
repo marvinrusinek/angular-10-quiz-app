@@ -165,7 +165,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
 
       // For single answer questions, only one option can be selected at a time
       this.selectedOption = option;
-      this.showFeedbackForOption = { [option.optionId]: true };
+      this.showFeedbackForOption = { [option.optionId]: true }; // Show feedback for the selected option
     } else {
       // Toggle the selection of the clicked option for multiple answer questions
       const optionIndex = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
@@ -176,24 +176,28 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       } else {
         this.selectedOptions.splice(optionIndex, 1);
       }
+
+      // Show or hide feedback for this option
       this.showFeedbackForOption[option.optionId] = isChecked;
     }
-
-    // Update feedback visibility
-    this.showFeedback = true;
 
     // Emit the option clicked event
     this.optionSelected.emit({ option, index, checked });
     console.log('AnswerComponent: optionSelected emitted', { option, index, checked });
 
-    // Update the quiz state
+    // Update the quiz state based on whether an option is selected
     const isOptionSelected = this.type === 'single' ? !!this.selectedOption : this.selectedOptions.length > 0;
     this.quizStateService.setAnswerSelected(isOptionSelected);
     this.quizStateService.setAnswered(isOptionSelected);
 
     // Update the SelectedOptionService
     if (isOptionSelected) {
-      this.selectedOptionService.setSelectedOption(this.type === 'single' ? this.selectedOption : this.selectedOptions[0]);
+      if (this.type === 'single') {
+        this.selectedOptionService.setSelectedOption(this.selectedOption);
+      } else {
+        // You can send all selected options for multiple-answer questions
+        this.selectedOptionService.setSelectedOption(this.selectedOptions);
+      }
       console.log('AnswerComponent: SelectedOptionService updated with:', this.selectedOption);
     } else {
       this.selectedOptionService.clearSelectedOption();
