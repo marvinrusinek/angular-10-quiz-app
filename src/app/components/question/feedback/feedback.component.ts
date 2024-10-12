@@ -22,7 +22,9 @@ export class FeedbackComponent implements OnChanges {
   constructor() {}
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log('ngOnChanges triggered', changes);
     if (this.shouldUpdateFeedback(changes)) {
+      console.log('Updating feedback, changes detected in feedbackConfig:', changes.feedbackConfig.currentValue);
       this.updateFeedback();
     }
   }
@@ -32,36 +34,49 @@ export class FeedbackComponent implements OnChanges {
   }
 
   private updateFeedback(): void {
+    console.log('updateFeedback called with feedbackConfig:', this.feedbackConfig);
     if (this.feedbackConfig && this.feedbackConfig.showFeedback) {
+      console.log('Feedback is set to be shown, processing feedback data');
       this.feedbackMessageClass = this.determineFeedbackMessageClass();
       this.feedbackPrefix = this.determineFeedbackPrefix();
       this.updateDisplayMessage();
     } else {
+      console.log('Feedback is not set to be shown');
       this.displayMessage = '';
     }
   }
 
   private determineFeedbackPrefix(): string {
+    console.log('determineFeedbackPrefix called with selectedOption:', this.feedbackConfig?.selectedOption);
     if (!this.feedbackConfig || !this.feedbackConfig.selectedOption) {
       return '';
     }
     
-    return this.feedbackConfig.selectedOption.correct
+    const prefix = this.feedbackConfig.selectedOption.correct
       ? "You're right! " 
       : "That's wrong. ";
+    
+    console.log('Feedback prefix determined:', prefix);
+    return prefix;
   }
 
   private determineFeedbackMessageClass(): string {
-    return this.feedbackConfig && this.feedbackConfig.selectedOption && this.feedbackConfig.selectedOption.correct 
+    console.log('determineFeedbackMessageClass called');
+    const messageClass = this.feedbackConfig && this.feedbackConfig.selectedOption && this.feedbackConfig.selectedOption.correct 
       ? 'correct-message' 
       : 'wrong-message';
+    
+    console.log('Feedback message class determined:', messageClass);
+    return messageClass;
   }
 
   private updateDisplayMessage(): void {
+    console.log('updateDisplayMessage called');
     if (this.feedbackConfig) {
       const prefix = this.determineFeedbackPrefix();
       const commonMessage = `${this.feedbackConfig.correctMessage} ${this.feedbackConfig.feedback || ''}`;
       this.displayMessage = `${prefix}${commonMessage}`;
+      console.log('Display message updated:', this.displayMessage);
     } else {
       this.displayMessage = '';
     }
