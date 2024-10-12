@@ -79,7 +79,10 @@ export class SelectedOptionService {
       this.updateAnsweredState();
       return;
     }
-
+  
+    // Prepare the current feedback state
+    const currentFeedback: Record<string, boolean> = { ...this.showFeedbackForOptionSubject.value };
+  
     // Handle multiple options if option is an array
     if (Array.isArray(option)) {
       option.forEach(opt => {
@@ -87,8 +90,14 @@ export class SelectedOptionService {
           console.error('Invalid SelectedOption data:', opt);
           return;
         }
-        
+  
         this.handleSingleOption(opt);
+  
+        // Update feedback state for each option in the array
+        const optionIdKey = opt.optionId.toString();
+        if (optionIdKey) {
+          currentFeedback[optionIdKey] = true;  // Set feedback to true for this option
+        }
       });
     } else {
       // Handle single option
@@ -96,33 +105,33 @@ export class SelectedOptionService {
         console.error('Invalid SelectedOption data:', option);
         return;
       }
-
+  
       this.handleSingleOption(option);
+  
+      // Update feedback state for the single option
+      const optionIdKey = option.optionId.toString();
+      if (optionIdKey) {
+        currentFeedback[optionIdKey] = true;  // Set feedback to true for this option
+      }
     }
-    
+  
+    // Update the feedback subject with the new feedback state
+    this.showFeedbackForOptionSubject.next(currentFeedback);
+    console.log('SelectedOptionService: Updated feedback state', currentFeedback);
+  
+    // Update the answered state
     this.updateAnsweredState();
     console.log('SelectedOptionService: Updated answered state');
-}
-
-private handleSingleOption(option: SelectedOption): void {
+  }
+  
+  private handleSingleOption(option: SelectedOption): void {
     this.selectedOption = option;
     this.selectedOptionSubject.next(option);
     console.log('SelectedOptionService: Selected option set, current value:', this.selectedOptionSubject.value);
-
+  
     this.isOptionSelectedSubject.next(true);
     console.log('SelectedOptionService: isOptionSelected updated to true');
-
-    const currentFeedback: Record<string, boolean> = { ...this.showFeedbackForOptionSubject.value };
-
-    // Set feedback to true for the selected option
-    const optionIdKey = (option.optionId ?? '').toString();
-    if (optionIdKey) {
-      currentFeedback[optionIdKey] = true;
-    }
-
-    this.showFeedbackForOptionSubject.next(currentFeedback);
-    console.log('SelectedOptionService: Updated feedback state', currentFeedback);
-
+  
     // Update selectedOptionsMap
     if (!this.selectedOptionsMap.has(option.questionIndex)) {
       this.selectedOptionsMap.set(option.questionIndex, []);
@@ -143,7 +152,7 @@ private handleSingleOption(option: SelectedOption): void {
   getShowFeedbackForOption(): { [optionId: number]: boolean } {
     return this.showFeedbackForOptionSubject.value;
   }
-  
+
   isSelectedOption(option: Option): boolean {
     const selectedOption = this.getSelectedOption();
     const showFeedbackForOption = this.getShowFeedbackForOption();  // Get feedback data
