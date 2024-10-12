@@ -18,7 +18,7 @@ export class FeedbackComponent implements OnChanges {
     feedback: '',
     showFeedback: false,
     idx: -1
-  };  // Default fallback
+  };
   @Input() correctMessage: string;
   @Input() selectedOption: Option & { correct: boolean };
   @Input() feedback = '';
