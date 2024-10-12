@@ -208,6 +208,9 @@ export class SingleAnswerComponent
     this.showFeedbackForOption = {}; // Clear previous feedback
     this.showFeedbackForOption[option.optionId] = true; // Set feedback for the current option
 
+    // Log to check if the feedback is being set correctly
+    console.log('showFeedbackForOption:::>>>', this.showFeedbackForOption);
+
     // Emit the option clicked event
     this.optionSelected.emit({ option, index, checked });
   
