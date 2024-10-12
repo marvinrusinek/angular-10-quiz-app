@@ -1,8 +1,6 @@
-import { 
-  AfterViewInit, ChangeDetectorRef, Component, ComponentRef, EventEmitter, Input,
-  OnInit, Output, QueryList, ViewChildren, ViewContainerRef 
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ComponentRef, EventEmitter, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChildren, ViewContainerRef } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
+import { BehaviorSubject } from 'rxjs';
 
 import { OptionBindings } from '../../../shared/models/OptionBindings.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -17,29 +15,29 @@ import { BaseQuestionComponent } from '../../../components/question/base-questio
 import { QuizQuestionComponent } from '../../../components/question/question.component';
 
 @Component({
-  selector: 'codelab-answer',
-  templateUrl: './answer.component.html',
-
+  selector: 'codelab-question-answer',
+  templateUrl: './answer.component.html'
 })
-export class AnswerComponent
-  extends BaseQuestionComponent
-  implements OnInit, AfterViewInit
-{
+export class AnswerComponent extends BaseQuestionComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChildren('dynamicAnswerContainer', { read: ViewContainerRef })
   viewContainerRefs!: QueryList<ViewContainerRef>;
   viewContainerRef!: ViewContainerRef;
-  @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
-  @Output() quizQuestionComponentLoaded = new EventEmitter<void>();
-  @Input() type!: 'single' | 'multiple';
-  @Input() isMultipleAnswer: boolean; // Input to determine the type of question (single or multiple answer)
-
+  @Output() componentLoaded = new EventEmitter<QuizQuestionComponent>();
   quizQuestionComponent: QuizQuestionComponent | undefined;
+  @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
+  quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
   selectedOptions: SelectedOption[] = [];
   sharedOptionConfig: SharedOptionConfig;
   optionBindings: OptionBindings[] = [];
+  isQuizQuestionComponentLoaded = false;
   hasComponentLoaded = false;
+  type: 'single' | 'multiple';
+
+  private quizQuestionComponentLoadedSubject = new BehaviorSubject<boolean>(false);
+  quizQuestionComponentLoaded$ = this.quizQuestionComponentLoadedSubject.asObservable();
+  public quizQuestionComponentLoaded = new EventEmitter<void>();
 
   constructor(
     protected dynamicComponentService: DynamicComponentService,
@@ -54,14 +52,19 @@ export class AnswerComponent
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('AnswerComponent - ngOnInit');
     await super.ngOnInit();
     await this.initializeAnswerConfig();
     this.initializeSharedOptionConfig();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.questionData) {
+      console.log('AnswerComponent - questionData changed:', changes.questionData.currentValue);
+    }
+  }
+
   ngAfterViewInit(): void {
-    console.log('ngAfterViewInit called');
+    console.log('ngAfterContentInit called');
 
     // Delay to ensure `viewContainerRefs` is populated properly
     setTimeout(() => {
@@ -69,7 +72,7 @@ export class AnswerComponent
         console.log('viewContainerRefs available after delay:', this.viewContainerRefs);
         this.handleViewContainerRef(); // Initial load
       } else {
-        console.warn('viewContainerRefs is still not ready after delay in ngAfterViewInit');
+        console.warn('viewContainerRefs is still not ready after delay in ngAfterContentInit');
       }
 
       // Subscribe to changes in `viewContainerRefs` to handle dynamically added views
@@ -113,30 +116,14 @@ export class AnswerComponent
 
     // Get the current question and determine the component to load
     this.quizService.getCurrentQuestion().subscribe((currentQuestion: QuizQuestion) => {
-      console.log('Is Multiple Answer:', this.isMultipleAnswer);
+      const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
+      console.log('Is Multiple Answer:', isMultipleAnswer);
 
-      if (typeof this.isMultipleAnswer === 'boolean') {
-        // Load the component dynamically based on whether it is multiple-answer or single-answer
-        this.dynamicComponentService.loadComponent<QuizQuestionComponent>(
-          this.viewContainerRef,
-          this.isMultipleAnswer // Boolean value to determine which component to load
-        ).then((componentRef: ComponentRef<QuizQuestionComponent>) => {
-          // Assign the component reference to the local variable
-          this.quizQuestionComponent = componentRef.instance;
-
-          if (this.quizQuestionComponent) {
-            console.log('QuizQuestionComponent dynamically loaded and available');
-            this.hasComponentLoaded = true; // Prevent further attempts to load
-            this.quizQuestionComponentLoaded.emit(); // Notify listeners that the component is loaded
-          } else {
-            console.error('Failed to dynamically load QuizQuestionComponent');
-          }
-
-          // Trigger change detection to make sure the dynamically loaded component is displayed
-          this.cdRef.markForCheck();
-        }).catch((error) => {
-          console.error('Error loading QuizQuestionComponent:', error);
-        });
+      if (typeof isMultipleAnswer === 'boolean') {
+        this.type = isMultipleAnswer ? 'multiple' : 'single';
+        this.hasComponentLoaded = true; // Prevent further attempts to load
+        this.quizQuestionComponentLoaded.emit(); // Notify listeners that the component is loaded
+        this.cdRef.markForCheck();
       } else {
         console.error('Could not determine whether question is multiple answer.');
       }
@@ -149,7 +136,8 @@ export class AnswerComponent
     }
 
     if (this.sharedOptionConfig) {
-      this.sharedOptionConfig.type = this.isMultipleAnswer ? 'multiple' : 'single';
+      this.sharedOptionConfig.type = this.type;
+      this.sharedOptionConfig.quizQuestionComponentOnOptionClicked = this.quizQuestionComponentOnOptionClicked;
     } else {
       console.error('Failed to initialize sharedOptionConfig in AnswerComponent');
     }
@@ -157,74 +145,58 @@ export class AnswerComponent
     console.log('AnswerComponent sharedOptionConfig:', this.sharedOptionConfig);
   }
 
+  public override async initializeSharedOptionConfig(): Promise<void> {
+    await super.initializeSharedOptionConfig();
+    if (this.sharedOptionConfig) {
+      this.sharedOptionConfig.type = this.type;
+    }
+  }
+
   public override async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
     console.log('AnswerComponent: onOptionClicked called', option, index, checked);
 
-    // Wait for the QuizQuestionComponentLoaded event
-    await new Promise<void>((resolve) => {
-      if (this.hasComponentLoaded && this.quizQuestionComponent) {
-        resolve(); // Component is already loaded
-      } else {
-        this.quizQuestionComponentLoaded.subscribe(() => {
-          console.log('QuizQuestionComponent is now available');
-          resolve();
-        });
-      }
-    });
+    // Set the index of the selected option
+    this.selectedOptionIndex = index;
 
-    if (this.quizQuestionComponent) {
-      console.log('Calling onOptionClicked in QuizQuestionComponent');
-      await this.quizQuestionComponent.onOptionClicked(option, index, checked);
+    if (this.type === 'single') {
+      // For single answer questions, only one option can be selected at a time
+      this.selectedOption = option;
+      this.showFeedbackForOption = { [option.optionId]: true };
     } else {
-      console.error('QuizQuestionComponent is still not available even after waiting.');
-    }
-
-    const updatedOption: SelectedOption = {
-      ...option,
-      optionId: option.optionId ?? index,
-      questionIndex: option.questionIndex ?? this.quizService.getCurrentQuestionIndex(),
-      text: option.text || `Option ${index + 1}`,
-    };
-
-    // Emit the option clicked event
-    this.quizQuestionCommunicationService.emitOptionClicked(updatedOption, index, checked);
-
-    await super.onOptionClicked(option, index, checked); // Calls BQC's implementation
-
-    // Toggle the selection of the clicked option for multiple or single answer type
-    if (this.sharedOptionConfig?.type === 'multiple') {
+      // Toggle the selection of the clicked option for multiple answer questions
       const optionIndex = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
       const isChecked = optionIndex === -1;
+
       if (isChecked) {
         this.selectedOptions.push(option);
       } else {
         this.selectedOptions.splice(optionIndex, 1);
       }
-    } else {
-      this.selectedOptions = [option]; // For single answer, just store the selected option
+      this.showFeedbackForOption[option.optionId] = isChecked;
     }
 
-    this.optionSelected.emit({ option, index, checked: true });
-    console.log('AnswerComponent: optionSelected emitted', { option, index, checked: true });
+    // Update feedback visibility
+    this.showFeedback = true;
 
-    // Update the feedback state
-    // this.updateFeedbackState(option, index);
+    // Emit the option clicked event
+    this.optionSelected.emit({ option, index, checked });
+    console.log('AnswerComponent: optionSelected emitted', { option, index, checked });
 
     // Update the quiz state
-    this.quizStateService.setAnswerSelected(this.selectedOptions.length > 0);
-    this.quizStateService.setAnswered(this.selectedOptions.length > 0);
+    const isOptionSelected = this.type === 'single' ? !!this.selectedOption : this.selectedOptions.length > 0;
+    this.quizStateService.setAnswerSelected(isOptionSelected);
+    this.quizStateService.setAnswered(isOptionSelected);
 
     // Update the SelectedOptionService
-    if (this.selectedOptions.length > 0) {
-      this.selectedOptionService.setSelectedOption(this.selectedOptions[0]);
-      console.log('AnswerComponent: SelectedOptionService updated with:', this.selectedOptions[0]);
+    if (isOptionSelected) {
+      this.selectedOptionService.setSelectedOption(this.type === 'single' ? this.selectedOption : this.selectedOptions[0]);
+      console.log('AnswerComponent: SelectedOptionService updated with:', this.selectedOption);
     } else {
       this.selectedOptionService.clearSelectedOption();
       console.log('AnswerComponent: SelectedOptionService cleared');
     }
 
-    this.selectedOption = option;
-    this.showFeedback = true;
+    // Trigger change detection to ensure UI updates
     this.cdRef.detectChanges();
   }
 
