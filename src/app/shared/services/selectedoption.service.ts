@@ -144,11 +144,6 @@ private handleSingleOption(option: SelectedOption): void {
     return this.showFeedbackForOptionSubject.value;
   }
 
-  /* isSelectedOption(option: Option): boolean {
-    const selectedOption = this.getSelectedOption();
-    const showFeedbackForOption = this.getShowFeedbackForOption();
-    return selectedOption?.optionId === option.optionId && !!showFeedbackForOption[option.optionId];
-  } */
   isSelectedOption(option: Option): boolean {
     const selectedOption = this.getSelectedOption();
   
