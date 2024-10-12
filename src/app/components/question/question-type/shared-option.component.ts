@@ -570,7 +570,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       showFeedback: showFeedback,
       idx: idx
     };
-    // console.log('Feedback Props:', feedbackProps);
     return feedbackProps;
   }
 
