@@ -144,7 +144,7 @@ private handleSingleOption(option: SelectedOption): void {
     return this.showFeedbackForOptionSubject.value;
   }
 
-  isSelectedOption(option: Option): boolean {
+  /* isSelectedOption(option: Option): boolean {
     const selectedOption = this.getSelectedOption();
   
     // Check if selectedOption is an array (multiple selected options)
@@ -155,8 +155,20 @@ private handleSingleOption(option: SelectedOption): void {
   
     // If selectedOption is a single object, perform a direct comparison
     return selectedOption?.optionId === option.optionId;
-  }
+  } */
+  isSelectedOption(option: Option): boolean {
+    const selectedOption = this.getSelectedOption();
+    const showFeedbackForOption = this.getShowFeedbackForOption();  // Get feedback data
   
+    // Check if selectedOption is an array (multiple selected options)
+    if (Array.isArray(selectedOption)) {
+      // Loop through each selected option and check if the current option is selected
+      return selectedOption.some(opt => opt.optionId === option.optionId && !!showFeedbackForOption[option.optionId]);
+    }
+  
+    // If selectedOption is a single object, perform a direct comparison
+    return selectedOption?.optionId === option.optionId && !!showFeedbackForOption[option.optionId];
+  }
 
   clearSelectedOption(): void {
     this.selectedOption = null;
