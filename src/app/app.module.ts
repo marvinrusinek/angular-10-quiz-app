@@ -46,7 +46,6 @@ import { CodelabQuizContentComponent } from './containers/quiz/quiz-content/code
 import { CodelabQuizHeaderComponent } from './containers/quiz/quiz-header/quiz-header.component';
 import { HighlightOptionDirective } from './directives/highlight-option.directive';
 import { ResetBackgroundDirective } from './directives/reset-background.directive';
-import { QuizQuestionCommunicationService } from './shared/services/quiz-question-communication.service';
 import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
 import { QuizQuestionManagerService } from './shared/services/quizquestionmgr.service';
@@ -132,7 +131,6 @@ import { QuizGuard } from './router/guards/quiz.guard';
   ],
   providers: [
     QuizGuard,
-    QuizQuestionCommunicationService,
     QuizService,
     QuizDataService,
     QuizQuestionManagerService,
