@@ -26,9 +26,6 @@ export class SelectedOptionService {
   private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
   showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
 
-  private nextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
-  nextButtonEnabled$ = this.nextButtonEnabledSubject.asObservable();
-
   constructor(private quizService: QuizService) {}
 
   // potentially remove...
@@ -37,7 +34,7 @@ export class SelectedOptionService {
   } */
 
   // Method to update the selected option state
-  selectOption(optionId: number, questionIndex: number, text: string, isMultipleAnswer: boolean): void {
+  selectOption(optionId: number, questionIndex: number, text: string): void {
     // Check if the input data is invalid
     if (optionId == null || questionIndex == null || !text) {
       console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
@@ -60,9 +57,8 @@ export class SelectedOptionService {
   
     // Emit the selection status
     this.isOptionSelectedSubject.next(true); // Indicate that an option is selected
-  
-    // Call handleSingleOption and pass the necessary parameters
-    this.handleSingleOption(selectedOption, questionIndex, isMultipleAnswer);
+
+    this.handleSingleOption(selectedOption);
   
     console.log('Selected option emitted:', selectedOption);
   }  
@@ -77,16 +73,6 @@ export class SelectedOptionService {
     this.selectedOptionSubject.next(deselectedOption);
     this.isOptionSelectedSubject.next(false); // Indicate that no option is selected
   }
-
-  enableNextButton(): void {
-    this.nextButtonEnabledSubject.next(true);
-    console.log('Next button enabled');
-  }
-  
-  disableNextButton(): void {
-    this.nextButtonEnabledSubject.next(false);
-    console.log('Next button disabled');
-  }  
 
   clearSelection(): void {
     this.isOptionSelectedSubject.next(false); // No option selected
@@ -111,19 +97,11 @@ export class SelectedOptionService {
         console.log('SelectedOptionService: Options already selected, skipping');
         return;
       }
-
-      // Process multiple options
-      for (const opt of option) {
-        this.handleSingleOption(opt);
-      }
     } else {
       if (this.isOptionAlreadySelected(option)) {
         console.log('SelectedOptionService: Option already selected, skipping');
         return;
       }
-
-      // Process a single option
-      this.handleSingleOption(option);
     }
 
     // Early exit for now, just to prevent further recursive updates
@@ -183,29 +161,49 @@ export class SelectedOptionService {
     this.selectedOptionsMap.get(option.questionIndex)!.push(option);
     console.log('SelectedOptionService: Updated selectedOptionsMap', this.selectedOptionsMap);
   } */
-  private handleSingleOption(option: SelectedOption, questionIndex: number, isMultipleAnswer: boolean): void {
-    this.selectedOption = option;
-    this.selectedOptionSubject.next(option);
-    console.log('SelectedOptionService: Selected option set, current value:', this.selectedOptionSubject.value);
-  
-    // Update selection status
+  private handleSingleOption(option: SelectedOption): void {
+    const isMultiSelect = this.quizService.isMultipleAnswerQuestion(this.currentQuestion);  // Determine if it's a multiple-answer question
+
+    if (isMultiSelect) {
+        // If it's a multiple-answer question, we allow multiple options to be selected
+        this.toggleSelectedOption(this.currentQuestionIndex, option);  // Toggle the selected option for multi-select
+    } else {
+        // For single-answer questions, only one option can be selected at a time
+        this.selectedOption = option;
+        this.selectedOptionSubject.next(option);  // Emit the selected option
+    }
+
+    // Update the selection state
     this.isOptionSelectedSubject.next(true);
     console.log('SelectedOptionService: isOptionSelected updated to true');
-  
-    // Check if multiple answers are allowed for this question
-    if (isMultipleAnswer) {
-      // Update the selectedOptionsMap for multiple-answer questions
-      if (!this.selectedOptionsMap.has(questionIndex)) {
-        this.selectedOptionsMap.set(questionIndex, []);
-      }
-      this.selectedOptionsMap.get(questionIndex)!.push(option);
-      console.log('SelectedOptionService: Updated selectedOptionsMap for multiple-answer question:', this.selectedOptionsMap);
-    } else {
-      // For single-answer questions, replace the previous selection with the new one
-      this.selectedOptionsMap.set(questionIndex, [option]);
-      console.log('SelectedOptionService: Updated selectedOptionsMap for single-answer question:', this.selectedOptionsMap);
+
+    // Update the selectedOptionsMap
+    if (!this.selectedOptionsMap.has(option.questionIndex)) {
+        this.selectedOptionsMap.set(option.questionIndex, []);  // Initialize if not already present
     }
-  }  
+
+    if (isMultiSelect) {
+        // If multiple selection is allowed, update the options map with the new selection
+        const options = this.selectedOptionsMap.get(option.questionIndex);
+        const index = options.findIndex(opt => opt.optionId === option.optionId);
+        
+        if (index > -1) {
+            // If the option was already selected, remove it
+            options.splice(index, 1);
+        } else {
+            // Otherwise, add the new option
+            options.push(option);
+        }
+
+        this.selectedOptionsMap.set(option.questionIndex, options);  // Update the map
+    } else {
+        // For single selection, just store the selected option
+        this.selectedOptionsMap.set(option.questionIndex, [option]);
+    }
+
+    console.log('SelectedOptionService: Updated selectedOptionsMap', this.selectedOptionsMap);
+    this.updateAnsweredState();  // Update the answered state to reflect the selection
+  }
 
   getSelectedOption(): SelectedOption | SelectedOption[] {
     return this.selectedOptionSubject.value;
@@ -306,32 +304,30 @@ export class SelectedOptionService {
   }
 
   // Method to add or remove a selected option for a question
-  toggleSelectedOption(questionIndex: number, option: SelectedOption, isMultipleAnswer: boolean): void {
+  toggleSelectedOption(questionIndex: number, option: SelectedOption): void {
     console.log('toggleSelectedOption called with', { questionIndex, option });
-  
+
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
-  
+
     const options = this.selectedOptionsMap.get(questionIndex);
     const index = options.findIndex(
       selectedOption => selectedOption.optionId === option.optionId
     );
-  
+
     if (index > -1) {
       options.splice(index, 1);
     } else {
       options.push(option);
+      this.handleSingleOption(option);
     }
-  
+
     this.selectedOptionsMap.set(questionIndex, options);
     console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
-  
-    // Call handleSingleOption and pass the necessary parameters
-    this.handleSingleOption(option, questionIndex, isMultipleAnswer);
-  
+    
     this.updateAnsweredState();
-  }  
+  }
 
   updateSelectedOptions(
     questionIndex: number,
