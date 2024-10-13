@@ -21,15 +21,15 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
 
-import { QuestionType } from '../../shared/models/question-type.enum';
-import { Option } from '../../shared/models/Option.model';
-import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-import { SelectedOption } from '../../shared/models/SelectedOption.model';
-import { SharedOptionConfig } from '../../shared/models/SharedOptionConfig.model';
-import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
-import { QuizService } from '../../shared/services/quiz.service';
-import { QuizStateService } from '../../shared/services/quizstate.service';
-import { SelectedOptionService } from '../../shared/services/selectedoption.service';
+import { QuestionType } from '../../../shared/models/question-type.enum';
+import { Option } from '../../../shared/models/Option.model';
+import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
+import { SelectedOption } from '../../../shared/models/SelectedOption.model';
+import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
+import { DynamicComponentService } from '../../../shared/services/dynamic-component.service';
+import { QuizService } from '../../../shared/services/quiz.service';
+import { QuizStateService } from '../../../shared/services/quizstate.service';
+import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 
 @Component({
   selector: 'app-base-question',
