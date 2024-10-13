@@ -61,7 +61,7 @@ import { SelectionMessageService } from '../../../shared/services/selection-mess
 import { SharedVisibilityService } from '../../../shared/services/shared-visibility.service';
 import { TimerService } from '../../../shared/services/timer.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
-import { BaseQuestionComponent } from '../../base/base-question.component';
+import { BaseQuestionComponent } from '../../../components/question/base/base-question.component';
 
 @Component({
   selector: 'codelab-quiz-question',
