@@ -1266,6 +1266,9 @@ export class QuizService implements OnDestroy {
   getCorrectOptionsForCurrentQuestion(question: QuizQuestion): void {
     // Ensure that correct options are populated for the current question
     this.correctOptions = question.options.filter(option => option.correct);
+
+    // Log the correct options for debugging
+    console.log('Correct options for the question:', this.correctOptions);
   }
 
   updateCombinedQuestionData(newData: CombinedQuestionDataType): void {
