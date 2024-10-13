@@ -97,11 +97,19 @@ export class SelectedOptionService {
         console.log('SelectedOptionService: Options already selected, skipping');
         return;
       }
+
+      // Process multiple options
+      for (const opt of option) {
+        this.handleSingleOption(opt);
+      }
     } else {
       if (this.isOptionAlreadySelected(option)) {
         console.log('SelectedOptionService: Option already selected, skipping');
         return;
       }
+
+      // Process a single option
+      this.handleSingleOption(option);
     }
 
     // Early exit for now, just to prevent further recursive updates
