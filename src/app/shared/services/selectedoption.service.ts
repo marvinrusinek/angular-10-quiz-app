@@ -300,11 +300,11 @@ export class SelectedOptionService {
   }
 
   // Method to add or remove a selected option for a question
-  toggleSelectedOption(questionIndex: number, option: SelectedOption): void {
-    console.log('toggleSelectedOption called with', { questionIndex, option });
+  toggleSelectedOption(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
+    console.log('toggleSelectedOption called with', { questionIndex, option, isMultiSelect });
 
     if (!this.selectedOptionsMap.has(questionIndex)) {
-      this.selectedOptionsMap.set(questionIndex, []);
+      this.selectedOptionsMap.set(questionIndex, []);  // Initialize if not already present
     }
 
     const options = this.selectedOptionsMap.get(questionIndex);
@@ -313,16 +313,18 @@ export class SelectedOptionService {
     );
 
     if (index > -1) {
+      // If the option is already selected, remove it (deselect)
       options.splice(index, 1);
     } else {
+      // If the option is not selected, add it to the selected options list
       options.push(option);
-      this.handleSingleOption(option);
+      this.handleSingleOption(option, questionIndex, isMultiSelect);  // Pass the necessary parameters
     }
 
-    this.selectedOptionsMap.set(questionIndex, options);
+    this.selectedOptionsMap.set(questionIndex, options);  // Update the options map
     console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
     
-    this.updateAnsweredState();
+    this.updateAnsweredState();  // Update the answered state
   }
 
   updateSelectedOptions(
