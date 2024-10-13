@@ -112,8 +112,9 @@ export class SelectedOptionService {
       this.handleSingleOption(option);
     }
 
-    // Early exit for now, just to prevent further recursive updates
-    return;
+    // Update the state immediately
+    this.isOptionSelectedSubject.next(true);
+    this.updateAnsweredState();
   }
 
   private isValidSelectedOption(option: SelectedOption): boolean {
