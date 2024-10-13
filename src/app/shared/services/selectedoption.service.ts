@@ -162,7 +162,7 @@ export class SelectedOptionService {
   private handleSingleOption(option: SelectedOption, questionIndex: number, isMultiSelect: boolean): void {
     if (isMultiSelect) {
       // If it's a multiple-answer question, toggle the selected option
-      this.toggleSelectedOption(questionIndex, option);  // Use questionIndex from parameter
+      this.toggleSelectedOption(questionIndex, option, isMultiSelect);  // Use questionIndex from parameter
     } else {
       // For single-answer questions, only one option can be selected at a time
       this.selectedOption = option;
