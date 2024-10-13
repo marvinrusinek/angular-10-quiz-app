@@ -375,20 +375,10 @@ export class QuizComponent
         this.cdRef.markForCheck(); // Trigger change detection
       }),
       shareReplay(1)
-    );    
-  
-    console.log('Next button state initialized:', {
-      isNextButtonEnabled: this.isNextButtonEnabled
-    });
+    );
   }
 
-  toggleButtonState() {
-    const currentValue = this.manualOverrideSubject.value;
-    this.manualOverrideSubject.next(!currentValue);
-    console.log('Manual override toggled to:', !currentValue);
-  }
-
-  private subscribeToOptionSelection() {
+  private subscribeToOptionSelection(): void {
     this.optionSelectedSubscription = this.selectedOptionService
       .isOptionSelected$()
       .pipe(takeUntil(this.destroy$))
