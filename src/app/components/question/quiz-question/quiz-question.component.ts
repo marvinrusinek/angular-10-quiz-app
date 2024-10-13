@@ -2073,20 +2073,25 @@ export class QuizQuestionComponent
 
   shouldShowIcon(option: Option): boolean {
     const selectedOption = this.selectedOptionService.getSelectedOption();
-    const showFeedbackForOption =
-      this.selectedOptionService.getShowFeedbackForOption();
-    const shouldShow =
-      selectedOption &&
-      selectedOption.optionId === option.optionId &&
-      showFeedbackForOption[option.optionId];
-    console.log(
-      'Should show icon for option',
-      option.optionId,
-      ':',
-      shouldShow
-    );
+    const showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
+  
+    let shouldShow = false;
+  
+    // Check if selectedOption is an array (multiple selected options)
+    if (Array.isArray(selectedOption)) {
+      // Loop through each selected option and check if the current option should show icon
+      shouldShow = selectedOption.some(
+        (opt) => opt.optionId === option.optionId && showFeedbackForOption[option.optionId]
+      );
+    } else {
+      // If selectedOption is a single object, perform a direct comparison
+      shouldShow = selectedOption?.optionId === option.optionId && showFeedbackForOption[option.optionId];
+    }
+  
+    console.log('Should show icon for option', option.optionId, ':', shouldShow);
     return shouldShow;
   }
+  
 
   async selectOption(
     currentQuestion: QuizQuestion,

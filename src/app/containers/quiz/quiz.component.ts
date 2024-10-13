@@ -273,6 +273,14 @@ export class QuizComponent
       shareReplay(1)
     );
 
+    // Subscribe to the isNextButtonEnabled$ observable
+    this.selectedOptionService.isNextButtonEnabled$.subscribe(
+      (enabled) => {
+        this.isNextButtonEnabled = enabled;
+        console.log('Next button state:', this.isNextButtonEnabled);
+      }
+    );
+
     this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
       console.log('isOptionSelected$ emitted:', isSelected);
       this.isCurrentQuestionAnswered = isSelected;
