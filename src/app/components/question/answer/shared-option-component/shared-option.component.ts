@@ -528,8 +528,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getOptionBindings(option: Option, idx: number): OptionBindings {
-    console.log(`Feedback for Option ${idx}:`, option.feedback);  // Debugging: Log feedback
-    
     return {
       option: {
         ...option,
