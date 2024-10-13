@@ -113,7 +113,7 @@ export class SelectedOptionService {
     }
 
     // Update the state immediately
-    this.isOptionSelectedSubject.next(true);
+    // this.isOptionSelectedSubject.next(true);
     this.updateAnsweredState();
   }
 
