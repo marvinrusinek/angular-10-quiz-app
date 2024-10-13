@@ -70,6 +70,8 @@ export class SelectedOptionService {
   }
 
   setSelectedOption(option: SelectedOption | SelectedOption[]): void {
+    console.log('Entering setSelectedOption with:', option);
+  
     if (!option) {
       console.log('SelectedOptionService: Clearing selected option');
       this.selectedOption = null;
@@ -77,6 +79,7 @@ export class SelectedOptionService {
       this.showFeedbackForOptionSubject.next({});
       this.isOptionSelectedSubject.next(false);
       this.updateAnsweredState();
+      console.log('Exiting setSelectedOption after clearing');
       return;
     }
   
@@ -84,26 +87,27 @@ export class SelectedOptionService {
     if (Array.isArray(option)) {
       if (this.areOptionsAlreadySelected(option)) {
         console.log('SelectedOptionService: Options already selected, skipping');
-        return;  // Exit early if no change
+        return;
       }
     } else {
       if (this.isOptionAlreadySelected(option)) {
         console.log('SelectedOptionService: Option already selected, skipping');
-        return;  // Exit early if no change
+        return;
       }
     }
   
+    console.log('Processing selected option...');
     const currentFeedback: Record<string, boolean> = { ...this.showFeedbackForOptionSubject.value };
   
     // Handle multiple options if option is an array
     if (Array.isArray(option)) {
       option.forEach(opt => {
-        // Check for invalid data in each option
         if (!this.isValidSelectedOption(opt)) {
           console.error('Invalid SelectedOption data:', opt);
-          return;  // Stop processing this option if invalid
+          return;
         }
   
+        console.log('Handling single option in array:', opt);
         this.handleSingleOption(opt);
   
         const optionIdKey = opt.optionId.toString();
@@ -113,9 +117,10 @@ export class SelectedOptionService {
       // Handle single option
       if (!this.isValidSelectedOption(option)) {
         console.error('Invalid SelectedOption data:', option);
-        return;  // Stop processing if the single option is invalid
+        return;
       }
   
+      console.log('Handling single option:', option);
       this.handleSingleOption(option);
   
       const optionIdKey = option.optionId.toString();
@@ -129,7 +134,7 @@ export class SelectedOptionService {
     // Update the answered state
     this.updateAnsweredState();
     console.log('SelectedOptionService: Updated answered state');
-  }
+  }  
   
   private isValidSelectedOption(option: SelectedOption): boolean {
     return option.optionId !== undefined && option.questionIndex !== undefined && !!option.text;
