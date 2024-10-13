@@ -18,7 +18,7 @@ export class SelectedOptionService {
   private selectedOptionExplanationSource = new BehaviorSubject<string>(null);
   selectedOptionExplanation$ = this.selectedOptionExplanationSource.asObservable();
 
-  private isOptionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private isOptionSelectedSubject = new BehaviorSubject<boolean>(false);
 
   isAnsweredSubject = new BehaviorSubject<boolean>(false);
   isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable();
