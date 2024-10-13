@@ -101,12 +101,14 @@ export class SelectedOptionService {
     // Early exit for now, just to prevent further recursive updates
     return;
   }
-  
-  
 
   private isValidSelectedOption(option: SelectedOption): boolean {
-    return option.optionId !== undefined && option.questionIndex !== undefined && !!option.text;
-  }  
+    if (!option || option.optionId === undefined || option.questionIndex === undefined || !option.text) {
+      console.error('Invalid SelectedOption data:', option);
+      return false;
+    }
+    return true;
+  }
   
   private isOptionAlreadySelected(option: SelectedOption | SelectedOption[]): boolean {
     if (Array.isArray(option)) {
