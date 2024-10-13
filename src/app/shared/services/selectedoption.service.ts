@@ -75,31 +75,28 @@ export class SelectedOptionService {
   selectOption(optionId: number, questionIndex: number, text: string): void {
     // Check if the input data is invalid
     if (optionId == null || questionIndex == null || !text) {
-        console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
-        return;
+      console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
+      return;
     }
-
+  
     console.log('selectOption called with:', { optionId, questionIndex, text });
-
+  
     // Create the selected option object
     const selectedOption: SelectedOption = { optionId, questionIndex, text };
-
+  
     // Validate the selected option before emitting it
     if (!this.isValidSelectedOption(selectedOption)) {
-        console.error('SelectedOption is invalid:', selectedOption);
-        return;  // Stop processing if the option is invalid
+      console.error('SelectedOption is invalid:', selectedOption);
+      return;  // Stop processing if the option is invalid
     }
 
-    // Emit the selected option
-    this.selectedOptionSubject.next(selectedOption);
-
-    // Emit the selection status
-    this.isOptionSelectedSubject.next(true); // Indicate that an option is selected
-
-    // Enable the next button as soon as an option is selected
+    // Handle the selected option
+    this.handleSingleOption(selectedOption);
+  
+    // Enable the next button after selecting the option
     this.isNextButtonEnabled = true;
-
-    console.log('Selected option emitted:', selectedOption);
+  
+    console.log('Next button enabled after selecting option:', selectedOption);
   }
 
   deselectOption() {
