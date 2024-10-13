@@ -306,7 +306,6 @@ export class SelectedOptionService {
       options.push(option);
     }
 
-    // Pass the questionIndex and isMultiSelect into handleSingleOption
     this.handleSingleOption(option, questionIndex, isMultiSelect);
 
     this.selectedOptionsMap.set(questionIndex, options);
