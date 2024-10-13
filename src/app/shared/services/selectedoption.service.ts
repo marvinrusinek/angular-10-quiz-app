@@ -80,8 +80,18 @@ export class SelectedOptionService {
       return;
     }
   
-    // Log the passed option data for better insight
-    console.log('SelectedOptionService: Received option data:', option);
+    // Avoid processing if the same option is already selected
+    if (Array.isArray(option)) {
+      if (this.areOptionsAlreadySelected(option)) {
+        console.log('SelectedOptionService: Options already selected, skipping');
+        return;  // Exit early if no change
+      }
+    } else {
+      if (this.isOptionAlreadySelected(option)) {
+        console.log('SelectedOptionService: Option already selected, skipping');
+        return;  // Exit early if no change
+      }
+    }
   
     const currentFeedback: Record<string, boolean> = { ...this.showFeedbackForOptionSubject.value };
   
@@ -117,6 +127,15 @@ export class SelectedOptionService {
     // Update the answered state
     this.updateAnsweredState();
     console.log('SelectedOptionService: Updated answered state');
+  }
+  
+  private isOptionAlreadySelected(option: SelectedOption): boolean {
+    return this.selectedOption?.optionId === option.optionId;
+  }
+  
+  private areOptionsAlreadySelected(options: SelectedOption[]): boolean {
+    // Compare selected options with the array passed in
+    return options.every(opt => this.selectedOption?.optionId === opt.optionId);
   }  
   
   private handleSingleOption(option: SelectedOption): void {
