@@ -76,7 +76,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
-    console.log('SharedOptionComponent ngOnInit called');
     this.initializeOptionBindings();
     this.initializeFromConfig();
 
