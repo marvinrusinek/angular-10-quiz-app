@@ -2091,7 +2091,6 @@ export class QuizQuestionComponent
     console.log('Should show icon for option', option.optionId, ':', shouldShow);
     return shouldShow;
   }
-  
 
   async selectOption(
     currentQuestion: QuizQuestion,

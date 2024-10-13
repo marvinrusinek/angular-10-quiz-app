@@ -467,24 +467,7 @@ export class QuizComponent
       this.cdRef.detectChanges();
     }
   }
-
-  /* private resetQuestionState(): void {
-    console.log('Resetting question state');
-    this.selectedOptions = [];
-    this.isNextButtonEnabled = false;
-
-    // Clear any pre-selected options
-    if (this.currentQuestion && this.currentQuestion.options) {
-      this.currentQuestion.options.forEach(option => option.selected = false);
-    }
-
-    // this.updateNextButtonState();
-    console.log(
-      'Question state reset. Selected options:',
-      this.selectedOptions
-    );
-    console.log('Button enabled:', this.isButtonEnabledSubject.value);
-  } */
+  
   private resetQuestionState(): void {
     console.log('Resetting question state');
     this.selectedOptions = [];
