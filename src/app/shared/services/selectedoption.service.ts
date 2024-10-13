@@ -95,16 +95,25 @@ export class SelectedOptionService {
         console.log('SelectedOptionService: Options already selected, skipping');
         return;
       }
+  
+      // Process each option in the array
+      option.forEach(opt => {
+        this.handleSingleOption(opt);  // Use handleSingleOption for each option
+      });
     } else {
       if (this.isOptionAlreadySelected(option)) {
         console.log('SelectedOptionService: Option already selected, skipping');
         return;
       }
+  
+      // Process the single selected option
+      this.handleSingleOption(option);
     }
-
-    // Early exit for now, just to prevent further recursive updates
-    return;
-  }
+  
+    // Option processing complete, update states or perform other logic as needed
+    this.updateAnsweredState();
+    console.log('SelectedOptionService: Selected options processed.');
+  }  
 
   private isValidSelectedOption(option: SelectedOption): boolean {
     if (!option || option.optionId === undefined || option.questionIndex === undefined || !option.text) {
