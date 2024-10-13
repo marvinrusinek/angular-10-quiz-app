@@ -113,7 +113,6 @@ export class SelectedOptionService {
     }
 
     // Update the state immediately
-    // this.isOptionSelectedSubject.next(true);
     this.updateAnsweredState();
   }
 
@@ -155,31 +154,14 @@ export class SelectedOptionService {
     return options.every(opt => selectedOption?.optionId === opt.optionId);
   }
   
-  /* private handleSingleOption(option: SelectedOption): void {
-    this.selectedOption = option;
-    this.selectedOptionSubject.next(option);
-    console.log('SelectedOptionService: Selected option set, current value:', this.selectedOptionSubject.value);
-  
-    this.isOptionSelectedSubject.next(true);
-    console.log('SelectedOptionService: isOptionSelected updated to true');
-  
-    // Update selectedOptionsMap
-    if (!this.selectedOptionsMap.has(option.questionIndex)) {
-      this.selectedOptionsMap.set(option.questionIndex, []);
-    }
-    this.selectedOptionsMap.get(option.questionIndex)!.push(option);
-    console.log('SelectedOptionService: Updated selectedOptionsMap', this.selectedOptionsMap);
-  } */
-  private handleSingleOption(option: SelectedOption): void {
-    const isMultiSelect = this.quizService.isMultipleAnswerQuestion(this.currentQuestion);  // Determine if it's a multiple-answer question
-
+  private handleSingleOption(option: SelectedOption, questionIndex: number, isMultiSelect: boolean): void {
     if (isMultiSelect) {
-        // If it's a multiple-answer question, we allow multiple options to be selected
-        this.toggleSelectedOption(this.currentQuestionIndex, option);  // Toggle the selected option for multi-select
+      // If it's a multiple-answer question, toggle the selected option
+      this.toggleSelectedOption(questionIndex, option);  // Use questionIndex from parameter
     } else {
-        // For single-answer questions, only one option can be selected at a time
-        this.selectedOption = option;
-        this.selectedOptionSubject.next(option);  // Emit the selected option
+      // For single-answer questions, only one option can be selected at a time
+      this.selectedOption = option;
+      this.selectedOptionSubject.next(option);
     }
 
     // Update the selection state
@@ -187,27 +169,27 @@ export class SelectedOptionService {
     console.log('SelectedOptionService: isOptionSelected updated to true');
 
     // Update the selectedOptionsMap
-    if (!this.selectedOptionsMap.has(option.questionIndex)) {
-        this.selectedOptionsMap.set(option.questionIndex, []);  // Initialize if not already present
+    if (!this.selectedOptionsMap.has(questionIndex)) {
+      this.selectedOptionsMap.set(questionIndex, []);  // Initialize if not already present
     }
 
     if (isMultiSelect) {
-        // If multiple selection is allowed, update the options map with the new selection
-        const options = this.selectedOptionsMap.get(option.questionIndex);
-        const index = options.findIndex(opt => opt.optionId === option.optionId);
+      // If multiple selection is allowed, update the options map with the new selection
+      const options = this.selectedOptionsMap.get(questionIndex);
+      const index = options.findIndex(opt => opt.optionId === option.optionId);
         
-        if (index > -1) {
-            // If the option was already selected, remove it
-            options.splice(index, 1);
-        } else {
-            // Otherwise, add the new option
-            options.push(option);
-        }
+      if (index > -1) {
+        // If the option was already selected, remove it
+        options.splice(index, 1);
+      } else {
+        // Otherwise, add the new option
+        options.push(option);
+      }
 
-        this.selectedOptionsMap.set(option.questionIndex, options);  // Update the map
+      this.selectedOptionsMap.set(questionIndex, options);  // Update the map
     } else {
-        // For single selection, just store the selected option
-        this.selectedOptionsMap.set(option.questionIndex, [option]);
+      // For single selection, just store the selected option
+      this.selectedOptionsMap.set(questionIndex, [option]);
     }
 
     console.log('SelectedOptionService: Updated selectedOptionsMap', this.selectedOptionsMap);
