@@ -80,7 +80,9 @@ export class SelectedOptionService {
       return;
     }
   
-    // Prepare the current feedback state
+    // Log the passed option data for better insight
+    console.log('SelectedOptionService: Received option data:', option);
+  
     const currentFeedback: Record<string, boolean> = { ...this.showFeedbackForOptionSubject.value };
   
     // Handle multiple options if option is an array
@@ -88,34 +90,27 @@ export class SelectedOptionService {
       option.forEach(opt => {
         if (opt.optionId === undefined || opt.questionIndex === undefined || !opt.text) {
           console.error('Invalid SelectedOption data:', opt);
-          return;
+          return;  // Stop processing this option if invalid
         }
   
         this.handleSingleOption(opt);
   
-        // Update feedback state for each option in the array
         const optionIdKey = opt.optionId.toString();
-        if (optionIdKey) {
-          currentFeedback[optionIdKey] = true;  // Set feedback to true for this option
-        }
+        currentFeedback[optionIdKey] = true;
       });
     } else {
-      // Handle single option
       if (option.optionId === undefined || option.questionIndex === undefined || !option.text) {
         console.error('Invalid SelectedOption data:', option);
-        return;
+        return;  // Stop processing if the single option is invalid
       }
   
       this.handleSingleOption(option);
   
-      // Update feedback state for the single option
       const optionIdKey = option.optionId.toString();
-      if (optionIdKey) {
-        currentFeedback[optionIdKey] = true;  // Set feedback to true for this option
-      }
+      currentFeedback[optionIdKey] = true;
     }
   
-    // Update the feedback subject with the new feedback state
+    // Update feedback state
     this.showFeedbackForOptionSubject.next(currentFeedback);
     console.log('SelectedOptionService: Updated feedback state', currentFeedback);
   
