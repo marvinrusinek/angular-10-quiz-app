@@ -186,7 +186,6 @@ export class QuizComponent
   previousIndex: number | null = null;
   isQuestionIndexChanged = false;
   private isNavigatedByUrl = false;
-  private currentNavigationToken = 0;
   private navigationAbortController: AbortController | null = null;
   // nextButtonTooltip$: Observable<string>;
   private nextButtonTooltipSubject = new BehaviorSubject<string>('Please select an option to continue...');
@@ -194,7 +193,6 @@ export class QuizComponent
   nextButtonTooltip = 'Please select an option to continue...';
 
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
-  private manualOverrideSubject = new BehaviorSubject<boolean>(false);
   isButtonEnabled$: Observable<boolean>;
   isButtonEnabled = false;
   isLoading$: Observable<boolean>;
@@ -361,7 +359,7 @@ export class QuizComponent
     this.isLoading = true;
 
     // Fetch all question content streams using forkJoin
-    forkJoin({
+    /* forkJoin({
       question: this.quizService.getCurrentQuestion(),
       options: this.quizService.getCurrentOptions(),
       selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
@@ -386,7 +384,7 @@ export class QuizComponent
       tap(() => {
         this.isLoading = false;
       })
-    ).subscribe();
+    ).subscribe(); */
   }
 
   private initializeNextButtonState(): void {
