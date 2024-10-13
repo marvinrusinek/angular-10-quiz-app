@@ -97,9 +97,9 @@ export class SelectedOptionService {
       }
   
       // Process each option in the array
-      option.forEach(opt => {
+      for (const opt of option) {
         this.handleSingleOption(opt);  // Use handleSingleOption for each option
-      });
+      }
     } else {
       if (this.isOptionAlreadySelected(option)) {
         console.log('SelectedOptionService: Option already selected, skipping');
@@ -112,7 +112,6 @@ export class SelectedOptionService {
   
     // Option processing complete, update states or perform other logic as needed
     this.updateAnsweredState();
-    console.log('SelectedOptionService: Selected options processed.');
   }  
 
   private isValidSelectedOption(option: SelectedOption): boolean {
