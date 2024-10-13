@@ -556,6 +556,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
+    console.log("MY OPTION FEEDBACK LOG", option.feedback);
     // Ensure this option is selected 
     const showFeedback = this.isSelectedOption(option) ?? false;  // Fallback to false if undefined or null
 
@@ -587,7 +588,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     });
   }  
 
-  initializeFeedbackBindings(): void {
+  /* initializeFeedbackBindings(): void {
     this.feedbackBindings = this.optionBindings.map((optionBinding, idx) => {
       const feedbackBinding = this.getFeedbackBindings(optionBinding.option, idx);
   
@@ -596,7 +597,32 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
       return feedbackBinding;
     });
-  }
+  } */
+  initializeFeedbackBindings(): void {
+    this.feedbackBindings = this.optionBindings.map((optionBinding, idx) => {
+      // Check if optionBinding.option is null or undefined
+      if (!optionBinding.option) {
+        console.error(`Option binding at index ${idx} is null or undefined!`);
+        return {
+          correctMessage: 'No correct message available',
+          feedback: 'No feedback available',
+          showFeedback: false,
+          selectedOption: null,
+          options: this.optionsToDisplay,
+          question: this.currentQuestion,
+          idx: idx
+        } as FeedbackProps;  // Return a default FeedbackProps object
+      }
+  
+      // Get the feedback binding from the option
+      const feedbackBinding = this.getFeedbackBindings(optionBinding.option, idx);
+      
+      // Log for debugging purposes
+      console.log(`Feedback binding for option ${idx}:`, feedbackBinding);
+      
+      return feedbackBinding;  // Return the feedback binding
+    });
+  }  
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOptionId === option.optionId;
