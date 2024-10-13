@@ -15,7 +15,6 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
 
 @Component({
   selector: 'app-base-question',
-  template: '',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit
