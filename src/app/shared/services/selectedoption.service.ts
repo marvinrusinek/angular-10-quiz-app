@@ -98,7 +98,8 @@ export class SelectedOptionService {
     // Handle multiple options if option is an array
     if (Array.isArray(option)) {
       option.forEach(opt => {
-        if (opt.optionId === undefined || opt.questionIndex === undefined || !opt.text) {
+        // Check for invalid data in each option
+        if (!this.isValidSelectedOption(opt)) {
           console.error('Invalid SelectedOption data:', opt);
           return;  // Stop processing this option if invalid
         }
@@ -109,7 +110,8 @@ export class SelectedOptionService {
         currentFeedback[optionIdKey] = true;
       });
     } else {
-      if (option.optionId === undefined || option.questionIndex === undefined || !option.text) {
+      // Handle single option
+      if (!this.isValidSelectedOption(option)) {
         console.error('Invalid SelectedOption data:', option);
         return;  // Stop processing if the single option is invalid
       }
@@ -128,6 +130,10 @@ export class SelectedOptionService {
     this.updateAnsweredState();
     console.log('SelectedOptionService: Updated answered state');
   }
+  
+  private isValidSelectedOption(option: SelectedOption): boolean {
+    return option.optionId !== undefined && option.questionIndex !== undefined && !!option.text;
+  }  
   
   private isOptionAlreadySelected(option: SelectedOption | SelectedOption[]): boolean {
     if (Array.isArray(option)) {
