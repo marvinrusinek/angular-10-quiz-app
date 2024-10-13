@@ -12,7 +12,7 @@ import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { BaseQuestionComponent } from '../../../../components/question/base/base-question.component';
-import { QuizQuestionComponent } from '../../../../components/question/quiz-question/question.component';
+import { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
 
 @Component({
   selector: 'codelab-question-answer',

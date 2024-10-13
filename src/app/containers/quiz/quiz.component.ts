@@ -57,7 +57,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { Resource } from '../../shared/models/Resource.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
-import { QuizQuestionComponent } from '../../components/question/quiz-question/question.component';
+import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
 import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
