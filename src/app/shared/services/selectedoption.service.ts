@@ -35,6 +35,7 @@ export class SelectedOptionService {
 
   // Method to update the selected option state
   selectOption(optionId: number, questionIndex: number, text: string): void {
+    // Check if the input data is invalid
     if (optionId == null || questionIndex == null || !text) {
       console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
       return;
@@ -45,6 +46,12 @@ export class SelectedOptionService {
     // Create the selected option object
     const selectedOption: SelectedOption = { optionId, questionIndex, text };
   
+    // Validate the selected option before emitting it
+    if (!this.isValidSelectedOption(selectedOption)) {
+      console.error('SelectedOption is invalid:', selectedOption);
+      return;  // Stop processing if the option is invalid
+    }
+  
     // Emit the selected option
     this.selectedOptionSubject.next(selectedOption);
   
@@ -52,7 +59,7 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(true); // Indicate that an option is selected
   
     console.log('Selected option emitted:', selectedOption);
-  }
+  }  
 
   deselectOption() {
     const deselectedOption: SelectedOption = {
@@ -94,7 +101,7 @@ export class SelectedOptionService {
         return;
       }
     }
-    
+
     // Early exit for now, just to prevent further recursive updates
     return;
   }
