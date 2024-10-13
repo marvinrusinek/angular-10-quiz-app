@@ -382,7 +382,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     if (this.config.type === 'single') {
       // For single-select, update only the clicked option
-      this.config.optionsToDisplay.forEach(opt => opt.selected = false);
+      for (const opt of this.config.optionsToDisplay) {
+        opt.selected = false;
+      }      
       option.selected = true;
       this.config.selectedOptionIndex = index;
   

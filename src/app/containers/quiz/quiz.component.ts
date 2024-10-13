@@ -266,7 +266,9 @@ export class QuizComponent
       selectionMessage: this.selectionMessage,
     };
 
+    // Use debounceTime to delay emission of isOptionSelected$ to handle rapid selection
     this.isButtonEnabled$ = this.selectedOptionService.isOptionSelected$().pipe(
+      debounceTime(300),  // Adjust the debounce time as needed (in milliseconds)
       tap((isEnabled) =>
         console.log('QuizComponent: Next button enabled:', isEnabled)
       ),
