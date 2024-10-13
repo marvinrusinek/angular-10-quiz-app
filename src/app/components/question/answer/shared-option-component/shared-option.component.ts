@@ -620,10 +620,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
       // Get the feedback binding from the option
       const feedbackBinding = this.getFeedbackBindings(optionBinding.option, idx);
-      
-      // Log for debugging purposes
-      console.log(`Feedback binding for option ${idx}:`, feedbackBinding);
-      
       return feedbackBinding;  // Return the feedback binding
     });
   }
