@@ -363,7 +363,7 @@ export class QuizComponent
     // Fetch all question content streams using forkJoin
     forkJoin({
       question: this.quizService.getCurrentQuestion(),
-      options: this.quizService.getOptionsForCurrentQuestion(),
+      options: this.quizService.getCurrentOptions(),
       selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
       navigationIcons: this.navigationService.getNavigationIcons(),
       badgeQuestionNumber: this.quizService.getBadgeQuestionNumber(),
