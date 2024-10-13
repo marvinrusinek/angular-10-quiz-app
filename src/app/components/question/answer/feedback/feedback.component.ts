@@ -41,6 +41,8 @@ export class FeedbackComponent implements OnChanges {
 
   private updateFeedback(): void {
     if (this.feedbackConfig && this.feedbackConfig.showFeedback) {
+      console.log('Showing feedback with feedbackConfig:', this.feedbackConfig);  // Log the config
+  
       this.feedbackMessageClass = this.determineFeedbackMessageClass();
       this.feedbackPrefix = this.determineFeedbackPrefix();
       this.updateDisplayMessage();
@@ -48,7 +50,7 @@ export class FeedbackComponent implements OnChanges {
       console.log('Feedback is not set to be shown');
       this.displayMessage = '';
     }
-  }
+  }  
 
   private determineFeedbackPrefix(): string {
     if (!this.feedbackConfig || !this.feedbackConfig.selectedOption) {
@@ -71,10 +73,13 @@ export class FeedbackComponent implements OnChanges {
   private updateDisplayMessage(): void {
     if (this.feedbackConfig) {
       const prefix = this.determineFeedbackPrefix();
-      const commonMessage = `${this.feedbackConfig.correctMessage} ${this.feedbackConfig.feedback || ''}`;
+      const commonMessage = `${this.feedbackConfig.correctMessage || ''} ${this.feedbackConfig.feedback || ''}`;
+      
+      console.log('Final display message:', prefix, commonMessage);  // Debug the final message
+      
       this.displayMessage = `${prefix}${commonMessage}`;
     } else {
       this.displayMessage = '';
     }
-  }
+  }  
 }
