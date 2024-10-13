@@ -356,6 +356,39 @@ export class QuizComponent
     this.checkIfAnswerSelected(true);
   }
 
+  loadQuestionContents() {
+    // Set loading state to true before starting the loading process
+    this.isLoading = true;
+
+    // Fetch all question content streams using forkJoin
+    forkJoin({
+      question: this.quizService.getCurrentQuestion(),
+      options: this.quizService.getOptionsForCurrentQuestion(),
+      selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
+      navigationIcons: this.navigationService.getNavigationIcons(),
+      badgeQuestionNumber: this.quizService.getBadgeQuestionNumber(),
+      score: this.scoreService.getCurrentScore(),
+    })
+    .pipe(
+      tap((data) => {
+        // Set the data for each part of the question content
+        this.currentQuestion = data.question;
+        this.options = data.options;
+        this.selectionMessage = data.selectionMessage;
+        this.navigationIcons = data.navigationIcons;
+        this.badgeQuestionNumber = data.badgeQuestionNumber;
+        this.score = data.score;
+
+        // Log the data to confirm everything is loading together
+        console.log('Question Data:', data);
+      }),
+      // Ensure the loading state is set to false once everything is fetched
+      tap(() => {
+        this.isLoading = false;
+      })
+    ).subscribe();
+  }
+
   private initializeNextButtonState(): void {
     // Initialize local properties
     this.isNextButtonEnabled = false;
