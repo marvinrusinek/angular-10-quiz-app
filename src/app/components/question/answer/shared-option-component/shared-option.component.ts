@@ -575,6 +575,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('Initializing Option Bindings: optionsToDisplay:', this.optionsToDisplay);
     
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      console.log("THE OPTION", option);
       // Log the original option object to inspect its properties before setting feedback
       console.log(`Processing option at index ${idx}:`, option);
       
@@ -587,16 +588,33 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       if (!option.feedback) {
         console.warn(`Feedback is missing for option at index ${idx}:`, option);
       }
+
+      console.log("my QS correct options", this.quizService.correctOptions);
     
       // Ensure feedback property is set and has a fallback
-      option.feedback = option.feedback ?? 'No feedback available.....';
+      option.feedback = this.generateFeedbackForOptions(this.quizService.correctOptions, this.optionsToDisplay) ?? 'No feedback available.....';
       
       // Log after setting the feedback to see if it is properly assigned
       console.log(`Final feedback for option at index ${idx}:`, option.feedback);
     
       return optionBinding;
     });
-  }    
+  }
+
+  generateFeedbackForOptions(
+    correctOptions: Option[],
+    optionsToDisplay: Option[]
+  ): string {
+    // Generate the correct message using the existing method
+    const correctMessage = this.quizService.setCorrectMessage(correctOptions, optionsToDisplay);
+  
+    // Log the correctMessage for debugging
+    console.log('Generated correctMessage:', correctMessage);
+  
+    // Return the correctMessage as a string
+    return correctMessage;
+  }
+  
 
   /* initializeFeedbackBindings(): void {
     this.feedbackBindings = this.optionBindings.map((optionBinding, idx) => {
