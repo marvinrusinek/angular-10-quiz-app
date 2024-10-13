@@ -65,7 +65,7 @@ import { BaseQuestionComponent } from '../../../components/question/base/base-qu
 
 @Component({
   selector: 'codelab-quiz-question',
-  templateUrl: './question.component.html',
+  templateUrl: './quiz-question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuestionComponent
