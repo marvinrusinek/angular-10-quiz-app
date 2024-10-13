@@ -69,7 +69,7 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(false); // No option selected
   }
 
-  setSelectedOption(option: SelectedOption | SelectedOption[]): void {
+  /* setSelectedOption(option: SelectedOption | SelectedOption[]): void {
     console.log('Entering setSelectedOption with:', option);
   
     if (!option) {
@@ -134,7 +134,40 @@ export class SelectedOptionService {
     // Update the answered state
     this.updateAnsweredState();
     console.log('SelectedOptionService: Updated answered state');
-  }  
+  } */
+  setSelectedOption(option: SelectedOption | SelectedOption[]): void {
+    console.log('Entering setSelectedOption with:', option);
+  
+    if (!option) {
+      console.log('SelectedOptionService: Clearing selected option');
+      this.selectedOption = null;
+      this.selectedOptionSubject.next(null);
+      this.showFeedbackForOptionSubject.next({});
+      this.isOptionSelectedSubject.next(false);
+      this.updateAnsweredState();
+      return;
+    }
+  
+    // Avoid processing if the same option is already selected
+    if (Array.isArray(option)) {
+      if (this.areOptionsAlreadySelected(option)) {
+        console.log('SelectedOptionService: Options already selected, skipping');
+        return;
+      }
+    } else {
+      if (this.isOptionAlreadySelected(option)) {
+        console.log('SelectedOptionService: Option already selected, skipping');
+        return;
+      }
+    }
+  
+    // Temporarily disable additional logic to isolate the problem
+    console.log('Processing option:', option);
+  
+    // Early exit for now, just to prevent further recursive updates
+    return;
+  }
+   
   
   private isValidSelectedOption(option: SelectedOption): boolean {
     return option.optionId !== undefined && option.questionIndex !== undefined && !!option.text;
