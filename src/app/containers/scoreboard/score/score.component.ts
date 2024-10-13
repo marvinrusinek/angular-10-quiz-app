@@ -53,11 +53,11 @@ export class ScoreComponent implements OnInit, OnDestroy {
       this.totalQuestions$.pipe(
         startWith(0), // Provide a default value to ensure it's never undefined
         distinctUntilChanged(),
-        tap(total => console.log('Total Questions:', total))
+        // tap(total => console.log('Total Questions:', total))
       ),
       this.quizService.getAllQuestions().pipe(
         startWith([]), // Default to an empty array if no questions are available yet
-        tap(questions => console.log('All Questions:', questions))
+        // tap(questions => console.log('All Questions:', questions))
       )
     ]).pipe(
       map(this.processScoreData),
