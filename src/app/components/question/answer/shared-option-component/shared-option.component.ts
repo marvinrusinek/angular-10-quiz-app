@@ -529,10 +529,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getOptionBindings(option: Option, idx: number): OptionBindings {
+    console.log(`Feedback for Option ${idx}:`, option.feedback);  // Debugging: Log feedback
+    
     return {
       option: {
         ...option,
-        feedback: this.correctMessage ?? 'No feedback available'
+        feedback: option.feedback ?? 'No feedback available'
       },
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
