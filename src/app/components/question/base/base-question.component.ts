@@ -1,22 +1,4 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  forwardRef,
-  Inject,
-  Input,
-  OnInit,
-  OnChanges,
-  OnDestroy,
-  Optional,
-  Output,
-  SimpleChange,
-  SimpleChanges,
-  ViewChild,
-  ViewContainerRef,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
@@ -76,9 +58,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   private containerInitialized = false;
 
   constructor(
-    //@Optional()
-    //@Inject(forwardRef(() => QuizQuestionComponent))
-    //quizQuestionComponent: QuizQuestionComponent | null,
     protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
     protected quizService: QuizService,
