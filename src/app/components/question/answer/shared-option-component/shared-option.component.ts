@@ -533,7 +533,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return {
       option: {
         ...option,
-        feedback: option.feedback ?? 'No feedback available'
+        feedback: option.feedback,
       },
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
@@ -555,7 +555,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
-    console.log("MY OPTION FEEDBACK LOG", option.feedback);
     // Ensure this option is selected 
     const showFeedback = this.isSelectedOption(option) ?? false;  // Fallback to false if undefined or null
 
@@ -581,7 +580,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
   
       // Ensure feedback property is set and has a fallback
-      option.feedback = option.feedback ?? optionBinding.option.feedback ?? 'No feedback available....';
+      // option.feedback = option.feedback ?? optionBinding.option.feedback ?? 'No feedback available....';
+      option.feedback = option.feedback ?? 'No feedback available';
   
       return optionBinding;
     });
@@ -599,6 +599,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   } */
   initializeFeedbackBindings(): void {
     this.feedbackBindings = this.optionBindings.map((optionBinding, idx) => {
+      console.log("MY OPTION BINDING", optionBinding.option);
       // Check if optionBinding.option is null or undefined
       if (!optionBinding.option) {
         console.error(`Option binding at index ${idx} is null or undefined!`);
