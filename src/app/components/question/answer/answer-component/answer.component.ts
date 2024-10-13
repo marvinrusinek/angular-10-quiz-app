@@ -2,16 +2,17 @@ import { AfterViewInit, ChangeDetectorRef, Component, ComponentRef, EventEmitter
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
-import { OptionBindings } from '../../../shared/models/OptionBindings.model';
-import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
-import { SelectedOption } from '../../../shared/models/SelectedOption.model';
-import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
-import { DynamicComponentService } from '../../../shared/services/dynamic-component.service';
-import { QuizService } from '../../../shared/services/quiz.service';
-import { QuizStateService } from '../../../shared/services/quizstate.service';
-import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
-import { BaseQuestionComponent } from '../../../components/question/base-question.component';
-import { QuizQuestionComponent } from '../../../components/question/question.component';
+
+import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
+import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
+import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
+import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
+import { DynamicComponentService } from '../../../../shared/services/dynamic-component.service';
+import { QuizService } from '../../../../shared/services/quiz.service';
+import { QuizStateService } from '../../../../shared/services/quizstate.service';
+import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
+import { BaseQuestionComponent } from '../../../../components/question/base/base-question.component';
+import { QuizQuestionComponent } from '../../../../components/question/question.component';
 
 @Component({
   selector: 'codelab-question-answer',

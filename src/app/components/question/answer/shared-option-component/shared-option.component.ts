@@ -2,18 +2,18 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, In
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
-import { FeedbackProps } from '../../../shared/models/FeedbackProps.model';
-import { Option } from '../../../shared/models/Option.model';
-import { OptionBindings } from '../../../shared/models/OptionBindings.model';
-import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
-import { QuestionType } from '../../../shared/models/question-type.enum';
-import { SelectedOption } from '../../../shared/models/SelectedOption.model';
-import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
-import { QuizService } from '../../../shared/services/quiz.service';
-import { QuizStateService } from '../../../shared/services/quizstate.service';
-import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
-import { UserPreferenceService } from '../../../shared/services/user-preference.service';
-import { HighlightOptionDirective } from '../../../directives/highlight-option.directive';
+import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
+import { Option } from '../../../../shared/models/Option.model';
+import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
+import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
+import { QuestionType } from '../../../../shared/models/question-type.enum';
+import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
+import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
+import { QuizService } from '../../../../shared/services/quiz.service';
+import { QuizStateService } from '../../../../shared/services/quizstate.service';
+import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
+import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
+import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
 
 @Component({
   selector: 'app-shared-option',
