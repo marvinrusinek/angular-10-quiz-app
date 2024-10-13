@@ -93,10 +93,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.config.optionsToDisplay &&
       this.config.optionsToDisplay.length > 0
     ) {
-      console.log(
-        'Options in SharedOptionComponent:',
-        this.config.optionsToDisplay
-      );
       this.optionsToDisplay = this.config.optionsToDisplay;
     } else if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
       console.log('Options received directly:', this.optionsToDisplay);
