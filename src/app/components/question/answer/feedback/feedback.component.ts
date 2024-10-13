@@ -58,8 +58,6 @@ export class FeedbackComponent implements OnChanges {
     const prefix = this.feedbackConfig.selectedOption.correct
       ? "You're right! " 
       : "That's wrong. ";
-    
-    console.log('Feedback prefix determined:', prefix);
     return prefix;
   }
 
