@@ -318,7 +318,7 @@ export class SelectedOptionService {
     } else {
       // If the option is not selected, add it to the selected options list
       options.push(option);
-      this.handleSingleOption(option, questionIndex, isMultiSelect);  // Pass the necessary parameters
+      this.handleSingleOption(option, questionIndex, isMultiSelect);
     }
 
     this.selectedOptionsMap.set(questionIndex, options);  // Update the options map
