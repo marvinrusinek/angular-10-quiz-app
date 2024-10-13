@@ -25,7 +25,7 @@ import { AppComponent } from './app.component';
 import { AnswerComponent } from './components/question/answer/answer-component/answer.component';
 import { IntroductionComponent } from './containers/introduction/introduction.component';
 import { QuizComponent } from './containers/quiz/quiz.component';
-import { QuizQuestionComponent } from './components/question/question.component';
+import { QuizQuestionComponent } from './components/question/quiz-question/question.component';
 import { SharedOptionComponent } from './components/question/answer/shared-option-component/shared-option.component';
 import { FeedbackComponent } from './components/question/answer/feedback/feedback.component';
 import { QuizSelectionComponent } from './containers/quiz-selection/quiz-selection.component';

@@ -39,29 +39,29 @@ import {
   tap
 } from 'rxjs/operators';
 
-import { Utils } from '../../shared/utils/utils';
-import { AudioItem } from '../../shared/models/AudioItem.model';
-import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
-import { Option } from '../../shared/models/Option.model';
-import { QuestionState } from '../../shared/models/QuestionState.model';
-import { Quiz } from '../../shared/models/Quiz.model';
-import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-import { SelectedOption } from '../../shared/models/SelectedOption.model';
-import { SharedOptionConfig } from '../../shared/models/SharedOptionConfig.model';
-import { QuizService } from '../../shared/services/quiz.service';
-import { QuizDataService } from '../../shared/services/quizdata.service';
-import { QuizStateService } from '../../shared/services/quizstate.service';
-import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
-import { DynamicComponentService } from '../../shared/services/dynamic-component.service';
-import { ExplanationTextService } from '../../shared/services/explanation-text.service';
-import { ResetBackgroundService } from '../../shared/services/reset-background.service';
-import { ResetStateService } from '../../shared/services/reset-state.service';
-import { SelectedOptionService } from '../../shared/services/selectedoption.service';
-import { SelectionMessageService } from '../../shared/services/selection-message.service';
-import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
-import { TimerService } from '../../shared/services/timer.service';
-import { UserPreferenceService } from '../../shared/services/user-preference.service';
-import { BaseQuestionComponent } from './base-question.component';
+import { Utils } from '../../../shared/utils/utils';
+import { AudioItem } from '../../../shared/models/AudioItem.model';
+import { FormattedExplanation } from '../../../shared/models/FormattedExplanation.model';
+import { Option } from '../../../shared/models/Option.model';
+import { QuestionState } from '../../../shared/models/QuestionState.model';
+import { Quiz } from '../../../shared/models/Quiz.model';
+import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
+import { SelectedOption } from '../../../shared/models/SelectedOption.model';
+import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
+import { QuizService } from '../../../shared/services/quiz.service';
+import { QuizDataService } from '../../../shared/services/quizdata.service';
+import { QuizStateService } from '../../../shared/services/quizstate.service';
+import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
+import { DynamicComponentService } from '../../../shared/services/dynamic-component.service';
+import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
+import { ResetBackgroundService } from '../../../shared/services/reset-background.service';
+import { ResetStateService } from '../../../shared/services/reset-state.service';
+import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
+import { SelectionMessageService } from '../../../shared/services/selection-message.service';
+import { SharedVisibilityService } from '../../../shared/services/shared-visibility.service';
+import { TimerService } from '../../../shared/services/timer.service';
+import { UserPreferenceService } from '../../../shared/services/user-preference.service';
+import { BaseQuestionComponent } from '../../base/base-question.component';
 
 @Component({
   selector: 'codelab-quiz-question',
