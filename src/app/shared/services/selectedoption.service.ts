@@ -72,7 +72,7 @@ export class SelectedOptionService {
   
     console.log('Selected option emitted:', selectedOption);
   } */
-  selectOption(optionId: number, questionIndex: number, text: string): void {
+  /* selectOption(optionId: number, questionIndex: number, text: string): void {
     // Check if the input data is invalid
     if (optionId == null || questionIndex == null || !text) {
       console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
@@ -97,6 +97,29 @@ export class SelectedOptionService {
     this.isNextButtonEnabled = true;
   
     console.log('Next button enabled after selecting option:', selectedOption);
+  } */
+  selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
+    if (optionId == null || questionIndex == null || !text) {
+        console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
+        return;
+    }
+
+    console.log('selectOption called with:', { optionId, questionIndex, text });
+
+    const selectedOption: SelectedOption = { optionId, questionIndex, text };
+
+    if (!this.isValidSelectedOption(selectedOption)) {
+        console.error('SelectedOption is invalid:', selectedOption);
+        return;  // Stop processing if the option is invalid
+    }
+
+    this.selectedOptionSubject.next(selectedOption);
+    this.isOptionSelectedSubject.next(true);
+
+    // Pass the currentQuestionIndex and isMultiSelect into handleSingleOption
+    this.handleSingleOption(selectedOption, questionIndex, isMultiSelect);
+
+    console.log('Selected option emitted:', selectedOption);
   }
 
   deselectOption() {
@@ -365,7 +388,7 @@ export class SelectedOptionService {
   }
 
   // Method to add or remove a selected option for a question
-  toggleSelectedOption(questionIndex: number, option: SelectedOption): void {
+  /* toggleSelectedOption(questionIndex: number, option: SelectedOption): void {
     console.log('toggleSelectedOption called with', { questionIndex, option });
 
     if (!this.selectedOptionsMap.has(questionIndex)) {
@@ -387,6 +410,32 @@ export class SelectedOptionService {
     this.selectedOptionsMap.set(questionIndex, options);
     console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
     
+    this.updateAnsweredState();
+  } */
+  toggleSelectedOption(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
+    console.log('toggleSelectedOption called with', { questionIndex, option });
+
+    if (!this.selectedOptionsMap.has(questionIndex)) {
+        this.selectedOptionsMap.set(questionIndex, []);
+    }
+
+    const options = this.selectedOptionsMap.get(questionIndex);
+    const index = options.findIndex(
+        selectedOption => selectedOption.optionId === option.optionId
+    );
+
+    if (index > -1) {
+        options.splice(index, 1);
+    } else {
+        options.push(option);
+    }
+
+    // Pass the questionIndex and isMultiSelect into handleSingleOption
+    this.handleSingleOption(option, questionIndex, isMultiSelect);
+
+    this.selectedOptionsMap.set(questionIndex, options);
+    console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
+
     this.updateAnsweredState();
   }
 
