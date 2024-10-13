@@ -146,9 +146,18 @@ export class SelectedOptionService {
   }
   
   private areOptionsAlreadySelected(options: SelectedOption[]): boolean {
+    // Ensure this.selectedOption is a single SelectedOption, not an array
+    if (Array.isArray(this.selectedOption)) {
+      console.error('Unexpected array in this.selectedOption');
+      return false;
+    }
+  
+    // Use type assertion to explicitly tell TypeScript that this.selectedOption is a single SelectedOption
+    const selectedOption = this.selectedOption as SelectedOption;
+  
     // Compare selected options with the array passed in
-    return options.every(opt => this.selectedOption?.optionId === opt.optionId);
-  }  
+    return options.every(opt => selectedOption?.optionId === opt.optionId);
+  }
   
   private handleSingleOption(option: SelectedOption): void {
     this.selectedOption = option;
