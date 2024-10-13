@@ -574,33 +574,27 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     // Log the entire optionsToDisplay array to see the original data
     console.log('Initializing Option Bindings: optionsToDisplay:', this.optionsToDisplay);
     
+    const corrOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion); // This now returns correctOptions
+    
+    // Ensure correctOptions is available before generating feedback
+    if (!corrOptions || corrOptions.length === 0) {
+      console.warn('Correct options are not set. Skipping feedback generation.');
+      return;
+    }
+  
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       console.log("THE OPTION", option);
-      // Log the original option object to inspect its properties before setting feedback
-      console.log(`Processing option at index ${idx}:`, option);
-      
+  
       const optionBinding = this.getOptionBindings(option, idx);
   
-      // Log the option binding result from getOptionBindings for debugging
-      console.log(`Option binding result for index ${idx}:`, optionBinding);
-      
-      // Log if feedback is missing for the option
-      if (!option.feedback) {
-        console.warn(`Feedback is missing for option at index ${idx}:`, option);
-      }
-
-      console.log("my QS correct options", this.quizService.correctOptions);
-    
-      const corrOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
-      // Ensure feedback property is set and has a fallback
+      // Generate feedback for each option using correctOptions
       option.feedback = this.generateFeedbackForOptions(corrOptions, this.optionsToDisplay) ?? 'No feedback available.....';
       
-      // Log after setting the feedback to see if it is properly assigned
       console.log(`Final feedback for option at index ${idx}:`, option.feedback);
-    
+  
       return optionBinding;
     });
-  }
+  }  
 
   generateFeedbackForOptions(
     correctOptions: Option[],
