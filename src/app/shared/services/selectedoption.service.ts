@@ -34,7 +34,7 @@ export class SelectedOptionService {
   } */
 
   // Method to update the selected option state
-  selectOption(optionId: number, questionIndex: number, text: string): void {
+  selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
     // Check if the input data is invalid
     if (optionId == null || questionIndex == null || !text) {
       console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
@@ -58,10 +58,11 @@ export class SelectedOptionService {
     // Emit the selection status
     this.isOptionSelectedSubject.next(true); // Indicate that an option is selected
 
-    this.handleSingleOption(selectedOption);
+    // Call handleSingleOption with the correct parameters (questionIndex and isMultiSelect)
+    this.handleSingleOption(selectedOption, questionIndex, isMultiSelect);
   
     console.log('Selected option emitted:', selectedOption);
-  }  
+  }
 
   deselectOption() {
     const deselectedOption: SelectedOption = {
@@ -78,7 +79,11 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(false); // No option selected
   }
 
-  setSelectedOption(option: SelectedOption | SelectedOption[]): void {
+  setSelectedOption(
+    option: SelectedOption | SelectedOption[],
+    questionIndex: number,
+    isMultiSelect: boolean
+  ): void {
     console.log('Entering setSelectedOption with:', option);
   
     if (!option) {
@@ -100,7 +105,7 @@ export class SelectedOptionService {
 
       // Process multiple options
       for (const opt of option) {
-        this.handleSingleOption(opt);
+        this.handleSingleOption(opt, questionIndex, isMultiSelect);
       }
     } else {
       if (this.isOptionAlreadySelected(option)) {
@@ -109,7 +114,7 @@ export class SelectedOptionService {
       }
 
       // Process a single option
-      this.handleSingleOption(option);
+      this.handleSingleOption(option, questionIndex, isMultiSelect); 
     }
 
     // Update the state immediately
