@@ -1263,7 +1263,7 @@ export class QuizService implements OnDestroy {
     return correctMessage || 'Correct answer information is not available.';
   }
 
-  getCorrectOptionsForCurrentQuestion(question: Question): Option[] {
+  getCorrectOptionsForCurrentQuestion(question: QuizQuestion): Option[] {
     // Filter and return the correct options for the current question
     const correctOptions = question.options.filter(option => option.correct);
   
