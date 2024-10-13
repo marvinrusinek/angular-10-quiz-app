@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
-import { FeedbackProps } from '../../../shared/models/FeedbackProps.model';
-import { Option } from '../../../shared/models/Option.model';
+import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
+import { Option } from '../../../../shared/models/Option.model';
 
 @Component({
   selector: 'codelab-quiz-feedback',
