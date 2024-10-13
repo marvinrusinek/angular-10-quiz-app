@@ -605,15 +605,16 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     correctOptions: Option[],
     optionsToDisplay: Option[]
   ): string {
-    // Generate the correct message using the existing method
+    if (!correctOptions || correctOptions.length === 0) {
+      console.error('Correct options are not set or empty:', correctOptions);
+      return 'No correct answers found for the current question.';
+    }
+  
     const correctMessage = this.quizService.setCorrectMessage(correctOptions, optionsToDisplay);
-  
-    // Log the correctMessage for debugging
-    console.log('Generated correctMessage:', correctMessage);
-  
-    // Return the correctMessage as a string
+    console.log('Generated Correct Message:', correctMessage);
     return correctMessage;
   }
+  
   
 
   /* initializeFeedbackBindings(): void {

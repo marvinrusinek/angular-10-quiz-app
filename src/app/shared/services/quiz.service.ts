@@ -1231,6 +1231,7 @@ export class QuizService implements OnDestroy {
     correctOptions: Option[],
     optionsToDisplay: Option[]
   ): string {
+    this.correctOptions = correctOptions;
     if (!correctOptions || correctOptions.length === 0) {
       return 'No correct answers found for the current question.';
     }
@@ -1261,6 +1262,11 @@ export class QuizService implements OnDestroy {
 
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
     return correctMessage || 'Correct answer information is not available.';
+  }
+
+  getCorrectOptionsForCurrentQuestion(question: QuizQuestion): void {
+    // Ensure that correct options are populated for the current question
+    this.correctOptions = question.options.filter(option => option.correct);
   }
 
   updateCombinedQuestionData(newData: CombinedQuestionDataType): void {
