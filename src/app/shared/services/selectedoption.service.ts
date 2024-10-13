@@ -98,7 +98,7 @@ export class SelectedOptionService {
   
     console.log('Next button enabled after selecting option:', selectedOption);
   } */
-  selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
+  /* selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
     if (optionId == null || questionIndex == null || !text) {
         console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
         return;
@@ -120,6 +120,64 @@ export class SelectedOptionService {
     this.handleSingleOption(selectedOption, questionIndex, isMultiSelect);
 
     console.log('Selected option emitted:', selectedOption);
+  } */
+  /* selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
+    // Check if the input data is invalid
+    if (optionId == null || questionIndex == null || !text) {
+        console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
+        return;
+    }
+
+    console.log('selectOption called with:', { optionId, questionIndex, text });
+
+    const selectedOption: SelectedOption = { optionId, questionIndex, text };
+
+    if (!this.isValidSelectedOption(selectedOption)) {
+        console.error('SelectedOption is invalid:', selectedOption);
+        return;  // Stop processing if the option is invalid
+    }
+
+    this.selectedOptionSubject.next(selectedOption);
+    this.isOptionSelectedSubject.next(true); // This updates the observable immediately
+
+    // Call handleSingleOption to process the selected option
+    this.handleSingleOption(selectedOption, questionIndex, isMultiSelect);
+
+    // Enable the Next button right after processing
+    this.setNextButtonEnabled(true);
+
+    console.log('Selected option emitted:', selectedOption);
+  } */
+  selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
+    // Check if the input data is invalid
+    if (optionId == null || questionIndex == null || !text) {
+        console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
+        return;
+    }
+
+    console.log('selectOption called with:', { optionId, questionIndex, text });
+
+    const selectedOption: SelectedOption = { optionId, questionIndex, text };
+
+    if (!this.isValidSelectedOption(selectedOption)) {
+        console.error('SelectedOption is invalid:', selectedOption);
+        return;  // Stop processing if the option is invalid
+    }
+
+    // Emit the selected option
+    this.selectedOptionSubject.next(selectedOption);
+
+    // Handle multiple-answer logic
+    if (!isMultiSelect) {
+        this.isOptionSelectedSubject.next(true); // Enable Next button for single-answer questions
+        this.handleSingleOption(selectedOption, questionIndex, isMultiSelect);
+        this.setNextButtonEnabled(true);  // Activate the Next button immediately
+    } else {
+        // If it's a multi-select question, decide when to enable the Next button (e.g., after the first option)
+        this.toggleSelectedOption(questionIndex, selectedOption, isMultiSelect);
+    }
+
+    console.log('Selected option emitted:', selectedOption);
   }
 
   deselectOption() {
@@ -132,6 +190,10 @@ export class SelectedOptionService {
     this.selectedOptionSubject.next(deselectedOption);
     this.isOptionSelectedSubject.next(false); // Indicate that no option is selected
   }
+
+  setNextButtonEnabled(enabled: boolean): void {
+    this.isNextButtonEnabledSubject.next(enabled);  // Update the button's enabled state
+  }  
 
   clearSelection(): void {
     this.isOptionSelectedSubject.next(false); // No option selected
