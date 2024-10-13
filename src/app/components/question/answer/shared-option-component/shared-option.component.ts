@@ -313,7 +313,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       index: index,
       checked: checked
     };
-    console.log("Emitting event from updateOptionAndUI:", eventData);
     this.optionSelected.emit(eventData);
   
     // Set the selected option
