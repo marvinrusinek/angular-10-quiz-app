@@ -62,6 +62,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   isNavigatingBackwards = false;
   isOptionSelected = false;
   optionIconClass: string;
+  highlightCorrectAfterIncorrect: boolean;
 
   optionTextStyle = {
     color: 'black'
@@ -79,6 +80,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('SharedOptionComponent ngOnInit called');
     this.initializeOptionBindings();
     this.initializeFromConfig();
+
+    this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
 
     if (!this.showFeedbackForOption) {
       this.showFeedbackForOption = {};
