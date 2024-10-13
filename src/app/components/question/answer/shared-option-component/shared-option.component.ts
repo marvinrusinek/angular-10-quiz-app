@@ -591,8 +591,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
       console.log("my QS correct options", this.quizService.correctOptions);
     
+      const corrOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
       // Ensure feedback property is set and has a fallback
-      option.feedback = this.generateFeedbackForOptions(this.quizService.correctOptions, this.optionsToDisplay) ?? 'No feedback available.....';
+      option.feedback = this.generateFeedbackForOptions(corrOptions, this.optionsToDisplay) ?? 'No feedback available.....';
       
       // Log after setting the feedback to see if it is properly assigned
       console.log(`Final feedback for option at index ${idx}:`, option.feedback);

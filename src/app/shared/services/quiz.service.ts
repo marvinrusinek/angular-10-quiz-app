@@ -1263,13 +1263,17 @@ export class QuizService implements OnDestroy {
     return correctMessage || 'Correct answer information is not available.';
   }
 
-  getCorrectOptionsForCurrentQuestion(question: QuizQuestion): void {
-    // Ensure that correct options are populated for the current question
-    this.correctOptions = question.options.filter(option => option.correct);
-
-    // Log the correct options for debugging
-    console.log('Correct options for the question:', this.correctOptions);
-  }
+  getCorrectOptionsForCurrentQuestion(question: Question): Option[] {
+    // Filter and return the correct options for the current question
+    const correctOptions = question.options.filter(option => option.correct);
+  
+    // Log for debugging
+    console.log('Correct options for the current question:', correctOptions);
+  
+    // Set correct options in the service (if needed) and return them
+    this.correctOptions = correctOptions;
+    return correctOptions;
+  }  
 
   updateCombinedQuestionData(newData: CombinedQuestionDataType): void {
     this.combinedQuestionDataSubject.next(newData);
