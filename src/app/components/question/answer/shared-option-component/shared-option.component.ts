@@ -62,7 +62,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   isNavigatingBackwards = false;
   isOptionSelected = false;
   optionIconClass: string;
-  highlightCorrectAfterIncorrect: boolean;
 
   optionTextStyle = {
     color: 'black'
