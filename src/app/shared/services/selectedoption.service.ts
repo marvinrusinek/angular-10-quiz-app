@@ -26,6 +26,9 @@ export class SelectedOptionService {
   private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
   showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
 
+  private nextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
+  nextButtonEnabled$ = this.nextButtonEnabledSubject.asObservable();
+
   constructor(private quizService: QuizService) {}
 
   // potentially remove...
@@ -57,8 +60,12 @@ export class SelectedOptionService {
   
     // Emit the selection status
     this.isOptionSelectedSubject.next(true); // Indicate that an option is selected
-
+  
+    // Call handleSingleOption to process the selected option
     this.handleSingleOption(selectedOption);
+  
+    // Enable the next button by emitting a state change or updating a subject
+    this.enableNextButton(); // Assuming there's a method to enable the next button
   
     console.log('Selected option emitted:', selectedOption);
   }  
@@ -73,6 +80,16 @@ export class SelectedOptionService {
     this.selectedOptionSubject.next(deselectedOption);
     this.isOptionSelectedSubject.next(false); // Indicate that no option is selected
   }
+
+  enableNextButton(): void {
+    this.nextButtonEnabledSubject.next(true);
+    console.log('Next button enabled');
+  }
+  
+  disableNextButton(): void {
+    this.nextButtonEnabledSubject.next(false);
+    console.log('Next button disabled');
+  }  
 
   clearSelection(): void {
     this.isOptionSelectedSubject.next(false); // No option selected
