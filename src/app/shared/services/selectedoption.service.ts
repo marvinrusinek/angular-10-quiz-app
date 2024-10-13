@@ -129,8 +129,20 @@ export class SelectedOptionService {
     console.log('SelectedOptionService: Updated answered state');
   }
   
-  private isOptionAlreadySelected(option: SelectedOption): boolean {
-    return this.selectedOption?.optionId === option.optionId;
+  private isOptionAlreadySelected(option: SelectedOption | SelectedOption[]): boolean {
+    if (Array.isArray(option)) {
+      // Handle the case where option is an array of SelectedOption
+      return option.every(opt => this.isSingleOptionAlreadySelected(opt));
+    } else {
+      // Handle the case where option is a single SelectedOption
+      return this.isSingleOptionAlreadySelected(option);
+    }
+  }
+  
+  private isSingleOptionAlreadySelected(option: SelectedOption): boolean {
+    // Use type assertion to explicitly tell TypeScript that selectedOption is of type SelectedOption
+    const selectedOption = this.selectedOption as SelectedOption;
+    return selectedOption?.optionId === option.optionId;
   }
   
   private areOptionsAlreadySelected(options: SelectedOption[]): boolean {
