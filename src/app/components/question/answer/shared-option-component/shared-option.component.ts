@@ -18,7 +18,7 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
 @Component({
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
-  styleUrls: ['../../quiz-question/question.component.scss'],
+  styleUrls: ['../../quiz-question/quiz-question.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SharedOptionComponent implements OnInit, OnChanges {
