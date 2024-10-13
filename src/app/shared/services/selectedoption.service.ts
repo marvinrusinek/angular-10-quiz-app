@@ -94,10 +94,7 @@ export class SelectedOptionService {
         return;
       }
     }
-  
-    // Temporarily disable additional logic to isolate the problem
-    console.log('Processing option:', option);
-  
+    
     // Early exit for now, just to prevent further recursive updates
     return;
   }
