@@ -1231,7 +1231,6 @@ export class QuizService implements OnDestroy {
     correctOptions: Option[],
     optionsToDisplay: Option[]
   ): string {
-    this.correctOptions = correctOptions;
     if (!correctOptions || correctOptions.length === 0) {
       return 'No correct answers found for the current question.';
     }
