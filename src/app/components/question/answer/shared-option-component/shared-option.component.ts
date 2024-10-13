@@ -570,27 +570,20 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return feedbackProps;
   }
 
-  initializeOptionBindings(): void {
-    // Log the entire optionsToDisplay array to see the original data
-    console.log('Initializing Option Bindings: optionsToDisplay:', this.optionsToDisplay);
-    
-    const corrOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion); // This now returns correctOptions
+  initializeOptionBindings(): void {   
+    const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion); // This now returns correctOptions
     
     // Ensure correctOptions is available before generating feedback
-    if (!corrOptions || corrOptions.length === 0) {
+    if (!correctOptions || correctOptions.length === 0) {
       console.warn('Correct options are not set. Skipping feedback generation.');
       return;
     }
   
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
-      console.log("THE OPTION", option);
-  
       const optionBinding = this.getOptionBindings(option, idx);
   
       // Generate feedback for each option using correctOptions
-      option.feedback = this.generateFeedbackForOptions(corrOptions, this.optionsToDisplay) ?? 'No feedback available.....';
-      
-      console.log(`Final feedback for option at index ${idx}:`, option.feedback);
+      option.feedback = this.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.....';
   
       return optionBinding;
     });
@@ -606,25 +599,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     const correctMessage = this.quizService.setCorrectMessage(correctOptions, optionsToDisplay);
-    console.log('Generated Correct Message:', correctMessage);
     return correctMessage;
   }
-  
-  
 
-  /* initializeFeedbackBindings(): void {
-    this.feedbackBindings = this.optionBindings.map((optionBinding, idx) => {
-      const feedbackBinding = this.getFeedbackBindings(optionBinding.option, idx);
-  
-      // Ensure correctMessage has a fallback
-      feedbackBinding.correctMessage = feedbackBinding.correctMessage ?? 'No correct message available';
-  
-      return feedbackBinding;
-    });
-  } */
   initializeFeedbackBindings(): void {
     this.feedbackBindings = this.optionBindings.map((optionBinding, idx) => {
-      console.log("MY OPTION BINDING", optionBinding.option);
       // Check if optionBinding.option is null or undefined
       if (!optionBinding.option) {
         console.error(`Option binding at index ${idx} is null or undefined!`);
@@ -647,7 +626,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       
       return feedbackBinding;  // Return the feedback binding
     });
-  }  
+  }
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOptionId === option.optionId;
