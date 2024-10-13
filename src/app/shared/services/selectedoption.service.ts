@@ -197,7 +197,7 @@ export class SelectedOptionService {
     this.selectedOptionsMap.get(option.questionIndex)!.push(option);
     console.log('SelectedOptionService: Updated selectedOptionsMap', this.selectedOptionsMap);
   } */
-  private handleSingleOption(option: SelectedOption): void {
+  /* private handleSingleOption(option: SelectedOption): void {
     const isMultiSelect = this.quizService.isMultipleAnswerQuestion(this.currentQuestion);  // Determine if it's a multiple-answer question
 
     if (isMultiSelect) {
@@ -239,6 +239,31 @@ export class SelectedOptionService {
 
     console.log('SelectedOptionService: Updated selectedOptionsMap', this.selectedOptionsMap);
     this.updateAnsweredState();  // Update the answered state to reflect the selection
+  } */
+  private handleSingleOption(option: SelectedOption, currentQuestionIndex: number, isMultiSelect: boolean): void {
+    // Set the selected option
+    this.selectedOption = option;
+    this.selectedOptionSubject.next(option);
+    console.log('SelectedOptionService: Selected option set, current value:', this.selectedOptionSubject.value);
+
+    // Update the selected status
+    this.isOptionSelectedSubject.next(true);
+    console.log('SelectedOptionService: isOptionSelected updated to true');
+
+    // Update selectedOptionsMap based on question index and multi-select status
+    if (!this.selectedOptionsMap.has(currentQuestionIndex)) {
+        this.selectedOptionsMap.set(currentQuestionIndex, []);
+    }
+
+    if (isMultiSelect) {
+        // Multi-select allows multiple options to be selected
+        this.selectedOptionsMap.get(currentQuestionIndex)!.push(option);
+    } else {
+        // For single-select, replace the previously selected option
+        this.selectedOptionsMap.set(currentQuestionIndex, [option]);
+    }
+
+    console.log('SelectedOptionService: Updated selectedOptionsMap:', this.selectedOptionsMap);
   }
 
   getSelectedOption(): SelectedOption | SelectedOption[] {
