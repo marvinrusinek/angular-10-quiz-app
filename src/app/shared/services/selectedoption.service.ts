@@ -57,6 +57,8 @@ export class SelectedOptionService {
   
     // Emit the selection status
     this.isOptionSelectedSubject.next(true); // Indicate that an option is selected
+
+    this.handleSingleOption(selectedOption);
   
     console.log('Selected option emitted:', selectedOption);
   }  
@@ -275,6 +277,7 @@ export class SelectedOptionService {
       options.splice(index, 1);
     } else {
       options.push(option);
+      this.handleSingleOption(option);
     }
 
     this.selectedOptionsMap.set(questionIndex, options);
