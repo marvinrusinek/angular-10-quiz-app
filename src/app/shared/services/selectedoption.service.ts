@@ -26,6 +26,16 @@ export class SelectedOptionService {
   private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
   showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
 
+  private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
+
+  set isNextButtonEnabled(value: boolean) {
+    this.isNextButtonEnabledSubject.next(value);
+  }
+
+  get isNextButtonEnabled$(): Observable<boolean> {
+      return this.isNextButtonEnabledSubject.asObservable();
+  }
+
   constructor(private quizService: QuizService) {}
 
   // potentially remove...
@@ -34,7 +44,7 @@ export class SelectedOptionService {
   } */
 
   // Method to update the selected option state
-  selectOption(optionId: number, questionIndex: number, text: string): void {
+  /* selectOption(optionId: number, questionIndex: number, text: string): void {
     // Check if the input data is invalid
     if (optionId == null || questionIndex == null || !text) {
       console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
@@ -61,7 +71,36 @@ export class SelectedOptionService {
     this.handleSingleOption(selectedOption);
   
     console.log('Selected option emitted:', selectedOption);
-  }  
+  } */
+  selectOption(optionId: number, questionIndex: number, text: string): void {
+    // Check if the input data is invalid
+    if (optionId == null || questionIndex == null || !text) {
+        console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
+        return;
+    }
+
+    console.log('selectOption called with:', { optionId, questionIndex, text });
+
+    // Create the selected option object
+    const selectedOption: SelectedOption = { optionId, questionIndex, text };
+
+    // Validate the selected option before emitting it
+    if (!this.isValidSelectedOption(selectedOption)) {
+        console.error('SelectedOption is invalid:', selectedOption);
+        return;  // Stop processing if the option is invalid
+    }
+
+    // Emit the selected option
+    this.selectedOptionSubject.next(selectedOption);
+
+    // Emit the selection status
+    this.isOptionSelectedSubject.next(true); // Indicate that an option is selected
+
+    // Enable the next button as soon as an option is selected
+    this.isNextButtonEnabled = true;
+
+    console.log('Selected option emitted:', selectedOption);
+  }
 
   deselectOption() {
     const deselectedOption: SelectedOption = {
