@@ -1125,32 +1125,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   } */
   getNextButtonTooltip(): Observable<string> {
-    return defer(() => 
-      combineLatest([
+    return defer((): Observable<string> => {
+      return combineLatest([
         this.selectedOptionService.isOptionSelected$().pipe(
           startWith(false),
           distinctUntilChanged(),
-          tap(value => console.log('isOptionSelected$ emitted:', value))
+          tap((value) => console.log('isOptionSelected$ emitted:', value))
         ),
         this.isButtonEnabled$.pipe(
           startWith(false),
           distinctUntilChanged(),
-          tap(value => console.log('isButtonEnabled$ emitted:', value))
+          tap((value) => console.log('isButtonEnabled$ emitted:', value))
         )
       ]).pipe(
         map(([isSelected, isEnabled]: [boolean, boolean]) => {
           console.log('Combining values:', { isSelected, isEnabled });
-          return isEnabled && isSelected ? 'Next Question »' : 'Please select an option to continue...';
+          return isEnabled && isSelected
+            ? 'Next Question »'
+            : 'Please select an option to continue...';
         }),
         distinctUntilChanged(),
         catchError((error: Error) => {
           console.error('Error in getNextButtonTooltip:', error);
           return of('Please select an option to continue...');
         })
-      )
-    );
+      );
+    });
   }
-  
 
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
