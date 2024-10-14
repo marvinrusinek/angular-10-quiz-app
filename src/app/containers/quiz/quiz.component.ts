@@ -282,7 +282,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
 
     this.progressPercentage = this.progressBarService.progress$;
-    this.progressBarService.setProgress(0);
+    this.progressBarService.updateProgress(0);
     this.loadQuestionContents();
 
     this.subscribeToOptionSelection();
@@ -322,7 +322,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   loadQuestionContents() {
     this.isLoading = true;
-    this.progressBarService.setProgress(0);
+    this.progressBarService.updateProgress(0);
 
     forkJoin({
       question: this.quizService.getCurrentQuestion(),
@@ -334,11 +334,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     })
     .pipe(
       tap(() => {
-        this.progressBarService.setProgress(70); // Incrementally update progress
+        this.progressBarService.updateProgress(70); // Incrementally update progress
       }),
       tap(() => {
         this.isLoading = false;
-        this.progressBarService.setProgress(100); // Finalize progress
+        this.progressBarService.updateProgress(100); // Finalize progress
       })
     )
     .subscribe();

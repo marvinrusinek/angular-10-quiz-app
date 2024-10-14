@@ -7,7 +7,7 @@ export class ProgressBarService {
   progress$ = this.progressSubject.asObservable();
 
   // Method to update the progress
-  updateProgress(progress: number): void {
+  setProgress(progress: number): void {
     this.progressSubject.next(progress); // Emit the new progress value
   }
 }
