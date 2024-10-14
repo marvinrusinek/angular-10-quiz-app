@@ -123,7 +123,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   currentQuestionIndex = 0;
   totalQuestions = 0;
   // progressPercentage = 0;
-  progressPercentage: Observable<number>;
+  progressPercentage: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   correctCount: number;
   numberOfCorrectAnswers: number;
   score: number;
@@ -2080,10 +2080,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.totalQuestions = total;
 
         if (this.totalQuestions > 0) {
-          this.progressPercentage =
-            (this.currentQuestionIndex / this.totalQuestions) * 100;
+          const progress = (this.currentQuestionIndex / this.totalQuestions) * 100;
+          this.progressPercentage.next(progress); // Update the BehaviorSubject value
         } else {
-          this.progressPercentage = 0;
+          this.progressPercentage.next(0); // Set 0% if no total questions
         }
       },
       error: (error) => {
