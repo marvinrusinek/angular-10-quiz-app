@@ -146,7 +146,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private navigationAbortController: AbortController | null = null;
   private debounceNavigation = false;
 
-  // nextButtonTooltip$: Observable<string>;
   private nextButtonTooltipSubject = new BehaviorSubject<string>('Please select an option to continue...');
   nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
   nextButtonTooltip = 'Please select an option to continue...';
@@ -1058,14 +1057,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private initializeTooltip(): void {
-    this.getNextButtonTooltip().subscribe((tooltipText: string) => {
-      this.nextButtonTooltipSubject.next(tooltipText);
-      console.log('Tooltip updated:', tooltipText);
+    // Subscribe to the tooltip observable and update the subject
+    this.getNextButtonTooltip().subscribe({
+      next: (tooltipText: string) => {
+        this.nextButtonTooltipSubject.next(tooltipText);
+        console.log('Tooltip updated:', tooltipText);
+      },
+      error: (error) => {
+        console.error('Error in tooltip subscription:', error);
+      }
     });
-  }
+  }  
 
   // Tooltip for next button
-  getNextButtonTooltip(): Observable<string> {
+  /* getNextButtonTooltip(): Observable<string> {
     return defer((): Observable<string> => {
       return combineLatest([
         this.selectedOptionService.isOptionSelected$().pipe(
@@ -1090,7 +1095,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         })
       );
     });
+  } */
+  getNextButtonTooltip(): Observable<string> {
+    return defer(() => 
+      combineLatest([
+        this.selectedOptionService.isOptionSelected$().pipe(
+          startWith(false),
+          distinctUntilChanged(),
+          tap(value => console.log('isOptionSelected$ emitted:', value))
+        ),
+        this.isButtonEnabled$.pipe(
+          startWith(false),
+          distinctUntilChanged(),
+          tap(value => console.log('isButtonEnabled$ emitted:', value))
+        )
+      ]).pipe(
+        map(([isSelected, isEnabled]: [boolean, boolean]) => {
+          console.log('Combining values:', { isSelected, isEnabled });
+          return isEnabled && isSelected ? 'Next Question »' : 'Please select an option to continue...';
+        }),
+        distinctUntilChanged(),
+        catchError((error: Error) => {
+          console.error('Error in getNextButtonTooltip:', error);
+          return of('Please select an option to continue...');
+        })
+      )
+    );
   }
+  
 
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
