@@ -136,7 +136,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   private isLoading = false;
   private isQuizDataLoaded = false;
-  private debounceNavigation = false;
 
   isOptionSelected = false;
   private isCurrentQuestionAnswered = false;
@@ -145,6 +144,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   isQuestionIndexChanged = false;
   private isNavigatedByUrl = false;
   private navigationAbortController: AbortController | null = null;
+  private debounceNavigation = false;
+
   // nextButtonTooltip$: Observable<string>;
   private nextButtonTooltipSubject = new BehaviorSubject<string>('Please select an option to continue...');
   nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
