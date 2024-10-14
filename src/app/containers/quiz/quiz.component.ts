@@ -2080,7 +2080,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.totalQuestions = total;
 
         if (this.totalQuestions > 0) {
-          const progress = (this.currentQuestionIndex / this.totalQuestions) * 100;
+          // Each question contributes a fixed percentage to the total progress
+          const percentagePerQuestion = 100 / this.totalQuestions;
+          const progress = (this.currentQuestionIndex + 1) * percentagePerQuestion;
           this.progressBarService.setProgress(progress); // Assuming you have this method in ProgressBarService
         } else {
           this.progressBarService.setProgress(0); // Reset to 0% progress
