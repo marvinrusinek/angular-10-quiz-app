@@ -2629,7 +2629,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     // Reset UI-related states
     this.currentQuestionIndex = 0;
-    this.progressPercentage = 0;
+    this.progressPercentage.next(0);
     this.score = 0;
   
     // Reset the timer
