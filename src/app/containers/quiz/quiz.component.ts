@@ -122,7 +122,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   questionIndex: number;
   currentQuestionIndex = 0;
   totalQuestions = 0;
-  progressPercentage = 0;
+  // progressPercentage = 0;
+  progressPercentage: Observable<number>;
   correctCount: number;
   numberOfCorrectAnswers: number;
   score: number;
@@ -280,6 +281,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }
     });
 
+    this.progressPercentage = this.progressBarService.progress$;
+    this.progressBarService.setProgress(0);
+    this.loadQuestionContents();
+
     this.subscribeToOptionSelection();
 
     this.initializeNextButtonState();
@@ -316,17 +321,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   loadQuestionContents() {
-    // Your current implementation of loadQuestionContents()...
     this.isLoading = true;
-    this.progressBarService.setProgress(0); // Start progress at 0
+    this.progressBarService.setProgress(0);
 
     forkJoin({
       question: this.quizService.getCurrentQuestion(),
       options: this.quizService.getCurrentOptions(),
-      selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
-      navigationIcons: this.navigationService.getNavigationIcons(),
-      badgeQuestionNumber: this.quizService.getBadgeQuestionNumber(),
-      score: this.scoreService.getCurrentScore(),
+      // selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
+      // navigationIcons: this.navigationService.getNavigationIcons(),
+      // badgeQuestionNumber: this.quizService.getBadgeQuestionNumber(),
+      // score: this.scoreService.getCurrentScore(),
     })
     .pipe(
       tap(() => {
