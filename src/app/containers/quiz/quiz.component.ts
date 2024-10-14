@@ -92,7 +92,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   multipleAnswer = false;
   indexOfQuizId: number;
   status: QuizStatus;
-  isNavigating = false;
   disabled = true;
 
   selectedOptions: Option[] = [];
@@ -142,6 +141,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   previousIndex: number | null = null;
   isQuestionIndexChanged = false;
+  isNavigating = false;
   private isNavigatedByUrl = false;
   private navigationAbortController: AbortController | null = null;
   private debounceNavigation = false;
