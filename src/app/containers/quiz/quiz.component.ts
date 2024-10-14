@@ -290,6 +290,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.cdRef.markForCheck();
     });
     this.initializeTooltip();
+    this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
 
     // Move resetQuestionState here
     this.resetQuestionState();
@@ -1056,7 +1057,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     return !!this.explanationToDisplay;
   }
 
-  private initializeTooltip(): void {
+  /* private initializeTooltip(): void {
     // Subscribe to the tooltip observable and update the subject
     this.getNextButtonTooltip().subscribe({
       next: (tooltipText: string) => {
@@ -1067,7 +1068,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         console.error('Error in tooltip subscription:', error);
       }
     });
-  }  
+  } */
+  private initializeTooltip(): void {
+    this.nextButtonTooltip$ = combineLatest([
+      this.selectedOptionService.isOptionSelected$().pipe(
+        startWith(false),
+        distinctUntilChanged(),
+        tap(value => console.log('isOptionSelected$ emitted:', value))  // Debugging option selection state
+      ),
+      this.isButtonEnabled$.pipe(
+        startWith(false),
+        distinctUntilChanged(),
+        tap(value => console.log('isButtonEnabled$ emitted:', value))  // Debugging button enabled state
+      )
+    ]).pipe(
+      map(([isSelected, isEnabled]: [boolean, boolean]) => {
+        console.log('Combining values:', { isSelected, isEnabled });  // Debugging combined values
+        return isEnabled && isSelected ? 'Next Question »' : 'Please select an option to continue...';
+      }),
+      distinctUntilChanged(),
+      tap((tooltipText: string) => {
+        console.log('Tooltip updated to:', tooltipText);  // Debugging tooltip text updates
+      }),
+      catchError((error: Error) => {
+        console.error('Error in getNextButtonTooltip:', error);  // Debugging errors
+        return of('Please select an option to continue...');
+      })
+    );
+  }
+  
+  
 
   // Tooltip for next button
   /* getNextButtonTooltip(): Observable<string> {
