@@ -318,7 +318,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isLoading = true;
 
     // Fetch all question content streams using forkJoin
-    /* forkJoin({
+    forkJoin({
       question: this.quizService.getCurrentQuestion(),
       options: this.quizService.getCurrentOptions(),
       selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
@@ -343,7 +343,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       tap(() => {
         this.isLoading = false;
       })
-    ).subscribe(); */
+    ).subscribe();
   }
 
   private initializeNextButtonState(): void {
