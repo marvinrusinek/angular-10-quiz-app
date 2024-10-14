@@ -28,6 +28,7 @@ import { ExplanationTextService } from '../../shared/services/explanation-text.s
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
+import { ProgressBarService } from '../../shared/services/progress-bar.service';
 import { ResetStateService } from '../../shared/services/reset-state.service';
 import { ResetBackgroundService } from '../../shared/services/reset-background.service';
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
@@ -185,6 +186,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     private resetStateService: ResetStateService,
     private resetBackgroundService: ResetBackgroundService,
     private sharedVisibilityService: SharedVisibilityService,
+    private progressBarService: ProgressBarService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private ngZone: NgZone,

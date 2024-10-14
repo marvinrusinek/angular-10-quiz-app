@@ -111,7 +111,7 @@
 
       <!-- progress bar -->
       <section class="progress-bar" style="margin-top: 60px !important">
-        <ngb-progressbar
+        <!--<ngb-progressbar
           max="100"
           type="success"
           [striped]="true"
@@ -119,6 +119,15 @@
           [value]="progressPercentage"
         >
           <strong>{{ progressPercentage?.toFixed(0) }}%</strong>
+        </ngb-progressbar>-->
+        <ngb-progressbar
+          max="100"
+          type="success"
+          [striped]="true"
+          [animated]="true"
+          [value]="progressPercentage | async"
+        >
+          <strong>{{ (progressPercentage | async)?.toFixed(0) }}%</strong>
         </ngb-progressbar>
       </section>
     </mat-card-footer>
