@@ -123,7 +123,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   currentQuestionIndex = 0;
   totalQuestions = 0;
   // progressPercentage = 0;
-  progressPercentage: Observable<number>;
+  public progressPercentage = new BehaviorSubject<number>(0);
   correctCount: number;
   numberOfCorrectAnswers: number;
   score: number;
@@ -281,7 +281,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }
     });
 
-    this.progressPercentage = this.progressBarService.progress$;
+    this.progressBarService.progress$.subscribe((progressValue) => {
+      this.progressPercentage.next(progressValue); // Update the BehaviorSubject
+    });    
     this.progressBarService.setProgress(0);
     this.loadQuestionContents();
 
