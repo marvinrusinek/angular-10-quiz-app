@@ -334,11 +334,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     })
     .pipe(
       tap(() => {
-        this.progressBarService.setProgress(70); // Incrementally update progress
+        // Update progress after question and options are loaded
+        this.updateProgressPercentage(); // Call update progress to incrementally calculate progress
       }),
       tap(() => {
         this.isLoading = false;
-        this.progressBarService.setProgress(100); // Finalize progress
       })
     )
     .subscribe();
