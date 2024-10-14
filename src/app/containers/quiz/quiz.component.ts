@@ -314,10 +314,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   loadQuestionContents() {
-    // Set loading state to true before starting the loading process
+    // Your current implementation of loadQuestionContents()...
     this.isLoading = true;
+    this.progressBarService.setProgress(0); // Start progress at 0
 
-    // Fetch all question content streams using forkJoin
     forkJoin({
       question: this.quizService.getCurrentQuestion(),
       options: this.quizService.getCurrentOptions(),
@@ -327,23 +327,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       score: this.scoreService.getCurrentScore(),
     })
     .pipe(
-      tap((data) => {
-        // Set the data for each part of the question content
-        this.currentQuestion = data.question;
-        this.options = data.options;
-        this.selectionMessage = data.selectionMessage;
-        this.navigationIcons = data.navigationIcons;
-        this.badgeQuestionNumber = data.badgeQuestionNumber;
-        this.score = data.score;
-
-        // Log the data to confirm everything is loading together
-        console.log('Question Data:', data);
+      tap(() => {
+        this.progressBarService.setProgress(70); // Incrementally update progress
       }),
-      // Ensure the loading state is set to false once everything is fetched
       tap(() => {
         this.isLoading = false;
+        this.progressBarService.setProgress(100); // Finalize progress
       })
-    ).subscribe();
+    )
+    .subscribe();
   }
 
   private initializeNextButtonState(): void {
