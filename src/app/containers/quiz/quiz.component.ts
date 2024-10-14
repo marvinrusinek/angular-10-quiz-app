@@ -82,8 +82,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   currentQuiz: Quiz;
   routeSubscription: Subscription;
   routerSubscription: Subscription;
-  private questionAndOptionsSubscription: Subscription;
-  private subscriptions: Subscription = new Subscription();
+  questionAndOptionsSubscription: Subscription;
+  optionSelectedSubscription: Subscription;
+  subscriptions: Subscription = new Subscription();
   resources: Resource[];
   answers = [];
   answered = false;
@@ -93,7 +94,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   status: QuizStatus;
   isNavigating = false;
   disabled = true;
-  optionSelectedSubscription: Subscription;
 
   selectedOptions: Option[] = [];
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
