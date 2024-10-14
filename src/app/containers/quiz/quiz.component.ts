@@ -114,8 +114,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     question: QuizQuestion;
     options: Option[];
   }>(null);
-  combinedQuestionData$: Observable<any> =
-    this.combinedQuestionDataSubject.asObservable();
+  combinedQuestionData$: Observable<any> = this.combinedQuestionDataSubject.asObservable();
 
   private correctAnswersTextSource = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
