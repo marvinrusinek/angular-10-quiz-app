@@ -274,9 +274,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     element: MatCheckbox | MatRadioButton
   ): void {
     const checked = element.checked;
-
+  
     this.optionIconClass = this.getOptionIconClass(optionBinding.option);
-
+  
     // Prevent selecting an option more than once
     if (optionBinding.isSelected) {
       console.log("Option already selected:", optionBinding.option);
@@ -289,7 +289,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.selectedOptionIndex = index;
     optionBinding.isSelected = true;
     optionBinding.option.selected = checked;
-    
+  
     const optionId = optionBinding.option.optionId ?? index; // Use index as fallback
     if (optionId === undefined) {
       console.error('optionId is undefined for option:', optionBinding.option);
@@ -301,21 +301,21 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     // Update showFeedbackForOption
     this.showFeedbackForOption[optionId] = true;
-
+  
     // Apply attributes
     const attributes = this.getOptionAttributes(optionBinding);
     this.applyAttributes(element._elementRef.nativeElement, attributes);
-
+  
     // Set the aria-label attribute directly
     element._elementRef.nativeElement.setAttribute('aria-label', optionBinding.ariaLabel);
   
-    // Emit the optionSelected event
+    // Emit the optionSelected event to notify parent component
     const eventData = {
       option: optionBinding.option,
       index: index,
       checked: checked
     };
-    this.optionSelected.emit(eventData);
+    this.optionSelected.emit(eventData);  // Emit the event to parent component
   
     // Set the selected option
     optionBinding.isSelected = true;
@@ -324,15 +324,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     // Update highlighting
     this.updateHighlighting();
-
+  
     // Set the selection state to true
     this.isOptionSelected = true;
-
+  
     // Update the isAnswered state
     this.selectedOptionService.isAnsweredSubject.next(true);
   
+    // Trigger change detection after updates
     this.cdRef.detectChanges();
   }
+  
 
   updateHighlighting(): void {
     if (!this.highlightDirectives) {
