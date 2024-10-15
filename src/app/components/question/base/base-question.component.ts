@@ -260,7 +260,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     index: number,
     checked: boolean
   ): Promise<void> {
-    console.log('BQC: onOptionClicked called with:', { option, index, checked });
+    console.log('BaseQuestionComponent: onOptionClicked called with:', {
+      option,
+      index,
+      checked,
+    });
   
     // Ensure the selected option is updated
     this.updateSelectedOption(index);
