@@ -2,8 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, C
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter,
-  map, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
@@ -40,8 +39,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() selectionChanged: EventEmitter<{
-    question: QuizQuestion;
-    selectedOptions: Option[];
+    question: QuizQuestion,
+    selectedOptions: Option[]
   }> = new EventEmitter();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
   @Output() isAnswerSelectedChange: EventEmitter<boolean> =
@@ -58,9 +57,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @Output() answerSelected = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   @Input() data: {
-    questionText: string;
-    explanationText?: string;
-    correctAnswersText?: string;
+    questionText: string,
+    explanationText?: string,
+    correctAnswersText?: string,
     options: Option[];
   };
   @Input() questionData: QuizQuestion;
@@ -83,10 +82,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @Input() reset: boolean;
 
   combinedQuestionData$: Subject<{
-    questionText: string;
-    explanationText?: string;
-    correctAnswersText?: string;
-    currentOptions: Option[];
+    questionText: string,
+    explanationText?: string,
+    correctAnswersText?: string,
+    currentOptions: Option[]
   }> = new Subject();
 
   questionIndex: number;
