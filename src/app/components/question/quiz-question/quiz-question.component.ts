@@ -34,8 +34,7 @@ import { BaseQuestionComponent } from '../../../components/question/base/base-qu
   templateUrl: './quiz-question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizQuestionComponent
-  extends BaseQuestionComponent
+export class QuizQuestionComponent extends BaseQuestionComponent
   implements OnInit, OnChanges, OnDestroy, AfterViewInit
 {
   @Output() answer = new EventEmitter<number>();
