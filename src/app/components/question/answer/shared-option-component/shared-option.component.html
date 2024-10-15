@@ -3,13 +3,15 @@
     <label class="options">
       <ng-container [ngSwitch]="optionBinding.type">
         <mat-checkbox *ngSwitchCase="'multiple'" #checkbox appHighlightOption
-          (change)="updateOptionAndUI(optionBinding, idx, checkbox)">
+          (change)="updateOptionAndUI(optionBinding, idx, checkbox)"
+          (optionSelected)="onOptionClicked($event)">
           <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, idx)">
           </ng-container>
         </mat-checkbox>
 
         <mat-radio-button *ngSwitchCase="'single'" #radio appHighlightOption
-          (change)="updateOptionAndUI(optionBinding, idx, radio)">
+          (change)="updateOptionAndUI(optionBinding, idx, radio)"
+          (optionSelected)="onOptionClicked($event)">
           <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, idx)">
           </ng-container>
         </mat-radio-button>
