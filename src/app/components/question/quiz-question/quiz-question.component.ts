@@ -1282,33 +1282,39 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
+  public override async onOptionClicked(
+    option: SelectedOption,
+    index: number,
+    checked: boolean
+  ): Promise<void> {
     console.log("MYTEST123456");
     console.log('onOptionClicked called with:', { option, index, checked });
-
+  
     if (!option) {
       console.error('Option is undefined');
       return;
     }
-
+  
     try {
-      // Call the base class method
+      // Call the base class method (ensure this works correctly in BaseQuestionComponent)
       await super.onOptionClicked(option, index, checked);
-
-      this.displayExplanation = false; // Reset display flag
-
+  
+      this.displayExplanation = false; // Reset explanation display
+  
       const isChecked = !option.selected; // Toggle the checked state
       option.selected = isChecked; // Update the option's selected state
-      this.optionSelected.emit({ option, index, checked: isChecked }); // Emit the selected option
-
-      // Set loading state and reset answer selected state
+  
+      // Emit the selected option event
+      this.optionSelected.emit({ option, index, checked: isChecked });
+  
+      // Set loading and reset answer selection state
       this.quizStateService.setLoading(true);
       this.quizStateService.setAnswerSelected(false);
-
-      // Update selected option services
+  
+      // Subscribe to check if the question is a multiple answer type
       this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion).subscribe({
         next: (isMultipleAnswer: boolean) => {
-          // Call the service methods after retrieving the boolean value
+          // Update the selected option state based on multiple answer question
           this.selectedOptionService.setSelectedOption(option);
           this.selectedOptionService.selectOption(
             option.optionId,
@@ -1326,42 +1332,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         error: (error) => {
           console.error('Error determining if the question is multiple answer:', error);
         }
-      });          
-      
+      });
+  
+      // Mark the question as answered
       this.selectedOptionService.isAnsweredSubject.next(true);
-
-      // Ensure loading state is started if not already loading
+  
+      // Ensure loading state is started
       if (!this.quizStateService.isLoading()) {
         this.quizStateService.startLoading();
       }
-
-      // Initialize question state and mark as answered
+  
+      // Initialize question state and set it as answered
       const questionState = this.initializeQuestionState();
-        questionState.isAnswered = true;
-
+      questionState.isAnswered = true;
+  
       // Set answer selected state if not already set
       if (!this.quizStateService.isAnswered$) {
         this.quizStateService.setAnswerSelected(true);
       }
-
-      // Process the selected option and update question state
+  
+      // Handle the processing and feedback for the selected option
       await this.handleOptionProcessingAndFeedback(option, index, checked);
       await this.updateQuestionState(option);
-
+  
       // Handle correct answers and update feedback
       this.handleCorrectAnswers(option);
       this.updateFeedback(option);
-
-      // Finalize option selection
+  
+      // Finalize the option selection process
       await this.finalizeOptionSelection(option, index, questionState);
     } catch (error) {
       // Handle any errors that occur during the process
       this.handleError(error);
     } finally {
-      // Ensure loading state is finalized
+      // Finalize the loading state
       this.finalizeLoadingState();
     }
-  }
+  }  
 
   private initializeQuestionState(): QuestionState {
     const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
