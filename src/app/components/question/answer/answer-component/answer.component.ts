@@ -157,8 +157,6 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   }
 
   public override async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
-    console.log('AnswerComponent: onOptionClicked called', option, index, checked);
-
     if (this.type === 'single') {
       // Set the index of the selected option
       this.selectedOptionIndex = index;
