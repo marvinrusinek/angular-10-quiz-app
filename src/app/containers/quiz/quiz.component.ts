@@ -418,8 +418,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     console.log("MY SEL LENGTH", this.selectedOptions.length);
-    this.isNextButtonEnabled = this.selectedOptions.length > 0;
-    this.isOptionSelected = this.selectedOptions.length > 0;
+    this.isNextButtonEnabled = this.isAnyOptionSelected();
+    this.isOptionSelected = this.isAnyOptionSelected();
     this.selectedOptionService.setOptionSelected(this.isOptionSelected);
     this.quizStateService.setAnswerSelected(this.isOptionSelected);
     this.updateNextButtonState();
@@ -441,7 +441,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private updateNextButtonState(): void {
-    const isEnabled = this.selectedOptions.length > 0 && !this.isLoading;
+    const isEnabled = this.isAnyOptionSelected() && !this.isLoading;
     if (this.isNextButtonEnabled !== isEnabled) {
       console.log(`Updating button state from ${this.isNextButtonEnabled} to ${isEnabled}`);
       this.isNextButtonEnabled = isEnabled;
