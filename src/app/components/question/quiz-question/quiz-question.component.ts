@@ -119,6 +119,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   resetStateSubscription: Subscription;
   sharedVisibilitySubscription: Subscription;
   optionSelectionSubscription: Subscription;
+  isMultipleAnswer: boolean;
   isExplanationTextDisplayed = false;
   isNavigatingToPrevious = false;
   isLoading = true;
@@ -556,13 +557,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (this.dynamicAnswerContainer) {
       this.dynamicAnswerContainer.clear();
   
-      const isMultipleAnswer = await firstValueFrom(
+      this.isMultipleAnswer = await firstValueFrom(
         this.quizStateService.isMultipleAnswerQuestion(this.question)
       );
   
       const componentRef: ComponentRef<BaseQuestionComponent> = await this.dynamicComponentService.loadComponent(
         this.dynamicAnswerContainer,
-        isMultipleAnswer
+        this.isMultipleAnswer
       );
   
       if (componentRef.instance) {
@@ -1577,7 +1578,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     };
     this.selectedOptionService.toggleSelectedOption(
       this.currentQuestionIndex,
-      selectedOption
+      selectedOption,
+      this.isMultipleAnswer
     );
     this.selectedOptionService.setOptionSelected(true);
     this.selectedOptionService.setAnsweredState(true);
@@ -1828,7 +1830,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.selectedOptionService.setAnsweredState(true);
     this.selectedOptionService.setSelectedOption(option);
-    this.selectedOptionService.toggleSelectedOption(questionIndex, option);
+    this.selectedOptionService.toggleSelectedOption(questionIndex, option, this.isMultipleAnswer);
     this.selectedOptionService.updateSelectedOptions(
       questionIndex,
       optionIndex,
