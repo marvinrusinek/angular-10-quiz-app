@@ -322,7 +322,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.checkIfAnswerSelected(true);
   }
 
-  loadQuestionContents() {
+  loadQuestionContents(): void {
     this.isLoading = true;
     this.progressBarService.setProgress(0);
 
@@ -393,16 +393,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   logEvent(event: any) {
     console.log('logEvent called with:', event);
-  }
-
-  private logButtonState() {
-    console.log('Button State:', {
-      isNextButtonEnabled: this.isNextButtonEnabled,
-      selectedOptionsLength: this.selectedOptions.length,
-      currentQuestionIndex: this.currentQuestionIndex,
-      totalQuestions: this.totalQuestions,
-      isNavigating: this.isNavigating
-    });
   }
 
   onOptionSelected(event: { option: SelectedOption; index: number; checked: boolean }, isUserAction: boolean = true): void {
