@@ -1306,9 +1306,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.quizStateService.setAnswerSelected(false);
 
       // Update selected option services
-      this.selectedOptionService.setSelectedOption(option);
-      this.selectedOptionService.selectOption(option.optionId, this.currentQuestionIndex, option.text);
-      this.selectedOptionService.toggleSelectedOption(this.currentQuestionIndex, option);
+      this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion).subscribe({
+        next: (isMultipleAnswer: boolean) => {
+          // Call the service methods after retrieving the boolean value
+          this.selectedOptionService.setSelectedOption(option);
+          this.selectedOptionService.selectOption(
+            option.optionId,
+            this.currentQuestionIndex,
+            option.text,
+            isMultipleAnswer
+          );
+      
+          this.selectedOptionService.toggleSelectedOption(
+            this.currentQuestionIndex,
+            option,
+            isMultipleAnswer
+          );
+        },
+        error: (error) => {
+          console.error('Error determining if the question is multiple answer:', error);
+        }
+      });          
+      
       this.selectedOptionService.isAnsweredSubject.next(true);
 
       // Ensure loading state is started if not already loading
