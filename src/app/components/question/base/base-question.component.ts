@@ -260,8 +260,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     index: number,
     checked: boolean
   ): Promise<void> {
+    console.log('BQC: onOptionClicked called with:', { option, index, checked });
+  
+    // Ensure the selected option is updated
     this.updateSelectedOption(index);
-
+  
     if (!this.sharedOptionConfig) {
       console.error('sharedOptionConfig is not initialized');
       this.initializeSharedOptionConfig();
@@ -276,15 +279,15 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       // Always show feedback when an option is clicked
       this.showFeedback = true;
   
-      // Check if it's a single selection type
+      // For single-selection type questions
       if (this.type === 'single') {
         // Deselect all other options
         for (const opt of this.optionsToDisplay) {
-          opt.selected = opt === option;
-          this.showFeedbackForOption[opt.optionId] = false;
+          opt.selected = opt === option;  // Only select the clicked option
+          this.showFeedbackForOption[opt.optionId] = false; // Hide feedback for other options
         }
       } else {
-        // For multiple selection, toggle the clicked option
+        // For multiple-selection type questions, toggle the clicked option
         option.selected = checked;
       }
   
@@ -295,28 +298,31 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         this.showFeedbackForOption = {};
       }
   
-      // Show feedback for all options
+      // Update feedback display for each option
       for (const opt of this.optionsToDisplay) {
-        this.showFeedbackForOption[opt.optionId] = true;
+        this.showFeedbackForOption[opt.optionId] = true; // Show feedback for clicked option
       }
   
       this.selectedOption = option;
   
-       // Determine the correct options
+      // Determine the correct options
       const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
-
+      console.log('BQC: Correct options determined:', correctOptions);
+  
       // Set the correct options in the quiz service
       this.quizService.setCorrectOptions(correctOptions);
-
+  
       // Update the correct message for the question
       this.updateCorrectMessageForQuestion(correctOptions);
   
       // Trigger change detection to update the UI
       this.cdRef.detectChanges();
+  
+      console.log('BQC: Option processed successfully');
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
-  }
+  }  
 
   updateCorrectMessageForQuestion(correctOptions?: Option[]): void {
     if (!correctOptions) {
