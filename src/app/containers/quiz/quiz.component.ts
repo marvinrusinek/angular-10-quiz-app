@@ -1059,7 +1059,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   // Tooltip for next button
-  /* private initializeTooltip(): void {
+  private initializeTooltip(): void {
     this.nextButtonTooltip$ = defer((): Observable<string> =>
       combineLatest([
         this.selectedOptionService.isOptionSelected$().pipe(
@@ -1089,7 +1089,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     ) as Observable<string>;
   
     console.log('Tooltip observable initialized');
-  } */
+  }
   /* private initializeTooltip(): void {
     this.nextButtonTooltip$ = combineLatest([
       this.selectedOptionService.isOptionSelected$().pipe(
@@ -1122,7 +1122,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       })
     );
   } */
-  private initializeTooltip(): void {
+  /* private initializeTooltip(): void {
     this.nextButtonTooltip$ = combineLatest([
       this.selectedOptionService.isOptionSelected$().pipe(
         startWith(false),
@@ -1149,7 +1149,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return of('Please select an option to continue...');
       })
     );
-  }
+  } */
 
   private showTooltip(): void {
     if (this.tooltip) {

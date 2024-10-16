@@ -22,6 +22,7 @@
           <codelab-quiz-question
             *ngIf="isContentAvailable"
             [quizData]="quizComponentData"
+            [question]="currentQuestion"
             (answer)="selectedAnswer($event)"
             (optionSelected)="onOptionSelected($event)"
           ></codelab-quiz-question>
