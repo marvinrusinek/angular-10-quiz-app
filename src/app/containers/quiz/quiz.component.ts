@@ -57,7 +57,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   quizQuestionComponent!: QuizQuestionComponent;
   @ViewChild(SharedOptionComponent, { static: false })
   sharedOptionComponent!: SharedOptionComponent;
-  @ViewChild('nextButtonTooltip', { static: true }) tooltip: MatTooltip;
+  @ViewChild('nextTooltip') nextTooltip: MatTooltip;
   @Input() data: {
     questionText: string,
     correctAnswersText?: string,
@@ -1076,7 +1076,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   // Tooltip for next button
-  private initializeTooltip(): void {
+  /* private initializeTooltip(): void {
     this.nextButtonTooltip$ = defer((): Observable<string> =>
       combineLatest([
         this.selectedOptionService.isOptionSelected$().pipe(
@@ -1106,7 +1106,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     ) as Observable<string>;
   
     console.log('Tooltip observable initialized');
+  } */
+  private initializeTooltip(): void {
+    this.nextButtonTooltip$ = combineLatest([
+      this.selectedOptionService.isOptionSelected$().pipe(
+        startWith(false),
+        distinctUntilChanged()
+      ),
+      this.isButtonEnabled$.pipe(
+        startWith(false),
+        distinctUntilChanged()
+      )
+    ]).pipe(
+      map(([isSelected, isEnabled]: [boolean, boolean]) => {
+        const tooltipText = isEnabled && isSelected ? 'Next Question »' : 'Please select an option to continue...';
+        console.log('Tooltip text:', tooltipText);  // Debugging tooltip text updates
+        return tooltipText;
+      }),
+      distinctUntilChanged()
+    );
   }
+  
+  
+  
   /* private initializeTooltip(): void {
     this.nextButtonTooltip$ = combineLatest([
       this.selectedOptionService.isOptionSelected$().pipe(
