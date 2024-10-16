@@ -1098,9 +1098,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }),
       distinctUntilChanged(),
       tap((tooltipText: string) => {
-        this.tooltip.message = tooltipText;  // Update tooltip message
-        this.tooltip.show();  // Force tooltip display
-        console.log('Tooltip updated to:', tooltipText);
+        // Ensure Angular completes rendering before updating tooltip
+        setTimeout(() => {
+          this.tooltip.message = tooltipText;
+          this.tooltip.show();  // Force tooltip update
+          console.log('Tooltip updated to:', tooltipText);
+          this.cdRef.detectChanges();  // Trigger manual change detection
+        }, 0);  // Delay to ensure rendering cycle completes
       }),
       catchError((error: Error) => {
         console.error('Error in getNextButtonTooltip:', error);
@@ -1108,6 +1112,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       })
     );
   }
+  
 
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
