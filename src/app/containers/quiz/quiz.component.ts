@@ -2217,7 +2217,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
   
-    this.isNavigating = true;
+    this.isNavigating = true; // Set navigation flag
   
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
@@ -2231,7 +2231,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
-        // Load the next question’s contents
+        // Load the contents of the new question
         this.loadQuestionContents();
   
         // Reset state for the new question
