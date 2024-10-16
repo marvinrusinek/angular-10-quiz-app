@@ -246,10 +246,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizService.setCorrectOptions(this.optionsToDisplay);
   
     if (!this.question) {
-      console.error('Question is not defined');
+      console.warn('Question not available, waiting for data...');
       return;
+    } else {
+      console.log('Loaded question:', this.question);
     }
-  
+
     if (this.question && this.question.options) {
       const hasMultipleAnswers =
         this.question.options.filter((option) => option.correct).length > 1;
