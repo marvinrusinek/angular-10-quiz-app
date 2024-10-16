@@ -150,7 +150,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   private nextButtonTooltipSubject = new BehaviorSubject<string>('Please select an option to continue...');
   nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
-  nextButtonTooltip = 'Please select an option to continue...';
 
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   isButtonEnabled$: Observable<boolean>;
@@ -1059,7 +1058,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }
     });
   } */
-  private initializeTooltip(): void {
+  /* private initializeTooltip(): void {
     this.nextButtonTooltip$ = combineLatest([
       this.selectedOptionService.isOptionSelected$().pipe(
         startWith(false),
@@ -1085,8 +1084,42 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         return of('Please select an option to continue...');
       })
     );
-  }
+  } */
+  private initializeTooltip(): void {
+    this.nextButtonTooltip$ = defer(() =>
+      combineLatest([
+        this.selectedOptionService.isOptionSelected$().pipe(
+          startWith(false),
+          distinctUntilChanged(),
+          tap((value) =>
+            console.log('isOptionSelected$ emitted:', value) // Debugging option selection state
+          )
+        ),
+        this.isButtonEnabled$.pipe(
+          startWith(false),
+          distinctUntilChanged(),
+          tap((value) =>
+            console.log('isButtonEnabled$ emitted:', value) // Debugging button enabled state
+          )
+        )
+      ]).pipe(
+        map(([isSelected, isEnabled]: [boolean, boolean]) => {
+          console.log('Combining values:', { isSelected, isEnabled }); // Debugging combined values
+          return isEnabled && isSelected
+            ? 'Next Question »'
+            : 'Please select an option to continue...';
+        }),
+        distinctUntilChanged(),
+        catchError((error: Error) => {
+          console.error('Error in getNextButtonTooltip:', error); // Debugging errors
+          return of('Please select an option to continue...');
+        })
+      )
+    );
   
+    // Debugging to ensure the observable is initialized
+    console.log('Tooltip observable initialized:', this.nextButtonTooltip$);
+  }
   
 
   // Tooltip for next button
