@@ -3,6 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, defer, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { MatTooltip } from '@angular/material/tooltip';
 
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
@@ -56,6 +57,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   quizQuestionComponent!: QuizQuestionComponent;
   @ViewChild(SharedOptionComponent, { static: false })
   sharedOptionComponent!: SharedOptionComponent;
+  @ViewChild('tooltip', { static: false }) tooltip: MatTooltip;
   @Input() data: {
     questionText: string;
     correctAnswersText?: string;
@@ -1047,7 +1049,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   // Tooltip for next button
-  private initializeTooltip(): void {
+  /* private initializeTooltip(): void {
     this.nextButtonTooltip$ = defer((): Observable<string> =>
       combineLatest([
         this.selectedOptionService.isOptionSelected$().pipe(
@@ -1077,6 +1079,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     ) as Observable<string>;
   
     console.log('Tooltip observable initialized');
+  } */
+  private initializeTooltip(): void {
+    this.nextButtonTooltip$ = combineLatest([
+      this.selectedOptionService.isOptionSelected$().pipe(
+        startWith(false),
+        distinctUntilChanged()
+      ),
+      this.isButtonEnabled$.pipe(
+        startWith(false),
+        distinctUntilChanged()
+      )
+    ]).pipe(
+      map(([isSelected, isEnabled]: [boolean, boolean]) => {
+        return isEnabled && isSelected
+          ? 'Next Question »'
+          : 'Please select an option to continue...';
+      }),
+      distinctUntilChanged(),
+      tap((tooltipText: string) => {
+        this.tooltip.message = tooltipText;  // Update tooltip message
+        this.tooltip.show();  // Force tooltip display
+        console.log('Tooltip updated to:', tooltipText);
+      }),
+      catchError((error: Error) => {
+        console.error('Error in getNextButtonTooltip:', error);
+        return of('Please select an option to continue...');
+      })
+    );
   }
 
   updateQuestionDisplayForShuffledQuestions(): void {
