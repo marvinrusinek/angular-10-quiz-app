@@ -1108,26 +1108,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('Tooltip observable initialized');
   } */
   private initializeTooltip(): void {
+    console.log('Initializing Tooltip Observable');
+  
     this.nextButtonTooltip$ = combineLatest([
       this.selectedOptionService.isOptionSelected$().pipe(
         startWith(false),
-        distinctUntilChanged()
+        distinctUntilChanged(),
+        tap((value) => console.log('isOptionSelected$ emitted:', value))
       ),
       this.isButtonEnabled$.pipe(
         startWith(false),
-        distinctUntilChanged()
+        distinctUntilChanged(),
+        tap((value) => console.log('isButtonEnabled$ emitted:', value))
       )
     ]).pipe(
       map(([isSelected, isEnabled]: [boolean, boolean]) => {
-        const tooltipText = isEnabled && isSelected ? 'Next Question »' : 'Please select an option to continue...';
-        console.log('Tooltip text:', tooltipText);  // Debugging tooltip text updates
+        const tooltipText = isEnabled && isSelected
+          ? 'Next Question »'
+          : 'Please select an option to continue...';
+        console.log('Tooltip text set to:', tooltipText); // Debugging output
         return tooltipText;
       }),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      tap(() => console.log('Tooltip Observable executed')), // Confirm it ran
+      catchError((error: Error) => {
+        console.error('Error in Tooltip Observable:', error);
+        return of('Please select an option to continue...');
+      })
     );
-  }
-  
-  
+  }  
   
   /* private initializeTooltip(): void {
     this.nextButtonTooltip$ = combineLatest([
