@@ -73,6 +73,7 @@
           <div class="next-question-nav" [hidden]="shouldHideNextButton">
             <button
               type="button"
+              #nextButtonTooltip="matTooltip"
               mat-icon-button
               routerLinkActive="active"
               (click)="advanceToNextQuestion()"

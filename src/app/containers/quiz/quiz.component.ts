@@ -433,6 +433,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       isNextButtonEnabled: this.isNextButtonEnabled
     });
 
+    // Trigger necessary actions when an option is selected
+  this.selectedOptionService.setSelectedOption(event.option);
+
+    // Manually show and update the tooltip after a slight delay
     setTimeout(() => this.showTooltip(), 0);
 
     this.cdRef.detectChanges();
@@ -1123,16 +1127,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.selectedOptionService.isOptionSelected$().pipe(
         startWith(false),
         distinctUntilChanged(),
-        tap((value) =>
-          console.log('isOptionSelected$ emitted:', value)
-        )
+        tap(value => console.log('isOptionSelected$ emitted:', value))
       ),
       this.isButtonEnabled$.pipe(
         startWith(false),
         distinctUntilChanged(),
-        tap((value) =>
-          console.log('isButtonEnabled$ emitted:', value)
-        )
+        tap(value => console.log('isButtonEnabled$ emitted:', value))
       )
     ]).pipe(
       map(([isSelected, isEnabled]) => {
@@ -1143,7 +1143,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return tooltipText;
       }),
       distinctUntilChanged(),
-      tap(() => this.showTooltip()), // Force the tooltip to update
+      tap(() => this.showTooltip()),  // Ensure tooltip updates when needed
       catchError((error: Error) => {
         console.error('Error in tooltip logic:', error);
         return of('Please select an option to continue...');
@@ -1153,12 +1153,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private showTooltip(): void {
     if (this.tooltip) {
-      // Force tooltip to show and detect changes
+      // Force the tooltip to show and detect changes
       this.tooltip.show();
       this.cdRef.detectChanges();
       console.log('Tooltip shown and updated');
     }
   }
+  
   
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
