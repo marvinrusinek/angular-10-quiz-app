@@ -338,6 +338,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // score: this.scoreService.getCurrentScore(),
     })
     .pipe(
+      tap((data) => {
+        this.currentQuestion = data.question;
+        this.options = data.options;
+        // this.selectionMessage = data.selectionMessage;
+        // this.navigationIcons = data.navigationIcons;
+        // this.badgeQuestionNumber = data.badgeQuestionNumber;
+        // this.score = data.score;
+
+        console.log('Loaded question contents:', data);
+      }),
       tap(() => {
         // Update progress after question and options are loaded
         this.updateProgressPercentage(); // Call update progress to incrementally calculate progress
