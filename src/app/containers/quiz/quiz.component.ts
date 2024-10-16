@@ -299,7 +299,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('isButtonEnabled$ updated:', isEnabled);
       this.cdRef.markForCheck();
     });
-    this.initializeTooltip();
     this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
 
     // Move resetQuestionState here
@@ -433,6 +432,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       selectedOptions: this.selectedOptions,
       isNextButtonEnabled: this.isNextButtonEnabled
     });
+
+    setTimeout(() => this.showTooltip(), 0);
+
     this.cdRef.detectChanges();
   }
 
@@ -1084,7 +1086,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     console.log('Tooltip observable initialized');
   } */
-  private initializeTooltip(): void {
+  /* private initializeTooltip(): void {
     this.nextButtonTooltip$ = combineLatest([
       this.selectedOptionService.isOptionSelected$().pipe(
         startWith(false),
@@ -1115,9 +1117,49 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return of('Please select an option to continue...');
       })
     );
+  } */
+  private initializeTooltip(): void {
+    this.nextButtonTooltip$ = combineLatest([
+      this.selectedOptionService.isOptionSelected$().pipe(
+        startWith(false),
+        distinctUntilChanged(),
+        tap((value) =>
+          console.log('isOptionSelected$ emitted:', value)
+        )
+      ),
+      this.isButtonEnabled$.pipe(
+        startWith(false),
+        distinctUntilChanged(),
+        tap((value) =>
+          console.log('isButtonEnabled$ emitted:', value)
+        )
+      )
+    ]).pipe(
+      map(([isSelected, isEnabled]) => {
+        const tooltipText = isEnabled && isSelected
+          ? 'Next Question »'
+          : 'Please select an option to continue...';
+        console.log('Tooltip text:', tooltipText);
+        return tooltipText;
+      }),
+      distinctUntilChanged(),
+      tap(() => this.showTooltip()), // Force the tooltip to update
+      catchError((error: Error) => {
+        console.error('Error in tooltip logic:', error);
+        return of('Please select an option to continue...');
+      })
+    );
+  }
+
+  private showTooltip(): void {
+    if (this.tooltip) {
+      // Force tooltip to show and detect changes
+      this.tooltip.show();
+      this.cdRef.detectChanges();
+      console.log('Tooltip shown and updated');
+    }
   }
   
-
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
       this.questions[this.currentQuestionIndex].questionText;
