@@ -59,9 +59,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   sharedOptionComponent!: SharedOptionComponent;
   @ViewChild('tooltip', { static: false }) tooltip: MatTooltip;
   @Input() data: {
-    questionText: string;
-    correctAnswersText?: string;
-    currentOptions: Option[];
+    questionText: string,
+    correctAnswersText?: string,
+    currentOptions: Option[]
   };
   @Input() shouldDisplayNumberOfCorrectAnswers = false;
   @Input() selectedQuiz: Quiz = {} as Quiz;
@@ -113,8 +113,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   explanationText: string | null;
 
   private combinedQuestionDataSubject = new BehaviorSubject<{
-    question: QuizQuestion;
-    options: Option[];
+    question: QuizQuestion,
+    options: Option[]
   }>(null);
   combinedQuestionData$: Observable<any> = this.combinedQuestionDataSubject.asObservable();
 
