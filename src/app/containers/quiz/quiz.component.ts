@@ -2207,8 +2207,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
-    console.log('advanceToNextQuestion called, currentQuestionIndex:', this.currentQuestionIndex);
-  
     if (this.isNavigating || this.isLoading) {
       console.warn('Cannot advance: Navigation in progress or quiz is loading.');
       return;
