@@ -541,6 +541,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (changes['currentQuestionIndex']) {
       this.loadCurrentQuestion();
     }
+
+    if (changes['question'] && changes['question'].currentValue) {
+      console.log('Question updated:', changes['question'].currentValue);
+    } else {
+      console.error('Question is not defined or updated properly.');
+    }
   }
 
   onQuestionAnswered(question: QuizQuestion): void {
