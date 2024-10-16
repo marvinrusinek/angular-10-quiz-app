@@ -286,7 +286,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.progressPercentage.next(progressValue); // Update the BehaviorSubject
     });    
     this.progressBarService.setProgress(0);
-    this.loadQuestionContents();
 
     this.subscribeToOptionSelection();
 
@@ -2223,6 +2222,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         // Prepare the next question for display
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+
+        // Load the next question’s contents
+        this.loadQuestionContents();
   
         // Reset state for the new question
         this.quizStateService.setAnswered(false); // Mark the new question as unanswered
