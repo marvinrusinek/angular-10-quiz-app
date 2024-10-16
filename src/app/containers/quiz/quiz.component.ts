@@ -325,39 +325,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeTooltip(); // Initialize tooltip after view is loaded
   }
 
-  loadQuestionContents(): void {
-    this.isLoading = true;
-    this.progressBarService.setProgress(0);
-
-    forkJoin({
-      question: this.quizService.getCurrentQuestion(),
-      options: this.quizService.getCurrentOptions(),
-      // selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
-      // navigationIcons: this.navigationService.getNavigationIcons(),
-      // badgeQuestionNumber: this.quizService.getBadgeQuestionNumber(),
-      // score: this.scoreService.getCurrentScore(),
-    })
-    .pipe(
-      tap((data) => {
-        this.currentQuestion = data.question;
-        this.options = data.options;
-        // this.selectionMessage = data.selectionMessage;
-        // this.navigationIcons = data.navigationIcons;
-        // this.badgeQuestionNumber = data.badgeQuestionNumber;
-        // this.score = data.score;
-
-        console.log('Loaded question contents:', data);
-      }),
-      tap(() => {
-        // Update progress after question and options are loaded
-        this.updateProgressPercentage(); // Call update progress to incrementally calculate progress
-      }),
-      tap(() => {
-        this.isLoading = false;
-      })
-    )
-    .subscribe();
-  }
+  async loadQuestionContents(): Promise<void> {
+    try {
+      this.isLoading = true;
+      this.progressBarService.setProgress(0);
+  
+      // Await the result of the forkJoin with toPromise
+      const data = await forkJoin({
+        question: this.quizService.getCurrentQuestion(),
+        options: this.quizService.getCurrentOptions(),
+        // selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
+        // navigationIcons: this.navigationService.getNavigationIcons(),
+        // badgeQuestionNumber: this.quizService.getBadgeQuestionNumber(),
+        // score: this.scoreService.getCurrentScore(),
+      }).toPromise();
+  
+      // Assign the loaded data
+      this.currentQuestion = data.question;
+      this.options = data.options;
+      console.log('Loaded question contents:', data);
+  
+      // Set the current question in QuizService after loading
+      this.quizService.setCurrentQuestion(this.currentQuestionIndex);
+  
+      // Update progress after question and options are loaded
+      this.updateProgressPercentage();
+    } catch (error) {
+      console.error('Error loading question contents:', error);
+    } finally {
+      // Ensure loading state is cleared even if an error occurs
+      this.isLoading = false;
+    }
+  }  
 
   private initializeNextButtonState(): void {
     // Initialize local properties
@@ -2224,15 +2223,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Increment question index
         this.currentQuestionIndex++;
         console.log('Loading next question, index:', this.currentQuestionIndex);
-  
-        // Set the current question in the quiz service
-        this.quizService.setCurrentQuestion(this.currentQuestionIndex);
-  
-        // Prepare the next question for display
-        await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
-        // Load the contents of the new question
-        this.loadQuestionContents();
+        // Load the next question's contents before display preparation
+        await this.loadQuestionContents(); // Ensure content loads before proceeding
+        await this.prepareQuestionForDisplay(this.currentQuestionIndex);
   
         // Reset state for the new question
         this.quizStateService.setAnswered(false); // Mark the new question as unanswered
