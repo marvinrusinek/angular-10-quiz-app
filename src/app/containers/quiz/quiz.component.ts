@@ -1086,41 +1086,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
   } */
   private initializeTooltip(): void {
-    this.nextButtonTooltip$ = defer(() =>
+    this.nextButtonTooltip$ = defer((): Observable<string> =>
       combineLatest([
         this.selectedOptionService.isOptionSelected$().pipe(
           startWith(false),
           distinctUntilChanged(),
-          tap((value) =>
-            console.log('isOptionSelected$ emitted:', value) // Debugging option selection state
-          )
+          tap((value) => console.log('isOptionSelected$ emitted:', value)) // Debugging
         ),
         this.isButtonEnabled$.pipe(
           startWith(false),
           distinctUntilChanged(),
-          tap((value) =>
-            console.log('isButtonEnabled$ emitted:', value) // Debugging button enabled state
-          )
+          tap((value) => console.log('isButtonEnabled$ emitted:', value)) // Debugging
         )
       ]).pipe(
         map(([isSelected, isEnabled]: [boolean, boolean]) => {
-          console.log('Combining values:', { isSelected, isEnabled }); // Debugging combined values
-          return isEnabled && isSelected
+          const tooltip = isEnabled && isSelected
             ? 'Next Question »'
             : 'Please select an option to continue...';
+          console.log('Combining values:', { isSelected, isEnabled, tooltip }); // Debugging
+          return tooltip;
         }),
-        distinctUntilChanged(),
+        distinctUntilChanged(), // Emit only if the tooltip text has changed
         catchError((error: Error) => {
-          console.error('Error in getNextButtonTooltip:', error); // Debugging errors
+          console.error('Error in getNextButtonTooltip:', error);
           return of('Please select an option to continue...');
         })
       )
-    );
+    ) as Observable<string>; // Ensure the observable is typed correctly
   
-    // Debugging to ensure the observable is initialized
     console.log('Tooltip observable initialized:', this.nextButtonTooltip$);
   }
-  
 
   // Tooltip for next button
   getNextButtonTooltip(): Observable<string> {
