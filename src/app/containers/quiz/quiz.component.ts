@@ -329,25 +329,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       this.isLoading = true;
       this.progressBarService.setProgress(0);
-  
-      // Await the result of the forkJoin with toPromise
-      const data = await forkJoin({
-        question: this.quizService.getCurrentQuestion(),
-        options: this.quizService.getCurrentOptions(),
-        // selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
-        // navigationIcons: this.navigationService.getNavigationIcons(),
-        // badgeQuestionNumber: this.quizService.getBadgeQuestionNumber(),
-        // score: this.scoreService.getCurrentScore(),
-      }).toPromise();
-  
+
+      // Await the result of the forkJoin using lastValueFrom
+      const data = await lastValueFrom(
+        forkJoin({
+          question: this.quizService.getCurrentQuestion(),
+          options: this.quizService.getCurrentOptions(),
+          // selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
+          // navigationIcons: this.navigationService.getNavigationIcons(),
+          // badgeQuestionNumber: this.quizService.getBadgeQuestionNumber(),
+          // score: this.scoreService.getCurrentScore(),
+        })
+      );
+
       // Assign the loaded data
       this.currentQuestion = data.question;
       this.options = data.options;
       console.log('Loaded question contents:', data);
-  
+
       // Set the current question in QuizService after loading
       this.quizService.setCurrentQuestion(this.currentQuestionIndex);
-  
+
       // Update progress after question and options are loaded
       this.updateProgressPercentage();
     } catch (error) {
@@ -356,7 +358,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Ensure loading state is cleared even if an error occurs
       this.isLoading = false;
     }
-  }  
+  }
+  
 
   private initializeNextButtonState(): void {
     // Initialize local properties
