@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChildren, ViewContainerRef } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, interval } from 'rxjs';
 
 import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
@@ -68,23 +68,23 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   }
 
   ngAfterViewInit(): void {
-    console.log('ngAfterContentInit called');
-
-    // Delay to ensure `viewContainerRefs` is populated properly
+    console.log('ngAfterViewInit called');
+  
     setTimeout(() => {
-      if (this.viewContainerRefs && this.viewContainerRefs.length > 0) {
-        console.log('viewContainerRefs available after delay:', this.viewContainerRefs);
-        this.handleViewContainerRef(); // Initial load
+      if (this.viewContainerRefs.length > 0) {
+        console.log('viewContainerRefs available:', this.viewContainerRefs);
+        this.handleViewContainerRef();
       } else {
-        console.warn('viewContainerRefs is still not ready after delay in ngAfterContentInit');
+        console.warn('viewContainerRefs not ready even after timeout.');
       }
-
-      // Subscribe to changes in `viewContainerRefs` to handle dynamically added views
+  
       this.viewContainerRefs?.changes.subscribe(() => {
         console.log('viewContainerRefs changed:', this.viewContainerRefs);
         this.handleViewContainerRef();
       });
-    }, 500);
+  
+      this.cdRef.detectChanges(); // Ensure changes are applied
+    }, 0);
   }
 
   private handleViewContainerRef(): void {
