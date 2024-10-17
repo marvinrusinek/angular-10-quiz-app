@@ -449,14 +449,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Trigger necessary actions when an option is selected
     this.selectedOptionService.setSelectedOption(event.option);
 
-    if (this.nextButtonTooltip) {
-      this.nextButtonTooltip.message = 'Next Question >>'; // Update the tooltip message
-      this.nextButtonTooltip.show(); // Manually show the tooltip
+    const isOptionValid = event.option && event.checked;
+    if (isOptionValid) {
+      this.enableNextButtonWithTooltip('Next Question >>');
+    } else {
+      this.disableNextButtonWithTooltip('Please select an option to continue...');
     }
-  
-    this.isNextButtonEnabled = true; // Enable the next button
 
     this.cdRef.detectChanges();
+  }
+
+  // Helper method to enable the button and update tooltip
+  private enableNextButtonWithTooltip(message: string): void {
+    this.isNextButtonEnabled = true;
+    setTimeout(() => {
+      if (this.nextButtonTooltip) {
+        console.log('Updating tooltip:', message);
+        this.nextButtonTooltip.message = message;
+        this.nextButtonTooltip.show();
+      }
+    }, 0);
+  }
+
+  // Helper method to disable the button and reset tooltip
+  private disableNextButtonWithTooltip(message: string): void {
+    this.isNextButtonEnabled = false;
+    setTimeout(() => {
+      if (this.nextButtonTooltip) {
+        console.log('Updating tooltip:', message);
+        this.nextButtonTooltip.message = message;
+        this.nextButtonTooltip.show();
+      }
+    }, 0);
   }
 
   private isAnyOptionSelected(): boolean {
