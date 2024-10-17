@@ -1177,9 +1177,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn('this.data is undefined or null');
       return;
     }
-    
+
     const data = {
-      questionText: this.data?.questionText || '', // Use ?. to safely access properties
+      questionText: this.data?.questionText || '',
       options: this.data?.options || [],
       correctAnswersText: this.data?.correctAnswersText || ''
     };
