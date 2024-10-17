@@ -299,6 +299,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('isButtonEnabled$ updated:', isEnabled);
       this.cdRef.markForCheck();
     });
+    this.initializeTooltip();
     this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
 
     // Move resetQuestionState here
@@ -322,9 +323,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.checkIfAnswerSelected(true);
   }
 
-  ngAfterViewInit(): void {
+  /* ngAfterViewInit(): void {
     this.initializeTooltip(); // Initialize tooltip after view is loaded
-  }
+  } */
 
   async loadQuestionContents(): Promise<void> {
     try {
@@ -1123,15 +1124,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       )
     ]).pipe(
       map(([isSelected, isEnabled]) => {
-        const tooltip = isSelected && isEnabled
-          ? 'Next Question >>'
-          : 'Please select an option to continue...';
-        console.log('Tooltip:', tooltip);
-        return tooltip;
+        console.log('Combined Tooltip State:', { isSelected, isEnabled });
+        return isSelected && isEnabled ? 'Next Question >>' : 'Please select an option to continue...';
       }),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      tap((tooltipText) => console.log('Tooltip updated to:', tooltipText)),
+      catchError((error) => {
+        console.error('Tooltip error:', error);
+        return of('Please select an option to continue...');
+      })
     );
   }
+  
+  
   
   
 
