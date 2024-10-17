@@ -258,21 +258,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   onFocus(event: FocusEvent): void {
     console.log('Window regained focus:', event);
 
-    // Restore the question and options if the current question is not answered
-    if (!this.isQuestionAnswered(this.currentQuestionIndex)) {
-      this.checkAndDisplayCorrectAnswers();
+    // Check if loading or navigation is still in progress
+    if (this.isLoading || this.quizStateService.isLoading()) {
+      console.warn('Quiz is still loading, delaying updates.');
+      return;
     }
 
-    // Ensure that the correct question, options, and explanation are displayed
+    // Ensure the correct question and options are displayed
     if (this.currentQuestionIndex !== undefined) {
-      this.quizQuestionComponent.loadQuestion();
+      this.restoreQuestionDisplay();
       this.fetchFormattedExplanationText(this.currentQuestionIndex);
     } else {
       console.warn('Current question index is undefined.');
     }
 
+    // Synchronize loading and answered states with the quiz state service
     this.isLoading$ = this.quizStateService.isLoading$;
     this.isAnswered$ = this.quizStateService.isAnswered$;
+    
+    // Trigger change detection to ensure the UI reflects the restored state
+    this.cdRef.detectChanges();
   }
 
   async ngOnInit(): Promise<void> {
@@ -385,7 +390,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.isLoading = false;
     }
   }
+
+  private restoreQuestionDisplay(): void {
+    console.log('Restoring question display for index:', this.currentQuestionIndex);
   
+    if (this.currentQuestionIndex !== undefined && this.questions) {
+      this.updateQuestionDisplay(this.currentQuestionIndex);
+    } else {
+      console.warn('Cannot restore question display. Question index or questions list is undefined.');
+    }
+  }  
 
   private initializeNextButtonState(): void {
     // Initialize local properties
