@@ -1129,12 +1129,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return tooltipText;
       }),
       distinctUntilChanged(),
+      tap(() => this.cdRef.detectChanges()), // Ensure change detection
       catchError((error) => {
         console.error('Error in tooltip logic:', error);
         return of('Please select an option to continue...');
       })
     );
   }
+  
 
   private refreshTooltip(): void {
     const tooltipElement = document.querySelector('button[aria-label="Next Question"]');
