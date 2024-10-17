@@ -301,6 +301,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     
     this.isNextButtonEnabled = false; // Start with the Next button disabled
     this.initializeTooltip(); // Initialize tooltip logic
+    this.loadQuestionContents(); // Load the first question's contents
     this.cdRef.detectChanges(); // Ensure the UI reflects the initial state
 
     this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
