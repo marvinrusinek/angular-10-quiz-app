@@ -458,8 +458,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const isValidOption = event.option && event.checked;
     if (isValidOption) {
       this.enableNextButtonWithTooltip('Next Question >>');
-    } else {
-      this.disableNextButtonWithTooltip('Please select an option to continue...');
     }
 
     this.cdRef.detectChanges();
