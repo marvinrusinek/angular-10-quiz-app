@@ -456,10 +456,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Trigger necessary actions when an option is selected
     this.selectedOptionService.setSelectedOption(event.option);
 
-    const isValidOption = event.option && event.checked;
+    /* const isValidOption = event.option && event.checked;
     if (isValidOption) {
       this.enableNextButtonWithTooltip('Next Question >>');
-    }
+    } */
+
+    // Refresh the tooltip manually
+    setTimeout(() => this.nextButtonTooltip.show(), 0);
 
     this.cdRef.detectChanges();
   }
