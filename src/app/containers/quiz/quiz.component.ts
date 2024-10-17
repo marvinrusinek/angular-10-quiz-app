@@ -345,9 +345,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     } else {
       console.warn('Invalid question index on visibility change.');
     }
-  
-    // Trigger change detection to ensure UI updates when the tab becomes visible
-    this.cdRef.detectChanges();
   }  
 
   async loadQuestionContents(): Promise<void> {
