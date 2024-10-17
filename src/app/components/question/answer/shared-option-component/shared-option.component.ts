@@ -141,8 +141,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         }
       }
     }
-  
-    const questionType = this.config.currentQuestion.type;
+
+    const questionType = this.config?.currentQuestion?.type || QuestionType.SingleAnswer;
     this.type = this.convertQuestionType(questionType);
   
     this.showFeedback = this.config.showFeedback || false;
