@@ -8,7 +8,7 @@
                       #checkbox 
                       appHighlightOption
                       (change)="updateOptionAndUI(optionBinding, optionIndex, checkbox)"
-                      (click)="onOptionClicked(optionBinding.option, optionIndex, checkbox.checked)">
+                      (click)="onOptionClicked($event.option, $event.index, $event.checked)">
           <ng-container 
             *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
           </ng-container>
@@ -19,12 +19,11 @@
                           #radio 
                           appHighlightOption
                           (change)="updateOptionAndUI(optionBinding, optionIndex, radio)"
-                          (click)="onOptionClicked(optionBinding.option, optionIndex, radio.checked)">
+                          (click)="onOptionClicked($event.option, $event.index, $event.checked)">
           <ng-container 
             *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
           </ng-container>
         </mat-radio-button>
-
       </ng-container>
 
       <!-- Feedback display -->
