@@ -5,7 +5,8 @@
         <!-- Handle multiple choice options -->
         <mat-checkbox *ngSwitchCase="'multiple'" #checkbox appHighlightOption
           (change)="updateOptionAndUI(optionBinding, optionIndex, checkbox)"
-          (optionSelected)="onOptionClicked($event)">
+          (optionSelected)="onOptionClicked($event)"
+          (click)="onOptionClicked(optionBinding.option, optionIndex, checkbox.checked)">
           <ng-container 
             *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
           </ng-container>
@@ -14,7 +15,8 @@
         <!-- Handle single choice options -->
         <mat-radio-button *ngSwitchCase="'single'" #radio appHighlightOption
           (change)="updateOptionAndUI(optionBinding, optionIndex, radio)"
-          (optionSelected)="onOptionClicked($event)">
+          (optionSelected)="onOptionClicked($event)"
+          (click)="onOptionClicked(optionBinding.option, optionIndex, checkbox.checked)">
           <ng-container
             *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
           </ng-container>

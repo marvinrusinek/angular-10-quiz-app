@@ -555,9 +555,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async loadDynamicComponent(): Promise<void> {
-    if (this.dynamicAnswerContainer) {
-      this.dynamicAnswerContainer.clear();
+    try {
+      // Ensure the dynamic container exists before proceeding
+      if (!this.dynamicAnswerContainer) {
+        console.error('dynamicAnswerContainer is still undefined in QuizQuestionComponent');
+        return;
+      }
   
+      this.dynamicAnswerContainer.clear(); // Clear the container before loading
+  
+      // Determine if the question is a multiple answer type
       this.isMultipleAnswer = await firstValueFrom(
         this.quizStateService.isMultipleAnswerQuestion(this.question)
       );
@@ -568,31 +575,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.isMultipleAnswer
         );
   
-      if (componentRef.instance) {
-        const instance = componentRef.instance as BaseQuestionComponent;
+      const instance = componentRef.instance as BaseQuestionComponent;
   
-        // Assign other properties to the instance
-        instance.questionForm = this.questionForm;
-        instance.question = this.question;
-        instance.optionsToDisplay = [...this.optionsToDisplay];
-  
-        // Check if onOptionClicked is already assigned
-        if (typeof instance.onOptionClicked === 'undefined') {
-          console.log('Setting onOptionClicked for the first time.');
-          instance.onOptionClicked = this.onOptionClicked.bind(this);
-        } else {
-          console.log('onOptionClicked already assigned, skipping reassignment.');
-        }
-  
-        componentRef.changeDetectorRef.markForCheck();
-        console.log('Change detection triggered for dynamic component');
-      } else {
+      if (!instance) {
         console.error('Component instance is undefined');
+        return;
       }
-    } else {
-      console.error('dynamicAnswerContainer is still undefined in QuizQuestionComponent');
+  
+      // Assign properties to the dynamic component instance
+      instance.questionForm = this.questionForm;
+      instance.question = this.question;
+      instance.optionsToDisplay = [...this.optionsToDisplay];
+  
+      // Assign onOptionClicked if not already assigned
+      instance.onOptionClicked ??= this.onOptionClicked.bind(this);
+      console.log('onOptionClicked bound to dynamic component.');
+  
+      // Trigger change detection to ensure UI updates
+      componentRef.changeDetectorRef.markForCheck();
+      console.log('Change detection triggered for dynamic component.');
+    } catch (error) {
+      console.error('Error loading dynamic component:', error);
     }
-  }
+  }  
 
   private loadInitialQuestionAndMessage(): void {
     // Load the initial question
