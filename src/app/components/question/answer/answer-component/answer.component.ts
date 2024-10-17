@@ -70,30 +70,22 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   ngAfterViewInit(): void {
     console.log('ngAfterViewInit called');
   
-    // Use Promise.resolve() to defer execution to the microtask queue
-    Promise.resolve().then(() => {
-      if (this.viewContainerRefs?.length > 0) {
-        console.log('viewContainerRefs available:', this.viewContainerRefs);
-        this.handleViewContainerRef(); // Handle initial load
-      } else {
-        console.warn('viewContainerRefs not ready in ngAfterViewInit');
-      }
+    // Log the entire QueryList and its changes
+    console.log('viewContainerRefs:', this.viewContainerRefs);
   
-      // Detect changes in QueryList to handle dynamic updates
+    if (this.viewContainerRefs) {
+      console.log('Found viewContainerRefs:', this.viewContainerRefs.toArray());
+  
       this.viewContainerRefs?.changes.subscribe((refs) => {
-        console.log('viewContainerRefs changed:', refs);
-        if (refs.length > 0) {
-          this.handleViewContainerRef();
-        } else {
-          console.warn('No viewContainerRefs available after change.');
-        }
+        console.log('viewContainerRefs changed:', refs.toArray());
+        this.handleViewContainerRef();
       });
+    } else {
+      console.error('viewContainerRefs is undefined or not initialized.');
+    }
   
-      // Manually trigger change detection to ensure the view is stable
-      this.cdRef.detectChanges();
-    }).catch((error) => console.error('Error in ngAfterViewInit:', error));
+    this.cdRef.detectChanges(); // Ensure change detection runs
   }
-  
 
   private handleViewContainerRef(): void {
     if (this.hasComponentLoaded) {
