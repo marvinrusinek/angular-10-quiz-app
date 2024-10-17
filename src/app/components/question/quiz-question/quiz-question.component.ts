@@ -639,13 +639,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  public async loadQuestion(signal?: AbortSignal): Promise<void> {   
+  public async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetExplanation();
     this.resetTexts();
+    
     this.isLoading = true;
-    // this.quizStateService.setLoading(true);
-    // this.quizStateService.setLoading(false);
-
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswered(false);
   
@@ -655,36 +653,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.feedbackText = '';
   
     try {
-      // Ensure we have a valid quiz ID
+      // Ensure a valid quiz ID is available
       const quizId = this.quizService.getCurrentQuizId();
-      if (!quizId) {
-        throw new Error('No active quiz ID found');
-      }
+      if (!quizId) throw new Error('No active quiz ID found');
   
-      // Fetch the current question
+      // Fetch the current question by index
       this.currentQuestion = await firstValueFrom(
         this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
       );
-      
+  
       if (!this.currentQuestion) {
         throw new Error(`No question found for index ${this.currentQuestionIndex}`);
       }
   
-      // Set options to display
+      // Set the options to display for the current question
       this.optionsToDisplay = this.currentQuestion.options || [];
   
+      // Abort handling
       if (signal?.aborted) {
         console.log('Load question operation aborted.');
         return;
       }
-
-      // Only display the explanation if the question has been answered
-      if (this.isAnswered) {
-        await this.fetchAndSetExplanationText();
-        this.updateExplanationDisplay(true);
-      } else {
-        this.updateExplanationDisplay(false);
-      }
+  
+      // Display explanation only if the question is answered
+      await this.handleExplanationDisplay();
   
       // Update the selection message
       this.updateSelectionMessage(false);
@@ -695,10 +687,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       this.isLoading = false;
       this.quizStateService.setLoading(false);
-      // console.log('Question loading completed');
     }
   }
 
+  private async handleExplanationDisplay(): Promise<void> {
+    if (this.isAnswered) {
+      await this.fetchAndSetExplanationText();
+      this.updateExplanationDisplay(true);
+    } else {
+      this.updateExplanationDisplay(false);
+    }
+  }
+  
   async getFeedbackText(currentQuestion: QuizQuestion): Promise<string> {
     const correctOptions = currentQuestion.options.filter(
       (option) => option.correct
