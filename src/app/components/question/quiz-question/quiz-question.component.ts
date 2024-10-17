@@ -810,15 +810,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private initializeData(): void {
-    if (!this.data && this.currentQuestion) {
+    if (!this.currentQuestion) {
+      console.warn('Current question is not available.');
+      return;
+    }
+  
+    if (!this.data) {
       this.data = {
         questionText: this.currentQuestion.questionText,
         explanationText: this.currentQuestion.explanation,
         correctAnswersText: this.quizService.getCorrectAnswersAsString(),
-        options: this.currentQuestion.options || [],
+        options: this.currentQuestion.options || []
       };
     }
-  }
+  
+    console.log('Data initialized:', this.data);
+  }  
 
   private async initializeQuiz(): Promise<void> {
     if (this.initialized) return; // Prevent re-initialization
