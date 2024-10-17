@@ -810,8 +810,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } 
 
   private initializeData(): void {
-    console.log('MY ID');
-
     if (!this.question) {
       console.warn('Question is not defined.');
       return;
