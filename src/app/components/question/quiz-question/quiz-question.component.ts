@@ -807,25 +807,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     this.getCorrectAnswers();
-  }
+  } 
 
   private initializeData(): void {
-    if (!this.currentQuestion) {
-      console.warn('Current question is not available.');
+    console.log('MY ID');
+
+    if (!this.question) {
+      console.warn('Question is not defined.');
       return;
     }
-  
-    if (!this.data) {
-      this.data = {
-        questionText: this.currentQuestion.questionText,
-        explanationText: this.currentQuestion.explanation,
-        correctAnswersText: this.quizService.getCorrectAnswersAsString(),
-        options: this.currentQuestion.options || []
-      };
-    }
-  
+
+    this.data = {
+      questionText: this.question.questionText,
+      explanationText: this.question.explanation,
+      correctAnswersText: this.quizService.getCorrectAnswersAsString(),
+      options: this.options || [],
+    };
+
     console.log('Data initialized:', this.data);
-  }  
+  }
 
   private async initializeQuiz(): Promise<void> {
     if (this.initialized) return; // Prevent re-initialization
