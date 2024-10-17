@@ -1911,16 +1911,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   updateQuestionDisplay(questionIndex: number): void {
-    if (
-      this.questions &&
-      questionIndex >= 0 &&
-      questionIndex < this.questions.length
-    ) {
-      // Update the component properties with the details of the specified question
+    if (!this.questions || this.questions.length === 0) {
+      console.warn('Questions array is not initialized or empty.');
+      return;
+    }
+  
+    if (questionIndex >= 0 && questionIndex < this.questions.length) {
       const selectedQuestion = this.questions[questionIndex];
       this.questionToDisplay = selectedQuestion.questionText;
       this.optionsToDisplay = selectedQuestion.options;
-      // this.updateQuestionStateAndExplanation(questionIndex);
+      console.log('Question display updated:', selectedQuestion);
     } else {
       console.warn(
         `Invalid question index: ${questionIndex}. Unable to update the question display.`
