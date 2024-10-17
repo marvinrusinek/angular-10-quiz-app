@@ -818,7 +818,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.data = {
       questionText: this.question.questionText,
       explanationText: this.question.explanation,
-      correctAnswersText: this.quizService.getCorrectAnswersAsString(),
+      correctAnswersText: this.quizService.getCorrectAnswersAsString(), // logging empty string
       options: this.options || []
     };
   }
