@@ -562,24 +562,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.quizStateService.isMultipleAnswerQuestion(this.question)
       );
   
-      const componentRef: ComponentRef<BaseQuestionComponent> = await this.dynamicComponentService.loadComponent(
-        this.dynamicAnswerContainer,
-        this.isMultipleAnswer
-      );
+      const componentRef: ComponentRef<BaseQuestionComponent> = 
+        await this.dynamicComponentService.loadComponent(
+          this.dynamicAnswerContainer,
+          this.isMultipleAnswer
+        );
   
       if (componentRef.instance) {
         const instance = componentRef.instance as BaseQuestionComponent;
+  
+        // Assign other properties to the instance
         instance.questionForm = this.questionForm;
         instance.question = this.question;
         instance.optionsToDisplay = [...this.optionsToDisplay];
   
-        instance.quizQuestionComponentOnOptionClicked = this.onOptionClicked.bind(this);
-  
+        // Check if onOptionClicked is already assigned
         if (typeof instance.onOptionClicked === 'undefined') {
-          console.log('Setting onOptionClicked in dynamic component');
+          console.log('Setting onOptionClicked for the first time.');
           instance.onOptionClicked = this.onOptionClicked.bind(this);
         } else {
-          console.warn('onOptionClicked is already defined on the dynamic component');
+          console.log('onOptionClicked already assigned, skipping reassignment.');
         }
   
         componentRef.changeDetectorRef.markForCheck();
