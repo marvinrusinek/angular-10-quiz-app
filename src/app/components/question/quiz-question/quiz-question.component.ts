@@ -1297,69 +1297,112 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   ): Promise<void> {
     console.log('QQC: onOptionClicked called', { option, index, checked });
   
-    if (!option) {
-      console.error('Option is undefined');
-      return;
-    }
+    if (!this.validateOption(option)) return;
   
     try {
       await super.onOptionClicked(option, index, checked);
+      this.resetExplanation();
   
-      this.displayExplanation = false;
-      option.selected = !option.selected;
+      this.toggleOptionState(option, index);
+      this.emitOptionSelected(option, index);
   
-      this.optionSelected.emit({ option, index, checked: option.selected });
+      this.startLoading();
   
-      this.quizStateService.setLoading(true);
-      this.quizStateService.setAnswerSelected(false);
+      this.handleMultipleAnswerQuestion(option);
   
-      this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
-        .subscribe({
-          next: (isMultipleAnswer) => {
-            this.selectedOptionService.setSelectedOption(option);
-            this.selectedOptionService.selectOption(
-              option.optionId,
-              this.currentQuestionIndex,
-              option.text,
-              isMultipleAnswer
-            );
+      this.markQuestionAsAnswered();
+      await this.processSelectedOption(option, index, checked);
   
-            this.selectedOptionService.toggleSelectedOption(
-              this.currentQuestionIndex,
-              option,
-              isMultipleAnswer
-            );
-          },
-          error: (error) =>
-            console.error('Error determining multiple-answer:', error),
-        });
-  
-      this.selectedOptionService.isAnsweredSubject.next(true);
-  
-      if (!this.quizStateService.isLoading()) {
-        this.quizStateService.startLoading();
-      }
-  
-      const questionState = this.initializeQuestionState();
-      questionState.isAnswered = true;
-  
-      if (!this.quizStateService.isAnswered$) {
-        this.quizStateService.setAnswerSelected(true);
-      }
-  
-      await this.handleOptionProcessingAndFeedback(option, index, checked);
-      await this.updateQuestionState(option);
-  
-      this.handleCorrectAnswers(option);
-      this.updateFeedback(option);
-  
-      await this.finalizeOptionSelection(option, index, questionState);
+      await this.finalizeSelection(option, index);
     } catch (error) {
       this.handleError(error);
     } finally {
       this.finalizeLoadingState();
     }
-  }  
+  }
+
+  private validateOption(option: SelectedOption): boolean {
+    if (!option) {
+      console.error('Option is undefined');
+      return false;
+    }
+    return true;
+  }
+  
+  private resetExplanation(): void {
+    this.displayExplanation = false;
+  }
+  
+  private toggleOptionState(option: SelectedOption, index: number): void {
+    option.selected = !option.selected;
+    this.selectedOptionService.isAnsweredSubject.next(true);
+  }
+  
+  private emitOptionSelected(option: SelectedOption, index: number): void {
+    this.optionSelected.emit({ option, index, checked: option.selected });
+  }
+  
+  private startLoading(): void {
+    this.quizStateService.setLoading(true);
+    this.quizStateService.setAnswerSelected(false);
+  
+    if (!this.quizStateService.isLoading()) {
+      this.quizStateService.startLoading();
+    }
+  }
+  
+  private handleMultipleAnswerQuestion(option: SelectedOption): void {
+    this.quizStateService
+      .isMultipleAnswerQuestion(this.currentQuestion)
+      .subscribe({
+        next: (isMultipleAnswer) => {
+          this.selectedOptionService.setSelectedOption(option);
+          this.selectedOptionService.selectOption(
+            option.optionId,
+            this.currentQuestionIndex,
+            option.text,
+            isMultipleAnswer
+          );
+  
+          this.selectedOptionService.toggleSelectedOption(
+            this.currentQuestionIndex,
+            option,
+            isMultipleAnswer
+          );
+        },
+        error: (error) =>
+          console.error('Error determining multiple-answer:', error),
+      });
+  }
+  
+  private markQuestionAsAnswered(): void {
+    const questionState = this.initializeQuestionState();
+    questionState.isAnswered = true;
+  
+    if (!this.quizStateService.isAnswered$) {
+      this.quizStateService.setAnswerSelected(true);
+    }
+  }
+  
+  private async processSelectedOption(
+    option: SelectedOption,
+    index: number,
+    checked: boolean
+  ): Promise<void> {
+    await this.handleOptionProcessingAndFeedback(option, index, checked);
+    await this.updateQuestionState(option);
+  
+    this.handleCorrectAnswers(option);
+    this.updateFeedback(option);
+  }
+  
+  private async finalizeSelection(
+    option: SelectedOption,
+    index: number
+  ): Promise<void> {
+    const questionState = this.initializeQuestionState();
+    await this.finalizeOptionSelection(option, index, questionState);
+  }
 
   private initializeQuestionState(): QuestionState {
     const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
