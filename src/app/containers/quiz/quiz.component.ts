@@ -481,10 +481,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.nextButtonTooltip.message = message;
         this.nextButtonTooltip.show(); // Manually show the tooltip
       } else {
-        console.warn('Next button tooltip reference not available');
+        console.warn('Tooltip reference not available in QQC');
       }
-    }, 0); // Use setTimeout to defer execution to the next tick
-  }  
+    }, 0);
+  }
 
   private isAnyOptionSelected(): boolean {
     const result = this.selectedOptions.length > 0;
