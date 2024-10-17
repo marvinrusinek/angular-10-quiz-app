@@ -74,8 +74,6 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     console.log('viewContainerRefs:', this.viewContainerRefs);
   
     if (this.viewContainerRefs) {
-      console.log('Found viewContainerRefs:', this.viewContainerRefs.toArray());
-  
       this.viewContainerRefs?.changes.subscribe((refs) => {
         console.log('viewContainerRefs changed:', refs.toArray());
         this.handleViewContainerRef();
@@ -86,6 +84,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   
     this.cdRef.detectChanges(); // Ensure change detection runs
   }
+
 
   private handleViewContainerRef(): void {
     if (this.hasComponentLoaded) {
