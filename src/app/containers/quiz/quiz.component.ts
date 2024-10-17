@@ -1280,15 +1280,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
   } */
 
-  private showTooltip(): void {
+  /* private showTooltip(): void {
     if (this.tooltip) {
       // Force the tooltip to show and detect changes
       this.tooltip.show();
       this.cdRef.detectChanges();
       console.log('Tooltip shown and updated');
     }
-  }
-  
+  } */
   
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
