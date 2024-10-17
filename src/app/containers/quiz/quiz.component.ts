@@ -298,7 +298,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('isButtonEnabled$ updated:', isEnabled);
       this.cdRef.markForCheck();
     });
-    this.initializeTooltip();
+    
+    this.isNextButtonEnabled = false; // Start with the Next button disabled
+    this.initializeTooltip(); // Initialize tooltip logic
+    this.cdRef.detectChanges(); // Ensure the UI reflects the initial state
+
     this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
 
     // Move resetQuestionState here
@@ -330,6 +334,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       this.isLoading = true;
       this.progressBarService.setProgress(0);
+      this.isNextButtonEnabled = false; // Disable Next button on new question load
+      this.updateTooltip('Please select an option to continue...'); // Reset tooltip
 
       // Await the result of the forkJoin using lastValueFrom
       const data = await lastValueFrom(
