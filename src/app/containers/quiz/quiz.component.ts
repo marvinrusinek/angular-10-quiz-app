@@ -479,10 +479,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       if (this.nextButtonTooltip) {
         console.log('Updating tooltip:', message);
         this.nextButtonTooltip.message = message;
-        this.nextButtonTooltip.show(); // Ensure tooltip appears after state change
+        this.nextButtonTooltip.show(); // Manually show the tooltip
+      } else {
+        console.warn('Next button tooltip reference not available');
       }
-    }, 0); // Defer execution to the next tick to ensure state updates are applied
-  }
+    }, 0); // Use setTimeout to defer execution to the next tick
+  }  
 
   private isAnyOptionSelected(): boolean {
     const result = this.selectedOptions.length > 0;
