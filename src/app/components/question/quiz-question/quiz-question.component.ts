@@ -1175,9 +1175,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private logFinalData(): void {
     const data = {
       questionText: this.data.questionText || '',
-      correctAnswersText: this.data.correctAnswersText || '',
       options: this.data?.options || [],
-      currentOptions: this.data.options || []
+      correctAnswersText: this.data.correctAnswersText || ''
     };
     this.data = data;
 
@@ -1188,7 +1187,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     console.log('Data to be passed to fetchCorrectAnswersText:', data);
     console.log('questionData:::', this.questionData || 'Not available');
-    console.log('data.currentOptions:::', data.currentOptions);
     console.log('MY CORR MSG', this.correctMessage || 'Not available');
   }
 
