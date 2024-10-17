@@ -2,23 +2,29 @@
   <div *ngFor="let optionBinding of optionBindings; let optionIndex = index; trackBy: trackByOption">
     <label class="options">
       <ng-container [ngSwitch]="optionBinding.type">
+
         <!-- Handle multiple choice options -->
-        <mat-checkbox *ngSwitchCase="'multiple'" #checkbox appHighlightOption
-          (change)="updateOptionAndUI(optionBinding, optionIndex, checkbox)"
-          (optionSelected)="onOptionClicked($event.option, $event.optionIndex, $event.checked)">
+        <mat-checkbox *ngSwitchCase="'multiple'" 
+                      #checkbox 
+                      appHighlightOption
+                      (change)="updateOptionAndUI(optionBinding, optionIndex, checkbox)"
+                      (click)="onOptionClicked(optionBinding.option, optionIndex, checkbox.checked)">
           <ng-container 
             *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
           </ng-container>
         </mat-checkbox>
 
         <!-- Handle single choice options -->
-        <mat-radio-button *ngSwitchCase="'single'" #radio appHighlightOption
-          (change)="updateOptionAndUI(optionBinding, optionIndex, radio)"
-          (optionSelected)="onOptionClicked($event.option, $event.optionIndex, $event.checked)">
-          <ng-container
+        <mat-radio-button *ngSwitchCase="'single'" 
+                          #radio 
+                          appHighlightOption
+                          (change)="updateOptionAndUI(optionBinding, optionIndex, radio)"
+                          (click)="onOptionClicked(optionBinding.option, optionIndex, radio.checked)">
+          <ng-container 
             *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
           </ng-container>
         </mat-radio-button>
+
       </ng-container>
 
       <!-- Feedback display -->
