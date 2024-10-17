@@ -819,10 +819,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       questionText: this.question.questionText,
       explanationText: this.question.explanation,
       correctAnswersText: this.quizService.getCorrectAnswersAsString(),
-      options: this.options || [],
+      options: this.options || []
     };
-
-    console.log('Data initialized:', this.data);
   }
 
   private async initializeQuiz(): Promise<void> {
