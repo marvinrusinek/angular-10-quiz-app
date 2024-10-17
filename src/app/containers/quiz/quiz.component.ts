@@ -196,9 +196,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   ) {
     this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
       if (isHidden) {
-        // Page is now hidden, pause or delay updates in this component
+        console.log('Page hidden: Pausing updates.');
+        // Page is now hidden, pause or delay any updates here (if needed)
       } else {
-        // Page is now visible, resume updates in this component
+        console.log('Page visible: Resuming updates.');
+        // Page is now visible, resume updates like updating the question display
+  
+        this.handleVisibilityChange(); // Call the logic to reload question display
       }
     });
 
@@ -330,6 +334,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   /* ngAfterViewInit(): void {
     this.initializeTooltip(); // Initialize tooltip after view is loaded
   } */
+
+  private handleVisibilityChange(): void {
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    console.log('Restoring question display for index:', currentIndex);
+  
+    if (typeof currentIndex === 'number' && currentIndex >= 0) {
+      this.updateQuestionDisplay(currentIndex); // Ensure question state is restored
+    } else {
+      console.warn('Invalid question index on visibility change.');
+    }
+  
+    // Trigger change detection to ensure UI updates when the tab becomes visible
+    this.cdRef.detectChanges();
+  }  
 
   async loadQuestionContents(): Promise<void> {
     try {
