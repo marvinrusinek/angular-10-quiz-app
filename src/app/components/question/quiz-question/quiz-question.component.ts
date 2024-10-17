@@ -1359,7 +1359,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       this.finalizeLoadingState();
     }
-  }    
+  }  
 
   private initializeQuestionState(): QuestionState {
     const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
