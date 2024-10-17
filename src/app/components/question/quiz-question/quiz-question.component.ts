@@ -2232,12 +2232,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private resetExplanation(): void {
+    this.displayExplanation = false;
     this.explanationToDisplay = '';
     this.explanationTextService.updateFormattedExplanation('');
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationToDisplayChange.emit('');
     this.showExplanationChange.emit(false);
-    this.displayExplanation = false;
   }
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
