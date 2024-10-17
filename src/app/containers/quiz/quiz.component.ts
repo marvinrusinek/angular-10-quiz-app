@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, defer, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
@@ -52,7 +52,7 @@ type AnimationState = 'animationStarted' | 'none';
     UserPreferenceService
   ],
 })
-export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
+export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
   @ViewChild(SharedOptionComponent, { static: false })
@@ -335,10 +335,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.checkIfAnswerSelected(true);
   }
-
-  /* ngAfterViewInit(): void {
-    this.initializeTooltip(); // Initialize tooltip after view is loaded
-  } */
 
   private handleVisibilityChange(): void {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
