@@ -1177,20 +1177,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn('this.data is undefined or null');
       return;
     }
-
-    const data = {
+  
+    // Safely assign properties directly to this.data
+    this.data = {
       questionText: this.data?.questionText || '',
       options: this.data?.options || [],
       correctAnswersText: this.data?.correctAnswersText || ''
     };
   
-    this.data = data;
-  
+    // Log the relevant data
     console.log('Data to be passed to fetchCorrectAnswersText:', this.data);
     console.log('questionData:::', this.questionData || 'Not available');
     console.log('MY CORR MSG', this.correctMessage || 'Not available');
-  }
-  
+  }  
 
   public getCorrectAnswers(): number[] {
     // Check if the current question index has changed to decide whether to fetch new answers
