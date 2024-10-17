@@ -1329,10 +1329,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return true;
   }
   
-  private resetExplanation(): void {
-    this.displayExplanation = false;
-  }
-  
   private toggleOptionState(option: SelectedOption, index: number): void {
     option.selected = !option.selected;
     this.selectedOptionService.isAnsweredSubject.next(true);
