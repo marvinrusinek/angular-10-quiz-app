@@ -1173,16 +1173,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private logFinalData(): void {
+    const data = {
+      questionText: this.data.questionText || '',
+      correctAnswersText: this.data.correctAnswersText || '',
+      options: this.data?.options || [],
+      currentOptions: this.data.options || []
+    };
+    this.data = data;
+
     if (!this.data) {
       console.warn('this.data is undefined or null');
       return;
     }
-
-    const data = {
-      questionText: this.data.questionText || '',
-      correctAnswersText: this.data.correctAnswersText || '',
-      currentOptions: this.data.options || [],
-    };
 
     console.log('Data to be passed to fetchCorrectAnswersText:', data);
     console.log('questionData:::', this.questionData || 'Not available');
