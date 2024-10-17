@@ -59,8 +59,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.selectedQuiz$
       .pipe(
         takeUntil(this.destroy$),
-        filter((quiz) => quiz !== null), // Ensure we proceed only if there's a valid quiz
-        tap((quiz) => console.log('Quiz is ready:', quiz))
+        filter((quiz) => quiz !== null) // Ensure we proceed only if there's a valid quiz
       )
       .subscribe(() => {
         this.cdRef.markForCheck();
