@@ -2300,6 +2300,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   
     this.isNavigating = true; // Set navigation flag
+    this.isNextButtonEnabled = false; // Disable button on navigation
+    this.updateTooltip('Please select an option to continue...');
   
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
