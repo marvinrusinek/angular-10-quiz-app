@@ -412,6 +412,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   onOptionSelected(event: { option: SelectedOption; index: number; checked: boolean }, isUserAction: boolean = true): void {
+    console.log("MYSELTEST");
     console.log('onOptionSelected called with:', event, 'isUserAction:', isUserAction);
 
     if (!isUserAction) {
@@ -448,10 +449,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Trigger necessary actions when an option is selected
     this.selectedOptionService.setSelectedOption(event.option);
 
-    this.ngZone.run(() => {
-      this.selectedOptionService.setNextButtonEnabled(true);
-      setTimeout(() => this.nextButtonTooltip.show(), 0);
-    });
+    // Refresh the tooltip manually
+    setTimeout(() => this.nextButtonTooltip.show(), 0);
 
     this.cdRef.detectChanges();
   }

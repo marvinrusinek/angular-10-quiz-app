@@ -274,6 +274,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     element: MatCheckbox | MatRadioButton
   ): void {
     const checked = element.checked;
+    if (!checked) return;
   
     this.optionIconClass = this.getOptionIconClass(optionBinding.option);
   
