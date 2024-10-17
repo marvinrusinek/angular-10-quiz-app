@@ -67,17 +67,9 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     }
   }
 
-  ngAfterViewInit(): void {
-    console.log('ngAfterViewInit called');
-  
-    // Log the entire QueryList and its changes
-    console.log('viewContainerRefs:', this.viewContainerRefs);
-
-    // Log the QueryList instance
-    console.log('QueryList:::', this.viewContainerRefs);
-  
+  ngAfterViewInit(): void {  
     if (this.viewContainerRefs) {
-      this.viewContainerRefs.changes.subscribe((refs) => {
+      this.viewContainerRefs?.changes.subscribe((refs) => {
         console.log('viewContainerRefs changed:', refs.toArray());
         this.handleViewContainerRef();
       });
