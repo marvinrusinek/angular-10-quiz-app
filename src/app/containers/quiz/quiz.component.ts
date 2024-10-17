@@ -448,8 +448,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Trigger necessary actions when an option is selected
     this.selectedOptionService.setSelectedOption(event.option);
 
-    // Refresh the tooltip manually
-    setTimeout(() => this.nextButtonTooltip.show(), 0);
+    this.ngZone.run(() => {
+      this.selectedOptionService.setNextButtonEnabled(true);
+      setTimeout(() => this.nextButtonTooltip.show(), 0);
+    });
 
     this.cdRef.detectChanges();
   }
