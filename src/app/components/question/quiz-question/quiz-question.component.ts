@@ -554,7 +554,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  async loadDynamicComponent(): Promise<void> {
+  /* async loadDynamicComponent(): Promise<void> {
     try {
       // Ensure the dynamic container exists before proceeding
       if (!this.dynamicAnswerContainer) {
@@ -597,7 +597,53 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
       console.error('Error loading dynamic component:', error);
     }
-  }
+  } */
+  async loadDynamicComponent(): Promise<void> {
+    try {
+      if (!this.dynamicAnswerContainer) {
+        console.error('dynamicAnswerContainer is still undefined in QuizQuestionComponent');
+        return;
+      }
+  
+      this.dynamicAnswerContainer.clear(); // Clear previous components
+  
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizStateService.isMultipleAnswerQuestion(this.question)
+      );
+  
+      const componentRef: ComponentRef<BaseQuestionComponent> = 
+        await this.dynamicComponentService.loadComponent(
+          this.dynamicAnswerContainer,
+          isMultipleAnswer
+        );
+  
+      const instance = componentRef.instance as BaseQuestionComponent;
+  
+      if (!instance) {
+        console.error('Component instance is undefined');
+        return;
+      }
+  
+      // Assign properties to the component instance
+      instance.questionForm = this.questionForm;
+      instance.question = this.question;
+      instance.optionsToDisplay = [...this.optionsToDisplay];
+  
+      // Assign onOptionClicked only if not assigned previously
+      if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
+        instance.onOptionClicked = this.onOptionClicked.bind(this);
+        console.log('onOptionClicked bound for the first time.');
+      } else {
+        console.warn('onOptionClicked already assigned, skipping reassignment.');
+      }
+  
+      // Trigger change detection to ensure updates
+      componentRef.changeDetectorRef.markForCheck();
+      console.log('Change detection triggered for dynamic component.');
+    } catch (error) {
+      console.error('Error loading dynamic component:', error);
+    }
+  }  
 
   private loadInitialQuestionAndMessage(): void {
     // Load the initial question
