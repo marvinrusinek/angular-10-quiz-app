@@ -13,8 +13,10 @@ import {
   catchError,
   distinctUntilChanged,
   EMPTY,
+  filter,
   map,
   shareReplay,
+  take,
   takeUntil,
   tap,
 } from 'rxjs/operators';
@@ -581,18 +583,18 @@ export class QuizService implements OnDestroy {
 
   getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
     return this.questions$.pipe(
-      map((questions: QuizQuestion[] | null) => {
-        if (!questions || index < 0 || index >= questions.length) {
-          console.warn(
-            `Index ${index} is out of bounds or questions are not available.`
-          );
+      filter((questions) => questions.length > 0), // Wait until questions are available
+      take(1), // Take only the first emission
+      map((questions: QuizQuestion[]) => {
+        if (index < 0 || index >= questions.length) {
+          console.warn(`Index ${index} is out of bounds. Total questions: ${questions.length}`);
           return null;
         }
         return questions[index];
       }),
       catchError((error: Error) => {
         console.error('Error fetching question by index:', error);
-        return of(null); // Ensure it returns a valid observable with `null`
+        return of(null);
       })
     );
   }  
