@@ -1355,51 +1355,49 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private handleMultipleAnswerQuestion(option: SelectedOption): void {
     // Validate the unwrapped option data
     if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
-      console.error('Invalid option data:', event);
+      console.error('Invalid option data:', option); // Log the actual option object
       return;
     }
-
-    this.quizStateService
-      .isMultipleAnswerQuestion(this.currentQuestion)
-      .subscribe({
-        next: (isMultipleAnswer) => {
-          console.log('Multiple answer question detected:', isMultipleAnswer);
   
-          // Set the selected option in the service
-          this.selectedOptionService.setSelectedOption(option);
+    this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion).subscribe({
+      next: (isMultipleAnswer) => {
+        console.log('Multiple answer question detected:', isMultipleAnswer);
   
-          // Use fallback values if necessary
-          const optionId = option.optionId ?? -1;
-          const optionText = option.text || 'none';
+        // Set the selected option in the service
+        this.selectedOptionService.setSelectedOption(option);
   
-          console.log('Selecting option:', {
-            optionId,
-            questionIndex: this.currentQuestionIndex,
-            text: optionText,
-            isMultiSelect: isMultipleAnswer,
-          });
+        // Ensure fallback values for option properties if necessary
+        const optionId = option.optionId ?? -1;
+        const optionText = option.text || 'none';
   
-          // Select the option with validated data
-          this.selectedOptionService.selectOption(
-            optionId,
-            this.currentQuestionIndex,
-            optionText,
-            isMultipleAnswer
-          );
+        console.log('Selecting option:', {
+          optionId,
+          questionIndex: this.currentQuestionIndex,
+          text: optionText,
+          isMultiSelect: isMultipleAnswer,
+        });
   
-          // Toggle the selected option state
-          this.selectedOptionService.toggleSelectedOption(
-            this.currentQuestionIndex,
-            option,
-            isMultipleAnswer
-          );
-        },
-        error: (error) => {
-          console.error('Error determining multiple-answer:', error);
-        },
-      });
+        // Safely select the option with validated data
+        this.selectedOptionService.selectOption(
+          optionId,
+          this.currentQuestionIndex,
+          optionText,
+          isMultipleAnswer
+        );
+  
+        // Toggle the selected option state
+        this.selectedOptionService.toggleSelectedOption(
+          this.currentQuestionIndex,
+          option,
+          isMultipleAnswer
+        );
+      },
+      error: (error) => {
+        console.error('Error determining multiple-answer:', error);
+      },
+    });
   }
-  
+    
   private markQuestionAsAnswered(): void {
     const questionState = this.initializeQuestionState();
     questionState.isAnswered = true;
