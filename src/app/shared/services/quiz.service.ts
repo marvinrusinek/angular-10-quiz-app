@@ -1322,7 +1322,7 @@ export class QuizService implements OnDestroy {
     this.totalQuestionsSubject.next(total);
   }
 
-  getTotalQuestions(): Observable<number> {
+  getTotalQuestionsCount(): Observable<number> {
     return this.getQuizData().pipe(
       map((data: any) => {
         const quiz = data.find((q) => q.quizId === this.quizId);
