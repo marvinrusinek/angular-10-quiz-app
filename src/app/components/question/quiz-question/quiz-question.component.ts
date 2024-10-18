@@ -1444,11 +1444,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return questionState;
   }
 
-  private async handleOptionProcessingAndFeedback(option: SelectedOption, index: number, checked: boolean): Promise<void> {
+  private async handleOptionProcessingAndFeedback(
+    option: SelectedOption,
+    index: number,
+    checked: boolean
+  ): Promise<void> {
     console.log(`Handling option processing and feedback for question ${this.currentQuestionIndex}, option ${index}`);
   
     try {
-      await super.onOptionClicked(option, index, checked);
+      const event = { option, index, checked };
+      await super.onOptionClicked(event);
   
       this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
       this.selectedOption = { ...option, optionId: index + 1 };
