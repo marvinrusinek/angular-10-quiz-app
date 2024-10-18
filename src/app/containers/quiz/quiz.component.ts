@@ -372,8 +372,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.log(`Fetching question and options for quizId: ${quizId}, questionIndex: ${questionIndex}`);
   
       // Validate the observables being fetched
-      const question$ = this.quizService.getQuestionByIndex(questionIndex);
-      const options$ = this.quizService.getOptions(questionIndex);
+      const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex);
+      const options$ = this.quizService.getCurrentOptions();
   
       if (!question$ || !options$) {
         throw new Error('One or more observables are invalid.');
