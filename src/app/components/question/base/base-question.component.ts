@@ -256,10 +256,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   protected abstract loadDynamicComponent(): void;
 
   public async onOptionClicked(event: { option: SelectedOption; index: number; checked: boolean }): Promise<void> {
-    if (!event) {
-      console.error('Received undefined event in onOptionClicked.');
-      return;
-    }
     const { option, index, checked } = event;
 
     console.log('BaseQuestionComponent: onOptionClicked called with:', {
