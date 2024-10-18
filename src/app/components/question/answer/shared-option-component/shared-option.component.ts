@@ -319,7 +319,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     const eventData = {
       option: optionBinding.option,
       index: index,
-      checked: checked
+      checked: element.checked
     };
     this.optionSelected.emit(eventData);  // Emit the event to parent component
     console.log('Emitting optionSelected event:::>>>', eventData);
