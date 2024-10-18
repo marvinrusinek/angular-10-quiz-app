@@ -1299,7 +1299,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public override async onOptionClicked(event: { option: SelectedOption; index: number; checked: boolean }): Promise<void> {
     console.log('Received event in onOptionClicked:', event);
-    
+
     if (!event || !event.option) {
       console.error('Invalid event or option:', event);
       return;
@@ -1307,18 +1307,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     const { option, index, checked } = event || {};
 
-    /* if (!option) {
-      console.error('Invalid option data:', option);
-      return;
-    } */
-
-    console.log('QQC: onOptionClicked called with:', event);
-
     // Ensure the option object is correctly received
-    /* if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
+    if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
       console.error('Invalid option data:', option);
       return;
-    } */
+    }
     // if (!this.validateOption(option)) return;
   
     try {
