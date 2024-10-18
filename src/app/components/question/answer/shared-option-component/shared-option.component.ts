@@ -273,6 +273,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     index: number,
     element: MatCheckbox | MatRadioButton
   ): void {
+    if (!optionBinding.option) {
+      console.error('Option is undefined in updateOptionAndUI:', optionBinding);
+      return;
+    }
+
     const checked = element.checked;
     if (!checked) return;
   
