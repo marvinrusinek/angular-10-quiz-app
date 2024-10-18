@@ -1300,18 +1300,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(event: { option: SelectedOption; index: number; checked: boolean }): Promise<void> {
     console.log('Received event in onOptionClicked:', event);
 
-    if (!event || !event.option) {
+    // Check if the event object matches the expected structure
+    if (!event || !event.option || typeof event.index !== 'number' || typeof event.checked !== 'boolean') {
       console.error('Invalid event or option:', event);
       return;
     }
 
-    const { option, index, checked } = event || {};
+    // const { option, index, checked } = event || {};
 
     // Ensure the option object is correctly received
-    if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
+    /* if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
       console.error('Invalid option data:', option);
       return;
-    }
+    } */
     // if (!this.validateOption(option)) return;
   
     try {
