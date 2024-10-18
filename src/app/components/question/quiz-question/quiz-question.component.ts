@@ -1301,12 +1301,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Received event in onOptionClicked:', event);
 
     // Check if the event object matches the expected structure
-    if (!event || !event.option || typeof event.index !== 'number' || typeof event.checked !== 'boolean') {
-      console.error('Invalid event or option:', event);
+    if (!event || !event.option) {
+      console.error('Invalid event or option received:', event);
       return;
     }
 
-    // const { option, index, checked } = event || {};
+    const { option, index, checked } = event || {};
 
     // Ensure the option object is correctly received
     /* if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
