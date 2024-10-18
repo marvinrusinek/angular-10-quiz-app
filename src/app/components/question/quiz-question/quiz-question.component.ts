@@ -1353,16 +1353,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   private handleMultipleAnswerQuestion(option: SelectedOption): void {
-    // Validate the option data more robustly
-    if (
-      typeof option.optionId !== 'number' || 
-      option.optionId < 0 || 
-      !option.text?.trim()
-    ) {
-      console.error('Invalid option data:', option);
+    // Validate the unwrapped option data
+    if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
+      console.error('Invalid option data:', event);
       return;
     }
-    
+
     this.quizStateService
       .isMultipleAnswerQuestion(this.currentQuestion)
       .subscribe({
