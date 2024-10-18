@@ -554,7 +554,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  /* async loadDynamicComponent(): Promise<void> {
+  async loadDynamicComponent(): Promise<void> {
     try {
       // Ensure the dynamic container exists before proceeding
       if (!this.dynamicAnswerContainer) {
@@ -584,9 +584,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         instance.question = this.question;
         instance.optionsToDisplay = [...this.optionsToDisplay];
   
-        // Assign onOptionClicked if not already assigned
+        // Assign onOptionClicked using ??= operator
         instance.onOptionClicked ??= this.onOptionClicked.bind(this);
-        console.log('onOptionClicked bound to dynamic component.');
+        console.log('onOptionClicked assigned using ??=');
   
         // Trigger change detection to ensure UI updates
         componentRef.changeDetectorRef.markForCheck();
@@ -597,8 +597,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
       console.error('Error loading dynamic component:', error);
     }
-  } */
-  async loadDynamicComponent(): Promise<void> {
+  }  
+  /* async loadDynamicComponent(): Promise<void> {
     try {
       if (!this.dynamicAnswerContainer) {
         console.error('dynamicAnswerContainer is still undefined in QuizQuestionComponent');
@@ -643,7 +643,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
       console.error('Error loading dynamic component:', error);
     }
-  }  
+  } */
 
   private loadInitialQuestionAndMessage(): void {
     // Load the initial question
