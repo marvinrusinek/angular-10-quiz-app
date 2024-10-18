@@ -556,50 +556,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   async loadDynamicComponent(): Promise<void> {
     try {
-      // Ensure the dynamic container exists before proceeding
-      if (!this.dynamicAnswerContainer) {
-        console.error('dynamicAnswerContainer is still undefined in QuizQuestionComponent');
-        return;
-      }
-  
-      this.dynamicAnswerContainer.clear(); // Clear the container before loading
-  
-      // Determine if the question is a multiple answer type
-      this.isMultipleAnswer = await firstValueFrom(
-        this.quizStateService.isMultipleAnswerQuestion(this.question)
-      );
-  
-      const componentRef: ComponentRef<BaseQuestionComponent> =
-        await this.dynamicComponentService.loadComponent(
-          this.dynamicAnswerContainer,
-          this.isMultipleAnswer
-        );
-  
-      const instance = componentRef.instance as BaseQuestionComponent;
-  
-      // Only proceed if the instance exists
-      if (instance) {
-        // Assign properties to the dynamic component instance
-        instance.questionForm = this.questionForm;
-        instance.question = this.question;
-        instance.optionsToDisplay = [...this.optionsToDisplay];
-  
-        // Assign onOptionClicked using ??= operator
-        instance.onOptionClicked ??= this.onOptionClicked.bind(this);
-        console.log('onOptionClicked assigned using ??=');
-  
-        // Trigger change detection to ensure UI updates
-        componentRef.changeDetectorRef.markForCheck();
-        console.log('Change detection triggered for dynamic component.');
-      } else {
-        console.error('Component instance is undefined');
-      }
-    } catch (error) {
-      console.error('Error loading dynamic component:', error);
-    }
-  }  
-  /* async loadDynamicComponent(): Promise<void> {
-    try {
       if (!this.dynamicAnswerContainer) {
         console.error('dynamicAnswerContainer is still undefined in QuizQuestionComponent');
         return;
@@ -643,7 +599,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
       console.error('Error loading dynamic component:', error);
     }
-  } */
+  }
 
   private loadInitialQuestionAndMessage(): void {
     // Load the initial question
