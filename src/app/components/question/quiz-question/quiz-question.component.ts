@@ -585,7 +585,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       instance.question = this.question;
       instance.optionsToDisplay = [...this.optionsToDisplay];
   
-      // Assign onOptionClicked only if not assigned previously
+      // Use hasOwnProperty to assign onOptionClicked only if not already assigned
       if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
         instance.onOptionClicked = this.onOptionClicked.bind(this);
         console.log('onOptionClicked bound for the first time.');
