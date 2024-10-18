@@ -2319,7 +2319,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         tap((question: QuizQuestion) => {
           this.question = question;
           if (this.question) {
-            this.optionsToDisplay = this.quizService.getOptions(this.currentQuestionIndex) || [];
+            this.optionsToDisplay = this.quizService.getCurrentOptions() || [];
             this.ngZone.run(() => {
               this.cdRef.detectChanges();
             });

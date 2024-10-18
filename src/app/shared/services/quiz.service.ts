@@ -847,33 +847,14 @@ export class QuizService implements OnDestroy {
   }  
 
   // Get the current options for the current quiz and question
-  getCurrentOptions(): Observable<Option[]> {
-    if (!Array.isArray(this.quizData)) {
-      console.error('quizData is not an array or is undefined:', this.quizData);
-      return of([]); // Return an empty array to avoid `undefined`
-    }
-  
-    const quiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
-    if (!quiz) {
-      console.warn(`No quiz found for quizId: ${this.quizId}`);
-      return of([]); // Return an empty array if no quiz is found
-    }
-  
-    let currentQuestionIndex = this.getCurrentQuestionIndex();
-    const isValidIndex = currentQuestionIndex >= 0 && currentQuestionIndex < quiz.questions.length;
-  
-    if (!isValidIndex) {
-      console.warn(`Invalid currentQuestionIndex: ${currentQuestionIndex}. Falling back to index 0.`);
-      currentQuestionIndex = 0;
-    }
-  
-    const currentQuestion = quiz.questions[currentQuestionIndex];
-    if (!currentQuestion || !Array.isArray(currentQuestion.options)) {
-      console.warn(`No options found for question at index: ${currentQuestionIndex}`);
-      return of([]);
-    }
-  
-    return of(currentQuestion.options);
+  getCurrentOptions(quizId: string, questionIndex: number): Observable<Option[]> {
+    return this.getQuestionByIndex(questionIndex).pipe(
+      map((question) => question?.options || []),
+      catchError((error) => {
+        console.error('Error fetching options:', error);
+        return of([]); // Return an empty array on error
+      })
+    );
   }  
 
   getFallbackQuestion(): QuizQuestion | null {
