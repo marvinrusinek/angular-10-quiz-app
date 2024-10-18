@@ -1297,12 +1297,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(
-    option: SelectedOption,
-    index: number,
-    checked: boolean
-  ): Promise<void> {
-    if (!this.validateOption(option)) return;
+  public override async onOptionClicked(event: { option: SelectedOption; index: number; checked: boolean }): Promise<void> {
+    const { option, index, checked } = event;
+    
+    // Ensure the option object is correctly received
+    if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
+      console.error('Invalid option data:', option);
+      return;
+    }
+    // if (!this.validateOption(option)) return;
   
     try {
       await super.onOptionClicked(option, index, checked);
@@ -1313,11 +1316,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       this.startLoading();
   
-      // Ensure the option object is correctly received
-      if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
-        console.error('Invalid option data:', option);
-        return;
-      }
       this.handleMultipleAnswerQuestion(option); // Proceed with handling the valid option
   
       this.markQuestionAsAnswered();
