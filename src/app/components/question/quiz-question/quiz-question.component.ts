@@ -1313,7 +1313,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       this.startLoading();
   
-      this.handleMultipleAnswerQuestion(option);
+      // Ensure the option object is correctly received
+      if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
+        console.error('Invalid option data:', option);
+        return;
+      }
+      this.handleMultipleAnswerQuestion(option); // Proceed with handling the valid option
   
       this.markQuestionAsAnswered();
       await this.processSelectedOption(option, index, checked);
