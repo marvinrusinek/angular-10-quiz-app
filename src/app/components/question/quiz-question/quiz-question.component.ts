@@ -1308,6 +1308,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     const { option, index, checked } = event || {};
 
+    if (!option.optionId && option.optionId !== 0) {
+      console.error('Invalid option passed to toggleOptionState:', option);
+      return;
+    }
+
     // Ensure the option object is correctly received
     /* if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
       console.error('Invalid option data:', option);
