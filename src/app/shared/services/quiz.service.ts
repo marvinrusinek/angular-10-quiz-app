@@ -465,15 +465,22 @@ export class QuizService implements OnDestroy {
     return this.questions[index];
   }
 
-  getOptions(index: number): Option[] | null {
-    let options: Option[] | null = null;
-    this.getCurrentQuestionByIndex(this.quizId, index).subscribe((question) => {
-      if (question) {
-        options = question.options;
-      }
-    });
-    return options;
-  }
+  getOptions(index: number): Observable<Option[]> {
+    return this.getCurrentQuestionByIndex(this.quizId, index).pipe(
+      map((question) => {
+        if (question && question.options) {
+          return question.options;
+        } else {
+          console.warn(`No options found for question index: ${index}`);
+          return [];
+        }
+      }),
+      catchError((error) => {
+        console.error(`Error fetching options for question index ${index}:`, error);
+        return of([]); // Return an empty array on error
+      })
+    );
+  }  
 
   private loadData(): void {
     this.initializeQuizData();
