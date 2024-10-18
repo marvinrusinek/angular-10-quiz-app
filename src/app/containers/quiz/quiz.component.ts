@@ -449,11 +449,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   onOptionSelected(event: { option: SelectedOption; index: number; checked: boolean }, isUserAction: boolean = true): void {
-    console.log("MYSELTEST");
-    console.log('onOptionSelected called with:', event, 'isUserAction:', isUserAction);
-
-    // this.quizQuestionComponent.onOptionClicked(event.option, event.index, event.checked);
-
     if (!isUserAction) {
       console.log('Skipping processing as this is not a user action');
       return;

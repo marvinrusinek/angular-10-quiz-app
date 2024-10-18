@@ -1346,6 +1346,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     index: number,
     checked: boolean
   ): Promise<void> {
+    console.log("MY OOC TEST");
     console.log('QQC: onOptionClicked called', { option, index, checked });
   
     if (!this.validateOption(option)) return;
