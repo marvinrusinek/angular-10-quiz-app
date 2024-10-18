@@ -336,19 +336,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.checkIfAnswerSelected(true);
   }
 
-  private handleVisibilityChange(): void {
+  private async handleVisibilityChange(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
-    const totalQuestions = this.quizService.getTotalQuestionsCount(); // Assuming this method exists
-    console.log('Restoring question display for index:', currentIndex);
-
-    if (
-      typeof currentIndex === 'number' &&
-      currentIndex >= 0 &&
-      currentIndex < totalQuestions
-    ) {
-      this.updateQuestionDisplay(currentIndex); // Ensure question state is restored
-    } else {
-      console.warn('Invalid or out-of-range question index on visibility change.');
+    try {
+      const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
+      console.log('Restoring question display for index:', currentIndex);
+  
+      if (
+        typeof currentIndex === 'number' &&
+        currentIndex >= 0 &&
+        currentIndex < totalQuestions
+      ) {
+        this.updateQuestionDisplay(currentIndex); // Ensure question state is restored
+      } else {
+        console.warn('Invalid or out-of-range question index on visibility change.');
+      }
+    } catch (error) {
+      console.error('Error retrieving total questions count:', error);
     }
   }
 
