@@ -1300,10 +1300,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(event: { option: SelectedOption; index: number; checked: boolean }): Promise<void> {
     const { option, index, checked } = event || {};
 
-    if (!option) {
+    /* if (!option) {
       console.error('Invalid option data:', option);
       return;
-    }
+    } */
 
     console.log('QQC: onOptionClicked called with:', event);
 
@@ -1344,10 +1344,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return true;
   }
   
-  private toggleOptionState(option: SelectedOption, index: number): void {
+  toggleOptionState(option: SelectedOption, index: number): void {
+    if (!option || typeof option.selected === 'undefined') {
+      console.error('Invalid option passed to toggleOptionState:', option);
+      return;
+    }
+  
+    console.log('Toggling option state for:', { option, index });
+  
     option.selected = !option.selected;
     this.selectedOptionService.isAnsweredSubject.next(true);
-  }
+  }  
   
   private emitOptionSelected(option: SelectedOption, index: number): void {
     this.optionSelected.emit({ option, index, checked: option.selected });
