@@ -569,7 +569,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.quizStateService.isMultipleAnswerQuestion(this.question)
       );
   
-      const componentRef: ComponentRef<BaseQuestionComponent> = 
+      const componentRef: ComponentRef<BaseQuestionComponent> =
         await this.dynamicComponentService.loadComponent(
           this.dynamicAnswerContainer,
           this.isMultipleAnswer
@@ -577,27 +577,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       const instance = componentRef.instance as BaseQuestionComponent;
   
-      if (!instance) {
+      // Only proceed if the instance exists
+      if (instance) {
+        // Assign properties to the dynamic component instance
+        instance.questionForm = this.questionForm;
+        instance.question = this.question;
+        instance.optionsToDisplay = [...this.optionsToDisplay];
+  
+        // Assign onOptionClicked if not already assigned
+        instance.onOptionClicked ??= this.onOptionClicked.bind(this);
+        console.log('onOptionClicked bound to dynamic component.');
+  
+        // Trigger change detection to ensure UI updates
+        componentRef.changeDetectorRef.markForCheck();
+        console.log('Change detection triggered for dynamic component.');
+      } else {
         console.error('Component instance is undefined');
-        return;
       }
-  
-      // Assign properties to the dynamic component instance
-      instance.questionForm = this.questionForm;
-      instance.question = this.question;
-      instance.optionsToDisplay = [...this.optionsToDisplay];
-  
-      // Assign onOptionClicked if not already assigned
-      instance.onOptionClicked ??= this.onOptionClicked.bind(this);
-      console.log('onOptionClicked bound to dynamic component.');
-  
-      // Trigger change detection to ensure UI updates
-      componentRef.changeDetectorRef.markForCheck();
-      console.log('Change detection triggered for dynamic component.');
     } catch (error) {
       console.error('Error loading dynamic component:', error);
     }
-  }  
+  }
 
   private loadInitialQuestionAndMessage(): void {
     // Load the initial question
