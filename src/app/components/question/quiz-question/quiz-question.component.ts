@@ -1353,15 +1353,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   private handleMultipleAnswerQuestion(option: SelectedOption): void {
+    if (!option || option.optionId == null || !option.text) {
+      console.error('Invalid option data:', option);
+      return;
+    }
+
     this.quizStateService
       .isMultipleAnswerQuestion(this.currentQuestion)
       .subscribe({
         next: (isMultipleAnswer) => {
           this.selectedOptionService.setSelectedOption(option);
           this.selectedOptionService.selectOption(
-            option.optionId,
+            option.optionId ?? -1,
             this.currentQuestionIndex,
-            option.text,
+            option.text || 'none',
             isMultipleAnswer
           );
   
