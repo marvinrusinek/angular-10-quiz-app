@@ -263,11 +263,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       index,
       checked,
     });
-
-    if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
-      console.error('Invalid option data:', event);
-      return;
-    }
   
     // Ensure the selected option is updated
     this.updateSelectedOption(index);
