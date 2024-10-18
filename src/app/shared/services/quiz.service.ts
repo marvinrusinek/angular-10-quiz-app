@@ -581,22 +581,21 @@ export class QuizService implements OnDestroy {
 
   getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
     return this.questions$.pipe(
-      map((questions: QuizQuestion[]) => {
+      map((questions: QuizQuestion[] | null) => {
         if (!questions || index < 0 || index >= questions.length) {
-          console.log(
-            `Index ${index} is out of bounds, or questions are undefined`
+          console.warn(
+            `Index ${index} is out of bounds or questions are not available.`
           );
           return null;
         }
-        const question = questions[index];
-        return question;
+        return questions[index];
       }),
       catchError((error: Error) => {
-        console.error('Error fetching question:', error);
-        return of(null);
+        console.error('Error fetching question by index:', error);
+        return of(null); // Ensure it returns a valid observable with `null`
       })
     );
-  }
+  }  
 
   getCurrentQuestionByIndex(
     quizId: string,
