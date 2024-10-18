@@ -1350,8 +1350,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return true;
   }
   
-  toggleOptionState(option: SelectedOption, index: number): void {
-    if (!option || typeof option.selected === 'undefined') {
+  private toggleOptionState(option: SelectedOption, index: number): void {
+    if (!option || !('optionId' in option)) {
       console.error('Invalid option passed to toggleOptionState:', option);
       return;
     }
