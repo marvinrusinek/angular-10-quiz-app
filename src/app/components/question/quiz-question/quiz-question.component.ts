@@ -1298,11 +1298,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public override async onOptionClicked(event: { option: SelectedOption; index: number; checked: boolean }): Promise<void> {
-    if (!event) {
-      console.error('Received undefined event in onOptionClicked.');
-      return;
-    }
     const { option, index, checked } = event;
+
+    console.log('QQC: onOptionClicked called with:', event);
 
     // Ensure the option object is correctly received
     if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
