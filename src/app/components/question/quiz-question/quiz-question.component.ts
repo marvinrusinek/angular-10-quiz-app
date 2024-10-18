@@ -1351,10 +1351,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
   
-    console.log('Toggling option state for:', { option, index });
-  
-    option.selected = !option.selected;
+    option.selected = !option.selected; // Toggle selection state
     this.selectedOptionService.isAnsweredSubject.next(true);
+    console.log(`Option state toggled:`, { option, index });
   }  
   
   private emitOptionSelected(option: SelectedOption, index: number): void {
