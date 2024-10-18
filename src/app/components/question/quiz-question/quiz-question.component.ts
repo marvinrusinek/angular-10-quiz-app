@@ -1312,7 +1312,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // if (!this.validateOption(option)) return;
   
     try {
-      await super.onOptionClicked(option, index, checked);
+      await super.onOptionClicked(event);
       this.resetExplanation();
   
       this.toggleOptionState(option, index);
