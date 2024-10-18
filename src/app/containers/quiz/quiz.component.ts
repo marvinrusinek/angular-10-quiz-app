@@ -360,23 +360,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     try {
       this.isLoading = true;
       this.progressBarService.setProgress(0);
-      this.isNextButtonEnabled = false; // Disable Next button on new question load
+      this.isNextButtonEnabled = false; // Disable Next button initially
       this.updateTooltip('Please select an option to continue...'); // Reset tooltip
   
-      // Get the current quiz ID and question index
       const quizId = this.quizService.getCurrentQuizId();
       const questionIndex = this.quizService.getCurrentQuestionIndex();
   
       if (!quizId) throw new Error('No active quiz ID found.');
       if (questionIndex < 0) throw new Error('Invalid question index.');
   
-      console.log(`Loading question for quizId: ${quizId}, questionIndex: ${questionIndex}`);
+      console.log(`Fetching question and options for quizId: ${quizId}, questionIndex: ${questionIndex}`);
   
-      // Use lastValueFrom with forkJoin to load question and options
+      // Validate the observables being fetched
+      const question$ = this.quizService.getQuestionByIndex(questionIndex);
+      const options$ = this.quizService.getOptions(questionIndex);
+  
+      if (!question$ || !options$) {
+        throw new Error('One or more observables are invalid.');
+      }
+  
       const data = await lastValueFrom(
         forkJoin({
-          question: this.quizService.getQuestionByIndex( questionIndex),
-          options: this.quizService.getOptions(questionIndex),
+          question: question$,
+          options: options$,
+          // Uncomment if needed
           // selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
           // navigationIcons: this.navigationService.getNavigationIcons(),
           // badgeQuestionNumber: this.quizService.getBadgeQuestionNumber(),
@@ -384,34 +391,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         })
       );
   
-      // Validate the loaded data
+      // Validate data
       if (!data.question || !Array.isArray(data.options)) {
-        throw new Error(`Failed to load question or options for index ${questionIndex}.`);
+        throw new Error(`Failed to load valid data for questionIndex ${questionIndex}`);
       }
   
-      // Assign the loaded data to component properties
       this.currentQuestion = data.question;
       this.options = data.options;
       console.log('Loaded question contents:', data);
   
-      // Set the current question index in QuizService after loading
+      // Set the current question in QuizService
       this.quizService.setCurrentQuestion(questionIndex);
   
-      // Update the progress after question and options are loaded
+      // Update progress after loading
       this.updateProgressPercentage();
-  
-      // Optional: Assign additional loaded data if needed
-      // this.selectionMessage = data.selectionMessage;
-      // this.navigationIcons = data.navigationIcons;
-      // this.badgeQuestionNumber = data.badgeQuestionNumber;
-      // this.score = data.score;
     } catch (error) {
       console.error('Error loading question contents:', error);
     } finally {
-      // Ensure the loading state is cleared
       this.isLoading = false;
     }
-  }  
+  }
+  
 
   private restoreQuestionDisplay(): void {
     console.log('Restoring question display for index:', this.currentQuestionIndex);
