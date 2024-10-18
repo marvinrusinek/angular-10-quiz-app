@@ -150,55 +150,64 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     }
   }
 
-  public override async onOptionClicked(option: SelectedOption, index: number, checked: boolean): Promise<void> {
+  public override async onOptionClicked(
+    option: SelectedOption,
+    index: number,
+    checked: boolean
+  ): Promise<void> {
+    console.log('AnswerComponent: onOptionClicked called with:', { option, index, checked });
+  
+    // Handle single-answer questions
     if (this.type === 'single') {
-      // Set the index of the selected option
       this.selectedOptionIndex = index;
-
-      // For single answer questions, only one option can be selected at a time
       this.selectedOption = option;
-      this.showFeedbackForOption = { [option.optionId]: true }; // Show feedback for the selected option
+      this.showFeedbackForOption = { [option.optionId]: true }; // Show feedback for selected option
+  
     } else {
-      // Toggle the selection of the clicked option for multiple answer questions
+      // Handle multiple-answer questions by toggling selection
       const optionIndex = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
       const isChecked = optionIndex === -1;
-
+  
       if (isChecked) {
         this.selectedOptions.push(option);
       } else {
         this.selectedOptions.splice(optionIndex, 1);
       }
-
-      // Show or hide feedback for this option
+  
+      // Update feedback for the clicked option
       this.showFeedbackForOption[option.optionId] = isChecked;
     }
-
-    // Emit the option clicked event
+  
+    // Emit the option selected event
     this.optionSelected.emit({ option, index, checked });
     console.log('AnswerComponent: optionSelected emitted', { option, index, checked });
-
-    // Update the quiz state based on whether an option is selected
-    const isOptionSelected = this.type === 'single' ? !!this.selectedOption : this.selectedOptions.length > 0;
+  
+    // Determine if an option is selected
+    const isOptionSelected = this.type === 'single'
+      ? !!this.selectedOption
+      : this.selectedOptions.length > 0;
+  
+    // Update quiz state based on selection
     this.quizStateService.setAnswerSelected(isOptionSelected);
     this.quizStateService.setAnswered(isOptionSelected);
-
-    // Update the SelectedOptionService
+  
+    // Update SelectedOptionService only when a valid option is selected
     if (isOptionSelected) {
-      if (this.type === 'single') {
+      if (this.type === 'single' && this.selectedOption) {
         this.selectedOptionService.setSelectedOption(this.selectedOption);
-      } else {
-        // You can send all selected options for multiple-answer questions
+        console.log('AnswerComponent: SelectedOptionService updated with:', this.selectedOption);
+      } else if (this.selectedOptions.length > 0) {
         this.selectedOptionService.setSelectedOption(this.selectedOptions);
+        console.log('AnswerComponent: SelectedOptionService updated with multiple options:', this.selectedOptions);
       }
-      console.log('AnswerComponent: SelectedOptionService updated with:', this.selectedOption);
     } else {
       this.selectedOptionService.clearSelectedOption();
       console.log('AnswerComponent: SelectedOptionService cleared');
     }
-
-    // Trigger change detection to ensure UI updates
+  
+    // Trigger change detection to update the UI
     this.cdRef.detectChanges();
-  }
+  }  
 
   loadDynamicComponent(): void {
     console.log('loadDynamicComponent is not used in AnswerComponent');
