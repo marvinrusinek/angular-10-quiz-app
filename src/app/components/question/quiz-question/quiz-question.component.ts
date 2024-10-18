@@ -206,7 +206,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
 
     this.quizService
-      .getTotalQuestions()
+      .getTotalQuestionsCount()
       .pipe(takeUntil(this.destroy$))
       .subscribe((totalQuestions: number) => {
         this.totalQuestions = totalQuestions;

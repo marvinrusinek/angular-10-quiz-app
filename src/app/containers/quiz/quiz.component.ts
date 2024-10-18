@@ -208,7 +208,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.isAnswered$ = this.selectedOptionService.isAnswered$;
 
-    this.quizService.getTotalQuestions().subscribe((total) => {
+    this.quizService.getTotalQuestionsCount().subscribe((total) => {
       this.totalQuestions = total;
     });
 
@@ -2215,7 +2215,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   updateProgressPercentage(): void {
-    this.quizService.getTotalQuestions().subscribe({
+    this.quizService.getTotalQuestionsCount().subscribe({
       next: (total) => {
         this.totalQuestions = total;
 

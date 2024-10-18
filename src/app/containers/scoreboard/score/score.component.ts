@@ -29,7 +29,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
   private unsubscribeTrigger$: Subject<void> = new Subject<void>();
 
   constructor(private quizService: QuizService) {
-    this.totalQuestions$ = this.quizService.getTotalQuestions();
+    this.totalQuestions$ = this.quizService.getTotalQuestionsCount();
   }
 
   ngOnInit(): void {
