@@ -363,24 +363,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.isNextButtonEnabled = false; // Disable Next button on new question load
       this.updateTooltip('Please select an option to continue...'); // Reset tooltip
   
-      const quizId = this.quizService.getCurrentQuizId(); // Ensure the quizId is retrieved
-      const questionIndex = this.quizService.getCurrentQuestionIndex(); // Get current question index
+      // Get the current quiz ID and question index
+      const quizId = this.quizService.getCurrentQuizId();
+      const questionIndex = this.quizService.getCurrentQuestionIndex();
   
-      if (!quizId) {
-        throw new Error('No active quiz ID found.');
-      }
-  
-      if (questionIndex < 0) {
-        throw new Error('Invalid question index.');
-      }
+      if (!quizId) throw new Error('No active quiz ID found.');
+      if (questionIndex < 0) throw new Error('Invalid question index.');
   
       console.log(`Loading question for quizId: ${quizId}, questionIndex: ${questionIndex}`);
   
       // Use lastValueFrom with forkJoin to load question and options
       const data = await lastValueFrom(
         forkJoin({
-          question: this.quizService.getQuestionByIndex(quizId, questionIndex),
-          options: this.quizService.getOptionsByQuestionIndex(quizId, questionIndex),
+          question: this.quizService.getQuestionByIndex( questionIndex),
+          options: this.quizService.getOptions(questionIndex),
           // selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
           // navigationIcons: this.navigationService.getNavigationIcons(),
           // badgeQuestionNumber: this.quizService.getBadgeQuestionNumber(),
