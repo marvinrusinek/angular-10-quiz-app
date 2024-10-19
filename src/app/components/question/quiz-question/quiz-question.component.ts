@@ -1906,8 +1906,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const questionIndex = this.currentQuestionIndex;
 
     // Ensure that optionIndex is being received correctly
-    if (typeof optionIndex === 'undefined') {
-      console.error('optionIndex is undefined.');
+    if (!option || optionIndex < 0) {
+      console.error(
+        `Invalid option or optionIndex: ${JSON.stringify(option)}, index: ${optionIndex}`
+      );
+      return;
+    }
+    
+    // Ensure the question index is valid
+    if (typeof questionIndex !== 'number' || questionIndex < 0) {
+      console.error(`Invalid question index: ${questionIndex}`);
       return;
     }
 
