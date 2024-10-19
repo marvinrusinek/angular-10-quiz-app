@@ -1417,22 +1417,22 @@ export class QuizService implements OnDestroy {
 
   getCorrectAnswers(question: QuizQuestion): number[] {
     if (!question) {
-      console.error('Called with an undefined question object.');
+      console.error('Called getCorrectAnswers() with an undefined question.');
       return [];
     }
   
     const correctAnswersMap = this.correctAnswersSubject.getValue();
     
     if (!correctAnswersMap || !(correctAnswersMap instanceof Map)) {
-      console.error('Correct answers map is not properly initialized.');
+      console.error('Correct answers map is invalid or uninitialized.');
       return [];
     }
   
-    const correctAnswersForQuestion = correctAnswersMap.get(question.questionText) || [];
+    const correctAnswers = correctAnswersMap.get(question.questionText) || [];
   
-    console.log(`Correct answers for question "${question.questionText}":`, correctAnswersForQuestion);
+    console.log(`Correct answers for question "${question.questionText}":`, correctAnswers);
   
-    return correctAnswersForQuestion;
+    return correctAnswers;
   }
 
   getCorrectAnswersAsString(): string {
