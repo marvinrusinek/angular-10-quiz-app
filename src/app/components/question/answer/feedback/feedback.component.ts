@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
-import { Option } from '../../../../shared/models/Option.model';
 
 @Component({
   selector: 'codelab-quiz-feedback',
@@ -10,37 +9,26 @@ import { Option } from '../../../../shared/models/Option.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FeedbackComponent implements OnChanges {
-  @Input() feedbackConfig: FeedbackProps = {
-    options: [],
-    question: null,
-    selectedOption: null,
-    correctMessage: '',
-    feedback: '',
-    showFeedback: false,
-    idx: -1
-  };
-  @Input() correctMessage: string;
-  @Input() selectedOption: Option & { correct: boolean };
-  @Input() feedback = '';
-  @Input() showFeedback = false;
+  @Input() feedbackConfig: FeedbackProps;
   feedbackMessageClass: string;
   feedbackPrefix: string;
   displayMessage = '';
 
-  constructor() {}
+  constructor(private cdRef: ChangeDetectorRef) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.shouldUpdateFeedback(changes)) {
       this.updateFeedback();
+      this.cdRef.markForCheck();
     }
   }
 
   private shouldUpdateFeedback(changes: SimpleChanges): boolean {
-    return 'feedbackConfig' in changes;
+    return 'feedbackConfig' in changes && !!changes['feedbackConfig'].currentValue;
   }
 
   private updateFeedback(): void {
-    if (this.feedbackConfig && this.feedbackConfig.showFeedback) {
+    if (this.feedbackConfig?.showFeedback) {
       this.feedbackMessageClass = this.determineFeedbackMessageClass();
       this.feedbackPrefix = this.determineFeedbackPrefix();
       this.updateDisplayMessage();
@@ -51,21 +39,13 @@ export class FeedbackComponent implements OnChanges {
   }  
 
   private determineFeedbackPrefix(): string {
-    if (!this.feedbackConfig || !this.feedbackConfig.selectedOption) {
-      return '';
-    }
-    
-    const prefix = this.feedbackConfig.selectedOption.correct
-      ? "You're right! " 
-      : "That's wrong. ";
-    return prefix;
+    const isCorrect = this.feedbackConfig?.selectedOption?.correct ?? false;
+    return isCorrect ? "You're right! " : "That's wrong. ";
   }
 
   private determineFeedbackMessageClass(): string {
-    const messageClass = this.feedbackConfig && this.feedbackConfig.selectedOption && this.feedbackConfig.selectedOption.correct 
-      ? 'correct-message' 
-      : 'wrong-message';
-    return messageClass;
+    const isCorrect = this.feedbackConfig?.selectedOption?.correct ?? false;
+    return isCorrect ? 'correct-message' : 'wrong-message';
   }
 
   private updateDisplayMessage(): void {
