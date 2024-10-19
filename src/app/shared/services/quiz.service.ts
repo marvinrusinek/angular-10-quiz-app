@@ -1419,21 +1419,22 @@ export class QuizService implements OnDestroy {
     const correctAnswersMap = this.correctAnswersSubject.getValue();
   
     if (!correctAnswersMap || !(correctAnswersMap instanceof Map)) {
-      console.error('Correct answers map is not initialized or is invalid.');
+      console.error('Correct answers map is not initialized or invalid.');
       return [];
     }
   
     const normalizedText = this.normalizeText(question.questionText);
     console.log('Looking up correct answers for:', normalizedText);
   
-    const correctAnswers = correctAnswersMap.get(normalizedText);
+    const correctAnswers = correctAnswersMap.get(normalizedText) || [];
+    console.log('Correct answers found:', correctAnswers);
   
-    if (!correctAnswers) {
+    if (correctAnswers.length === 0) {
       console.warn(`No correct answers found for question: "${question.questionText}"`);
       console.log('Available keys:', Array.from(correctAnswersMap.keys()));
     }
   
-    return correctAnswers || [];
+    return correctAnswers;
   }
   
   private normalizeText(text: string): string {
