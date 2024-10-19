@@ -1355,6 +1355,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     option.selected = !option.selected; // Toggle selection state
+    
+    // Toggle feedback display for this option
+    this.showFeedbackForOption[option.optionId] = !this.showFeedbackForOption[option.optionId];
+    
     this.selectedOptionService.isAnsweredSubject.next(true);
     console.log(`Option state toggled:`, { option, index });
   }  
