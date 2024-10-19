@@ -1470,8 +1470,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Fetch the current question data again to ensure we have the most up-to-date information
       const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
-      
-      console.log(`Current question data:`, JSON.stringify(questionData, null, 2));
   
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
         // Process the explanation text
