@@ -1311,7 +1311,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
     const { option, index = -1, checked = false } = event || {};
 
-
     if (typeof option.optionId !== 'number' || !option.text?.trim()) {
       console.error('Invalid option structure:', option);
       return;
