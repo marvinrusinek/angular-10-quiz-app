@@ -1346,13 +1346,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
   
-    option.selected = !option.selected; // Toggle selection state
-    
-    // Toggle feedback display for this option
+    option.selected = !option.selected;
     this.showFeedbackForOption[option.optionId] = !this.showFeedbackForOption[option.optionId];
     
     this.selectedOptionService.isAnsweredSubject.next(true);
     console.log(`Option state toggled:`, { option, index });
+
+    this.cdRef.detectChanges();
   }  
   
   private emitOptionSelected(option: SelectedOption, index: number): void {
