@@ -1416,29 +1416,29 @@ export class QuizService implements OnDestroy {
   }
 
   getCorrectAnswers(question: QuizQuestion): number[] {
-    if (!question) {
-      console.error('Called getCorrectAnswers() with an undefined question.');
-      return [];
-    }
-  
     const correctAnswersMap = this.correctAnswersSubject.getValue();
     
     if (!correctAnswersMap || !(correctAnswersMap instanceof Map)) {
-      console.error('Correct answers map is invalid or uninitialized.');
+      console.error('Correct answers map is not initialized or is invalid.');
       return [];
     }
   
-    console.log('Looking up correct answers for question text:', question.questionText);
-  
-    const correctAnswers = correctAnswersMap.get(question.questionText);
+    console.log('Fetching correct answers for:', question.questionText);
+    const normalizedText = this.normalizeText(question.questionText);
+    
+    const correctAnswers = correctAnswersMap.get(normalizedText);
   
     if (!correctAnswers) {
-      console.warn(`No correct answers found for question: "${question.questionText}".`);
-      console.log('Available keys in correctAnswersMap:', Array.from(correctAnswersMap.keys()));
+      console.warn(`No correct answers found for question: "${question.questionText}"`);
+      console.log('Available keys:', Array.from(correctAnswersMap.keys()));
     }
   
     return correctAnswers || [];
   }
+  
+  private normalizeText(text: string): string {
+    return text.trim().toLowerCase();
+  }  
 
   getCorrectAnswersAsString(): string {
     // Convert the map to a comma-separated string
