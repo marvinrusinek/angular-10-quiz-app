@@ -1297,61 +1297,54 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(event: { option: SelectedOption; index: number; checked: boolean }): Promise<void> {
+  public override async onOptionClicked(
+    event: { option: SelectedOption; index: number; checked: boolean }
+  ): Promise<void> {
     console.log('Received event in onOptionClicked:', event);
-
-    // Type guard to check if event is of type { option, index, checked }
-    const option: SelectedOption = 'option' in event ? event.option : event;
-    const index: number = 'index' in event ? event.index : -1;
-    const checked: boolean = 'checked' in event ? event.checked : false;
-
-    // Ensure the option object is correctly received
+  
+    // Extract event properties with validation and defaults
+    const option = event?.option ?? null;
+    const index = event?.index ?? -1;
+    const checked = event?.checked ?? false;
+  
+    // Validate the extracted option and index
     if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
       console.error('Invalid option data:', option);
       return;
     }
-
-    // Validate option and index
-    if (!option || typeof index !== 'number' || index < 0) {
-      console.error('Invalid event or option structure:', event);
+  
+    if (index < 0) {
+      console.error(`Invalid index: ${index}`);
       return;
     }
-
-    // const { option, index, checked } = event || {};
-
-    /* if (!option.optionId && option.optionId !== 0) {
-      console.error('Invalid option passed to toggleOptionState:', option);
-      return;
-    } */
-
-    // Ensure the option object is correctly received
-    /* if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
-      console.error('Invalid option data:', option);
-      return;
-    } */
-    // if (!this.validateOption(option)) return;
   
     try {
+      // Call the parent class's onOptionClicked method
       await super.onOptionClicked(event);
-      this.resetExplanation();
   
+      // Reset and update UI state
+      this.resetExplanation();
       this.toggleOptionState(option, index);
       this.emitOptionSelected(option, index);
-  
       this.startLoading();
   
-      this.handleMultipleAnswerQuestion(option); // Proceed with handling the valid option
+      // Handle multiple-answer logic if applicable
+      this.handleMultipleAnswerQuestion(option);
   
+      // Mark the question as answered and process selection
       this.markQuestionAsAnswered();
       await this.processSelectedOption(option, index, checked);
   
+      // Finalize the selection and loading state
       await this.finalizeSelection(option, index);
     } catch (error) {
+      // Log and handle any errors during the process
       this.handleError(error);
     } finally {
+      // Ensure loading state is finalized regardless of success/failure
       this.finalizeLoadingState();
     }
-  }
+  }  
 
   private validateOption(option: SelectedOption): boolean {
     if (!option) {
