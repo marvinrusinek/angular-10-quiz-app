@@ -1452,7 +1452,7 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  getCorrectAnswers(question: QuizQuestion): number[] {
+  /* getCorrectAnswers(question: QuizQuestion): number[] {
     if (!question) {
       console.error('Called with an undefined question object.');
       return [];
@@ -1473,7 +1473,39 @@ export class QuizService implements OnDestroy {
     }
   
     return correctAnswersForQuestion;
+  } */
+  getCorrectAnswers(question: QuizQuestion): number[] {
+    // Validate the input question object
+    if (!question || !question.questionText?.trim()) {
+      console.error('Called with an undefined or invalid question object.');
+      return [];
+    }
+  
+    const questionText = question.questionText.trim();
+    console.log('Fetching correct answers for question:', questionText);
+  
+    // Retrieve the current state of the correct answers map
+    const correctAnswersMap = this.correctAnswersSubject.getValue();
+  
+    if (!correctAnswersMap || correctAnswersMap.size === 0) {
+      console.warn('The correct answers map is empty.');
+      return [];
+    }
+  
+    console.log('Current correctAnswersMap:', Array.from(correctAnswersMap.entries()));
+  
+    // Fetch the correct answers for the provided question
+    const correctAnswersForQuestion = correctAnswersMap.get(questionText) || [];
+  
+    if (correctAnswersForQuestion.length === 0) {
+      console.warn(`No correct answers found for question: "${questionText}".`);
+    } else {
+      console.log('Correct answers for question:', correctAnswersForQuestion);
+    }
+  
+    return correctAnswersForQuestion;
   }
+  
 
   getCorrectAnswersAsString(): string {
     // Convert the map to a comma-separated string
