@@ -1433,6 +1433,7 @@ export class QuizService implements OnDestroy {
     return new Observable((observer) => {
       console.log('Setting correct answers for question:', question.questionText);
   
+      // Filter and map correct options
       const correctOptionNumbers = options
         .filter((option) => option.correct)
         .map((option) => option.optionId);
@@ -1440,6 +1441,7 @@ export class QuizService implements OnDestroy {
       console.log('Correct option numbers:', correctOptionNumbers);
   
       if (correctOptionNumbers.length > 0) {
+        // Store the correct answers in the map
         this.correctAnswers.set(question.questionText.trim(), correctOptionNumbers);
         this.correctAnswersSubject.next(new Map(this.correctAnswers));
         console.log('Updated correctAnswers map:', Array.from(this.correctAnswers.entries()));
@@ -1451,6 +1453,7 @@ export class QuizService implements OnDestroy {
       }
     });
   }
+  
 
   /* getCorrectAnswers(question: QuizQuestion): number[] {
     if (!question) {
