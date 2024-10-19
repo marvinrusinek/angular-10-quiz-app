@@ -308,34 +308,37 @@ export class SelectedOptionService {
   }
 
   updateSelectedOptions(
-    questionIndex: number,
-    optionIndex: number,
+    questionIndex: number, 
+    optionIndex: number, 
     action: 'add' | 'remove'
   ): void {
+    // Retrieve quiz data directly from local state (without fetching from another service)
     const quizId = this.quizService.quizId || localStorage.getItem('quizId');
     if (!quizId) {
-      console.error('Quiz ID is null or undefined');
+      console.error('Quiz ID is null or undefined.');
       return;
     }
   
     const quiz = this.quizService.quizData.find((q) => q.quizId?.trim() === quizId.trim());
     if (!quiz) {
-      console.error(`Quiz with ID ${quizId} not found`);
+      console.error(`Quiz with ID ${quizId} not found.`);
       return;
     }
   
+    // Validate the question and option indices
     const question = quiz.questions[questionIndex];
     if (!question) {
-      console.error(`Question data is not found at index ${questionIndex}.`);
+      console.error(`Question data not found at index ${questionIndex}.`);
       return;
     }
   
     const option = question.options[optionIndex];
     if (!option) {
-      console.error(`Option data is not found for optionIndex ${optionIndex}. Available options:`, question.options);
+      console.error(`Option data not found for optionIndex ${optionIndex}. Available options:`, question.options);
       return;
     }
   
+    // Initialize the map if it doesn't exist for this question index
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
@@ -343,17 +346,21 @@ export class SelectedOptionService {
     const options = this.selectedOptionsMap.get(questionIndex);
     const existingOptionIndex = options.findIndex((opt) => opt.text === option.text);
   
+    // Add or remove the option based on the action
     if (action === 'add' && existingOptionIndex === -1) {
       options.push({ ...option, questionIndex });
     } else if (action === 'remove' && existingOptionIndex !== -1) {
       options.splice(existingOptionIndex, 1);
     }
   
+    // Update the selected options map with the modified options
     this.selectedOptionsMap.set(questionIndex, options);
     console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
+  
+    // Update the answered state after modifying the options
     this.updateAnsweredState();
   }
-  
+    
   private updateAnsweredState(): void {
     const hasSelectedOptions = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
     console.log('SelectedOptionService: Calculated hasSelectedOptions:', hasSelectedOptions);
