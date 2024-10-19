@@ -1302,19 +1302,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   ): Promise<void> {
     const { option, index = -1, checked = false } = event || {};
   
-    // Check if option is null or undefined to avoid runtime errors
+    // Simplify the option validation to ensure it's processed correctly
     if (!option) {
-      console.error('Option is null or undefined:', event);
+      console.warn('Option is null or undefined. Skipping processing.');
       return;
     }
-  
-    // Validate the option structure
-    if (typeof option.optionId !== 'number' || !option.text?.trim()) {
+
+    // Validate option properties more flexibly
+    if (option.optionId == null || !option.text) {
       console.error('Invalid option structure:', option);
       return;
     }
-  
-    // Validate the index
+
     if (index < 0) {
       console.error(`Invalid index: ${index}`);
       return;
