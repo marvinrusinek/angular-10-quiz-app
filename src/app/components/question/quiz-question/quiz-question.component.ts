@@ -2172,6 +2172,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     option: SelectedOption,
     optionIndex: number
   ): Promise<void> {
+    console.log('selectOption called with:', { currentQuestion, option, optionIndex });
+
+    if (optionIndex < 0) {
+      console.error(`Invalid optionIndex ${optionIndex}.`);
+      return;
+    }
+
     const selectedOption = {
       ...option,
       optionId: optionIndex,
