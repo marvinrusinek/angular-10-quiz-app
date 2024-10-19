@@ -1208,22 +1208,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       try {
         console.log('Fetching correct answers for question:', this.currentQuestion);
   
-        // Attempt to fetch correct answers from the service
+        // Fetch correct answers from the service
         const correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
   
         if (Array.isArray(correctAnswers) && correctAnswers.length > 0) {
           this.correctAnswers = correctAnswers;
           console.log('Correct answers fetched:', this.correctAnswers);
         } else {
-          console.warn('No correct answers found for this question.');
+          console.warn(`No correct answers found for question: ${this.currentQuestion.questionText}`);
           this.correctAnswers = [];
         }
   
+        // Update the previous index to avoid unnecessary re-fetches
         this.previousQuestionIndex = this.currentQuestionIndex;
       } catch (error) {
         console.error('Error getting correct answers:', error);
         this.correctAnswers = [];
       }
+    } else {
+      console.log('Using cached correct answers:', this.correctAnswers);
     }
   
     return this.correctAnswers;
