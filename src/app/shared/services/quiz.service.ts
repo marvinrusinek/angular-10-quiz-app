@@ -1386,29 +1386,26 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  setCorrectAnswers(
-    question: QuizQuestion,
-    options: Option[]
-  ): Observable<void> {
+  setCorrectAnswers(question: QuizQuestion, options: Option[]): Observable<void> {
     return new Observable((observer) => {
       if (!options || options.length === 0) {
-        console.error('Options array is undefined or empty.');
-        observer.error('Options array is undefined or empty.');
+        console.error('Options array is empty or undefined.');
+        observer.error('Options array is empty or undefined.');
         return;
       }
   
-      console.log('Processing options:', options);
+      console.log('Setting correct answers for question:', question.questionText);
+      console.log('Options provided:', options);
   
       const correctOptionNumbers = options
         .filter((option) => option.correct)
         .map((option) => option.optionId);
   
       if (correctOptionNumbers.length > 0) {
-        console.log(`Setting correct answers for question: "${question.questionText}"`);
-        console.log('Correct options:', correctOptionNumbers);
+        console.log('Correct option numbers:', correctOptionNumbers);
   
         this.correctAnswers.set(question.questionText, correctOptionNumbers);
-        this.correctAnswersSubject.next(new Map(this.correctAnswers));
+        this.correctAnswersSubject.next(new Map(this.correctAnswers)); // Emit the updated map
   
         console.log('Updated correctAnswers map:', Array.from(this.correctAnswers.entries()));
   
@@ -1424,7 +1421,7 @@ export class QuizService implements OnDestroy {
 
   getCorrectAnswers(question: QuizQuestion): number[] {
     if (!question) {
-      console.error('Called with an undefined question object');
+      console.error('Called with an undefined question object.');
       return [];
     }
   
@@ -1434,10 +1431,15 @@ export class QuizService implements OnDestroy {
     console.log('Current correctAnswersMap:', Array.from(correctAnswersMap.entries()));
   
     const correctAnswersForQuestion = correctAnswersMap.get(question.questionText) || [];
-    console.log('Correct answers for question:', correctAnswersForQuestion);
+  
+    if (correctAnswersForQuestion.length === 0) {
+      console.warn(`No correct answers found for question: "${question.questionText}".`);
+    } else {
+      console.log('Correct answers for question:', correctAnswersForQuestion);
+    }
   
     return correctAnswersForQuestion;
-  }  
+  }
 
   getCorrectAnswersAsString(): string {
     // Convert the map to a comma-separated string
