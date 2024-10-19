@@ -1338,14 +1338,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       this.finalizeLoadingState();
     }
-  }  
-
-  private validateOption(option: SelectedOption): boolean {
-    if (!option) {
-      console.error('Option is undefined');
-      return false;
-    }
-    return true;
   }
   
   private toggleOptionState(option: SelectedOption, index: number): void {
