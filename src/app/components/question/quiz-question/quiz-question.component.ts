@@ -1339,21 +1339,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.finalizeLoadingState();
     }
   }
-  
+
   private toggleOptionState(option: SelectedOption, index: number): void {
-    if (!option || !('optionId' in option)) {
+    if (!option || !('optionId' in option) || typeof option.optionId !== 'number') {
       console.error('Invalid option passed to toggleOptionState:', option);
       return;
     }
   
-    option.selected = !option.selected;
-    this.showFeedbackForOption[option.optionId] = !this.showFeedbackForOption[option.optionId];
-    
+    option.selected = !option.selected; // Toggle the selection state
+  
+    // Update the feedback display state for this option
+    this.showFeedbackForOption[option.optionId] = option.selected;
+    console.log('Updated feedback display state:', this.showFeedbackForOption);
+  
     this.selectedOptionService.isAnsweredSubject.next(true);
     console.log(`Option state toggled:`, { option, index });
-
-    this.cdRef.detectChanges();
-  }  
+  }
+  
   
   private emitOptionSelected(option: SelectedOption, index: number): void {
     this.optionSelected.emit({ option, index, checked: option.selected });
