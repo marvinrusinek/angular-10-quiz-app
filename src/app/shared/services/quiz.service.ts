@@ -1428,11 +1428,16 @@ export class QuizService implements OnDestroy {
       return [];
     }
   
-    const correctAnswers = correctAnswersMap.get(question.questionText) || [];
+    console.log('Looking up correct answers for question text:', question.questionText);
   
-    console.log(`Correct answers for question "${question.questionText}":`, correctAnswers);
+    const correctAnswers = correctAnswersMap.get(question.questionText);
   
-    return correctAnswers;
+    if (!correctAnswers) {
+      console.warn(`No correct answers found for question: "${question.questionText}".`);
+      console.log('Available keys in correctAnswersMap:', Array.from(correctAnswersMap.keys()));
+    }
+  
+    return correctAnswers || [];
   }
 
   getCorrectAnswersAsString(): string {
