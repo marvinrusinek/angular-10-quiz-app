@@ -1311,12 +1311,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
     const { option, index = -1, checked = false } = event || {};
 
-    if (!option || option.optionId == null) {
+    if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
       console.error('Invalid or missing option:', option);
       return;
     }
 
-    if (index < 0) {
+    if (typeof index !== 'number' || index < 0) {
       console.error(`Invalid index: ${index}`);
       return;
     }
