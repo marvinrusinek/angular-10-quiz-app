@@ -308,8 +308,8 @@ export class SelectedOptionService {
   }
 
   updateSelectedOptions(
-    questionIndex: number, 
-    optionIndex: number, 
+    questionIndex: number,
+    optionIndex: number,
     action: 'add' | 'remove'
   ): void {
     if (optionIndex < 0) {
@@ -344,36 +344,43 @@ export class SelectedOptionService {
   
     const option = question.options[optionIndex];
     if (!option) {
-      console.error(`Option data not found for optionIndex ${optionIndex}.`, question.options);
+      console.error(
+        `Option data not found for optionIndex ${optionIndex}.`,
+        question.options
+      );
       return;
     }
   
-    // Initialize the map if it doesn't exist for this question index
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
   
     const options = this.selectedOptionsMap.get(questionIndex) || [];
-    const existingOptionIndex = options.findIndex((opt) => opt.text === option.text);
+    const existingOptionIndex = options.findIndex(
+      (opt) => opt.text.trim() === option.text.trim()
+    );
   
-    // Add or remove the option based on the action
-    if (action === 'add' && existingOptionIndex === -1) {
-      options.push({ ...option, questionIndex });
-      console.log(`Option added: ${option.text}`);
-    } else if (action === 'remove' && existingOptionIndex !== -1) {
-      options.splice(existingOptionIndex, 1);
-      console.log(`Option removed: ${option.text}`);
-    } else {
-      console.warn(`No changes made for option: ${option.text}`);
+    if (action === 'add') {
+      if (existingOptionIndex === -1) {
+        options.push({ ...option, questionIndex });
+        console.log(`Option added: ${option.text}`);
+      } else {
+        console.info(`Option already added: ${option.text}`);
+      }
+    } else if (action === 'remove') {
+      if (existingOptionIndex !== -1) {
+        options.splice(existingOptionIndex, 1);
+        console.log(`Option removed: ${option.text}`);
+      } else {
+        console.info(`Option not found for removal: ${option.text}`);
+      }
     }
   
-    // Update the selected options map with the modified options
     this.selectedOptionsMap.set(questionIndex, options);
     console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
   
-    // Update the answered state after modifying the options
     this.updateAnsweredState();
-  }  
+  }
     
   private updateAnsweredState(): void {
     const hasSelectedOptions = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
