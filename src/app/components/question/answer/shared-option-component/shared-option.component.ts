@@ -670,16 +670,23 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
   // Helper method to return default FeedbackProps
   private getDefaultFeedbackProps(idx: number): FeedbackProps {
+    const defaultQuestion: QuizQuestion = {
+      questionText: '',
+      options: [],
+      explanation: '',
+      type: QuestionType.SingleAnswer
+    };
+  
     return {
       correctMessage: 'No correct message available',
       feedback: 'No feedback available',
       showFeedback: false,
       selectedOption: null,
       options: this.optionsToDisplay ?? [],
-      question: this.currentQuestion ?? { questionText: '', options: [] },
+      question: this.currentQuestion ?? defaultQuestion,
       idx: idx
     };
-  }
+  }  
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOptionId === option.optionId;
