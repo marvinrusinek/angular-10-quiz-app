@@ -57,7 +57,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     correctMessage: '',
     feedback: '',
     showFeedback: false,
-    idx: -1,
+    idx: -1
   };
   currentFeedbackConfig: any;
   selectedOptions: Set<number> = new Set();
@@ -653,21 +653,25 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // Check if optionBinding.option is null or undefined
       if (!optionBinding.option) {
         console.error(`Option binding at index ${idx} is null or undefined!`);
-        return {
-          correctMessage: 'No correct message available',
-          feedback: 'No feedback available',
-          showFeedback: false,
-          selectedOption: null,
-          options: this.optionsToDisplay,
-          question: this.currentQuestion,
-          idx: idx
-        } as FeedbackProps;  // Return a default FeedbackProps object
+        return this.getDefaultFeedbackProps(idx); // Use a helper method to return default values
       }
   
       // Get the feedback binding from the option
-      const feedbackBinding = this.getFeedbackBindings(optionBinding.option, idx);
-      return feedbackBinding;  // Return the feedback binding
+      return this.getFeedbackBindings(optionBinding.option, idx);
     });
+  }
+  
+  // Helper method to return default FeedbackProps
+  private getDefaultFeedbackProps(idx: number): FeedbackProps {
+    return {
+      correctMessage: 'No correct message available',
+      feedback: 'No feedback available',
+      showFeedback: false,
+      selectedOption: null,
+      options: this.optionsToDisplay ?? [],
+      question: this.currentQuestion ?? { questionText: '', options: [] },
+      idx: idx
+    };
   }
 
   isSelectedOption(option: Option): boolean {
