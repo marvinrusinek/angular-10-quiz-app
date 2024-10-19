@@ -1391,25 +1391,37 @@ export class QuizService implements OnDestroy {
     options: Option[]
   ): Observable<void> {
     return new Observable((observer) => {
+      // Check if the options are available
       if (!options || options.length === 0) {
+        console.error('Options array is undefined or empty.');
         observer.error('Options array is undefined or empty.');
         return;
       }
-
+  
+      // Extract correct option IDs
       const correctOptionNumbers = options
         .filter((option) => option.correct)
         .map((option) => option.optionId);
-
+  
       if (correctOptionNumbers.length > 0) {
+        console.log(`Setting correct answers for question: "${question.questionText}"`);
+        console.log('Correct options:', correctOptionNumbers);
+  
+        // Update the correctAnswers map
         this.correctAnswers.set(question.questionText, correctOptionNumbers);
-        this.correctAnswersSubject.next(this.correctAnswers); // Emit the updated correct answers
-
-        // Emit the correct answers loaded status
+  
+        // Emit the updated map through the BehaviorSubject
+        this.correctAnswersSubject.next(new Map(this.correctAnswers)); 
+        console.log('Updated correctAnswers map:', Array.from(this.correctAnswers.keys()));
+  
+        // Emit that the correct answers have been loaded
         this.correctAnswersLoadedSubject.next(true);
-
-        observer.next(); // Emit a completion signal
+  
+        // Notify completion
+        observer.next();
         observer.complete();
       } else {
+        console.warn(`No correct options found for question: "${question.questionText}".`);
         observer.error('No correct options found.');
       }
     });
