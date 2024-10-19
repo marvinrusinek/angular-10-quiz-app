@@ -1316,7 +1316,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     } */
 
-    if (option.optionId == null || !option.text?.trim()) {
+    if (option.optionId === null || !option.text?.trim()) {
       console.error('Invalid option structure:', option);
       return;
     }
