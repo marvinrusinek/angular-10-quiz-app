@@ -1383,7 +1383,7 @@ export class QuizService implements OnDestroy {
           optionId: option?.optionId,
           value: option?.value,
           text: option?.text,
-          isCorrect: option?.correct,
+          correct: option?.correct,
         });
       } else {
         console.log('Valid correct option:', option);
