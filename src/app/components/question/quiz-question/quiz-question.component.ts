@@ -1536,21 +1536,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private handleCorrectAnswers(option: SelectedOption): void {
-    this.correctAnswers = this.getCorrectAnswers(); // Fetch the correct answers
+    console.log('Handling correct answers for option:', option);
+  
+    this.correctAnswers = this.getCorrectAnswers(); // Fetch correct answers
+    console.log('Fetched correct answers:', this.correctAnswers);
   
     if (!this.correctAnswers || this.correctAnswers.length === 0) {
       console.warn('No correct answers available for this question.');
       return;
     }
   
-    console.log('Correct answers:', this.correctAnswers);
-
-    const correctAnswerCount = this.correctAnswers.length;
-    console.log('Number of correct answers:', correctAnswerCount);
-  
     const isSpecificAnswerCorrect = this.correctAnswers.includes(option.optionId);
     console.log('Is the specific answer correct?', isSpecificAnswerCorrect);
-  }
+  }  
 
   private updateFeedback(option: SelectedOption): void {
     this.updateFeedbackForOption(option);
