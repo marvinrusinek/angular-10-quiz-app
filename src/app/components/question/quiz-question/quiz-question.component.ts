@@ -1205,12 +1205,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public getCorrectAnswers(): number[] {
     try {
-      console.log('Fetching correct answers for question:', this.currentQuestion);
+      // Ensure that currentQuestion is available
+      if (!this.currentQuestion || !this.currentQuestion.questionText) {
+        console.error('Current question is not set or has no valid question text.');
+        return [];
+      }
   
+      console.log('Fetching correct answers for question:', this.currentQuestion.questionText);
+  
+      // Fetch correct answers from QuizService
       const correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
   
+      // Validate the fetched answers
       if (!Array.isArray(correctAnswers) || correctAnswers.length === 0) {
-        console.warn(`No correct answers found for question: ${this.currentQuestion?.questionText}`);
+        console.warn(`No correct answers found for question: "${this.currentQuestion.questionText}"`);
         return [];
       }
   
