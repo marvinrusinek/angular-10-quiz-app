@@ -1302,17 +1302,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   ): Promise<void> {
     console.log('Received event in onOptionClicked:', event);
   
-    // Extract event properties safely
-    const option = event?.option ?? null;
-    const index = event?.index ?? -1;
-    const checked = event?.checked ?? false;
-  
-    // Validate the option and index
-    if (!option) {
+    // Validate that the event and option data exist
+    if (!event || !event.option) {
       console.error('Invalid option data: Option is null or undefined.', event);
       return;
     }
   
+    const { option, index, checked } = event;
+  
+    // Validate the option object
     if (typeof option.optionId !== 'number' || !option.text?.trim()) {
       console.error('Invalid option structure:', option);
       return;
@@ -1324,32 +1322,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     try {
-      // Call the base class's onOptionClicked method
       await super.onOptionClicked(event);
   
-      // Reset and update UI state
       this.resetExplanation();
       this.toggleOptionState(option, index);
       this.emitOptionSelected(option, index);
+  
       this.startLoading();
-  
-      // Handle multiple-answer logic if applicable
       this.handleMultipleAnswerQuestion(option);
-  
-      // Mark the question as answered and process selection
       this.markQuestionAsAnswered();
       await this.processSelectedOption(option, index, checked);
-  
-      // Finalize the selection and loading state
       await this.finalizeSelection(option, index);
     } catch (error) {
-      // Log and handle any errors during the process
       this.handleError(error);
     } finally {
-      // Ensure loading state is finalized regardless of success/failure
       this.finalizeLoadingState();
     }
-  }    
+  }  
 
   private validateOption(option: SelectedOption): boolean {
     if (!option) {
