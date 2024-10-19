@@ -1368,9 +1368,9 @@ export class QuizService implements OnDestroy {
       return;
     }
   
-    // Filter valid options with `correct: true` and improve logging
-    this.correctOptions = options.filter((option) => {
-      const isValid = 
+    // Filter valid options with `correct: true` and enhance logging
+    this.correctOptions = options.filter((option, idx) => {
+      const isValid =
         option &&
         typeof option === 'object' &&
         typeof option.optionId === 'number' &&
@@ -1378,15 +1378,16 @@ export class QuizService implements OnDestroy {
         'correct' in option &&
         option.correct === true;
   
+      // Log details for invalid options
       if (!isValid) {
-        console.warn('Invalid or incorrect option:', {
-          optionId: option?.optionId,
-          value: option?.value,
-          text: option?.text,
-          correct: option?.correct,
+        console.warn(`Invalid or incorrect option at index ${idx}:`, {
+          optionId: option?.optionId ?? 'undefined',
+          value: option?.value ?? 'undefined',
+          text: option?.text ?? 'undefined',
+          correct: option?.correct ?? 'undefined',
         });
       } else {
-        console.log('Valid correct option:', option);
+        console.log(`Valid correct option at index ${idx}:`, option);
       }
       return isValid;
     });
