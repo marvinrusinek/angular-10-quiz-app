@@ -566,20 +566,39 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
-    // Ensure this option is selected 
-    const showFeedback = this.isSelectedOption(option) ?? false;  // Fallback to false if undefined or null
-
+    // Check if the option is selected (fallback to false if undefined or null)
+    const isSelected = this.isSelectedOption(option) ?? false;
+  
+    // Determine whether to show feedback for this option
+    const showFeedback = isSelected && this.showFeedbackForOption[option.optionId];
+  
+    // Safeguard to ensure options array and question exist
+    const options = this.optionsToDisplay ?? [];
+    
+    const fallbackQuestion: QuizQuestion = {
+      questionText: 'No question available',
+      options: [],
+      explanation: '',
+      type: QuestionType.SingleAnswer
+    };
+  
+    const question = this.currentQuestion ?? fallbackQuestion;
+  
+    // Prepare the feedback properties
     const feedbackProps: FeedbackProps = {
-      options: this.optionsToDisplay,
-      question: this.currentQuestion,
+      options: options,
+      question: question,
       selectedOption: option,
       correctMessage: this.correctMessage ?? 'No correct message available',
       feedback: option.feedback ?? 'No feedback available',
       showFeedback: showFeedback,
-      idx: idx
+      idx: idx,
     };
+  
+    console.log('Feedback properties:', feedbackProps); // Debugging log to verify data
+  
     return feedbackProps;
-  }
+  }  
 
   initializeOptionBindings(): void {   
     const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion); // This now returns correctOptions
