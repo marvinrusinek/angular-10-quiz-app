@@ -378,10 +378,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
 
-    if (!option) {
-      console.error('Option is null or undefined in handleOptionClick:', { option, index });
+    if (!option || typeof option.optionId !== 'number') {
+      console.warn('Invalid option selected:', option);
       return;
-    }  
+    }
 
     const optionId = option.optionId ?? index;
   
