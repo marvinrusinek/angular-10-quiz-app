@@ -1444,11 +1444,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       const correctAnswerOptions = currentQuestion.options.filter(
         (option: Option) => option.correct
       );
-      this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions)
-        .subscribe({
-          next: () => console.log(`Correct answers set for: ${currentQuestion.questionText}`),
-          error: (err) => console.error('Error setting correct answers:', err)
-        });
+      this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions).subscribe({
+        next: () => {
+          console.log('Correct answers set successfully.');
+          this.showFeedback = true; // Ensure feedback display is triggered after setting correct answers
+          this.cdRef.detectChanges(); // Ensure Angular detects changes
+        },
+        error: (err) => {
+          console.error('Error setting correct answers:', err);
+        }
+      });
       this.quizService.setCorrectAnswersLoaded(true);
       this.quizService.correctAnswersLoadedSubject.next(true);
 
