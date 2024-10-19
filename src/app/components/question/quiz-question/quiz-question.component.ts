@@ -1298,18 +1298,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public override async onOptionClicked(
-    event: { option: SelectedOption; index: number; checked: boolean }
+    event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     console.log('Received event in onOptionClicked:', event);
   
-    // Extract event properties with validation and defaults
+    // Extract event properties safely
     const option = event?.option ?? null;
     const index = event?.index ?? -1;
     const checked = event?.checked ?? false;
   
-    // Validate the extracted option and index
-    if (!option || typeof option.optionId !== 'number' || !option.text?.trim()) {
-      console.error('Invalid option data:', option);
+    // Validate the option and index
+    if (!option) {
+      console.error('Invalid option data: Option is null or undefined.', event);
+      return;
+    }
+  
+    if (typeof option.optionId !== 'number' || !option.text?.trim()) {
+      console.error('Invalid option structure:', option);
       return;
     }
   
@@ -1319,7 +1324,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     try {
-      // Call the parent class's onOptionClicked method
+      // Call the base class's onOptionClicked method
       await super.onOptionClicked(event);
   
       // Reset and update UI state
@@ -1344,7 +1349,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Ensure loading state is finalized regardless of success/failure
       this.finalizeLoadingState();
     }
-  }  
+  }    
 
   private validateOption(option: SelectedOption): boolean {
     if (!option) {
