@@ -383,7 +383,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         forkJoin({
           question: question$,
           options: options$,
-          // Uncomment if needed
           // selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
           // navigationIcons: this.navigationService.getNavigationIcons(),
           // badgeQuestionNumber: this.quizService.getBadgeQuestionNumber(),
@@ -2316,24 +2315,39 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.quizService
       .getCurrentQuestionByIndex(this.quizId, this.currentQuestionIndex)
       .pipe(
-        tap((question: QuizQuestion) => {
-          this.question = question;
-          if (this.question) {
-            this.optionsToDisplay = this.quizService.getCurrentOptions() || [];
-            this.ngZone.run(() => {
-              this.cdRef.detectChanges();
-            });
+        tap((question: QuizQuestion | null) => {
+          if (question) {
+            this.question = question;
+  
+            // Fetch options using the correct method with arguments
+            this.quizService
+              .getCurrentOptions(this.quizId, this.currentQuestionIndex)
+              .subscribe({
+                next: (options: Option[]) => {
+                  this.optionsToDisplay = options || [];
+                  console.log('Loaded options:', this.optionsToDisplay);
+  
+                  // Ensure UI updates
+                  this.ngZone.run(() => {
+                    this.cdRef.detectChanges();
+                  });
+                },
+                error: (error) => {
+                  console.error('Error fetching options:', error);
+                  this.optionsToDisplay = []; // Fallback in case of error
+                },
+              });
           } else {
             console.error('Failed to load question at index:', this.currentQuestionIndex);
           }
         }),
         catchError((error) => {
           console.error('Error fetching question:', error);
-          return of(null); // Return a fallback observable if needed
+          return of(null); // Return fallback observable if needed
         })
       )
       .subscribe();
-  }
+  }  
 
   // Method to check if the current question is answered
   checkIfCurrentQuestionAnswered(): boolean {
