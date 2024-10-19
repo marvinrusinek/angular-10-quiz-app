@@ -1417,15 +1417,15 @@ export class QuizService implements OnDestroy {
 
   getCorrectAnswers(question: QuizQuestion): number[] {
     const correctAnswersMap = this.correctAnswersSubject.getValue();
-    
+  
     if (!correctAnswersMap || !(correctAnswersMap instanceof Map)) {
       console.error('Correct answers map is not initialized or is invalid.');
       return [];
     }
   
-    console.log('Fetching correct answers for:', question.questionText);
     const normalizedText = this.normalizeText(question.questionText);
-    
+    console.log('Looking up correct answers for:', normalizedText);
+  
     const correctAnswers = correctAnswersMap.get(normalizedText);
   
     if (!correctAnswers) {
@@ -1437,8 +1437,8 @@ export class QuizService implements OnDestroy {
   }
   
   private normalizeText(text: string): string {
-    return text.trim().toLowerCase();
-  }  
+    return text.trim().toLowerCase(); // Remove spaces and convert to lowercase
+  }
 
   getCorrectAnswersAsString(): string {
     // Convert the map to a comma-separated string
