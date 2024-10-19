@@ -49,8 +49,16 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @Input() selectedOptionId: number | null = null;
   @Input() selectedOptionIndex: number | null = null;
   optionBindings: OptionBindings[] = [];
-  feedbackBindings: any[] = [];
-  feedbackConfig: any[] = [];
+  feedbackBindings: FeedbackProps[] = [];
+  feedbackConfig: FeedbackProps = {
+    options: [],
+    question: null,
+    selectedOption: null,
+    correctMessage: '',
+    feedback: '',
+    showFeedback: false,
+    idx: -1,
+  };
   currentFeedbackConfig: any;
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
