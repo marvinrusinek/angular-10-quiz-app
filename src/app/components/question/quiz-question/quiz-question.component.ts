@@ -1311,6 +1311,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
+    // Validate option and index
+    if (!option || typeof index !== 'number' || index < 0) {
+      console.error('Invalid event or option structure:', event);
+      return;
+    }
+
     // const { option, index, checked } = event || {};
 
     /* if (!option.optionId && option.optionId !== 0) {
