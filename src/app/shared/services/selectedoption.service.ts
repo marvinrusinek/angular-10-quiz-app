@@ -330,13 +330,13 @@ export class SelectedOptionService {
       console.error(`Question data not found at index ${questionIndex}.`);
       return;
     }
-  
-    const option = question.options[optionIndex];
-    if (!option) {
-      console.error(`Option data not found for optionIndex ${optionIndex}. Available options:`, question.options);
+
+    if (optionIndex < 0 || optionIndex >= question.options.length) {
+      console.error(`Invalid optionIndex ${optionIndex}. Available options:`, question.options);
       return;
-    }
-  
+    }  
+    const option = question.options[optionIndex];
+
     // Initialize the map if it doesn't exist for this question index
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
