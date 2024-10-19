@@ -312,30 +312,25 @@ export class SelectedOptionService {
     optionIndex: number, 
     action: 'add' | 'remove'
   ): void {
+    if (optionIndex < 0) {
+      console.error(`Invalid optionIndex ${optionIndex}.`);
+      return;
+    }
+  
     const quizId = this.quizService.quizId || localStorage.getItem('quizId');
-    if (!quizId) {
-      console.error('Quiz ID is null or undefined.');
-      return;
-    }
-  
     const quiz = this.quizService.quizData.find((q) => q.quizId?.trim() === quizId.trim());
-    if (!quiz) {
-      console.error(`Quiz with ID ${quizId} not found.`);
+    const question = quiz?.questions[questionIndex];
+  
+    if (!question) {
+      console.error(`Question not found at index ${questionIndex}.`);
       return;
     }
   
-    // Validate the question and option indices
-    const question = quiz.questions[questionIndex];
-    if (!question) {
-      console.error(`Question data not found at index ${questionIndex}.`);
+    const option = question.options[optionIndex];
+    if (!option) {
+      console.error(`Option data not found for optionIndex ${optionIndex}.`);
       return;
     }
-
-    if (optionIndex < 0 || optionIndex >= question.options.length) {
-      console.error(`Invalid optionIndex ${optionIndex}. Available options:`, question.options);
-      return;
-    }  
-    const option = question.options[optionIndex];
 
     // Initialize the map if it doesn't exist for this question index
     if (!this.selectedOptionsMap.has(questionIndex)) {
