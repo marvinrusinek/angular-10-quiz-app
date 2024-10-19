@@ -1427,30 +1427,19 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  getCorrectAnswers(question: QuizQuestion): number[] {
-    const correctAnswersMap = this.correctAnswersSubject.getValue();
-  
-    if (!correctAnswersMap || !(correctAnswersMap instanceof Map)) {
-      console.error('Correct answers map is not initialized or invalid.');
+  public getCorrectAnswers(question: QuizQuestion): number[] {
+    if (!question || !question.questionText) {
+      console.error('Called with an undefined or invalid question object:', question);
       return [];
     }
   
-    const normalizedText = this.normalizeText(question.questionText);
-    console.log('Looking up correct answers for:', normalizedText);
+    const correctAnswersMap = this.correctAnswersSubject.getValue();
+    console.log('Current correct answers map:', Array.from(correctAnswersMap.keys()));
   
-    const correctAnswers = correctAnswersMap.get(normalizedText) || [];
-    console.log('Correct answers found:', correctAnswers);
-  
-    if (correctAnswers.length === 0) {
-      console.warn(`No correct answers found for question: "${question.questionText}"`);
-      console.log('Available keys:', Array.from(correctAnswersMap.keys()));
-    }
+    const correctAnswers = correctAnswersMap.get(question.questionText) || [];
+    console.log(`Correct answers for question "${question.questionText}":`, correctAnswers);
   
     return correctAnswers;
-  }
-  
-  private normalizeText(text: string): string {
-    return text.trim().toLowerCase(); // Remove spaces and convert to lowercase
   }
 
   getCorrectAnswersAsString(): string {
