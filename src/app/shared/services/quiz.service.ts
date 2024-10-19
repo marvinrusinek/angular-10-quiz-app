@@ -1383,7 +1383,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  setCorrectAnswers(question: QuizQuestion, options: Option[]): Observable<void> {
+  /* setCorrectAnswers(question: QuizQuestion, options: Option[]): Observable<void> {
     return new Observable((observer) => {
       try {
         if (!question || !question.questionText?.trim()) {
@@ -1426,6 +1426,28 @@ export class QuizService implements OnDestroy {
       } catch (error) {
         console.error('Error setting correct answers:', error);
         observer.error('Failed to set correct answers.');
+      }
+    });
+  } */
+  setCorrectAnswers(question: QuizQuestion, options: Option[]): Observable<void> {
+    return new Observable((observer) => {
+      console.log('Setting correct answers for question:', question.questionText);
+  
+      const correctOptionNumbers = options
+        .filter((option) => option.correct)
+        .map((option) => option.optionId);
+  
+      console.log('Correct option numbers:', correctOptionNumbers);
+  
+      if (correctOptionNumbers.length > 0) {
+        this.correctAnswers.set(question.questionText.trim(), correctOptionNumbers);
+        this.correctAnswersSubject.next(new Map(this.correctAnswers));
+        console.log('Updated correctAnswers map:', Array.from(this.correctAnswers.entries()));
+  
+        observer.next();
+        observer.complete();
+      } else {
+        observer.error(`No correct options found for question: "${question.questionText}".`);
       }
     });
   }

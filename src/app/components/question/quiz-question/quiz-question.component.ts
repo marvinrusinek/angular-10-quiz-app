@@ -1310,11 +1310,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
     const { option, index = -1, checked = false } = event || {};
-  
-    /* if (!option) {
-      console.warn('Option is null or undefined. Skipping processing.');
-      return;
-    } */
 
     if (option.optionId === null || !option.text?.trim()) {
       console.error('Invalid option structure:', option);
