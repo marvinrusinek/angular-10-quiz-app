@@ -656,16 +656,27 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   initializeFeedbackBindings(): void {
+    console.log('Initializing feedback bindings...');
+  
     this.feedbackBindings = this.optionBindings.map((optionBinding, idx) => {
-      // Check if optionBinding.option is null or undefined
-      if (!optionBinding.option) {
-        console.error(`Option binding at index ${idx} is null or undefined!`);
-        return this.getDefaultFeedbackProps(idx); // Use a helper method to return default values
+      if (!optionBinding || !optionBinding.option) {
+        console.warn(`Option binding at index ${idx} is null or undefined. Using default feedback properties.`);
+        return this.getDefaultFeedbackProps(idx); // Return default values when binding is invalid
       }
   
-      // Get the feedback binding from the option
-      return this.getFeedbackBindings(optionBinding.option, idx);
+      const feedbackBinding = this.getFeedbackBindings(optionBinding.option, idx);
+      
+      // Validate the generated feedback binding
+      if (!feedbackBinding || !feedbackBinding.selectedOption) {
+        console.warn(`Invalid feedback binding at index ${idx}:`, feedbackBinding);
+      } else {
+        console.log(`Feedback binding at index ${idx}:`, feedbackBinding);
+      }
+  
+      return feedbackBinding;
     });
+  
+    console.log('Completed feedback bindings initialization:', this.feedbackBindings);
   }
   
   // Helper method to return default FeedbackProps
