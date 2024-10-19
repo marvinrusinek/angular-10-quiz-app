@@ -1388,35 +1388,26 @@ export class QuizService implements OnDestroy {
 
   setCorrectAnswers(question: QuizQuestion, options: Option[]): Observable<void> {
     return new Observable((observer) => {
-      if (!options || options.length === 0) {
-        observer.error('Options array is empty or undefined.');
-        return;
-      }
-  
-      const questionText = question.questionText.trim(); // Normalize key
-      console.log('Setting correct answers for question:', questionText);
-      console.log('Options provided:', options);
+      console.log('Setting correct answers for question:', question.questionText);
   
       const correctOptionNumbers = options
         .filter((option) => option.correct)
         .map((option) => option.optionId);
   
+      console.log('Correct option numbers:', correctOptionNumbers);
+  
       if (correctOptionNumbers.length > 0) {
-        console.log('Correct option numbers:', correctOptionNumbers);
-  
-        this.correctAnswers.set(questionText, correctOptionNumbers);
-        this.correctAnswersSubject.next(new Map(this.correctAnswers)); // Emit the updated map
-  
+        this.correctAnswers.set(question.questionText.trim(), correctOptionNumbers);
+        this.correctAnswersSubject.next(new Map(this.correctAnswers));
         console.log('Updated correctAnswers map:', Array.from(this.correctAnswers.entries()));
   
-        this.correctAnswersLoadedSubject.next(true);
         observer.next();
         observer.complete();
       } else {
-        observer.error(`No correct options found for question: "${questionText}".`);
+        observer.error(`No correct options found for question: "${question.questionText}".`);
       }
     });
-  }
+  }  
 
   getCorrectAnswers(question: QuizQuestion): number[] {
     if (!question) {
