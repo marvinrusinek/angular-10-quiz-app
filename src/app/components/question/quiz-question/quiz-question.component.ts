@@ -1531,19 +1531,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private handleCorrectAnswers(option: SelectedOption): void {
-    if (this.correctAnswers && this.correctAnswers.length > 0) {
-      console.log('Correct answers:', this.correctAnswers);
-      for (const answer of this.correctAnswers) {
-        console.log('Correct answer:', answer);
-      }
-      const correctAnswerCount = this.correctAnswers.length;
-      console.log('Number of correct answers:', correctAnswerCount);
-      const isSpecificAnswerCorrect = this.correctAnswers.includes(option.optionId);
-      console.log('Is the specific answer correct?', isSpecificAnswerCorrect);
-    } else {
+    if (!this.correctAnswers || this.correctAnswers.length === 0) {
       console.warn('No correct answers available for this question.');
+      return;
     }
-  }
+  
+    console.log('Correct answers:', this.correctAnswers);
+  
+    const correctAnswerCount = this.correctAnswers.length;
+    console.log('Number of correct answers:', correctAnswerCount);
+  
+    const isSpecificAnswerCorrect = this.correctAnswers.includes(option.optionId);
+    console.log('Is the specific answer correct?', isSpecificAnswerCorrect);
+  }  
 
   private updateFeedback(option: SelectedOption): void {
     this.updateFeedbackForOption(option);
