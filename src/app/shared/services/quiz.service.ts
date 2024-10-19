@@ -1356,30 +1356,37 @@ export class QuizService implements OnDestroy {
 
   // Populate correctOptions when questions are loaded
   setCorrectOptions(options: Option[]): void {
-    console.log('setCorrectOptions called with:', options); // undefined
+    console.log('setCorrectOptions called with:', options);
 
-    if (!options || !Array.isArray(options) || options.length === 0) {
-      console.log('Setting correctOptions to an empty array.');
+    // Validate the input array
+    if (!Array.isArray(options) || options.length === 0) {
+      console.warn('Options are undefined, null, or empty. Setting correctOptions to an empty array.');
       this.correctOptions = [];
       return;
     }
 
+    // Filter valid options with `correct: true` and enhance logging
     this.correctOptions = options.filter((option) => {
-      const isValid =
-        option &&
+      const isValid = 
+        option && 
         typeof option === 'object' &&
-        'correct' in option &&
+        typeof option.optionId === 'number' &&
+        'correct' in option && 
         option.correct === true;
+
       if (!isValid) {
-        console.log('Invalid option:', option);
+        console.warn('Invalid or incorrect option:', option);
+      } else {
+        console.log('Valid correct option:', option);
       }
       return isValid;
-    }) ?? [];
+    });
 
+    // Log the outcome of filtering
     if (this.correctOptions.length === 0) {
-      console.warn(
-        'No correct options found. Check if the "correct" property is properly set on the options.'
-      );
+      console.warn('No correct options found. Ensure the "correct" property is properly set.');
+    } else {
+      console.log('Correct options set:', this.correctOptions);
     }
   }
 
