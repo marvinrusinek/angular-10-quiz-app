@@ -1,4 +1,4 @@
-<section class="message" *ngIf="feedbackConfig?.showFeedback">
+<section class="message" *ngIf="feedbackConfig?.showFeedback; else noFeedback">
   <div class="feedback-message" [ngClass]="feedbackMessageClass">
     <mat-icon class="material-icons" *ngIf="feedbackConfig?.selectedOption?.correct; else wrongIcon">
       sentiment_very_satisfied
@@ -12,3 +12,7 @@
     <span>{{ displayMessage }}</span>
   </div>
 </section>
+
+<ng-template #noFeedback>
+  <p>Feedback is not being shown</p>
+</ng-template>
