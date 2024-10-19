@@ -1302,13 +1302,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   ): Promise<void> {
     console.log('Received event in onOptionClicked:', event);
   
-    // Validate that the event and option data exist
-    if (!event || !event.option) {
-      console.error('Invalid option data: Option is null or undefined.', event);
-      return;
-    }
-  
-    const { option, index, checked } = event;
+    const { option, index = -1, checked = false } = event || {};
   
     // Validate the option object
     if (typeof option.optionId !== 'number' || !option.text?.trim()) {
