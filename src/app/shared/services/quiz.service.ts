@@ -433,13 +433,16 @@ export class QuizService implements OnDestroy {
   }
 
   getOptions(index: number): Observable<Option[]> {
+    console.log(`Fetching options for question at index: ${index}`); // Debugging log
+  
     return this.getCurrentQuestionByIndex(this.quizId, index).pipe(
       map((question) => {
-        if (question && question.options) {
+        if (question && Array.isArray(question.options) && question.options.length > 0) {
+          console.log(`Options found for question index ${index}:`, question.options);
           return question.options;
         } else {
-          console.warn(`No options found for question index: ${index}`);
-          return [];
+          console.warn(`No valid options found for question index ${index}.`, question);
+          return []; // Return an empty array if options are not valid
         }
       }),
       catchError((error) => {
@@ -447,7 +450,7 @@ export class QuizService implements OnDestroy {
         return of([]); // Return an empty array on error
       })
     );
-  }  
+  }
 
   private loadData(): void {
     this.initializeQuizData();
