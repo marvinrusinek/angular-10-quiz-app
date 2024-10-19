@@ -448,8 +448,8 @@ export class QuizService implements OnDestroy {
         return of([]); // Return an empty array on error
       })
     );
-  }  
-
+  }
+  
   private loadData(): void {
     this.initializeQuizData();
     this.loadRouteParams();
@@ -1359,24 +1359,19 @@ export class QuizService implements OnDestroy {
   setCorrectOptions(options: Option[]): void {
     console.log('setCorrectOptions called with:', options);
   
-    // Validate the input array
     if (!Array.isArray(options) || options.length === 0) {
       console.warn('Options are undefined, null, or empty. Setting correctOptions to an empty array.');
       this.correctOptions = [];
       return;
     }
   
-    // Filter valid options with `correct: true` and enhance logging
     this.correctOptions = options.filter((option, idx) => {
       const isValid =
         option &&
-        typeof option === 'object' &&
         typeof option.optionId === 'number' &&
         typeof option.text === 'string' &&
-        'correct' in option &&
-        option.correct === true;
+        typeof option.correct === 'boolean';
   
-      // Log details for invalid options
       if (!isValid) {
         console.warn(`Invalid or incorrect option at index ${idx}:`, {
           optionId: option?.optionId ?? 'undefined',
@@ -1390,7 +1385,6 @@ export class QuizService implements OnDestroy {
       return isValid;
     });
   
-    // Log the outcome of filtering
     if (this.correctOptions.length === 0) {
       console.warn('No correct options found. Ensure the "correct" property is properly set.');
     } else {
