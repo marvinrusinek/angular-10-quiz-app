@@ -1302,13 +1302,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   ): Promise<void> {
     const { option, index = -1, checked = false } = event || {};
   
-    // Simplify the option validation to ensure it's processed correctly
     if (!option) {
       console.warn('Option is null or undefined. Skipping processing.');
       return;
     }
 
-    // Validate option properties more flexibly
     if (option.optionId == null || !option.text) {
       console.error('Invalid option structure:', option);
       return;
