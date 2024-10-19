@@ -1385,26 +1385,50 @@ export class QuizService implements OnDestroy {
 
   setCorrectAnswers(question: QuizQuestion, options: Option[]): Observable<void> {
     return new Observable((observer) => {
-      console.log('Setting correct answers for question:', question.questionText);
+      try {
+        if (!question || !question.questionText?.trim()) {
+          const errorMsg = 'Invalid question or missing question text.';
+          console.error(errorMsg, question);
+          observer.error(errorMsg);
+          return;
+        }
   
-      const correctOptionNumbers = options
-        .filter((option) => option.correct)
-        .map((option) => option.optionId);
+        if (!Array.isArray(options) || options.length === 0) {
+          const errorMsg = `Options array is empty or not provided for question: "${question.questionText}".`;
+          console.warn(errorMsg);
+          observer.error(errorMsg);
+          return;
+        }
   
-      console.log('Correct option numbers:', correctOptionNumbers);
+        console.log('Setting correct answers for question:', question.questionText);
   
-      if (correctOptionNumbers.length > 0) {
-        this.correctAnswers.set(question.questionText.trim(), correctOptionNumbers);
-        this.correctAnswersSubject.next(new Map(this.correctAnswers));
-        console.log('Updated correctAnswers map:', Array.from(this.correctAnswers.entries()));
+        const correctOptionNumbers = options
+          .filter((option) => option.correct)
+          .map((option) => option.optionId);
   
-        observer.next();
-        observer.complete();
-      } else {
-        observer.error(`No correct options found for question: "${question.questionText}".`);
+        console.log('Correct option numbers:', correctOptionNumbers);
+  
+        if (correctOptionNumbers.length > 0) {
+          // Trim question text to avoid key mismatch issues.
+          this.correctAnswers.set(question.questionText.trim(), correctOptionNumbers);
+  
+          // Emit the updated map using `next()` to keep subscribers up-to-date.
+          this.correctAnswersSubject.next(new Map(this.correctAnswers));
+          console.log('Updated correctAnswers map:', Array.from(this.correctAnswers.entries()));
+  
+          observer.next(); // Notify success.
+          observer.complete();
+        } else {
+          const errorMsg = `No correct options found for question: "${question.questionText}".`;
+          console.warn(errorMsg);
+          observer.error(errorMsg);
+        }
+      } catch (error) {
+        console.error('Error setting correct answers:', error);
+        observer.error('Failed to set correct answers.');
       }
     });
-  }  
+  }
 
   getCorrectAnswers(question: QuizQuestion): number[] {
     if (!question) {
