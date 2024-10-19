@@ -395,6 +395,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.showFeedback = true;
     this.showFeedbackForOption[optionId ?? index] = true;
 
+    // Update feedbackConfig with the selected option
+    this.feedbackConfig = { 
+      ...this.feedbackConfig, 
+      selectedOption: option, 
+      showFeedback: true, 
+      idx: index 
+    };
+
     this.clickedOptionIds.add(optionId ?? index);
   
     if (this.config.type === 'single') {
