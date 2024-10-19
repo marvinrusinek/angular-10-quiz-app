@@ -1446,9 +1446,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       );
       this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions).subscribe({
         next: () => {
-          console.log('Correct answers set successfully.');
-          this.showFeedback = true; // Ensure feedback display is triggered after setting correct answers
-          this.cdRef.detectChanges(); // Ensure Angular detects changes
+          this.prepareFeedback();
         },
         error: (err) => {
           console.error('Error setting correct answers:', err);
@@ -1459,6 +1457,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
       console.log('Correct Answer Options:', correctAnswerOptions);
     });
+  }
+
+  private prepareFeedback(): void {
+    this.showFeedback = true;
+    this.cdRef.detectChanges(); // Ensure change detection
+    console.log('Feedback prepared and displayed.');
   }
 
   private initializeQuizBasedOnRouteParams(): void {
