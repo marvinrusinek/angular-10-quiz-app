@@ -1305,10 +1305,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    if (!event || !event.option) {
-      console.warn('Invalid event or option. Skipping processing.', event);
-      return;
-    }
     const { option, index = -1, checked = false } = event || {};
   
     if (!option) {
