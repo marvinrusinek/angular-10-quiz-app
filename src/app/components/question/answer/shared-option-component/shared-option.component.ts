@@ -370,6 +370,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
 
+    if (!option) {
+      console.error('Option is null or undefined in handleOptionClick:', { option, index });
+      return;
+    }  
+
     const optionId = option.optionId ?? index;
   
     // Check if the option has already been clicked

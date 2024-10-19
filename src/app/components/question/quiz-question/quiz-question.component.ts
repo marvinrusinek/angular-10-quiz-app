@@ -1311,8 +1311,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
     const { option, index = -1, checked = false } = event || {};
 
-    if (option.optionId === null || !option.text?.trim()) {
-      console.error('Invalid option structure:', option);
+    if (!option || option.optionId == null) {
+      console.error('Invalid or missing option:', option);
       return;
     }
 
