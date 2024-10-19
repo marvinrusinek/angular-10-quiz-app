@@ -1204,24 +1204,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }  
 
   public getCorrectAnswers(): number[] {
-    // Check if the current question index has changed to decide whether to fetch new answers
     if (this.currentQuestionIndex !== this.previousQuestionIndex) {
       try {
-        // Fetch correct answers from the service
-        this.correctAnswers = this.quizService.getCorrectAnswers(
-          this.currentQuestion
-        );
-        // Update previousQuestionIndex after fetching
+        console.log('Fetching correct answers for question:', this.currentQuestion);
+  
+        // Attempt to fetch correct answers from the service
+        const correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+  
+        if (Array.isArray(correctAnswers) && correctAnswers.length > 0) {
+          this.correctAnswers = correctAnswers;
+          console.log('Correct answers fetched:', this.correctAnswers);
+        } else {
+          console.warn('No correct answers found for this question.');
+          this.correctAnswers = [];
+        }
+  
         this.previousQuestionIndex = this.currentQuestionIndex;
       } catch (error) {
-        console.error(
-          'QuizQuestionComponent - Error getting correct answers:',
-          error
-        );
+        console.error('Error getting correct answers:', error);
         this.correctAnswers = [];
       }
     }
-
+  
     return this.correctAnswers;
   }
 
