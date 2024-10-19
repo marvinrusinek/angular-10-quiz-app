@@ -1358,11 +1358,17 @@ export class QuizService implements OnDestroy {
   setCorrectOptions(options: Option[]): void {
     console.log('setCorrectOptions called with:', options); // undefined
 
+    // Check if options are invalid
+    if (!options) {
+      console.warn('Options are undefined or null.');
+    } else if (!Array.isArray(options)) {
+      console.warn('Options is not an array:', options);
+    } else if (options.length === 0) {
+      console.warn('Options array is empty.');
+    }
+
     if (!options || !Array.isArray(options) || options.length === 0) {
-      console.warn(
-        'Options are undefined, null, or empty. Setting correctOptions to an empty array.'
-      );
-      console.log('Options value:', options);
+      console.log('Setting correctOptions to an empty array.');
       this.correctOptions = [];
       return;
     }
