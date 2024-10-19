@@ -1204,32 +1204,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }  
 
   public getCorrectAnswers(): number[] {
-    if (this.currentQuestionIndex !== this.previousQuestionIndex) {
-      try {
-        console.log('Fetching correct answers for question:', this.currentQuestion);
+    try {
+      console.log('Fetching correct answers for question:', this.currentQuestion);
   
-        // Fetch correct answers from the service
-        const correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+      const correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
   
-        if (Array.isArray(correctAnswers) && correctAnswers.length > 0) {
-          this.correctAnswers = correctAnswers;
-          console.log('Correct answers fetched:', this.correctAnswers);
-        } else {
-          console.warn(`No correct answers found for question: ${this.currentQuestion.questionText}`);
-          this.correctAnswers = [];
-        }
-  
-        // Update the previous index to avoid unnecessary re-fetches
-        this.previousQuestionIndex = this.currentQuestionIndex;
-      } catch (error) {
-        console.error('Error getting correct answers:', error);
-        this.correctAnswers = [];
+      if (!Array.isArray(correctAnswers) || correctAnswers.length === 0) {
+        console.warn(`No correct answers found for question: ${this.currentQuestion?.questionText}`);
+        return [];
       }
-    } else {
-      console.log('Using cached correct answers:', this.correctAnswers);
-    }
   
-    return this.correctAnswers;
+      console.log('Correct answers fetched:', correctAnswers);
+      return correctAnswers;
+    } catch (error) {
+      console.error('Error fetching correct answers:', error);
+      return [];
+    }
   }
 
   setQuestionOptions(): void {
