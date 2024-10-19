@@ -318,33 +318,53 @@ export class SelectedOptionService {
     }
   
     const quizId = this.quizService.quizId || localStorage.getItem('quizId');
-    const quiz = this.quizService.quizData.find((q) => q.quizId?.trim() === quizId.trim());
-    const question = quiz?.questions[questionIndex];
+    if (!quizId) {
+      console.error('Quiz ID is null or undefined.');
+      return;
+    }
   
+    const quiz = this.quizService.quizData.find(
+      (q) => q.quizId?.trim() === quizId.trim()
+    );
+    if (!quiz) {
+      console.error(`Quiz with ID ${quizId} not found.`);
+      return;
+    }
+  
+    const question = quiz.questions[questionIndex];
     if (!question) {
       console.error(`Question not found at index ${questionIndex}.`);
       return;
     }
   
-    const option = question.options[optionIndex];
-    if (!option) {
-      console.error(`Option data not found for optionIndex ${optionIndex}.`);
+    if (!question.options || question.options.length === 0) {
+      console.error('No options available for this question.');
       return;
     }
-
+  
+    const option = question.options[optionIndex];
+    if (!option) {
+      console.error(`Option data not found for optionIndex ${optionIndex}.`, question.options);
+      return;
+    }
+  
     // Initialize the map if it doesn't exist for this question index
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
   
-    const options = this.selectedOptionsMap.get(questionIndex);
+    const options = this.selectedOptionsMap.get(questionIndex) || [];
     const existingOptionIndex = options.findIndex((opt) => opt.text === option.text);
   
     // Add or remove the option based on the action
     if (action === 'add' && existingOptionIndex === -1) {
       options.push({ ...option, questionIndex });
+      console.log(`Option added: ${option.text}`);
     } else if (action === 'remove' && existingOptionIndex !== -1) {
       options.splice(existingOptionIndex, 1);
+      console.log(`Option removed: ${option.text}`);
+    } else {
+      console.warn(`No changes made for option: ${option.text}`);
     }
   
     // Update the selected options map with the modified options
@@ -353,7 +373,7 @@ export class SelectedOptionService {
   
     // Update the answered state after modifying the options
     this.updateAnsweredState();
-  }
+  }  
     
   private updateAnsweredState(): void {
     const hasSelectedOptions = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
