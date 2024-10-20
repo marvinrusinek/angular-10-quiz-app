@@ -497,9 +497,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     checked: boolean
   ): Promise<void> {
     try {
+      // Safely access optionId and ensure it is logged
+      const optionId = typeof option?.optionId === 'number' ? option.optionId : index;
+      console.log(`Handling option click with optionId: ${optionId}, index: ${index}, checked: ${checked}`);
+      console.log('Option object:', JSON.stringify(option, null, 2));
+  
       // Ensure the option object is valid before proceeding
-      if (!option || option?.optionId == null) {
-        throw new Error(`Invalid option or optionId: ${JSON.stringify(option)}`);
+      if (optionId == null) {
+        throw new Error(`Invalid optionId: ${JSON.stringify(option)}`);
       }
   
       // Call the onOptionClicked handler from the config if defined
@@ -526,7 +531,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-
+  
   handleBackwardNavigationOptionClick(option: Option, index: number): void {
     const optionBinding = this.optionBindings[index];
     
