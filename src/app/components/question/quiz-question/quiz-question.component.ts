@@ -1328,7 +1328,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       await super.onOptionClicked(event);
 
       if (option.selected) {
-        this.updateExplanationText();
+        this.updateExplanationText(this.currentQuestionIndex);
       }
   
       this.resetExplanation();
