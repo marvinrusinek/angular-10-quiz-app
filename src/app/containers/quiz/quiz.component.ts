@@ -465,7 +465,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.isNextButtonEnabled = isEnabled;
       this.nextButtonStyle = { opacity: isEnabled ? '1' : '0.5' };
       console.log('Next button state updated:', isEnabled);
-      this.cdRef.detectChanges(); // Ensure the UI reflects the state
     });
   
     // Sync the tooltip observable
