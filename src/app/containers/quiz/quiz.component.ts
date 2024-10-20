@@ -433,23 +433,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   private initializeNextButtonState(): void {
     this.isNextButtonEnabled = false; // Default state
-  
-    this.isButtonEnabled$ = combineLatest([
-      this.selectedOptionService.isAnsweredSubject.pipe(
-        map((value) => value ?? false),
-        distinctUntilChanged()
-      ),
-      this.quizStateService.isLoading$.pipe(
-        map((value) => !value), // Disable button if loading
-        distinctUntilChanged()
-      )
-    ]).pipe(
-      debounceTime(50), // Add a small debounce to avoid flickering
-      map(([isAnswered, isNotLoading]) => isAnswered && isNotLoading),
-      distinctUntilChanged(),
-      tap((isEnabled) => this.updateButtonState(isEnabled)),
-      shareReplay(1)
-    );
 
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
@@ -471,7 +454,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       tap((isEnabled) => console.log('Next button enabled:', isEnabled)),
       shareReplay(1) // Replay the latest value to new subscribers
     );
-    
   }  
 
   private syncNextButtonState(): void {
