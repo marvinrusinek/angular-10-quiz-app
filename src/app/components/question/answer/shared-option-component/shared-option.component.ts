@@ -382,88 +382,120 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   async handleOptionClick(option: SelectedOption, index: number, checked: boolean): Promise<void> {
-    try {
-      if (this.isSubmitted) {
-        console.log('Question already submitted, ignoring click');
-        return;
-      }
-  
-      this.validateOption(option, index);
-  
-      const optionId = option.optionId ?? index;
-  
-      if (this.clickedOptionIds.has(optionId)) {
-        console.log('Option already selected, ignoring click');
-        return;
-      }
-  
-      if (this.isNavigatingBackwards) {
-        this.handleBackwardNavigationOptionClick(option, index);
-        return;
-      }
-  
-      this.updateOptionState(option, index, optionId);
-      this.handleSingleOrMultipleSelect(option, index, optionId);
-      this.triggerChangeDetection();
-  
-      await this.callOptionClickHandlers(option, index, checked);
-    } catch (error) {
-      console.error('Error in handleOptionClick:', error);
+    if (this.isSubmitted) {
+      console.log('Question already submitted, ignoring click');
+      return;
     }
-  }
 
-  private validateOption(option: SelectedOption, index: number): void {
+    // Ensure the option object is valid
     if (!option || option.optionId == null || typeof option.optionId !== 'number') {
-      throw new Error(`Invalid option or optionId at index ${index}: ${JSON.stringify(option)}`);
+      console.error('Invalid option or optionId:', option);
+      return;
     }
-  }
 
-  private updateOptionState(option: SelectedOption, index: number, optionId: number): void {
+    const optionId = option.optionId ?? index;
+  
+    // Check if the option has already been clicked
+    if (this.clickedOptionIds.has(optionId ?? index)) {
+      console.log('Option already selected, ignoring click');
+      return;
+    }
+  
+    if (this.isNavigatingBackwards) {
+      this.handleBackwardNavigationOptionClick(option, index);
+      return;
+    }
+  
     const optionBinding = this.optionBindings[index];
     optionBinding.option.showIcon = true;
     this.iconVisibility[optionId] = true;
-  
+
     this.showFeedback = true;
-    this.showFeedbackForOption[optionId] = true;
+    this.showFeedbackForOption[optionId ?? index] = true;
+
+    // Update feedbackConfig with the selected option
+    this.currentFeedbackConfig = { 
+      ...this.feedbackConfig, 
+      selectedOption: option, 
+      correctMessage: this.correctMessage ?? 'No correct message available',
+      feedback: option.feedback ?? 'No feedback available',
+      showFeedback: true, 
+      idx: index 
+    };    
+
+    console.log('Updated feedbackConfig:', this.feedbackConfig);
+
+    // Trigger change detection manually to ensure the UI updates
+    this.cdRef.detectChanges();
+
+    this.clickedOptionIds.add(optionId ?? index);
   
-    this.currentFeedbackConfig = this.getFeedbackBindings(option, index);
-    this.feedbackConfig[index] = this.currentFeedbackConfig;
-  
-    console.log('Updated feedbackConfig:', this.currentFeedbackConfig);
-  
-    this.clickedOptionIds.add(optionId);
-  }
-  
-  private handleSingleOrMultipleSelect(option: SelectedOption, index: number, optionId: number): void {
     if (this.config.type === 'single') {
-      this.config.optionsToDisplay.forEach((opt) => (opt.selected = false));
+      // For single-select, update only the clicked option
+      for (const opt of this.config.optionsToDisplay) {
+        opt.selected = false;
+      }      
       option.selected = true;
-  
       this.config.selectedOptionIndex = index;
-      this.selectedOption = option;
   
+      this.selectedOption = option;
       this.selectedOptions.clear();
       this.selectedOptions.add(optionId);
-      this.selectedOptionService.setSelectedOption(option);
+  
+      // Store the selected option
+      this.selectedOptionService.setSelectedOption(option as SelectedOption);
     } else {
+      // For multiple-select, toggle the selection
       option.selected = !option.selected;
-      option.selected ? this.selectedOptions.add(optionId) : this.selectedOptions.delete(optionId);
+      if (option.selected) {
+        this.selectedOptions.add(optionId);
+      } else {
+        this.selectedOptions.delete(optionId);
+      }
     }
   
-    const optionBinding = this.optionBindings[index];
     optionBinding.isSelected = option.selected;
     optionBinding.showFeedback = this.showFeedback;
     this.showIconForOption[optionId] = option.selected;
-    this.updateHighlighting();
-  }
   
-  private triggerChangeDetection(): void {
+    this.updateHighlighting();
+  
+    // Show feedback and explanation
+    this.config.selectedOptionIndex = index;
     this.config.showFeedback = true;
     this.config.showExplanation = true;
+    // this.config.explanationText = option.explanation || 'No explanation available.';
   
-    this.config.isAnswerCorrect = this.selectedOption?.correct ?? false;
-    this.config.showCorrectMessage = this.selectedOption?.correct ?? false;
+    // Check if the answer is correct
+    this.config.isAnswerCorrect = option.correct || false;
+    this.config.showCorrectMessage = option.correct;
   
+    // Safely call the onOptionClicked function from the config object
+    if (this.config?.onOptionClicked) {
+      console.log('Calling onOptionClicked from config...');
+      await this.config.onOptionClicked(option, index, checked);
+    } else {
+      console.warn('onOptionClicked function is not defined in the config.');
+    }
+  
+    // Call the quizQuestionComponentOnOptionClicked method if it exists
+    if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
+      this.quizQuestionComponentOnOptionClicked(option as SelectedOption, index);
+    } else {
+      console[this.quizQuestionComponentOnOptionClicked !== undefined ? 'warn' : 'debug'](
+        `quizQuestionComponentOnOptionClicked is ${this.quizQuestionComponentOnOptionClicked !== undefined ? 'defined but is not a function' : 'not defined'} in SharedOptionComponent`
+      );
+    }
+
+    // Update selectedOptionIndex and showFeedbackForOption
+    this.selectedOptionIndex = index;
+    this.showFeedbackForOption[optionId ?? index] = true;
+
+    // Generate feedback bindings for the selected option
+    this.currentFeedbackConfig = this.getFeedbackBindings(option, index);
+    this.feedbackConfig[index] = this.currentFeedbackConfig;
+  
+    // Trigger change detection
     this.cdRef.detectChanges();
   }
 
