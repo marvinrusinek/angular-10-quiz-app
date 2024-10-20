@@ -366,15 +366,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       const quizId = this.quizService.getCurrentQuizId();
       const questionIndex = this.quizService.getCurrentQuestionIndex();
   
+      // Validate the quizId and questionIndex
       if (!quizId) throw new Error('No active quiz ID found.');
-      if (questionIndex < 0) throw new Error('Invalid question index.');
+      if (typeof questionIndex !== 'number' || questionIndex < 0) {
+        throw new Error('Invalid question index.');
+      }
   
-      console.log(`Fetching question and options for quizId: ${quizId}, questionIndex: ${questionIndex}`);
+      console.log(
+        `Fetching question and options for quizId: ${quizId}, questionIndex: ${questionIndex}`
+      );
   
-      // Validate the observables being fetched
-      const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex);
+      // Fetch the current question and options as observables
+      const question$ = this.quizService.getCurrentQuestionByIndex(
+        quizId,
+        questionIndex
+      );
       const options$ = this.quizService.getCurrentOptions(quizId, questionIndex);
   
+      // Handle cases where observables are invalid
       if (!question$ || !options$) {
         throw new Error('One or more observables are invalid.');
       }
@@ -387,30 +396,39 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
           // navigationIcons: this.navigationService.getNavigationIcons(),
           // badgeQuestionNumber: this.quizService.getBadgeQuestionNumber(),
           // score: this.scoreService.getCurrentScore(),
-        })
+        }).pipe(
+          catchError((error) => {
+            console.error(
+              `Error while fetching question or options: ${error.message}`
+            );
+            return of({ question: null, options: [] }); // Return fallback data if there's an error
+          })
+        )
       );
   
-      // Validate data
-      if (!data.question || !Array.isArray(data.options)) {
-        throw new Error(`Failed to load valid data for questionIndex ${questionIndex}`);
+      // Validate that the fetched data is correct
+      if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
+        console.warn(`Failed to load valid data for questionIndex ${questionIndex}`);
+        return;
       }
   
+      // Assign the fetched question and options to the component state
       this.currentQuestion = data.question;
       this.options = data.options;
       console.log('Loaded question contents:', data);
   
-      // Set the current question in QuizService
+      // Set the current question in the QuizService
       this.quizService.setCurrentQuestion(questionIndex);
   
-      // Update progress after loading
+      // Update progress after loading the question and options
       this.updateProgressPercentage();
     } catch (error) {
       console.error('Error loading question contents:', error);
     } finally {
+      // Ensure loading state is cleared even if there was an error
       this.isLoading = false;
     }
   }
-  
 
   private restoreQuestionDisplay(): void {
     console.log('Restoring question display for index:', this.currentQuestionIndex);
