@@ -2437,9 +2437,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     questionData: QuizQuestion,
     questionIndex: number
   ): Promise<FormattedExplanation | null> {
-    this.explanationTextService.setCurrentQuestionExplanation(
-      questionData.explanation || ''
-    );
+    if (!questionData) {
+      console.error(`Invalid question data for index ${questionIndex}`);
+      return {
+        questionIndex,
+        explanation: 'No question data available'
+      };
+    }
+
+    const explanation = questionData.explanation || 'No explanation available';
+    this.explanationTextService.setCurrentQuestionExplanation(explanation);
   
     try {
       const formattedExplanation = await this.getFormattedExplanation(
@@ -2453,7 +2460,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           : formattedExplanation.explanation || '';
         
         const formattedExplanationObject: FormattedExplanation = {
-          questionIndex: questionIndex,
+          questionIndex,
           explanation: explanationText
         };
         
