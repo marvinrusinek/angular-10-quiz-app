@@ -395,9 +395,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.error(`Invalid or undefined option at index ${index}.`, option);
       return;
     }
-
-    // Mark question as answered
-    this.selectedOptionService.isAnsweredSubject.next(true);
   
     // Clone the option to prevent mutations
     const clonedOption = { ...option };
@@ -416,6 +413,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.warn(`Ignoring click for optionId: ${optionId}`);
       return;
     }
+
+    // Mark question as answered
+    this.selectedOptionService.isAnsweredSubject.next(true);
   
     if (this.isNavigatingBackwards) {
       console.log('Handling backward navigation for:', clonedOption);
