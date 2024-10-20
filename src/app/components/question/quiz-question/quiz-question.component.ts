@@ -1311,7 +1311,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     if (!event || typeof event !== 'object' || !event.option || typeof event.option.optionId !== 'number') {
-      console.warn('Option data is incomplete or invalid. Proceeding cautiously:', event);
+      console.error('Invalid event structure or missing option:', event);
       return;
     }
     const { option, index = -1, checked = false } = event || {};
