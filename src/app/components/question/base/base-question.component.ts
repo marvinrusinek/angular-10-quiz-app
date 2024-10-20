@@ -80,6 +80,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         this.initializeQuestionIfAvailable();
         this.initializeSharedOptionConfig();
       } else if (!changes.question.isFirstChange()) {
+        // Only log the warning if `question` is undefined AFTER the first change attempt
         console.warn('Question input is undefined, waiting for valid data.');
       }
     }
