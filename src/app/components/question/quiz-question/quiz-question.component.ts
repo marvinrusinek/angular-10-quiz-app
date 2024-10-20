@@ -1208,7 +1208,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Attempt to recover the current question if it is missing
       if (!this.currentQuestion) {
         this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
-        console.warn('Recovered current question:', this.currentQuestion);
       }
   
       // Ensure the question text is valid
