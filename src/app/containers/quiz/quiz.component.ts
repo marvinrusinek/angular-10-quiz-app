@@ -432,7 +432,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }  
 
   private initializeNextButtonState(): void {
-    this.isButtonEnabled$ = combineLatest([
+    /* this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
         map((value) => !!value), // Ensure boolean
         distinctUntilChanged(),
@@ -454,6 +454,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       ),
       tap((isEnabled) => console.log('isButtonEnabled$ emitted:', isEnabled)),
       shareReplay(1) // Ensure the latest value is replayed to new subscribers
+    ); */
+    this.isButtonEnabled$ = of(true).pipe(
+      tap((isEnabled) => console.log('Button enabled state (forced):', isEnabled)),
+      shareReplay(1)
     );
   }
 

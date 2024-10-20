@@ -1327,15 +1327,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
-    
-  
     try {
       // Mark the option as selected
       this.isOptionSelected = true;
+      // Mark the question as answered when an option is selected
+      this.selectedOptionService.isAnsweredSubject.next(true);
     
       await super.onOptionClicked(event);
-
-      
   
       this.resetExplanation();
       this.toggleOptionState(option, index);
