@@ -73,18 +73,23 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.question && changes.question.currentValue) {
-      this.handleQuestionChange(changes.question);
-      this.initializeQuestionIfAvailable();
-      this.initializeSharedOptionConfig();
-    } else {
-      console.warn('Initial question input is undefined, waiting for ngOnChanges');
+    if (changes.question) {
+      if (changes.question.currentValue) {
+        // Proceed with initialization if `question` is now defined
+        this.handleQuestionChange(changes.question);
+        this.initializeQuestionIfAvailable();
+        this.initializeSharedOptionConfig();
+      } else if (!changes.question.isFirstChange()) {
+        // Only log the warning if `question` is undefined AFTER the first change attempt
+        console.warn('Question input is undefined, waiting for valid data.');
+      }
     }
-
-    if (changes.optionsToDisplay) {
+  
+    if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
       this.handleOptionsToDisplayChange(changes.optionsToDisplay);
     }
   }
+  
 
   ngAfterViewInit(): void {
     this.initializeDynamicComponentIfNeeded();
