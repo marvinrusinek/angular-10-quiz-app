@@ -300,22 +300,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.subscribeToOptionSelection();
 
-    this.initializeNextButtonState();
-    this.updateNextButtonState();
-    this.isButtonEnabled$.subscribe((isEnabled) => {
-      this.isButtonEnabled = isEnabled;
-      this.isNextButtonEnabled = isEnabled;
-      this.nextButtonStyle = { opacity: isEnabled ? '1' : '0.5' };
-      console.log('isButtonEnabled$ updated:', isEnabled);
-      this.cdRef.markForCheck();
-    });
-    
-    this.isNextButtonEnabled = false; // Start with the Next button disabled
-    this.initializeTooltip(); // Initialize tooltip logic
+    this.initializeNextButtonState(); // Initialize button state observables
+    this.syncNextButtonState(); // Ensure state is in sync initially
+    this.initializeTooltip(); // Set up tooltip logic
     this.loadQuestionContents(); // Load the first question's contents
-    this.cdRef.detectChanges(); // Ensure the UI reflects the initial state
-
-    this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
 
     // Move resetQuestionState here
     this.resetQuestionState();
@@ -473,6 +461,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }),
       shareReplay(1)
     );
+  }
+
+  private syncNextButtonState(): void {
+    this.isButtonEnabled$.pipe(take(1)).subscribe((isEnabled) => {
+      this.isNextButtonEnabled = isEnabled;
+      this.nextButtonStyle = { opacity: isEnabled ? '1' : '0.5' };
+      console.log('Initial button state:', isEnabled);
+      this.cdRef.detectChanges(); // Ensure the UI reflects the state
+    });
+  
+    this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
   }
 
   private subscribeToOptionSelection(): void {
