@@ -1,3 +1,4 @@
+import { Option } from './Option.model';
 import { QuizQuestion } from './QuizQuestion.model';
 
 export interface QuizComponentData {
@@ -5,6 +6,7 @@ export interface QuizComponentData {
   currentQuestion: QuizQuestion;
   question: QuizQuestion;
   questions: QuizQuestion[];
+  options: Option[];
   optionsToDisplay: any[];
   selectedOption: any;
   currentQuestionIndex: number;
