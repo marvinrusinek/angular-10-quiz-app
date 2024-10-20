@@ -2457,8 +2457,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
   
-    this.isNavigating = true; // Set navigation flag
-    this.isNextButtonEnabled = false; // Disable button on navigation
+    this.isNavigating = true;
+    this.isNextButtonEnabled = false;
     this.updateTooltip('Please select an option to continue...');
   
     try {
@@ -2466,17 +2466,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         // Increment question index
         this.currentQuestionIndex++;
         console.log('Loading next question, index:', this.currentQuestionIndex);
-
-        // Load the next question's contents before display preparation
-        await this.loadQuestionContents(); // Ensure content loads before proceeding
+  
+        // Load the next question and prepare it for display
+        await this.loadQuestionContents();
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
   
         // Reset state for the new question
-        this.quizStateService.setAnswered(false); // Mark the new question as unanswered
-        this.quizStateService.setNextButtonEnabled(false); // Disable the Next button initially
-        this.isNextButtonEnabled = false;
+        this.quizStateService.setAnswered(false); 
+        this.quizStateService.setNextButtonEnabled(false); 
   
-        // Clear previous explanations if needed
+        // Reset explanation and question state in the component
         if (this.quizQuestionComponent) {
           this.quizQuestionComponent.explanationToDisplay = '';
           this.quizQuestionComponent.isAnswered = false;
@@ -2492,8 +2491,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     } finally {
       this.isNavigating = false;
       this.quizStateService.setLoading(false);
+  
+      // Update button state and trigger change detection
       this.updateNextButtonState();
-      this.cdRef.markForCheck(); // Trigger change detection for any UI updates
+      this.cdRef.detectChanges(); // Ensure immediate UI update
     }
   }
 
