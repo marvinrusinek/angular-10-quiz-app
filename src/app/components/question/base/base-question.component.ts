@@ -73,9 +73,12 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.question) {
+    if (changes.question && changes.question.currentValue) {
       this.handleQuestionChange(changes.question);
+      this.initializeQuestionIfAvailable();
       this.initializeSharedOptionConfig();
+    } else {
+      console.warn('Initial question input is undefined, waiting for ngOnChanges');
     }
 
     if (changes.optionsToDisplay) {
@@ -138,8 +141,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     if (this.question) {
       this.setCurrentQuestion(this.question);
       this.initializeQuestion();
-    } else {
-      console.warn('Initial question input is undefined in ngOnInit, waiting for ngOnChanges');
     }
   }
 
