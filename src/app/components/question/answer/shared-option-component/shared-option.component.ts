@@ -378,8 +378,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
 
-    if (!option || typeof option.optionId !== 'number') {
-      console.warn('Invalid option clicked:', option);
+    // Ensure the option object is valid
+    if (!option || option.optionId == null || typeof option.optionId !== 'number') {
+      console.error('Invalid option or optionId:', option);
       return;
     }
 
@@ -460,9 +461,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.config.isAnswerCorrect = option.correct || false;
     this.config.showCorrectMessage = option.correct;
   
-    // Call the onOptionClicked method from the config
-    if (this.config && this.config.onOptionClicked) {
+    // Safely call the onOptionClicked function from the config object
+    if (this.config?.onOptionClicked) {
+      console.log('Calling onOptionClicked from config...');
       await this.config.onOptionClicked(option, index, checked);
+    } else {
+      console.warn('onOptionClicked function is not defined in the config.');
     }
   
     // Call the quizQuestionComponentOnOptionClicked method if it exists
