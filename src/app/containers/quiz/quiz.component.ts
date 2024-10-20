@@ -2468,11 +2468,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
   
-    /* if (!await firstValueFrom(this.isButtonEnabled$)) {
-      console.warn('Cannot advance: Next button is disabled.');
-      return;
-    } */
-  
     // Set the navigating and loading states
     this.quizStateService.setNavigating(true);
     this.quizStateService.setLoading(true);
