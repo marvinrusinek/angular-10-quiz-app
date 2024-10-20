@@ -432,36 +432,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }  
 
   private initializeNextButtonState(): void {
-    // Initialize local properties
-    this.isNextButtonEnabled = false;
-    this.isButtonEnabledSubject.next(false);
+    this.isNextButtonEnabled = false; // Default state
   
-    // Set up the observable for button state
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
         map((value) => value ?? false),
         distinctUntilChanged()
       ),
       this.quizStateService.isLoading$.pipe(
-        map((value) => !value), // Negate if loading to disable the button
+        map((value) => !value), // Disable button if loading
         distinctUntilChanged()
       )
     ]).pipe(
-      map(([isAnswered, isNotLoading]) => {
-        const isEnabled = isAnswered && isNotLoading;
-        console.log('Button state inputs:', { isAnswered, isNotLoading, isEnabled });
-        return isEnabled;
-      }),
+      map(([isAnswered, isNotLoading]) => isAnswered && isNotLoading),
       distinctUntilChanged(),
-      tap(isEnabled => {
-        this.isNextButtonEnabled = isEnabled;
-        this.isButtonEnabled = isEnabled;
-        this.isButtonEnabledSubject.next(isEnabled);
-        this.cdRef.markForCheck(); // Trigger change detection
-      }),
+      tap((isEnabled) => this.updateButtonState(isEnabled)),
       shareReplay(1)
     );
-  }
+  }  
 
   private syncNextButtonState(): void {
     this.isButtonEnabled$.pipe(take(1)).subscribe((isEnabled) => {
@@ -473,6 +461,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
   }
+
+  private updateButtonState(isEnabled: boolean): void {
+    console.log('Button state updated:', isEnabled);
+    this.isNextButtonEnabled = isEnabled;
+    this.isButtonEnabledSubject.next(isEnabled);
+    this.nextButtonStyle = { opacity: isEnabled ? '1' : '0.5' };
+    this.cdRef.markForCheck(); // Ensure Angular detects changes
+  }  
 
   private subscribeToOptionSelection(): void {
     this.optionSelectedSubscription = this.selectedOptionService
