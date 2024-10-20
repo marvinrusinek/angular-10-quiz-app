@@ -171,7 +171,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   public async initializeSharedOptionConfig(): Promise<void> {
     if (!this.question) {
-      console.warn('question is undefined or null');
       this.sharedOptionConfig = this.getDefaultSharedOptionConfig();
       return;
     }
