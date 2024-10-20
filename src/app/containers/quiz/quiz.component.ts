@@ -444,6 +444,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         distinctUntilChanged()
       )
     ]).pipe(
+      debounceTime(50), // Add a small debounce to avoid flickering
       map(([isAnswered, isNotLoading]) => isAnswered && isNotLoading),
       distinctUntilChanged(),
       tap((isEnabled) => this.updateButtonState(isEnabled)),
