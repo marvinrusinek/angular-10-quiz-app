@@ -2448,6 +2448,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     return this.isCurrentQuestionAnswered;
   }
 
+  private debounce(func: Function, delay: number): Function {
+    let timer: any;
+    return (...args: any[]) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        func.apply(this, args);
+      }, delay);
+    };
+  }
+  
+  debounceClick(): void {
+    this.debounce(() => this.advanceToNextQuestion(), 300)();
+  }
+
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     const [isNavigating, isLoading] = await Promise.all([
