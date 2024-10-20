@@ -76,7 +76,7 @@
               #nextButton="matTooltip"
               mat-icon-button
               routerLinkActive="active"
-              (click)="advanceToNextQuestion();debounceClick()"
+              (click)="advanceToNextQuestion()"
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"              
               aria-label="Next Question"
