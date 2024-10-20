@@ -2470,8 +2470,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
-    if (this.isNavigating || this.isLoading) {
-      console.warn('Cannot advance: Navigation in progress or quiz is loading.');
+    const isNavigating = await firstValueFrom(this.quizStateService.isNavigating$);
+    const isLoading = await firstValueFrom(this.quizStateService.isLoading$);
+
+    if (isNavigating || isLoading) {
+      console.warn('Cannot advance: Navigation or loading in progress.');
       return;
     }
   
@@ -2483,7 +2486,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isNavigating = true;
     this.isNextButtonEnabled = false;
     this.updateTooltip('Please select an option to continue...');
-  
+
+    // Set the navigating and loading states
+    this.quizStateService.setNavigating(true);
+    this.quizStateService.setLoading(true);
+    
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         // Increment question index
