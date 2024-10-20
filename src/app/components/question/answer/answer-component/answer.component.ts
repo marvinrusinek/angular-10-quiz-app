@@ -151,10 +151,10 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   }
 
   public override async onOptionClicked(
-    option: SelectedOption,
-    index: number,
-    checked: boolean
+    event: { option: SelectedOption; index: number; checked: boolean }
   ): Promise<void> {
+    const { option, index, checked } = event; // Destructure the event object
+    
     console.log('AnswerComponent: onOptionClicked called with:', { option, index, checked });
   
     // Handle single-answer questions
