@@ -1320,9 +1320,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error(`Invalid index: ${index}`);
       return;
     }
+
+    // Reset explanation text and ensure the correct state flow
+    this.explanationTextService.setIsExplanationTextDisplayed(false);
   
     try {
       await super.onOptionClicked(event);
+
+      if (option.selected) {
+        this.updateExplanationText();
+      }
   
       this.resetExplanation();
       this.toggleOptionState(option, index);
