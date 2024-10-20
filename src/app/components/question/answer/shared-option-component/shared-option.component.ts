@@ -399,7 +399,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
       this.updateOptionState(option, index, optionId);
       this.handleSelection(option, index, optionId);
-      this.showFeedbackForOptionNew(option, index, optionId);
+      this.displayFeedbackForOption(option, index, optionId);
       this.triggerChangeDetection();
   
       await this.callOptionClickHandlers(option, index, checked);
@@ -459,7 +459,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log(`Handled selection for optionId ${optionId}`);
   }
 
-  private showFeedbackForOptionNew(option: SelectedOption, index: number, optionId: number): void {
+  private displayFeedbackForOption(option: SelectedOption, index: number, optionId: number): void {
     this.showFeedback = true;
     this.showFeedbackForOption[optionId] = true;
   
