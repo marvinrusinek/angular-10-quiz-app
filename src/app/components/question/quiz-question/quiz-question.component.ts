@@ -1981,6 +1981,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.isAnswered = false;
     }
   }
+  
 
   private processOptionSelection(
     currentQuestion: QuizQuestion,
