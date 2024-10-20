@@ -480,59 +480,64 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.error('Error in handleOptionClick:', error);
     }
   }  */
-  async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
-    try {
-      // Step 1: Validate the option object
-      console.log('Option received in handleOptionClick:', option);
-      if (!option) {
-        throw new Error(`Invalid or undefined option at index ${index}`);
-      }
+  async handleOptionClick(option: SelectedOption | null | undefined, index: number, checked: boolean): Promise<void> {
+    console.log('Option received in handleOptionClick:', { option, index, checked });
   
-      // Step 2: Clone the option to prevent mutations
-      const clonedOption = { ...option };
-      console.log('Cloned Option:', JSON.stringify(clonedOption, null, 2));
-  
-      // Step 3: Safely access optionId
-      const optionId = this.getSafeOptionId(clonedOption, index);
-      console.log(`Using optionId: ${optionId}, Index: ${index}, Checked: ${checked}`);
-  
-      // Step 4: Check if the click should be ignored
-      if (this.shouldIgnoreClick(optionId)) {
-        console.warn(`Ignoring click for optionId: ${optionId}`);
-        return;
-      }
-  
-      if (this.isNavigatingBackwards) {
-        console.log('Handling backward navigation for:', clonedOption);
-        this.handleBackwardNavigationOptionClick(clonedOption, index);
-        return;
-      }
-  
-      // Step 5: Update option state and display feedback
-      console.log('Updating option state...');
-      this.updateOptionState(clonedOption, index, optionId);
-      this.handleSelection(clonedOption, index, optionId);
-      this.displayFeedbackForOption(clonedOption, index, optionId);
-      this.triggerChangeDetection();
-  
-      console.log('Before calling handlers:', { option: clonedOption, index, checked });
-  
-      // Step 6: Safely call option click handlers
-      await this.safeCallOptionClickHandlers(clonedOption, index, checked);
-    } catch (error) {
-      console.error('Error in handleOptionClick:', error);
+    // Step 1: Validate the option object immediately
+    if (!option || typeof option !== 'object') {
+      console.error(`Invalid or undefined option at index ${index}.`, option);
+      return;
     }
+  
+    // Step 2: Clone the option to prevent mutations
+    const clonedOption = { ...option };
+    console.log('Cloned Option:', JSON.stringify(clonedOption, null, 2));
+  
+    // Step 3: Safely access optionId, or fallback to index
+    const optionId = this.getSafeOptionId(clonedOption, index);
+    if (optionId === undefined) {
+      console.error(`Failed to access optionId. Option data: ${JSON.stringify(clonedOption, null, 2)}`);
+      return;
+    }
+    console.log(`Using optionId: ${optionId}, Index: ${index}, Checked: ${checked}`);
+  
+    // Step 4: Check if the click should be ignored
+    if (this.shouldIgnoreClick(optionId)) {
+      console.warn(`Ignoring click for optionId: ${optionId}`);
+      return;
+    }
+  
+    if (this.isNavigatingBackwards) {
+      console.log('Handling backward navigation for:', clonedOption);
+      this.handleBackwardNavigationOptionClick(clonedOption, index);
+      return;
+    }
+  
+    // Step 5: Update option state, handle selection, and display feedback
+    console.log('Updating option state...');
+    this.updateOptionState(clonedOption, index, optionId);
+    this.handleSelection(clonedOption, index, optionId);
+    this.displayFeedbackForOption(clonedOption, index, optionId);
+    this.triggerChangeDetection();
+  
+    console.log('Before calling handlers:', { option: clonedOption, index, checked });
+  
+    // Step 6: Safely call option click handlers
+    await this.safeCallOptionClickHandlers(clonedOption, index, checked);
   }
 
-  private getSafeOptionId(option: SelectedOption, index: number): number {
+  private getSafeOptionId(option: SelectedOption, index: number): number | undefined {
     console.log('Accessing optionId for:', option);
-    if (typeof option.optionId === 'number') {
+    
+    // Ensure optionId exists and is a number
+    if (option && typeof option.optionId === 'number') {
       return option.optionId;
     }
+  
     console.warn(`Invalid or missing optionId. Falling back to index: ${index}`);
     return index;
-  }  
-
+  }
+    
   private validateOption(option: SelectedOption, index: number): void {
     if (!option || option.optionId == null || typeof option.optionId !== 'number') {
       throw new Error(`Invalid option or optionId at index ${index}: ${JSON.stringify(option)}`);
