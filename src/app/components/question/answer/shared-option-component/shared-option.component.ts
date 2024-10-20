@@ -395,6 +395,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.error(`Invalid or undefined option at index ${index}.`, option);
       return;
     }
+
+    // Mark question as answered
+    this.selectedOptionService.isAnsweredSubject.next(true);
   
     // Clone the option to prevent mutations
     const clonedOption = { ...option };
