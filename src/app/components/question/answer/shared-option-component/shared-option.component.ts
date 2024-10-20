@@ -515,7 +515,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('Updated Feedback Config:', this.currentFeedbackConfig);
   }
   
-
   private generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
     return {
       ...this.feedbackConfig,
