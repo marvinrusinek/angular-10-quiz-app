@@ -89,7 +89,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.handleOptionsToDisplayChange(changes.optionsToDisplay);
     }
   }
-  
 
   ngAfterViewInit(): void {
     this.initializeDynamicComponentIfNeeded();
