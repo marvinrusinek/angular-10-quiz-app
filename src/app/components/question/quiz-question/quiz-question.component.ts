@@ -1313,7 +1313,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const { option, index = -1, checked = false } = event || {};
 
     // Ensure optionId exists (including 0) and is of type number
-    if (option.optionId === undefined || typeof option.optionId !== 'number') {
+    if (option.optionId == null || typeof option.optionId !== 'number') {
       console.error('Invalid or missing optionId:', option);
       return;
     }
