@@ -447,7 +447,7 @@ export class QuizService implements OnDestroy {
 
   sanitizeOptions(options: Option[]): Option[] {
     return options.map((option, index) => ({
-      optionId: option.optionId ?? index, // Assign index if optionId is missing
+      optionId: option.optionId ?? index,
       text: option.text?.trim() || 'No text provided',
       correct: option.correct ?? false,
       value: option.value ?? null,
