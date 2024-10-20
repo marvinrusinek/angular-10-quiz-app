@@ -436,7 +436,7 @@ export class QuizService implements OnDestroy {
     return this.getCurrentQuestionByIndex(this.quizId, index).pipe(
       map((question) => {
         const options = question?.options ?? [];
-        return sanitizeOptions(options); // Ensure options are properly structured
+        return this.sanitizeOptions(options); // Ensure options are properly structured
       }),
       catchError((error) => {
         console.error(`Error fetching options for question index ${index}:`, error);
