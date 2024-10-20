@@ -229,7 +229,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       currentQuestionIndex: this.currentQuestionIndex,
       multipleAnswer: this.multipleAnswer,
       showFeedback: this.showFeedback,
-      selectionMessage: this.selectionMessage,
+      selectionMessage: this.selectionMessage
     };
 
     // Use debounceTime to delay emission of isOptionSelected$ to handle rapid selection
