@@ -379,7 +379,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
 
     if (!option || typeof option.optionId !== 'number') {
-      console.warn('Invalid option selected:', option);
+      console.warn('Invalid option clicked:', option);
       return;
     }
 
