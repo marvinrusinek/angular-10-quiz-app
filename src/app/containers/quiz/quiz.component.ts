@@ -1973,8 +1973,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   updateQuestionDisplay(questionIndex: number): void {
-    if (!this.questions || this.questions.length === 0) {
-      console.warn('Questions array is not initialized or empty.');
+    console.log('Attempting to display question at index:', questionIndex);
+    console.log('Questions array state:', this.questions);
+  
+    if (!Array.isArray(this.questions) || this.questions.length === 0) {
+      console.warn('Questions array is not initialized or empty...');
       return;
     }
   
@@ -1982,10 +1985,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       const selectedQuestion = this.questions[questionIndex];
       this.questionToDisplay = selectedQuestion.questionText;
       this.optionsToDisplay = selectedQuestion.options;
+      console.log(`Question ${questionIndex} loaded:`, this.questionToDisplay);
     } else {
-      console.warn(
-        `Invalid question index: ${questionIndex}. Unable to update the question display.`
-      );
+      console.warn(`Invalid question index: ${questionIndex}.`);
     }
   }
 
