@@ -1203,9 +1203,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('MY CORR MSG', this.correctMessage || 'Not available');
   }  
 
-  public getCorrectAnswers(): number[] {
+  public async getCorrectAnswers(): Promise<number[]> {
     try {
-      // Ensure that currentQuestion is available
+      // Attempt to recover the current question if it is missing
+      if (!this.currentQuestion) {
+        this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+        console.warn('Recovered current question:', this.currentQuestion);
+      }
+  
+      // Ensure the question text is valid
       if (!this.currentQuestion || !this.currentQuestion.questionText) {
         console.error('Current question is not set or has no valid question text.');
         return [];
