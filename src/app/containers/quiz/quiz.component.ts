@@ -2498,7 +2498,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.cdRef.detectChanges();
     }
   } */
-  async advanceToNextQuestion(): Promise<void> {
+  /* async advanceToNextQuestion(): Promise<void> {
     // Immediately set the navigating state to prevent race conditions
     this.quizStateService.setNavigating(true);
     this.cdRef.detectChanges(); // Ensure UI reflects the state immediately
@@ -2541,7 +2541,56 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
       this.cdRef.detectChanges(); // Ensure the UI updates immediately
     }
+  } */
+  async advanceToNextQuestion(): Promise<void> {
+    console.log('Starting navigation attempt...');
+  
+    // Set navigating state immediately to prevent race conditions
+    this.quizStateService.setNavigating(true);
+    this.cdRef.detectChanges(); // Ensure UI updates immediately
+  
+    try {
+      // Log the state values to see what is preventing navigation
+      const [isLoading, isEnabled] = await Promise.all([
+        firstValueFrom(this.quizStateService.isLoading$),
+        firstValueFrom(this.isButtonEnabled$)
+      ]);
+  
+      console.log('isLoading:', isLoading, 'isButtonEnabled:', isEnabled);
+  
+      if (isLoading || !isEnabled) {
+        console.warn('Cannot advance: Loading in progress or button disabled.');
+        this.quizStateService.setNavigating(false); // Reset navigating state
+        return;
+      }
+  
+      // Set the loading state
+      this.quizStateService.setLoading(true);
+  
+      // Proceed with loading the next question
+      if (this.currentQuestionIndex < this.totalQuestions - 1) {
+        this.currentQuestionIndex++;
+        console.log('Loading next question, index:', this.currentQuestionIndex);
+  
+        await this.loadQuestionContents();
+        await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+  
+        this.quizStateService.setAnswered(false); // Reset answered state
+      } else {
+        console.log('End of quiz reached.');
+        await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+      }
+    } catch (error) {
+      console.error('Error during navigation:', error);
+    } finally {
+      // Reset navigating and loading states
+      this.quizStateService.setNavigating(false);
+      this.quizStateService.setLoading(false);
+  
+      this.cdRef.detectChanges(); // Ensure the UI updates immediately
+    }
   }
+  
 
   async advanceToPreviousQuestion(): Promise<void> {
     if (this.isNavigating) {
