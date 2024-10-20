@@ -464,13 +464,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   private updateButtonState(isEnabled: boolean): void {
     console.log('Button state updated:', isEnabled);
-    this.isNextButtonEnabled = isEnabled;
-    this.isButtonEnabledSubject.next(isEnabled);
-    this.nextButtonStyle = { opacity: isEnabled ? '1' : '0.5' };
-    
-    // Manually trigger change detection to ensure UI updates
-    this.cdRef.detectChanges();
-  }  
+  
+    // Ensure the state update runs within Angular's zone
+    this.ngZone.run(() => {
+      this.isNextButtonEnabled = isEnabled;
+      this.isButtonEnabledSubject.next(isEnabled);
+      this.nextButtonStyle = { opacity: isEnabled ? '1' : '0.5' };
+      this.cdRef.detectChanges();
+    });
+  }
 
   private subscribeToOptionSelection(): void {
     this.optionSelectedSubscription = this.selectedOptionService
