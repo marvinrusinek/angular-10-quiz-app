@@ -26,12 +26,6 @@ export class QuizStateService {
   private resetQuizSubject = new Subject<void>(); 
   resetQuiz$ = this.resetQuizSubject.asObservable(); // for quiz-content component
 
-  private isNavigatingSubject = new BehaviorSubject<boolean>(false);
-  public isNavigating$ = this.isNavigatingSubject.asObservable();
-
-  private isLoadingSubject = new BehaviorSubject<boolean>(false);
-  public isLoading$ = this.isLoadingSubject.asObservable();
-
   private correctAnswersTextSource = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
 
@@ -42,6 +36,12 @@ export class QuizStateService {
 
   loadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$: Observable<boolean> = this.loadingSubject.asObservable();
+
+  private isLoadingSubject = new BehaviorSubject<boolean>(false);
+  public isLoading$ = this.isLoadingSubject.asObservable();
+
+  private isNavigatingSubject = new BehaviorSubject<boolean>(false);
+  public isNavigating$ = this.isNavigatingSubject.asObservable();
   
   answeredSubject = new BehaviorSubject<boolean>(false);
   isAnswered$: Observable<boolean> = this.answeredSubject.asObservable();
@@ -255,9 +255,14 @@ export class QuizStateService {
     return this.loadingSubject.getValue();
   }
 
+  setNavigating(isNavigating: boolean): void {
+    this.isNavigatingSubject.next(isNavigating);
+  }
+
   setLoading(isLoading: boolean): void {
     console.log('QuizStateService: setLoading called with', isLoading);
     this.loadingSubject.next(isLoading);
+    this.isLoadingSubject.next(isLoading);
   }
 
   setAnswered(isAnswered: boolean): void {
