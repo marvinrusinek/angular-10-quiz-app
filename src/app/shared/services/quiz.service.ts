@@ -1379,23 +1379,12 @@ export class QuizService implements OnDestroy {
       console.log(`Processing option at index ${idx}:`, option);
   
       if (!isValid) {
-        console.warn(`Invalid or incorrect option at index ${idx}:`, {
-          optionId: option?.optionId ?? 'undefined',
-          value: option?.value ?? 'undefined',
-          text: option?.text ?? 'undefined',
-          correct: option?.correct ?? 'undefined',
-        });
+        console.warn(`Invalid option at index ${idx}:`, option);
       } else if (option.correct) {
         console.log(`Correct option found at index ${idx}:`, option);
       }
       return isValid && option.correct;
     });
-  
-    if (this.correctOptions.length === 0) {
-      console.warn('No correct options found. Ensure the "correct" property is properly set.');
-    } else {
-      console.log('Correct options set:', this.correctOptions);
-    }
   }
 
   setCorrectAnswers(question: QuizQuestion, options: Option[]): Observable<void> {
