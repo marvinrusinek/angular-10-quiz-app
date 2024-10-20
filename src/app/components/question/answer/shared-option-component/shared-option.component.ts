@@ -381,105 +381,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  /* async handleOptionClick(option: SelectedOption, index: number, checked: boolean): Promise<void> {
-    try {
-      if (this.isSubmitted) {
-        console.log('Question already submitted, ignoring click');
-        return;
-      }
-  
-      this.validateOption(option, index);
-      const optionId = this.getOptionId(option, index);
-  
-      if (this.shouldIgnoreClick(optionId)) return;
-      if (this.isNavigatingBackwards) {
-        this.handleBackwardNavigationOptionClick(option, index);
-        return;
-      }
-  
-      this.updateOptionState(option, index, optionId);
-      this.handleSelection(option, index, optionId);
-      this.displayFeedbackForOption(option, index, optionId);
-      this.triggerChangeDetection();
-  
-      console.log('Before calling handlers - Option:', option, 'Index:', index, 'Checked:', checked);
-      await this.callOptionClickHandlers(clonedOption, optionId, checked);
-    } catch (error) {
-      console.error('Error in handleOptionClick:', error);
-    }
-  } */
-  /* async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
-    try {
-      // Step 1: Ensure that the option object is valid
-      if (!option) {
-        throw new Error(`Invalid or undefined option at index ${index}`);
-      }
-  
-      // Step 2: Clone the option to avoid mutations
-      const clonedOption = { ...option };
-      console.log('Cloned Option:', JSON.stringify(clonedOption, null, 2));
-  
-      // Step 3: Safely access optionId
-      const optionId = this.getSafeOptionId(clonedOption, index);
-      console.log(`Using optionId: ${optionId}, Index: ${index}, Checked: ${checked}`);
-  
-      // Step 4: Ignore click if conditions are not met
-      if (this.shouldIgnoreClick(optionId)) return;
-      if (this.isNavigatingBackwards) {
-        this.handleBackwardNavigationOptionClick(clonedOption, index);
-        return;
-      }
-  
-      // Step 5: Update option state and display feedback
-      this.updateOptionState(clonedOption, index, optionId);
-      this.handleSelection(clonedOption, index, optionId);
-      this.displayFeedbackForOption(clonedOption, index, optionId);
-      this.triggerChangeDetection();
-  
-      console.log('Before calling handlers:', { option: clonedOption, index, checked });
-  
-      // Step 6: Call option click handlers with additional safety checks
-      await this.safeCallOptionClickHandlers(clonedOption, index, checked);
-    } catch (error) {
-      console.error('Error in handleOptionClick:', error);
-    }
-  } */
-  /* async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
-    try {
-      // Step 1: Validate the option object
-      if (!option) {
-        throw new Error(`Invalid or undefined option at index ${index}`);
-      }
-  
-      // Step 2: Clone the option to prevent mutations
-      const clonedOption = { ...option };
-      console.log('Cloned Option:', JSON.stringify(clonedOption, null, 2));
-  
-      // Step 3: Safely access optionId
-      const optionId = this.getSafeOptionId(clonedOption, index);
-      console.log(`Using optionId: ${optionId}, Index: ${index}, Checked: ${checked}`);
-  
-      // Step 4: Check if the click should be ignored
-      if (this.shouldIgnoreClick(optionId)) return;
-      if (this.isNavigatingBackwards) {
-        this.handleBackwardNavigationOptionClick(clonedOption, index);
-        return;
-      }
-  
-      // Step 5: Update option state and display feedback
-      this.updateOptionState(clonedOption, index, optionId);
-      this.handleSelection(clonedOption, index, optionId);
-      this.displayFeedbackForOption(clonedOption, index, optionId);
-      this.triggerChangeDetection();
-  
-      console.log('Before calling handlers:', { option: clonedOption, index, checked });
-  
-      // Step 6: Safely call option click handlers
-      await this.safeCallOptionClickHandlers(clonedOption, index, checked);
-    } catch (error) {
-      console.error('Error in handleOptionClick:', error);
-    }
-  }  */
   async handleOptionClick(option: SelectedOption | null | undefined, index: number, checked: boolean): Promise<void> {
     console.log('Option received in handleOptionClick:', { option, index, checked });
   
@@ -537,45 +438,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.warn(`Invalid or missing optionId. Falling back to index: ${index}`);
     return index;
   }
-    
-  private validateOption(option: SelectedOption, index: number): void {
-    if (!option || option.optionId == null || typeof option.optionId !== 'number') {
-      throw new Error(`Invalid option or optionId at index ${index}: ${JSON.stringify(option)}`);
-    }
-  }
 
-  /* private async safeCallOptionClickHandlers(
-    option: SelectedOption,
-    index: number,
-    checked: boolean
-  ): Promise<void> {
-    try {
-      console.log('Inside safeCallOptionClickHandlers:', JSON.stringify(option, null, 2));
-  
-      const optionId = this.getSafeOptionId(option, index);
-      console.log(`Processing with Option ID: ${optionId}`);
-  
-      if (this.config?.onOptionClicked) {
-        console.log('Calling onOptionClicked from config...');
-        await this.config.onOptionClicked(option, index, checked);
-      } else {
-        console.warn('onOptionClicked is not defined in the config.');
-      }
-  
-      if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
-        console.log('Calling quizQuestionComponentOnOptionClicked...');
-        this.quizQuestionComponentOnOptionClicked(option, index);
-      } else {
-        console.warn(
-          `quizQuestionComponentOnOptionClicked is ${
-            this.quizQuestionComponentOnOptionClicked ? 'defined but not a function' : 'not defined'
-          }`
-        );
-      }
-    } catch (error) {
-      console.error('Error in safeCallOptionClickHandlers:', error);
-    }
-  } */
   private async safeCallOptionClickHandlers(
     option: SelectedOption,
     index: number,
@@ -599,11 +462,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
   
-
-  private getOptionId(option: SelectedOption, index: number): number {
-    return option.optionId ?? index;
-  }
-
   private shouldIgnoreClick(optionId: number): boolean {
     if (this.clickedOptionIds.has(optionId)) {
       console.log('Option already selected, ignoring click');
