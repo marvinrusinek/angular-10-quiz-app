@@ -1310,7 +1310,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    if (!event || typeof event !== 'object' || !event.option || typeof event.option.optionId !== 'number') {
+    if (
+      !event || 
+      typeof event !== 'object' || 
+      !event.option || 
+      !('optionId' in event.option) || 
+      typeof event.option.optionId !== 'number'
+    ) {
       console.error('Invalid event structure or missing option:', event);
       return;
     }
