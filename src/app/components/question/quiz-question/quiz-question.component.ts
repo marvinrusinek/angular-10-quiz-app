@@ -1310,20 +1310,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    if (
-      !event || 
-      typeof event !== 'object' || 
-      !event.option || 
-      !('optionId' in event.option) || 
-      typeof event.option.optionId !== 'number'
-    ) {
-      console.error('Invalid event structure or missing option:', event);
+    // Check if event and option are valid
+    if (!event || !event.option) {
+      console.error('Invalid event or missing option:', event);
       return;
     }
+
     const { option, index = -1, checked = false } = event || {};
 
-    if (typeof option.optionId !== 'number' || !option.text?.trim()) {
-      console.error('Invalid option structure:', option);
+    // Ensure optionId exists (including 0) and is of type number
+    if (option.optionId === undefined || typeof option.optionId !== 'number') {
+      console.error('Invalid or missing optionId:', option);
+      return;
+    }
+
+    // Explicit check for optionId to allow 0 as a valid value
+    if (!Object.prototype.hasOwnProperty.call(option, 'optionId') || typeof option.optionId !== 'number') {
+      console.error('Invalid or missing optionId:', option);
       return;
     }
 
