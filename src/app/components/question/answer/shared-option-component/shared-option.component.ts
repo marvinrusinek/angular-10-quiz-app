@@ -536,41 +536,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('Change detection triggered');
   }
 
-  private async callOptionClickHandlers(
-    option: SelectedOption,
-    index: number,
-    checked: boolean
-  ): Promise<void> {
-    try {
-      // Log the option object immediately
-      console.log('Inside callOptionClickHandlers - Option:', JSON.stringify(option, null, 2));
-  
-      // Safely access optionId before proceeding
-      const optionId = this.getSafeOptionId(option, index);
-      console.log(`Processing with optionId: ${optionId}`);
-  
-      if (this.config?.onOptionClicked) {
-        console.log('Calling onOptionClicked from config...');
-        await this.config.onOptionClicked(option, index, checked);
-      } else {
-        console.warn('onOptionClicked function is not defined in the config.');
-      }
-  
-      if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
-        console.log('Calling quizQuestionComponentOnOptionClicked...');
-        this.quizQuestionComponentOnOptionClicked(option, index);
-      } else {
-        console[this.quizQuestionComponentOnOptionClicked ? 'warn' : 'debug'](
-          `quizQuestionComponentOnOptionClicked is ${
-            this.quizQuestionComponentOnOptionClicked ? 'defined but not a function' : 'not defined'
-          }`
-        );
-      }
-    } catch (error) {
-      console.error('Error in callOptionClickHandlers:', error);
-    }
-  }
-
 
   handleBackwardNavigationOptionClick(option: Option, index: number): void {
     const optionBinding = this.optionBindings[index];
