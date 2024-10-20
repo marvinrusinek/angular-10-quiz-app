@@ -496,6 +496,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     checked: boolean
   ): Promise<void> {
     try {
+      // Ensure the option object is valid before proceeding
+      if (!option || option.optionId == null) {
+        throw new Error(`Invalid option or optionId: ${JSON.stringify(option)}`);
+      }
+  
+      // Call the onOptionClicked handler from the config if defined
       if (this.config?.onOptionClicked) {
         console.log('Calling onOptionClicked from config...');
         await this.config.onOptionClicked(option, index, checked);
@@ -503,7 +509,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         console.warn('onOptionClicked function is not defined in the config.');
       }
   
+      // Call quizQuestionComponentOnOptionClicked if it exists and is a function
       if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
+        console.log('Calling quizQuestionComponentOnOptionClicked...');
         this.quizQuestionComponentOnOptionClicked(option, index);
       } else {
         console[this.quizQuestionComponentOnOptionClicked ? 'warn' : 'debug'](
@@ -516,8 +524,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.error('Error in callOptionClickHandlers:', error);
     }
   }
-  
 
+  
   handleBackwardNavigationOptionClick(option: Option, index: number): void {
     const optionBinding = this.optionBindings[index];
     
