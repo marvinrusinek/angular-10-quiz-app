@@ -237,9 +237,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log('Setting optionsToDisplay from this.questionData.options');
       this.optionsToDisplay = this.questionData.options;
     } else {
-      console.warn('No options available. Initializing as empty array.');
+      console.info('No options available initially. Initializing optionsToDisplay as an empty array.');
       this.optionsToDisplay = [];
-    }
+    }    
     console.log('Options to Display:::::>>>>>>', this.optionsToDisplay); // Debugging statement
   
     // Set correct options in the quiz service
