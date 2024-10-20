@@ -408,7 +408,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.error('Error in handleOptionClick:', error);
     }
   } */
-  async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
+  /* async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
     try {
       // Step 1: Ensure that the option object is valid
       if (!option) {
@@ -443,18 +443,54 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     } catch (error) {
       console.error('Error in handleOptionClick:', error);
     }
-  }
+  } */
+  async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
+    try {
+      // Step 1: Validate the option object
+      if (!option) {
+        throw new Error(`Invalid or undefined option at index ${index}`);
+      }
+  
+      // Step 2: Clone the option to prevent mutations
+      const clonedOption = { ...option };
+      console.log('Cloned Option:', JSON.stringify(clonedOption, null, 2));
+  
+      // Step 3: Safely access optionId
+      const optionId = this.getSafeOptionId(clonedOption, index);
+      console.log(`Using optionId: ${optionId}, Index: ${index}, Checked: ${checked}`);
+  
+      // Step 4: Check if the click should be ignored
+      if (this.shouldIgnoreClick(optionId)) return;
+      if (this.isNavigatingBackwards) {
+        this.handleBackwardNavigationOptionClick(clonedOption, index);
+        return;
+      }
+  
+      // Step 5: Update option state and display feedback
+      this.updateOptionState(clonedOption, index, optionId);
+      this.handleSelection(clonedOption, index, optionId);
+      this.displayFeedbackForOption(clonedOption, index, optionId);
+      this.triggerChangeDetection();
+  
+      console.log('Before calling handlers:', { option: clonedOption, index, checked });
+  
+      // Step 6: Safely call option click handlers
+      await this.safeCallOptionClickHandlers(clonedOption, index, checked);
+    } catch (error) {
+      console.error('Error in handleOptionClick:', error);
+    }
+  }  
 
   private getSafeOptionId(option: SelectedOption, index: number): number {
     try {
       if (typeof option.optionId === 'number') {
-        return option.optionId;
+        return option.optionId; // Valid optionId (including 0)
       }
-      console.warn(`OptionId is missing or invalid. Falling back to index: ${index}`);
-      return index;
+      console.warn(`Invalid or missing optionId. Falling back to index: ${index}`);
+      return index; // Fallback to index
     } catch (error) {
-      console.error('Error accessing optionId:', error);
-      return index; // Default to index to avoid errors
+      console.error('Error accessing optionId:', error, 'Option:', JSON.stringify(option, null, 2));
+      return index; // Return index to prevent errors
     }
   }
 
@@ -470,25 +506,23 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     checked: boolean
   ): Promise<void> {
     try {
-      // Log the option object to verify its structure
-      console.log('Inside callOptionClickHandlers:', JSON.stringify(option, null, 2));
-
-      // Ensure optionId exists before proceeding
+      console.log('Inside safeCallOptionClickHandlers:', JSON.stringify(option, null, 2));
+  
       const optionId = this.getSafeOptionId(option, index);
-      console.log(`Processing with optionId: ${optionId}`);
-
+      console.log(`Processing with Option ID: ${optionId}`);
+  
       if (this.config?.onOptionClicked) {
         console.log('Calling onOptionClicked from config...');
         await this.config.onOptionClicked(option, index, checked);
       } else {
-        console.warn('onOptionClicked function is not defined in the config.');
+        console.warn('onOptionClicked is not defined in the config.');
       }
-
+  
       if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
         console.log('Calling quizQuestionComponentOnOptionClicked...');
         this.quizQuestionComponentOnOptionClicked(option, index);
       } else {
-        console[this.quizQuestionComponentOnOptionClicked ? 'warn' : 'debug'](
+        console.warn(
           `quizQuestionComponentOnOptionClicked is ${
             this.quizQuestionComponentOnOptionClicked ? 'defined but not a function' : 'not defined'
           }`
@@ -545,14 +579,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   private displayFeedbackForOption(option: SelectedOption, index: number, optionId: number): void {
+    console.log(`Displaying feedback for Option ID: ${optionId}, Index: ${index}`);
+  
     this.showFeedback = true;
     this.showFeedbackForOption[optionId] = true;
   
     this.currentFeedbackConfig = this.generateFeedbackConfig(option, index);
     this.feedbackConfig[index] = this.currentFeedbackConfig;
   
-    console.log('Feedback shown for optionId:', optionId);
+    console.log('Updated Feedback Config:', this.currentFeedbackConfig);
   }
+  
 
   private generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
     return {
