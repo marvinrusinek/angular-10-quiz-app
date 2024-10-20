@@ -1543,19 +1543,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private handleCorrectAnswers(option: SelectedOption): void {
-    console.log('Handling correct answers for option:', option);
+  private async handleCorrectAnswers(option: SelectedOption): Promise<void> {
+    try {
+      console.log('Handling correct answers for option:', option);
   
-    this.correctAnswers = this.getCorrectAnswers(); // Fetch correct answers
-    console.log('Fetched correct answers:', this.correctAnswers);
+      // Fetch correct answers asynchronously
+      this.correctAnswers = await this.getCorrectAnswers(); 
+      console.log('Fetched correct answers:', this.correctAnswers);
   
-    if (!this.correctAnswers || this.correctAnswers.length === 0) {
-      console.warn('No correct answers available for this question.');
-      return;
+      // Check if the correct answers are available
+      if (!this.correctAnswers || this.correctAnswers.length === 0) {
+        console.warn('No correct answers available for this question.');
+        return;
+      }
+  
+      // Check if the selected option is among the correct answers
+      const isSpecificAnswerCorrect = this.correctAnswers.includes(option.optionId);
+      console.log('Is the specific answer correct?', isSpecificAnswerCorrect);
+    } catch (error) {
+      console.error('An error occurred while handling correct answers:', error);
     }
-  
-    const isSpecificAnswerCorrect = this.correctAnswers.includes(option.optionId);
-    console.log('Is the specific answer correct?', isSpecificAnswerCorrect);
   }  
 
   private updateFeedback(option: SelectedOption): void {
