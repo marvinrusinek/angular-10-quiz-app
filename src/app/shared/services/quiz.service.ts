@@ -1368,7 +1368,7 @@ export class QuizService implements OnDestroy {
   setCorrectOptions(options: Option[]): void {
     console.log('setCorrectOptions called with:', options);
   
-    const sanitizedOptions = sanitizeOptions(options); // Sanitize options
+    const sanitizedOptions = this.sanitizeOptions(options); // Sanitize options
   
     if (!Array.isArray(sanitizedOptions) || sanitizedOptions.length === 0) {
       console.warn('Options are undefined, null, or empty. Setting correctOptions to an empty array.');
