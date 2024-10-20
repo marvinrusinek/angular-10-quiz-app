@@ -1917,6 +1917,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     try {
+      // Toggle option selection state
+      option.selected = !option.selected;
+      
       // Process the selected option and update states
       this.processOptionSelection(currentQuestion, option, optionIndex);
   
@@ -1958,6 +1961,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         },
         totalCorrectAnswers
       );
+
+      // Emit an event to notify the parent component that an option is selected
+      this.optionSelected.emit({
+        option: option,
+        index: optionIndex,
+        checked: option.selected
+      });
   
       // Log debug information for further analysis
       this.logDebugInformation();
