@@ -1368,7 +1368,7 @@ export class QuizService implements OnDestroy {
   setCorrectOptions(options: Option[]): void {
     console.log('setCorrectOptions called with:', options);
   
-    const sanitizedOptions = sanitizeOptions(options); // Ensure options are sanitized
+    const sanitizedOptions = this.sanitizeOptions(options); // Ensure options are sanitized
   
     this.correctOptions = sanitizedOptions.filter((option, idx) => {
       const isValid =
