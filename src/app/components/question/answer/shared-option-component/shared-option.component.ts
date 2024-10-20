@@ -381,7 +381,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  async handleOptionClick(option: SelectedOption, index: number, checked: boolean): Promise<void> {
+  /* async handleOptionClick(option: SelectedOption, index: number, checked: boolean): Promise<void> {
     try {
       if (this.isSubmitted) {
         console.log('Question already submitted, ignoring click');
@@ -403,9 +403,57 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.triggerChangeDetection();
   
       console.log('Before calling handlers - Option:', option, 'Index:', index, 'Checked:', checked);
-      await this.callOptionClickHandlers(option, index, checked);
+      await this.callOptionClickHandlers(clonedOption, optionId, checked);
     } catch (error) {
       console.error('Error in handleOptionClick:', error);
+    }
+  } */
+  async handleOptionClick(option: SelectedOption, index: number, checked: boolean): Promise<void> {
+    try {
+      // Ensure the option is valid and log it immediately
+      if (!option || typeof option !== 'object') {
+        console.error('Invalid option object:', option);
+        return;
+      }
+  
+      // Clone the option object to avoid reference issues
+      const clonedOption = { ...option };
+      console.log('Cloned Option:', JSON.stringify(clonedOption, null, 2));
+  
+      // Safely access optionId and log it
+      const optionId = this.getSafeOptionId(clonedOption, index);
+      console.log(`Using optionId: ${optionId}, Index: ${index}, Checked: ${checked}`);
+  
+      // Perform any necessary checks and proceed
+      if (this.shouldIgnoreClick(optionId)) return;
+      if (this.isNavigatingBackwards) {
+        this.handleBackwardNavigationOptionClick(clonedOption, index);
+        return;
+      }
+  
+      this.updateOptionState(clonedOption, index, optionId);
+      this.handleSelection(clonedOption, index, optionId);
+      this.displayFeedbackForOption(clonedOption, index, optionId);
+      this.triggerChangeDetection();
+  
+      console.log('Before calling handlers - Option:', clonedOption, 'Index:', index, 'Checked:', checked);
+  
+      await this.callOptionClickHandlers(clonedOption, index, checked);
+    } catch (error) {
+      console.error('Error in handleOptionClick:', error);
+    }
+  }
+
+  private getSafeOptionId(option: SelectedOption, index: number): number {
+    try {
+      if (typeof option.optionId === 'number') {
+        return option.optionId;
+      }
+      console.warn(`optionId is invalid. Falling back to index: ${index}`);
+      return index;
+    } catch (error) {
+      console.error('Error accessing optionId:', error);
+      return index; // Default to index to prevent further errors
     }
   }
 
@@ -497,24 +545,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     checked: boolean
   ): Promise<void> {
     try {
-      // Log option at the beginning for inspection
+      // Log the option object immediately
       console.log('Inside callOptionClickHandlers - Option:', JSON.stringify(option, null, 2));
   
-      // Verify that option is not undefined or null
-      if (!option) {
-        throw new Error('Option is undefined or null.');
-      }
+      // Safely access optionId before proceeding
+      const optionId = this.getSafeOptionId(option, index);
+      console.log(`Processing with optionId: ${optionId}`);
   
-      // Safely access optionId and log it
-      const optionId = typeof option.optionId === 'number' ? option.optionId : index;
-      console.log(`Using optionId: ${optionId}, Index: ${index}, Checked: ${checked}`);
-  
-      // Ensure the optionId is valid
-      if (optionId == null) {
-        throw new Error(`Invalid optionId: ${JSON.stringify(option)}`);
-      }
-  
-      // Call onOptionClicked from config
       if (this.config?.onOptionClicked) {
         console.log('Calling onOptionClicked from config...');
         await this.config.onOptionClicked(option, index, checked);
@@ -522,7 +559,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         console.warn('onOptionClicked function is not defined in the config.');
       }
   
-      // Call quizQuestionComponentOnOptionClicked if defined and is a function
       if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
         console.log('Calling quizQuestionComponentOnOptionClicked...');
         this.quizQuestionComponentOnOptionClicked(option, index);
@@ -538,7 +574,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-
+  
   handleBackwardNavigationOptionClick(option: Option, index: number): void {
     const optionBinding = this.optionBindings[index];
     
