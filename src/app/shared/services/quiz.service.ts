@@ -1367,7 +1367,6 @@ export class QuizService implements OnDestroy {
   
     this.correctOptions = options.filter((option, idx) => {
       const isValid =
-        option &&
         typeof option.optionId === 'number' &&
         typeof option.text === 'string' &&
         typeof option.correct === 'boolean';
@@ -1382,7 +1381,7 @@ export class QuizService implements OnDestroy {
       } else {
         console.log(`Valid correct option at index ${idx}:`, option);
       }
-      return isValid;
+      return isValid && option.correct;
     });
   
     if (this.correctOptions.length === 0) {
