@@ -467,7 +467,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isNextButtonEnabled = isEnabled;
     this.isButtonEnabledSubject.next(isEnabled);
     this.nextButtonStyle = { opacity: isEnabled ? '1' : '0.5' };
-    this.cdRef.markForCheck(); // Ensure Angular detects changes
+    
+    // Manually trigger change detection to ensure UI updates
+    this.cdRef.detectChanges();
   }  
 
   private subscribeToOptionSelection(): void {
