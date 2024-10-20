@@ -1332,6 +1332,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.isOptionSelected = true;
       // Mark the question as answered when an option is selected
       this.selectedOptionService.isAnsweredSubject.next(true);
+      // Use the service method to mark the question as answered
+      this.selectedOptionService.setAnswered(true);
     
       await super.onOptionClicked(event);
   
