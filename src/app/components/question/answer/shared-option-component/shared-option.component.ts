@@ -304,9 +304,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
 
-    const optionIndex = index ?? 0; // Ensure index has a valid fallback
-    const checked = !!element.checked; // Ensure checked is a boolean
-
+    const optionIndex = index ?? 0;
+    const checked = !!element.checked;
     this.handleOptionClick(selectedOption, optionIndex, checked);
   
     // Update the selected option index
