@@ -432,8 +432,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }  
 
   private initializeNextButtonState(): void {
-    this.isNextButtonEnabled = false; // Default state
-
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
         map((value) => !!value), // Ensure a boolean value
