@@ -388,6 +388,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         throw new Error('One or more observables are invalid.');
       }
   
+      // Use forkJoin and cast the result type explicitly
       const data = await lastValueFrom(
         forkJoin({
           question: question$,
@@ -404,7 +405,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             return of({ question: null, options: [] }); // Return fallback data if there's an error
           })
         )
-      );
+      ) as { question: QuizQuestion | null; options: Option[] };
   
       // Validate that the fetched data is correct
       if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
