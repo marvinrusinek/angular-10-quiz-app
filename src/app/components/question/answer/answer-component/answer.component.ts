@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChildren, ViewContainerRef } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { BehaviorSubject, interval } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
@@ -154,7 +154,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     event: { option: SelectedOption; index: number; checked: boolean }
   ): Promise<void> {
     const { option, index, checked } = event; // Destructure the event object
-    
+
     console.log('AnswerComponent: onOptionClicked called with:', { option, index, checked });
   
     // Handle single-answer questions
