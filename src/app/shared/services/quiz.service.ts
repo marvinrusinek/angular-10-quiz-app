@@ -448,7 +448,7 @@ export class QuizService implements OnDestroy {
   sanitizeOptions(options: Option[]): Option[] {
     return options.map((option, index) => ({
       optionId: option.optionId ?? index,
-      text: option.text?.trim() || 'No text provided',
+      text: option.text?.trim() || `Option ${index}`,
       correct: option.correct ?? false,
       value: option.value ?? null,
       answer: option.answer ?? null,
@@ -1368,13 +1368,15 @@ export class QuizService implements OnDestroy {
   setCorrectOptions(options: Option[]): void {
     console.log('setCorrectOptions called with:', options);
   
-    if (!Array.isArray(options) || options.length === 0) {
+    const sanitizedOptions = sanitizeOptions(options); // Sanitize options
+  
+    if (!Array.isArray(sanitizedOptions) || sanitizedOptions.length === 0) {
       console.warn('Options are undefined, null, or empty. Setting correctOptions to an empty array.');
       this.correctOptions = [];
       return;
     }
   
-    this.correctOptions = options.filter((option, idx) => {
+    this.correctOptions = sanitizedOptions.filter((option, idx) => {
       const isValid =
         typeof option.optionId === 'number' &&
         typeof option.text === 'string' &&
