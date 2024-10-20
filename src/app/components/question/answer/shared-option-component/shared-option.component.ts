@@ -384,17 +384,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   async handleOptionClick(option: SelectedOption | null | undefined, index: number, checked: boolean): Promise<void> {
     console.log('Option received in handleOptionClick:', { option, index, checked });
   
-    // Step 1: Validate the option object immediately
+    // Validate the option object immediately
     if (!option || typeof option !== 'object') {
       console.error(`Invalid or undefined option at index ${index}.`, option);
       return;
     }
   
-    // Step 2: Clone the option to prevent mutations
+    // Clone the option to prevent mutations
     const clonedOption = { ...option };
     console.log('Cloned Option:', JSON.stringify(clonedOption, null, 2));
   
-    // Step 3: Safely access optionId, or fallback to index
+    // Safely access optionId, or fallback to index
     const optionId = this.getSafeOptionId(clonedOption, index);
     if (optionId === undefined) {
       console.error(`Failed to access optionId. Option data: ${JSON.stringify(clonedOption, null, 2)}`);
@@ -402,7 +402,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
     console.log(`Using optionId: ${optionId}, Index: ${index}, Checked: ${checked}`);
   
-    // Step 4: Check if the click should be ignored
+    // Check if the click should be ignored
     if (this.shouldIgnoreClick(optionId)) {
       console.warn(`Ignoring click for optionId: ${optionId}`);
       return;
@@ -414,7 +414,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
   
-    // Step 5: Update option state, handle selection, and display feedback
+    // Update option state, handle selection, and display feedback
     console.log('Updating option state...');
     this.updateOptionState(clonedOption, index, optionId);
     this.handleSelection(clonedOption, index, optionId);
@@ -423,7 +423,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     console.log('Before calling handlers:', { option: clonedOption, index, checked });
   
-    // Step 6: Safely call option click handlers
+    // Safely call option click handlers
     await this.safeCallOptionClickHandlers(clonedOption, index, checked);
   }
 
@@ -522,7 +522,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       correctMessage: this.correctMessage ?? 'No correct message available',
       feedback: option.feedback ?? 'No feedback available',
       showFeedback: true,
-      idx: index,
+      idx: index
     };
   }
 
