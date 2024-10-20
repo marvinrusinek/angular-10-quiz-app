@@ -434,17 +434,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
-        map((value) => !!value), // Ensure boolean
+        map((value) => !!value), // Ensure a boolean value
         distinctUntilChanged(),
         tap((value) => console.log('isAnsweredSubject emitted:', value))
       ),
       this.quizStateService.isLoading$.pipe(
-        map((value) => !value), // Negate to enable button when not loading
+        map((value) => !value), // Button disabled if loading
         distinctUntilChanged(),
         tap((value) => console.log('isLoading$ emitted:', value))
       ),
       this.quizStateService.isNavigating$.pipe(
-        map((value) => !value), // Negate to enable button when not navigating
+        map((value) => !value), // Button disabled if navigating
         distinctUntilChanged(),
         tap((value) => console.log('isNavigating$ emitted:', value))
       )
@@ -455,23 +455,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       tap((isEnabled) => console.log('isButtonEnabled$ emitted:', isEnabled)),
       shareReplay(1) // Ensure the latest value is replayed to new subscribers
     );
-    /* this.isButtonEnabled$ = of(true).pipe(
-      tap((isEnabled) => console.log('Button enabled state (forced):', isEnabled)),
-      shareReplay(1)
-    ); */
   }
-
+  
   private syncNextButtonState(): void {
-    this.isButtonEnabled$.pipe(take(1)).subscribe((isEnabled) => {
+    // Continuously listen for button state changes
+    this.isButtonEnabled$.subscribe((isEnabled: boolean) => {
       this.isNextButtonEnabled = isEnabled;
       this.nextButtonStyle = { opacity: isEnabled ? '1' : '0.5' };
-      console.log('Initial button state:', isEnabled);
+      console.log('Next button state updated:', isEnabled);
       this.cdRef.detectChanges(); // Ensure the UI reflects the state
     });
   
+    // Sync the tooltip observable
     this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
   }
-
+  
   private updateButtonState(isEnabled: boolean): void {
     console.log('Button state updated:', isEnabled);
   
