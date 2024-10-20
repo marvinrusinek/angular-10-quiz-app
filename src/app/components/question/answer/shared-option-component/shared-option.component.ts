@@ -286,8 +286,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
 
-    const checked = element.checked;
-    if (!checked) return;
+    const isOptionChecked = element.checked;
+    if (!isOptionChecked) return;
   
     this.optionIconClass = this.getOptionIconClass(optionBinding.option);
   
@@ -297,7 +297,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return;
     }
   
-    this.handleOptionClick(optionBinding.option as SelectedOption, index, element.checked);
+    const selectedOption = optionBinding.option as SelectedOption;
+
+    if (!selectedOption || selectedOption.optionId == null || typeof selectedOption.optionId !== 'number') {
+      console.error('Invalid option or optionId:', selectedOption);
+      return;
+    }
+
+    const optionIndex = index ?? 0; // Ensure index has a valid fallback
+    const checked = !!element.checked; // Ensure checked is a boolean
+
+    this.handleOptionClick(selectedOption, optionIndex, checked);
   
     // Update the selected option index
     this.selectedOptionIndex = index;
