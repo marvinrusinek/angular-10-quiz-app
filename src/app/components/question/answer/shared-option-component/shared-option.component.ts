@@ -402,6 +402,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.displayFeedbackForOption(option, index, optionId);
       this.triggerChangeDetection();
   
+      console.log('Calling handlers with:', { option, index, checked });
       await this.callOptionClickHandlers(option, index, checked);
     } catch (error) {
       console.error('Error in handleOptionClick:', error);
@@ -497,7 +498,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   ): Promise<void> {
     try {
       // Ensure the option object is valid before proceeding
-      if (!option || option.optionId == null) {
+      if (!option || option?.optionId == null) {
         throw new Error(`Invalid option or optionId: ${JSON.stringify(option)}`);
       }
   
@@ -525,7 +526,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  
+
   handleBackwardNavigationOptionClick(option: Option, index: number): void {
     const optionBinding = this.optionBindings[index];
     
