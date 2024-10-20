@@ -1324,7 +1324,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     
   
     try {
+      // Mark the option as selected
+      this.isOptionSelected = true;
+    
       await super.onOptionClicked(event);
+
+      // Set the explanation text only if an option is selected
+      this.explanationTextService.setExplanationText(this.currentQuestion?.explanation || '');
   
       this.resetExplanation();
       this.toggleOptionState(option, index);
