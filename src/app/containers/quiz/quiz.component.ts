@@ -434,25 +434,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
-        map((value) => !!value), // Ensure a boolean value
-        distinctUntilChanged()
+        map((value) => !!value), // Ensure boolean
+        distinctUntilChanged(),
+        tap((value) => console.log('isAnsweredSubject emitted:', value))
       ),
       this.quizStateService.isLoading$.pipe(
-        map((value) => !value), // Disable button if loading
-        distinctUntilChanged()
+        map((value) => !value), // Negate to enable button when not loading
+        distinctUntilChanged(),
+        tap((value) => console.log('isLoading$ emitted:', value))
       ),
-      this.quizStateService.isNavigating$.pipe( // New: Handle navigation state
-        map((value) => !value), // Disable button if navigating
-        distinctUntilChanged()
+      this.quizStateService.isNavigating$.pipe(
+        map((value) => !value), // Negate to enable button when not navigating
+        distinctUntilChanged(),
+        tap((value) => console.log('isNavigating$ emitted:', value))
       )
     ]).pipe(
       map(([isAnswered, isNotLoading, isNotNavigating]) => 
         isAnswered && isNotLoading && isNotNavigating
       ),
-      tap((isEnabled) => console.log('Next button enabled:', isEnabled)),
-      shareReplay(1) // Replay the latest value to new subscribers
+      tap((isEnabled) => console.log('isButtonEnabled$ emitted:', isEnabled)),
+      shareReplay(1) // Ensure the latest value is replayed to new subscribers
     );
-  }  
+  }
 
   private syncNextButtonState(): void {
     this.isButtonEnabled$.pipe(take(1)).subscribe((isEnabled) => {
