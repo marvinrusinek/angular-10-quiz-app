@@ -26,6 +26,12 @@ export class QuizStateService {
   private resetQuizSubject = new Subject<void>(); 
   resetQuiz$ = this.resetQuizSubject.asObservable(); // for quiz-content component
 
+  private isNavigatingSubject = new BehaviorSubject<boolean>(false);
+  public isNavigating$ = this.isNavigatingSubject.asObservable();
+
+  private isLoadingSubject = new BehaviorSubject<boolean>(false);
+  public isLoading$ = this.isLoadingSubject.asObservable();
+
   private correctAnswersTextSource = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
 

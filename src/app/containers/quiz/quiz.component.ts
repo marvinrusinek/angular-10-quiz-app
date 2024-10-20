@@ -450,6 +450,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       tap((isEnabled) => this.updateButtonState(isEnabled)),
       shareReplay(1)
     );
+
+    this.isButtonEnabled$ = combineLatest([
+      this.selectedOptionService.isAnsweredSubject.pipe(
+        map((value) => !!value), // Ensure a boolean value
+        distinctUntilChanged()
+      ),
+      this.quizStateService.isLoading$.pipe(
+        map((value) => !value), // Disable button if loading
+        distinctUntilChanged()
+      ),
+      this.quizStateService.isNavigating$.pipe( // New: Handle navigation state
+        map((value) => !value), // Disable button if navigating
+        distinctUntilChanged()
+      )
+    ]).pipe(
+      map(([isAnswered, isNotLoading, isNotNavigating]) => 
+        isAnswered && isNotLoading && isNotNavigating
+      ),
+      tap((isEnabled) => console.log('Next button enabled:', isEnabled)),
+      shareReplay(1) // Replay the latest value to new subscribers
+    );
+    
   }  
 
   private syncNextButtonState(): void {
