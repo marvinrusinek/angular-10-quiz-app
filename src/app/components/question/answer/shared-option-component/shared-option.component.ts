@@ -277,88 +277,94 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   updateOptionAndUI(
-    optionBinding: OptionBindings, 
+    optionBinding: OptionBindings,
     index: number,
     element: MatCheckbox | MatRadioButton
   ): void {
-    if (!optionBinding || !optionBinding.option) {
-      console.error('Option is undefined in updateOptionAndUI:', optionBinding);
-      return;
-    }
-
-    const isOptionChecked = element.checked;
-    if (!isOptionChecked) return;
-  
-    this.optionIconClass = this.getOptionIconClass(optionBinding.option);
-  
-    // Prevent selecting an option more than once
-    if (optionBinding.isSelected) {
-      console.log("Option already selected:", optionBinding.option);
-      return;
-    }
+    if (!this.isValidOptionBinding(optionBinding)) return;
   
     const selectedOption = optionBinding.option as SelectedOption;
-
-    if (!selectedOption || selectedOption.optionId == null || typeof selectedOption.optionId !== 'number') {
-      console.error('Invalid option or optionId:', selectedOption);
-      return;
-    }
-
-    const optionIndex = index ?? 0;
-    const checked = !!element.checked;
-    this.handleOptionClick(selectedOption, optionIndex, checked);
+    const checked = element.checked;
+    const optionId = this.getOptionId(selectedOption, index);
   
-    // Update the selected option index
-    this.selectedOptionIndex = index;
+    if (!this.handleOptionState(optionBinding, optionId, index, checked, element)) return;
+  
+    this.updateFeedbackState(optionId);
+    this.applyOptionAttributes(optionBinding, element);
+  
+    this.emitOptionSelectedEvent(optionBinding, index, checked);
+  
+    this.finalizeOptionSelection(optionBinding, checked);
+  }
+
+  private isValidOptionBinding(optionBinding: OptionBindings): boolean {
+    if (!optionBinding || !optionBinding.option) {
+      console.error('Option is undefined in updateOptionAndUI:', optionBinding);
+      return false;
+    }
+    return true;
+  }
+
+  private getOptionId(option: SelectedOption, index: number): number {
+    if (typeof option.optionId === 'number') {
+      return option.optionId;
+    }
+    console.warn(`Invalid or missing optionId. Falling back to index: ${index}`);
+    return index;
+  }
+
+  private handleOptionState(
+    optionBinding: OptionBindings,
+    optionId: number,
+    index: number,
+    checked: boolean,
+    element: MatCheckbox | MatRadioButton
+  ): boolean {
+    if (optionBinding.isSelected) {
+      console.log('Option already selected:', optionBinding.option);
+      return false;
+    }
+  
+    console.log(`Handling option click for ID: ${optionId}`);
+    this.handleOptionClick(optionBinding.option as SelectedOption, index, checked);
+  
     optionBinding.isSelected = true;
     optionBinding.option.selected = checked;
+    this.selectedOptionIndex = index;
+    this.selectedOptionId = optionId;
+    this.selectedOption = optionBinding.option;
+    this.isOptionSelected = true;
   
-    const optionId = optionBinding.option.optionId ?? index; // Use index as fallback
-    if (optionId === undefined) {
-      console.error('optionId is undefined for option:', optionBinding.option);
-    }
-    this.selectedOptionId = optionId; // assign to class property
-  
-    // Ensure showFeedback is set to true when an option is clicked
+    return true;
+  }
+
+  private updateFeedbackState(optionId: number): void {
     this.showFeedback = true;
-  
-    // Update showFeedbackForOption
     this.showFeedbackForOption[optionId] = true;
-  
-    // Apply attributes
+  }
+
+  private applyOptionAttributes(optionBinding: OptionBindings, element: MatCheckbox | MatRadioButton): void {
     const attributes = this.getOptionAttributes(optionBinding);
     this.applyAttributes(element._elementRef.nativeElement, attributes);
-  
-    // Set the aria-label attribute directly
     element._elementRef.nativeElement.setAttribute('aria-label', optionBinding.ariaLabel);
-  
-    // Emit the optionSelected event to notify parent component
+  }
+
+  private emitOptionSelectedEvent(optionBinding: OptionBindings, index: number, checked: boolean): void {
     const eventData = {
       option: optionBinding.option,
       index: index,
-      checked: element.checked
+      checked: checked
     };
-    this.optionSelected.emit(eventData);  // Emit the event to parent component
-    console.log('Emitting optionSelected event:::>>>', eventData);
-  
-    // Set the selected option
-    optionBinding.isSelected = true;
-    optionBinding.option.selected = checked;
-    this.selectedOption = optionBinding.option;
-  
-    // Update highlighting
+    this.optionSelected.emit(eventData);
+    console.log('Emitting optionSelected event:', eventData);
+  }
+
+  private finalizeOptionSelection(optionBinding: OptionBindings, checked: boolean): void {
     this.updateHighlighting();
-  
-    // Set the selection state to true
-    this.isOptionSelected = true;
-  
-    // Update the isAnswered state
     this.selectedOptionService.isAnsweredSubject.next(true);
-  
-    // Trigger change detection after updates
     this.cdRef.detectChanges();
   }
-  
+
 
   updateHighlighting(): void {
     if (!this.highlightDirectives) {
