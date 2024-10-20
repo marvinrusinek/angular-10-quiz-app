@@ -1603,7 +1603,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.selectionMessageService.updateSelectionMessage(newMessage);
 
-    // this.processCurrentQuestionState(currentQuestion, option, index);
+    this.processCurrentQuestionState(currentQuestion, option, index);
 
     await this.handleCorrectnessAndTimer();
   }
@@ -1760,7 +1760,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   ): void {
     console.log('processCurrentQuestionState started', { currentQuestion, option, index });
     this.processCurrentQuestion(currentQuestion);
-    // this.handleOptionSelection(option, index, currentQuestion);
+    this.handleOptionSelection(option, index, currentQuestion);
     this.quizStateService.updateQuestionStateForExplanation(
       this.quizId,
       this.currentQuestionIndex
