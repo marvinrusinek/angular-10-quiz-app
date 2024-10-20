@@ -80,8 +80,8 @@
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"              
               aria-label="Next Question"
-              [matTooltip]="nextButtonTooltip$ | async"
               matTooltipPosition="above"
+              [matTooltip]="nextButtonTooltip$ | async"
               [disabled]="!(isButtonEnabled$ | async)"
               [ngStyle]="nextButtonStyle"
             >
