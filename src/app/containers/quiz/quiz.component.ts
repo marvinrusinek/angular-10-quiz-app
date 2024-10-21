@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, In
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, defer, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, delay, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatTooltip } from '@angular/material/tooltip';
 
 import { Utils } from '../../shared/utils/utils';
@@ -435,6 +435,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
+        delay(100),
         map((answered) => !!answered), // Ensure boolean
         distinctUntilChanged(),
         tap((answered) => console.log('isAnsweredSubject emitted:', answered))
@@ -459,7 +460,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     // Subscribe to the observable to update the button state
     this.isButtonEnabled$.subscribe((isEnabled) => {
-      this.updateButtonState(true);
+      console.log('Setting button state to:', isEnabled);
+      this.updateButtonState(isEnabled); // Set based on observable value
     });
   }
 
@@ -477,7 +479,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.cdRef.markForCheck();
     });
   }
-  
   
   private syncAndUpdateButtonState(): void {
     // Continuously listen for button state changes
