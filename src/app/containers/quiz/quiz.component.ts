@@ -436,34 +436,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
-        map((value) => !!value), // Ensure a boolean value
+        map((answered) => !!answered), // Ensure boolean
         distinctUntilChanged(),
-        tap((value) => console.log('isAnsweredSubject emitted:', value))
+        tap((answered) => console.log('isAnsweredSubject emitted:', answered))
       ),
       this.quizStateService.isLoading$.pipe(
-        map((value) => !value), // Button disabled if loading
+        map((loading) => !loading), // Button disabled if loading
         distinctUntilChanged(),
-        tap((value) => console.log('isLoading$ emitted:', value))
+        tap((notLoading) => console.log('isLoading$ emitted (not loading):', notLoading))
       ),
       this.quizStateService.isNavigating$.pipe(
-        map((value) => !value), // Button disabled if navigating
+        map((navigating) => !navigating), // Button disabled if navigating
         distinctUntilChanged(),
-        tap((value) => console.log('isNavigating$ emitted:', value))
+        tap((notNavigating) => console.log('isNavigating$ emitted (not navigating):', notNavigating))
       )
     ]).pipe(
-      map(([isAnswered, isNotLoading, isNotNavigating]) => 
+      map(([isAnswered, isNotLoading, isNotNavigating]) =>
         isAnswered && isNotLoading && isNotNavigating
       ),
-      tap((isEnabled) => console.log('isButtonEnabled$ emitted:', isEnabled)),
-      shareReplay(1) // Ensure the latest value is replayed to new subscribers
+      tap((isEnabled) => console.log('Next button enabled state:', isEnabled)),
+      shareReplay(1) // Replay the latest value to new subscribers
     );
-
-    // Subscribe to the observable and call updateButtonState()
+  
+    // Subscribe to the observable to update the button state
     this.isButtonEnabled$.subscribe((isEnabled) => {
-      console.log('Calling updateButtonState() with:', isEnabled);
       this.updateButtonState(isEnabled);
     });
-  }
+  }  
   
   private syncNextButtonState(): void {
     // Continuously listen for button state changes
