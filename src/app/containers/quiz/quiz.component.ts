@@ -301,7 +301,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.subscribeToOptionSelection();
 
     this.initializeNextButtonState(); // Initialize button state observables
-    this.syncNextButtonState(); // Ensure state is in sync initially
     this.initializeTooltip(); // Set up tooltip logic
     this.loadQuestionContents(); // Load the first question's contents
     // Reset the answered state initially
@@ -460,32 +459,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     // Subscribe to the observable to update the button state
     this.isButtonEnabled$.subscribe((isEnabled) => {
-      this.updateButtonState(isEnabled);
+      this.syncAndUpdateButtonState();
     });
   }  
   
-  private syncNextButtonState(): void {
+  private syncAndUpdateButtonState(): void {
     // Continuously listen for button state changes
     this.isButtonEnabled$.subscribe((isEnabled: boolean) => {
-      this.isNextButtonEnabled = isEnabled;
-      this.nextButtonStyle = { opacity: isEnabled ? '1' : '0.5' };
       console.log('Next button state updated:', isEnabled);
+  
+      // Ensure the state update runs within Angular's zone
+      this.ngZone.run(() => {
+        this.isNextButtonEnabled = isEnabled;
+        this.isButtonEnabledSubject.next(isEnabled); // Emit the state
+        this.nextButtonStyle = { opacity: isEnabled ? '1' : '0.5' };
+  
+        // Ensure UI updates after state change
+        this.cdRef.detectChanges();
+      });
     });
   
     // Sync the tooltip observable
     this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
-  }
-  
-  private updateButtonState(isEnabled: boolean): void {
-    console.log('Button state updated:', isEnabled);
-  
-    // Ensure the state update runs within Angular's zone
-    this.ngZone.run(() => {
-      this.isNextButtonEnabled = isEnabled;
-      this.isButtonEnabledSubject.next(isEnabled);
-      this.nextButtonStyle = { opacity: isEnabled ? '1' : '0.5' };
-    });
-  }
+  }  
 
   // Tooltip for next button
   private initializeTooltip(): void {
