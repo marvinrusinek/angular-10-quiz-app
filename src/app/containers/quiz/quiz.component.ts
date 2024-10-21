@@ -2465,7 +2465,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     // Set navigating state immediately to prevent race conditions
     this.quizStateService.setNavigating(true);
-    this.cdRef.detectChanges(); // Ensure UI updates immediately
   
     try {
       // Log the state values to see what is preventing navigation
