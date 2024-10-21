@@ -1206,37 +1206,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   // Tooltip for next button
-  /* private initializeTooltip(): void {
-    this.nextButtonTooltip$ = defer((): Observable<string> =>
-      combineLatest([
-        this.selectedOptionService.isOptionSelected$().pipe(
-          startWith(false),
-          distinctUntilChanged(),
-          tap((value) => console.log('isOptionSelected$ emitted:', value))
-        ),
-        this.isButtonEnabled$.pipe(
-          startWith(false),
-          distinctUntilChanged(),
-          tap((value) => console.log('isButtonEnabled$ emitted:', value))
-        )
-      ]).pipe(
-        map(([isSelected, isEnabled]: [boolean, boolean]) => {
-          const tooltip = isEnabled && isSelected
-            ? 'Next Question »'
-            : 'Please select an option to continue...';
-          console.log('Tooltip generated:', tooltip);
-          return tooltip;
-        }),
-        distinctUntilChanged(),
-        catchError((error: Error) => {
-          console.error('Error in tooltip:', error);
-          return of('Please select an option to continue...');
-        })
-      )
-    ) as Observable<string>;
-  
-    console.log('Tooltip observable initialized');
-  } */
   private initializeTooltip(): void {
     this.nextButtonTooltip$ = combineLatest([
       this.selectedOptionService.isOptionSelected$().pipe(
@@ -1261,11 +1230,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         return of('Please select an option to continue...');
       })
     );
+
+    this.nextButtonTooltip$.subscribe(() => {
+      this.refreshTooltip();
+    });
   }
-  
-  
-  
-  
 
   private refreshTooltip(): void {
     const tooltipElement = document.querySelector('button[aria-label="Next Question"]');
@@ -1278,73 +1247,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.warn('Tooltip element not found');
     }
   }
-  
-  
-  
-  
-  
-  
-  
-  /* private initializeTooltip(): void {
-    this.nextButtonTooltip$ = combineLatest([
-      this.selectedOptionService.isOptionSelected$().pipe(
-        startWith(false),
-        distinctUntilChanged()
-      ),
-      this.isButtonEnabled$.pipe(
-        startWith(false),
-        distinctUntilChanged()
-      )
-    ]).pipe(
-      map(([isSelected, isEnabled]: [boolean, boolean]) => {
-        return isEnabled && isSelected
-          ? 'Next Question »'
-          : 'Please select an option to continue...';
-      }),
-      distinctUntilChanged(),
-      tap((tooltipText: string) => {
-        // Ensure Angular completes rendering before updating tooltip
-        setTimeout(() => {
-          this.tooltip.message = tooltipText;
-          this.tooltip.show();  // Force tooltip update
-          console.log('Tooltip updated to:', tooltipText);
-          this.cdRef.detectChanges();  // Trigger manual change detection
-        }, 0);  // Delay to ensure rendering cycle completes
-      }),
-      catchError((error: Error) => {
-        console.error('Error in getNextButtonTooltip:', error);
-        return of('Please select an option to continue...');
-      })
-    );
-  } */
-  /* private initializeTooltip(): void {
-    this.nextButtonTooltip$ = combineLatest([
-      this.selectedOptionService.isOptionSelected$().pipe(
-        startWith(false),
-        distinctUntilChanged(),
-        tap(value => console.log('isOptionSelected$ emitted:', value))
-      ),
-      this.isButtonEnabled$.pipe(
-        startWith(false),
-        distinctUntilChanged(),
-        tap(value => console.log('isButtonEnabled$ emitted:', value))
-      )
-    ]).pipe(
-      map(([isSelected, isEnabled]) => {
-        const tooltipText = isEnabled && isSelected
-          ? 'Next Question »'
-          : 'Please select an option to continue...';
-        console.log('Tooltip text:', tooltipText);
-        return tooltipText;
-      }),
-      distinctUntilChanged(),
-      tap(() => this.showTooltip()),  // Ensure tooltip updates when needed
-      catchError((error: Error) => {
-        console.error('Error in tooltip logic:', error);
-        return of('Please select an option to continue...');
-      })
-    );
-  } */
 
   /* private showTooltip(): void {
     if (this.tooltip) {
