@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChildren, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChildren, ViewContainerRef } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
@@ -15,7 +15,8 @@ import { QuizQuestionComponent } from '../../../../components/question/quiz-ques
 
 @Component({
   selector: 'codelab-question-answer',
-  templateUrl: './answer.component.html'
+  templateUrl: './answer.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AnswerComponent extends BaseQuestionComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChildren('dynamicAnswerContainer', { read: ViewContainerRef })
