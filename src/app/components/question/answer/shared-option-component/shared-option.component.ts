@@ -425,7 +425,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     // Update option state, handle selection, and display feedback
     console.log('Updating option state...');
-    this.updateOptionState(clonedOption, index, optionId);
+    this.updateOptionState(clonedOption, index, optionId ?? index);
     this.handleSelection(clonedOption, index, optionId);
     this.displayFeedbackForOption(clonedOption, index, optionId);
     this.triggerChangeDetection();
