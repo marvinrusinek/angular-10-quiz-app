@@ -457,6 +457,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       tap((isEnabled) => console.log('isButtonEnabled$ emitted:', isEnabled)),
       shareReplay(1) // Ensure the latest value is replayed to new subscribers
     );
+
+    // Subscribe to the observable and call updateButtonState()
+    this.isButtonEnabled$.subscribe((isEnabled) => {
+      console.log('Calling updateButtonState() with:', isEnabled);
+      this.updateButtonState(isEnabled);
+    });
   }
   
   private syncNextButtonState(): void {
