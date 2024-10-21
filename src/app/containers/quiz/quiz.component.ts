@@ -459,9 +459,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     // Subscribe to the observable to update the button state
     this.isButtonEnabled$.subscribe((isEnabled) => {
-      this.syncAndUpdateButtonState();
+      this.updateButtonState(true);
     });
-  }  
+  }
+
+  private updateButtonState(isEnabled: boolean): void {
+    console.log('Updating button state:', isEnabled);
+  
+    this.ngZone.run(() => {
+      this.isNextButtonEnabled = isEnabled;
+      this.nextButtonStyle = {
+        opacity: isEnabled ? '1' : '0.5',
+        'pointer-events': isEnabled ? 'auto' : 'none'
+      };
+  
+      // Force UI to mark for change
+      this.cdRef.markForCheck();
+    });
+  }
+  
   
   private syncAndUpdateButtonState(): void {
     // Continuously listen for button state changes
