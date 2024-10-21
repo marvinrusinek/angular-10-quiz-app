@@ -2319,9 +2319,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
       console.log('isLoading:', isLoading, 'isButtonEnabled:', isEnabled);
   
-      if (isLoading || !isEnabled) {
+      if (isLoading || isNavigating || !isEnabled) {
         console.warn('Cannot advance: Loading in progress or button disabled.');
-        this.quizStateService.setNavigating(false); // Reset navigating state
         return;
       }
   
