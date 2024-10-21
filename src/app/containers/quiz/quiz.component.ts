@@ -2335,7 +2335,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
         await this.loadQuestionContents();
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-  
+
+        // Reset answered state for the new question
+        this.selectedOptionService.isAnsweredSubject.next(false);
         this.quizStateService.setAnswered(false); // Reset answered state
       } else {
         console.log('End of quiz reached.');
