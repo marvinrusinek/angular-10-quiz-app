@@ -2312,8 +2312,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     try {
       // Log the state values to see what is preventing navigation
-      const [isLoading, isEnabled] = await Promise.all([
+      const [isLoading, isNavigating, isEnabled] = await Promise.all([
         firstValueFrom(this.quizStateService.isLoading$),
+        firstValueFrom(this.quizStateService.isNavigating$),
         firstValueFrom(this.isButtonEnabled$)
       ]);
   
@@ -2327,6 +2328,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
       // Set the loading state
       this.quizStateService.setLoading(true);
+      this.quizStateService.setNavigating(true);
   
       // Proceed with loading the next question
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
