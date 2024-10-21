@@ -1231,9 +1231,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       })
     );
 
-    this.nextButtonTooltip$.subscribe(() => {
-      this.refreshTooltip();
-    });
+    // Subscribe to the tooltip observable and refresh the tooltip when it updates
+    this.nextButtonTooltip$.subscribe(() => this.refreshTooltip());
   }
 
   private refreshTooltip(): void {
