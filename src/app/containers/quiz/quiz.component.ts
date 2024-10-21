@@ -472,7 +472,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.ngZone.run(() => {
         this.isNextButtonEnabled = isEnabled;
         this.isButtonEnabledSubject.next(isEnabled); // Emit the state
-        this.nextButtonStyle = { opacity: isEnabled ? '1' : '0.5' };
+        this.nextButtonStyle = {
+          opacity: isEnabled ? '1' : '0.5',
+          'pointer-events': isEnabled ? 'auto' : 'none' // Ensure interactivity
+        };
         this.cdRef.markForCheck();
       });
     });
