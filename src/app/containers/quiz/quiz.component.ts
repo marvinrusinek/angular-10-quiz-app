@@ -642,7 +642,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.log(`Updating button state from ${this.isNextButtonEnabled} to ${isEnabled}`);
       this.isNextButtonEnabled = isEnabled;
       this.isButtonEnabledSubject.next(isEnabled);
-      this.cdRef.detectChanges();
     }
   }
   
