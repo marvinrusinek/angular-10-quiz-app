@@ -57,7 +57,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   quizQuestionComponent!: QuizQuestionComponent;
   @ViewChild(SharedOptionComponent, { static: false })
   sharedOptionComponent!: SharedOptionComponent;
-  @ViewChild('nextButtonTooltip') tooltip: MatTooltip;
+  @ViewChild('nextButton', { static: false }) nextButtonTooltip: MatTooltip;
   @Input() data: {
     questionText: string,
     correctAnswersText?: string,
@@ -1231,31 +1231,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       })
     );
 
-    // Subscribe to the tooltip observable and refresh the tooltip when it updates
-    this.nextButtonTooltip$.subscribe(() => this.refreshTooltip());
+    // Subscribe to the tooltip and trigger a tooltip update.
+    this.nextButtonTooltip$.subscribe(() => this.showTooltip());
   }
 
-  private refreshTooltip(): void {
-    const tooltipElement = document.querySelector('button[aria-label="Next Question"]');
-  
-    if (tooltipElement) {
-      console.log('Refreshing tooltip...');
-      tooltipElement.dispatchEvent(new Event('mouseenter'));
-      tooltipElement.dispatchEvent(new Event('mouseleave'));
+  private showTooltip(): void {
+    if (this.nextButtonTooltip) {
+      console.log('Showing tooltip...');
+      this.nextButtonTooltip.show(); // Show the tooltip programmatically
+      this.cdRef.detectChanges(); // Ensure Angular picks up the change
     } else {
-      console.warn('Tooltip element not found');
+      console.warn('Tooltip not available');
     }
   }
 
-  /* private showTooltip(): void {
-    if (this.tooltip) {
-      // Force the tooltip to show and detect changes
-      this.tooltip.show();
-      this.cdRef.detectChanges();
-      console.log('Tooltip shown and updated');
-    }
-  } */
-  
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
       this.questions[this.currentQuestionIndex].questionText;
