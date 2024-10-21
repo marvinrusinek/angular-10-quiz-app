@@ -488,6 +488,68 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
+  // Tooltip for next button
+  private initializeTooltip(): void {
+    this.nextButtonTooltip$ = combineLatest([
+      this.selectedOptionService.isOptionSelected$().pipe(
+        startWith(false),
+        distinctUntilChanged(),
+        tap((isSelected) => console.log('isOptionSelected emitted:', isSelected))
+      ),
+      this.isButtonEnabled$.pipe(
+        startWith(false),
+        distinctUntilChanged(),
+        tap((isEnabled) => console.log('isButtonEnabled emitted:', isEnabled))
+      )
+    ]).pipe(
+      map(([isSelected, isEnabled]) => {
+        console.log('Combined Tooltip State:', { isSelected, isEnabled });
+        return isSelected && isEnabled ? 'Next Question >>' : 'Please select an option to continue...';
+      }),
+      distinctUntilChanged(),
+      tap((tooltipText) => console.log('Tooltip updated to:', tooltipText)),
+      catchError((error) => {
+        console.error('Tooltip error:', error);
+        return of('Please select an option to continue...');
+      })
+    );
+
+    // Subscribe to the tooltip and trigger a tooltip update.
+    this.nextButtonTooltip$.subscribe(() => this.showTooltip());
+  }
+
+  private showTooltip(): void {
+    if (this.nextButtonTooltip) {
+      console.log('Showing tooltip...');
+      this.nextButtonTooltip.show(); // Show the tooltip programmatically
+      this.cdRef.detectChanges(); // Ensure Angular picks up the change
+    } else {
+      console.warn('Tooltip not available');
+    }
+  }
+
+  private enableNextButtonWithTooltip(message: string): void {
+    this.isNextButtonEnabled = true;
+    this.updateTooltip(message); // Ensure tooltip updates immediately
+  }
+  
+  private disableNextButtonWithTooltip(message: string): void {
+    this.isNextButtonEnabled = false;
+    this.updateTooltip(message); // Update tooltip to reflect the disabled state
+  }
+  
+  private updateTooltip(message: string): void {
+    setTimeout(() => {
+      if (this.nextButtonTooltip) {
+        console.log('Updating tooltip:', message);
+        this.nextButtonTooltip.message = message;
+        this.nextButtonTooltip.show(); // Manually show the tooltip
+      } else {
+        console.warn('Tooltip reference not available in QQC');
+      }
+    }, 0);
+  }
+
   private subscribeToOptionSelection(): void {
     this.optionSelectedSubscription = this.selectedOptionService
       .isOptionSelected$()
@@ -557,28 +619,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     // Detect changes to update the UI
     this.cdRef.detectChanges();
-  }
-
-  private enableNextButtonWithTooltip(message: string): void {
-    this.isNextButtonEnabled = true;
-    this.updateTooltip(message); // Ensure tooltip updates immediately
-  }
-  
-  private disableNextButtonWithTooltip(message: string): void {
-    this.isNextButtonEnabled = false;
-    this.updateTooltip(message); // Update tooltip to reflect the disabled state
-  }
-  
-  private updateTooltip(message: string): void {
-    setTimeout(() => {
-      if (this.nextButtonTooltip) {
-        console.log('Updating tooltip:', message);
-        this.nextButtonTooltip.message = message;
-        this.nextButtonTooltip.show(); // Manually show the tooltip
-      } else {
-        console.warn('Tooltip reference not available in QQC');
-      }
-    }, 0);
   }
 
   private isAnyOptionSelected(): boolean {
@@ -1203,46 +1243,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   shouldShowExplanation(index: number): boolean {
     return !!this.explanationToDisplay;
-  }
-
-  // Tooltip for next button
-  private initializeTooltip(): void {
-    this.nextButtonTooltip$ = combineLatest([
-      this.selectedOptionService.isOptionSelected$().pipe(
-        startWith(false),
-        distinctUntilChanged(),
-        tap((isSelected) => console.log('isOptionSelected emitted:', isSelected))
-      ),
-      this.isButtonEnabled$.pipe(
-        startWith(false),
-        distinctUntilChanged(),
-        tap((isEnabled) => console.log('isButtonEnabled emitted:', isEnabled))
-      )
-    ]).pipe(
-      map(([isSelected, isEnabled]) => {
-        console.log('Combined Tooltip State:', { isSelected, isEnabled });
-        return isSelected && isEnabled ? 'Next Question >>' : 'Please select an option to continue...';
-      }),
-      distinctUntilChanged(),
-      tap((tooltipText) => console.log('Tooltip updated to:', tooltipText)),
-      catchError((error) => {
-        console.error('Tooltip error:', error);
-        return of('Please select an option to continue...');
-      })
-    );
-
-    // Subscribe to the tooltip and trigger a tooltip update.
-    this.nextButtonTooltip$.subscribe(() => this.showTooltip());
-  }
-
-  private showTooltip(): void {
-    if (this.nextButtonTooltip) {
-      console.log('Showing tooltip...');
-      this.nextButtonTooltip.show(); // Show the tooltip programmatically
-      this.cdRef.detectChanges(); // Ensure Angular picks up the change
-    } else {
-      console.warn('Tooltip not available');
-    }
   }
 
   updateQuestionDisplayForShuffledQuestions(): void {
