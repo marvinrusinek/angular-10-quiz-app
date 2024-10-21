@@ -473,6 +473,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.isNextButtonEnabled = isEnabled;
         this.isButtonEnabledSubject.next(isEnabled); // Emit the state
         this.nextButtonStyle = { opacity: isEnabled ? '1' : '0.5' };
+        this.cdRef.markForCheck();
       });
     });
   
