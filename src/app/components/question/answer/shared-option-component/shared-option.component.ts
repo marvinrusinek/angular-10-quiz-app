@@ -59,7 +59,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     showFeedback: false,
     idx: -1
   };
-  currentFeedbackConfig: any;
+  currentFeedbackConfig: FeedbackProps;
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
   isSubmitted = false;
