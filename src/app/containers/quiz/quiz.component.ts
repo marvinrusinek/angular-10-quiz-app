@@ -456,31 +456,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       shareReplay(1) // Replay the latest value to new subscribers
     );
   
-    this.isButtonEnabled$.subscribe((isEnabled) => {
-      this.updateNextButtonState();
-    });
-  }  
-  
+    this.syncAndUpdateNextButtonState();
+  }
+
   private syncAndUpdateNextButtonState(): void {
-    // Continuously listen for button state changes
     this.isButtonEnabled$.subscribe((isEnabled: boolean) => {
       console.log('Next button state updated:', isEnabled);
-  
-      // Ensure the state update runs within Angular's zone
-      this.ngZone.run(() => {
-        this.isNextButtonEnabled = isEnabled;
-        this.isButtonEnabledSubject.next(isEnabled); // Emit the state
-        this.nextButtonStyle = {
-          opacity: isEnabled ? '1' : '0.5',
-          'pointer-events': isEnabled ? 'auto' : 'none' // Ensure interactivity
-        };
-        this.cdRef.markForCheck();
-      });
+      this.updateNextButtonState(isEnabled); // Pass the state directly
     });
   
     // Sync the tooltip observable
     this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
-  }  
+  }
+  
+  private updateNextButtonState(isEnabled: boolean): void {
+    console.log('Updating button state:', isEnabled);
+  
+    this.ngZone.run(() => {
+      this.isNextButtonEnabled = isEnabled;
+      this.nextButtonStyle = {
+        opacity: isEnabled ? '1' : '0.5',
+        'pointer-events': isEnabled ? 'auto' : 'none'
+      };
+  
+      console.log('Next button style updated:', this.nextButtonStyle);
+  
+      // Ensure the UI reflects the updated state
+      this.cdRef.markForCheck();
+    });
+  }
 
   // Tooltip for next button
   private initializeTooltip(): void {
@@ -510,29 +514,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Subscribe to the tooltip and trigger a tooltip update.
     this.nextButtonTooltip$.subscribe(() => this.showTooltip());
-  }
-
-  private updateNextButtonState(): void {
-    const isEnabled = this.isAnyOptionSelected() && !this.isLoading;
-    console.log(`Updating button state: ${this.isNextButtonEnabled} → ${isEnabled}`);
-  
-    if (this.isNextButtonEnabled !== isEnabled) {
-      this.isNextButtonEnabled = isEnabled;
-      this.isButtonEnabledSubject.next(isEnabled);
-    }
-  
-    // Always ensure the UI reflects the updated state
-    this.ngZone.run(() => {
-      this.nextButtonStyle = {
-        opacity: isEnabled ? '1' : '0.5',
-        'pointer-events': isEnabled ? 'auto' : 'none'
-      };
-  
-      console.log('Next button style updated:', this.nextButtonStyle);
-  
-      // Force UI to mark for change
-      this.cdRef.markForCheck();
-    });
   }
 
   private showTooltip(): void {
