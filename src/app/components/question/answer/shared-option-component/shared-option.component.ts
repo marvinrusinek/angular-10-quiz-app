@@ -367,19 +367,25 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
 
   updateHighlighting(): void {
-    if (!this.highlightDirectives) {
-      return;
-    }
+    if (!this.highlightDirectives?.length) return;
   
     let index = 0;
     for (const directive of this.highlightDirectives) {
       const binding = this.optionBindings[index];
+  
+      if (!binding) {
+        console.warn(`No binding found for index ${index}`);
+        index++;
+        continue;
+      }
+  
       directive.isSelected = binding.isSelected;
       directive.isCorrect = binding.option.correct;
-      directive.showFeedback = this.showFeedback && this.showFeedbackForOption[binding.option.optionId ?? index];
+      directive.showFeedback = this.showFeedback && 
+                               this.showFeedbackForOption[binding.option.optionId ?? index];
       directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
   
-      // Only show icon for selected options
+      // Only show the icon for selected options if feedback is enabled
       binding.option.showIcon = binding.isSelected && this.showFeedback;
   
       directive.updateHighlight();
