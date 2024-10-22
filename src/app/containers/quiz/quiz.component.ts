@@ -168,8 +168,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private destroy$: Subject<void> = new Subject<void>();
   audioAvailable = true;
 
-  subscription: Subscription;
-
   private isNextButtonDisabledSubject = new BehaviorSubject<boolean>(true);
   isNextButtonDisabled$ = this.isNextButtonDisabledSubject.asObservable();
 
