@@ -1751,35 +1751,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     question: QuizQuestion,
     options: Option[]
   ): Promise<void> {
-    // Check if the question has multiple answers
-    const multipleAnswers = await firstValueFrom(
-      this.quizStateService.isMultipleAnswerQuestion(question)
-    );
-
-    // Check if the explanation is currently displayed
-    const isExplanationDisplayed =
-      this.explanationTextService.isExplanationTextDisplayedSource.getValue();
-
-    // If the question allows multiple answers and the explanation is not displayed
-    if (multipleAnswers && !isExplanationDisplayed) {
-      // Calculate the number of correct answers
-      const numCorrectAnswers =
-        this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
-          options
-        );
-
-      // Get the text to display the number of correct answers
-      const correctAnswersText =
-        this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-          numCorrectAnswers
-        );
-
+    try {
+      const [multipleAnswers, isExplanationDisplayed] = await Promise.all([
+        firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(question)),
+        this.explanationTextService.isExplanationTextDisplayedSource.getValue(),
+      ]);
+  
+      const correctAnswersText = 
+        multipleAnswers && !isExplanationDisplayed
+          ? this.getCorrectAnswersText(options)
+          : '';
+  
       // Emit the correct answers text to subscribers
       this.correctAnswersTextSource.next(correctAnswersText);
-    } else {
-      // Clear the text if it's a single-answer question or the explanation is displayed
-      this.correctAnswersTextSource.next('');
+    } catch (error) {
+      console.error('Error updating correct answers text:', error);
+      this.correctAnswersTextSource.next(''); // Clear text on error
     }
+  }
+  
+  private getCorrectAnswersText(options: Option[]): string {
+    const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
+    return this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
   }
 
   private subscribeToSelectionMessage(): void {
