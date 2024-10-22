@@ -203,10 +203,22 @@ export class QuizDataService implements OnDestroy {
 
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
     return this.getQuiz(quizId).pipe(
-      map(quiz => quiz.questions[questionIndex].options),
-      catchError((error: HttpErrorResponse) => throwError(() => new Error('Error fetching question options: ' + error.message))),
-      distinctUntilChanged()
+      map((quiz) => this.extractOptions(quiz, questionIndex)),
+      distinctUntilChanged(),
+      catchError((error: HttpErrorResponse) => {
+        console.error(`Error fetching options for quiz ID "${quizId}", question index ${questionIndex}:`, error.message);
+        return throwError(() => new Error('Failed to fetch question options.'));
+      })
     );
+  }
+  
+  private extractOptions(quiz: Quiz, questionIndex: number): Option[] {
+    if (!quiz.questions || quiz.questions.length <= questionIndex) {
+      console.warn(`Question at index ${questionIndex} not found in quiz "${quiz.quizId}".`);
+      return [];
+    }
+  
+    return quiz.questions[questionIndex].options || [];
   }
 
   getAllExplanationTextsForQuiz(quizId: string): Observable<string[]> {
