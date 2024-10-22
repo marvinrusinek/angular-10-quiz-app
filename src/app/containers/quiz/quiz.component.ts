@@ -1701,41 +1701,42 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         retry(2),
         catchError((error: Error) => {
           console.error(
-            'Error when subscribing to current question from quizService:',
+            'Error subscribing to current question from quizService:',
             error
           );
-          return of(null); // Return null if an error occurs
+          return of(null); // Emit null to continue the stream
         })
       ),
       this.quizStateService.currentQuestion$
     );
-
+  
     combinedQuestionObservable
       .pipe(
-        filter((question: QuizQuestion | null) => question !== null) // Filter out null values to ensure only valid questions are processed
+        filter((question): question is QuizQuestion => question !== null) // Type guard to filter non-null values
       )
       .subscribe({
-        next: async (question: QuizQuestion | null) => {
-          if (question) {
-            this.currentQuestion = question;
-            this.options = question.options || []; // Ensure options are initialized
-            this.currentQuestionType = question.type;
-
-            // Call updateCorrectAnswersText and handle the promise
-            try {
-              await this.updateCorrectAnswersText(question, this.options);
-            } catch (error) {
-              console.error('Error updating correct answers text:', error);
-            }
-
-            this.timerService.resetTimer(); // Start the timer for the new question
-          }
-        },
+        next: (question: QuizQuestion) => this.handleNewQuestion(question),
         error: (error) => {
-          console.error('Error when processing the question streams:', error);
+          console.error('Error processing the question streams:', error);
           this.resetCurrentQuestionState();
         },
       });
+  }
+  
+  private async handleNewQuestion(question: QuizQuestion): Promise<void> {
+    try {
+      this.currentQuestion = question;
+      this.options = question.options || []; // Initialize options safely
+      this.currentQuestionType = question.type;
+  
+      // Handle correct answers text update
+      await this.updateCorrectAnswersText(question, this.options);
+  
+      // Reset the timer for the new question
+      this.timerService.resetTimer();
+    } catch (error) {
+      console.error('Error handling new question:', error);
+    }
   }
 
   // Helper method to reset the current question state
