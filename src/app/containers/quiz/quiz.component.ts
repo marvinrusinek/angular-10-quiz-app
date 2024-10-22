@@ -2346,6 +2346,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
         console.log('Loading next question, index:', this.currentQuestionIndex);
+
+        // Set the current question in the quiz service
+        this.quizService.setCurrentQuestion(this.currentQuestionIndex);
   
         await this.loadQuestionContents();
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
