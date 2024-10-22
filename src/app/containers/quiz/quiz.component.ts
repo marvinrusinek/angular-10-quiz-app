@@ -2306,8 +2306,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }  
 
   // Method to check if the current question is answered
-  checkIfCurrentQuestionAnswered(): boolean {
-    return this.isCurrentQuestionAnswered;
+  get checkIfCurrentQuestionAnswered(): boolean {
+    return !!this.isCurrentQuestionAnswered;
   }
 
   /************************ paging functions *********************/
