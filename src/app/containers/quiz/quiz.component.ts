@@ -124,8 +124,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   questionIndex: number;
   currentQuestionIndex = 0;
   totalQuestions = 0;
-  // progressPercentage = 0;
-  public progressPercentage = new BehaviorSubject<number>(0);
+  progressPercentage = new BehaviorSubject<number>(0);
   correctCount: number;
   numberOfCorrectAnswers: number;
   score: number;
