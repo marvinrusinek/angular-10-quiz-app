@@ -433,20 +433,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
-        debounceTime(300), // Avoid rapid state changes
-        map((answered) => !!answered),
+        debounceTime(300), // Smooth out rapid changes
+        map((answered) => !!answered), // Ensure boolean
         distinctUntilChanged(),
         tap((answered) => console.log('isAnsweredSubject emitted:', answered))
       ),
       this.quizStateService.isLoading$.pipe(
-        map((loading) => !loading), // Disabled if loading
+        map((loading) => !loading),
         distinctUntilChanged(),
-        tap((notLoading) => console.log('isLoading$ emitted (not loading):', notLoading))
+        tap((notLoading) => console.log('isLoading$ emitted:', notLoading))
       ),
       this.quizStateService.isNavigating$.pipe(
-        map((navigating) => !navigating), // Disabled if navigating
+        map((navigating) => !navigating),
         distinctUntilChanged(),
-        tap((notNavigating) => console.log('isNavigating$ emitted (not navigating):', notNavigating))
+        tap((notNavigating) => console.log('isNavigating$ emitted:', notNavigating))
       )
     ]).pipe(
       map(([isAnswered, isNotLoading, isNotNavigating]) =>
@@ -454,7 +454,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       ),
       tap((isEnabled) => console.log('Next button enabled state:', isEnabled)),
       shareReplay(1) // Replay the latest value to new subscribers
-    );
+    );    
   
     // Subscribe once to synchronize the button state
     this.isButtonEnabled$.subscribe((isEnabled) => {
@@ -634,7 +634,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.updateNextButtonState();
   
     // Refresh the tooltip manually to reflect the changes
-    setTimeout(() => this.nextButtonTooltip.show(), 0);
+    setTimeout(() => this.nextButtonTooltip?.show(), 0);
   
     // Detect changes to update the UI
     this.cdRef.detectChanges();
