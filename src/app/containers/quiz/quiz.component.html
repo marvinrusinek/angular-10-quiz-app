@@ -71,25 +71,23 @@
           </div>
 
           <div class="next-question-nav" [hidden]="shouldHideNextButton">
-            <ng-container *ngIf="isButtonEnabled$ | async as isEnabled">
-              <button
-                type="button"
-                #nextButton="matTooltip"
-                mat-icon-button
-                routerLinkActive="active"
-                (click)="advanceToNextQuestion()"
-                (window:keydown.ArrowRight)="advanceToNextQuestion()"
-                (window:keydown.Enter)="advanceToNextQuestion()"
-                aria-label="Next Question"
-                matTooltipPosition="above"
-                [matTooltip]="nextButtonTooltip$ | async"
-                [disabled]="!isEnabled"
-                [ngStyle]="{ opacity: isEnabled ? '1' : '0.5', 'pointer-events': isEnabled ? 'auto' : 'none' }"
-              >
-                <i class="material-icons">navigate_next</i>
-              </button>
-            </ng-container>
-          </div>          
+            <button
+              type="button"
+              #nextButton="matTooltip"
+              mat-icon-button
+              routerLinkActive="active"
+              (click)="advanceToNextQuestion()"
+              (window:keydown.ArrowRight)="advanceToNextQuestion()"
+              (window:keydown.Enter)="advanceToNextQuestion()"              
+              aria-label="Next Question"
+              matTooltipPosition="above"
+              [matTooltip]="nextButtonTooltip$ | async"
+              [disabled]="!(isButtonEnabled$ | async)"
+              [ngStyle]="nextButtonStyle"
+            >
+              <i class="material-icons">navigate_next</i>
+            </button>
+          </div>
           <!--[disabled]="!(isButtonEnabled$ | async)"-->
           <!--[disabled]="!isNextButtonEnabled"-->
           
