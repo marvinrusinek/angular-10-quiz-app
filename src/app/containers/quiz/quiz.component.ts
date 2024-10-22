@@ -461,22 +461,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Subscribe to the observable to update the button state
     this.isButtonEnabled$.subscribe((isEnabled) => {
       console.log('Setting button state to:', isEnabled);
-      this.updateButtonState(isEnabled); // Set based on observable value
-    });
-  }
-
-  private updateButtonState(isEnabled: boolean): void {
-    console.log('Updating button state:', isEnabled);
-  
-    this.ngZone.run(() => {
-      this.isNextButtonEnabled = isEnabled;
-      this.nextButtonStyle = {
-        opacity: isEnabled ? '1' : '0.5',
-        'pointer-events': isEnabled ? 'auto' : 'none'
-      };
-  
-      // Force UI to mark for change
-      this.cdRef.markForCheck();
+      this.updateNextButtonState(); // Set based on observable value
     });
   }
   
@@ -529,6 +514,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Subscribe to the tooltip and trigger a tooltip update.
     this.nextButtonTooltip$.subscribe(() => this.showTooltip());
+  }
+
+  private updateNextButtonState(): void {
+    const isEnabled = this.isAnyOptionSelected() && !this.isLoading;
+    console.log(`Updating button state: ${this.isNextButtonEnabled} → ${isEnabled}`);
+  
+    if (this.isNextButtonEnabled !== isEnabled) {
+      this.isNextButtonEnabled = isEnabled;
+      this.isButtonEnabledSubject.next(isEnabled);
+    }
+  
+    // Always ensure the UI reflects the updated state
+    this.ngZone.run(() => {
+      this.nextButtonStyle = {
+        opacity: isEnabled ? '1' : '0.5',
+        'pointer-events': isEnabled ? 'auto' : 'none'
+      };
+  
+      console.log('Next button style updated:', this.nextButtonStyle);
+  
+      // Force UI to mark for change
+      this.cdRef.markForCheck();
+    });
   }
 
   private showTooltip(): void {
@@ -641,16 +649,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.selectedOptions
     );
     return result;
-  }
-
-  private updateNextButtonState(): void {
-    const isEnabled = this.isAnyOptionSelected() && !this.isLoading;
-    if (this.isNextButtonEnabled !== isEnabled) {
-      console.log(`Updating button state from ${this.isNextButtonEnabled} to ${isEnabled}`);
-      this.isNextButtonEnabled = isEnabled;
-      this.isButtonEnabledSubject.next(isEnabled);
-    }
-  }
+  }  
   
   private resetQuestionState(): void {
     console.log('Resetting question state');
