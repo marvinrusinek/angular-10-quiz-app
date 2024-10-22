@@ -2075,42 +2075,54 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
-    const questionIndex = parseInt(params.get('questionIndex') || '0');
+    const questionIndex = Number(params.get('questionIndex')) || 0;
+  
     this.quizService.setCurrentQuestionIndex(questionIndex);
-
-    if (quizId) {
-      this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
+  
+    if (!quizId) {
+      console.warn('No quizId found in the route parameters.');
+      return;
+    }
+  
+    this.quizDataService.getQuiz(quizId).subscribe({
+      next: (quiz) => {
         if (quiz) {
           this.quiz = quiz;
           this.quizService.setQuiz(quiz);
           this.quizDataService.setCurrentQuiz(quiz);
+        } else {
+          console.warn(`Quiz with ID ${quizId} not found.`);
         }
-      });
-    }
+      },
+      error: (err) => {
+        console.error(`Error fetching quiz with ID ${quizId}:`, err);
+      }
+    });
   }
 
   handleRouteParams(
     params: ParamMap
   ): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
     const quizId = params.get('quizId');
+    const questionIndex = Number(params.get('questionIndex'));
+  
+    // Validate parameters
     if (!quizId) {
-      console.error('Quiz ID is missing');
+      console.error('Quiz ID is missing.');
       return throwError(() => new Error('Quiz ID is required'));
     }
-    const questionIndex = parseInt(params.get('questionIndex'), 10);
+  
     if (isNaN(questionIndex)) {
-      console.error(
-        'Question index is not a valid number:',
-        params.get('questionIndex')
-      );
+      console.error('Invalid question index:', params.get('questionIndex'));
       return throwError(() => new Error('Invalid question index'));
     }
-
+  
+    // Fetch quiz data and validate
     return this.quizService.getQuizData().pipe(
       map((quizzes: Quiz[]) => {
         const quizData = quizzes.find((quiz) => quiz.quizId === quizId);
         if (!quizData) {
-          throw new Error('Quiz not found');
+          throw new Error(`Quiz with ID "${quizId}" not found.`);
         }
         return { quizId, questionIndex, quizData };
       }),
@@ -2149,20 +2161,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   async getQuiz(id: string): Promise<void> {
     try {
-      const quiz = (await firstValueFrom(
+      const quiz = await firstValueFrom(
         this.quizDataService.getQuiz(id).pipe(
-          catchError((error: Error) => {
+          catchError((error) => {
             console.error('Error fetching quiz:', error);
-            throw error;
+            return throwError(() => new Error('Failed to fetch quiz.'));
           })
         )
-      )) as Quiz;
-
-      if (quiz.questions && quiz.questions.length > 0) {
+      );
+  
+      if (quiz?.questions?.length) {
         this.handleQuizData(quiz, this.currentQuestionIndex);
+      } else {
+        console.warn('Quiz has no questions.');
       }
     } catch (error) {
-      console.log(error);
+      console.error('Failed to load quiz:', error);
     }
   }
 
@@ -2197,7 +2211,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
           // Each question contributes a fixed percentage to the total progress
           const percentagePerQuestion = 100 / this.totalQuestions;
           const progress = this.currentQuestionIndex * percentagePerQuestion;
-          this.progressBarService.setProgress(progress); // Assuming you have this method in ProgressBarService
+          this.progressBarService.setProgress(progress);
         } else {
           this.progressBarService.setProgress(0); // Reset to 0% progress
         }
