@@ -1869,8 +1869,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         }
 
         // Retrieve the current question using the valid index
-        const currentQuestion =
-          currentQuiz.questions[this.currentQuestionIndex];
+        const currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
 
         // Check if the currentQuestion is defined before proceeding
         if (!currentQuestion) {
