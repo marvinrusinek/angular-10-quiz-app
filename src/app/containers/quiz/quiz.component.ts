@@ -2251,20 +2251,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     return this.numberOfCorrectAnswers > 1;
   }
 
+  // currently not being used
   shouldDisableButton(): boolean {
     return !this.formControl || this.formControl.valid === false;
   }
 
   private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
-    console.log('checkIfAnswerSelected called:', { isFirstQuestion });
+    try {
+      console.log('checkIfAnswerSelected called:', { isFirstQuestion });
   
-    const isAnswered = await lastValueFrom(
-      this.quizService.isAnswered(this.currentQuestionIndex)
-    );
-    console.log('isAnswered from quizService:', isAnswered);
+      const isAnswered = await lastValueFrom(
+        this.quizService.isAnswered(this.currentQuestionIndex)
+      );
   
-    this.selectedOptionService.setAnsweredState(isAnswered);
-    this.updateSelectionMessage(isAnswered, isFirstQuestion);
+      console.log('isAnswered from quizService:', isAnswered);
+  
+      this.selectedOptionService.setAnsweredState(isAnswered);
+      this.updateSelectionMessage(isAnswered, isFirstQuestion);
+    } catch (error) {
+      console.error('Error checking if answer is selected:', error);
+    }
   }
 
   loadCurrentQuestion(): void {
