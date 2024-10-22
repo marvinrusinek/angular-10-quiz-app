@@ -459,7 +459,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Subscribe once to synchronize the button state
     this.isButtonEnabled$.subscribe((isEnabled) => {
       console.log('Setting button state to:', isEnabled);
-      this.updateNextButtonState(isEnabled); // Pass the state directly
+      this.updateNextButtonState(); // Pass the state directly
     });
   }
   
