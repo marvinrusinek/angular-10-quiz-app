@@ -433,18 +433,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
-        debounceTime(1000),
-        map((answered) => !!answered), // Ensure boolean
+        debounceTime(300), // Avoid rapid state changes
+        map((answered) => !!answered),
         distinctUntilChanged(),
         tap((answered) => console.log('isAnsweredSubject emitted:', answered))
       ),
       this.quizStateService.isLoading$.pipe(
-        map((loading) => !loading), // Button disabled if loading
+        map((loading) => !loading), // Disabled if loading
         distinctUntilChanged(),
         tap((notLoading) => console.log('isLoading$ emitted (not loading):', notLoading))
       ),
       this.quizStateService.isNavigating$.pipe(
-        map((navigating) => !navigating), // Button disabled if navigating
+        map((navigating) => !navigating), // Disabled if navigating
         distinctUntilChanged(),
         tap((notNavigating) => console.log('isNavigating$ emitted (not navigating):', notNavigating))
       )
@@ -456,14 +456,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       shareReplay(1) // Replay the latest value to new subscribers
     );
   
-    // Subscribe to the observable to update the button state
+    // Subscribe once to synchronize the button state
     this.isButtonEnabled$.subscribe((isEnabled) => {
       console.log('Setting button state to:', isEnabled);
-      this.updateNextButtonState(); // Set based on observable value
+      this.updateNextButtonState(isEnabled); // Pass the state directly
     });
   }
   
-  private syncAndUpdateButtonState(): void {
+  private syncAndUpdateNextButtonState(): void {
     // Continuously listen for button state changes
     this.isButtonEnabled$.subscribe((isEnabled: boolean) => {
       console.log('Next button state updated:', isEnabled);
@@ -2346,7 +2346,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
       // Set the loading and navigating states
       this.quizStateService.setLoading(true);
+      console.log('Loading state set to: true');
+
       this.quizStateService.setNavigating(true);
+      console.log('Navigating state set to: true');
   
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
@@ -2370,6 +2373,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
           this.quizQuestionComponent.explanationToDisplay = '';
           this.quizQuestionComponent.isAnswered = false;
         }
+        this.resetUI();
       } else {
         console.log('End of quiz reached.');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);

@@ -82,12 +82,13 @@
               aria-label="Next Question"
               matTooltipPosition="above"
               [matTooltip]="nextButtonTooltip$ | async"
-              [disabled]="!(isButtonEnabled$ | async)"
-              [ngStyle]="nextButtonStyle"
+              [disabled]="false"
+              [ngStyle]="{ opacity: '1', 'pointer-events': 'auto' }"
             >
               <i class="material-icons">navigate_next</i>
             </button>
           </div>
+          <!--[disabled]="!(isButtonEnabled$ | async)"-->
           <!--[disabled]="!isNextButtonEnabled"-->
           
           <div class="show-score-nav" [hidden]="shouldHideShowResultsButton">
