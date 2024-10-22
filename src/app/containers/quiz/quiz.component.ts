@@ -2448,18 +2448,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       });
   }
 
-  public advanceAndProcessNextQuestion(): void {
-    this.quizQuestionComponent
-      .fetchAndProcessCurrentQuestion()
-      .then(() => {
-         // Reload the dynamic component with new options
-        this.quizQuestionComponent.loadDynamicComponent();
-      })
-      .catch((error) => {
-        console.error('Error advancing to the next question:', error);
-      });
+  public async advanceAndProcessNextQuestion(): Promise<void> {
+    try {
+      console.log('Advancing to the next question...');
+      await this.quizQuestionComponent.fetchAndProcessCurrentQuestion();
+      await this.quizQuestionComponent.loadDynamicComponent();
+    } catch (error) {
+      console.error('Error advancing to the next question:', error);
+    }
   }
-
+  
   // combined method for preparing question data and UI
   async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
     try {
