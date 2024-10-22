@@ -559,7 +559,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         console.log('Option selection changed:', isSelected);
         this.isOptionSelected = isSelected;
         this.isNextButtonEnabled = isSelected;
-        this.updateNextButtonState();
+        this.updateNextButtonState(isSelected);
         this.cdRef.detectChanges();
       });
   }
