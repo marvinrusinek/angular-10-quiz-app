@@ -57,7 +57,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   quizQuestionComponent!: QuizQuestionComponent;
   @ViewChild(SharedOptionComponent, { static: false })
   sharedOptionComponent!: SharedOptionComponent;
-  @ViewChild('nextButton', { static: false }) nextButtonTooltip: MatTooltip;
+  @ViewChild('nextButton', { static: false })
+  nextButtonTooltip!: MatTooltip;
   @Input() data: {
     questionText: string,
     correctAnswersText?: string,
