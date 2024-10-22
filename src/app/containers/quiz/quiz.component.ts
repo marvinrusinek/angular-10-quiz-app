@@ -2063,7 +2063,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       text: option.text ?? 'N/A',
       isCorrect: option.correct ?? false,
       answer: option.answer ?? null,
-      isSelected: false, // Always default to unselected
+      isSelected: false  // Always default to unselected
     })) as Option[];
   
     if (this.selectedQuiz && this.options.length > 1) {
@@ -2121,27 +2121,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
   }
 
-  private handleQuizData(quiz: Quiz, currentQuestionIndex: number): void {
+  private handleQuizData(quiz: Quiz | null, currentQuestionIndex: number = 0): void {
     if (!quiz) {
-      console.error('Quiz not found');
+      console.error('Quiz data is not available.');
       return;
     }
-
-    if (!quiz.questions || quiz.questions.length === 0) {
-      console.error('Quiz questions not found');
+  
+    const { questions = [] } = quiz;
+    if (questions.length === 0) {
+      console.error('Quiz questions are missing.');
       return;
     }
-
-    this.currentQuestionIndex = currentQuestionIndex;
-    this.question = quiz.questions[currentQuestionIndex];
+  
+    this.currentQuestionIndex = Math.max(0, Math.min(currentQuestionIndex, questions.length - 1));
+    this.question = questions[this.currentQuestionIndex];
   }
 
-  handleQuestion(question: QuizQuestion): void {
+  handleQuestion(question: QuizQuestion | null): void {
     if (!question) {
-      console.error('Question not found');
+      console.error('Invalid question provided.');
+      this.question = null; // Reset the question to avoid stale data
       return;
     }
-
+  
     this.question = question;
   }
 
@@ -2166,26 +2168,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   setOptions(): void {
     console.log('Answers:', this.answers);
-
+  
     if (!this.question) {
-      console.error('Question not found');
+      console.error('Question not found.');
       return;
     }
-
-    if (!this.options || this.options.length === 0) {
-      console.error('Options not found or empty');
+  
+    if (!Array.isArray(this.options) || this.options.length === 0) {
+      console.error('Options are either missing or empty.');
       return;
     }
-
-    const options =
-      this.question && this.question.options
-        ? this.question.options.map((option) => {
-            const value = 'value' in option ? option.value : 0;
-            return value;
-          })
-        : [];
-    console.log('Options array after modification:', options);
-
+  
+    const options = (this.question.options || []).map((option) => 
+      'value' in option ? option.value : 0
+    );
+  
+    console.log('Modified Options Array:', options);
+  
     this.quizService.setAnswers(options);
   }
 
