@@ -2320,9 +2320,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   async advanceToNextQuestion(): Promise<void> {
     console.log('Starting navigation attempt...');
   
-    // Set navigating state immediately to prevent race conditions
-    this.quizStateService.setNavigating(true);
-  
     try {
       // Log the state values to see what is preventing navigation
       const [isLoading, isNavigating, isEnabled] = await Promise.all([
@@ -2331,34 +2328,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         firstValueFrom(this.isButtonEnabled$)
       ]);
   
-      console.log('isLoading:', isLoading, 'isButtonEnabled:', isEnabled);
+      console.log('State before advancing:', { isLoading, isNavigating, isEnabled });
   
       if (isLoading || isNavigating || !isEnabled) {
-        console.warn('Cannot advance: Loading in progress or button disabled.');
+        console.warn('Cannot advance: Loading or navigation in progress, or button is disabled.');
         return;
       }
   
-      // Set the loading state
+      // Set the loading and navigating states
       this.quizStateService.setLoading(true);
       this.quizStateService.setNavigating(true);
   
-      // Proceed with loading the next question
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
         console.log('Loading next question, index:', this.currentQuestionIndex);
-
-        // Set the current question in the quiz service
+  
+        // Update the current question in the quiz service
         this.quizService.setCurrentQuestion(this.currentQuestionIndex);
   
+        // Load the next question and prepare it for display
         await this.loadQuestionContents();
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-
-        // Reset answered state for the new question
+  
+        // Reset the answered state for the new question
         this.selectedOptionService.isAnsweredSubject.next(false);
-        this.quizStateService.setAnswered(false); // Reset answered state
-        this.quizStateService.setNextButtonEnabled(false); // Disable the Next button initially
+        this.quizStateService.setAnswered(false);
+        this.quizStateService.setNextButtonEnabled(false); 
         this.isNextButtonEnabled = false;
-
+  
         // Clear previous explanations if needed
         if (this.quizQuestionComponent) {
           this.quizQuestionComponent.explanationToDisplay = '';
@@ -2371,17 +2368,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     } catch (error) {
       console.error('Error during navigation:', error);
     } finally {
-      // Reset navigating and loading states
+      // Reset the navigating and loading states
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
       this.isNavigating = false;
-      this.quizStateService.setLoading(false);
+  
+      // Ensure button state updates and the UI reflects changes
       this.updateNextButtonState();
-      this.cdRef.detectChanges(); // Ensure the UI updates immediately
+      this.cdRef.detectChanges(); // Ensure immediate UI update
     }
   }
   
-
   async advanceToPreviousQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
