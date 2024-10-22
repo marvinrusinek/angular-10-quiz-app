@@ -2204,22 +2204,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   updateProgressPercentage(): void {
     this.quizService.getTotalQuestionsCount().subscribe({
-      next: (total) => {
-        this.totalQuestions = total;
-
-        if (this.totalQuestions > 0) {
-          // Each question contributes a fixed percentage to the total progress
-          const percentagePerQuestion = 100 / this.totalQuestions;
-          const progress = this.currentQuestionIndex * percentagePerQuestion;
-          this.progressBarService.setProgress(progress);
-        } else {
-          this.progressBarService.setProgress(0); // Reset to 0% progress
-        }
-      },
+      next: (total) => this.handleProgressUpdate(total),
       error: (error) => {
         console.error('Error fetching total questions:', error);
+        this.progressBarService.setProgress(0); // Ensure progress is reset on error
       },
     });
+  }
+  
+  private handleProgressUpdate(total: number): void {
+    this.totalQuestions = total;
+  
+    const progress = total > 0 
+      ? (this.currentQuestionIndex / total) * 100 
+      : 0;
+  
+    this.progressBarService.setProgress(progress);
   }
 
   animationDoneHandler(): void {
