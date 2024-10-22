@@ -250,8 +250,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
       console.log('isOptionSelected$ emitted:', isSelected);
       this.isCurrentQuestionAnswered = isSelected;
-      this.updateNextButtonState();
-    });
+    
+      // Pass the appropriate state to updateNextButtonState
+      const isEnabled = isSelected && !this.isLoading;
+      this.updateNextButtonState(isEnabled);
+    });    
   }
 
   @HostListener('window:focus', ['$event'])
