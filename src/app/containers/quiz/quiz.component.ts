@@ -2154,16 +2154,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   async getQuiz(id: string): Promise<void> {
     try {
-      const quiz = await firstValueFrom(
+      const quiz: Quiz = await firstValueFrom(
         this.quizDataService.getQuiz(id).pipe(
-          catchError((error) => {
+          catchError((error: Error) => {
             console.error('Error fetching quiz:', error);
-            return throwError(() => new Error('Failed to fetch quiz.'));
+            return throwError(() => error);
           })
         )
       );
   
-      if (quiz?.questions?.length) {
+      if (quiz && quiz.questions && quiz.questions.length > 0) {
         this.handleQuizData(quiz, this.currentQuestionIndex);
       } else {
         console.warn('Quiz has no questions.');
@@ -2171,7 +2171,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     } catch (error) {
       console.error('Failed to load quiz:', error);
     }
-  }
+  }  
 
   setOptions(): void {
     console.log('Answers:', this.answers);
