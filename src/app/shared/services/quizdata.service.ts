@@ -51,10 +51,12 @@ export class QuizDataService implements OnDestroy {
 
   isValidQuiz(quizId: string): Observable<boolean> {
     return this.getQuizzes().pipe(
-      map(quizzes => quizzes.some(quiz => quiz.quizId === quizId)),
-      catchError(error => {
-        console.error('Error validating quiz ID:', error);
-        return of(false);
+      map((quizzes: Quiz[]) => 
+        quizzes.some((quiz) => quiz.quizId === quizId)
+      ),
+      catchError((error: any) => {
+        console.error(`Error validating quiz ID "${quizId}":`, error.message || error);
+        return of(false); // Return `false` to indicate an invalid quiz
       })
     );
   }
