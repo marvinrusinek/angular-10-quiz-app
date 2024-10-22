@@ -2050,28 +2050,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.explanationToDisplay = 'Error loading explanation.';
   }
 
-  handleOptions(options: Option[]): void {
-    if (!options || options.length === 0) {
-      console.error('Options not found');
+  handleOptions(options: Option[] = []): void {
+    if (!Array.isArray(options) || options.length === 0) {
+      console.error('No valid options provided');
+      this.options = []; // Set to empty array to avoid errors
       return;
     }
-
-    this.options = options.map(
-      (option) =>
-        ({
-          optionId: option.optionId,
-          value: option.value,
-          text: option.text,
-          isCorrect: option.correct,
-          answer: option.answer,
-          isSelected: false,
-        } as Option)
-    ) as Option[];
-
+  
+    this.options = options.map((option) => ({
+      optionId: option.optionId ?? null,
+      value: option.value ?? '',
+      text: option.text ?? 'N/A',
+      isCorrect: option.correct ?? false,
+      answer: option.answer ?? null,
+      isSelected: false, // Always default to unselected
+    })) as Option[];
+  
     if (this.selectedQuiz && this.options.length > 1) {
       Utils.shuffleArray(this.options);
     }
-
+  
     this.setOptions();
   }
 
