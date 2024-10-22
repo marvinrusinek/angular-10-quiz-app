@@ -435,7 +435,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
-        delay(100),
+        debounceTime(1000),
         map((answered) => !!answered), // Ensure boolean
         distinctUntilChanged(),
         tap((answered) => console.log('isAnsweredSubject emitted:', answered))
@@ -2353,6 +2353,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         // Reset answered state for the new question
         this.selectedOptionService.isAnsweredSubject.next(false);
         this.quizStateService.setAnswered(false); // Reset answered state
+        this.quizStateService.setNextButtonEnabled(false); // Disable the Next button initially
+        this.isNextButtonEnabled = false;
+
+        // Clear previous explanations if needed
+        if (this.quizQuestionComponent) {
+          this.quizQuestionComponent.explanationToDisplay = '';
+          this.quizQuestionComponent.isAnswered = false;
+        }
       } else {
         console.log('End of quiz reached.');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
