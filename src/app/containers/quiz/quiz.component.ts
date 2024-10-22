@@ -433,35 +433,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
-        debounceTime(300), // Smooth out rapid changes
-        map((answered) => !!answered), // Ensure boolean
+        debounceTime(300), // Small debounce to avoid rapid state changes
+        map((answered) => !!answered),
         distinctUntilChanged(),
-        tap((answered) => console.log('isAnsweredSubject emitted:', answered))
+        tap((answered) => console.log(`[${new Date().toISOString()}] Answered state:`, answered))
       ),
       this.quizStateService.isLoading$.pipe(
         map((loading) => !loading),
         distinctUntilChanged(),
-        tap((notLoading) => console.log('isLoading$ emitted:', notLoading))
+        tap((notLoading) => console.log(`[${new Date().toISOString()}] Not loading:`, notLoading))
       ),
       this.quizStateService.isNavigating$.pipe(
         map((navigating) => !navigating),
         distinctUntilChanged(),
-        tap((notNavigating) => console.log('isNavigating$ emitted:', notNavigating))
+        tap((notNavigating) => console.log(`[${new Date().toISOString()}] Not navigating:`, notNavigating))
       )
     ]).pipe(
       map(([isAnswered, isNotLoading, isNotNavigating]) =>
         isAnswered && isNotLoading && isNotNavigating
       ),
-      tap((isEnabled) => console.log('Next button enabled state:', isEnabled)),
+      tap((isEnabled) => console.log(`[${new Date().toISOString()}] Button enabled state:`, isEnabled)),
       shareReplay(1) // Replay the latest value to new subscribers
-    );    
+    );
   
-    // Subscribe once to synchronize the button state
     this.isButtonEnabled$.subscribe((isEnabled) => {
-      console.log('Setting button state to:', isEnabled);
-      this.updateNextButtonState(); // Pass the state directly
+      this.updateNextButtonState();
     });
-  }
+  }  
   
   private syncAndUpdateNextButtonState(): void {
     // Continuously listen for button state changes
