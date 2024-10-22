@@ -2212,10 +2212,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.animationState$.next('none');
   }
 
-  isNextDisabled(): boolean {
-    return typeof this.selectedAnswerField === 'undefined';
-  } // might remove
-
   selectedAnswer(option: Option): void {
     // Mark the question as answered
     this.answered = true;
@@ -2255,6 +2251,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   shouldDisableButton(): boolean {
     return !this.formControl || this.formControl.valid === false;
   }
+
+  // currently not being used
+  isNextDisabled(): boolean {
+    return typeof this.selectedAnswerField === 'undefined';
+  } // might remove
+
 
   private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
     try {
