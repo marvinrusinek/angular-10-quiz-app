@@ -70,19 +70,19 @@ export class QuizDataService implements OnDestroy {
 
   setSelectedQuizById(quizId: string): Observable<void> {
     return this.getQuizzes().pipe(
-      switchMap((quizzes: Quiz[]) => {
+      map((quizzes: Quiz[]) => {
         this.quizzes = quizzes;
-        const quiz = this.quizzes.find((q) => q.quizId === quizId);
-        if (!quiz) {
-          console.error('Selected quiz not found');
-          throw new Error('Selected quiz not found');
+        const selectedQuiz = quizzes.find((quiz) => quiz.quizId === quizId);
+  
+        if (!selectedQuiz) {
+          throw new Error(`Quiz with ID "${quizId}" not found.`);
         }
-        this.setSelectedQuiz(quiz);
-        return of(undefined);
+  
+        this.setSelectedQuiz(selectedQuiz);
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('Error retrieving quizzes:', error);
-        throw new Error('Error retrieving quizzes');
+        console.error('Error retrieving quizzes:', error.message || error);
+        return throwError(() => new Error('Error retrieving quizzes'));
       }),
       takeUntil(this.destroy$)
     );
