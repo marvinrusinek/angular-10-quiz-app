@@ -436,30 +436,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         debounceTime(300),
         map((answered) => !!answered),
         distinctUntilChanged(),
-        tap((answered) => console.log(`[${new Date().toISOString()}] Answered state:`, answered))
+        tap((answered) => console.log('isAnswered emitted:', answered))
       ),
       this.quizStateService.isLoading$.pipe(
         map((loading) => !loading),
         distinctUntilChanged(),
-        tap((notLoading) => console.log(`[${new Date().toISOString()}] Not loading:`, notLoading))
+        tap((notLoading) => console.log('isLoading emitted:', notLoading))
       ),
       this.quizStateService.isNavigating$.pipe(
         map((navigating) => !navigating),
         distinctUntilChanged(),
-        tap((notNavigating) => console.log(`[${new Date().toISOString()}] Not navigating:`, notNavigating))
+        tap((notNavigating) => console.log('isNavigating emitted:', notNavigating))
       )
     ]).pipe(
-      map(([isAnswered, isNotLoading, isNotNavigating]) => {
-        const result = isAnswered && isNotLoading && isNotNavigating;
-        console.log(`[${new Date().toISOString()}] Combined state:`, { isAnswered, isNotLoading, isNotNavigating, result });
-        return result;
-      }),
-      shareReplay(1) // Replay the latest value to new subscribers
+      map(([isAnswered, isNotLoading, isNotNavigating]) => 
+        isAnswered && isNotLoading && isNotNavigating
+      ),
+      distinctUntilChanged(),
+      shareReplay(1)
     );
   
-    // Subscribe to the observable to keep the button state in sync
     this.isButtonEnabled$.subscribe((isEnabled) => {
-      this.updateAndSyncNextButtonState(isEnabled); // Apply the button state
+      console.log('Final state of Next button:', isEnabled);
+      this.updateAndSyncNextButtonState(isEnabled);
     });
   }
 
