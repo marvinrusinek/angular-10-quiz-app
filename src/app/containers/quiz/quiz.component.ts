@@ -2344,7 +2344,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
         this.resetUIAndNavigate(this.currentQuestionIndex);
       
-        // Re-enable the button
+        // Re-enable the next button
         const shouldEnableNextButton = this.isAnyOptionSelected();
         this.updateAndSyncNextButtonState(shouldEnableNextButton);
 
