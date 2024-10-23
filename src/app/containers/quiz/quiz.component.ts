@@ -2514,6 +2514,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
       console.log('Current question updated:', this.currentQuestion);
 
+      await this.quizService.checkIfAnsweredCorrectly();
       this.cdRef.detectChanges(); // Ensure UI reflects the new state
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
