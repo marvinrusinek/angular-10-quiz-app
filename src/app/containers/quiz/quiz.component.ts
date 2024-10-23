@@ -2394,10 +2394,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       console.log('Successfully navigated to the previous question.');
       this.resetUI();
     } catch (error) {
-      console.error(
-        'Error occurred while navigating to the previous question:',
-        error
-      );
+      console.error('Error occurred while navigating to the previous question:', error);
     } finally {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
