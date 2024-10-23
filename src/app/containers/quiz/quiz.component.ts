@@ -2348,8 +2348,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         }
   
         this.resetUI();
-        this.updateAndSyncNextButtonState(true);
         console.log('Successfully navigated to the next question.');
+        
+        // Re-enable the button if applicable
+        const shouldEnableNextButton = this.isAnyOptionSelected();
+        this.updateAndSyncNextButtonState(shouldEnableNextButton);
       } else {
         console.log('End of quiz reached. Navigating to results.');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
@@ -2360,7 +2363,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
-      this.updateAndSyncNextButtonState(false);
+
+      // Sync the final state based on the new question
+      const finalButtonState = this.isAnyOptionSelected();
+      this.updateAndSyncNextButtonState(finalButtonState);
       this.cdRef.detectChanges();
     }
   }
