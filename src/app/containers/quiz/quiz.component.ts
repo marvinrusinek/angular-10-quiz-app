@@ -2347,9 +2347,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
           this.quizQuestionComponent.isAnswered = false;
         }
   
-        console.log('Successfully navigated to the next question.');
         this.resetUI();
         this.updateAndSyncNextButtonState(true);
+        console.log('Successfully navigated to the next question.');
       } else {
         console.log('End of quiz reached. Navigating to results.');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
