@@ -2375,6 +2375,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   } */
   async advanceToNextQuestion(): Promise<void> {
     console.log('advanceToNextQuestion called at:', new Date().toISOString());
+    console.log('advanceToNextQuestion called', { isNavigating: this.isNavigating, isLoading: this.isLoading });
   
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
       firstValueFrom(this.quizStateService.isLoading$),
