@@ -433,34 +433,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }  
 
-  /* private initializeNextButtonState(): void {
-    this.isButtonEnabled$ = combineLatest([
-      this.selectedOptionService.isAnsweredSubject.pipe(
-        debounceTime(300), // Small debounce to avoid rapid state changes
-        map((answered) => !!answered),
-        distinctUntilChanged(),
-        tap((answered) => console.log(`[${new Date().toISOString()}] Answered state:`, answered))
-      ),
-      this.quizStateService.isLoading$.pipe(
-        map((loading) => !loading),
-        distinctUntilChanged(),
-        tap((notLoading) => console.log(`[${new Date().toISOString()}] Not loading:`, notLoading))
-      ),
-      this.quizStateService.isNavigating$.pipe(
-        map((navigating) => !navigating),
-        distinctUntilChanged(),
-        tap((notNavigating) => console.log(`[${new Date().toISOString()}] Not navigating:`, notNavigating))
-      )
-    ]).pipe(
-      map(([isAnswered, isNotLoading, isNotNavigating]) =>
-        isAnswered && isNotLoading && isNotNavigating
-      ),
-      tap((isEnabled) => console.log(`[${new Date().toISOString()}] Button enabled state:`, isEnabled)),
-      shareReplay(1) // Replay the latest value to new subscribers
-    );
-  
-    this.syncAndUpdateNextButtonState();
-  } */
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
