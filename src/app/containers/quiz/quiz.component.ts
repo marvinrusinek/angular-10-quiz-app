@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, defer, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, debounceTime, delay, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatTooltip } from '@angular/material/tooltip';
 
 import { Utils } from '../../shared/utils/utils';
@@ -463,8 +463,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private updateAndSyncNextButtonState(isEnabled: boolean): void {
-    console.log(`[${new Date().toISOString()}] Updating and syncing button state:`, isEnabled);
-  
     this.ngZone.run(() => {
       this.isNextButtonEnabled = isEnabled;
       this.isButtonEnabledSubject.next(isEnabled); // Emit the new state
@@ -472,8 +470,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         opacity: isEnabled ? '1' : '0.5',
         'pointer-events': isEnabled ? 'auto' : 'none'
       };
-  
-      console.log('Next button style updated:', this.nextButtonStyle);
   
       // Trigger change detection to ensure the UI reflects the updated state
       this.cdRef.markForCheck();
@@ -2502,76 +2498,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.updateProgressPercentage();
   }
 
-  /* private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
+  private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
     try {
-      // Start the animation
-      this.animationState$.next('animationStarted');
-  
-      // Fetch quiz data
-      const quizData: Quiz = await firstValueFrom(
-        this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
-      );
-  
-      // Validate quiz data
-      if (!quizData?.questions?.length) {
-        console.warn('Quiz data is unavailable or has no questions.');
-        return;
-      }
-  
-      // Validate question index
-      const isValidIndex = this.quizService.isValidQuestionIndex(questionIndex, quizData);
-      if (!isValidIndex) {
-        console.warn('Invalid question index. Aborting.');
-        return;
-      }
-  
-      // Fetch question details
+      console.log('Fetching question data for index:', questionIndex);
+
       const questionDetails = await this.fetchQuestionDetails(questionIndex);
-      if (!questionDetails) {
-        console.warn('No question details found for index:', questionIndex);
-        return;
-      }
-  
-      // Destructure and resolve options
+      if (!questionDetails) return;
+
       const { questionText, options, explanation } = questionDetails;
-      const resolvedOptions = await Promise.resolve(options);
-  
-      // Update current question and state
-      this.currentQuestion = { ...questionDetails, options: resolvedOptions };
+
+      // Set the UI state immediately
+      this.setQuestionDetails(questionText, options, explanation);
+      this.currentQuestion = { ...questionDetails, options };
+
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-      this.setQuestionDetails(questionText, resolvedOptions, explanation);
-  
-      // Check if the question is answered correctly and reset UI
-      await this.quizService.checkIfAnsweredCorrectly();
-      await this.resetUIAndNavigate(questionIndex);
-  
+      console.log('Current question updated:', this.currentQuestion);
+
+      this.cdRef.detectChanges(); // Ensure UI reflects the new state
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
     }
-  } */
-  private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
-    try {
-        console.log('Fetching question data for index:', questionIndex);
-
-        const questionDetails = await this.fetchQuestionDetails(questionIndex);
-        if (!questionDetails) return;
-
-        const { questionText, options, explanation } = questionDetails;
-
-        // Set the UI state immediately
-        this.setQuestionDetails(questionText, options, explanation);
-        this.currentQuestion = { ...questionDetails, options };
-
-        this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-        console.log('Current question updated:', this.currentQuestion);
-
-        this.cdRef.detectChanges(); // Ensure UI reflects the new state
-    } catch (error) {
-        console.error('Error in fetchAndSetQuestionData:', error);
-    }
   }
-
-
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     try {
