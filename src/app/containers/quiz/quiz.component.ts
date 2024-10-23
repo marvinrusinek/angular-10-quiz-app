@@ -2443,7 +2443,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
   
   // combined method for preparing question data and UI
-  async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
+  /* async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
     try {
       // Advance to the next question and process any necessary logic
       await this.advanceAndProcessNextQuestion();
@@ -2459,6 +2459,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
       // Update navigation and explanation state
       this.updateNavigationAndExplanationState();
+    } catch (error) {
+      console.error('Error preparing question for display:', error);
+    }
+  } */
+  async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
+    try {
+      console.log('Preparing question for display at index:', questionIndex);
+
+      // Fetch question data first to update the UI immediately
+      await this.fetchAndSetQuestionData(questionIndex);
+
+      // Run other operations concurrently without blocking UI update
+      const processingTasks = [
+        this.advanceAndProcessNextQuestion(),
+        this.initializeQuestionForDisplay(questionIndex),
+        this.updateQuestionStateAndExplanation(questionIndex),
+        this.updateNavigationAndExplanationState()
+      ];
+
+      await Promise.all(processingTasks);
     } catch (error) {
       console.error('Error preparing question for display:', error);
     }
