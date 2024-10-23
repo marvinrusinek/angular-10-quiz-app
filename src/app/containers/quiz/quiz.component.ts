@@ -2347,7 +2347,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
           this.quizQuestionComponent.isAnswered = false;
         }
   
-        this.resetUI();
+        this.resetUIAndNavigate(this.currentQuestionIndex);
         console.log('Successfully navigated to the next question.');
         
         // Re-enable the button if applicable
@@ -2503,7 +2503,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.updateProgressPercentage();
   }
 
-  private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
+  /* private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
     try {
       // Start the animation
       this.animationState$.next('animationStarted');
@@ -2549,7 +2549,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
     }
+  } */
+  private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
+    try {
+        console.log('Fetching question data for index:', questionIndex);
+
+        const questionDetails = await this.fetchQuestionDetails(questionIndex);
+        if (!questionDetails) return;
+
+        const { questionText, options, explanation } = questionDetails;
+
+        // Set the UI state immediately
+        this.setQuestionDetails(questionText, options, explanation);
+        this.currentQuestion = { ...questionDetails, options };
+
+        this.quizStateService.updateCurrentQuestion(this.currentQuestion);
+        console.log('Current question updated:', this.currentQuestion);
+
+        this.cdRef.detectChanges(); // Ensure UI reflects the new state
+    } catch (error) {
+        console.error('Error in fetchAndSetQuestionData:', error);
+    }
   }
+
+
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     try {
