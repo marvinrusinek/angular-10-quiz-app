@@ -2357,6 +2357,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         }
   
         console.log('Successfully navigated to the next question.');
+        this.resetUI();
       } else {
         console.log('End of quiz reached. Navigating to results.');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
@@ -2395,7 +2396,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }
 
       // Combine fetching data and initializing question state into a single method
+      await this.loadQuestionContents();
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+
+      console.log('Successfully navigated to the previous question.');
       this.resetUI();
     } catch (error) {
       console.error(
