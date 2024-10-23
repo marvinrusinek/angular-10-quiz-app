@@ -2298,7 +2298,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
-    console.log('advanceToNextQuestion called at:', new Date().toISOString());
     console.log('advanceToNextQuestion called', { isNavigating: this.isNavigating, isLoading: this.isLoading });
   
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
@@ -2344,11 +2343,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         }
   
         this.resetUIAndNavigate(this.currentQuestionIndex);
-        console.log('Successfully navigated to the next question.');
-        
+      
         // Re-enable the button if applicable
         const shouldEnableNextButton = this.isAnyOptionSelected();
         this.updateAndSyncNextButtonState(shouldEnableNextButton);
+
+        console.log('Successfully navigated to the next question.');
       } else {
         console.log('End of quiz reached. Navigating to results.');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
