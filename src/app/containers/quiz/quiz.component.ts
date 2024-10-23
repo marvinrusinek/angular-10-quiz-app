@@ -433,6 +433,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }  
 
+
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
@@ -466,34 +467,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   
     // Sync the button state after initialization to ensure UI is updated
-    this.syncAndUpdateNextButtonState();
+    this.updateAndSyncNextButtonState();
   }
 
-  private syncAndUpdateNextButtonState(): void {
-    this.isButtonEnabled$.subscribe((isEnabled: boolean) => {
-      console.log(`[${new Date().toISOString()}] Syncing button state:`, isEnabled);
-  
-      this.ngZone.run(() => {
-        this.isNextButtonEnabled = isEnabled;
-        this.isButtonEnabledSubject.next(isEnabled); // Emit the new state
-        this.nextButtonStyle = {
-          opacity: isEnabled ? '1' : '0.5',
-          'pointer-events': isEnabled ? 'auto' : 'none'
-        };
-        this.cdRef.markForCheck(); // Trigger change detection
-      });
-    });
-
-    // Sync the tooltip observable
-    this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
-  }
-  
-
-  private updateNextButtonState(isEnabled: boolean): void {
-    console.log('Updating button state:', isEnabled);
+  private updateAndSyncNextButtonState(isEnabled: boolean): void {
+    console.log(`[${new Date().toISOString()}] Updating and syncing button state:`, isEnabled);
   
     this.ngZone.run(() => {
       this.isNextButtonEnabled = isEnabled;
+      this.isButtonEnabledSubject.next(isEnabled); // Emit the new state
       this.nextButtonStyle = {
         opacity: isEnabled ? '1' : '0.5',
         'pointer-events': isEnabled ? 'auto' : 'none'
@@ -501,9 +483,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
       console.log('Next button style updated:', this.nextButtonStyle);
   
-      // Ensure the UI reflects the updated state
+      // Trigger change detection to ensure the UI reflects the updated state
       this.cdRef.markForCheck();
     });
+  
+    // Sync the tooltip observable if needed
+    this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
   }
 
   // Tooltip for next button
