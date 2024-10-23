@@ -253,7 +253,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     
       // Pass the appropriate state to updateNextButtonState
       const isEnabled = isSelected && !this.isLoading;
-      this.updateNextButtonState(isEnabled);
+      this.updateAndSyncNextButtonState(isEnabled);
     });    
   }
 
