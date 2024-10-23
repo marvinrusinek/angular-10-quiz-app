@@ -613,7 +613,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedOptionService.setSelectedOption(option);
   
     // Update the Next button state
-    this.updateNextButtonState();
+    this.updateNextButtonState(this.isOptionSelected);
   
     // Refresh the tooltip manually to reflect the changes
     setTimeout(() => this.nextButtonTooltip?.show(), 0);
@@ -2422,7 +2422,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
   
-      this.updateNextButtonState();
+      this.updateNextButtonState(false);
       this.cdRef.detectChanges();
     }
   }
