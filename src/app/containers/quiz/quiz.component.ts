@@ -558,7 +558,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         console.log('Option selection changed:', isSelected);
         this.isOptionSelected = isSelected;
         this.isNextButtonEnabled = isSelected;
-        this.updateNextButtonState(isSelected);
+        this.updateAndSyncNextButtonState(isSelected);
         this.cdRef.detectChanges();
       });
   }
@@ -612,7 +612,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedOptionService.setSelectedOption(option);
   
     // Update the Next button state
-    this.updateNextButtonState(this.isOptionSelected);
+    this.updateAndSyncNextButtonState(this.isOptionSelected);
   
     // Refresh the tooltip manually to reflect the changes
     setTimeout(() => this.nextButtonTooltip?.show(), 0);
