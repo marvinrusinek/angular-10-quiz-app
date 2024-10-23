@@ -433,7 +433,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }  
 
-  private initializeNextButtonState(): void {
+  /* private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
         debounceTime(300), // Small debounce to avoid rapid state changes
@@ -460,7 +460,59 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
   
     this.syncAndUpdateNextButtonState();
+  } */
+  private initializeNextButtonState(): void {
+    this.isButtonEnabled$ = combineLatest([
+      this.selectedOptionService.isAnsweredSubject.pipe(
+        debounceTime(300), // Small debounce to avoid rapid state changes
+        map((answered) => !!answered), // Ensure a boolean value
+        distinctUntilChanged(),
+        tap((answered) =>
+          console.log(`[${new Date().toISOString()}] Answered state:`, answered)
+        )
+      ),
+      this.quizStateService.isLoading$.pipe(
+        map((loading) => !loading), // Button disabled if loading
+        distinctUntilChanged(),
+        tap((notLoading) =>
+          console.log(`[${new Date().toISOString()}] Not loading:`, notLoading)
+        )
+      ),
+      this.quizStateService.isNavigating$.pipe(
+        map((navigating) => !navigating), // Button disabled if navigating
+        distinctUntilChanged(),
+        tap((notNavigating) =>
+          console.log(
+            `[${new Date().toISOString()}] Not navigating:`,
+            notNavigating
+          )
+        )
+      )
+    ]).pipe(
+      map(([isAnswered, isNotLoading, isNotNavigating]) => {
+        const result = isAnswered && isNotLoading && isNotNavigating;
+        console.log(
+          `[${new Date().toISOString()}] Combined button enabled state:`,
+          result
+        );
+        return result;
+      }),
+      tap((isEnabled) =>
+        console.log(`[${new Date().toISOString()}] Button enabled state emitted:`, isEnabled)
+      ),
+      shareReplay(1) // Replay the latest value to new subscribers
+    );
+  
+    // Subscribe to the observable to update the button state
+    this.isButtonEnabled$.subscribe((isEnabled) => {
+      console.log(
+        `[${new Date().toISOString()}] Subscribed button enabled state:`,
+        isEnabled
+      );
+      this.updateNextButtonState(isEnabled);
+    });
   }
+  
 
   private syncAndUpdateNextButtonState(): void {
     this.isButtonEnabled$.subscribe((isEnabled: boolean) => {
