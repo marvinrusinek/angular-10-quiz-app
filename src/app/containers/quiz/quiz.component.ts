@@ -2371,7 +2371,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
   
-  
   async advanceToPreviousQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -2443,26 +2442,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
   
   // combined method for preparing question data and UI
-  /* async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
-    try {
-      // Advance to the next question and process any necessary logic
-      await this.advanceAndProcessNextQuestion();
-  
-      // Fetch and set the question data asynchronously
-      await this.fetchAndSetQuestionData(questionIndex);
-  
-      // Initialize the question for display
-      this.initializeQuestionForDisplay(questionIndex);
-  
-      // Update the question state and explanation
-      this.updateQuestionStateAndExplanation(questionIndex);
-  
-      // Update navigation and explanation state
-      this.updateNavigationAndExplanationState();
-    } catch (error) {
-      console.error('Error preparing question for display:', error);
-    }
-  } */
   async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
     try {
       console.log('Preparing question for display at index:', questionIndex);
