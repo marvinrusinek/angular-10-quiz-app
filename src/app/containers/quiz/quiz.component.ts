@@ -433,7 +433,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
-        debounceTime(300),
+        debounceTime(500),
         map((answered) => !!answered),
         distinctUntilChanged(),
         tap((answered) => console.log('isAnswered emitted:', answered))
