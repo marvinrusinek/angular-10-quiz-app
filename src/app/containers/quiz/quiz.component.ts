@@ -606,7 +606,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedOptionService.setSelectedOption(option);
   
     // Update the Next button state
-    this.updateAndSyncNextButtonState(this.isOptionSelected);
+    this.updateAndSyncNextButtonState(checked);
   
     // Refresh the tooltip manually to reflect the changes
     setTimeout(() => this.nextButtonTooltip?.show(), 0);
