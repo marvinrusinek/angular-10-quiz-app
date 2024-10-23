@@ -2360,7 +2360,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
-  
       this.updateAndSyncNextButtonState(false);
       this.cdRef.detectChanges();
     }
