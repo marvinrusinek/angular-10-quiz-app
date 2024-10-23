@@ -463,11 +463,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     // Subscribe to the observable to keep the button state in sync
     this.isButtonEnabled$.subscribe((isEnabled) => {
-      this.updateNextButtonState(isEnabled); // Apply the button state
+      this.updateAndSyncNextButtonState(isEnabled); // Apply the button state
     });
-  
-    // Sync the button state after initialization to ensure UI is updated
-    this.updateAndSyncNextButtonState();
   }
 
   private updateAndSyncNextButtonState(isEnabled: boolean): void {
