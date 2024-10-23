@@ -2328,10 +2328,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     
     // Set loading and navigating states
     this.quizStateService.setLoading(true);
-    console.log('Loading state set to: true');
-    
     this.quizStateService.setNavigating(true);
-    console.log('Navigating state set to: true');
   
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
