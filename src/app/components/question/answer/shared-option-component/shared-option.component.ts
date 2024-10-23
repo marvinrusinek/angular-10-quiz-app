@@ -404,7 +404,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     // Clone the option to prevent mutations
     const clonedOption = { ...option };
-    console.log('Cloned Option:', JSON.stringify(clonedOption, null, 2));
   
     // Safely access optionId, or fallback to index
     const optionId = this.getSafeOptionId(clonedOption, index);
