@@ -464,55 +464,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
-        debounceTime(300), // Small debounce to avoid rapid state changes
-        map((answered) => !!answered), // Ensure a boolean value
+        debounceTime(300),
+        map((answered) => !!answered),
         distinctUntilChanged(),
-        tap((answered) =>
-          console.log(`[${new Date().toISOString()}] Answered state:`, answered)
-        )
+        tap((answered) => console.log(`[${new Date().toISOString()}] Answered state:`, answered))
       ),
       this.quizStateService.isLoading$.pipe(
-        map((loading) => !loading), // Button disabled if loading
+        map((loading) => !loading),
         distinctUntilChanged(),
-        tap((notLoading) =>
-          console.log(`[${new Date().toISOString()}] Not loading:`, notLoading)
-        )
+        tap((notLoading) => console.log(`[${new Date().toISOString()}] Not loading:`, notLoading))
       ),
       this.quizStateService.isNavigating$.pipe(
-        map((navigating) => !navigating), // Button disabled if navigating
+        map((navigating) => !navigating),
         distinctUntilChanged(),
-        tap((notNavigating) =>
-          console.log(
-            `[${new Date().toISOString()}] Not navigating:`,
-            notNavigating
-          )
-        )
+        tap((notNavigating) => console.log(`[${new Date().toISOString()}] Not navigating:`, notNavigating))
       )
     ]).pipe(
       map(([isAnswered, isNotLoading, isNotNavigating]) => {
         const result = isAnswered && isNotLoading && isNotNavigating;
-        console.log(
-          `[${new Date().toISOString()}] Combined button enabled state:`,
-          result
-        );
+        console.log(`[${new Date().toISOString()}] Combined state:`, { isAnswered, isNotLoading, isNotNavigating, result });
         return result;
       }),
-      tap((isEnabled) =>
-        console.log(`[${new Date().toISOString()}] Button enabled state emitted:`, isEnabled)
-      ),
       shareReplay(1) // Replay the latest value to new subscribers
     );
   
-    // Subscribe to the observable to update the button state
+    // Subscribe to the observable to keep the button state in sync
     this.isButtonEnabled$.subscribe((isEnabled) => {
-      console.log(
-        `[${new Date().toISOString()}] Subscribed button enabled state:`,
-        isEnabled
-      );
-      this.updateNextButtonState(isEnabled);
+      this.updateNextButtonState(isEnabled); // Apply the button state
     });
-  }
   
+    // Sync the button state after initialization to ensure UI is updated
+    this.syncAndUpdateNextButtonState();
+  }
 
   private syncAndUpdateNextButtonState(): void {
     this.isButtonEnabled$.subscribe((isEnabled: boolean) => {
