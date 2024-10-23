@@ -2376,18 +2376,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   async advanceToNextQuestion(): Promise<void> {
     console.log('advanceToNextQuestion called at:', new Date().toISOString());
   
-    if (this.isNavigating || this.isLoading) {
-      console.warn('Cannot advance: Navigation or loading in progress.');
+    const [isLoading, isNavigating, isEnabled] = await Promise.all([
+      firstValueFrom(this.quizStateService.isLoading$),
+      firstValueFrom(this.quizStateService.isNavigating$),
+      firstValueFrom(this.isButtonEnabled$)
+    ]);
+    
+    console.log('State before advancing:', { isLoading, isNavigating, isEnabled });
+    
+    if (isLoading || isNavigating || !isEnabled) {
+      console.warn('Cannot advance: Loading or navigation in progress, or button is disabled.');
       return;
     }
-  
-    if (!this.isNextButtonEnabled) {
-      console.warn('Cannot advance: Next button is disabled.');
-      return;
-    }
-  
+
     this.isNavigating = true;
+    
+    // Set loading and navigating states
+    this.quizStateService.setLoading(true);
+    console.log('Loading state set to: true');
+    
     this.quizStateService.setNavigating(true);
+    console.log('Navigating state set to: true');
   
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
