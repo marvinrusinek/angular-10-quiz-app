@@ -256,26 +256,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
-    // Check if loading or navigation is still in progress
-    if (this.isLoading || this.quizStateService.isLoading()) {
-      console.warn('Quiz is still loading, delaying updates.');
-      return;
-    }
+    this.ngZone.run(() => {
+      if (this.isLoading || this.quizStateService.isLoading()) {
+        console.warn('Quiz is still loading, delaying updates.');
+        return;
+      }
 
-    // Ensure the correct question and options are displayed
-    if (this.currentQuestionIndex !== undefined) {
-      this.restoreQuestionDisplay();
-      this.fetchFormattedExplanationText(this.currentQuestionIndex);
-    } else {
-      console.warn('Current question index is undefined.');
-    }
+      if (this.currentQuestionIndex !== undefined) {
+        this.restoreQuestionDisplay();
+        this.fetchFormattedExplanationText(this.currentQuestionIndex);
+      } else {
+        console.warn('Current question index is undefined.');
+      }
 
-    // Synchronize loading and answered states with the quiz state service
-    this.isLoading$ = this.quizStateService.isLoading$;
-    this.isAnswered$ = this.quizStateService.isAnswered$;
-    
-    // Trigger change detection to ensure the UI reflects the restored state
-    this.cdRef.detectChanges();
+      this.isLoading$ = this.quizStateService.isLoading$;
+      this.isAnswered$ = this.quizStateService.isAnswered$;
+
+      this.cdRef.detectChanges(); // Trigger UI update after state change
+    });
   }
 
   async ngOnInit(): Promise<void> {
