@@ -2341,8 +2341,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
           this.quizQuestionComponent.explanationToDisplay = '';
           this.quizQuestionComponent.isAnswered = false;
         }
-  
-        this.resetUIAndNavigate(this.currentQuestionIndex);
       
         // Re-enable the next button
         const shouldEnableNextButton = this.isAnyOptionSelected();
@@ -2502,6 +2500,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     try {
       console.log('Fetching question data for index:', questionIndex);
 
+      this.animationState$.next('animationStarted');
+
       const questionDetails = await this.fetchQuestionDetails(questionIndex);
       if (!questionDetails) return;
 
@@ -2514,8 +2514,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
       console.log('Current question updated:', this.currentQuestion);
 
+      // Ensure correctness state is checked
       await this.quizService.checkIfAnsweredCorrectly();
-      this.cdRef.detectChanges(); // Ensure UI reflects the new state
+
+      // Reset UI and navigate after loading the question
+      await this.resetUIAndNavigate(questionIndex);
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
     }
