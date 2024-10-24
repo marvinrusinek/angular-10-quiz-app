@@ -149,6 +149,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private isNavigatedByUrl = false;
   private navigationAbortController: AbortController | null = null;
   private debounceNavigation = false;
+  private debounceClick = false;
 
   private nextButtonTooltipSubject = new BehaviorSubject<string>('Please select an option to continue...');
   nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
@@ -620,41 +621,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): void {
+    if (this.debounceClick) return; // Ignore if a click is already in progress
+    this.debounceClick = true;
+
+    setTimeout(() => (this.debounceClick = false), 300); // Reset debounce
+
     if (!isUserAction) {
       console.log('Skipping processing as this is not a user action');
       return;
     }
-  
+
     const { option, checked } = event;
-  
-    // Handle different question types
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = checked ? [option] : [];
     } else {
       this.updateMultipleAnswerSelection(option, checked);
     }
-  
-    console.log('MY SEL LENGTH:', this.selectedOptions.length);
-  
-    // Update state based on selected options
+
     const isOptionSelected = this.isAnyOptionSelected();
     this.selectedOptionService.setOptionSelected(isOptionSelected);
     this.quizStateService.setAnswerSelected(isOptionSelected);
-  
+
     console.log('After option selection:', {
       selectedOptions: this.selectedOptions,
       isNextButtonEnabled: isOptionSelected,
     });
-  
-    // Update Next button state (only once)
-    if (this.isNextButtonEnabled !== isOptionSelected) {
-      this.updateAndSyncNextButtonState(isOptionSelected);
-    }
-  
-    // Trigger UI changes
+
+    this.ngZone.run(() => this.updateAndSyncNextButtonState(isOptionSelected));
+
     this.cdRef.detectChanges();
     this.refreshTooltip();
   }
+
   
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
     if (checked) {
