@@ -1915,12 +1915,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     option: SelectedOption,
     optionIndex: number,
     currentQuestion: QuizQuestion
-  ): Promise<void> {
-    console.log("MY HANDLE OPTION SELECTION");
-    console.log('Option selected:', option);
-    console.log('Index:', optionIndex);
-    console.log('Current question:', currentQuestion);
-  
+  ): Promise<void> {  
     const questionIndex = this.currentQuestionIndex;
   
     // Ensure that the option and optionIndex are valid

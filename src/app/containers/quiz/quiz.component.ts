@@ -321,7 +321,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     try {
       const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
-      console.log('Restoring question display for index::::', currentIndex);
+      console.log('Restoring question display for index::::>>>', currentIndex);
   
       if (
         typeof currentIndex === 'number' &&
