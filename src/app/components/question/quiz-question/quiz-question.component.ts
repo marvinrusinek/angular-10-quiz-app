@@ -1065,8 +1065,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           const isAnswered =
             isSelected ||
             (await this.isQuestionAnswered(this.currentQuestionIndex));
-          console.log('isAnswered after option selection:', isAnswered);
-  
           this.selectedOptionService.setAnsweredState(isAnswered);
   
           if (this.shouldUpdateMessageOnSelection(isSelected)) {
