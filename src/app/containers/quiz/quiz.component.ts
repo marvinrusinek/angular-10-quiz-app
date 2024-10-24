@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, In
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { bufferTime, catchError, debounceTime, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatTooltip } from '@angular/material/tooltip';
 
 import { Utils } from '../../shared/utils/utils';
@@ -427,7 +427,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
-        auditTime(500), // Avoid too frequent updates
+        debounceTime(500), // Ensuring proper state stabilization
         map((answered) => !!answered),
         distinctUntilChanged(),
         tap((answered) => console.log('Debounced isAnswered emitted:', answered))
@@ -443,6 +443,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         tap((notNavigating) => console.log('isNavigating emitted:', notNavigating))
       )
     ]).pipe(
+      bufferTime(100), // Collects emitted values over time to ensure state updates are captured
       map(() => this.evaluateNextButtonState()), // Use the new function to determine state
       distinctUntilChanged(), // Emit only if the value changes
       shareReplay(1) // Replay the latest value to new subscribers
