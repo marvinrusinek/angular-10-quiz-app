@@ -1314,8 +1314,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.ngZone.run(async () => {
       const { option, index = -1, checked = false } = event || {};
   
+      // Validate the option and index
       if (!option || option.optionId === undefined) return;
-  
       if (typeof index !== 'number' || index < 0) {
         console.error(`Invalid index: ${index}`);
         return;
