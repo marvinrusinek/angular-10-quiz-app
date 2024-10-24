@@ -2555,6 +2555,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
       this.animationState$.next('animationStarted');
 
+      this.resetQuestionState(); // Clear old question data
+
       const questionDetails = await this.fetchQuestionDetails(questionIndex);
       if (!questionDetails) return;
 
