@@ -44,7 +44,7 @@ export class SelectedOptionService {
   } */
 
   // Method to update the selected option state
-  selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
+  /* selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
     // Check if the input data is invalid
     if (optionId == null || questionIndex == null || !text) {
       console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
@@ -74,6 +74,37 @@ export class SelectedOptionService {
     }
 
     console.log('Selected option emitted:', selectedOption);
+  } */
+  selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
+    if (optionId == null || questionIndex == null || !text) {
+      console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
+      return;
+    }
+  
+    console.log('selectOption called with:', { optionId, questionIndex, text });
+  
+    const selectedOption: SelectedOption = { optionId, questionIndex, text };
+  
+    if (!this.isValidSelectedOption(selectedOption)) {
+      console.error('SelectedOption is invalid:', selectedOption);
+      return;
+    }
+  
+    this.ngZone.run(() => {
+      // Emit the selected option
+      this.selectedOptionSubject.next(selectedOption);
+  
+      if (!isMultiSelect) {
+        this.isOptionSelectedSubject.next(true); // Enable Next button for single-answer questions
+        this.handleSingleOption(selectedOption, questionIndex, isMultiSelect);
+        this.setNextButtonEnabled(true);
+      } else {
+        this.toggleSelectedOption(questionIndex, selectedOption, isMultiSelect);
+      }
+  
+      console.log('Selected option emitted:', selectedOption);
+      this.cdRef.detectChanges(); // Ensure UI reflects changes immediately
+    });
   }
 
   deselectOption() {
@@ -95,7 +126,7 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(false); // No option selected
   }
 
-  setSelectedOption(option: SelectedOption | SelectedOption[]): void {
+  /* setSelectedOption(option: SelectedOption | SelectedOption[]): void {
     console.log('Entering setSelectedOption with:', option);
   
     if (!option) {
@@ -123,7 +154,37 @@ export class SelectedOptionService {
 
     // Early exit for now, just to prevent further recursive updates
     return;
+  } */
+  setSelectedOption(option: SelectedOption | SelectedOption[]): void {
+    console.log('Entering setSelectedOption with:', option);
+  
+    if (!option) {
+      console.log('SelectedOptionService: Clearing selected option');
+      this.selectedOption = null;
+      this.selectedOptionSubject.next(null);
+      this.showFeedbackForOptionSubject.next({});
+      this.isOptionSelectedSubject.next(false);
+      this.updateAnsweredState();
+      this.cdRef.detectChanges();
+      return;
+    }
+  
+    if (Array.isArray(option) && this.areOptionsAlreadySelected(option)) {
+      console.log('SelectedOptionService: Options already selected, skipping');
+      return;
+    } else if (this.isOptionAlreadySelected(option)) {
+      console.log('SelectedOptionService: Option already selected, skipping');
+      return;
+    }
+  
+    this.ngZone.run(() => {
+      this.selectedOption = option;
+      this.selectedOptionSubject.next(option);
+      this.isOptionSelectedSubject.next(true); // Ensure button enablement
+      this.cdRef.detectChanges(); // Trigger UI updates
+    });
   }
+  
 
   private isValidSelectedOption(option: SelectedOption): boolean {
     if (!option || option.optionId === undefined || option.questionIndex === undefined || !option.text) {
