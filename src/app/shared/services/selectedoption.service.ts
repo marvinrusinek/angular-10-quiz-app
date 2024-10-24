@@ -313,9 +313,6 @@ export class SelectedOptionService {
           `Updating isOptionSelected state from ${this.isOptionSelectedSubject.value} to ${isSelected}`
         );
         this.isOptionSelectedSubject.next(isSelected);
-  
-        // Ensure the UI reflects the state change immediately
-        this.cdRef.detectChanges();
       } else {
         console.log(`isOptionSelected state remains unchanged: ${isSelected}`);
       }
