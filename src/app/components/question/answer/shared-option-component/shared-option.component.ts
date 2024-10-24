@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChildren } from '@angular/core';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
@@ -80,7 +80,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private userPreferenceService: UserPreferenceService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -283,18 +284,32 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   ): void {
     if (!this.isValidOptionBinding(optionBinding)) return;
   
-    const selectedOption = optionBinding.option as SelectedOption;
-    const checked = element.checked;
-    const optionId = this.getOptionId(selectedOption, index);
+    // Ensure change detection happens inside Angular's zone
+    this.ngZone.run(() => {
+      const selectedOption = optionBinding.option as SelectedOption;
+      const checked = element.checked;
+      const optionId = this.getOptionId(selectedOption, index);
   
-    if (!this.handleOptionState(optionBinding, optionId, index, checked, element)) return;
+      // Handle the option state; exit if state management fails
+      if (!this.handleOptionState(optionBinding, optionId, index, checked, element)) return;
   
-    this.updateFeedbackState(optionId);
-    this.applyOptionAttributes(optionBinding, element);
+      console.log('Option state updated:', { optionId, checked });
   
-    this.emitOptionSelectedEvent(optionBinding, index, checked);
+      // Update feedback for the selected option
+      this.updateFeedbackState(optionId);
   
-    this.finalizeOptionSelection(optionBinding, checked);
+      // Apply any necessary attributes to the option element
+      this.applyOptionAttributes(optionBinding, element);
+  
+      // Emit the option selected event
+      this.emitOptionSelectedEvent(optionBinding, index, checked);
+  
+      // Finalize the option selection process
+      this.finalizeOptionSelection(optionBinding, checked);
+  
+      // Ensure the UI reflects the changes immediately
+      this.cdRef.detectChanges();  
+    });
   }
 
   private isValidOptionBinding(optionBinding: OptionBindings): boolean {
