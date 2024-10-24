@@ -1958,7 +1958,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       const selectedQuestion = this.questions[questionIndex];
       this.questionToDisplay = selectedQuestion.questionText;
       this.optionsToDisplay = selectedQuestion.options;
-      console.log(`Question ${questionIndex} loaded:`, this.questionToDisplay);
     } else {
       console.warn(`Invalid question index: ${questionIndex}.`);
     }
