@@ -1786,7 +1786,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.quizId,
       this.currentQuestionIndex
     );
-    this.formatAndLogExplanations();
     this.questionAnswered.emit();
   }
 
@@ -1869,11 +1868,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationToDisplay = '';
       console.log(`Explanation for question ${this.currentQuestionIndex} is not displayed`);
     }
-  }
-
-  private formatAndLogExplanations(): void {
-    const explanations = this.explanationTextService.getFormattedExplanations();
-    console.log('Formatted Explanations on click:', explanations);
   }
 
   async updateExplanationText(questionIndex: number): Promise<void> {
