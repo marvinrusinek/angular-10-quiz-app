@@ -426,38 +426,44 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }  
 
-
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
         tap(() => console.log('Immediate answer state updated')),
-        auditTime(500),
+        auditTime(500), // Avoid too frequent updates
         map((answered) => !!answered),
         distinctUntilChanged(),
         tap((answered) => console.log('Debounced isAnswered emitted:', answered))
       ),
       this.quizStateService.isLoading$.pipe(
-        map((loading) => !loading),
+        map((loading) => !loading), // Invert to emit when not loading
         distinctUntilChanged(),
         tap((notLoading) => console.log('isLoading emitted:', notLoading))
       ),
       this.quizStateService.isNavigating$.pipe(
-        map((navigating) => !navigating),
+        map((navigating) => !navigating), // Invert to emit when not navigating
         distinctUntilChanged(),
         tap((notNavigating) => console.log('isNavigating emitted:', notNavigating))
       )
     ]).pipe(
-      map(([isAnswered, isNotLoading, isNotNavigating]) => 
-        isAnswered && isNotLoading && isNotNavigating
-      ),
-      distinctUntilChanged(),
-      shareReplay(1)
+      map(() => this.evaluateNextButtonState()), // Use the new function to determine state
+      distinctUntilChanged(), // Emit only if the value changes
+      shareReplay(1) // Replay the latest value to new subscribers
     );
   
+    // Subscribe to the observable to apply the button state
     this.isButtonEnabled$.subscribe((isEnabled) => {
       console.log('Final state of Next button:', isEnabled);
       this.updateAndSyncNextButtonState(isEnabled);
     });
+  }
+  
+  private evaluateNextButtonState(): boolean {
+    return (
+      this.isOptionSelected && 
+      !this.isLoading && 
+      !this.isNavigating
+    );
   }
 
   private updateAndSyncNextButtonState(isEnabled: boolean): void {
