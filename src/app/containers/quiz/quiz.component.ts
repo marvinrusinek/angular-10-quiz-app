@@ -557,7 +557,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('logEvent called with:', event);
   }
 
-  onOptionSelected(
+  /* onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): void {
@@ -604,7 +604,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Update the Next button state
     setTimeout(() => {
       this.selectedOptionService.setOptionSelected(true);
-      this.updateAndSyncNextButtonState(checked);
+      if (this.isNextButtonEnabled !== checked) {
+        this.updateAndSyncNextButtonState(checked);
+      }
       this.cdRef.detectChanges(); 
     }, 100);
   
@@ -613,7 +615,52 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     // Detect changes to update the UI
     this.cdRef.detectChanges();
-  }
+  } */
+  onOptionSelected(
+    event: { option: SelectedOption; index: number; checked: boolean },
+    isUserAction: boolean = true
+  ): void {
+    if (!isUserAction) {
+      console.log('Skipping processing as this is not a user action');
+      return;
+    }
+  
+    const { option, checked } = event;
+  
+    // Handle different question types
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = checked ? [option] : [];
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      if (checked) {
+        this.selectedOptions.push(option);
+      } else {
+        this.selectedOptions = this.selectedOptions.filter(
+          (o) => o.optionId !== option.optionId
+        );
+      }
+    }
+  
+    console.log('MY SEL LENGTH:', this.selectedOptions.length);
+  
+    // Update state based on selected options
+    const isOptionSelected = this.isAnyOptionSelected();
+    this.selectedOptionService.setOptionSelected(isOptionSelected);
+    this.quizStateService.setAnswerSelected(isOptionSelected);
+  
+    console.log('After option selection:', {
+      selectedOptions: this.selectedOptions,
+      isNextButtonEnabled: isOptionSelected,
+    });
+  
+    // Update Next button state (only once)
+    if (this.isNextButtonEnabled !== isOptionSelected) {
+      this.updateAndSyncNextButtonState(isOptionSelected);
+    }
+  
+    // Trigger UI updates
+    this.cdRef.detectChanges();
+    this.refreshTooltip();
+  }  
 
   private isAnyOptionSelected(): boolean {
     const result = this.selectedOptions.length > 0;
@@ -622,6 +669,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.selectedOptions
     );
     return result;
+  }
+
+  private refreshTooltip(): void {
+    if (this.nextButtonTooltip) {
+      this.ngZone.runOutsideAngular(() => {
+        setTimeout(() => this.nextButtonTooltip.show(), 0);
+      });
+    }
   }  
   
   private resetQuestionState(): void {
