@@ -1310,23 +1310,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    // Use Angular's zone to ensure change detection triggers properly
     this.ngZone.run(async () => {
-      const { option, index = -1, checked = false } = event || {};
-  
-      // Ensure the option object is valid
-      if (!option || option.optionId === undefined) {
-        console.error('Invalid option:', option);
-        return;
-      }
-  
-      // Validate the index
-      if (typeof index !== 'number' || index < 0) {
-        console.error(`Invalid index: ${index}`);
-        return;
-      }
-  
       try {
+        console.log('Event received:', event); // Log the entire event for debugging
+  
+        const { option, index = -1, checked = false } = event || {};
+  
+        // Ensure the option object is valid before proceeding
+        if (!option || option.optionId === undefined) {
+          console.error('Invalid option object or missing optionId:', option);
+          return;
+        }
+  
+        if (typeof index !== 'number' || index < 0) {
+          console.error(`Invalid index: ${index}`);
+          return;
+        }
+  
         // Mark the option as selected
         this.isOptionSelected = true;
         this.selectedOptionService.setOptionSelected(true);
@@ -1335,10 +1335,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedOptionService.isAnsweredSubject.next(true);
         this.selectedOptionService.setAnswered(true);
   
-        // Call the parent class's onOptionClicked if needed
+        // Call the parent class's onOptionClicked
         await super.onOptionClicked(event);
   
-        // Handle additional logic related to the option click
+        // Handle additional logic
         this.resetExplanation();
         this.toggleOptionState(option, index);
         this.emitOptionSelected(option, index);
@@ -1349,14 +1349,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         await this.processSelectedOption(option, index, checked);
         await this.finalizeSelection(option, index);
   
-        // Ensure the UI reflects the latest changes
-        this.cdRef.detectChanges();
+        this.cdRef.detectChanges(); // Ensure UI updates
       } catch (error) {
-        this.handleError(error);
+        console.error('An error occurred while processing the option click:', error);
       } finally {
-        // Finalize loading state and ensure UI updates
         this.finalizeLoadingState();
-        this.cdRef.detectChanges(); // Ensure immediate UI update
+        this.cdRef.detectChanges(); // Ensure UI reflects changes
       }
     });
   }
