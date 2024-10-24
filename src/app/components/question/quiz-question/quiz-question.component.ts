@@ -1313,22 +1313,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Wrap the logic in Angular's zone to ensure change detection triggers properly
     this.ngZone.run(async () => {
       const { option, index = -1, checked = false } = event || {};
-
+  
       if (!option || option.optionId === undefined) return;
-
+  
       if (typeof index !== 'number' || index < 0) {
         console.error(`Invalid index: ${index}`);
         return;
       }
-
-      try {
-        // Mark the option as selected
-        this.isOptionSelected = true;
-        this.selectedOptionService.setOptionSelected(true);
   
-        // Mark the question as answered when an option is selected
-        this.selectedOptionService.isAnsweredSubject.next(true);
-        this.selectedOptionService.setAnswered(true); // Use service method to mark answered state
+      try {
+        // Ensure only one state update per click
+        if (!this.isOptionSelected) {
+          // Mark the option as selected
+          this.isOptionSelected = true;
+          this.selectedOptionService.setOptionSelected(true);
+  
+          // Mark the question as answered when an option is selected
+          this.selectedOptionService.isAnsweredSubject.next(true);
+          this.selectedOptionService.setAnswered(true); // Use service method to mark answered state
+        }
   
         // Call the parent class's onOptionClicked if needed
         await super.onOptionClicked(event);
@@ -1337,14 +1340,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.resetExplanation();
         this.toggleOptionState(option, index);
         this.emitOptionSelected(option, index);
-
+  
         this.startLoading();
         this.handleMultipleAnswerQuestion(option);
         this.markQuestionAsAnswered();
         await this.processSelectedOption(option, index, checked);
         await this.finalizeSelection(option, index);
-
-        this.cdRef.detectChanges();  
+  
+        this.cdRef.detectChanges();
       } catch (error) {
         this.handleError(error);
       } finally {
