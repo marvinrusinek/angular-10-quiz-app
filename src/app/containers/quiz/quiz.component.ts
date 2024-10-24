@@ -2561,7 +2561,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       const { questionText, options, explanation } = questionDetails;
 
       // Set the UI state immediately
-      this.setQuestionDetails(questionText, options, explanation);
+      this.setQuestionDetails(questionText, options, '');
       this.currentQuestion = { ...questionDetails, options };
 
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
@@ -2569,6 +2569,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
       // Ensure correctness state is checked
       await this.quizService.checkIfAnsweredCorrectly();
+
+      this.explanationToDisplay = explanation || 'No explanation available';
 
       // Reset UI and navigate after loading the question
       await this.resetUIAndNavigate(questionIndex);
@@ -2746,8 +2748,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   private resetQuestionDisplayState(): void {
     this.questionToDisplay = '';
-    this.optionsToDisplay = [];
     this.explanationToDisplay = '';
+    this.optionsToDisplay = [];
   }
 
   restartQuiz(): void {
