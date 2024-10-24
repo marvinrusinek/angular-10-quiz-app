@@ -1310,47 +1310,53 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    // Wrap the logic in Angular's zone to ensure change detection triggers properly
+    // Use Angular's zone to ensure change detection triggers properly
     this.ngZone.run(async () => {
       const { option, index = -1, checked = false } = event || {};
-
-      if (!option || option.optionId === undefined) return;
-
+  
+      // Ensure the option object is valid
+      if (!option || option.optionId === undefined) {
+        console.error('Invalid option:', option);
+        return;
+      }
+  
+      // Validate the index
       if (typeof index !== 'number' || index < 0) {
         console.error(`Invalid index: ${index}`);
         return;
       }
-
+  
       try {
         // Mark the option as selected
         this.isOptionSelected = true;
         this.selectedOptionService.setOptionSelected(true);
   
-        // Mark the question as answered when an option is selected
+        // Mark the question as answered
         this.selectedOptionService.isAnsweredSubject.next(true);
-        this.selectedOptionService.setAnswered(true); // Use service method to mark answered state
+        this.selectedOptionService.setAnswered(true);
   
         // Call the parent class's onOptionClicked if needed
         await super.onOptionClicked(event);
   
-        // Additional logic related to handling the option click
+        // Handle additional logic related to the option click
         this.resetExplanation();
         this.toggleOptionState(option, index);
         this.emitOptionSelected(option, index);
-
+  
         this.startLoading();
         this.handleMultipleAnswerQuestion(option);
         this.markQuestionAsAnswered();
         await this.processSelectedOption(option, index, checked);
         await this.finalizeSelection(option, index);
-
-        this.cdRef.detectChanges();  
+  
+        // Ensure the UI reflects the latest changes
+        this.cdRef.detectChanges();
       } catch (error) {
         this.handleError(error);
       } finally {
         // Finalize loading state and ensure UI updates
         this.finalizeLoadingState();
-        this.cdRef.detectChanges(); // Ensure the UI reflects changes immediately
+        this.cdRef.detectChanges(); // Ensure immediate UI update
       }
     });
   }
