@@ -284,31 +284,35 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   ): void {
     if (!this.isValidOptionBinding(optionBinding)) return;
   
-    // Ensure change detection happens inside Angular's zone
     this.ngZone.run(() => {
       const selectedOption = optionBinding.option as SelectedOption;
       const checked = element.checked;
       const optionId = this.getOptionId(selectedOption, index);
   
-      // Handle the option state; exit if state management fails
+      console.log('Before handling option state:', { optionId, checked });
+  
+      // Check if the option state changes correctly
       if (!this.handleOptionState(optionBinding, optionId, index, checked, element)) return;
   
-      console.log('Option state updated:', { optionId, checked });
+      console.log('Option state handled:', { optionId, checked });
   
-      // Update feedback for the selected option
+      // Update feedback and apply attributes
       this.updateFeedbackState(optionId);
-  
-      // Apply any necessary attributes to the option element
       this.applyOptionAttributes(optionBinding, element);
   
-      // Emit the option selected event
+      // Emit the event to notify other components of the selection
       this.emitOptionSelectedEvent(optionBinding, index, checked);
   
-      // Finalize the option selection process
+      // Ensure selection state updates are properly finalized
       this.finalizeOptionSelection(optionBinding, checked);
   
-      // Ensure the UI reflects the changes immediately
-      this.cdRef.detectChanges();  
+      console.log('Option finalized. Triggering change detection.');
+  
+      // Immediate change detection to reflect UI updates
+      this.cdRef.detectChanges();
+  
+      // Refresh UI elements like tooltips if necessary
+      setTimeout(() => this.refreshTooltip(), 0);
     });
   }
 
