@@ -1305,7 +1305,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    if (!event?.option) return;
+    // Prevent further action if option or ID is missing
+    if (!event?.option || event.option.optionId === undefined) return;
   
     // Ensure logic executes only once per click and prevent extra updates
     if (this.isOptionSelected) {
