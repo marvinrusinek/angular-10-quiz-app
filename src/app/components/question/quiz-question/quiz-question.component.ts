@@ -1316,15 +1316,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       if (!option || option.optionId === undefined) return;
 
-      try {
-        // Ensure the option object exists
-              
+      if (typeof index !== 'number' || index < 0) {
+        console.error(`Invalid index: ${index}`);
+        return;
+      }
 
-        if (typeof index !== 'number' || index < 0) {
-          console.error(`Invalid index: ${index}`);
-          return;
-        }
-  
+      try {
         // Mark the option as selected
         this.isOptionSelected = true;
         this.selectedOptionService.setOptionSelected(true);
