@@ -1310,23 +1310,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    const { option, index = -1, checked = false } = event || {};
-  
     // Wrap the logic in Angular's zone to ensure change detection triggers properly
     this.ngZone.run(async () => {
+      const { option, index = -1, checked = false } = event || {};
+
+      if (!option || option.optionId === undefined) return;
+
       try {
-        // Ensure optionId exists (including 0) and is of type number
-        if (option?.optionId == null || typeof option.optionId !== 'number') {
-          console.error('Invalid or missing optionId:', option);
-          return;
-        }
-  
-        // Explicit check for optionId to allow 0 as a valid value
-        if (!Object.prototype.hasOwnProperty.call(option, 'optionId') || typeof option.optionId !== 'number') {
-          console.error('Invalid or missing optionId:', option);
-          return;
-        }
-  
+        // Ensure the option object exists
+              
+
         if (typeof index !== 'number' || index < 0) {
           console.error(`Invalid index: ${index}`);
           return;
@@ -1347,7 +1340,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.resetExplanation();
         this.toggleOptionState(option, index);
         this.emitOptionSelected(option, index);
-        
+
         this.startLoading();
         this.handleMultipleAnswerQuestion(option);
         this.markQuestionAsAnswered();
