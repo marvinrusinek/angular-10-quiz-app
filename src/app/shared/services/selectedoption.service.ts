@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { ChangeDetectorRef, Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged, map, startWith, tap } from 'rxjs/operators';
 
@@ -36,7 +36,11 @@ export class SelectedOptionService {
       return this.isNextButtonEnabledSubject.asObservable();
   }
 
-  constructor(private quizService: QuizService) {}
+  constructor(
+    private quizService: QuizService,
+    private cdRef: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) {}
 
   // potentially remove...
   /* get currentSelectedState(): boolean {
