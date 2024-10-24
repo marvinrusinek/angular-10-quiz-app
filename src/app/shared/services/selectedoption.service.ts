@@ -306,13 +306,15 @@ export class SelectedOptionService {
 
   // Method to set the option selected state
   setOptionSelected(isSelected: boolean): void {
-    // Check if the new state is different from the current state
-    if (this.isOptionSelectedSubject.value !== isSelected) {
-      console.log(`Updating isOptionSelected state from ${this.isOptionSelectedSubject.value} to ${isSelected}`);
-      this.isOptionSelectedSubject.next(isSelected);
-    } else {
-      console.log(`isOptionSelected state remains unchanged: ${isSelected}`);
-    }
+    this.ngZone.run(() => {
+      // Check if the new state is different from the current state
+      if (this.isOptionSelectedSubject.value !== isSelected) {
+        console.log(`Updating isOptionSelected state from ${this.isOptionSelectedSubject.value} to ${isSelected}`);
+        this.isOptionSelectedSubject.next(isSelected);
+      } else {
+        console.log(`isOptionSelected state remains unchanged: ${isSelected}`);
+      }
+    });
   }
 
   getSelectedOptionIndices(questionIndex: number): number[] {
