@@ -441,7 +441,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         tap((notNavigating) => console.log('isNavigating emitted:', notNavigating))
       )
     ]).pipe(
-      bufferTime(100), // Collects emitted values over time to ensure state updates are captured
       map(() => this.evaluateNextButtonState()), // Use the new function to determine state
       distinctUntilChanged(), // Emit only if the value changes
       shareReplay(1) // Replay the latest value to new subscribers
@@ -620,11 +619,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): void {
-    if (this.debounceClick) return; // Ignore if a click is already in progress
-    this.debounceClick = true;
-
-    setTimeout(() => (this.debounceClick = false), 300); // Reset debounce
-
     if (!isUserAction) {
       console.log('Skipping processing as this is not a user action');
       return;
