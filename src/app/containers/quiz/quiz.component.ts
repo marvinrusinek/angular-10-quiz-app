@@ -546,65 +546,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     console.log('logEvent called with:', event);
   }
 
-  /* onOptionSelected(
-    event: { option: SelectedOption; index: number; checked: boolean },
-    isUserAction: boolean = true
-  ): void {
-    if (!isUserAction) {
-      console.log('Skipping processing as this is not a user action');
-      return;
-    }
-  
-    const { option, checked } = event;
-  
-    // Handle Single Answer Question Type
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = checked ? [option] : [];
-    }
-    // Handle Multiple Answer Question Type
-    else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      if (checked) {
-        this.selectedOptions.push(option);
-      } else {
-        this.selectedOptions = this.selectedOptions.filter(
-          (o) => o.optionId !== option.optionId
-        );
-      }
-    }
-  
-    console.log('MY SEL LENGTH:', this.selectedOptions.length);
-  
-    // Enable the Next button only if an option is selected
-    this.isNextButtonEnabled = checked;
-    this.isOptionSelected = this.isAnyOptionSelected();
-  
-    // Update services with the selected option state
-    this.selectedOptionService.setOptionSelected(this.isOptionSelected);
-    this.quizStateService.setAnswerSelected(this.isOptionSelected);
-  
-    console.log('After option selection:', {
-      selectedOptions: this.selectedOptions,
-      isNextButtonEnabled: this.isNextButtonEnabled,
-    });
-  
-    // Set the selected option in the service
-    this.selectedOptionService.setSelectedOption(option);
-  
-    // Update the Next button state
-    setTimeout(() => {
-      this.selectedOptionService.setOptionSelected(true);
-      if (this.isNextButtonEnabled !== checked) {
-        this.updateAndSyncNextButtonState(checked);
-      }
-      this.cdRef.detectChanges(); 
-    }, 100);
-  
-    // Refresh the tooltip manually to reflect the changes
-    setTimeout(() => this.nextButtonTooltip?.show(), 0);
-  
-    // Detect changes to update the UI
-    this.cdRef.detectChanges();
-  } */
   onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
