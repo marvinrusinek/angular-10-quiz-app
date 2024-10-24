@@ -630,14 +630,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Handle different question types
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = checked ? [option] : [];
-    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      if (checked) {
-        this.selectedOptions.push(option);
-      } else {
-        this.selectedOptions = this.selectedOptions.filter(
-          (o) => o.optionId !== option.optionId
-        );
-      }
+    } else {
+      this.updateMultipleAnswerSelection(option, checked);
     }
   
     console.log('MY SEL LENGTH:', this.selectedOptions.length);
@@ -660,6 +654,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Trigger UI updates
     this.cdRef.detectChanges();
     this.refreshTooltip();
+  }
+  
+  private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
+    if (checked) {
+      this.selectedOptions.push(option);
+    } else {
+      this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== option.optionId);
+    }
   }  
 
   private isAnyOptionSelected(): boolean {
