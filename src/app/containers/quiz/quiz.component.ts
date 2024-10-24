@@ -427,18 +427,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.selectedOptionService.isAnsweredSubject.pipe(
         debounceTime(500), // Ensuring proper state stabilization
         map((answered) => !!answered),
-        distinctUntilChanged(),
-        tap((answered) => console.log('Debounced isAnswered emitted:', answered))
+        distinctUntilChanged()
       ),
       this.quizStateService.isLoading$.pipe(
         map((loading) => !loading), // Invert to emit when not loading
-        distinctUntilChanged(),
-        tap((notLoading) => console.log('isLoading emitted:', notLoading))
+        distinctUntilChanged()
       ),
       this.quizStateService.isNavigating$.pipe(
         map((navigating) => !navigating), // Invert to emit when not navigating
-        distinctUntilChanged(),
-        tap((notNavigating) => console.log('isNavigating emitted:', notNavigating))
+        distinctUntilChanged()
       )
     ]).pipe(
       map(() => this.evaluateNextButtonState()), // Use the new function to determine state
