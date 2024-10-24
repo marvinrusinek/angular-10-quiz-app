@@ -1303,9 +1303,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public override async onOptionClicked(
-    event: { option: SelectedOption | null; index: number; checked: boolean }, nativeEvent: MouseEvent
+    event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    nativeEvent.stopPropagation();
+    if (!event || !event.option) {
+      console.error('Invalid event or option:', event);
+      return;
+    }
+
     // Wrap the logic in Angular's zone to ensure change detection triggers properly
     this.ngZone.run(async () => {
       const { option, index = -1, checked = false } = event || {};
