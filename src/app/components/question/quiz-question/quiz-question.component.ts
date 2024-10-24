@@ -2056,8 +2056,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private async checkAndHandleCorrectAnswer(): Promise<void> {
     const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
-    console.log('ISCORRECT', isCorrect);
-
     if (isCorrect) {
       // Stop the timer and provide an empty callback
       this.timerService.stopTimer(() => {
