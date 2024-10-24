@@ -445,11 +445,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
   
   private evaluateNextButtonState(): boolean {
-    const nextButtonState = 
+    return (
       this.isOptionSelected && 
       !this.isLoading && 
-      !this.isNavigating;
-    return nextButtonState;
+      !this.isNavigating
+    );
   }
 
   private updateAndSyncNextButtonState(isEnabled: boolean): void {
