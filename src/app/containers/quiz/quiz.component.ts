@@ -432,7 +432,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         distinctUntilChanged()
       )
     ]).pipe(
-      map(() => this.evaluateNextButtonState()), // Use the new function to determine state
+      map(() => this.evaluateNextButtonState()),
       distinctUntilChanged(), // Emit only if the value changes
       shareReplay(1) // Replay the latest value to new subscribers
     );
