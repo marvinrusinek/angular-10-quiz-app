@@ -234,9 +234,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Use debounceTime to delay emission of isOptionSelected$ to handle rapid selection
     this.isButtonEnabled$ = this.selectedOptionService.isOptionSelected$().pipe(
       debounceTime(300),
-      tap((isEnabled) =>
-        console.log('QuizComponent: Next button enabled:', isEnabled)
-      ),
       shareReplay(1)
     );
 
