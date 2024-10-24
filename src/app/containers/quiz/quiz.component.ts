@@ -322,7 +322,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     try {
       const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
-      console.log('Restoring question display for index:', currentIndex);
+      console.log('Restoring question display for index::::', currentIndex);
   
       if (
         typeof currentIndex === 'number' &&
@@ -409,9 +409,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  private restoreQuestionDisplay(): void {
-    console.log('Restoring question display for index:', this.currentQuestionIndex);
-  
+  private restoreQuestionDisplay(): void {  
     if (this.currentQuestionIndex !== undefined && this.questions) {
       this.updateQuestionDisplay(this.currentQuestionIndex);
     } else {
