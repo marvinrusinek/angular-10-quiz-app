@@ -47,37 +47,6 @@ export class SelectedOptionService {
   } */
 
   // Method to update the selected option state
-  /* selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
-    // Check if the input data is invalid
-    if (optionId == null || questionIndex == null || !text) {
-      console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
-      return;
-    }
-
-    console.log('selectOption called with:', { optionId, questionIndex, text });
-
-    const selectedOption: SelectedOption = { optionId, questionIndex, text };
-
-    if (!this.isValidSelectedOption(selectedOption)) {
-      console.error('SelectedOption is invalid:', selectedOption);
-      return;  // Stop processing if the option is invalid
-    }
-
-    // Emit the selected option
-    this.selectedOptionSubject.next(selectedOption);
-
-    // Handle multiple-answer logic
-    if (!isMultiSelect) {
-      this.isOptionSelectedSubject.next(true); // Enable Next button for single-answer questions
-      this.handleSingleOption(selectedOption, questionIndex, isMultiSelect);
-      this.setNextButtonEnabled(true);  // Activate the Next button immediately
-    } else {
-      // If it's a multi-select question, decide when to enable the Next button (e.g., after the first option)
-      this.toggleSelectedOption(questionIndex, selectedOption, isMultiSelect);
-    }
-
-    console.log('Selected option emitted:', selectedOption);
-  } */
   selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
     if (optionId == null || questionIndex == null || !text) {
       console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
@@ -109,7 +78,7 @@ export class SelectedOptionService {
     });
   }
 
-  deselectOption() {
+  deselectOption(): void {
     const deselectedOption: SelectedOption = {
       optionId: null,
       questionIndex: null,
@@ -128,35 +97,6 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(false); // No option selected
   }
 
-  /* setSelectedOption(option: SelectedOption | SelectedOption[]): void {
-    console.log('Entering setSelectedOption with:', option);
-  
-    if (!option) {
-      console.log('SelectedOptionService: Clearing selected option');
-      this.selectedOption = null;
-      this.selectedOptionSubject.next(null);
-      this.showFeedbackForOptionSubject.next({});
-      this.isOptionSelectedSubject.next(false);
-      this.updateAnsweredState();
-      return;
-    }
-  
-    // Avoid processing if the same option is already selected
-    if (Array.isArray(option)) {
-      if (this.areOptionsAlreadySelected(option)) {
-        console.log('SelectedOptionService: Options already selected, skipping');
-        return;
-      }
-    } else {
-      if (this.isOptionAlreadySelected(option)) {
-        console.log('SelectedOptionService: Option already selected, skipping');
-        return;
-      }
-    }
-
-    // Early exit for now, just to prevent further recursive updates
-    return;
-  } */
   setSelectedOption(option: SelectedOption | SelectedOption[]): void {
     console.log('Entering setSelectedOption with:', option);
 
@@ -318,7 +258,6 @@ export class SelectedOptionService {
       }
     });
   }
-  
 
   getSelectedOptionIndices(questionIndex: number): number[] {
     const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
