@@ -260,7 +260,6 @@ export class QuizStateService {
   }
 
   setLoading(isLoading: boolean): void {
-    console.log('QuizStateService: setLoading called with', isLoading);
     this.loadingSubject.next(isLoading);
     this.isLoadingSubject.next(isLoading);
   }
