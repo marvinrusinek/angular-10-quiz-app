@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged, map, startWith, tap } from 'rxjs/operators';
 
@@ -38,7 +38,6 @@ export class SelectedOptionService {
 
   constructor(
     private quizService: QuizService,
-    private cdRef: ChangeDetectorRef,
     private ngZone: NgZone
   ) {}
 
@@ -107,7 +106,6 @@ export class SelectedOptionService {
       }
   
       console.log('Selected option emitted:', selectedOption);
-      this.cdRef.detectChanges(); // Ensure UI reflects changes immediately
     });
   }
 
@@ -161,7 +159,7 @@ export class SelectedOptionService {
   } */
   setSelectedOption(option: SelectedOption | SelectedOption[]): void {
     console.log('Entering setSelectedOption with:', option);
-  
+
     if (!option) {
       console.log('SelectedOptionService: Clearing selected option');
       this.selectedOption = null;
@@ -169,26 +167,29 @@ export class SelectedOptionService {
       this.showFeedbackForOptionSubject.next({});
       this.isOptionSelectedSubject.next(false);
       this.updateAnsweredState();
-      this.cdRef.detectChanges();
       return;
     }
-  
-    if (Array.isArray(option) && this.areOptionsAlreadySelected(option)) {
-      console.log('SelectedOptionService: Options already selected, skipping');
-      return;
-    } else if (this.isOptionAlreadySelected(option)) {
+
+    if (Array.isArray(option)) {
+      if (this.areOptionsAlreadySelected(option)) {
+        console.log('SelectedOptionService: Options already selected, skipping');
+        return;
+      }
+      console.error('Expected a single SelectedOption, but received an array:', option);
+      return; // Exit early if the option is not valid
+    }
+
+    if (this.isOptionAlreadySelected(option)) {
       console.log('SelectedOptionService: Option already selected, skipping');
       return;
     }
-  
+
     this.ngZone.run(() => {
       this.selectedOption = option;
       this.selectedOptionSubject.next(option);
       this.isOptionSelectedSubject.next(true); // Ensure button enablement
-      this.cdRef.detectChanges(); // Trigger UI updates
     });
   }
-  
 
   private isValidSelectedOption(option: SelectedOption): boolean {
     if (!option || option.optionId === undefined || option.questionIndex === undefined || !option.text) {
