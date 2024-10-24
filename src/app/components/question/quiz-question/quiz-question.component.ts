@@ -1311,50 +1311,57 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     const { option, index = -1, checked = false } = event || {};
-
-    // Ensure optionId exists (including 0) and is of type number
-    if (option.optionId == null || typeof option.optionId !== 'number') {
-      console.error('Invalid or missing optionId:', option);
-      return;
-    }
-
-    // Explicit check for optionId to allow 0 as a valid value
-    if (!Object.prototype.hasOwnProperty.call(option, 'optionId') || typeof option.optionId !== 'number') {
-      console.error('Invalid or missing optionId:', option);
-      return;
-    }
-
-    if (typeof index !== 'number' || index < 0) {
-      console.error(`Invalid index: ${index}`);
-      return;
-    }
-
-    try {
-      // Mark the option as selected
-      this.isOptionSelected = true;
-      this.selectedOptionService.setOptionSelected(true);
-
-      // Mark the question as answered when an option is selected
-      this.selectedOptionService.isAnsweredSubject.next(true);
-      // Use the service method to mark the question as answered
-      this.selectedOptionService.setAnswered(true);
-    
-      await super.onOptionClicked(event);
   
-      this.resetExplanation();
-      this.toggleOptionState(option, index);
-      this.emitOptionSelected(option, index);
+    // Wrap the logic in Angular's zone to ensure change detection triggers properly
+    this.ngZone.run(async () => {
+      try {
+        // Ensure optionId exists (including 0) and is of type number
+        if (option?.optionId == null || typeof option.optionId !== 'number') {
+          console.error('Invalid or missing optionId:', option);
+          return;
+        }
   
-      this.startLoading();
-      this.handleMultipleAnswerQuestion(option);
-      this.markQuestionAsAnswered();
-      await this.processSelectedOption(option, index, checked);
-      await this.finalizeSelection(option, index);
-    } catch (error) {
-      this.handleError(error);
-    } finally {
-      this.finalizeLoadingState();
-    }
+        // Explicit check for optionId to allow 0 as a valid value
+        if (!Object.prototype.hasOwnProperty.call(option, 'optionId') || typeof option.optionId !== 'number') {
+          console.error('Invalid or missing optionId:', option);
+          return;
+        }
+  
+        if (typeof index !== 'number' || index < 0) {
+          console.error(`Invalid index: ${index}`);
+          return;
+        }
+  
+        // Mark the option as selected
+        this.isOptionSelected = true;
+        this.selectedOptionService.setOptionSelected(true);
+  
+        // Mark the question as answered when an option is selected
+        this.selectedOptionService.isAnsweredSubject.next(true);
+        this.selectedOptionService.setAnswered(true); // Use service method to mark answered state
+  
+        // Call the parent class's onOptionClicked if needed
+        await super.onOptionClicked(event);
+  
+        // Additional logic related to handling the option click
+        this.resetExplanation();
+        this.toggleOptionState(option, index);
+        this.emitOptionSelected(option, index);
+        
+        this.startLoading();
+        this.handleMultipleAnswerQuestion(option);
+        this.markQuestionAsAnswered();
+        await this.processSelectedOption(option, index, checked);
+        await this.finalizeSelection(option, index);
+  
+      } catch (error) {
+        this.handleError(error);
+      } finally {
+        // Finalize loading state and ensure UI updates
+        this.finalizeLoadingState();
+        this.cdRef.detectChanges(); // Ensure the UI reflects changes immediately
+      }
+    });
   }
 
   private toggleOptionState(option: SelectedOption, index: number): void {
