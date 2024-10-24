@@ -1735,9 +1735,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
       console.log('Fetched current question::::::>>>>>>', currentQuestion);
 
-      if (!currentQuestion) {
-        return null;
-      }
+      if (!currentQuestion) return null;
 
       this.currentQuestion = currentQuestion;
       this.optionsToDisplay = [...(currentQuestion.options || [])];
