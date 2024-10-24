@@ -256,8 +256,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
-    console.log('Window regained focus:', event);
-
     // Check if loading or navigation is still in progress
     if (this.isLoading || this.quizStateService.isLoading()) {
       console.warn('Quiz is still loading, delaying updates.');
