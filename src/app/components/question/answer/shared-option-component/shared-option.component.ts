@@ -680,7 +680,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       correctMessage: this.correctMessage ?? 'No correct message available',
       feedback: option.feedback ?? 'No feedback available',
       showFeedback: showFeedback,
-      idx: idx,
+      idx: idx
     };
   
     return feedbackProps;

@@ -361,10 +361,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         throw new Error('Invalid question index.');
       }
   
-      console.log(
-        `Fetching question and options for quizId: ${quizId}, questionIndex: ${questionIndex}`
-      );
-  
       // Fetch the current question and options as observables
       const question$ = this.quizService.getCurrentQuestionByIndex(
         quizId,
