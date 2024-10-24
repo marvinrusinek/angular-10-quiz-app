@@ -1637,8 +1637,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private finalizeLoadingState(): void {
-    this.quizStateService.setLoading(false);
-    console.log('Loading state reset in finally block.');
+    this.quizStateService.setLoading(false); // Loading state reset in finally block
   }
   
   // Helper method to update feedback for options
@@ -1680,7 +1679,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const selectedOption: SelectedOption = {
       optionId: option.optionId,
       questionIndex: this.currentQuestionIndex,
-      text: option.text,
+      text: option.text
     };
     this.selectedOptionService.toggleSelectedOption(
       this.currentQuestionIndex,
@@ -1745,7 +1744,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         questionText: currentQuestion.questionText,
         explanationText: currentQuestion.explanation,
         correctAnswersText: this.quizService.getCorrectAnswersAsString(),
-        options: this.optionsToDisplay,
+        options: this.optionsToDisplay
       };
 
       // Determine if the current question is answered
