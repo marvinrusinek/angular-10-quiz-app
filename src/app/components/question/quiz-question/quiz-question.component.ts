@@ -1631,13 +1631,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private handleError(error: Error): void {
     console.error(
-      'An error occurred while processing the option click:',
-        error
+      'An error occurred while processing the option click:', error
     );
   }
 
   private finalizeLoadingState(): void {
-    this.quizStateService.setLoading(false); // Loading state reset in finally block
+    this.quizStateService.setLoading(false); // Loading state reset in finally block of onOptionClicked()
   }
   
   // Helper method to update feedback for options
