@@ -1191,7 +1191,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     };
   
     // Log the relevant data
-    console.log('Data to be passed to fetchCorrectAnswersText:', this.data);
     console.log('questionData:::', this.questionData || 'Not available');
     console.log('MY CORR MSG', this.correctMessage || 'Not available');
   }  
