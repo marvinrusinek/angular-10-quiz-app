@@ -1340,10 +1340,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.resetExplanation();
         this.toggleOptionState(option, index);
         this.emitOptionSelected(option, index);
-  
+
+        
         this.startLoading();
         this.handleMultipleAnswerQuestion(option);
         this.markQuestionAsAnswered();
+
         await this.processSelectedOption(option, index, checked);
         await this.finalizeSelection(option, index);
   
