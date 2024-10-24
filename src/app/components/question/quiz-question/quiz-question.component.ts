@@ -1347,6 +1347,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         await this.processSelectedOption(option, index, checked);
         await this.finalizeSelection(option, index);
   
+        // Force change detection to ensure the UI reflects the state immediately
         this.cdRef.detectChanges();
       } catch (error) {
         this.handleError(error);
