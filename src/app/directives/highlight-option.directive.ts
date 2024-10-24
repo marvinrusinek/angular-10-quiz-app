@@ -53,6 +53,7 @@ export class HighlightOptionDirective implements OnChanges {
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
   @HostListener('click') onClick(): void {
+    event.stopPropagation();
     if (this.option) {
       this.optionClicked.emit(this.option);
       this.updateHighlight();
