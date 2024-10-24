@@ -1946,9 +1946,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   updateQuestionDisplay(questionIndex: number): void {
-    console.log('Attempting to display question at index:', questionIndex);
-    console.log('Questions array state:', this.questions);
-  
     if (!Array.isArray(this.questions) || this.questions.length === 0) {
       console.warn('Questions array is not initialized or empty...');
       return;
