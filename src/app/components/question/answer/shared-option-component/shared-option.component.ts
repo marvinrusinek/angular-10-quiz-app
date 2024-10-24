@@ -310,9 +310,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
       // Immediate change detection to reflect UI updates
       this.cdRef.detectChanges();
-  
-      // Refresh UI elements like tooltips if necessary
-      setTimeout(() => this.refreshTooltip(), 0);
     });
   }
 
