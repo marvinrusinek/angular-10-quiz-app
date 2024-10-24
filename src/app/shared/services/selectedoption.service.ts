@@ -309,13 +309,19 @@ export class SelectedOptionService {
     this.ngZone.run(() => {
       // Check if the new state is different from the current state
       if (this.isOptionSelectedSubject.value !== isSelected) {
-        console.log(`Updating isOptionSelected state from ${this.isOptionSelectedSubject.value} to ${isSelected}`);
+        console.log(
+          `Updating isOptionSelected state from ${this.isOptionSelectedSubject.value} to ${isSelected}`
+        );
         this.isOptionSelectedSubject.next(isSelected);
+  
+        // Ensure the UI reflects the state change immediately
+        this.cdRef.detectChanges();
       } else {
         console.log(`isOptionSelected state remains unchanged: ${isSelected}`);
       }
     });
   }
+  
 
   getSelectedOptionIndices(questionIndex: number): number[] {
     const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
