@@ -354,10 +354,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       }
   
       // Fetch the current question and options as observables
-      const question$ = this.quizService.getCurrentQuestionByIndex(
-        quizId,
-        questionIndex
-      );
+      const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex);
       const options$ = this.quizService.getCurrentOptions(quizId, questionIndex);
   
       // Handle cases where observables are invalid
