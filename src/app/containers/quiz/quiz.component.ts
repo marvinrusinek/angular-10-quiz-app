@@ -303,11 +303,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Reset the answered state initially
     this.selectedOptionService.setAnswered(false);
 
-    this.selectedOptionService.isOptionSelected$().subscribe((isSelected) => {
-      console.log('Option selection state changed:', isSelected);
-      this.updateAndSyncNextButtonState(isSelected);
-    });
-
     // Move resetQuestionState here
     this.resetQuestionState();
     this.logCurrentState('After ngOnInit');
@@ -607,7 +602,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedOptionService.setSelectedOption(option);
   
     // Update the Next button state
-    this.updateAndSyncNextButtonState(checked);
+    setTimeout(() => {
+      this.selectedOptionService.setOptionSelected(true);
+      this.updateAndSyncNextButtonState(checked);
+      this.cdRef.detectChanges(); 
+    }, 100);
   
     // Refresh the tooltip manually to reflect the changes
     setTimeout(() => this.nextButtonTooltip?.show(), 0);
