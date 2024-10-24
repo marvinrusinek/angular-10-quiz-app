@@ -479,8 +479,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       ),
       this.isButtonEnabled$.pipe(
         startWith(false),
-        distinctUntilChanged(),
-        tap((isEnabled) => console.log('isButtonEnabled emitted:', isEnabled))
+        distinctUntilChanged()
       )
     ]).pipe(
       map(([isSelected, isEnabled]) => {
