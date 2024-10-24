@@ -651,7 +651,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.updateAndSyncNextButtonState(isOptionSelected);
     }
   
-    // Trigger UI updates
+    // Trigger UI changes
     this.cdRef.detectChanges();
     this.refreshTooltip();
   }
