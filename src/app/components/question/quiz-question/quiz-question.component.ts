@@ -453,12 +453,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.saveQuizState();
     } else {
       this.restoreQuizState();
-
       this.ngZone.run(async () => {
         if (!this.quizId) {
-          // Attempt to retrieve quizId from route or other sources
-          this.quizId =
-            this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
+          this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
           if (!this.quizId) {
             console.error('Unable to retrieve Quiz ID, cannot fetch questions');
             return;
@@ -468,9 +465,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try {
           await this.fetchAndProcessQuizQuestions(this.quizId);
 
-          const isAnswered = await this.isQuestionAnswered(
-            this.currentQuestionIndex
-          );
+          const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
           await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
         } catch (error) {
           console.error('Error in onVisibilityChange:', error);
