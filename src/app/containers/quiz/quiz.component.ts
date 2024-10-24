@@ -474,8 +474,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.nextButtonTooltip$ = combineLatest([
       this.selectedOptionService.isOptionSelected$().pipe(
         startWith(false),
-        distinctUntilChanged(),
-        tap((isSelected) => console.log('isOptionSelected emitted:', isSelected))
+        distinctUntilChanged()
       ),
       this.isButtonEnabled$.pipe(
         startWith(false),
