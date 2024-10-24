@@ -683,8 +683,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       idx: idx,
     };
   
-    console.log('Feedback properties:', feedbackProps); // Debugging log to verify data
-  
     return feedbackProps;
   }  
 
@@ -720,9 +718,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return correctMessage;
   }
 
-  initializeFeedbackBindings(): void {
-    console.log('Initializing feedback bindings...');
-  
+  initializeFeedbackBindings(): void { 
     this.feedbackBindings = this.optionBindings.map((optionBinding, idx) => {
       if (!optionBinding || !optionBinding.option) {
         console.warn(`Option binding at index ${idx} is null or undefined. Using default feedback properties.`);
