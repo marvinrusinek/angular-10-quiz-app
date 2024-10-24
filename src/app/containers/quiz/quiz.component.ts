@@ -303,6 +303,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Reset the answered state initially
     this.selectedOptionService.setAnswered(false);
 
+    this.selectedOptionService.isOptionSelected$().subscribe((isSelected) => {
+      console.log('Option selection state changed:', isSelected);
+      this.updateAndSyncNextButtonState(isSelected);
+    });
+
     // Move resetQuestionState here
     this.resetQuestionState();
     this.logCurrentState('After ngOnInit');
