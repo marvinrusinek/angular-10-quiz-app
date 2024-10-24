@@ -536,7 +536,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       .isOptionSelected$()
       .pipe(takeUntil(this.destroy$))
       .subscribe((isSelected: boolean) => {
-        console.log('Option selection changed:', isSelected);
         this.isOptionSelected = isSelected;
         this.isNextButtonEnabled = isSelected;
         this.cdRef.detectChanges();
