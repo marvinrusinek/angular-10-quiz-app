@@ -1343,7 +1343,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.markQuestionAsAnswered();
         await this.processSelectedOption(option, index, checked);
         await this.finalizeSelection(option, index);
-  
+
+        this.cdRef.detectChanges();  
       } catch (error) {
         this.handleError(error);
       } finally {
