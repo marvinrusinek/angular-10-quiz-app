@@ -1320,10 +1320,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Use Angular's zone to ensure proper synchronization
       await this.ngZone.run(async () => {
         console.log('Inside ngZone after click:', event);
-        
+
         await firstValueFrom(this.ngZone.onStable.pipe(take(1))); // Ensure Angular is stable
   
         const { option, index = -1, checked = false } = event || {};
+        console.log(`Processing option: ${option.optionId} at index: ${index}`);
   
         console.log('Handling option click:', { option, index, checked });
   
