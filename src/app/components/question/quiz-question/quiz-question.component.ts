@@ -1299,21 +1299,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  private clickInProgress = false;
-
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    if (this.clickInProgress) return; // Prevent rapid multiple clicks
-    this.clickInProgress = true;
-
     // Prevent further action if the option or ID is missing
     if (!event?.option || event.option.optionId === undefined) return;
   
     // Ensure logic executes only once per click to prevent duplicate state updates
     if (this.isOptionSelected) {
       console.warn('Option already selected, skipping duplicate click.');
-      this.clickInProgress = false; // Reset the click flag
       return;
     }
   
@@ -1355,7 +1349,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.handleError(error);
       } finally {
         // Finalize loading state and ensure UI updates
-        this.clickInProgress = false; // Ensure click is reset for the next interaction
         this.finalizeLoadingState();
         this.cdRef.detectChanges();
       }
