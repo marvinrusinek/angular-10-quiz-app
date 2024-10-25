@@ -1366,21 +1366,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
   
-    // Use Angular's zone with stabilization to ensure the state aligns with rendering
+    // Use Angular's zone to ensure change detection triggers properly
     this.ngZone.run(async () => {
-      await this.ngZone.onStable.pipe(take(1)).toPromise(); // Wait for Angular to stabilize
-  
-      const { option, index = -1, checked = false } = event;
-  
-      // Validate the index to prevent invalid operations
-      if (typeof index !== 'number' || index < 0) {
-        console.error(`Invalid index: ${index}`);
-        return;
-      }
-  
       try {
-        // Add a slight delay to ensure the DOM's `checked` state is synced before proceeding
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        const { option, index = -1, checked = false } = event;
+  
+        // Add a slight delay to allow rendering to complete
+        await new Promise((resolve) => setTimeout(resolve, 50));
+  
+        // Validate the index to prevent invalid operations
+        if (typeof index !== 'number' || index < 0) {
+          console.error(`Invalid index: ${index}`);
+          return;
+        }
+  
+        console.log('Option clicked:', { option, index, checked });
   
         // Mark the option as selected and update the state only once
         this.isOptionSelected = true;
@@ -1403,10 +1403,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         await this.processSelectedOption(option, index, checked);
         await this.finalizeSelection(option, index);
   
-        // Ensure the UI reflects the latest changes immediately
+        // Force UI to reflect the latest changes
         this.cdRef.detectChanges();
       } catch (error) {
-        this.handleError(error);
+        console.error('Error during option click:', error);
       } finally {
         // Finalize loading state and ensure UI updates
         this.finalizeLoadingState();
@@ -1414,6 +1414,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     });
   }
+  
 
   private toggleOptionState(option: SelectedOption, index: number): void {
     if (!option || !('optionId' in option) || typeof option.optionId !== 'number') {
