@@ -2693,8 +2693,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
           try {
             // Ensure the quizQuestionComponent is available
             if (this.quizQuestionComponent) {
-              await this.quizQuestionComponent.fetchAndProcessCurrentQuestion();
-              this.quizQuestionComponent.loadDynamicComponent();
+              await this.quizQuestionComponent?.fetchAndProcessCurrentQuestion();
+              this.quizQuestionComponent?.loadDynamicComponent();
             } else {
               console.error('QuizQuestionComponent not available.');
             }
