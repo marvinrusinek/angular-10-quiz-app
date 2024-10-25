@@ -2493,21 +2493,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private async ensureQuestionIsFullyLoaded(index: number): Promise<void> {
     return new Promise((resolve) => {
       const questionObservable = this.quizService.getQuestionByIndex(index);
+  
+      // Handle the subscription inside a separate function for clarity
+      const handleSubscription = (question) => {
+        if (question && question.questionText) {
+          subscription.unsubscribe(); // Clean up
+          resolve(); // Resolve the promise as the question is loaded
+        }
+      };
+  
       const subscription = questionObservable.subscribe({
-        next: (question) => {
-          if (question && question.questionText) {
-            subscription.unsubscribe(); // Avoid memory leaks
-            resolve(); // Question is ready
-          }
-        },
+        next: handleSubscription,
         error: (err) => {
           console.error(`Error fetching question at index ${index}:`, err);
           subscription.unsubscribe(); // Cleanup on error
-          resolve(); // Resolve even on error to prevent blocking
+          resolve(); // Resolve to prevent blocking the flow
         }
       });
     });
-  }  
+  }
+  
 
   public async getExplanationText(questionIndex: number): Promise<string> {
     return await firstValueFrom(
