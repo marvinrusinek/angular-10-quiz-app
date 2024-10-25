@@ -2499,13 +2499,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           next: (question) => {
             if (question && question.questionText) {
               console.log(`Question loaded for index ${index}:`, question);
-              subscription.unsubscribe(); // Cleanup to avoid memory leaks
+              subscription?.unsubscribe(); // Cleanup to avoid memory leaks
               resolve(); // Resolve the promise when the question is loaded
             }
           },
           error: (err) => {
             console.error(`Error loading question at index ${index}:`, err);
-            subscription.unsubscribe(); // Cleanup even on error
+            subscription?.unsubscribe(); // Cleanup even on error
             reject(err); // Reject the promise to handle the error upstream
           }
         });
@@ -2514,8 +2514,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     });
   }
-  
-  
 
   public async getExplanationText(questionIndex: number): Promise<string> {
     return await firstValueFrom(
