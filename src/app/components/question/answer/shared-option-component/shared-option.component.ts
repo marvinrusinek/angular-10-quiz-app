@@ -412,8 +412,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
-    console.log('Option received in handleOptionClick:', { option, index, checked });
-  
     // Validate the option object immediately
     if (!option || typeof option !== 'object') {
       console.error(`Invalid or undefined option at index ${index}.`, option);
