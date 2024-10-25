@@ -1360,38 +1360,41 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Prevent further action if the option or ID is missing
     if (!event?.option || event.option.optionId === undefined) return;
   
-    // Ensure logic executes only once per click to prevent duplicate state updates
+    // Avoid duplicate clicks by temporarily disabling input handling
     if (this.isOptionSelected) {
       console.warn('Option already selected, skipping duplicate click.');
       return;
     }
   
-    // Use Angular's zone to ensure change detection triggers properly
-    this.ngZone.run(async () => {
-      try {
+    // Temporary lock to avoid race conditions between clicks
+    this.isOptionSelected = true;
+  
+    try {
+      // Use Angular's zone to ensure proper synchronization
+      await this.ngZone.run(async () => {
+        await this.ngZone.onStable.pipe(take(1)).toPromise(); // Ensure Angular is stable
+  
         const { option, index = -1, checked = false } = event;
   
-        // Add a slight delay to allow rendering to complete
+        console.log('Handling option click:', { option, index, checked });
+  
+        // Ensure UI rendering completes before proceeding
         await new Promise((resolve) => setTimeout(resolve, 50));
   
-        // Validate the index to prevent invalid operations
         if (typeof index !== 'number' || index < 0) {
           console.error(`Invalid index: ${index}`);
           return;
         }
   
-        console.log('Option clicked:', { option, index, checked });
-  
-        // Mark the option as selected and update the state only once
-        this.isOptionSelected = true;
+        // Update state and mark as answered
         this.selectedOptionService.setOptionSelected(true);
         this.selectedOptionService.isAnsweredSubject.next(true);
         this.selectedOptionService.setAnswered(true);
   
-        // Call the parent class's onOptionClicked if needed
+        // Call the parent class's onOptionClicked
         await super.onOptionClicked(event);
   
-        // Additional logic for option click handling
+        // Execute additional logic related to the option click
         this.resetExplanation();
         this.toggleOptionState(option, index);
         this.emitOptionSelected(option, index);
@@ -1403,18 +1406,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         await this.processSelectedOption(option, index, checked);
         await this.finalizeSelection(option, index);
   
-        // Force UI to reflect the latest changes
-        this.cdRef.detectChanges();
-      } catch (error) {
-        console.error('Error during option click:', error);
-      } finally {
-        // Finalize loading state and ensure UI updates
-        this.finalizeLoadingState();
-        this.cdRef.detectChanges();
-      }
-    });
+        console.log('Option processing complete. Applying changes.');
+        this.cdRef.detectChanges(); // Ensure UI reflects changes
+      });
+    } catch (error) {
+      console.error('Error during option click:', error);
+    } finally {
+      // Release the lock and finalize loading state
+      this.isOptionSelected = false;
+      this.finalizeLoadingState();
+      this.cdRef.detectChanges(); // Ensure the UI reflects the latest state
+    }
   }
-  
 
   private toggleOptionState(option: SelectedOption, index: number): void {
     if (!option || !('optionId' in option) || typeof option.optionId !== 'number') {
