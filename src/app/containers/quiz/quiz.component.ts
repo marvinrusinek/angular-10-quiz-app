@@ -340,8 +340,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   async loadQuestionContents(): Promise<void> {
     try {
       this.isLoading = true;
-      this.progressBarService.setProgress(0);
-      this.isNextButtonEnabled = false; // Disable Next button initially
+      this.isNextButtonEnabled = false;
       this.updateTooltip('Please select an option to continue...'); // Reset tooltip
   
       const quizId = this.quizService.getCurrentQuizId();
