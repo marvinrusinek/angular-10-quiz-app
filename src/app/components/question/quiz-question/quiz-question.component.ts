@@ -1387,7 +1387,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Delay to ensure UI stability
         await new Promise((resolve) => requestAnimationFrame(resolve));
   
-        const { option, index = -1, checked = false } = event;
+        const { option, index = -1, checked = false } = event || {};
   
         console.log(`Processing option: ${option.optionId} at index: ${index}`);
   
@@ -1408,6 +1408,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.resetExplanation();
         this.toggleOptionState(option, index);
         this.emitOptionSelected(option, index);
+        
         this.startLoading();
         this.handleMultipleAnswerQuestion(option);
         this.markQuestionAsAnswered();
