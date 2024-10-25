@@ -310,8 +310,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // Ensure selection state updates are properly finalized
       this.finalizeOptionSelection(optionBinding, checked);
   
-      console.log('Option finalized. Triggering change detection.');
-  
       // Immediate change detection to reflect UI updates
       this.cdRef.detectChanges();
     });
