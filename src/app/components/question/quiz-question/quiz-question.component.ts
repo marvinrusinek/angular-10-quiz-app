@@ -1313,7 +1313,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Wrap the logic in Angular's zone to ensure change detection triggers properly
     this.ngZone.run(async () => {
-      const { option, index = -1, checked = false } = event;
+      const { option, index = -1, checked = false } = event || {};
   
       // Validate the option and index
       if (!option || option.optionId === undefined) {
