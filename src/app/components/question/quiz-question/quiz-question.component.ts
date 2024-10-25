@@ -1299,65 +1299,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  /* public override async onOptionClicked(
-    event: { option: SelectedOption | null; index: number; checked: boolean }
-  ): Promise<void> {
-    // Prevent further action if option or ID is missing
-    if (!event?.option || event.option.optionId === undefined) return;
-  
-    // Ensure logic executes only once per click and prevent extra updates
-    if (this.isOptionSelected) {
-      console.warn('Option already selected, skipping duplicate click.');
-      return;
-    }
-  
-    // Wrap the logic in Angular's zone to ensure change detection triggers properly
-    this.ngZone.run(async () => {
-      const { option, index = -1, checked = false } = event || {};
-  
-      // Validate the option and index
-      if (!option || option.optionId === undefined) {
-        console.error('Invalid option or missing optionId:', option);
-        return;
-      }
-      if (typeof index !== 'number' || index < 0) {
-        console.error(`Invalid index: ${index}`);
-        return;
-      }
-  
-      try {
-        // Mark the option as selected and update the state only once
-        this.isOptionSelected = true;
-        this.selectedOptionService.setOptionSelected(true);
-        this.selectedOptionService.isAnsweredSubject.next(true);
-        this.selectedOptionService.setAnswered(true); 
-  
-        // Call the parent class's onOptionClicked if needed
-        await super.onOptionClicked(event);
-  
-        // Additional logic for option click handling
-        this.resetExplanation();
-        this.toggleOptionState(option, index);
-        this.emitOptionSelected(option, index);
-  
-        this.startLoading();
-        this.handleMultipleAnswerQuestion(option);
-        this.markQuestionAsAnswered();
-  
-        await this.processSelectedOption(option, index, checked);
-        await this.finalizeSelection(option, index);
-  
-        // Ensure immediate UI update
-        this.cdRef.detectChanges();
-      } catch (error) {
-        this.handleError(error);
-      } finally {
-        // Finalize loading state and ensure UI reflects the latest state
-        this.finalizeLoadingState();
-        this.cdRef.detectChanges(); 
-      }
-    });
-  } */
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
