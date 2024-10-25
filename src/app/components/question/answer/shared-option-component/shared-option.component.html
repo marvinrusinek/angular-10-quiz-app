@@ -3,7 +3,7 @@
     <label class="options">
       <ng-container [ngSwitch]="optionBinding.type">
         <!-- Handle multiple choice options -->
-        <mat-checkbox *ngSwitchCase="'multiple'" #checkbox appHighlightOption
+        <mat-checkbox #firstOption *ngSwitchCase="'multiple'" #checkbox appHighlightOption
           (change)="updateOptionAndUI(optionBinding, optionIndex, checkbox)"
           (optionSelected)="onOptionClicked($event)">
           <ng-container 
@@ -12,7 +12,7 @@
         </mat-checkbox>
 
         <!-- Handle single choice options --> 
-        <mat-radio-button *ngSwitchCase="'single'" #radio appHighlightOption
+        <mat-radio-button #firstOption *ngSwitchCase="'single'" #radio appHighlightOption
           (change)="updateOptionAndUI(optionBinding, optionIndex, radio)"
           (optionSelected)="onOptionClicked($event)">
           <ng-container
