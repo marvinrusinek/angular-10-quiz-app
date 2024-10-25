@@ -1,4 +1,4 @@
-import { Directive, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 import { OptionBindings } from '../shared/models/OptionBindings.model';
@@ -28,6 +28,7 @@ export class HighlightOptionDirective implements OnChanges {
   constructor(
     private el: ElementRef,
     private renderer: Renderer2,
+    private cdRef: ChangeDetectorRef,
     private userPreferenceService: UserPreferenceService
   ) {}
 
@@ -52,11 +53,12 @@ export class HighlightOptionDirective implements OnChanges {
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
-  @HostListener('click') onClick(): void {
-    event.stopPropagation();
+  @HostListener('click')
+  onClick(): void {
     if (this.option) {
       this.optionClicked.emit(this.option);
       this.updateHighlight();
+      this.cdRef.detectChanges();
     }
   }
 
