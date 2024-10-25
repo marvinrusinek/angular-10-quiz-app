@@ -2492,15 +2492,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private async ensureQuestionIsFullyLoaded(index: number): Promise<void> {
     return new Promise((resolve) => {
-      const subscription = this.quizService.getQuestionByIndex(index).subscribe((question) => {
+      let subscription = this.quizService.getQuestionByIndex(index).subscribe((question) => {
         if (question && question.questionText) {
-          subscription.unsubscribe(); // Avoid memory leaks
-          resolve(); // Question is ready
+          subscription.unsubscribe(); // Unsubscribe to avoid memory leaks
+          resolve(); // Resolve the promise once the question is ready
         }
       });
     });
   }
-
 
   public async getExplanationText(questionIndex: number): Promise<string> {
     return await firstValueFrom(
