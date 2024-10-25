@@ -299,6 +299,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       if (!this.handleOptionState(optionBinding, optionId, index, checked, element)) return;
   
       console.log('Option state handled:', { optionId, checked });
+
+      // Set the element's state directly
+      element.checked = checked;
   
       // Update feedback and apply attributes immediately
       this.updateFeedbackState(optionId);
