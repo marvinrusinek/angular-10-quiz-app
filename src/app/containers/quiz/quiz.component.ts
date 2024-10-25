@@ -292,6 +292,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     this.initializeNextButtonState(); // Initialize button state observables
     this.initializeTooltip(); // Set up tooltip logic
+    this.resetOptionState(); // Ensure no lingering selection state
     this.loadQuestionContents(); // Load the first question's contents
     // Reset the answered state initially
     this.selectedOptionService.setAnswered(false);
