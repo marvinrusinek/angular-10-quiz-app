@@ -645,7 +645,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private resetOptionState(): void {
     this.isOptionSelected = false;
     this.selectedOptionService.setOptionSelected(false);
-    this.cdRef.detectChanges(); // Force UI to refresh state
   }  
 
   logFullState(context: string) {
@@ -2369,7 +2368,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     try {
       this.resetOptionState();
       this.isOptionSelected = false;
-      
+
       const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
       this.currentQuestionIndex = previousQuestionIndex;
 
