@@ -1302,6 +1302,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
+    console.log('Option clicked:', event); // Log each click
+
     // Prevent further action if the option or ID is missing
     if (!event?.option || event.option.optionId === undefined) return;
   
@@ -1317,6 +1319,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     try {
       // Use Angular's zone to ensure proper synchronization
       await this.ngZone.run(async () => {
+        console.log('Inside ngZone after click:', event);
+        
         await firstValueFrom(this.ngZone.onStable.pipe(take(1))); // Ensure Angular is stable
   
         const { option, index = -1, checked = false } = event || {};
