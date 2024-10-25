@@ -351,6 +351,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       if (typeof questionIndex !== 'number' || questionIndex < 0) {
         throw new Error('Invalid question index.');
       }
+
+      // Clear selection state before loading
+      this.resetOptionState();
   
       // Fetch the current question and options as observables
       const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex);
@@ -2311,6 +2314,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
+        this.resetOptionState();
         this.currentQuestionIndex++;
         console.log('Navigating to question index:', this.currentQuestionIndex);
   
@@ -2366,6 +2370,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     try {
       const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
+      this.resetOptionState();
       this.currentQuestionIndex = previousQuestionIndex;
 
       if (this.sharedOptionComponent) {
