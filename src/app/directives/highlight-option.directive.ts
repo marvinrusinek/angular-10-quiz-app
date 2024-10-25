@@ -53,12 +53,21 @@ export class HighlightOptionDirective implements OnChanges {
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
-  @HostListener('click')
+  /* @HostListener('click')
   onClick(): void {
     if (this.option) {
       this.optionClicked.emit(this.option);
       this.updateHighlight();
       this.cdRef.detectChanges();
+    }
+  } */
+  @HostListener('click', ['$event'])
+  onClick(event: Event): void {
+    event.preventDefault(); // Prevents default action to avoid interference
+    if (this.option) {
+      this.optionClicked.emit(this.option);
+      this.updateHighlight();
+      this.cdRef.detectChanges(); // Ensure changes are reflected immediately
     }
   }
 
