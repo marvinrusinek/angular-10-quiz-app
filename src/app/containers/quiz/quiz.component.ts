@@ -2685,22 +2685,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Set the current question index to the first question
     this.quizService.setCurrentQuestionIndex(0);
   
-    // Navigate to the first question
+    // Navigate to the first question route
     this.router.navigate(['/question', this.quizId, 1])
       .then(async () => {
-        if (this.quizQuestionComponent) {
-          try {
+        try {
+          // Ensure the quizQuestionComponent is available
+          if (this.quizQuestionComponent) {
             await this.quizQuestionComponent.fetchAndProcessCurrentQuestion();
             this.quizQuestionComponent.loadDynamicComponent();
-            this.resetUI();
-          } catch (error) {
-            console.error('Error fetching and displaying the first question:', error);
+          } else {
+            console.error('QuizQuestionComponent not available.');
           }
-        } else {
-          console.error('quizQuestionComponent or fetchAndProcessCurrentQuestion function not available');
+  
+          // Ensure UI reflects the first question properly
+          this.resetUI();
+          this.initializeFirstQuestion();
+  
+          // Update badge text after reset
+          this.quizService.updateBadgeText(1, this.totalQuestions);
+        } catch (error) {
+          console.error('Error fetching and displaying the first question:', error);
         }
-        this.initializeFirstQuestion();
-        this.quizService.updateBadgeText(1, this.totalQuestions);
       })
       .catch((error) => {
         console.error('Error during quiz restart:', error);
@@ -2728,6 +2733,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Reset the timer
     this.timerService.stopTimer();
     this.timerService.resetTimer();
+
+    // Clear any lingering UI state and force change detection
+    this.questionToDisplay = '';
+    this.optionsToDisplay = [];
+    this.explanationToDisplay = '';
+
+    this.cdRef.detectChanges(); // Ensure the UI reflects these resets immediately
   }
 
   async setDisplayStateForExplanationsAfterRestart(): Promise<void> {

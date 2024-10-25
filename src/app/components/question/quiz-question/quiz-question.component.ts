@@ -1329,8 +1329,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Mark the option as selected and update the state only once
         this.isOptionSelected = true;
         this.selectedOptionService.setOptionSelected(true);
-  
-        // Mark the question as answered when an option is selected
         this.selectedOptionService.isAnsweredSubject.next(true);
         this.selectedOptionService.setAnswered(true); 
   
