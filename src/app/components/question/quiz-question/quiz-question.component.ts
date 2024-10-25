@@ -1378,7 +1378,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         console.log('Handling option click:', { option, index, checked });
   
-        // Ensure UI rendering completes before proceeding
+        // Introduce a slight delay to ensure proper rendering and state stabilization
         await new Promise((resolve) => setTimeout(resolve, 50));
   
         if (typeof index !== 'number' || index < 0) {
@@ -1418,7 +1418,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.cdRef.detectChanges(); // Ensure the UI reflects the latest state
     }
   }
-
+  
   private toggleOptionState(option: SelectedOption, index: number): void {
     if (!option || !('optionId' in option) || typeof option.optionId !== 'number') {
       console.error('Invalid option passed to toggleOptionState:', option);
