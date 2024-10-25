@@ -1314,6 +1314,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     this.isOptionSelected = true; // Prevent race conditions
+    await new Promise((resolve) => setTimeout(resolve, 10)); // Add slight delay
   
     try {
       // Use Angular's zone to ensure proper synchronization
