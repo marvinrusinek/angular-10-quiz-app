@@ -2420,6 +2420,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
     }
   } */
+  public async fetchAndSetExplanationText(): Promise<void> {
+    console.log(`Fetching explanation for question ${this.currentQuestionIndex}`);
+  
+    // Reset the explanation text before fetching new one
+    this.explanationToDisplay = '';
+    this.manageExplanationDisplay();
+  
+    try {
+      // Ensure UI stabilization before fetching explanation
+      await this.ngZone.run(async () => {
+        const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
+  
+        if (explanationText) {
+          this.explanationToDisplay = explanationText;
+          this.explanationTextService.updateFormattedExplanation(explanationText);
+          console.log(`Set explanation for question ${this.currentQuestionIndex}:`, explanationText.substring(0, 50) + '...');
+  
+          this.updateExplanationUI(this.currentQuestionIndex, explanationText);
+        } else {
+          console.warn(`No explanation text found for question ${this.currentQuestionIndex}`);
+          this.explanationToDisplay = 'No explanation available';
+  
+          this.updateExplanationUI(this.currentQuestionIndex, 'No explanation available');
+        }
+  
+        // Call manageExplanationDisplay to ensure the UI is updated
+        this.manageExplanationDisplay();
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      });
+    } catch (error) {
+      console.error(`Error fetching explanation for question ${this.currentQuestionIndex}:`, error);
+      this.explanationToDisplay = 'Error fetching explanation. Please try again.';
+      this.manageExplanationDisplay();
+      this.updateExplanationUI(this.currentQuestionIndex, this.explanationToDisplay);
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+    }
+  }
 
   public async getExplanationText(questionIndex: number): Promise<string> {
     return await firstValueFrom(
