@@ -2423,23 +2423,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public async fetchAndSetExplanationText(): Promise<void> {
     console.log(`Fetching explanation for question ${this.currentQuestionIndex}`);
   
-    // Clear previous explanation immediately
+    // Clear previous explanation text immediately
     this.explanationToDisplay = '';
     this.manageExplanationDisplay();
   
     try {
-      // Ensure Angular's zone runs smoothly and explanations don't overlap
       await this.ngZone.run(async () => {
-        const currentIndex = this.currentQuestionIndex; // Capture the current index
+        const currentIndex = this.currentQuestionIndex;
   
+        // Ensure the question is ready before fetching explanation
+        await this.ensureQuestionIsReady(currentIndex);
+  
+        // Now fetch and set the explanation text
         const explanationText = await this.prepareAndSetExplanationText(currentIndex);
   
-        // Ensure the explanation matches the current question index to avoid flashing
+        // Ensure the fetched explanation matches the current question index
         if (this.currentQuestionIndex === currentIndex) {
           this.explanationToDisplay = explanationText || 'No explanation available';
           this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
   
-          console.log(`Explanation for question ${currentIndex}:`, explanationText.substring(0, 50) + '...');
+          console.log(`Explanation set for question ${currentIndex}:`, explanationText.substring(0, 50) + '...');
           this.updateExplanationUI(currentIndex, this.explanationToDisplay);
         } else {
           console.warn(`Explanation mismatch: expected ${currentIndex}, but found ${this.currentQuestionIndex}`);
@@ -2455,6 +2458,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.manageExplanationDisplay();
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
     }
+  }
+  
+  // Wait until the question is ready to be displayed
+  private async ensureQuestionIsReady(index: number): Promise<void> {
+    return new Promise((resolve) => {
+      const subscription = this.quizService.getQuestionByIndex(index).subscribe((question) => {
+        if (question && question.questionText) {
+          subscription.unsubscribe(); // Unsubscribe to avoid memory leaks
+          resolve(); // Question is ready, proceed
+        }
+      });
+    });
   }
 
   public async getExplanationText(questionIndex: number): Promise<string> {
