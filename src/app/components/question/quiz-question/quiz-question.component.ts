@@ -1366,7 +1366,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.cdRef.detectChanges(); // Ensure the UI reflects the latest state
     }
   } */
-  public override async onOptionClicked(
+  /* public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     console.log('Option clicked:', event); 
@@ -1408,7 +1408,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.resetExplanation();
         this.toggleOptionState(option, index);
         this.emitOptionSelected(option, index);
-        
+
         this.startLoading();
         this.handleMultipleAnswerQuestion(option);
         this.markQuestionAsAnswered();
@@ -1427,7 +1427,74 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.finalizeLoadingState();
       this.cdRef.detectChanges();
     }
+  } */
+  public override async onOptionClicked(
+    event: { option: SelectedOption | null; index: number; checked: boolean }
+  ): Promise<void> {
+    console.log('Option clicked:', event);
+  
+    // Prevent further action if option or ID is missing
+    if (!event?.option || event.option.optionId === undefined) return;
+  
+    // Prevent duplicate clicks with a cooldown mechanism
+    if (this.isOptionSelected) {
+      console.warn('Option already selected, skipping.');
+      return;
+    }
+  
+    // Temporary input lock to avoid race conditions
+    this.isOptionSelected = true;
+  
+    try {
+      // Run outside Angular to avoid unnecessary change detection triggers
+      this.ngZone.runOutsideAngular(async () => {
+        const { option, index = -1, checked = false } = event;
+  
+        console.log(`Processing option: ${option.optionId} at index: ${index}`);
+  
+        if (typeof index !== 'number' || index < 0) {
+          console.error(`Invalid index: ${index}`);
+          return;
+        }
+  
+        // Wait for the UI to stabilize before continuing
+        await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+  
+        // Run inside Angular zone to update state and UI
+        this.ngZone.run(async () => {
+          this.selectedOptionService.setOptionSelected(true);
+          this.selectedOptionService.isAnsweredSubject.next(true);
+          this.selectedOptionService.setAnswered(true);
+  
+          // Call the parent class's onOptionClicked if needed
+          await super.onOptionClicked(event);
+  
+          // Additional logic for handling option clicks
+          this.resetExplanation();
+          this.toggleOptionState(option, index);
+          this.emitOptionSelected(option, index);
+  
+          this.startLoading();
+          this.handleMultipleAnswerQuestion(option);
+          this.markQuestionAsAnswered();
+  
+          await this.processSelectedOption(option, index, checked);
+          await this.finalizeSelection(option, index);
+  
+          console.log('Option processing complete. Applying changes.');
+          this.cdRef.detectChanges(); // Ensure UI reflects changes
+        });
+      });
+    } catch (error) {
+      console.error('Error during option click:', error);
+    } finally {
+      // Reset the lock and finalize loading state after a small delay
+      setTimeout(() => (this.isOptionSelected = false), 100);
+      this.finalizeLoadingState();
+      this.cdRef.detectChanges(); // Ensure the UI reflects the latest state
+    }
   }
+  
   
   private toggleOptionState(option: SelectedOption, index: number): void {
     if (!option || !('optionId' in option) || typeof option.optionId !== 'number') {
