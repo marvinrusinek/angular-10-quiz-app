@@ -1305,15 +1305,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Prevent further action if the option or ID is missing
     if (!event?.option || event.option.optionId === undefined) return;
   
-    // Ensure logic executes only once per click to prevent duplicate state updates
-    if (this.isOptionSelected) {
-      console.warn('Option already selected, skipping duplicate click.');
-      return;
-    }
-  
     // Run logic inside Angular's zone to trigger proper change detection
     this.ngZone.run(async () => {
       const { option, index = -1, checked = false } = event || {};
+
+      // Ensure logic executes only once per click to prevent duplicate state updates
+      if (this.isOptionSelected) {
+        console.warn('Option already selected, skipping duplicate click.');
+        return;
+      }
   
       // Validate the option and index to prevent invalid operations
       if (typeof index !== 'number' || index < 0) {
