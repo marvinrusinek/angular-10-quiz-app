@@ -2379,7 +2379,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return this.explanationToDisplay;
   }
 
-  public async fetchAndSetExplanationText(): Promise<void> {
+  /* public async fetchAndSetExplanationText(): Promise<void> {
     console.log(`Fetching explanation for question ${this.currentQuestionIndex}`);
 
     // Reset the explanation text before fetching new one
@@ -2419,7 +2419,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
     }
-  }
+  } */
 
   public async getExplanationText(questionIndex: number): Promise<string> {
     return await firstValueFrom(
