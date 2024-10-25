@@ -643,6 +643,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.logFullState('After resetQuestionState');
   }
 
+  private resetOptionState(): void {
+    this.isOptionSelected = false;
+    this.selectedOptionService.setOptionSelected(false);
+    this.cdRef.detectChanges(); // Force UI to refresh state
+  }  
+
   logFullState(context: string) {
     console.log(`--- Full State Log (${context}) ---`);
     console.log(
