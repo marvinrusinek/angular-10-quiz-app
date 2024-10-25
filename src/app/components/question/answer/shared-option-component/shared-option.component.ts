@@ -290,6 +290,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       const optionId = this.getOptionId(selectedOption, index);
   
       console.log('Before handling option state:', { optionId, checked });
+
+      // Update state immediately to avoid delays
+      this.handleImmediateState(optionId, checked);
   
       // Check if the option state changes correctly
       if (!this.handleOptionState(optionBinding, optionId, index, checked, element)) return;
@@ -311,6 +314,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // Immediate change detection to reflect UI updates
       this.cdRef.detectChanges();
     });
+  }
+
+  private handleImmediateState(optionId: number, checked: boolean): void {
+    this.selectedOptionService.setOptionSelected(true);
+    this.selectedOptionService.isAnsweredSubject.next(true);
+    console.log(`Option ${optionId} immediately marked as selected:`, checked);
   }
 
   private isValidOptionBinding(optionBinding: OptionBindings): boolean {
