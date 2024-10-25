@@ -1299,7 +1299,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(
+  /* public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     // Prevent further action if the option or ID is missing
@@ -1322,6 +1322,66 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       try {
+        // Mark the option as selected and update the state only once
+        this.isOptionSelected = true;
+        this.selectedOptionService.setOptionSelected(true);
+        this.selectedOptionService.isAnsweredSubject.next(true);
+        this.selectedOptionService.setAnswered(true);
+  
+        // Call the parent class's onOptionClicked if needed
+        await super.onOptionClicked(event);
+  
+        // Additional logic for option click handling
+        this.resetExplanation();
+        this.toggleOptionState(option, index);
+        this.emitOptionSelected(option, index);
+  
+        this.startLoading();
+        this.handleMultipleAnswerQuestion(option);
+        this.markQuestionAsAnswered();
+  
+        await this.processSelectedOption(option, index, checked);
+        await this.finalizeSelection(option, index);
+  
+        // Ensure the UI reflects the latest changes immediately
+        this.cdRef.detectChanges();
+      } catch (error) {
+        this.handleError(error);
+      } finally {
+        // Finalize loading state and ensure UI updates
+        this.finalizeLoadingState();
+        this.cdRef.detectChanges();
+      }
+    });
+  } */
+  public override async onOptionClicked(
+    event: { option: SelectedOption | null; index: number; checked: boolean }
+  ): Promise<void> {
+    // Prevent further action if the option or ID is missing
+    if (!event?.option || event.option.optionId === undefined) return;
+  
+    // Ensure logic executes only once per click to prevent duplicate state updates
+    if (this.isOptionSelected) {
+      console.warn('Option already selected, skipping duplicate click.');
+      return;
+    }
+  
+    // Use Angular's zone with stabilization to ensure the state aligns with rendering
+    this.ngZone.run(async () => {
+      await this.ngZone.onStable.pipe(take(1)).toPromise(); // Wait for Angular to stabilize
+  
+      const { option, index = -1, checked = false } = event;
+  
+      // Validate the index to prevent invalid operations
+      if (typeof index !== 'number' || index < 0) {
+        console.error(`Invalid index: ${index}`);
+        return;
+      }
+  
+      try {
+        // Add a slight delay to ensure the DOM's `checked` state is synced before proceeding
+        await new Promise((resolve) => setTimeout(resolve, 10));
+  
         // Mark the option as selected and update the state only once
         this.isOptionSelected = true;
         this.selectedOptionService.setOptionSelected(true);
