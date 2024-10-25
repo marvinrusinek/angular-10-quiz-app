@@ -1299,61 +1299,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  /* public override async onOptionClicked(
-    event: { option: SelectedOption | null; index: number; checked: boolean }
-  ): Promise<void> {
-    // Prevent further action if the option or ID is missing
-    if (!event?.option || event.option.optionId === undefined) return;
-  
-    // Run logic inside Angular's zone to trigger proper change detection
-    this.ngZone.run(async () => {
-      const { option, index = -1, checked = false } = event || {};
-
-      // Ensure logic executes only once per click to prevent duplicate state updates
-      if (this.isOptionSelected) {
-        console.warn('Option already selected, skipping duplicate click.');
-        return;
-      }
-  
-      // Validate the option and index to prevent invalid operations
-      if (typeof index !== 'number' || index < 0) {
-        console.error(`Invalid index: ${index}`);
-        return;
-      }
-  
-      try {
-        // Mark the option as selected and update the state only once
-        this.isOptionSelected = true;
-        this.selectedOptionService.setOptionSelected(true);
-        this.selectedOptionService.isAnsweredSubject.next(true);
-        this.selectedOptionService.setAnswered(true);
-  
-        // Call the parent class's onOptionClicked if needed
-        await super.onOptionClicked(event);
-  
-        // Additional logic for option click handling
-        this.resetExplanation();
-        this.toggleOptionState(option, index);
-        this.emitOptionSelected(option, index);
-  
-        this.startLoading();
-        this.handleMultipleAnswerQuestion(option);
-        this.markQuestionAsAnswered();
-  
-        await this.processSelectedOption(option, index, checked);
-        await this.finalizeSelection(option, index);
-  
-        // Ensure the UI reflects the latest changes immediately
-        this.cdRef.detectChanges();
-      } catch (error) {
-        this.handleError(error);
-      } finally {
-        // Finalize loading state and ensure UI updates
-        this.finalizeLoadingState();
-        this.cdRef.detectChanges();
-      }
-    });
-  } */
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
@@ -1372,7 +1317,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     try {
       // Use Angular's zone to ensure proper synchronization
       await this.ngZone.run(async () => {
-        await this.ngZone.onStable.pipe(take(1)).toPromise(); // Ensure Angular is stable
+        await firstValueFrom(this.ngZone.onStable.pipe(take(1))); // Ensure Angular is stable
   
         const { option, index = -1, checked = false } = event || {};
   
