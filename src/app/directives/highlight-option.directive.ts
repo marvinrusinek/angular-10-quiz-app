@@ -62,7 +62,7 @@ export class HighlightOptionDirective implements OnChanges {
       this.cdRef.detectChanges();
     }
   } */
-  @HostListener('click', ['$event'])
+  /* @HostListener('click', ['$event'])
   onClick(event: MouseEvent): void {
     if (this.option) {
       console.log('Option clicked:', this.option);
@@ -74,7 +74,23 @@ export class HighlightOptionDirective implements OnChanges {
         this.cdRef.detectChanges(); // Reflect changes immediately in the UI
       });
     }
+  } */
+  @HostListener('click', ['$event'])
+  onClick(event: MouseEvent): void {
+    this.ngZone.runOutsideAngular(() => {
+      if (this.option) {
+        console.log('Option clicked:', this.option);
+        this.optionClicked.emit(this.option);
+
+        // Trigger change detection after the event is fully handled
+        this.ngZone.run(() => {
+          this.updateHighlight();
+          this.cdRef.detectChanges();
+        });
+      }
+    });
   }
+
 
 
   updateHighlight(): void {
