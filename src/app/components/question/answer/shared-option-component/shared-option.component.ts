@@ -313,8 +313,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // Ensure selection state updates are properly finalized
       this.finalizeOptionSelection(optionBinding, checked);
   
-      // Immediate change detection to reflect UI updates
-      this.cdRef.detectChanges();
+      // Add a small timeout to let the browser finish rendering before detecting changes
+      setTimeout(() => {
+        this.cdRef.detectChanges(); // Ensure UI reflects the changes
+      }, 0);
     });
   }
 
