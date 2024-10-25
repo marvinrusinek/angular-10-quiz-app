@@ -2678,7 +2678,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.optionsToDisplay = [];
   }
 
-  restartQuiz(): void {
+  /* restartQuiz(): void {
     // Reset quiz-related services and states
     this.resetQuizState();
   
@@ -2710,7 +2710,44 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       .catch((error) => {
         console.error('Error during quiz restart:', error);
       });
+  } */
+  restartQuiz(): void {
+    // Reset quiz-related services and states
+    this.resetQuizState();
+  
+    // Set the current question index to the first question
+    this.quizService.setCurrentQuestionIndex(0);
+  
+    // Navigate to the first question route
+    this.router.navigate(['/question', this.quizId, 1])
+      .then(() => {
+        // Use setTimeout to allow time for the component to initialize
+        setTimeout(async () => {
+          try {
+            // Ensure the quizQuestionComponent is available
+            if (this.quizQuestionComponent) {
+              await this.quizQuestionComponent.fetchAndProcessCurrentQuestion();
+              this.quizQuestionComponent.loadDynamicComponent();
+            } else {
+              console.error('QuizQuestionComponent not available.');
+            }
+  
+            // Ensure UI reflects the first question properly
+            this.resetUI();
+            this.initializeFirstQuestion();
+  
+            // Update badge text after reset
+            this.quizService.updateBadgeText(1, this.totalQuestions);
+          } catch (error) {
+            console.error('Error fetching and displaying the first question:', error);
+          }
+        }, 50); // Adjust the timeout duration if necessary
+      })
+      .catch((error) => {
+        console.error('Error during quiz restart:', error);
+      });
   }
+  
   
   private resetQuizState(): void {
     // Reset all quiz-related services
