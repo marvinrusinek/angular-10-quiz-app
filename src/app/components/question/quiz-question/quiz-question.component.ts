@@ -1374,7 +1374,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       await this.ngZone.run(async () => {
         await this.ngZone.onStable.pipe(take(1)).toPromise(); // Ensure Angular is stable
   
-        const { option, index = -1, checked = false } = event;
+        const { option, index = -1, checked = false } = event || {};
   
         console.log('Handling option click:', { option, index, checked });
   
