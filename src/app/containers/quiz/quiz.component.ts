@@ -451,11 +451,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
   } */
   private evaluateNextButtonState(): boolean {
-    return (
-      this.isOptionSelected &&
-      !this.quizStateService.isLoading() &&
-      !this.quizStateService.isNavigating()
-    );
+    const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
+    const isLoading = !this.quizStateService.isLoadingSubject.value;
+    const isNavigating = !this.quizStateService.isNavigatingSubject.value;
+  
+    return isAnswered && isLoading && isNavigating;
   }
 
   private updateAndSyncNextButtonState(isEnabled: boolean): void {
