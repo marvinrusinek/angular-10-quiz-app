@@ -2717,6 +2717,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
             // Ensure UI reflects the first question properly
             this.resetUI();
+            this.resetOptionState();
             this.initializeFirstQuestion();
   
             // Update badge text after reset
