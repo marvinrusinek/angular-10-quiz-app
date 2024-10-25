@@ -24,6 +24,7 @@ div.mat-radio-inner-container {
     border: 2px solid $medium-gray;
     padding: 10px 5px 10px 30px;
     margin-left: -5px;
+    pointer-events: auto;
 
     &:hover {
       border: 2px solid $vivid-blue;
