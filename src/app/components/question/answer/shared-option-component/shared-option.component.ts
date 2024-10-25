@@ -317,9 +317,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       /* setTimeout(() => {
         this.cdRef.detectChanges(); // Ensure UI reflects the changes
       }, 0); */
+      //requestAnimationFrame(() => {
+      //  this.cdRef.detectChanges();
+      //});
       requestAnimationFrame(() => {
-        this.cdRef.detectChanges();
-      });
+        setTimeout(() => {
+          this.cdRef.detectChanges(); // Ensure UI reflects the changes
+        }, 0);
+      });      
     });
   }
 
