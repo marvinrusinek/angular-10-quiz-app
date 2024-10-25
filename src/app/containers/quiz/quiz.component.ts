@@ -415,15 +415,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
+        startWith(false), // Initialize with 'false'
         debounceTime(500), // Ensuring proper state stabilization
         map((answered) => !!answered),
         distinctUntilChanged()
       ),
       this.quizStateService.isLoading$.pipe(
+        startWith(true), // Assume loading initially
         map((loading) => !loading), // Invert to emit when not loading
         distinctUntilChanged()
       ),
       this.quizStateService.isNavigating$.pipe(
+        startWith(false), // Assume not navigating initially
         map((navigating) => !navigating), // Invert to emit when not navigating
         distinctUntilChanged()
       )
@@ -440,11 +443,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
   
-  private evaluateNextButtonState(): boolean {
+  /* private evaluateNextButtonState(): boolean {
     return (
       this.isOptionSelected && 
       !this.isLoading && 
       !this.isNavigating
+    );
+  } */
+  private evaluateNextButtonState(): boolean {
+    return (
+      this.isOptionSelected &&
+      !this.quizStateService.isLoading() &&
+      !this.quizStateService.isNavigating()
     );
   }
 
