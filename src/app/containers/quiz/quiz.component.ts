@@ -2311,6 +2311,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.resetOptionState();
+        this.isOptionSelected = false;
+
         this.currentQuestionIndex++;
         console.log('Navigating to question index:', this.currentQuestionIndex);
   
@@ -2365,8 +2367,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.quizService.setIsNavigatingToPrevious(true);
 
     try {
-      const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
       this.resetOptionState();
+      this.isOptionSelected = false;
+      
+      const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
       this.currentQuestionIndex = previousQuestionIndex;
 
       if (this.sharedOptionComponent) {
