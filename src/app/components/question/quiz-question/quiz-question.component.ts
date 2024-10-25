@@ -2491,27 +2491,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private async ensureQuestionIsFullyLoaded(index: number): Promise<void> {
-    return new Promise((resolve) => {
-      const questionObservable = this.quizService.getQuestionByIndex(index);
+    return new Promise((resolve, reject) => {
+      let subscription: Subscription; // Declare the subscription here
   
-      // Handle the subscription inside a separate function for clarity
-      const handleSubscription = (question) => {
-        if (question && question.questionText) {
-          subscription.unsubscribe(); // Clean up
-          resolve(); // Resolve the promise as the question is loaded
-        }
-      };
-  
-      const subscription = questionObservable.subscribe({
-        next: handleSubscription,
-        error: (err) => {
-          console.error(`Error fetching question at index ${index}:`, err);
-          subscription.unsubscribe(); // Cleanup on error
-          resolve(); // Resolve to prevent blocking the flow
-        }
-      });
+      try {
+        subscription = this.quizService.getQuestionByIndex(index).subscribe({
+          next: (question) => {
+            if (question && question.questionText) {
+              console.log(`Question loaded for index ${index}:`, question);
+              subscription.unsubscribe(); // Cleanup to avoid memory leaks
+              resolve(); // Resolve the promise when the question is loaded
+            }
+          },
+          error: (err) => {
+            console.error(`Error loading question at index ${index}:`, err);
+            subscription.unsubscribe(); // Cleanup even on error
+            reject(err); // Reject the promise to handle the error upstream
+          }
+        });
+      } catch (error) {
+        reject(error); // Ensure we reject if any unexpected error occurs
+      }
     });
   }
+  
   
 
   public async getExplanationText(questionIndex: number): Promise<string> {
