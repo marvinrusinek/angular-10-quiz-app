@@ -1313,8 +1313,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
   
-    // Temporary lock to avoid race conditions between clicks
-    this.isOptionSelected = true;
+    this.isOptionSelected = true; // Prevent race conditions
   
     try {
       // Use Angular's zone to ensure proper synchronization
