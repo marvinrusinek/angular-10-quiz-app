@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, HostBinding, HostListener, Input, NgZone, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 import { OptionBindings } from '../shared/models/OptionBindings.model';
@@ -29,6 +29,7 @@ export class HighlightOptionDirective implements OnChanges {
     private el: ElementRef,
     private renderer: Renderer2,
     private cdRef: ChangeDetectorRef,
+    private ngZone: NgZone,
     private userPreferenceService: UserPreferenceService
   ) {}
 
@@ -53,14 +54,28 @@ export class HighlightOptionDirective implements OnChanges {
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
-  @HostListener('click')
+  /* @HostListener('click')
   onClick(): void {
     if (this.option) {
       this.optionClicked.emit(this.option);
       this.updateHighlight();
       this.cdRef.detectChanges();
     }
+  } */
+  @HostListener('click', ['$event'])
+  onClick(event: MouseEvent): void {
+    if (this.option) {
+      console.log('Option clicked:', this.option);
+      this.optionClicked.emit(this.option); // Emit the option click event
+
+      // Ensure UI updates after the event
+      this.ngZone.run(() => {
+        this.updateHighlight();
+        this.cdRef.detectChanges(); // Reflect changes immediately in the UI
+      });
+    }
   }
+
 
   updateHighlight(): void {
     let backgroundColor = 'transparent';
