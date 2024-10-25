@@ -54,44 +54,24 @@ export class HighlightOptionDirective implements OnChanges {
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
-  /* @HostListener('click')
-  onClick(): void {
-    if (this.option) {
-      this.optionClicked.emit(this.option);
-      this.updateHighlight();
-      this.cdRef.detectChanges();
-    }
-  } */
-  /* @HostListener('click', ['$event'])
-  onClick(event: MouseEvent): void {
-    if (this.option) {
-      console.log('Option clicked:', this.option);
-      this.optionClicked.emit(this.option); // Emit the option click event
-
-      // Ensure UI updates after the event
-      this.ngZone.run(() => {
-        this.updateHighlight();
-        this.cdRef.detectChanges(); // Reflect changes immediately in the UI
-      });
-    }
-  } */
   @HostListener('click', ['$event'])
-  onClick(event: MouseEvent): void {
-    this.ngZone.runOutsideAngular(() => {
-      if (this.option) {
-        console.log('Option clicked:', this.option);
-        this.optionClicked.emit(this.option);
-
-        // Trigger change detection after the event is fully handled
-        this.ngZone.run(() => {
+  onClick(event: Event): void {
+    try {
+      this.ngZone.run(() => {
+        event?.stopPropagation();
+    
+        if (this.option) {
+          this.optionClicked.emit(this.option);
           this.updateHighlight();
+          
+          // Trigger change detection to ensure UI updates
           this.cdRef.detectChanges();
-        });
-      }
-    });
+        }
+      });
+    } catch (error) {
+      console.error('Error in onClick:', error);
+    }
   }
-
-
 
   updateHighlight(): void {
     let backgroundColor = 'transparent';
