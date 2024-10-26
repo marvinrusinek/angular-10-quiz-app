@@ -2632,8 +2632,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Clear the explanation text immediately
     this.explanationToDisplay = '';
+    this.explanationTextService.updateFormattedExplanation('');
     this.showExplanationChange.emit(false);
-    // this.explanationTextService.updateFormattedExplanation('');
   
     try {
       // Ensure the question data is fully loaded before fetching explanation
@@ -2661,6 +2661,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationToDisplay = 'Error fetching explanation. Please try again.';
       this.updateExplanationUI(questionIndex, this.explanationToDisplay);
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      this.showExplanationChange.emit(true);
     }
   }
 
