@@ -2625,33 +2625,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
     console.log(`Fetching explanation for question ${questionIndex}`);
   
-    // Clear the current explanation text immediately
+    // Clear the explanation text immediately
     this.explanationToDisplay = '';
+    this.explanationTextService.updateFormattedExplanation('');
   
     try {
-      // Ensure the question data is fully loaded before fetching the explanation
+      // Ensure the question data is fully loaded before fetching explanation
       await this.ensureQuestionIsFullyLoaded(questionIndex);
   
-      // Fetch and prepare the explanation text for the given question index
+      // Fetch the correct explanation text for the current question
       const explanationText = await this.prepareAndSetExplanationText(questionIndex);
   
-      // Check if the provided index matches the current question index
       if (this.currentQuestionIndex === questionIndex) {
         this.explanationToDisplay = explanationText || 'No explanation available';
         this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
         console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
+        
+        // Emit events to update the UI
+        this.updateExplanationUI(questionIndex, this.explanationToDisplay);
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
       } else {
-        console.warn(`Question index mismatch. Skipping explanation update for index ${questionIndex}.`);
+        console.warn('Question index mismatch. Skipping explanation update.');
       }
-  
-      // Emit events to update the UI with the new explanation
-      this.updateExplanationUI(questionIndex, this.explanationToDisplay);
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-  
     } catch (error) {
       console.error(`Error fetching explanation for question ${questionIndex}:`, error);
-  
-      // Handle errors gracefully and update the UI with a fallback message
       this.explanationToDisplay = 'Error fetching explanation. Please try again.';
       this.updateExplanationUI(questionIndex, this.explanationToDisplay);
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
