@@ -1564,7 +1564,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.isAnswered = true;
   
       // Fetch and set the explanation text
-      await this.fetchAndSetExplanationText();
+      await this.fetchAndSetExplanationText(this.currentQuestionIndex);
       
       // Update the explanation display
       this.updateExplanationDisplay(true);
