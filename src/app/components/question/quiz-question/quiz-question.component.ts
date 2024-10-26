@@ -216,6 +216,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     super.ngOnInit ? super.ngOnInit() : null;
 
     this.initializeData();
+    this.initializeForm();
     this.waitForQuestionData();
   
     this.quizStateService.isLoading$.subscribe((isLoading) => {
@@ -2096,6 +2097,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     control.valueChanges.pipe(debounceTime(50)).subscribe(() => {
       this.questionForm.updateValueAndValidity(); // Ensure form state is valid after delay
     });
+
+    // Force change detection to reflect changes immediately
+    this.cdRef.markForCheck();
+    this.cdRef.detectChanges();
   }
 
   private updateRenderComponentState(): void {
