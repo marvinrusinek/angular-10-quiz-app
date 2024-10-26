@@ -2655,6 +2655,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.explanationToDisplay = explanationText || 'No explanation available';
             this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
 
+            // Ensure questions are fully loaded before updating the UI
+            if (!this.questions || !this.questions[questionIndex]) {
+              console.error(`Question not found at index ${questionIndex}.`);
+              return;
+            }
+
             // Emit events to update the UI
             this.updateExplanationUI(questionIndex, this.explanationToDisplay);
             this.explanationToDisplayChange.emit(this.explanationToDisplay);
