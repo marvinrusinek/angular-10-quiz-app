@@ -2095,7 +2095,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
   }
 
-  private waitForFormInitialization(optionId: number, checked: boolean): Promise<void> {
+  /* private waitForFormInitialization(optionId: number, checked: boolean): Promise<void> {
     return new Promise((resolve, reject) => {
       let attempts = 0;
       const maxRetries = 10;
@@ -2115,7 +2115,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       checkForm();
     });
+  } */
+  private waitForFormInitialization(optionId: number, checked: boolean): void {
+    const maxRetries = 5; // Reduce the retry attempts
+    let attempts = 0;
+  
+    const checkForm = () => {
+      const control = this.questionForm?.get(optionId.toString());
+      if (control) {
+        console.log(`Form ready for optionId: ${optionId}`);
+        this.updateFormControl(optionId, checked);
+        return;
+      }
+      attempts++;
+      if (attempts < maxRetries) {
+        console.warn(`Retrying form initialization (${attempts}/${maxRetries})...`);
+        setTimeout(checkForm, 100); // Retry after a delay
+      } else {
+        console.error(`Failed to initialize form for optionId: ${optionId}`);
+      }
+    };
+  
+    checkForm();
   }
+  
   
   /* initializeForm(): void {
     if (!this.currentQuestion?.options?.length) {
@@ -2136,6 +2159,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.updateRenderComponentState();
     this.cdRef.detectChanges();
   } */
+  initializeForm(): void {
+    if (!this.currentQuestion || !this.currentQuestion.options?.length) {
+      console.warn('Question data not ready, skipping form initialization.');
+      return;
+    }
+    const controls = this.currentQuestion.options.reduce((acc, option) => {
+      acc[option.optionId] = new FormControl(false);
+      return acc;
+    }, {});
+    this.questionForm = this.fb.group(controls);
+    console.log('Form initialized with:', this.questionForm.value);
+    this.cdRef.detectChanges(); 
+  }
+  
 
   private updateFormControl(optionId: number, checked: boolean): void {
     const control = this.questionForm?.get(optionId.toString());
