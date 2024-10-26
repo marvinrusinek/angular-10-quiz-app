@@ -2062,7 +2062,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return acc;
     }, {});
   
-    this.questionForm = this.fb.group(controls);
+    this.questionForm = this.fb.group(controls || {});
   
     // Ensure the form reflects the latest state
     this.questionForm.updateValueAndValidity();
