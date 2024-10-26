@@ -1428,6 +1428,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       // Reset the lock after click processing completes
       setTimeout(() => (this.isOptionSelected = false), 300); // Cooldown period
+      // Ensure UI stabilization and final updates
+      requestAnimationFrame(() => {
+        this.updateExplanationText(this.currentQuestionIndex);
+        this.cdRef.detectChanges();
+      });
       this.finalizeLoadingState();
       this.cdRef.detectChanges();
     }
