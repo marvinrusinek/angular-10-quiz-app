@@ -190,8 +190,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     console.log('QuizStateService injected:', !!this.quizStateService);
 
-    this.initializeForm();
-
     this.sharedVisibilitySubscription =
       this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
         this.handlePageVisibilityChange(isHidden);
@@ -2153,7 +2151,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private logDebugInformation(): void {
     console.log('Answers:', this.answers);
   }
-
+  
+  private waitForQuestionData(): void {
+    this.quizService.getQuestionByIndex(this.currentQuestionIndex).subscribe((question) => {
+      if (question) {
+        this.currentQuestion = question;
+        this.initializeForm(); // Call when data is available
+      } else {
+        console.error('Failed to load question data.');
+      }
+    });
+  }
+  
   initializeForm(): void {
     if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
       console.warn('Waiting for question data to load...');
@@ -2170,18 +2179,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     this.updateRenderComponentState();
   }
-  
-  private waitForQuestionData(): void {
-    this.quizService.getQuestionByIndex(this.currentQuestionIndex).subscribe((question) => {
-      if (question) {
-        this.currentQuestion = question;
-        this.initializeForm(); // Call when data is available
-      } else {
-        console.error('Failed to load question data.');
-      }
-    });
-  }
-  
 
   private updateRenderComponentState(): void {
     // Check if both the form is valid and question data is available
