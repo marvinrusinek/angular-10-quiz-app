@@ -1389,6 +1389,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Processing option: ${option.optionId} at index: ${index}`);
   
         this.updateFormControl(option.optionId, checked);
+
+        const control = this.questionForm.get(event.option.optionId.toString());
+        if (!control) {
+          console.warn(`Control not found for optionId: ${event.option.optionId}`);
+          return;
+        }
+
+        control.setValue(event.checked, { emitEvent: true });
+        control.markAsTouched();
+        this.cdRef.detectChanges(); // Ensure UI reflects changes
   
         await super.onOptionClicked(event);
   
