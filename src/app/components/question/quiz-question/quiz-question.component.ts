@@ -2027,6 +2027,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         if (question) {
           this.currentQuestion = question;
           this.initializeForm(); // Initialize the form when data is available
+          this.questionForm.updateValueAndValidity(); // Ensure form is valid after loading
         } else {
           console.error('Failed to load question data.');
         }
@@ -2047,7 +2048,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return; 
     }
   
-    const controls = this.currentQuestion.options.reduce((acc, option) => {
+    const controls = this.currentQuestion?.options?.reduce((acc, option) => {
       acc[option.optionId] = new FormControl(false);
       return acc;
     }, {});
@@ -2065,6 +2066,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private updateFormControl(optionId: number, checked: boolean): void {
+    if (!this.questionForm) {
+      console.error('Form not initialized yet.');
+      return;
+    }
+
     const control = this.questionForm.get(optionId.toString());
     
     if (!control) {
