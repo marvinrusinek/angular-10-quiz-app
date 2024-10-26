@@ -2071,23 +2071,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private logDebugInformation(): void {
     console.log('Answers:', this.answers);
   }
-  
+
   private waitForQuestionData(): void {
     this.quizService.getQuestionByIndex(this.currentQuestionIndex).subscribe({
       next: (question) => {
-        if (question) {
+        if (question && question.options?.length) {
           this.currentQuestion = question;
-          this.initializeForm(); // Initialize the form when data is available
+          console.log('Question data loaded:', question);
+          this.initializeForm();
           this.questionForm.updateValueAndValidity(); // Ensure form is valid after loading
         } else {
-          console.error('Failed to load question data.');
+          console.error('Invalid question data or options missing.');
         }
       },
       error: (error) => {
         console.error('Error loading question data:', error);
-      },
-      complete: () => {
-        console.log('Question data loaded successfully.');
       }
     });
   }
