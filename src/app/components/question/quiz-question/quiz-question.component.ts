@@ -2522,116 +2522,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return this.explanationToDisplay;
   }
 
-  /* public async fetchAndSetExplanationText(): Promise<void> {
-    console.log(`Fetching explanation for question ${this.currentQuestionIndex}`);
-
-    // Reset the explanation text before fetching new one
-    this.explanationToDisplay = '';
-    this.manageExplanationDisplay();
-
-    try {
-      const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-      
-      if (explanationText) {
-        this.explanationToDisplay = explanationText;
-        this.explanationTextService.updateFormattedExplanation(explanationText);
-        console.log(`Set explanation for question ${this.currentQuestionIndex}:`, explanationText.substring(0, 50) + '...');
-        
-        // Update the UI with the explanation text
-        this.updateExplanationUI(this.currentQuestionIndex, explanationText);
-      } else {
-        console.warn(`No explanation text found for question ${this.currentQuestionIndex}`);
-        this.explanationToDisplay = 'No explanation available';
-        
-        // Update the UI with the default message
-        this.updateExplanationUI(this.currentQuestionIndex, 'No explanation available');
-      }
-
-      // Call manageExplanationDisplay here
-      this.manageExplanationDisplay();
-  
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-    } catch (error) {
-      console.error(`Error fetching explanation for question ${this.currentQuestionIndex}:`, error);
-      this.explanationToDisplay = 'Error fetching explanation. Please try again.';
-
-      this.manageExplanationDisplay();
-      
-      // Update the UI with the error message
-      this.updateExplanationUI(this.currentQuestionIndex, this.explanationToDisplay);
-      
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-    }
-  } */
-  /* public async fetchAndSetExplanationText(): Promise<void> {
-    console.log(`Fetching explanation for question ${this.currentQuestionIndex}`);
-  
-    // Clear previous explanation immediately
-    this.explanationToDisplay = '';
-    this.manageExplanationDisplay();
-  
-    try {
-      // Ensure Angular's zone runs smoothly and explanations don't overlap
-      await this.ngZone.run(async () => {
-        const currentIndex = this.currentQuestionIndex; // Capture the current index
-  
-        const explanationText = await this.prepareAndSetExplanationText(currentIndex);
-  
-        // Ensure the explanation matches the current question index to avoid flashing
-        if (this.currentQuestionIndex === currentIndex) {
-          this.explanationToDisplay = explanationText || 'No explanation available';
-          this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
-  
-          console.log(`Explanation for question ${currentIndex}:`, explanationText.substring(0, 50) + '...');
-          this.updateExplanationUI(currentIndex, this.explanationToDisplay);
-        } else {
-          console.warn(`Explanation mismatch: expected ${currentIndex}, but found ${this.currentQuestionIndex}`);
-        }
-  
-        this.manageExplanationDisplay();
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-      });
-    } catch (error) {
-      console.error(`Error fetching explanation for question ${this.currentQuestionIndex}:`, error);
-      this.explanationToDisplay = 'Error fetching explanation. Please try again.';
-      this.updateExplanationUI(this.currentQuestionIndex, this.explanationToDisplay);
-      this.manageExplanationDisplay();
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-    }
-  } */
-  /* public async fetchAndSetExplanationText(): Promise<void> {
-    console.log(`Fetching explanation for question ${this.currentQuestionIndex}`);
-  
-    // Clear the current explanation text immediately
-    this.explanationToDisplay = '';
-  
-    try {
-      // Wait for the question data to be fully loaded
-      await this.ensureQuestionIsFullyLoaded(this.currentQuestionIndex);
-  
-      // Fetch and prepare the explanation text
-      const explanationText = await this.prepareAndSetExplanationText(this.currentQuestionIndex);
-  
-      // Set explanation text only if the index matches the current question
-      if (this.currentQuestionIndex !== null) {
-        this.explanationToDisplay = explanationText || 'No explanation available';
-        this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
-        console.log(`Explanation set for question ${this.currentQuestionIndex}:`, explanationText.substring(0, 50) + '...');
-      } else {
-        console.warn('Question index mismatch. Skipping explanation update.');
-      }
-  
-      // Emit events to update the UI
-      this.updateExplanationUI(this.currentQuestionIndex, this.explanationToDisplay);
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-  
-    } catch (error) {
-      console.error(`Error fetching explanation for question ${this.currentQuestionIndex}:`, error);
-      this.explanationToDisplay = 'Error fetching explanation. Please try again.';
-      this.updateExplanationUI(this.currentQuestionIndex, this.explanationToDisplay);
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-    }
-  } */
   public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
     console.log(`Fetching explanation for question ${questionIndex}`);
 
@@ -2799,7 +2689,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private updateExplanationUI(questionIndex: number, explanationText: string): void {
     // Ensure questions array is initialized and the question exists
     if (!this.questions || !this.questions[questionIndex]) {
-      console.error(`Question not found at index ${questionIndex}.`);
+      console.error(`Question not found at index:::: ${questionIndex}.`);
       return;
     }
   
