@@ -1944,11 +1944,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       }, 50); // Slight delay to avoid flicker
     } else {
-      this.resetExplanationState(); // Clear explanation when not displaying
+      this.resetQuestionAndExplanationState(); // Clear explanation when not displaying
     }
   }
  
-  private resetExplanationState(): void {
+  private resetQuestionAndExplanationState(): void {
+    this.currentQuestion = null;
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
     this.explanationTextService.updateFormattedExplanation('');
