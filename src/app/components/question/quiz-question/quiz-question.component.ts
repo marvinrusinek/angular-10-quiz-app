@@ -1323,11 +1323,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         console.log(`Processing option: ${option.optionId} at index: ${index}`);
 
-        // Ensure form control is ready and update it in one place
-        await this.waitForFormInitialization(option.optionId, checked);
-        this.updateFormControl(option.optionId, checked);
-        this.cdRef.markForCheck();
-  
+        // Using requestAnimationFrame to ensure UI is ready before updating form
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            console.log(`Updating form control for optionId: ${event.option?.optionId}`);
+
+            // Ensure the form control is updated correctly
+            this.waitForFormInitialization(event.option?.optionId, event.checked);
+            this.updateFormControl(event.option?.optionId, event.checked);
+            this.cdRef.markForCheck(); // Ensure Angular checks for changes
+
+            console.log('Form control updated, UI changes reflected.');
+          }, 0); // Minimal delay to sync with rendering
+        });
+
         // Handle index validation and option selection
         if (typeof index !== 'number' || index < 0) {
           console.error(`Invalid index: ${index}`);
