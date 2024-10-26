@@ -1335,9 +1335,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Mark form control as touched to ensure its state updates
         const control = this.questionForm.get(`${option.optionId}`);
-        control?.setValue(checked, { emitEvent: true });
-        control?.markAsTouched();
-        this.questionForm.updateValueAndValidity(); // Force revalidation
+        if (control) {
+          control.setValue(checked, { emitEvent: true });
+          control.markAsTouched();
+          this.questionForm.updateValueAndValidity(); // Force revalidation
+
+          // Ensure the clicked element gains focus for proper registration
+          const element = document.querySelector(`input[name="${option.optionId}"]`) as HTMLElement;
+          if (element) {
+            element.focus(); // Bring the clicked element into focus
+          }
+
+          this.cdRef.markForCheck();  // Ensure Angular knows about the changes
+          this.cdRef.detectChanges(); // Trigger immediate change detection
+        }
   
         // Call the parent class's onOptionClicked if needed
         await super.onOptionClicked(event);
