@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, ComponentFactoryResolver, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
@@ -2153,9 +2153,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Answers:', this.answers);
   }
 
-  initializeForm(): void {
+  /* initializeForm(): void {
     this.questionForm = this.fb.group({});
     
+    this.updateRenderComponentState();
+  } */
+  initializeForm(): void {
+    if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
+      console.warn('Question or options are not available yet');
+      this.questionForm = this.fb.group({}); // Initialize empty form to avoid errors
+      return;
+    }
+  
+    const controls = this.currentQuestion.options.reduce((acc, option) => {
+      acc[option.optionId] = new FormControl(false); // Initialize controls for each option
+      return acc;
+    }, {});
+  
+    this.questionForm = this.fb.group(controls);
+    this.questionForm.updateValueAndValidity(); // Ensure form is valid after initialization
+  
     this.updateRenderComponentState();
   }
 
