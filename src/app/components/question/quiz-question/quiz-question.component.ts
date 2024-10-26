@@ -240,9 +240,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       },
       error: (error) => {
-        console.error('Error loading questions:', error);
+        console.error('Error loading questions:', error.message || error);
+        console.error('Complete error details:', error);
       }
-    });    
+    });
+    
   
     // Ensure optionsToDisplay is correctly set
     if (this.options && this.options.length > 0) {
