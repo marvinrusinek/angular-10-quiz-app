@@ -1404,6 +1404,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedOptionService.setOptionSelected(true);
         this.selectedOptionService.isAnsweredSubject.next(true);
         this.selectedOptionService.setAnswered(true);
+
+        // Display explanation after answering
+        await this.fetchAndSetExplanationText(this.currentQuestionIndex);
   
         // Call the parent class's onOptionClicked if needed
         await super.onOptionClicked(event);
