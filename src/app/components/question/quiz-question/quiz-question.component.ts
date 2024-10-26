@@ -1299,7 +1299,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(
+  /* public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     console.log('Option clicked:', event); 
@@ -1369,7 +1369,77 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.finalizeLoadingState();
       this.cdRef.detectChanges();
     }
-  }  
+  } */
+  public override async onOptionClicked(
+    event: { option: SelectedOption | null; index: number; checked: boolean }
+  ): Promise<void> {
+    console.log('Option clicked:', event);
+  
+    // Prevent further action if option is missing or input handling is locked
+    if (!event?.option || event.option.optionId === undefined) return;
+    if (this.isOptionSelected) {
+      console.warn('Click locked, skipping.');
+      return;
+    }
+  
+    this.isOptionSelected = true; // Lock input handling temporarily
+  
+    try {
+      await this.ngZone.run(async () => {
+        console.log('Inside ngZone after click:', event);
+  
+        // Ensure UI stability
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+  
+        const { option, index = -1, checked = false } = event;
+        console.log(`Processing option: ${option.optionId} at index: ${index}`);
+  
+        // Validate the index
+        if (index < 0) {
+          console.error(`Invalid index: ${index}`);
+          return;
+        }
+  
+        // Mark the question as answered
+        this.selectedOptionService.setOptionSelected(true);
+        this.selectedOptionService.isAnsweredSubject.next(true);
+        this.selectedOptionService.setAnswered(true);
+  
+        // Ensure the form is ready before updating it
+        await this.waitForFormInitialization(option.optionId, checked);
+  
+        // Update the form control correctly
+        this.updateFormControl(option.optionId, checked);
+  
+        console.log('Form control updated.');
+  
+        // Call the parent class's onOptionClicked if needed
+        await super.onOptionClicked(event);
+  
+        // Additional handling logic
+        this.resetExplanation();
+        this.toggleOptionState(option, index);
+        this.emitOptionSelected(option, index);
+  
+        this.startLoading();
+        this.handleMultipleAnswerQuestion(option);
+        this.markQuestionAsAnswered();
+  
+        await this.processSelectedOption(option, index, checked);
+        await this.finalizeSelection(option, index);
+  
+        console.log('Option processed. Applying changes.');
+        this.cdRef.detectChanges(); // Ensure UI reflects changes
+      });
+    } catch (error) {
+      console.error('Error during option click:', error);
+    } finally {
+      // Reset the lock and finalize the state
+      setTimeout(() => (this.isOptionSelected = false), 300); // Cooldown period
+      this.finalizeLoadingState();
+      this.cdRef.detectChanges();
+    }
+  }
   
   private toggleOptionState(option: SelectedOption, index: number): void {
     if (!option || !('optionId' in option) || typeof option.optionId !== 'number') {
