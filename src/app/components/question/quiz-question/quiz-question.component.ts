@@ -2650,7 +2650,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
 
       explanation$.subscribe({
-        next: (explanationText) => {
+        next: (explanationText: string) => {
           if (this.currentQuestionIndex === questionIndex) {
             this.explanationToDisplay = explanationText || 'No explanation available';
             this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
