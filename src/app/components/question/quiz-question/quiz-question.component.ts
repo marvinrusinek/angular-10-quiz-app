@@ -230,15 +230,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     this.quizStateService.setLoading(true);
 
-    this.questions$.subscribe({
-      next: (questions: QuizQuestion[]) => {
-        this.questions = questions; // Assign questions to be used later
-        console.log('Questions loaded:', this.questions);
+    this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: (response: { quizId: string; questions: QuizQuestion[] }) => {
+        if (response.questions.length > 0) {
+          this.questions = response.questions;
+          console.log('Questions loaded:', this.questions);
+        } else {
+          console.warn('No questions found for this quiz.');
+        }
       },
       error: (error) => {
         console.error('Error loading questions:', error);
       }
-    });
+    });    
   
     // Ensure optionsToDisplay is correctly set
     if (this.options && this.options.length > 0) {
