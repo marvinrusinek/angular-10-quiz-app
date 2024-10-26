@@ -689,7 +689,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private async handleExplanationDisplay(): Promise<void> {
     if (this.isAnswered) {
-      await this.fetchAndSetExplanationText();
+      await this.fetchAndSetExplanationText(this.currentQuestionIndex);
       this.updateExplanationDisplay(true);
     } else {
       this.updateExplanationDisplay(false);
