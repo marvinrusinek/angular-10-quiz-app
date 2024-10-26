@@ -1375,40 +1375,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   ): Promise<void> {
     console.log('Option clicked:', event);
   
-    // Prevent further action if option is missing or input handling is locked
+    // Prevent action if option is missing or input handling is locked
     if (!event?.option || event.option.optionId === undefined) return;
     if (this.isOptionSelected) {
       console.warn('Click locked, skipping.');
       return;
     }
   
-    this.isOptionSelected = true; // Lock input handling temporarily
+    this.isOptionSelected = true; // Lock input to prevent duplicate clicks
   
     try {
-      // Run logic inside Angular’s zone and wait for stability
+      const { option, index = -1, checked = false } = event;
+  
+      // Ensure form initialization and control update in the right order
       await this.ngZone.run(async () => {
-        const { option, index = -1, checked = false } = event;
-  
-        // Validate the index before continuing
-        if (index < 0) {
-          console.error(`Invalid index: ${index}`);
-          return;
-        }
-  
         console.log(`Processing option: ${option.optionId} at index: ${index}`);
   
-        // Ensure the form is ready before interacting with it
-        await this.waitForFormInitialization(option.optionId, checked);
-        this.updateFormControl(option.optionId, checked);
-  
-        // Ensure that UI changes are synchronized properly
+        // Wait for stability before updating the form control
         await new Promise((resolve) => requestAnimationFrame(resolve));
-        this.cdRef.detectChanges();
+        this.updateFormControlWithDelay(option.optionId, checked);
   
-        // Call the parent class’s onOptionClicked method
+        // Call parent onOptionClicked if needed
         await super.onOptionClicked(event);
   
-        // Handle additional UI updates and state changes
+        // Handle additional logic after the click
         this.resetExplanation();
         this.toggleOptionState(option, index);
         this.emitOptionSelected(option, index);
@@ -1421,15 +1411,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         await this.finalizeSelection(option, index);
   
         console.log('Option processed. Applying changes.');
-        this.cdRef.detectChanges(); // Ensure the UI reflects the latest state
+        this.cdRef.detectChanges(); // Ensure the UI reflects changes
       });
     } catch (error) {
       console.error('Error during option click:', error);
     } finally {
-      // Reset the lock after processing completes
-      setTimeout(() => (this.isOptionSelected = false), 300); // Cooldown period
+      // Reset lock and finalize loading state
+      this.isOptionSelected = false;
       this.finalizeLoadingState();
-      this.cdRef.detectChanges();
+      this.cdRef.detectChanges(); // Ensure UI reflects the latest state
     }
   }
   
@@ -2162,22 +2152,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private updateFormControlWithDelay(optionId: number, checked: boolean): void {
     requestAnimationFrame(() => {
-      const control = this.questionForm.get(optionId.toString());
-  
+      const control = this.questionForm?.get(optionId.toString());
       if (!control) {
         console.warn(`Control not found for optionId: ${optionId}`);
         return;
       }
-  
       control.setValue(checked, { emitEvent: true });
       control.markAsTouched();
-      control.valueChanges.pipe(debounceTime(50)).subscribe(() => {
-        this.questionForm.updateValueAndValidity();
-      });
-  
-      console.log(`Form control updated for optionId: ${optionId}`);
+      this.questionForm.updateValueAndValidity(); // Ensure form state is valid
     });
-  }
+  }  
 
   private updateRenderComponentState(): void {
     // Check if both the form is valid and question data is available
