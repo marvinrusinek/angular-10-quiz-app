@@ -1419,8 +1419,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.handleMultipleAnswerQuestion(option);
         this.markQuestionAsAnswered();
 
-        // Fetch the explanation text AFTER answering and ensuring the option click is processed
-        await this.fetchAndSetExplanationText(this.currentQuestionIndex);
+        // Show explanation only if it hasn't been displayed yet
+        if (!this.explanationDisplayed) {
+          this.explanationDisplayed = true; // Lock further changes
+          await this.fetchAndSetExplanationText(this.currentQuestionIndex);
+        }
   
         await this.processSelectedOption(option, index, checked);
         await this.finalizeSelection(option, index);
