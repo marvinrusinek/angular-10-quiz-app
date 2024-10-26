@@ -133,6 +133,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private tabVisible = true;
   sharedOptionConfig: SharedOptionConfig;
   shouldRenderComponent = false;
+  explanationDisplayed = false; // flag to lock explanation
 
   explanationTextSubject = new BehaviorSubject<string>('');
   feedbackTextSubject = new BehaviorSubject<string>('');
