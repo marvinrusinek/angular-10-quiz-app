@@ -2632,14 +2632,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Clear the explanation text immediately
     this.explanationToDisplay = '';
-    this.explanationTextService.updateFormattedExplanation('');
+    this.showExplanationChange.emit(false);
+    // this.explanationTextService.updateFormattedExplanation('');
   
     try {
       // Ensure the question data is fully loaded before fetching explanation
       await this.ensureQuestionIsFullyLoaded(questionIndex);
 
       // Debounce to ensure question text loads first
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 100));
   
       // Fetch the correct explanation text for the current question
       const explanationText = await this.prepareAndSetExplanationText(questionIndex);
@@ -2647,11 +2648,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       if (this.currentQuestionIndex === questionIndex) {
         this.explanationToDisplay = explanationText || 'No explanation available';
         this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
-        console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
         
         // Emit events to update the UI
         this.updateExplanationUI(questionIndex, this.explanationToDisplay);
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
       } else {
         console.warn('Question index mismatch. Skipping explanation update.');
       }
