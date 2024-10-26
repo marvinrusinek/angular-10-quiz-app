@@ -1900,12 +1900,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Set the current explanation text
       this.explanationTextService.setCurrentQuestionExplanation(explanationText);
       this.updateExplanationDisplay(true);
-
-      if (this.isQuestionAnswered(this.currentQuestionIndex)) {
-        this.updateExplanationDisplay(true); // Show explanation only if the question is answered
-      } else {
-        this.updateExplanationDisplay(false); // Hide explanation otherwise
-      }
   
       const totalCorrectAnswers = this.quizService.getTotalCorrectAnswers(currentQuestion);
   
