@@ -1308,7 +1308,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     control.setValue(checked, { emitEvent: true });
     control.markAsTouched();
-    this.questionForm.updateValueAndValidity(); // Ensure form state is valid
+
+    control.valueChanges.pipe(debounceTime(50)).subscribe(() => {
+      this.questionForm.updateValueAndValidity(); // Ensure form state is valid after delay
+    });
   }
 
   public override async onOptionClicked(
@@ -1337,6 +1340,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Processing option: ${option.optionId} at index: ${index}`);
 
         this.updateFormControl(option.optionId, checked);
+        this.cdRef.markForCheck();
   
         // Handle index validation and option selection
         if (typeof index !== 'number' || index < 0) {
