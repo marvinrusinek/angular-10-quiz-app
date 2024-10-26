@@ -1375,36 +1375,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   ): Promise<void> {
     console.log('Option clicked:', event);
   
-    // Prevent action if option is missing or input handling is locked
     if (!event?.option || event.option.optionId === undefined) return;
     if (this.isOptionSelected) {
       console.warn('Click locked, skipping.');
       return;
     }
   
-    this.isOptionSelected = true; // Lock input to prevent duplicate clicks
+    this.isOptionSelected = true;
   
     try {
-      const { option, index = -1, checked = false } = event;
-  
-      // Ensure form initialization and control update in the right order
       await this.ngZone.run(async () => {
+        const { option, index = -1, checked = false } = event;
         console.log(`Processing option: ${option.optionId} at index: ${index}`);
   
-        // Wait for stability before updating the form control
-        await new Promise((resolve) => requestAnimationFrame(resolve));
+        // Ensure form initialization before updating controls
         await this.waitForFormInitialization(option.optionId, checked);
-        this.updateFormControl(option.optionId, checked);
-        this.updateFormControlWithDelay(option.optionId, checked);
   
-        // Call parent onOptionClicked if needed
+        this.updateFormControl(option.optionId, checked);
+  
         await super.onOptionClicked(event);
   
-        // Handle additional logic after the click
         this.resetExplanation();
         this.toggleOptionState(option, index);
         this.emitOptionSelected(option, index);
-  
         this.startLoading();
         this.handleMultipleAnswerQuestion(option);
         this.markQuestionAsAnswered();
@@ -1413,17 +1406,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         await this.finalizeSelection(option, index);
   
         console.log('Option processed. Applying changes.');
-        this.cdRef.detectChanges(); // Ensure the UI reflects changes
+        this.cdRef.detectChanges();
       });
     } catch (error) {
       console.error('Error during option click:', error);
     } finally {
-      // Reset lock and finalize loading state
-      this.isOptionSelected = false;
+      setTimeout(() => (this.isOptionSelected = false), 300);
       this.finalizeLoadingState();
-      this.cdRef.detectChanges(); // Ensure UI reflects the latest state
+      this.cdRef.detectChanges();
     }
   }
+  
   
   private toggleOptionState(option: SelectedOption, index: number): void {
     if (!option || !('optionId' in option) || typeof option.optionId !== 'number') {
@@ -2102,43 +2095,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
   }
 
-  private waitForFormInitialization(optionId: number, checked: boolean): void {
-    const maxRetries = 10; // Avoid infinite retries
-    let attempts = 0;
+  private waitForFormInitialization(optionId: number, checked: boolean): Promise<void> {
+    return new Promise((resolve, reject) => {
+      let attempts = 0;
+      const maxRetries = 10;
   
-    const checkForm = () => {
-      if (this.questionForm && this.questionForm.get(optionId.toString())) {
-        console.log(`Form initialized for optionId: ${optionId}`);
-        this.updateFormControl(optionId, checked); // Form ready, update control
-        return;
-      }
+      const checkForm = () => {
+        if (this.questionForm?.get(optionId.toString())) {
+          console.log(`Form initialized for optionId: ${optionId}`);
+          resolve();
+        } else if (attempts++ < maxRetries) {
+          console.warn(`Retrying form initialization (${attempts}/${maxRetries})...`);
+          setTimeout(checkForm, 100);
+        } else {
+          console.error(`Failed to initialize form for optionId: ${optionId}`);
+          reject();
+        }
+      };
   
-      attempts++;
-      if (attempts < maxRetries) {
-        console.warn(`Form not initialized yet. Retrying (${attempts}/${maxRetries})...`);
-        setTimeout(checkForm, 100); // Retry after delay
-      } else {
-        console.error(`Failed to initialize form for optionId: ${optionId} after ${maxRetries} attempts.`);
-      }
-    };
-  
-    checkForm(); // Start the retry logic
+      checkForm();
+    });
   }
   
   initializeForm(): void {
-    if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options) || this.currentQuestion.options.length === 0) {
-      console.warn('Question data not ready or options are missing. Retrying...');
+    if (!this.currentQuestion?.options?.length) {
+      console.warn('Question data not ready or options are missing.');
       return;
     }
   
     const controls = this.currentQuestion.options.reduce((acc, option) => {
-      console.log(`Initializing control for optionId: ${option.optionId}`); // Log each optionId
+      console.log(`Initializing control for optionId: ${option.optionId}`);
       acc[option.optionId] = new FormControl(false);
       return acc;
     }, {});
   
     this.questionForm = this.fb.group(controls);
-    console.log('Form initialized with controls:', this.questionForm.value); // Verify controls
+    console.log('Form initialized:', this.questionForm.value);
   
     this.questionForm.updateValueAndValidity();
     this.updateRenderComponentState();
@@ -2146,24 +2138,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }  
 
   private updateFormControl(optionId: number, checked: boolean): void {
-    if (!this.questionForm) {
-      console.error('Form not initialized yet.');
+    const control = this.questionForm?.get(optionId.toString());
+    if (!control) {
+      console.warn(`Control not found for optionId: ${optionId}`);
       return;
     }
-
-    const control = this.questionForm?.get(optionId.toString());
-    if (!control) return;
   
     control.setValue(checked, { emitEvent: true });
     control.markAsTouched();
-
+  
     control.valueChanges.pipe(debounceTime(50)).subscribe(() => {
-      this.questionForm.updateValueAndValidity(); // Ensure form state is valid after delay
+      this.questionForm.updateValueAndValidity();
     });
-
-    // Force change detection to reflect changes immediately
+  
     this.cdRef.markForCheck();
-    this.cdRef.detectChanges();
   }
 
   private updateFormControlWithDelay(optionId: number, checked: boolean): void {
