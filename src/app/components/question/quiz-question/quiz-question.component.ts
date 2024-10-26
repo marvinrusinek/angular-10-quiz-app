@@ -1393,6 +1393,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         // Wait for stability before updating the form control
         await new Promise((resolve) => requestAnimationFrame(resolve));
+        await this.waitForFormInitialization(option.optionId, checked);
+        this.updateFormControl(option.optionId, checked);
         this.updateFormControlWithDelay(option.optionId, checked);
   
         // Call parent onOptionClicked if needed
@@ -2135,7 +2137,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
-    const control = this.questionForm.get(optionId.toString());
+    const control = this.questionForm?.get(optionId.toString());
     if (!control) return;
   
     control.setValue(checked, { emitEvent: true });
