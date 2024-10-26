@@ -1406,6 +1406,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedOptionService.setOptionSelected(true);
         this.selectedOptionService.isAnsweredSubject.next(true);
         this.selectedOptionService.setAnswered(true);
+
+        // Show explanation only if it hasn't been displayed yet
+        if (!this.explanationDisplayed) {
+          this.explanationDisplayed = true; // Lock further changes
+          await this.fetchAndSetExplanationText(this.currentQuestionIndex);
+        }
   
         // Call the parent class's onOptionClicked if needed
         await super.onOptionClicked(event);
@@ -1419,12 +1425,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.handleMultipleAnswerQuestion(option);
         this.markQuestionAsAnswered();
 
-        // Show explanation only if it hasn't been displayed yet
-        if (!this.explanationDisplayed) {
-          this.explanationDisplayed = true; // Lock further changes
-          await this.fetchAndSetExplanationText(this.currentQuestionIndex);
-        }
-  
         await this.processSelectedOption(option, index, checked);
         await this.finalizeSelection(option, index);
   
