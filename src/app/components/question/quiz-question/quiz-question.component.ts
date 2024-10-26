@@ -2635,6 +2635,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     try {
       // Ensure the question data is fully loaded before fetching explanation
       await this.ensureQuestionIsFullyLoaded(questionIndex);
+
+      // Debounce to ensure question text loads first
+      await new Promise((resolve) => setTimeout(resolve, 50));
   
       // Fetch the correct explanation text for the current question
       const explanationText = await this.prepareAndSetExplanationText(questionIndex);
