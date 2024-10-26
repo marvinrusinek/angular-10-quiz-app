@@ -2164,20 +2164,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   initializeForm(): void {
-    if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
-      console.warn('Waiting for question data to load...');
-      return; // Exit if question or options are not ready
+    if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options) || this.currentQuestion.options.length === 0) {
+      console.warn('Question data not ready or options are missing. Retrying...');
+      this.waitForQuestionData();
+      return; 
     }
   
-    const controls = this.currentQuestion?.options?.reduce((acc, option) => {
-      acc[option.optionId] = new FormControl(false); // Initialize controls for each option
+    const controls = this.currentQuestion.options.reduce((acc, option) => {
+      acc[option.optionId] = new FormControl(false); // Initialize controls
       return acc;
     }, {});
   
-    this.questionForm = this.fb.group(controls || {});
-    this.questionForm.updateValueAndValidity(); // Ensure form is valid
+    this.questionForm = this.fb.group(controls);
   
+    // Ensure the form reflects the latest state
+    this.questionForm.updateValueAndValidity();
+  
+    // Re-evaluate the render state after form initialization
     this.updateRenderComponentState();
+  
+    // Trigger change detection to ensure UI reflects changes
+    this.cdRef.detectChanges();
   }
 
   private updateRenderComponentState(): void {
