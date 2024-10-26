@@ -65,7 +65,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @Input() questionData: QuizQuestion;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
-  @Input() questions: Observable<QuizQuestion[]>;
+  @Input() questions$!: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[] = [];
   @Input() currentQuestion: QuizQuestion | null = null;
@@ -80,6 +80,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @Input() showFeedback = false;
   @Input() selectionMessage: string;
   @Input() reset: boolean;
+  questions: QuizQuestion[] = [];
+  questionIndex: number;
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -88,8 +90,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     currentOptions: Option[]
   }> = new Subject();
 
-  questionIndex: number;
-  questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
   selectedOption: SelectedOption | null = null;
   selectedOptions: SelectedOption[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
@@ -229,6 +229,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
   
     this.quizStateService.setLoading(true);
+
+
+    this.quizService.getQuestionsForQuiz(this.quizId).pipe(
+      map((response: { quizId: string; questions: QuizQuestion[] }) => response.questions),
+      catchError((error) => {
+        console.error('An error occurred while loading questions:', error);
+        return of([]); // Return an empty array to prevent the app from breaking
+      })
+    ).subscribe({
+      next: (questions: QuizQuestion[]) => {
+        this.questions = questions; // Properly assign the resolved array here
+        console.log('Questions loaded:', this.questions);
+      },
+      error: (error) => {
+        console.error('Error loading questions:', error);
+      }
+    });
   
     // Ensure optionsToDisplay is correctly set
     if (this.options && this.options.length > 0) {
