@@ -1917,39 +1917,40 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private updateExplanationDisplay(shouldDisplay: boolean): void {
+  private async updateExplanationDisplay(shouldDisplay: boolean): Promise<void> {
     this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
     this.showExplanationChange.emit(shouldDisplay);
     this.displayExplanation = shouldDisplay;
   
     if (shouldDisplay) {
-      // Add a slight delay to avoid flickering when navigating questions
-      setTimeout(() => {
-        this.explanationTextService
-          .getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-          .pipe(
-            tap((explanationText: string) => {
-              this.explanationToDisplay = explanationText ?? 'No explanation available';
-              this.explanationToDisplayChange.emit(this.explanationToDisplay);
-              console.log(`Displaying explanation for question ${this.currentQuestionIndex}`);
-            }),
-            catchError((error) => {
-              console.error('Error fetching explanation:', error);
-              this.explanationToDisplay = 'Error loading explanation.';
-              this.explanationToDisplayChange.emit(this.explanationToDisplay);
-              return of(null); // Continue the stream even on error
-            })
-          )
-          .subscribe(() => {
-            this.cdRef.markForCheck(); // Ensure UI reflects the updated state
-          });
-      }, 50); // Adjust the delay if needed
+      // Introduce a delay to avoid flickering
+      setTimeout(async () => {
+        try {
+          const explanationText = await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+          );
+          this.explanationToDisplay = explanationText ?? 'No explanation available';
+          this.explanationToDisplayChange.emit(this.explanationToDisplay);
+          console.log(`Displayed explanation for question ${this.currentQuestionIndex}:`, explanationText);
+          this.cdRef.markForCheck(); // Ensure UI reflects changes
+        } catch (error) {
+          console.error('Error fetching explanation:', error);
+          this.explanationToDisplay = 'Error loading explanation.';
+          this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        }
+      }, 50); // Slight delay to avoid flicker
     } else {
-      this.explanationToDisplay = '';
-      this.explanationToDisplayChange.emit('');
-      console.log(`Explanation for question ${this.currentQuestionIndex} is not displayed.`);
+      this.resetExplanationState(); // Clear explanation when not displaying
     }
   }
+ 
+  private resetExplanationState(): void {
+    this.explanationToDisplay = '';
+    this.explanationToDisplayChange.emit('');
+    this.showExplanationChange.emit(false);
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    console.log('Explanation state reset.');
+  }  
 
   async updateExplanationText(questionIndex: number): Promise<void> {
     const questionState = this.quizStateService.getQuestionState(
