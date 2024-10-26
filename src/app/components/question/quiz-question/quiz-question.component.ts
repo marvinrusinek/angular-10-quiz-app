@@ -1388,9 +1388,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const { option, index = -1, checked = false } = event;
         console.log(`Processing option: ${option.optionId} at index: ${index}`);
   
-        // Ensure form initialization before updating controls
-        await this.waitForFormInitialization(option.optionId, checked);
-  
         this.updateFormControl(option.optionId, checked);
   
         await super.onOptionClicked(event);
@@ -2092,28 +2089,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       complete: () => {
         console.log('Question data loaded successfully.');
       }
-    });
-  }
-
-  private waitForFormInitialization(optionId: number, checked: boolean): Promise<void> {
-    return new Promise((resolve, reject) => {
-      let attempts = 0;
-      const maxRetries = 10;
-  
-      const checkForm = () => {
-        if (this.questionForm?.get(optionId.toString())) {
-          console.log(`Form initialized for optionId: ${optionId}`);
-          resolve();
-        } else if (attempts++ < maxRetries) {
-          console.warn(`Retrying form initialization (${attempts}/${maxRetries})...`);
-          setTimeout(checkForm, 100);
-        } else {
-          console.error(`Failed to initialize form for optionId: ${optionId}`);
-          reject();
-        }
-      };
-  
-      checkForm();
     });
   }
   
