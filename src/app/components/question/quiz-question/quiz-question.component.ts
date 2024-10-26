@@ -1298,22 +1298,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  private focusOnOptionElement(optionId: number): void {
-    const control = this.questionForm.get(`${option.optionId}`);
-    if (control) {
-      control.setValue(checked, { emitEvent: true });
-      control.markAsTouched();
-      this.questionForm.updateValueAndValidity(); // Force revalidation
-
-      // Ensure the clicked element gains focus for proper registration
-      const element = document.querySelector(`input[name="${option.optionId}"]`) as HTMLElement;
-      if (element) {
-        element.focus(); // Bring the clicked element into focus
-      }
-
-      this.cdRef.markForCheck();  // Ensure Angular knows about the changes
-      this.cdRef.detectChanges(); // Trigger immediate change detection
+  private updateFormControl(optionId: number, checked: boolean): void {
+    const control = this.questionForm.get(`${optionId}`);
+    
+    if (!control) {
+      console.warn(`Control not found for optionId: ${optionId}`);
+      return;
     }
+  
+    control.setValue(checked, { emitEvent: true });
+    control.markAsTouched();
+    this.questionForm.updateValueAndValidity(); // Ensure form state is valid
   }
 
   public override async onOptionClicked(
@@ -1340,6 +1335,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const { option, index = -1, checked = false } = event || {};
   
         console.log(`Processing option: ${option.optionId} at index: ${index}`);
+
+        this.updateFormControl(option.optionId, checked);
   
         // Handle index validation and option selection
         if (typeof index !== 'number' || index < 0) {
@@ -1350,9 +1347,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedOptionService.setOptionSelected(true);
         this.selectedOptionService.isAnsweredSubject.next(true);
         this.selectedOptionService.setAnswered(true);
-
-        // Focus on the clicked option's input element
-        this.focusOnOptionElement(option.optionId);
   
         // Call the parent class's onOptionClicked if needed
         await super.onOptionClicked(event);
