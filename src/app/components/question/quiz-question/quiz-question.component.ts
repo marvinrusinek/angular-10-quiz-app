@@ -31,7 +31,7 @@ import { BaseQuestionComponent } from '../../../components/question/base/base-qu
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './quiz-question.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent extends BaseQuestionComponent
   implements OnInit, OnChanges, OnDestroy, AfterViewInit
@@ -60,7 +60,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     questionText: string,
     explanationText?: string,
     correctAnswersText?: string,
-    options: Option[];
+    options: Option[]
   };
   @Input() questionData: QuizQuestion;
   @Input() question!: QuizQuestion;
@@ -1448,7 +1448,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     try {
       // Run outside Angular to avoid unnecessary change detection triggers
       this.ngZone.runOutsideAngular(async () => {
-        const { option, index = -1, checked = false } = event;
+        const { option, index = -1, checked = false } = event || {};
   
         console.log(`Processing option: ${option.optionId} at index: ${index}`);
   
