@@ -1298,22 +1298,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  private updateFormControl(optionId: number, checked: boolean): void {
-    const control = this.questionForm.get(`${optionId}`);
-    
-    if (!control) {
-      console.warn(`Control not found for optionId: ${optionId}`);
-      return;
-    }
-  
-    control.setValue(checked, { emitEvent: true });
-    control.markAsTouched();
-
-    control.valueChanges.pipe(debounceTime(50)).subscribe(() => {
-      this.questionForm.updateValueAndValidity(); // Ensure form state is valid after delay
-    });
-  }
-
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
@@ -2072,6 +2056,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Trigger change detection to ensure UI reflects changes
     this.cdRef.detectChanges();
+  }
+
+  private updateFormControl(optionId: number, checked: boolean): void {
+    const control = this.questionForm.get(`${optionId}`);
+    
+    if (!control) {
+      console.warn(`Control not found for optionId: ${optionId}`);
+      return;
+    }
+  
+    control.setValue(checked, { emitEvent: true });
+    control.markAsTouched();
+
+    control.valueChanges.pipe(debounceTime(50)).subscribe(() => {
+      this.questionForm.updateValueAndValidity(); // Ensure form state is valid after delay
+    });
   }
 
   private updateRenderComponentState(): void {
