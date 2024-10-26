@@ -1323,6 +1323,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         console.log(`Processing option: ${option.optionId} at index: ${index}`);
 
+        // Ensure form control is ready and update it in one place
+        await this.waitForFormInitialization(option.optionId, checked);
         this.updateFormControl(option.optionId, checked);
         this.cdRef.markForCheck();
   
@@ -2040,30 +2042,35 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     });
   }
+
+  private waitForFormInitialization(optionId: number, checked: boolean): void {
+    if (!this.questionForm) {
+      console.warn('Waiting for form initialization...');
+      setTimeout(() => this.updateFormControl(optionId, checked), 100); // Retry after a small delay
+      return;
+    }
+    this.updateFormControl(optionId, checked);
+  }  
   
   initializeForm(): void {
     if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options) || this.currentQuestion.options.length === 0) {
       console.warn('Question data not ready or options are missing. Retrying...');
-      this.waitForQuestionData();
-      return; 
+      return;
     }
   
-    const controls = this.currentQuestion?.options?.reduce((acc, option) => {
+    const controls = this.currentQuestion.options.reduce((acc, option) => {
+      console.log(`Initializing control for optionId: ${option.optionId}`); // Log each optionId
       acc[option.optionId] = new FormControl(false);
       return acc;
     }, {});
   
     this.questionForm = this.fb.group(controls);
+    console.log('Form initialized with controls:', this.questionForm.value); // Verify controls
   
-    // Ensure the form reflects the latest state
     this.questionForm.updateValueAndValidity();
-  
-    // Re-evaluate the render state after form initialization
     this.updateRenderComponentState();
-  
-    // Trigger change detection to ensure UI reflects changes
     this.cdRef.detectChanges();
-  }
+  }  
 
   private updateFormControl(optionId: number, checked: boolean): void {
     if (!this.questionForm) {
