@@ -1937,9 +1937,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             return of(null); // Return an observable to continue the stream
           })
         )
-        .subscribe();
+        .subscribe(() => {
+          this.cdRef.markForCheck(); // Ensure UI reflects the updated state
+        });
     } else {
       this.explanationToDisplay = '';
+      this.explanationToDisplayChange.emit('');
       console.log(`Explanation for question ${this.currentQuestionIndex} is not displayed`);
     }
   }
