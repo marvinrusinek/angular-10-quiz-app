@@ -322,8 +322,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   
       // Trigger change detection to update the UI
       this.cdRef.detectChanges();
-  
-      console.log('BQC: Option processed successfully');
     } catch (error) {
       console.error('An error occurred while processing the option click:', error);
     }
