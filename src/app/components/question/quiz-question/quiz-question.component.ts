@@ -1892,18 +1892,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.handleAudioPlayback(isCorrect);
   }
 
-  private async processCurrentQuestion(
-    currentQuestion: QuizQuestion
-  ): Promise<void> {
-    this.explanationTextService.setShouldDisplayExplanation(true);
-  
+  private async processCurrentQuestion(currentQuestion: QuizQuestion): Promise<void> {
     try {
-      const explanationText = await this.getExplanationText(this.currentQuestionIndex);  
+      // Reset explanation state before processing the new question
+      this.resetExplanationState(); 
+  
+      console.log('Processing current question:', currentQuestion);
+  
+      // Fetch and set explanation text with error handling
+      const explanationText = await this.fetchAndSetExplanationText(this.currentQuestionIndex);
+      
       this.explanationTextService.setCurrentQuestionExplanation(explanationText);
       this.updateExplanationDisplay(true);
   
-      const totalCorrectAnswers =
-        this.quizService.getTotalCorrectAnswers(currentQuestion);
+      // Calculate total correct answers and update the question state
+      const totalCorrectAnswers = this.quizService.getTotalCorrectAnswers(currentQuestion);
       this.quizStateService.updateQuestionState(
         this.quizId,
         this.currentQuestionIndex,
@@ -1912,7 +1915,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
     } catch (error) {
       console.error('Error processing current question:', error);
-      // Handle the error appropriately, maybe set a default explanation
       this.explanationTextService.setCurrentQuestionExplanation('Unable to load explanation.');
     }
   }
