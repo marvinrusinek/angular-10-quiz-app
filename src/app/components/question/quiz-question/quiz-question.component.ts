@@ -2048,13 +2048,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     const controls = this.currentQuestion.options.reduce((acc, option) => {
-      // Convert optionId to a string to ensure compatibility with Angular forms
-      acc[`${option.optionId}`] = new FormControl(false); // Initialize controls
-
+      acc[option.optionId] = new FormControl(false);
       return acc;
     }, {});
   
-    this.questionForm = this.fb.group(controls || {});
+    this.questionForm = this.fb.group(controls);
   
     // Ensure the form reflects the latest state
     this.questionForm.updateValueAndValidity();
