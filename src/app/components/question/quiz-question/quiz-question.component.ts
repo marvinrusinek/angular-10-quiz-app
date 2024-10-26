@@ -2117,7 +2117,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
   }
   
-  initializeForm(): void {
+  /* initializeForm(): void {
     if (!this.currentQuestion?.options?.length) {
       console.warn('Question data not ready or options are missing.');
       return;
@@ -2135,7 +2135,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.questionForm.updateValueAndValidity();
     this.updateRenderComponentState();
     this.cdRef.detectChanges();
-  }  
+  } */
 
   private updateFormControl(optionId: number, checked: boolean): void {
     const control = this.questionForm?.get(optionId.toString());
