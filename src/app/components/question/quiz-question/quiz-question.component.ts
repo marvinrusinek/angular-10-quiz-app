@@ -2154,19 +2154,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.cdRef.markForCheck();
   }
 
-  private updateFormControlWithDelay(optionId: number, checked: boolean): void {
-    requestAnimationFrame(() => {
-      const control = this.questionForm?.get(optionId.toString());
-      if (!control) {
-        console.warn(`Control not found for optionId: ${optionId}`);
-        return;
-      }
-      control.setValue(checked, { emitEvent: true });
-      control.markAsTouched();
-      this.questionForm.updateValueAndValidity(); // Ensure form state is valid
-    });
-  }  
-
   private updateRenderComponentState(): void {
     // Check if both the form is valid and question data is available
     if (this.isFormValid()) {
