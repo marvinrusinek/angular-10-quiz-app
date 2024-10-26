@@ -2797,15 +2797,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private updateExplanationUI(questionIndex: number, explanationText: string): void {
-    // Retry logic if questions are not loaded
+    // Ensure questions array is initialized and the question exists
     if (!this.questions || !this.questions[questionIndex]) {
-      console.warn(`Question not found at index ${questionIndex}. Retrying...`);
-
-      setTimeout(() => this.updateExplanationUI(questionIndex, explanationText), 100);
+      console.error(`Question not found at index ${questionIndex}.`);
       return;
     }
   
     this.explanationTextService.explanationText$.next(explanationText);
+    
     console.log(`Updating combined data for question ${questionIndex}`);
   
     // Update combined question data safely
