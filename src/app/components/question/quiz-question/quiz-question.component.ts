@@ -1324,20 +1324,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         console.log(`Processing option: ${option.optionId} at index: ${index}`);
 
-        // Using requestAnimationFrame to ensure UI is ready before updating form
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            console.log(`Updating form control for optionId: ${event.option?.optionId}`);
-
-            // Ensure the form control is updated correctly
-            this.waitForFormInitialization(event.option?.optionId, event.checked);
-            this.updateFormControl(event.option?.optionId, event.checked);
-            this.cdRef.markForCheck(); // Ensure Angular checks for changes
-
-            console.log('Form control updated, UI changes reflected.');
-          }, 0); // Minimal delay to sync with rendering
-        });
-
         // Handle index validation and option selection
         if (typeof index !== 'number' || index < 0) {
           console.error(`Invalid index: ${index}`);
@@ -1347,6 +1333,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedOptionService.setOptionSelected(true);
         this.selectedOptionService.isAnsweredSubject.next(true);
         this.selectedOptionService.setAnswered(true);
+
+        // Ensure the form is ready before updating it
+        await this.waitForFormInitialization(option.optionId, checked);
+
+        // Update the form control once it's ready
+        this.updateFormControl(option.optionId, checked);
+
+        // Ensure the form control is updated correctly
+        this.updateFormControlWithDelay(option.optionId, checked);
   
         // Call the parent class's onOptionClicked if needed
         await super.onOptionClicked(event);
@@ -2101,6 +2096,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Force change detection to reflect changes immediately
     this.cdRef.markForCheck();
     this.cdRef.detectChanges();
+  }
+
+  private updateFormControlWithDelay(optionId: number, checked: boolean): void {
+    requestAnimationFrame(() => {
+      const control = this.questionForm.get(optionId.toString());
+  
+      if (!control) {
+        console.warn(`Control not found for optionId: ${optionId}`);
+        return;
+      }
+  
+      control.setValue(checked, { emitEvent: true });
+      control.markAsTouched();
+      control.valueChanges.pipe(debounceTime(50)).subscribe(() => {
+        this.questionForm.updateValueAndValidity();
+      });
+  
+      console.log(`Form control updated for optionId: ${optionId}`);
+    });
   }
 
   private updateRenderComponentState(): void {
