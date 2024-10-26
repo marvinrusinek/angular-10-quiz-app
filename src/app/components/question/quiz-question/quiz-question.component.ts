@@ -1923,27 +1923,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.displayExplanation = shouldDisplay;
   
     if (shouldDisplay) {
-      this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-        .pipe(
-          tap((explanationText: string) => {
-            this.explanationToDisplay = explanationText ?? 'No explanation available';
-            this.explanationToDisplayChange.emit(this.explanationToDisplay);
-            console.log(`Displaying explanation for question ${this.currentQuestionIndex}`);
-          }),
-          catchError((error) => {
-            console.error('Error fetching explanation:', error);
-            this.explanationToDisplay = 'Error loading explanation.';
-            this.explanationToDisplayChange.emit(this.explanationToDisplay);
-            return of(null); // Return an observable to continue the stream
-          })
-        )
-        .subscribe(() => {
-          this.cdRef.markForCheck(); // Ensure UI reflects the updated state
-        });
+      // Add a slight delay to avoid flickering when navigating questions
+      setTimeout(() => {
+        this.explanationTextService
+          .getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+          .pipe(
+            tap((explanationText: string) => {
+              this.explanationToDisplay = explanationText ?? 'No explanation available';
+              this.explanationToDisplayChange.emit(this.explanationToDisplay);
+              console.log(`Displaying explanation for question ${this.currentQuestionIndex}`);
+            }),
+            catchError((error) => {
+              console.error('Error fetching explanation:', error);
+              this.explanationToDisplay = 'Error loading explanation.';
+              this.explanationToDisplayChange.emit(this.explanationToDisplay);
+              return of(null); // Continue the stream even on error
+            })
+          )
+          .subscribe(() => {
+            this.cdRef.markForCheck(); // Ensure UI reflects the updated state
+          });
+      }, 50); // Adjust the delay if needed
     } else {
       this.explanationToDisplay = '';
       this.explanationToDisplayChange.emit('');
-      console.log(`Explanation for question ${this.currentQuestionIndex} is not displayed`);
+      console.log(`Explanation for question ${this.currentQuestionIndex} is not displayed.`);
     }
   }
 
