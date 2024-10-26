@@ -1366,7 +1366,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.cdRef.detectChanges(); // Ensure the UI reflects the latest state
     }
   } */
-  /* public override async onOptionClicked(
+  public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     console.log('Option clicked:', event); 
@@ -1427,8 +1427,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.finalizeLoadingState();
       this.cdRef.detectChanges();
     }
-  } */
-  public override async onOptionClicked(
+  }
+  /* public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     console.log('Option clicked:', event);
@@ -1493,7 +1493,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.finalizeLoadingState();
       this.cdRef.detectChanges(); // Ensure the UI reflects the latest state
     }
-  }
+  } */
   
   
   private toggleOptionState(option: SelectedOption, index: number): void {
