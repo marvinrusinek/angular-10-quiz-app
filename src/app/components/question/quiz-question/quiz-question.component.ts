@@ -1894,19 +1894,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private async processCurrentQuestion(currentQuestion: QuizQuestion): Promise<void> {
     try {
-      // Reset explanation state before processing the new question
-      this.resetExplanationState(); 
-  
-      console.log('Processing current question:', currentQuestion);
-  
-      // Fetch and set explanation text with error handling
-      const explanationText = await this.fetchAndSetExplanationText(this.currentQuestionIndex);
+      // Await the explanation text to ensure it resolves to a string
+      const explanationText: string = await this.getExplanationText(this.currentQuestionIndex);
       
+      // Set the current explanation text
       this.explanationTextService.setCurrentQuestionExplanation(explanationText);
       this.updateExplanationDisplay(true);
   
-      // Calculate total correct answers and update the question state
       const totalCorrectAnswers = this.quizService.getTotalCorrectAnswers(currentQuestion);
+  
+      // Update the quiz state with the latest question information
       this.quizStateService.updateQuestionState(
         this.quizId,
         this.currentQuestionIndex,
@@ -1915,10 +1912,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
     } catch (error) {
       console.error('Error processing current question:', error);
+  
+      // Set a fallback explanation text on error
       this.explanationTextService.setCurrentQuestionExplanation('Unable to load explanation.');
     }
   }
-  
 
   private async updateExplanationDisplay(shouldDisplay: boolean): Promise<void> {
     this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
