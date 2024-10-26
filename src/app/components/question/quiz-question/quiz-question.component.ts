@@ -1945,18 +1945,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       }, 50); // Slight delay to avoid flicker
     } else {
-      this.resetQuestionAndExplanationState(); // Clear explanation when not displaying
+      this.resetStateBeforeNavigation(); // Clear explanation when not displaying
     }
   }
  
-  private resetQuestionAndExplanationState(): void {
+  private resetStateBeforeNavigation(): void {
     this.currentQuestion = null;
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
     this.explanationTextService.updateFormattedExplanation('');
     this.showExplanationChange.emit(false);
     this.explanationTextService.setShouldDisplayExplanation(false);
-  }  
+  }
 
   async updateExplanationText(questionIndex: number): Promise<void> {
     const questionState = this.quizStateService.getQuestionState(
