@@ -2079,11 +2079,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     const control = this.questionForm.get(optionId.toString());
-    
-    if (!control) {
-      console.warn(`Control not found for optionId: ${optionId}`);
-      return;
-    }
+    if (!control) return;
   
     control.setValue(checked, { emitEvent: true });
     control.markAsTouched();
