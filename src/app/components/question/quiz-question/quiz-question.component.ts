@@ -2794,11 +2794,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     questionIndex: number,
     explanationText: string
   ): void {
+    // Ensure questions array is initialized and the question exists
+    if (!this.questions || !this.questions[questionIndex]) {
+      console.error(`Question not found at index ${questionIndex}.`);
+      return;
+    }
+  
     this.explanationTextService.explanationText$.next(explanationText);
+    
+    console.log(`Updating combined data for question ${questionIndex}`);
+  
+    // Update combined question data safely
     this.updateCombinedQuestionData(
       this.questions[questionIndex],
       explanationText
     );
+  
     this.isAnswerSelectedChange.emit(true);
   }
 
