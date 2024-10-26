@@ -285,6 +285,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (!this.isValidOptionBinding(optionBinding)) return;
   
     this.ngZone.run(() => {
+      // Set the radio/checkbox as checked
+      element.checked = true;
+      element.focus(); // Ensure the element gains focus
+
       const selectedOption = optionBinding.option as SelectedOption;
       const checked = element.checked;
       const optionId = this.getOptionId(selectedOption, index);
