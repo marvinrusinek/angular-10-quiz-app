@@ -133,7 +133,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private tabVisible = true;
   sharedOptionConfig: SharedOptionConfig;
   shouldRenderComponent = false;
-  explanationDisplayed = false; // flag to lock explanation
+  explanationLocked = false; // flag to lock explanation
 
   explanationTextSubject = new BehaviorSubject<string>('');
   feedbackTextSubject = new BehaviorSubject<string>('');
@@ -1408,8 +1408,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedOptionService.setAnswered(true);
 
         // Show explanation only if it hasn't been displayed yet
-        if (!this.explanationDisplayed) {
-          this.explanationDisplayed = true; // Lock further changes
+        if (!this.explanationLocked) {
+          this.explanationLocked = true; // Lock further changes
           await this.fetchAndSetExplanationText(this.currentQuestionIndex);
         }
   
@@ -1955,6 +1955,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
  
   private resetQuestionStateBeforeNavigation(): void {
     this.currentQuestion = null;
+    this.explanationLocked = false; // Reset explanation lock
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
     this.explanationTextService.updateFormattedExplanation('');
