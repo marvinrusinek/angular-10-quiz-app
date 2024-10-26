@@ -1385,38 +1385,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isOptionSelected = true; // Lock input handling temporarily
   
     try {
+      // Run logic inside Angular’s zone and wait for stability
       await this.ngZone.run(async () => {
-        console.log('Inside ngZone after click:', event);
-  
-        // Ensure UI stability
-        await new Promise((resolve) => requestAnimationFrame(resolve));
-  
         const { option, index = -1, checked = false } = event;
-        console.log(`Processing option: ${option.optionId} at index: ${index}`);
   
-        // Validate the index
+        // Validate the index before continuing
         if (index < 0) {
           console.error(`Invalid index: ${index}`);
           return;
         }
   
-        // Mark the question as answered
-        this.selectedOptionService.setOptionSelected(true);
-        this.selectedOptionService.isAnsweredSubject.next(true);
-        this.selectedOptionService.setAnswered(true);
+        console.log(`Processing option: ${option.optionId} at index: ${index}`);
   
-        // Ensure the form is ready before updating it
+        // Ensure the form is ready before interacting with it
         await this.waitForFormInitialization(option.optionId, checked);
-  
-        // Update the form control correctly
         this.updateFormControl(option.optionId, checked);
   
-        console.log('Form control updated.');
+        // Ensure that UI changes are synchronized properly
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+        this.cdRef.detectChanges();
   
-        // Call the parent class's onOptionClicked if needed
+        // Call the parent class’s onOptionClicked method
         await super.onOptionClicked(event);
   
-        // Additional handling logic
+        // Handle additional UI updates and state changes
         this.resetExplanation();
         this.toggleOptionState(option, index);
         this.emitOptionSelected(option, index);
@@ -1429,12 +1421,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         await this.finalizeSelection(option, index);
   
         console.log('Option processed. Applying changes.');
-        this.cdRef.detectChanges(); // Ensure UI reflects changes
+        this.cdRef.detectChanges(); // Ensure the UI reflects the latest state
       });
     } catch (error) {
       console.error('Error during option click:', error);
     } finally {
-      // Reset the lock and finalize the state
+      // Reset the lock after processing completes
       setTimeout(() => (this.isOptionSelected = false), 300); // Cooldown period
       this.finalizeLoadingState();
       this.cdRef.detectChanges();
