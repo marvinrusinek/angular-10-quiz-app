@@ -1951,9 +1951,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private resetExplanationState(): void {
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
+    this.explanationTextService.updateFormattedExplanation('');
     this.showExplanationChange.emit(false);
     this.explanationTextService.setShouldDisplayExplanation(false);
-    console.log('Explanation state reset.');
   }  
 
   async updateExplanationText(questionIndex: number): Promise<void> {
