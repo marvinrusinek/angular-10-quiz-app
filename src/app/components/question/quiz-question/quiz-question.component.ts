@@ -1918,6 +1918,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationTextService.setCurrentQuestionExplanation('Unable to load explanation.');
     }
   }
+  
 
   private async updateExplanationDisplay(shouldDisplay: boolean): Promise<void> {
     this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
@@ -2590,7 +2591,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
     }
   } */
-  public async fetchAndSetExplanationText(): Promise<void> {
+  /* public async fetchAndSetExplanationText(): Promise<void> {
     console.log(`Fetching explanation for question ${this.currentQuestionIndex}`);
   
     // Clear the current explanation text immediately
@@ -2620,6 +2621,41 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error(`Error fetching explanation for question ${this.currentQuestionIndex}:`, error);
       this.explanationToDisplay = 'Error fetching explanation. Please try again.';
       this.updateExplanationUI(this.currentQuestionIndex, this.explanationToDisplay);
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+    }
+  } */
+  public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
+    console.log(`Fetching explanation for question ${questionIndex}`);
+  
+    // Clear the current explanation text immediately
+    this.explanationToDisplay = '';
+  
+    try {
+      // Ensure the question data is fully loaded before fetching the explanation
+      await this.ensureQuestionIsFullyLoaded(questionIndex);
+  
+      // Fetch and prepare the explanation text for the given question index
+      const explanationText = await this.prepareAndSetExplanationText(questionIndex);
+  
+      // Check if the provided index matches the current question index
+      if (this.currentQuestionIndex === questionIndex) {
+        this.explanationToDisplay = explanationText || 'No explanation available';
+        this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
+        console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
+      } else {
+        console.warn(`Question index mismatch. Skipping explanation update for index ${questionIndex}.`);
+      }
+  
+      // Emit events to update the UI with the new explanation
+      this.updateExplanationUI(questionIndex, this.explanationToDisplay);
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+  
+    } catch (error) {
+      console.error(`Error fetching explanation for question ${questionIndex}:`, error);
+  
+      // Handle errors gracefully and update the UI with a fallback message
+      this.explanationToDisplay = 'Error fetching explanation. Please try again.';
+      this.updateExplanationUI(questionIndex, this.explanationToDisplay);
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
     }
   }
