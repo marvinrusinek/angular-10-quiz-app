@@ -2022,12 +2022,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   private waitForQuestionData(): void {
-    this.quizService.getQuestionByIndex(this.currentQuestionIndex).subscribe((question) => {
-      if (question) {
-        this.currentQuestion = question;
-        this.initializeForm(); // Call when data is available
-      } else {
-        console.error('Failed to load question data.');
+    this.quizService.getQuestionByIndex(this.currentQuestionIndex).subscribe({
+      next: (question) => {
+        if (question) {
+          this.currentQuestion = question;
+          this.initializeForm(); // Initialize the form when data is available
+        } else {
+          console.error('Failed to load question data.');
+        }
+      },
+      error: (error) => {
+        console.error('Error loading question data:', error);
+      },
+      complete: () => {
+        console.log('Question data loaded successfully.');
       }
     });
   }
