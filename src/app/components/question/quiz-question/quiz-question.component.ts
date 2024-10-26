@@ -637,6 +637,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public async loadQuestion(signal?: AbortSignal): Promise<void> {
+    this.resetQuestionAndExplanationState();
     this.resetExplanation();
     this.resetTexts();
     
