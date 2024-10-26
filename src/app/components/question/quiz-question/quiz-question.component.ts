@@ -2065,7 +2065,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private updateFormControl(optionId: number, checked: boolean): void {
-    const control = this.questionForm.get(`${optionId}`);
+    const control = this.questionForm.get(optionId.toString());
     
     if (!control) {
       console.warn(`Control not found for optionId: ${optionId}`);
