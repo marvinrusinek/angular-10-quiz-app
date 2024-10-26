@@ -1298,6 +1298,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
+  private focusOnOptionElement(optionId: number): void {
+    const control = this.questionForm.get(`${option.optionId}`);
+    if (control) {
+      control.setValue(checked, { emitEvent: true });
+      control.markAsTouched();
+      this.questionForm.updateValueAndValidity(); // Force revalidation
+
+      // Ensure the clicked element gains focus for proper registration
+      const element = document.querySelector(`input[name="${option.optionId}"]`) as HTMLElement;
+      if (element) {
+        element.focus(); // Bring the clicked element into focus
+      }
+
+      this.cdRef.markForCheck();  // Ensure Angular knows about the changes
+      this.cdRef.detectChanges(); // Trigger immediate change detection
+    }
+  }
+
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
@@ -1333,22 +1351,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedOptionService.isAnsweredSubject.next(true);
         this.selectedOptionService.setAnswered(true);
 
-        // Mark form control as touched to ensure its state updates
-        const control = this.questionForm.get(`${option.optionId}`);
-        if (control) {
-          control.setValue(checked, { emitEvent: true });
-          control.markAsTouched();
-          this.questionForm.updateValueAndValidity(); // Force revalidation
-
-          // Ensure the clicked element gains focus for proper registration
-          const element = document.querySelector(`input[name="${option.optionId}"]`) as HTMLElement;
-          if (element) {
-            element.focus(); // Bring the clicked element into focus
-          }
-
-          this.cdRef.markForCheck();  // Ensure Angular knows about the changes
-          this.cdRef.detectChanges(); // Trigger immediate change detection
-        }
+        // Focus on the clicked option's input element
+        this.focusOnOptionElement(option.optionId);
   
         // Call the parent class's onOptionClicked if needed
         await super.onOptionClicked(event);
