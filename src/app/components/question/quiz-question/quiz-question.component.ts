@@ -230,16 +230,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     this.quizStateService.setLoading(true);
 
-
-    this.quizService.getQuestionsForQuiz(this.quizId).pipe(
-      map((response: { quizId: string; questions: QuizQuestion[] }) => response.questions),
-      catchError((error) => {
-        console.error('An error occurred while loading questions:', error);
-        return of([]); // Return an empty array to prevent the app from breaking
-      })
-    ).subscribe({
+    this.questions$.subscribe({
       next: (questions: QuizQuestion[]) => {
-        this.questions = questions; // Properly assign the resolved array here
+        this.questions = questions; // Assign questions to be used later
         console.log('Questions loaded:', this.questions);
       },
       error: (error) => {
