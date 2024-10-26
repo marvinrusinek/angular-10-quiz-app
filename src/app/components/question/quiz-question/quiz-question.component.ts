@@ -638,7 +638,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public async loadQuestion(signal?: AbortSignal): Promise<void> {
-    this.resetStateBeforeNavigation();
+    this.resetQuestionStateBeforeNavigation();
     this.resetExplanation();
     this.resetTexts();
     
@@ -1949,11 +1949,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       }, 50); // Slight delay to avoid flicker
     } else {
-      this.resetStateBeforeNavigation(); // Clear explanation when not displaying
+      this.resetQuestionStateBeforeNavigation(); // Clear explanation when not displaying
     }
   }
  
-  private resetStateBeforeNavigation(): void {
+  private resetQuestionStateBeforeNavigation(): void {
     this.currentQuestion = null;
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
