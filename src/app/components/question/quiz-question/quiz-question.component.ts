@@ -2103,13 +2103,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private waitForFormInitialization(optionId: number, checked: boolean): void {
-    if (!this.questionForm) {
-      console.warn('Waiting for form initialization...');
-      setTimeout(() => this.updateFormControl(optionId, checked), 100); // Retry after a small delay
-      return;
-    }
-    this.updateFormControl(optionId, checked);
-  }  
+    const maxRetries = 10; // Avoid infinite retries
+    let attempts = 0;
+  
+    const checkForm = () => {
+      if (this.questionForm && this.questionForm.get(optionId.toString())) {
+        console.log(`Form initialized for optionId: ${optionId}`);
+        this.updateFormControl(optionId, checked); // Form ready, update control
+        return;
+      }
+  
+      attempts++;
+      if (attempts < maxRetries) {
+        console.warn(`Form not initialized yet. Retrying (${attempts}/${maxRetries})...`);
+        setTimeout(checkForm, 100); // Retry after delay
+      } else {
+        console.error(`Failed to initialize form for optionId: ${optionId} after ${maxRetries} attempts.`);
+      }
+    };
+  
+    checkForm(); // Start the retry logic
+  }
   
   initializeForm(): void {
     if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options) || this.currentQuestion.options.length === 0) {
