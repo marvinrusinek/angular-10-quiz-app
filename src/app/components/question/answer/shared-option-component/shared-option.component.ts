@@ -285,50 +285,48 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (!this.isValidOptionBinding(optionBinding)) return;
   
     this.ngZone.run(() => {
-      // Set the radio/checkbox as checked
-      element.checked = true;
-      element.focus(); // Ensure the element gains focus
-
-      const selectedOption = optionBinding.option as SelectedOption;
-      const checked = element.checked;
-      const optionId = this.getOptionId(selectedOption, index);
+      try {
+        // Set the radio/checkbox as checked
+        element.checked = true;
+        element.focus(); // Ensure the element gains focus
   
-      console.log('Before handling option state:', { optionId, checked });
-
-      // Immediate state updates
-      this.selectedOptionService.setOptionSelected(true);
-      this.selectedOptionService.isAnsweredSubject.next(true);
+        const selectedOption = optionBinding.option as SelectedOption;
+        const checked = element.checked;
+        const optionId = this.getOptionId(selectedOption, index);
   
-      // Check if the option state changes correctly
-      if (!this.handleOptionState(optionBinding, optionId, index, checked, element)) return;
+        console.log('Before handling option state:', { optionId, checked });
   
-      console.log('Option state handled:', { optionId, checked });
-
-      // Set the element's state directly
-      element.checked = checked;
+        // Immediate state updates
+        this.selectedOptionService.setOptionSelected(true);
+        this.selectedOptionService.isAnsweredSubject.next(true);
   
-      // Update feedback and apply attributes immediately
-      this.updateFeedbackState(optionId);
-      this.applyOptionAttributes(optionBinding, element);
+        // Check if the option state changes correctly
+        if (!this.handleOptionState(optionBinding, optionId, index, checked, element)) return;
   
-      // Emit the event to notify other components of the selection
-      this.emitOptionSelectedEvent(optionBinding, index, checked);
+        console.log('Option state handled:', { optionId, checked });
   
-      // Ensure selection state updates are properly finalized
-      this.finalizeOptionSelection(optionBinding, checked);
+        // Set the element's state directly
+        element.checked = checked;
   
-      // Add a small timeout to let the browser finish rendering before detecting changes
-      /* setTimeout(() => {
-        this.cdRef.detectChanges(); // Ensure UI reflects the changes
-      }, 0); */
-      //requestAnimationFrame(() => {
-      //  this.cdRef.detectChanges();
-      //});
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          this.cdRef.detectChanges(); // Ensure UI reflects the changes
-        }, 0);
-      });      
+        // Update feedback and apply attributes immediately
+        this.updateFeedbackState(optionId);
+        this.applyOptionAttributes(optionBinding, element);
+  
+        // Emit the event to notify other components of the selection
+        this.emitOptionSelectedEvent(optionBinding, index, checked);
+  
+        // Ensure selection state updates are properly finalized
+        this.finalizeOptionSelection(optionBinding, checked);
+  
+        // Add a small timeout to let the browser finish rendering before detecting changes
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            this.cdRef.detectChanges(); // Ensure UI reflects the changes
+          }, 0);
+        });
+      } catch (error) {
+        console.error('Error updating option and UI:', error);
+      }
     });
   }
 
