@@ -302,8 +302,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const questions = await this.fetchAndProcessQuizQuestions(quizId);
   
       if (questions && questions.length > 0) {
-        this.questions = of(questions);
-        this.questions.subscribe({
+        this.questions$ = of(questions);
+        this.questions$.subscribe({
           next: (questions: QuizQuestion[]) => {
             this.questionsArray = questions;
   
@@ -986,7 +986,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const questions = await this.quizService.fetchQuizQuestions(quizId);
 
       if (questions && questions.length > 0) {
-        this.questions = of(questions);
+        this.questions$ = of(questions);
 
         // Ensure option IDs are set
         for (const [qIndex, question] of questions.entries()) {
@@ -2302,7 +2302,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
     this.isLoadingQuestions = true;
-    this.questions.pipe(take(1)).subscribe({
+    this.questions$.pipe(take(1)).subscribe({
       next: (questionsArray: QuizQuestion[]) => {
         if (!questionsArray || questionsArray.length === 0) {
           console.warn('Questions array is empty or undefined.');
