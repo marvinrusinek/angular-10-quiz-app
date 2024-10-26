@@ -2056,7 +2056,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     const controls = this.currentQuestion.options.reduce((acc, option) => {
-      acc[option.optionId] = new FormControl(false); // Initialize controls
+      // Convert optionId to a string to ensure compatibility with Angular forms
+      acc[`${option.optionId}`] = new FormControl(false); // Initialize controls
+
       return acc;
     }, {});
   
