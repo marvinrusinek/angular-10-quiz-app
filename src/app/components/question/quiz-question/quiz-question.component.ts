@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, ComponentFactoryResolver, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../../shared/utils/utils';
@@ -2634,33 +2634,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
     console.log(`Fetching explanation for question ${questionIndex}`);
-  
-    // Clear the explanation text immediately
+
+    // Clear any previous explanation state
     this.explanationToDisplay = '';
     this.explanationTextService.updateFormattedExplanation('');
     this.showExplanationChange.emit(false);
-  
+
     try {
-      // Ensure the question data is fully loaded before fetching explanation
+      // Wait for question data to load and stabilize
       await this.ensureQuestionIsFullyLoaded(questionIndex);
 
-      // Debounce to ensure question text loads first
-      await new Promise((resolve) => setTimeout(resolve, 100));
-  
-      // Fetch the correct explanation text for the current question
-      const explanationText = await this.prepareAndSetExplanationText(questionIndex);
-  
-      if (this.currentQuestionIndex === questionIndex) {
-        this.explanationToDisplay = explanationText || 'No explanation available';
-        this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
-        
-        // Emit events to update the UI
-        this.updateExplanationUI(questionIndex, this.explanationToDisplay);
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-        console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
-      } else {
-        console.warn('Question index mismatch. Skipping explanation update.');
-      }
+      // Use RxJS to debounce explanation loading
+      const explanation$ = from(this.prepareAndSetExplanationText(questionIndex)).pipe(
+        debounceTime(100) // Ensure explanation updates happen smoothly
+      );
+
+      explanation$.subscribe({
+        next: (explanationText) => {
+          if (this.currentQuestionIndex === questionIndex) {
+            this.explanationToDisplay = explanationText || 'No explanation available';
+            this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
+
+            // Emit events to update the UI
+            this.updateExplanationUI(questionIndex, this.explanationToDisplay);
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+            console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
+          } else {
+            console.warn('Question index mismatch. Skipping explanation update.');
+          }
+        },
+        error: (error) => {
+          console.error(`Error fetching explanation for question ${questionIndex}:`, error);
+          this.explanationToDisplay = 'Error fetching explanation. Please try again.';
+          this.updateExplanationUI(questionIndex, this.explanationToDisplay);
+          this.explanationToDisplayChange.emit(this.explanationToDisplay);
+          this.showExplanationChange.emit(true);
+        }
+      });
     } catch (error) {
       console.error(`Error fetching explanation for question ${questionIndex}:`, error);
       this.explanationToDisplay = 'Error fetching explanation. Please try again.';
@@ -2669,6 +2679,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.showExplanationChange.emit(true);
     }
   }
+
 
   private async ensureQuestionIsFullyLoaded(index: number): Promise<void> {
     return new Promise((resolve, reject) => {
