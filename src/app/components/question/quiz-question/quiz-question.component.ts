@@ -1373,38 +1373,46 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    console.log('Option clicked:', event);
+    console.log('Option clicked:', event); 
   
+    // Prevent further action if option is missing or input handling is locked
     if (!event?.option || event.option.optionId === undefined) return;
     if (this.isOptionSelected) {
       console.warn('Click locked, skipping.');
       return;
     }
   
-    this.isOptionSelected = true;
+    this.isOptionSelected = true; // Lock input handling temporarily
   
     try {
       await this.ngZone.run(async () => {
-        const { option, index = -1, checked = false } = event;
+        console.log('Inside ngZone after click:', event);
+  
+        // Delay to ensure UI stability
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+  
+        const { option, index = -1, checked = false } = event || {};
+  
         console.log(`Processing option: ${option.optionId} at index: ${index}`);
   
-        this.updateFormControl(option.optionId, checked);
-
-        const control = this.questionForm.get(event.option.optionId.toString());
-        if (!control) {
-          console.warn(`Control not found for optionId: ${event.option.optionId}`);
+        // Handle index validation and option selection
+        if (typeof index !== 'number' || index < 0) {
+          console.error(`Invalid index: ${index}`);
           return;
         }
-
-        control.setValue(event.checked, { emitEvent: true });
-        control.markAsTouched();
-        this.cdRef.detectChanges(); // Ensure UI reflects changes
   
+        this.selectedOptionService.setOptionSelected(true);
+        this.selectedOptionService.isAnsweredSubject.next(true);
+        this.selectedOptionService.setAnswered(true);
+  
+        // Call the parent class's onOptionClicked if needed
         await super.onOptionClicked(event);
   
+        // Additional logic for handling the click
         this.resetExplanation();
         this.toggleOptionState(option, index);
         this.emitOptionSelected(option, index);
+
         this.startLoading();
         this.handleMultipleAnswerQuestion(option);
         this.markQuestionAsAnswered();
@@ -1413,12 +1421,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         await this.finalizeSelection(option, index);
   
         console.log('Option processed. Applying changes.');
-        this.cdRef.detectChanges();
+        this.cdRef.detectChanges(); // Ensure the UI reflects changes
       });
     } catch (error) {
       console.error('Error during option click:', error);
     } finally {
-      setTimeout(() => (this.isOptionSelected = false), 300);
+      // Reset the lock after click processing completes
+      setTimeout(() => (this.isOptionSelected = false), 300); // Cooldown period
       this.finalizeLoadingState();
       this.cdRef.detectChanges();
     }
