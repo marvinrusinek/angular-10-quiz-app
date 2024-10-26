@@ -218,6 +218,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     super.ngOnInit ? super.ngOnInit() : null;
 
     this.initializeData();
+    this.waitForQuestionData();
   
     this.quizStateService.isLoading$.subscribe((isLoading) => {
       console.log('isLoading$', isLoading);
@@ -2153,28 +2154,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Answers:', this.answers);
   }
 
-  /* initializeForm(): void {
-    this.questionForm = this.fb.group({});
-    
-    this.updateRenderComponentState();
-  } */
   initializeForm(): void {
     if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
-      console.warn('Question or options are not available yet');
-      this.questionForm = this.fb.group({}); // Initialize empty form to avoid errors
-      return;
+      console.warn('Waiting for question data to load...');
+      return; // Exit if question or options are not ready
     }
   
-    const controls = this.currentQuestion.options.reduce((acc, option) => {
+    const controls = this.currentQuestion?.options?.reduce((acc, option) => {
       acc[option.optionId] = new FormControl(false); // Initialize controls for each option
       return acc;
     }, {});
   
-    this.questionForm = this.fb.group(controls);
-    this.questionForm.updateValueAndValidity(); // Ensure form is valid after initialization
+    this.questionForm = this.fb.group(controls || {});
+    this.questionForm.updateValueAndValidity(); // Ensure form is valid
   
     this.updateRenderComponentState();
   }
+  
+  private waitForQuestionData(): void {
+    this.quizService.getQuestionByIndex(this.currentQuestionIndex).subscribe((question) => {
+      if (question) {
+        this.currentQuestion = question;
+        this.initializeForm(); // Call when data is available
+      } else {
+        console.error('Failed to load question data.');
+      }
+    });
+  }
+  
 
   private updateRenderComponentState(): void {
     // Check if both the form is valid and question data is available
