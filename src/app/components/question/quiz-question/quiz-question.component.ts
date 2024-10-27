@@ -2058,14 +2058,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Answers:', this.answers);
   }
 
-  private waitForQuestionData(): void {
+  private async waitForQuestionData(): Promise<void> {
     this.quizService.getQuestionByIndex(this.currentQuestionIndex).subscribe({
-      next: (question) => {
+      next: async (question) => {
         if (question && question.options?.length) {
           this.currentQuestion = question;
           console.log('Question data loaded:', question);
+
+          const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+          this.updateSelectionMessage(isAnswered); // Update the message based on the question state
+
           this.initializeForm();
           this.questionForm.updateValueAndValidity(); // Ensure form is valid after loading
+
+          // Scroll to the top for better user experience
+          window.scrollTo(0, 0);
         } else {
           console.error('Invalid question data or options missing.');
         }
