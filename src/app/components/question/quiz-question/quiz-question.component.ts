@@ -1091,13 +1091,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         takeUntil(this.destroy$)
       )
       .subscribe(async (isSelected: boolean) => {
-        console.log('Option selection changed:', { isSelected });
-  
         try {
           this.isOptionSelected = isSelected;
   
           const isAnswered =
-            isSelected ||
+            isSelected || 
             (await this.isQuestionAnswered(this.currentQuestionIndex));
           this.selectedOptionService.setAnsweredState(isAnswered);
   
