@@ -200,7 +200,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
       const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
-      const adjustedIndex = Math.min(index, this.questions.length - 1);
+      const adjustedIndex = index - 1;
       this.updateCurrentQuestionIndex(adjustedIndex);
       this.fetchAndSetExplanationText(index);
     });
@@ -237,7 +237,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizStateService.setLoading(true);
 
     const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
-    const adjustedIndex = Math.min(index, this.questions.length - 1);
+    const adjustedIndex = index - 1;
     this.updateCurrentQuestionIndex(adjustedIndex);
 
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
@@ -2516,43 +2516,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private async ensureQuestionIsFullyLoaded(index: number): Promise<void> {
-    const maxRetries = 10; // Limit the number of retries to avoid infinite loops
-    let attempts = 0;
-  
-    while ((!this.questions || !this.questions[index]) && attempts < maxRetries) {
-      console.warn(`Waiting for question at index ${index} to load... (Attempt ${attempts + 1}/${maxRetries})`);
-      attempts++;
-      await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay between retries
-    }
-  
-    if (attempts >= maxRetries) {
-      throw new Error(`Failed to load question at index ${index} after ${maxRetries} attempts.`);
+    if (index < 0 || index >= this.questions.length) {
+      throw new Error(`Invalid index ${index}. No such question exists.`);
     }
   
     return new Promise((resolve, reject) => {
-      let subscription: Subscription | undefined; // Proper declaration
-  
-      try {
-        subscription = this.quizService.getQuestionByIndex(index).subscribe({
-          next: (question) => {
-            if (question && question.questionText) {
-              console.log(`Question loaded for index ${index}:`, question);
-              subscription?.unsubscribe(); // Cleanup
-              resolve(); // Resolve when the question is loaded
-            } else {
-              console.warn(`No valid question found at index ${index}`);
-              reject(new Error(`No valid question at index ${index}`));
-            }
-          },
-          error: (err) => {
-            console.error(`Error loading question at index ${index}:`, err);
-            subscription?.unsubscribe(); // Cleanup on error
-            reject(err); // Reject the promise to handle the error upstream
+      const subscription = this.quizService.getQuestionByIndex(index).subscribe({
+        next: (question) => {
+          if (question && question.questionText) {
+            console.log(`Question loaded for index ${index}:`, question);
+            subscription.unsubscribe();
+            resolve(); // Successfully loaded
+          } else {
+            reject(new Error(`No valid question at index ${index}`));
           }
-        });
-      } catch (error) {
-        reject(error); // Reject for unexpected errors
-      }
+        },
+        error: (err) => {
+          console.error(`Error loading question at index ${index}:`, err);
+          subscription.unsubscribe();
+          reject(err);
+        }
+      });
     });
   }
 
