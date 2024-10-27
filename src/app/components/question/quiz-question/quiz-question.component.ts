@@ -197,7 +197,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
 
     this.addVisibilityChangeListener();
-
     this.setupRouteListener();
 
     this.quizService
