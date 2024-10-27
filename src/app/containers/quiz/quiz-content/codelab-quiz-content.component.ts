@@ -558,7 +558,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       )
       .subscribe((explanation: string) => {
         this.formattedExplanation$.next(explanation);
-        console.log('Formatted explanation updated:', explanation);
       });
 
     this.combinedQuestionData$ = combineLatest([
