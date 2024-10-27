@@ -656,28 +656,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private updateSelectionMessage(isAnswered: boolean): void {
-    const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion);
-    
-    let newMessage = '';
-    this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
-      .pipe(take(1)) // complete the subscription after one emission
-      .subscribe((isMultipleAnswer: boolean) => {
-        newMessage = this.selectionMessageService.determineSelectionMessage(
-          this.currentQuestionIndex,
-          this.totalQuestions,
-          isAnswered,
-          isMultipleAnswer
-        );
-
-        if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
-          this.selectionMessageService.updateSelectionMessage(newMessage);
-        }
-      });
+  private async updateSelectionMessage(isAnswered: boolean): Promise<void> {
+    const isMultipleAnswer = await firstValueFrom(
+      this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
+    );
   
-    if (this.selectionMessage !== newMessage) {
-      this.selectionMessage = newMessage;
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered,
+      isMultipleAnswer
+    );
+  
+    // Only update the message if it has changed
+    if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
       this.selectionMessageService.updateSelectionMessage(newMessage);
+      this.selectionMessage = newMessage; // Sync local message state
     }
   }
   
