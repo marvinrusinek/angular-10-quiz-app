@@ -249,7 +249,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.error('Complete error details:', error);
       }
     });
-    
   
     // Ensure optionsToDisplay is correctly set
     if (this.options && this.options.length > 0) {
@@ -1270,34 +1269,40 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return [];
     }
   } */
-  public async getCorrectAnswers(): Promise<number[]> {
-    try {
-      console.log('Attempting to fetch correct answers...');
+  /* public async getCorrectAnswers(): Promise<number[]> {
+    if (!this.currentQuestion) {
+      console.warn('Current question missing. Attempting to recover...');
+      await this.waitForQuestionData();
+    }
   
-      if (!this.currentQuestion) {
-        console.warn('Current question is missing. Attempting to load it...');
+    if (!this.currentQuestion) {
+      console.error('Failed to recover the current question.');
+      return [];
+    }
+  
+    console.log('Fetching answers for:', this.currentQuestion.questionText);
+    const answers = this.quizService.getCorrectAnswers(this.currentQuestion);
+  
+    if (answers.length === 0) {
+      console.warn(`No correct answers found for: "${this.currentQuestion.questionText}".`);
+    }
+  
+    return answers;
+  } */
+  public async getCorrectAnswers(): Promise<number[]> {
+    if (!this.currentQuestion) {
+      console.warn('Current question not set. Loading...');
+      try {
         this.currentQuestion = await firstValueFrom(
           this.quizService.getQuestionByIndex(this.currentQuestionIndex)
         );
-  
-        console.log(`Loaded question: "${this.currentQuestion.questionText}"`);
-      }
-  
-      const correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
-  
-      if (!Array.isArray(correctAnswers) || correctAnswers.length === 0) {
-        console.warn(
-          `No correct answers found for question: "${this.currentQuestion.questionText}"`
-        );
+      } catch (error) {
+        console.error('Error loading current question:', error);
         return [];
       }
-  
-      console.log('Correct answers fetched:', correctAnswers);
-      return correctAnswers;
-    } catch (error) {
-      console.error('Error fetching correct answers:', error);
-      return [];
     }
+  
+    return this.quizService.getCorrectAnswers(this.currentQuestion);
   }
 
   setQuestionOptions(): void {

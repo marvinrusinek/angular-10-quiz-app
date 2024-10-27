@@ -1412,7 +1412,7 @@ export class QuizService implements OnDestroy {
     });
   }  
 
-  getCorrectAnswers(question: QuizQuestion): number[] {
+  /* getCorrectAnswers(question: QuizQuestion): number[] {
     if (!question || !question.questionText?.trim()) {
       console.error('Called with an undefined or invalid question object.');
       return [];
@@ -1438,8 +1438,29 @@ export class QuizService implements OnDestroy {
     }
   
     return correctAnswersForQuestion;
+  } */
+  getCorrectAnswers(question: QuizQuestion): number[] {
+    if (!question || !Array.isArray(question.options) || question.options.length === 0) {
+      console.error('Invalid question or no options available.');
+      return [];
+    }
+  
+    console.log('Fetching correct answers for:', question.questionText);
+  
+    // Filter options marked as correct and map their IDs
+    const correctAnswers = question.options
+      .filter((option) => option.isCorrect)
+      .map((option) => option.optionId);
+  
+    if (correctAnswers.length === 0) {
+      console.warn(`No correct answers found for question: "${question.questionText}".`);
+    } else {
+      console.log('Correct answers:', correctAnswers);
+    }
+  
+    return correctAnswers;
   }
-
+  
   getCorrectAnswersAsString(): string {
     // Convert the map to a comma-separated string
     const correctAnswersString = Array.from(this.correctAnswers.values())
