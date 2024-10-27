@@ -1091,40 +1091,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Subscribe to option selection changes
   private subscribeToOptionSelection(): void {
-    if (this.optionSelectionSubscription) {
-      this.optionSelectionSubscription.unsubscribe();
-    }
+    this.optionSelectionSubscription?.unsubscribe(); // Avoid memory leaks
   
     this.optionSelectionSubscription = this.selectedOptionService
       .isOptionSelected$()
       .pipe(
-        debounceTime(500), // Debounce to prevent rapid changes
+        debounceTime(500), 
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
       .subscribe(async (isSelected: boolean) => {
         try {
-          this.isOptionSelected = isSelected;
-  
-          const isAnswered =
-            isSelected || 
-            (await this.isQuestionAnswered(this.currentQuestionIndex));
+          const isAnswered = isSelected || (await this.isQuestionAnswered(this.currentQuestionIndex));
           this.selectedOptionService.setAnsweredState(isAnswered);
   
-          if (this.shouldUpdateMessageOnSelection(isSelected)) {
-            await this.updateSelectionBasedOnState(isSelected);
-  
-            // Check for asynchronous state changes
-            await this.checkAsynchronousStateChanges();
+          if (this.currentQuestionIndex === 0 && !isSelected) {
+            await this.setInitialSelectionMessageForFirstQuestion();
+          } else if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
+            await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
           }
         } catch (error) {
-          console.error(
-            '[subscribeToOptionSelection] Error processing option selection:',
-            error
-          );
+          console.error('Error processing option selection:', error);
         }
       });
-  }
+  }  
 
   private shouldUpdateMessageOnSelection(isSelected: boolean): boolean {
     // Check if the current question is not the first one or if an option is selected
@@ -1176,46 +1166,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private async setInitialSelectionMessageForFirstQuestion(): Promise<void> {
-    try {
-      const initialMessage = 'Please start the quiz by selecting an option.';
-      if (this.selectionMessage !== initialMessage) {
-        this.selectionMessage = initialMessage;
-        this.selectionMessageService.updateSelectionMessage(initialMessage);
-      } else {
-        const isAnswered = await this.isQuestionAnswered(
-          this.currentQuestionIndex
-        );
-        this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-      }
-    } catch (error) {
-      console.error(
-        'Error setting initial selection message for the first question:',
-        error
-      );
-    }
-  }
-
   private async checkAsynchronousStateChanges(): Promise<void> {
     try {
-      const isAnswered = await this.isQuestionAnswered(
-        this.currentQuestionIndex
-      );
-      const currentSelectionState =
-        this.selectedOptionService.getCurrentOptionSelectedState();
-
+      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+      const currentSelectionState = this.selectedOptionService.getCurrentOptionSelectedState();
+  
       if (isAnswered !== currentSelectionState) {
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-      } else {
-        console.log('[checkAsynchronousStateChanges] No state change detected');
       }
     } catch (error) {
-      console.error(
-        '[checkAsynchronousStateChanges] Error checking asynchronous state changes:',
-        error
-      );
+      console.error('Error checking asynchronous state changes:', error);
     }
-  }
+  } 
 
   updateCorrectMessageText(message: string): void {
     this.quizService.updateCorrectMessageText(message);
