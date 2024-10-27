@@ -511,6 +511,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  private refreshTooltip(): void {
+    if (this.nextButtonTooltip) {
+      this.ngZone.runOutsideAngular(() => {
+        setTimeout(() => this.nextButtonTooltip.show(), 0);
+      });
+    }
+  }
+
   private enableNextButtonWithTooltip(message: string): void {
     this.isNextButtonEnabled = true;
     this.updateTooltip(message); // Ensure tooltip updates immediately
@@ -601,14 +609,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     );
     return result;
   }
-
-  private refreshTooltip(): void {
-    if (this.nextButtonTooltip) {
-      this.ngZone.runOutsideAngular(() => {
-        setTimeout(() => this.nextButtonTooltip.show(), 0);
-      });
-    }
-  }  
   
   private resetQuestionState(): void {
     console.log('Resetting question state');
@@ -643,16 +643,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   private resetOptionState(): void {
     this.isOptionSelected = false;
     this.selectedOptionService.setOptionSelected(false);
-  }
-
-  toggleNextButton(): void {
-    const newDisabledState = !this.disabled;
-    this.disabled = newDisabledState;
-    console.log('Next button toggled, disabled:', newDisabledState);
-
-    this.isNextButtonEnabled = !this.isNextButtonEnabled;
-    console.log('Manually toggled next button to:', this.isNextButtonEnabled);
-    this.cdRef.detectChanges(); // Force change detection
   }
 
   ngOnDestroy(): void {
