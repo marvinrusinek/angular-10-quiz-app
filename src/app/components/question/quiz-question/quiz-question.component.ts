@@ -657,21 +657,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private updateSelectionMessage(isAnswered: boolean): void {
-    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+    const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion);
+    
+    this.quizStateService.isMultipleAnswerQuestion$(this.currentQuestion)
+      .pipe(take(1)) // Automatically complete the subscription after one emission
+      .subscribe((isMultipleAnswer: boolean) => {
+        const newMessage = this.selectionMessageService.determineSelectionMessage(
+          this.currentQuestionIndex,
+          this.totalQuestions,
+          isAnswered,
+          isMultipleAnswer
+        );
+
+        if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
+          this.selectionMessageService.updateSelectionMessage(newMessage);
+        }
+      });
   
-    // Determine the new message based on the question's state
-    const newMessage = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      isAnswered
-    );
-  
-    // Only update if the message is changing to something new
-    if (currentMessage !== newMessage) {
-      console.log('Updating selection message to:', newMessage);
+    if (this.currentSelectionMessage !== newMessage) {
+      this.currentSelectionMessage = newMessage;
       this.selectionMessageService.updateSelectionMessage(newMessage);
-    } else {
-      console.log('Selection message remains unchanged.');
     }
   }
   
