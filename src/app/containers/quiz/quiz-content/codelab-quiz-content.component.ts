@@ -550,15 +550,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       .getFormattedExplanation(questionIndex)
       .pipe(
         takeUntil(this.destroy$),
-        tap((explanation) => console.log('Explanation fetched from service:', explanation)),
         map((explanation) => explanation || 'No explanation available'),
         catchError((error) => {
-          console.error('Error fetching formatted explanation:', error);
+          console.error(`Error fetching explanation for question ${questionIndex}:`, error);
           return of('Error fetching explanation');
         })
       )
       .subscribe((explanation: string) => {
         this.formattedExplanation$.next(explanation);
+        console.log('Formatted explanation updated:', explanation);
       });
 
     this.combinedQuestionData$ = combineLatest([
