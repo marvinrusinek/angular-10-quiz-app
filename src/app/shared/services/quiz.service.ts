@@ -857,7 +857,7 @@ export class QuizService implements OnDestroy {
   }  
 
   // Get the current options for the current quiz and question
-  getCurrentOptions(quizId: string, questionIndex: number): Observable<Option[]> {
+  getCurrentOptions(questionIndex: number): Observable<Option[]> {
     return this.getQuestionByIndex(questionIndex).pipe(
       map((question) => question?.options || []),
       catchError((error) => {
