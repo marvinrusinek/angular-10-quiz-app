@@ -1238,57 +1238,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('MY CORR MSG', this.correctMessage || 'Not available');
   }  
 
-  /* public async getCorrectAnswers(): Promise<number[]> {
-    try {
-      // Attempt to recover the current question if it is missing
-      if (!this.currentQuestion) {
-        this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
-      }
-  
-      // Ensure the question text is valid
-      if (!this.currentQuestion || !this.currentQuestion.questionText) {
-        console.error('Current question is not set or has no valid question text.');
-        return [];
-      }
-  
-      console.log('Fetching correct answers for question:', this.currentQuestion.questionText);
-  
-      // Fetch correct answers from QuizService
-      const correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
-  
-      // Validate the fetched answers
-      if (!Array.isArray(correctAnswers) || correctAnswers.length === 0) {
-        console.warn(`No correct answers found for question: "${this.currentQuestion.questionText}"`);
-        return [];
-      }
-  
-      console.log('Correct answers fetched:', correctAnswers);
-      return correctAnswers;
-    } catch (error) {
-      console.error('Error fetching correct answers:', error);
-      return [];
-    }
-  } */
-  /* public async getCorrectAnswers(): Promise<number[]> {
-    if (!this.currentQuestion) {
-      console.warn('Current question missing. Attempting to recover...');
-      await this.waitForQuestionData();
-    }
-  
-    if (!this.currentQuestion) {
-      console.error('Failed to recover the current question.');
-      return [];
-    }
-  
-    console.log('Fetching answers for:', this.currentQuestion.questionText);
-    const answers = this.quizService.getCorrectAnswers(this.currentQuestion);
-  
-    if (answers.length === 0) {
-      console.warn(`No correct answers found for: "${this.currentQuestion.questionText}".`);
-    }
-  
-    return answers;
-  } */
   public async getCorrectAnswers(): Promise<number[]> {
     if (!this.currentQuestion) {
       console.warn('Current question not set. Loading...');

@@ -1412,33 +1412,6 @@ export class QuizService implements OnDestroy {
     });
   }  
 
-  /* getCorrectAnswers(question: QuizQuestion): number[] {
-    if (!question || !question.questionText?.trim()) {
-      console.error('Called with an undefined or invalid question object.');
-      return [];
-    }
-  
-    const normalizedQuestionText = question.questionText.toLowerCase().trim();
-    console.log('Fetching correct answers for question:', normalizedQuestionText);
-  
-    const correctAnswersMap = this.correctAnswersSubject.getValue();
-    if (!correctAnswersMap || correctAnswersMap.size === 0) {
-      console.warn('The correct answers map is empty.');
-      return [];
-    }
-  
-    console.log('Current correctAnswersMap:', Array.from(correctAnswersMap.entries()));
-  
-    const correctAnswersForQuestion = correctAnswersMap.get(normalizedQuestionText) || [];
-  
-    if (correctAnswersForQuestion.length === 0) {
-      console.warn(`No correct answers found for question: "${question.questionText}".`);
-    } else {
-      console.log('Correct answers for question:', correctAnswersForQuestion);
-    }
-  
-    return correctAnswersForQuestion;
-  } */
   getCorrectAnswers(question: QuizQuestion): number[] {
     if (!question || !Array.isArray(question.options) || question.options.length === 0) {
       console.error('Invalid question or no options available.');
