@@ -659,10 +659,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private updateSelectionMessage(isAnswered: boolean): void {
     const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion);
     
-    this.quizStateService.isMultipleAnswerQuestion$(this.currentQuestion)
-      .pipe(take(1)) // Automatically complete the subscription after one emission
+    let newMessage = '';
+    this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
+      .pipe(take(1)) // complete the subscription after one emission
       .subscribe((isMultipleAnswer: boolean) => {
-        const newMessage = this.selectionMessageService.determineSelectionMessage(
+        newMessage = this.selectionMessageService.determineSelectionMessage(
           this.currentQuestionIndex,
           this.totalQuestions,
           isAnswered,
@@ -674,8 +675,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       });
   
-    if (this.currentSelectionMessage !== newMessage) {
-      this.currentSelectionMessage = newMessage;
+    if (this.selectionMessage !== newMessage) {
+      this.selectionMessage = newMessage;
       this.selectionMessageService.updateSelectionMessage(newMessage);
     }
   }
