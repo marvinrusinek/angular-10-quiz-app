@@ -213,8 +213,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    // super.ngOnInit();
-    super.ngOnInit ? super.ngOnInit() : null;
+    super.ngOnInit();
 
     this.initializeData();
     this.initializeForm();
