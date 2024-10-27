@@ -2504,10 +2504,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-
   private async ensureQuestionIsFullyLoaded(index: number): Promise<void> {
     return new Promise((resolve, reject) => {
-      let subscription: Subscription; // Declare the subscription here
+      let subscription: Subscription | undefined; // Proper declaration
   
       try {
         subscription = this.quizService.getQuestionByIndex(index).subscribe({
@@ -2515,17 +2514,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             if (question && question.questionText) {
               console.log(`Question loaded for index ${index}:`, question);
               subscription?.unsubscribe(); // Cleanup to avoid memory leaks
-              resolve(); // Resolve the promise when the question is loaded
+              resolve(); // Resolve when the question is loaded
+            } else {
+              console.warn(`No valid question found at index ${index}`);
+              reject(new Error(`No valid question at index ${index}`));
             }
           },
           error: (err) => {
             console.error(`Error loading question at index ${index}:`, err);
-            subscription?.unsubscribe(); // Cleanup even on error
+            subscription?.unsubscribe(); // Cleanup on error
             reject(err); // Reject the promise to handle the error upstream
           }
         });
       } catch (error) {
-        reject(error); // Ensure we reject if any unexpected error occurs
+        reject(error); // Reject for unexpected errors
       }
     });
   }
