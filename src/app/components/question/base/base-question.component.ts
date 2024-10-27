@@ -218,6 +218,16 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       onQuestionAnswered: () => {}
     };
   }
+  
+  protected onQuestionAnswered(event: { option: SelectedOption }): void {      
+    if (this.selectedOption !== undefined) {
+      this.selectedOption = event.option;
+    }
+  
+    if (this.showFeedback !== undefined) {
+      this.showFeedback = true;
+    }
+  }
 
   protected subscribeToQuestionChanges(): void {
     if (this.quizStateService) {
