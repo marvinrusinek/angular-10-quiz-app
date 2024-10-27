@@ -1071,16 +1071,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private async handleQuestionState(): Promise<void> {
     if (this.currentQuestionIndex === 0) {
-      await this.setInitialSelectionMessageForFirstQuestion();
+      const initialMessage = 'Please start the quiz by selecting an option.';
+      if (this.selectionMessage !== initialMessage) {
+        this.selectionMessage = initialMessage;
+        this.selectionMessageService.updateSelectionMessage(initialMessage);
+      }
     } else {
-      const isAnswered = await this.isQuestionAnswered(
-        this.currentQuestionIndex
-      );
-
-      // Clear the selection state when handling a new question
+      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
       this.clearSelection();
-
-      // Check if the message should be updated
+  
       if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       } else {
