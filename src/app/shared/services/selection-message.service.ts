@@ -14,6 +14,11 @@ export class SelectionMessageService {
       debounceTime(100)
     );
 
+  // Getter for the current selection message
+  public getCurrentMessage(): string {
+    return this.selectionMessageSubject.getValue(); // Get the current message value
+  }
+
   // Message Determination Function
   public determineSelectionMessage(
     questionIndex: number,
