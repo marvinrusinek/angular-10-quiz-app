@@ -704,7 +704,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       tap(value => console.log('Emission in question$: ', value)) // Add log here to see actual values emitted
     );
 
-    const options$ = this.quizService.getCurrentOptions().pipe(
+    const options$ = this.quizService.getCurrentOptions(this.quizId, this.currentQuestionIndexValue).pipe(
       map(value => Array.isArray(value) ? value : []), // Default to empty array if value is not an array or `undefined`
       distinctUntilChanged(),
       tap(value => console.log('Emission in options$: ', value)) // Add log here to see actual values emitted
