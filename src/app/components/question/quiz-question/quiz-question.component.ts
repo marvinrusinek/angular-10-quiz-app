@@ -2183,6 +2183,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+  private hasAnswered: boolean = false; // Initialize the flag
+
   handleOptionClicked(
     currentQuestion: QuizQuestion,
     optionIndex: number
@@ -2192,6 +2194,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     );
     const isOptionSelected = selectedOptions.includes(optionIndex);
 
+    // Add or remove selected options
     if (!isOptionSelected) {
       this.selectedOptionService.addSelectedOptionIndex(
         this.currentQuestionIndex,
@@ -2204,8 +2207,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
     }
 
-    this.updateSelectionMessage(true);
-    this.handleMultipleAnswer(currentQuestion);
+    // Check if the selection message has already been updated
+    if (!this.hasAnswered) {
+      this.updateSelectionMessage(true); // Update only once after the first click
+      this.hasAnswered = true; // Set the flag to avoid further updates
+    }
+
+    this.handleMultipleAnswer(currentQuestion); // Handle logic for multiple answers
 
     // Ensure Angular change detection picks up state changes
     this.cdRef.markForCheck();
