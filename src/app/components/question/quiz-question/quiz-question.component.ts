@@ -2631,22 +2631,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private updateExplanationUI(questionIndex: number, explanationText: string): void {
+    const adjustedIndex = Math.min(questionIndex, this.questions.length - 1); // Prevents out-of-bounds access
+ 
     // Ensure questions array is initialized and the question exists
-    if (!this.questions || questionIndex >= this.questions.length) {
-      console.error(`Question not found at index:::: ${questionIndex}.`);
+    if (!this.questions || !this.questions[adjustedIndex]) {
+      console.error(`Question not found at index:::: ${adjustedIndex}.`);
       return;
     }
   
     this.explanationTextService.explanationText$.next(explanationText);
-    
-    console.log(`Updating combined data for question ${questionIndex}`);
+    console.log(`Updating combined data for question ${adjustedIndex}`);
   
     // Update combined question data safely
-    this.updateCombinedQuestionData(
-      this.questions[questionIndex],
-      explanationText
-    );
-  
+    this.updateCombinedQuestionData(this.questions[adjustedIndex], explanationText);
     this.isAnswerSelectedChange.emit(true);
   }
 
