@@ -1239,7 +1239,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('MY CORR MSG', this.correctMessage || 'Not available');
   }  
 
-  public async getCorrectAnswers(): Promise<number[]> {
+  /* public async getCorrectAnswers(): Promise<number[]> {
     try {
       // Attempt to recover the current question if it is missing
       if (!this.currentQuestion) {
@@ -1269,7 +1269,64 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('Error fetching correct answers:', error);
       return [];
     }
+  } */
+  public async getCorrectAnswers(): Promise<number[]> {
+    try {
+      console.log('Attempting to fetch correct answers...');
+  
+      // Attempt to recover the current question if it is missing
+      if (!this.currentQuestion) {
+        console.warn('Current question is missing. Attempting to load it...');
+        try {
+          this.currentQuestion = await firstValueFrom(
+            this.quizService.getQuestionByIndex(this.currentQuestionIndex)
+          );
+          console.log(`Question loaded: "${this.currentQuestion.questionText}"`);
+        } catch (error) {
+          console.error(
+            `Error loading question at index ${this.currentQuestionIndex}:`,
+            error
+          );
+          return [];
+        }
+      }
+  
+      // Ensure the question text and options are valid
+      if (
+        !this.currentQuestion ||
+        !this.currentQuestion.questionText ||
+        !this.currentQuestion.options
+      ) {
+        console.error(
+          'Current question or its options are not set or invalid.'
+        );
+        return [];
+      }
+  
+      console.log(
+        `Fetching correct answers for question: "${this.currentQuestion.questionText}"`
+      );
+  
+      // Fetch correct answers from QuizService
+      const correctAnswers =
+        this.quizService.getCorrectAnswers(this.currentQuestion) || [];
+  
+      // Validate the fetched answers
+      if (!Array.isArray(correctAnswers) || correctAnswers.length === 0) {
+        console.warn(
+          `No correct answers found for question: "${this.currentQuestion.questionText}"`
+        );
+        return [];
+      }
+  
+      console.log('Correct answers fetched:', correctAnswers);
+      return correctAnswers;
+    } catch (error) {
+      console.error('Error fetching correct answers:', error);
+      return [];
+    }
   }
+  
 
   setQuestionOptions(): void {
     this.selectedQuiz
