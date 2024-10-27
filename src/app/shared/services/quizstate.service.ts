@@ -265,12 +265,10 @@ export class QuizStateService {
   }
 
   setAnswered(isAnswered: boolean): void {
-    console.log('QuizStateService: setAnswered called with', isAnswered);
     this.answeredSubject.next(isAnswered);
   }
 
   setAnswerSelected(isSelected: boolean): void {
-    console.log('QuizStateService: setAnswerSelected called with', isSelected);
     this.answeredSubject.next(isSelected);
   }
 
