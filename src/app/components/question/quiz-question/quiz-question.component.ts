@@ -2512,7 +2512,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           next: (question) => {
             if (question && question.questionText) {
               console.log(`Question loaded for index ${index}:`, question);
-              subscription?.unsubscribe(); // Cleanup to avoid memory leaks
+              subscription?.unsubscribe();
               resolve(); // Resolve when the question is loaded
             } else {
               console.warn(`No valid question found at index ${index}`);
@@ -2521,7 +2521,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           },
           error: (err) => {
             console.error(`Error loading question at index ${index}:`, err);
-            subscription?.unsubscribe(); // Cleanup on error
+            subscription?.unsubscribe();
             reject(err); // Reject the promise to handle the error upstream
           }
         });
