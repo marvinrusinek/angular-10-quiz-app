@@ -661,17 +661,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
     );
   
-    const newMessage = this.selectionMessageService.determineSelectionMessage(
+    // Determine the correct message based on question and state
+    let newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       isAnswered,
       isMultipleAnswer
     );
   
+    // If the message should stay the same after first correct option click
+    if (isAnswered && this.selectionMessage === 'Please click the next button to continue.') {
+      newMessage = 'Please click the next button to continue.';
+    }
+  
     // Only update the message if it has changed
     if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
       this.selectionMessageService.updateSelectionMessage(newMessage);
-      this.selectionMessage = newMessage; // Sync local message state
+      this.selectionMessage = newMessage; // Sync the local message state
     }
   }
   
