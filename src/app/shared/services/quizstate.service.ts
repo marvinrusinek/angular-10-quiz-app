@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, tap } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, map } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuestionState } from '../../shared/models/QuestionState.model';
@@ -222,7 +222,7 @@ export class QuizStateService {
     this.isNextButtonEnabledSubject.next(enabled);
   }
 
-  isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
+  public isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
     try {
       if (question && Array.isArray(question.options)) {
         const correctAnswersCount = question.options.filter(option => option.correct).length;
@@ -235,6 +235,23 @@ export class QuizStateService {
       console.error('Error determining if it is a multiple-answer question:', error);
       return of(false);
     }
+  }
+
+  public shouldDisplayCorrectAnswersText(
+    question: QuizQuestion,
+    index: number
+  ): Observable<boolean> {
+    const isAnswered$ = this.isAnswered$;
+    const isMultipleAnswer = this.isMultipleAnswerQuestion(question);
+  
+    return isAnswered$.pipe(
+      map((isAnswered: boolean) => {
+        console.log(
+          `Question at index ${index} - Answered: ${isAnswered}, MultipleAnswer: ${isMultipleAnswer}`
+        );
+        return isAnswered && isMultipleAnswer;
+      })
+    );
   }
 
   clearSelectedOptions(): void {
