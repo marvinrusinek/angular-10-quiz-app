@@ -354,7 +354,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   
       // Fetch the current question and options as observables
       const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex);
-      const options$ = this.quizService.getCurrentOptions(quizId, questionIndex);
+      const options$ = this.quizService.getCurrentOptions(questionIndex);
   
       // Handle cases where observables are invalid
       if (!question$ || !options$) {
@@ -2210,8 +2210,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
             this.question = question;
   
             // Fetch options using the correct method with arguments
-            this.quizService
-              .getCurrentOptions(this.quizId, this.currentQuestionIndex)
+            this.quizService.getCurrentOptions(this.currentQuestionIndex)
               .subscribe({
                 next: (options: Option[]) => {
                   this.optionsToDisplay = options || [];
