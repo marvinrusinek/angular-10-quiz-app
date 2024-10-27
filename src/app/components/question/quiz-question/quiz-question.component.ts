@@ -220,14 +220,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.initializeData();
     this.initializeForm();
   
-    this.quizStateService.isLoading$.subscribe((isLoading) => {
-      console.log('isLoading$', isLoading);
-    });
-  
-    this.quizStateService.isAnswered$.subscribe((isAnswered) => {
-      console.log('isAnswered$', isAnswered);
-    });
-  
     this.quizStateService.setLoading(true);
 
     const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
