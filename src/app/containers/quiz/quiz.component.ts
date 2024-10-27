@@ -704,15 +704,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  onQuestionAnswered(question: QuizQuestion): void {
-    console.log('Question answered in QuizComponent:', question);
-    this.quizStateService.setCurrentQuestion(question);
-  }
-
-  onExplanationToDisplayChange(explanation: string): void {
-    this.explanationToDisplay = explanation;
-  }
-
   // Public getter methods for determining UI state based on current quiz and question data.
   public get isContentAvailable(): boolean {
     return !!this.currentQuestion && this.options.length > 0;
