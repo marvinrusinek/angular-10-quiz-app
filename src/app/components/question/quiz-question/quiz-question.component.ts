@@ -198,12 +198,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.addVisibilityChangeListener();
 
-    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
-      const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
-      const adjustedIndex = Math.max(0, Math.min(index, this.questions.length - 1));
-      this.updateCurrentQuestionIndex(adjustedIndex);
-      this.fetchAndSetExplanationText(index);
-    });
+    this.setupRouteListener();
 
     this.quizService
       .getIsNavigatingToPrevious()
@@ -513,6 +508,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('Tab is visible again. Re-checking state...');
         this.recheckSelectionState();
       }
+    });
+  }
+
+  private setupRouteListener(): void {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      const paramIndex = this.activatedRoute.snapshot.paramMap.get('questionIndex');
+      const index = paramIndex ? +paramIndex : 0; // Fallback to 0 if param is missing or invalid
+  
+      // Check if questions are available to avoid out-of-bounds access
+      if (!this.questions || this.questions.length === 0) {
+        console.warn('Questions are not loaded yet.');
+        return;
+      }
+  
+      const adjustedIndex = Math.max(0, Math.min(index, this.questions.length - 1));
+      
+      console.log(`Navigating to question ${adjustedIndex}`);
+      this.updateCurrentQuestionIndex(adjustedIndex);
+  
+      // Use the adjusted index for explanation text to ensure sync
+      this.fetchAndSetExplanationText(adjustedIndex);
     });
   }
 
