@@ -215,9 +215,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
 
+    this.waitForQuestionData();
     this.initializeData();
     this.initializeForm();
-    this.waitForQuestionData();
   
     this.quizStateService.isLoading$.subscribe((isLoading) => {
       console.log('isLoading$', isLoading);
@@ -2459,7 +2459,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showExplanationChange.emit(false);
 
     try {
-      // Wait for question data to load and stabilize
+      // Ensure question data is fully loaded before proceeding
       await this.ensureQuestionIsFullyLoaded(questionIndex);
 
       // Use RxJS to debounce explanation loading
@@ -2472,12 +2472,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           if (this.currentQuestionIndex === questionIndex) {
             this.explanationToDisplay = explanationText || 'No explanation available';
             this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
-
-            // Ensure questions are fully loaded before updating the UI
-            if (!this.questions || !this.questions[questionIndex]) {
-              console.error(`Question not found at index ${questionIndex}.`);
-              return;
-            }
 
             // Emit events to update the UI
             this.updateExplanationUI(questionIndex, this.explanationToDisplay);
