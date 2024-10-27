@@ -299,7 +299,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
     // Move resetQuestionState here
     this.resetQuestionState();
-    this.logCurrentState('After ngOnInit');
 
     this.subscribeToSelectionMessage();
 
@@ -639,34 +638,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });
 
     this.cdRef.detectChanges();
-    this.logFullState('After resetQuestionState');
   }
 
   private resetOptionState(): void {
     this.isOptionSelected = false;
     this.selectedOptionService.setOptionSelected(false);
-  }  
-
-  logFullState(context: string) {
-    console.log(`--- Full State Log (${context}) ---`);
-    console.log(
-      'currentQuestion:',
-      JSON.stringify(this.currentQuestion, null, 2)
-    );
-    console.log(
-      'selectedOptions:',
-      JSON.stringify(this.selectedOptions, null, 2)
-    );
-    console.log('isNextButtonEnabled:', this.isNextButtonEnabled);
-    console.log('---------------------------');
-  }
-
-  logCurrentState(context: string): void {
-    console.log(`--- State Log (${context}) ---`);
-    console.log('Selected options:', this.selectedOptions);
-    console.log('isNextButtonEnabled:', this.isNextButtonEnabled);
-    console.log('Current question:', this.currentQuestion);
-    console.log('---------------------------');
   }
 
   toggleNextButton(): void {
