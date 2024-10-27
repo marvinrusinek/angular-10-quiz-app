@@ -230,6 +230,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     this.quizStateService.setLoading(true);
 
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (response: { quizId: string; questions: QuizQuestion[] }) => {
         if (response.questions.length > 0) {
