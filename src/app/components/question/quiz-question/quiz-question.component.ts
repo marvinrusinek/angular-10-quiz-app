@@ -197,7 +197,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
 
     this.addVisibilityChangeListener();
-    this.setupRouteListener();
+    this.initializeRouteListener();
 
     this.quizService
       .getIsNavigatingToPrevious()
@@ -500,7 +500,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
   }
 
-  private setupRouteListener(): void {
+  private initializeRouteListener(): void {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
@@ -518,6 +518,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Use the adjusted index for explanation text to ensure sync
       this.fetchAndSetExplanationText(adjustedIndex);
+  
+      // Subscribe to the isAnswered$ observable to get the boolean value
+      this.quizStateService.isAnswered$(adjustedIndex).subscribe((isAnswered: boolean) => {
+        this.updateSelectionMessage(isAnswered);
+      });
     });
   }
 
