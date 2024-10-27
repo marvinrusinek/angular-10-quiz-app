@@ -229,6 +229,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     this.quizStateService.setLoading(true);
 
+    const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
+    this.updateCurrentQuestionIndex(index);
+
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (response: { quizId: string; questions: QuizQuestion[] }) => {
@@ -2736,6 +2739,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.router.navigate(['quiz', 'result']);
     });
   }
+
+  private updateCurrentQuestionIndex(index: number): void {
+    this.currentQuestionIndex = index;
+    console.log(`Updated current question index to: ${this.currentQuestionIndex}`);
+  }  
 
   /* playSound(selectedOption: Option): void {
     if (!selectedOption) {
