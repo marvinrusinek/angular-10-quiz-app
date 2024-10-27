@@ -524,7 +524,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         return;
       }
   
-      const adjustedIndex = Math.max(0, Math.min(index, this.questions.length - 1));
+      // const adjustedIndex = Math.max(0, Math.min(index, this.questions.length - 1));
+      const adjustedIndex = index - 1;
       
       console.log(`Navigating to question ${adjustedIndex}`);
       this.updateCurrentQuestionIndex(adjustedIndex);
