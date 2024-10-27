@@ -1273,48 +1273,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public async getCorrectAnswers(): Promise<number[]> {
     try {
       console.log('Attempting to fetch correct answers...');
-
-      // Call waitForQuestionData to ensure question data is available
-      await this.waitForQuestionData();
   
-      // Attempt to recover the current question if it is missing
       if (!this.currentQuestion) {
         console.warn('Current question is missing. Attempting to load it...');
-        try {
-          this.currentQuestion = await firstValueFrom(
-            this.quizService.getQuestionByIndex(this.currentQuestionIndex)
-          );
-          console.log(`Question loaded: "${this.currentQuestion.questionText}"`);
-        } catch (error) {
-          console.error(
-            `Error loading question at index ${this.currentQuestionIndex}:`,
-            error
-          );
-          return [];
-        }
-      }
-  
-      // Ensure the question text and options are valid
-      if (
-        !this.currentQuestion ||
-        !this.currentQuestion.questionText ||
-        !this.currentQuestion.options
-      ) {
-        console.error(
-          'Current question or its options are not set or invalid.'
+        this.currentQuestion = await firstValueFrom(
+          this.quizService.getQuestionByIndex(this.currentQuestionIndex)
         );
-        return [];
+  
+        console.log(`Loaded question: "${this.currentQuestion.questionText}"`);
       }
   
-      console.log(
-        `Fetching correct answers for question: "${this.currentQuestion.questionText}"`
-      );
+      const correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
   
-      // Fetch correct answers from QuizService
-      const correctAnswers =
-        this.quizService.getCorrectAnswers(this.currentQuestion) || [];
-  
-      // Validate the fetched answers
       if (!Array.isArray(correctAnswers) || correctAnswers.length === 0) {
         console.warn(
           `No correct answers found for question: "${this.currentQuestion.questionText}"`
@@ -1329,7 +1299,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return [];
     }
   }
-  
 
   setQuestionOptions(): void {
     this.selectedQuiz
