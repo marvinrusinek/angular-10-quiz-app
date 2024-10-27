@@ -2464,13 +2464,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Clear any previous explanation state
     this.clearExplanation();
+
+    // Adjust the index to ensure consistency with array indexes (if needed)
+    const adjustedIndex = questionIndex - 1;
    
     try {
       // Ensure question data is fully loaded before proceeding
-      await this.ensureQuestionIsFullyLoaded(questionIndex);
+      await this.ensureQuestionIsFullyLoaded(adjustedIndex);
 
       // Use RxJS to debounce explanation loading
-      const explanation$ = from(this.prepareAndSetExplanationText(questionIndex)).pipe(
+      const explanation$ = from(this.prepareAndSetExplanationText(adjustedIndex)).pipe(
         debounceTime(50) // Ensure explanation updates happen smoothly
       );
 
@@ -2631,9 +2634,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private updateExplanationUI(questionIndex: number, explanationText: string): void {
+    const adjustedIndex = questionIndex - 1;
+
     // Ensure questions array is initialized and the question exists
-    if (!this.questions || !this.questions[questionIndex]) {
-      console.error(`Question not found at index:::: ${questionIndex}.`);
+    if (!this.questions || !this.questions[adjustedIndex]) {
+      console.error(`Question not found at index:::: ${adjustedIndex}.`);
       return;
     }
   
@@ -2643,7 +2648,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Update combined question data safely
     this.updateCombinedQuestionData(
-      this.questions[questionIndex],
+      this.questions[adjustedIndex],
       explanationText
     );
   
