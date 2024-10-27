@@ -2098,23 +2098,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.cdRef.detectChanges();
   }
 
-  private updateFormControl(optionId: number, checked: boolean): void {
-    const control = this.questionForm?.get(optionId.toString());
-    if (!control) {
-      console.warn(`Control not found for optionId: ${optionId}`);
-      return;
-    }
-  
-    control.setValue(checked, { emitEvent: true });
-    control.markAsTouched();
-  
-    control.valueChanges.pipe(debounceTime(50)).subscribe(() => {
-      this.questionForm.updateValueAndValidity();
-    });
-  
-    this.cdRef.markForCheck();
-  }
-
   private updateRenderComponentState(): void {
     // Check if both the form is valid and question data is available
     if (this.isFormValid()) {
