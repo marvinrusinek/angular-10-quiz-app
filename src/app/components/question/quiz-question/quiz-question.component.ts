@@ -2521,22 +2521,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     return new Promise((resolve, reject) => {
-      const subscription = this.quizService.getQuestionByIndex(index).subscribe({
-        next: (question) => {
-          if (question && question.questionText) {
-            console.log(`Question loaded for index ${index}:`, question);
-            subscription.unsubscribe();
-            resolve(); // Successfully loaded
-          } else {
-            reject(new Error(`No valid question at index ${index}`));
+      let subscription: Subscription | undefined; // Declare without initialization
+  
+      try {
+        subscription = this.quizService.getQuestionByIndex(index).subscribe({
+          next: (question) => {
+            if (question && question.questionText) {
+              console.log(`Question loaded for index ${index}:`, question);
+              subscription?.unsubscribe();
+              resolve(); // Successfully loaded
+            } else {
+              reject(new Error(`No valid question at index ${index}`));
+            }
+          },
+          error: (err) => {
+            console.error(`Error loading question at index ${index}:`, err);
+            subscription?.unsubscribe();
+            reject(err);
           }
-        },
-        error: (err) => {
-          console.error(`Error loading question at index ${index}:`, err);
-          subscription.unsubscribe();
-          reject(err);
-        }
-      });
+        });
+      } catch (error) {
+        reject(error); // Reject the promise for any unexpected error
+      }
     });
   }
 
