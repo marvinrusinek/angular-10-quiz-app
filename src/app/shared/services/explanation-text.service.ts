@@ -240,14 +240,9 @@ export class ExplanationTextService {
 
   getFormattedExplanation(questionIndex: number): Observable<string> {
     return this.getFormattedExplanationTextForQuestion(questionIndex).pipe(
-      switchMap(explanationText => {
-        if (explanationText) {
-          return of(explanationText);
-        } else {
-          console.log(`No formatted explanation found for questionIndex: ${questionIndex}`);
-          return of('No explanation available');
-        }
-      })
+      switchMap((explanationText: string) =>
+        of(explanationText ? explanationText : 'No explanation available')
+      )
     );
   }
 
