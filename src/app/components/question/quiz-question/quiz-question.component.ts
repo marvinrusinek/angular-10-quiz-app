@@ -2481,31 +2481,35 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
     console.log(`Fetching explanation for question ${questionIndex}`);
-
-    // Clear any previous explanation state
+  
+    // Clear previous explanation state before updating
     this.clearExplanation();
-   
+  
     try {
+      // Ensure the index is synchronized
+      this.currentQuestionIndex = questionIndex;
+  
       // Ensure question data is fully loaded before proceeding
       await this.ensureQuestionIsFullyLoaded(questionIndex);
-
+  
       // Use RxJS to debounce explanation loading
       const explanation$ = from(this.prepareAndSetExplanationText(questionIndex)).pipe(
-        debounceTime(100) // Ensure explanation updates happen smoothly
+        debounceTime(100) // Smooth out explanation updates
       );
-
+  
       explanation$.subscribe({
         next: (explanationText: string) => {
+          // Verify that the current index matches to prevent mismatches
           if (this.currentQuestionIndex === questionIndex) {
             this.explanationToDisplay = explanationText || 'No explanation available';
             this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
-
+  
             // Emit events to update the UI
             this.updateExplanationUI(questionIndex, this.explanationToDisplay);
             this.explanationToDisplayChange.emit(this.explanationToDisplay);
             console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
           } else {
-            console.warn('Question index mismatch. Skipping explanation update.');
+            console.warn(`Question index mismatch for ${questionIndex}. Skipping explanation update.`);
           }
         },
         error: (error) => {
