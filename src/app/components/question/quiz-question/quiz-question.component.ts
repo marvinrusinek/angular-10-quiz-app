@@ -520,7 +520,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.fetchAndSetExplanationText(adjustedIndex);
   
       // Subscribe to the isAnswered$ observable to get the boolean value
-      this.quizStateService.isAnswered$(adjustedIndex).subscribe((isAnswered: boolean) => {
+      this.quizStateService.isAnswered$.subscribe((isAnswered: boolean) => {
         this.updateSelectionMessage(isAnswered);
       });
     });
