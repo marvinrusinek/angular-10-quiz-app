@@ -231,7 +231,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       next: (response: { quizId: string; questions: QuizQuestion[] }) => {
         if (response.questions.length > 0) {
           this.questions = response.questions;
-          console.log('Questions loaded:', this.questions);
         } else {
           console.warn('No questions found for this quiz.');
         }
