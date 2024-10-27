@@ -2482,34 +2482,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
     console.log(`Fetching explanation for question ${questionIndex}`);
   
-    // Clear previous explanation state before updating
+    // Clear any previous explanation state
     this.clearExplanation();
   
     try {
-      // Ensure the index is synchronized
-      this.currentQuestionIndex = questionIndex;
-  
       // Ensure question data is fully loaded before proceeding
       await this.ensureQuestionIsFullyLoaded(questionIndex);
   
-      // Use RxJS to debounce explanation loading
       const explanation$ = from(this.prepareAndSetExplanationText(questionIndex)).pipe(
-        debounceTime(100) // Smooth out explanation updates
+        debounceTime(100) // Smooth out updates
       );
   
       explanation$.subscribe({
         next: (explanationText: string) => {
-          // Verify that the current index matches to prevent mismatches
-          if (this.currentQuestionIndex === questionIndex) {
-            this.explanationToDisplay = explanationText || 'No explanation available';
-            this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
+          // Ensure question is answered before showing explanation
+          if (this.quizService.isQuestionAnswered(questionIndex)) {
+            if (this.currentQuestionIndex === questionIndex) {
+              this.explanationToDisplay = explanationText || 'No explanation available';
+              this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
   
-            // Emit events to update the UI
-            this.updateExplanationUI(questionIndex, this.explanationToDisplay);
-            this.explanationToDisplayChange.emit(this.explanationToDisplay);
-            console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
+              // Emit events to update the UI
+              this.updateExplanationUI(questionIndex, this.explanationToDisplay);
+              this.explanationToDisplayChange.emit(this.explanationToDisplay);
+              console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
+            } else {
+              console.warn('Question index mismatch. Skipping explanation update.');
+            }
           } else {
-            console.warn(`Question index mismatch for ${questionIndex}. Skipping explanation update.`);
+            console.log(`Skipping explanation for unanswered question ${questionIndex}.`);
           }
         },
         error: (error) => {
