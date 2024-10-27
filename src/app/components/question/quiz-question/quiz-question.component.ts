@@ -2653,7 +2653,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private updateExplanationUI(questionIndex: number, explanationText: string): void {
-    const adjustedIndex = Math.min(questionIndex, this.questions.length - 1); // Prevents out-of-bounds access
+    const adjustedIndex = Math.max(0, Math.min(questionIndex, this.questions.length - 1)); // Prevents out-of-bounds access
  
     // Ensure questions array is initialized and the question exists
     if (!this.questions || !this.questions[adjustedIndex]) {
