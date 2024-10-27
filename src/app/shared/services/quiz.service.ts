@@ -1422,7 +1422,7 @@ export class QuizService implements OnDestroy {
   
     // Filter options marked as correct and map their IDs
     const correctAnswers = question.options
-      .filter((option) => option.isCorrect)
+      .filter((option) => option.correct)
       .map((option) => option.optionId);
   
     if (correctAnswers.length === 0) {
