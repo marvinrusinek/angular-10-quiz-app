@@ -1091,30 +1091,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Subscribe to option selection changes
   private subscribeToOptionSelection(): void {
-    this.optionSelectionSubscription?.unsubscribe(); // Avoid memory leaks
-  
-    this.optionSelectionSubscription = this.selectedOptionService
-      .isOptionSelected$()
+    this.selectedOptionService.isOptionSelected$()
       .pipe(
-        debounceTime(500), 
+        debounceTime(300), // Debounce to avoid rapid state changes
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
       .subscribe(async (isSelected: boolean) => {
-        try {
-          const isAnswered = isSelected || (await this.isQuestionAnswered(this.currentQuestionIndex));
-          this.selectedOptionService.setAnsweredState(isAnswered);
-  
-          if (this.currentQuestionIndex === 0 && !isSelected) {
-            await this.setInitialSelectionMessageForFirstQuestion();
-          } else if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
-            await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-          }
-        } catch (error) {
-          console.error('Error processing option selection:', error);
-        }
+        await this.updateSelectionMessageBasedOnState();
       });
-  }  
+  }
 
   private shouldUpdateMessageOnSelection(isSelected: boolean): boolean {
     // Check if the current question is not the first one or if an option is selected
@@ -2153,16 +2139,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private hasAnswered: boolean = false; // Initialize the flag
 
-  handleOptionClicked(
+  private async handleOptionClicked(
     currentQuestion: QuizQuestion,
     optionIndex: number
-  ): void {
+  ): Promise<void> {
     const selectedOptions = this.selectedOptionService.getSelectedOptionIndices(
       this.currentQuestionIndex
     );
+    
     const isOptionSelected = selectedOptions.includes(optionIndex);
-
-    // Add or remove selected options
+  
+    // Avoid redundant state changes
     if (!isOptionSelected) {
       this.selectedOptionService.addSelectedOptionIndex(
         this.currentQuestionIndex,
@@ -2174,17 +2161,39 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         optionIndex
       );
     }
-
-    // Check if the selection message has already been updated
-    if (!this.hasAnswered) {
-      this.updateSelectionMessage(true); // Update only once after the first click
-      this.hasAnswered = true; // Set the flag to avoid further updates
-    }
-
-    this.handleMultipleAnswer(currentQuestion); // Handle logic for multiple answers
-
-    // Ensure Angular change detection picks up state changes
+  
+    // Update the message only on valid state change
+    await this.updateSelectionMessageBasedOnState();
+    
+    // Handle multiple answer logic if required
+    this.handleMultipleAnswer(currentQuestion);
+  
+    // Ensure change detection
     this.cdRef.markForCheck();
+  }
+
+  private async updateSelectionMessageBasedOnState(): Promise<void> {
+    try {
+      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
+      );
+  
+      const newMessage = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        isAnswered,
+        isMultipleAnswer
+      );
+  
+      // Update only if the message has changed
+      if (this.selectionMessage !== newMessage) {
+        this.selectionMessage = newMessage;
+        this.selectionMessageService.updateSelectionMessage(newMessage);
+      }
+    } catch (error) {
+      console.error('Error updating selection message:', error);
+    }
   }
 
   private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
