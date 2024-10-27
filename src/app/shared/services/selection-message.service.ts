@@ -16,31 +16,20 @@ export class SelectionMessageService {
 
   // Message Determination Function
   public determineSelectionMessage(
-    questionIndex: number,
+    currentIndex: number,
     totalQuestions: number,
     isAnswered: boolean
   ): string {
-    if (questionIndex === 0 && !isAnswered) {
-      return 'Please select an option to start the quiz.';
+    if (isAnswered) {
+      // For the last question, show the results message
+      if (currentIndex === totalQuestions - 1) {
+        return 'Please click the Show Results button.';
+      }
+      return 'Please click the next button to continue...';
     }
-    
-    if (questionIndex === 0 && isAnswered) {
-      return 'Please click the next button to continue.';
-    }
-  
-    if (questionIndex > 0 && questionIndex < totalQuestions - 1 && !isAnswered) {
-      return 'Please select an option to continue.';
-    }
-  
-    if (questionIndex > 0 && questionIndex < totalQuestions - 1 && isAnswered) {
-      return 'Please click the next button to continue.';
-    }
-  
-    if (questionIndex === totalQuestions - 1 && !isAnswered) {
-      return 'Please select an option to continue.';
-    }
-  
-    return 'Please click the Show Results button.';
+    return currentIndex === 0
+      ? 'Please select an option to start the quiz...'
+      : 'Please select an option to continue...';
   }  
 
   // Method to update the message
