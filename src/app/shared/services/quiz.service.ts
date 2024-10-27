@@ -498,6 +498,15 @@ export class QuizService implements OnDestroy {
       });
   }
 
+  public initializeQuizId(): void {
+    const quizId = this.quizId || localStorage.getItem('quizId');
+    if (!quizId) {
+      console.error('Quiz ID is null or undefined');
+      return;
+    }
+    this.quizId = quizId;
+  }
+
   private getDefaultQuizId(data: Quiz[]): string | null {
     return data.length > 0 ? data[0].quizId : null;
   }

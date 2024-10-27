@@ -123,7 +123,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
     // Initialize quizId
-    this.initializeQuizId();
+    this.quizService.initializeQuizId();
   
     // Load quiz data from the route first
     this.loadQuizDataFromRoute();
@@ -900,15 +900,5 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         question ? this.quizStateService.isMultipleAnswerQuestion(question) : of(false)
       )
     );
-  }
-
-  private initializeQuizId(): void {
-    const quizId = this.quizService.quizId || localStorage.getItem('quizId');
-    if (!quizId) {
-      console.error('Quiz ID is null or undefined');
-      return;
-    }
-    this.quizId = quizId;
-    this.quizService.quizId = quizId;
   }
 }
