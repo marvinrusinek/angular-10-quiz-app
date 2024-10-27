@@ -657,23 +657,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private updateSelectionMessage(isAnswered: boolean): void {
+    const currentMessage = this.selectionMessageService.selectionMessageSubject.getValue();
+  
+    // Determine the new message based on the question's state
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       isAnswered
     );
   
-    const currentMessage =
-      this.selectionMessageService.selectionMessageSubject.getValue();
-  
-    if (newMessage !== currentMessage) {
-      console.log('Updating selection message:', newMessage);
+    // Only update if the message is changing to something new
+    if (currentMessage !== newMessage) {
+      console.log('Updating selection message to:', newMessage);
       this.selectionMessageService.updateSelectionMessage(newMessage);
     } else {
       console.log('Selection message remains unchanged.');
     }
-  }  
-
+  }
+  
   public async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetQuestionStateBeforeNavigation();
     this.resetExplanation();
