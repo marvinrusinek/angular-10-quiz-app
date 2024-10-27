@@ -2516,20 +2516,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private async ensureQuestionIsFullyLoaded(index: number): Promise<void> {
-    while (!this.questions || !this.questions[index]) {
-      console.warn(`Waiting for question at index ${index} to load...`);
+    const maxRetries = 10; // Limit the number of retries to avoid infinite loops
+    let attempts = 0;
+  
+    while ((!this.questions || !this.questions[index]) && attempts < maxRetries) {
+      console.warn(`Waiting for question at index ${index} to load... (Attempt ${attempts + 1}/${maxRetries})`);
+      attempts++;
       await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay between retries
     }
-
+  
+    if (attempts >= maxRetries) {
+      throw new Error(`Failed to load question at index ${index} after ${maxRetries} attempts.`);
+    }
+  
     return new Promise((resolve, reject) => {
       let subscription: Subscription | undefined; // Proper declaration
-
+  
       try {
         subscription = this.quizService.getQuestionByIndex(index).subscribe({
           next: (question) => {
             if (question && question.questionText) {
               console.log(`Question loaded for index ${index}:`, question);
-              subscription?.unsubscribe();
+              subscription?.unsubscribe(); // Cleanup
               resolve(); // Resolve when the question is loaded
             } else {
               console.warn(`No valid question found at index ${index}`);
@@ -2538,7 +2546,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           },
           error: (err) => {
             console.error(`Error loading question at index ${index}:`, err);
-            subscription?.unsubscribe();
+            subscription?.unsubscribe(); // Cleanup on error
             reject(err); // Reject the promise to handle the error upstream
           }
         });
