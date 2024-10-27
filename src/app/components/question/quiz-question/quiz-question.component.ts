@@ -1273,6 +1273,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public async getCorrectAnswers(): Promise<number[]> {
     try {
       console.log('Attempting to fetch correct answers...');
+
+      // Call waitForQuestionData to ensure question data is available
+      await this.waitForQuestionData();
   
       // Attempt to recover the current question if it is missing
       if (!this.currentQuestion) {
