@@ -1240,7 +1240,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public async getCorrectAnswers(): Promise<number[]> {
     if (!this.currentQuestion) {
-      console.warn('Current question not set. Loading...');
+      console.info('Current question not set. Attempting to load it...');
       try {
         this.currentQuestion = await firstValueFrom(
           this.quizService.getQuestionByIndex(this.currentQuestionIndex)
