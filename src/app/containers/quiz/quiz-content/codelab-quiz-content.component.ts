@@ -534,6 +534,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private initializeCombinedQuestionData(): void {
+    const questionIndex = this.quizService.getCurrentQuestionIndex();
     const currentQuizAndOptions$ = this.combineCurrentQuestionAndOptions();
 
     currentQuizAndOptions$.pipe(
@@ -545,18 +546,23 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       error: err => console.error('Error combining current quiz and options:', err)
     });
 
-    this.explanationTextService.getFormattedExplanation(this.quizService.getCurrentQuestionIndex()).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (explanation: string) => {
-        console.log('Fetched Explanation:::>>>', explanation);
-        this.formattedExplanation$.next(explanation); 
-      },
-      error: err => {
-        console.error('Error fetching formatted explanation:', err);
-        this.formattedExplanation$.next('Error fetching explanation');
-      }
-    });
+    this.explanationTextService
+      .getFormattedExplanation(questionIndex)
+      .pipe(
+        takeUntil(this.destroy$),
+        tap((explanation: string | undefined) => {
+          console.log('Explanation fetched from service:', explanation);
+        }),
+        map((explanation) => explanation || 'No explanation available'), // Default message
+        catchError((error) => {
+          console.error('Error fetching formatted explanation:', error);
+          return of('Error fetching explanation'); // Graceful fallback on error
+        })
+      )
+      .subscribe((explanation: string) => {
+        console.log('Final Fetched Explanation:::>>>', explanation);
+        this.formattedExplanation$.next(explanation);
+      });
 
     this.combinedQuestionData$ = combineLatest([
       currentQuizAndOptions$.pipe(
