@@ -2496,7 +2496,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       explanation$.subscribe({
         next: (explanationText: string) => {
           // Ensure question is answered before showing explanation
-          if (this.quizService.isQuestionAnswered(questionIndex)) {
+          if (this.isQuestionAnswered(questionIndex)) {
             if (this.currentQuestionIndex === questionIndex) {
               this.explanationToDisplay = explanationText || 'No explanation available';
               this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
