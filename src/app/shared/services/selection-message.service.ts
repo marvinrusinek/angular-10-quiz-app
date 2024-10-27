@@ -18,8 +18,13 @@ export class SelectionMessageService {
   public determineSelectionMessage(
     questionIndex: number,
     totalQuestions: number,
-    isAnswered: boolean
+    isAnswered: boolean,
+    isMultipleAnswer: boolean
   ): string {
+    if (isMultipleAnswer && !isAnswered) {
+      return 'Please select an option to continue...';
+    }
+  
     if (questionIndex === 0) {
       return isAnswered
         ? 'Please click the next button to continue.'
@@ -29,13 +34,13 @@ export class SelectionMessageService {
     if (questionIndex > 0 && questionIndex < totalQuestions - 1) {
       return isAnswered
         ? 'Please click the next button to continue.'
-        : 'Please select an option to continue.';
+        : 'Please select an option to continue...';
     }
   
     if (questionIndex === totalQuestions - 1) {
       return isAnswered
         ? 'Please click the Show Results button.'
-        : 'Please select an option to continue.';
+        : 'Please select an option to continue...';
     }
   
     return ''; // Default empty message for unexpected cases
