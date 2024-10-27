@@ -253,10 +253,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
     this.ngZone.run(() => {
-      if (this.isLoading || this.quizStateService.isLoading()) {
-        console.warn('Quiz is still loading, delaying updates.');
-        return;
-      }
+      if (this.isLoading || this.quizStateService.isLoading()) return;
 
       if (this.currentQuestionIndex !== undefined) {
         this.restoreQuestionDisplay();
