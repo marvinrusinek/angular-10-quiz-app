@@ -2464,7 +2464,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Use RxJS to debounce explanation loading
       const explanation$ = from(this.prepareAndSetExplanationText(questionIndex)).pipe(
-        debounceTime(100) // Ensure explanation updates happen smoothly
+        debounceTime(50) // Ensure explanation updates happen smoothly
       );
 
       explanation$.subscribe({
@@ -2483,19 +2483,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         },
         error: (error) => {
           console.error(`Error fetching explanation for question ${questionIndex}:`, error);
-          this.explanationToDisplay = 'Error fetching explanation. Please try again.';
-          this.updateExplanationUI(questionIndex, this.explanationToDisplay);
-          this.explanationToDisplayChange.emit(this.explanationToDisplay);
-          this.showExplanationChange.emit(true);
+          this.handleExplanationError(questionIndex);
         }
       });
     } catch (error) {
       console.error(`Error fetching explanation for question ${questionIndex}:`, error);
-      this.explanationToDisplay = 'Error fetching explanation. Please try again.';
-      this.updateExplanationUI(questionIndex, this.explanationToDisplay);
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-      this.showExplanationChange.emit(true);
+      this.handleExplanationError(questionIndex);
     }
+  }
+
+  private handleExplanationError(questionIndex: number): void {
+    this.explanationToDisplay = 'Error fetching explanation. Please try again.';
+    this.updateExplanationUI(questionIndex, this.explanationToDisplay);
+    this.explanationToDisplayChange.emit(this.explanationToDisplay);
+    this.showExplanationChange.emit(true);
   }
 
   private async ensureQuestionIsFullyLoaded(index: number): Promise<void> {
