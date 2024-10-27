@@ -524,13 +524,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         return;
       }
   
-      const adjustedIndex = Math.max(0, Math.min(index, this.questions.length - 1));
+      const adjustedIndex = index - 1;
       
       console.log(`Navigating to question ${adjustedIndex}`);
       this.updateCurrentQuestionIndex(adjustedIndex);
   
       // Use the adjusted index for explanation text to ensure sync
-      this.fetchAndSetExplanationText(adjustedIndex);
+      this.fetchAndSetExplanationText(index);
     });
   }
 
