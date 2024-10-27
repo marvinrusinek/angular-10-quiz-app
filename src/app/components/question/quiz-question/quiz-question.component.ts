@@ -200,7 +200,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
       const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
-      const adjustedIndex = index - 1;
+      const adjustedIndex = Math.min(index, this.questions.length - 1);
       this.updateCurrentQuestionIndex(adjustedIndex);
       this.fetchAndSetExplanationText(index);
     });
@@ -237,7 +237,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizStateService.setLoading(true);
 
     const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
-    const adjustedIndex = index - 1;
+    const adjustedIndex = Math.min(index, this.questions.length - 1);
     this.updateCurrentQuestionIndex(adjustedIndex);
 
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
