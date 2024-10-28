@@ -2164,13 +2164,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   ): Promise<void> {
     const selectedOptions: Option[] = this.selectedOptionService
       .getSelectedOptionIndices(this.currentQuestionIndex)
-      .map(index => currentQuestion.options[index]);
-    const isOptionSelected = selectedOptions.some(
-      (option: Option) => option.optionId === optionIndex
-    );
+      .map((index) => currentQuestion.options[index]);
   
-    // Add or remove the selected option
-    if (!isOptionSelected) {
+    // Check if the option is not already selected
+    if (!selectedOptions.includes(currentQuestion.options[optionIndex])) {
       this.selectedOptionService.addSelectedOptionIndex(
         this.currentQuestionIndex,
         optionIndex
@@ -2184,27 +2181,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
   
-    // Include both 'isAnswered' and 'selectedOptions' in the state
+    // Create the question state object
     const questionState: QuestionState = { 
       isAnswered, 
       selectedOptions 
     };
   
-    // Set the question state using QuizStateService
+    // Update the state using the QuizStateService
     this.quizStateService.setQuestionState(
       this.quizId,
       this.currentQuestionIndex,
       questionState
     );
   
-    await this.updateSelectionMessageBasedOnCurrentState(isAnswered); // Ensure message updates
+    // Ensure the selection message updates correctly
+    await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
   
-    this.handleMultipleAnswer(currentQuestion); // Handle multi-answer logic
+    // Handle multiple-answer logic if applicable
+    this.handleMultipleAnswer(currentQuestion);
   
-    // Ensure change detection
+    // Ensure the UI reflects the changes
     this.cdRef.markForCheck();
   }
-  
 
   private initializeMessageUpdateSubscription(): void {
     this.selectionMessageSubject.pipe(
