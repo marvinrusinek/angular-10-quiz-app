@@ -2156,8 +2156,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private hasAnswered: boolean = false; // Initialize the flag
-
   private async handleOptionClicked(
     currentQuestion: QuizQuestion,
     optionIndex: number
