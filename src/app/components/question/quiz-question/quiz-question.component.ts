@@ -2167,7 +2167,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       .map((index) => currentQuestion.options[index]);
   
     // Check if the option is not already selected
-    if (!selectedOptions.includes(currentQuestion.options[optionIndex])) {
+    if (!isOptionSelected || !selectedOptions.includes(currentQuestion.options[optionIndex])) {
       this.selectedOptionService.addSelectedOptionIndex(
         this.currentQuestionIndex,
         optionIndex
