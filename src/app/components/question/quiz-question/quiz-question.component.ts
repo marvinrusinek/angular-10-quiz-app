@@ -1596,7 +1596,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.selectedOptionService.setAnsweredState(true);
   }
 
-  private async finalizeOptionSelection(option: SelectedOption, index: number, questionState: QuestionState): Promise<void> {
+  /* private async finalizeOptionSelection(option: SelectedOption, index: number, questionState: QuestionState): Promise<void> {
     const currentQuestion = await this.fetchAndProcessCurrentQuestion();
     if (!currentQuestion) {
       console.error('Could not retrieve the current question.');
@@ -1618,7 +1618,39 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.processCurrentQuestionState(currentQuestion, option, index);
 
     await this.handleCorrectnessAndTimer();
+  } */
+  private async finalizeOptionSelection(
+    option: SelectedOption,
+    index: number,
+    questionState: QuestionState
+  ): Promise<void> {
+    const currentQuestion = await this.fetchAndProcessCurrentQuestion();
+    if (!currentQuestion) {
+      console.error('Could not retrieve the current question.');
+      return;
+    }
+    
+    // Select the option and update the state
+    this.selectOption(currentQuestion, option, index);
+  
+    const isMultipleAnswer = await firstValueFrom(
+      this.quizStateService.isMultipleAnswerQuestion(currentQuestion)
+    );
+  
+    // Update selection message with the correct state
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      questionState.isAnswered,
+      isMultipleAnswer
+    );
+  
+    this.selectionMessageService.updateSelectionMessage(newMessage);
+  
+    this.processCurrentQuestionState(currentQuestion, option, index);
+    await this.handleCorrectnessAndTimer();
   }
+  
 
   private handleError(error: Error): void {
     console.error(
