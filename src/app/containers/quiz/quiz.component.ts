@@ -2224,11 +2224,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     if (this.sharedOptionComponent) {
       return true;
     } else {
-      console.warn('SharedOptionComponent not initialized. Retrying...');
-      setTimeout(() => this.ensureSharedOptionComponentInitialized(), 100); // Retry after 100ms
+      console.warn('SharedOptionComponent not initialized. Skipping this operation.');
       return false;
     }
-  }  
+  }    
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
@@ -2314,7 +2313,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
       this.currentQuestionIndex = previousQuestionIndex;
 
-      this.ensureSharedOptionComponentInitialized();
+      if (!this.ensureSharedOptionComponentInitialized()) {
+        return; // Exit early if the component isn't available
+      }
+    
+      this.sharedOptionComponent.isNavigatingBackwards = true;
 
       // Combine fetching data and initializing question state into a single method
       await this.loadQuestionContents();
