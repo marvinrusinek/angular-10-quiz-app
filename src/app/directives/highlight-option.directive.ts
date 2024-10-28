@@ -63,9 +63,7 @@ export class HighlightOptionDirective implements OnChanges {
         if (this.option) {
           this.optionClicked.emit(this.option);
           this.updateHighlight();
-          
-          // Trigger change detection to ensure UI updates
-          this.cdRef.detectChanges();
+          this.cdRef.detectChanges(); // Trigger change detection to ensure UI updates
         }
       });
     } catch (error) {
