@@ -43,16 +43,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     selectedOptions: Option[]
   }> = new EventEmitter();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
-  @Output() isAnswerSelectedChange: EventEmitter<boolean> =
-    new EventEmitter<boolean>();
-  @Output() explanationToDisplayChange: EventEmitter<string> =
-    new EventEmitter<string>();
-  @Output() showExplanationChange: EventEmitter<boolean> =
-    new EventEmitter<boolean>();
-  @Output() selectionMessageChange: EventEmitter<string> =
-    new EventEmitter<string>();
-  @Output() isAnsweredChange: EventEmitter<boolean> =
-    new EventEmitter<boolean>();
+  @Output() isAnswerSelectedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() explanationToDisplayChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() showExplanationChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() selectionMessageChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() isAnsweredChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() isAnswered = false;
   @Output() answerSelected = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
@@ -80,8 +75,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @Input() showFeedback = false;
   @Input() selectionMessage: string;
   @Input() reset: boolean;
+  quiz: Quiz;
+  selectedQuiz = new ReplaySubject<Quiz>(1);
   questions: QuizQuestion[] = [];
   questionIndex: number;
+  questionsArray: QuizQuestion[] = [];
+  questionsObservableSubscription: Subscription;
+  questionForm: FormGroup = new FormGroup({});
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -94,11 +94,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   selectedOptions: SelectedOption[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
   options$: Observable<Option[]>;
-  quiz: Quiz;
-  questionsArray: QuizQuestion[] = [];
-  questionsObservableSubscription: Subscription;
-  questionForm: FormGroup = new FormGroup({});
-  selectedQuiz = new ReplaySubject<Quiz>(1);
   totalQuestions: number;
   currentOptions: Option[] | undefined;
   correctAnswers: number[] | undefined;
