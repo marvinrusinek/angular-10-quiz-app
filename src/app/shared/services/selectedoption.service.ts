@@ -352,23 +352,17 @@ export class SelectedOptionService {
       return;
     }
 
-    // Default to index 0 if optionIndex is not provided
-    const validIndex = optionIndex ?? 0;
-
-    if (validIndex < 0 || validIndex >= question.options.length) {
+    if (optionIndex < 0 || optionIndex >= question.options.length) {
       console.error(
-        `Invalid optionIndex: ${validIndex}. Available options:`,
+        `Invalid optionIndex: ${optionIndex}. Available options:`,
         question.options
       );
       return;
     }
   
-    const option = question.options[validIndex];
-    if (!option) {
-      console.error(`Option data not found for optionIndex ${validIndex}.`, question.options);
-      return;
-    }
-  
+    const option = question.options[optionIndex];
+    console.log('Updating selected option:', option);
+    
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
