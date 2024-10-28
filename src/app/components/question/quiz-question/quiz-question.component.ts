@@ -2162,13 +2162,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     currentQuestion: QuizQuestion,
     optionIndex: number
   ): Promise<void> {
-    const selectedOptions = this.selectedOptionService.getSelectedOptionIndices(
+    /* const selectedOptions = this.selectedOptionService.getSelectedOptionIndices(
       this.currentQuestionIndex
+    ); */
+    const selectedOptions: Option[] = this.selectedOptionService
+      .getSelectedOptionIndices(this.currentQuestionIndex)
+      .map(index => currentQuestion.options[index]);
+    const isOptionSelected = selectedOptions.some(
+      (option: Option) => option.index === optionIndex
     );
   
-    const isOptionSelected = selectedOptions.includes(optionIndex);
-  
-    // Avoid redundant state changes
+    // Add or remove the selected option
     if (!isOptionSelected) {
       this.selectedOptionService.addSelectedOptionIndex(
         this.currentQuestionIndex,
@@ -2181,36 +2185,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
     }
   
-    // Check if the question is a multiple-answer type
-    const isMultipleAnswer = await firstValueFrom(
-      this.quizStateService.isMultipleAnswerQuestion(currentQuestion)
-    );
-  
     const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
   
-    // Determine the new message based on the state
-    const newMessage = this.selectionMessageService.determineSelectionMessage(
+    // Include both 'isAnswered' and 'selectedOptions' in the state
+    const questionState: QuestionState = { 
+      isAnswered, 
+      selectedOptions 
+    };
+  
+    // Set the question state using QuizStateService
+    this.quizStateService.setQuestionState(
+      this.quizId,
       this.currentQuestionIndex,
-      this.totalQuestions,
-      isAnswered,
-      isMultipleAnswer
+      questionState
     );
   
-    // Update the message only if it has changed
-    if (this.selectionMessage !== newMessage) {
-      this.selectionMessage = newMessage;
-      this.selectionMessageService.updateSelectionMessage(newMessage);
-      console.log('Selection message updated to:', newMessage);
-    } else {
-      console.log('Selection message remains the same, no update required.');
-    }
+    // Update the selection message based on the state
+    await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
   
-    // Handle multiple answer logic if required
+    // Handle multiple-answer logic, if applicable
     this.handleMultipleAnswer(currentQuestion);
   
     // Ensure change detection
     this.cdRef.markForCheck();
   }
+  
 
   private initializeMessageUpdateSubscription(): void {
     this.selectionMessageSubject.pipe(
