@@ -136,11 +136,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   explanationLocked = false; // flag to lock explanation
 
   explanationTextSubject = new BehaviorSubject<string>('');
-  feedbackTextSubject = new BehaviorSubject<string>('');
-  selectionMessageSubject = new BehaviorSubject<string>('');
-
   explanationText$ = this.explanationTextSubject.asObservable();
+
+  feedbackTextSubject = new BehaviorSubject<string>('');
   feedbackText$ = this.feedbackTextSubject.asObservable();
+
+  selectionMessageSubject = new BehaviorSubject<string>('');
   selectionMessage$ = this.selectionMessageSubject.asObservable();
 
   // Define audio list array
