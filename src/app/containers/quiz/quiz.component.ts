@@ -830,7 +830,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
       this.currentQuestionIndex = +params['questionIndex'] - 1;
-      this.loadAndSetupQuestion(this.currentQuestionIndex, true);
+      this.loadAndSetupQuestion(this.currentQuestionIndex);
     });
   }
 
@@ -1603,23 +1603,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  private loadAndSetupQuestion(index: number, resetMessage: boolean): void {
+  private loadAndSetupQuestion(index: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: async (questions: QuizQuestion[]) => {
         if (questions && questions[index]) {
           this.currentQuestion = questions[index];
-
+  
           // Always reset isAnswered to false when a new question loads
           this.isAnswered = false;
-
-          // If resetMessage is true, set the initial message
-          if (resetMessage) {
-            const initialMessage = 'Please select an option to continue...';
-            this.selectionMessageService.updateSelectionMessage(initialMessage);
-          }
-
+  
           // Check if the current question is answered
-          this.isQuestionAnswered(index);
+          const answered = await this.isQuestionAnswered(index);
+  
+          this.isAnswered = answered;
+          console.log(
+            `Question at index ${index} is ${answered ? 'already answered' : 'not answered'}.`
+          );
+  
+          this.quizQuestionComponent.updateSelectionMessageBasedOnState();
         } else {
           console.error('Question not found for index:', index);
         }
@@ -1848,7 +1849,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.quizService.setCurrentQuestion(questionIndex);
 
     // Reset UI elements and messages as needed
-    this.selectionMessageService.updateSelectionMessage('');
     this.selectedOption$.next(null);
     this.explanationTextService.explanationText$.next('');
   }
@@ -1943,30 +1943,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         this.handleQuestionsLoadingError();
       },
     });
-  }
-
-  private async updateSelectionMessage(
-    isAnswered: boolean,
-    isFirstQuestion: boolean
-  ): Promise<void> {
-    const totalQuestions: number = await lastValueFrom(
-      this.quizService.totalQuestions$.pipe(take(1))
-    );
-
-    let message: string;
-
-    if (!isFirstQuestion || isAnswered) {
-      message = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        totalQuestions,
-        isAnswered
-      );
-    } else {
-      // If it's the first question and not answered, set the initial message
-      message = 'Please select an option to continue...';
-    }
-
-    this.selectionMessageService.updateSelectionMessage(message);
   }
 
   handleNoQuestionsAvailable(): void {
@@ -2214,9 +2190,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       );
   
       console.log('isAnswered from quizService:', isAnswered);
-  
-      this.selectedOptionService.setAnsweredState(isAnswered);
-      this.updateSelectionMessage(isAnswered, isFirstQuestion);
     } catch (error) {
       console.error('Error checking if answer is selected:', error);
     }
