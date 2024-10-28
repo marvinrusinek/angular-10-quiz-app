@@ -2164,17 +2164,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     return this.quizService.shouldExplanationBeDisplayed();
   }
 
-  /************** template logic functions ******************/
-  // currently not being used
-  isMultipleCorrectAnswers(): boolean {
-    return this.numberOfCorrectAnswers > 1;
-  }
-
-  // currently not being used
-  shouldDisableButton(): boolean {
-    return !this.formControl || this.formControl.valid === false;
-  }
-
   private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
     try {
       console.log('checkIfAnswerSelected called:', { isFirstQuestion });
