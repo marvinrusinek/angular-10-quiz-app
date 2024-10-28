@@ -410,12 +410,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     if (this.currentQuestionIndex !== undefined && this.questions) {
       // Update the question display
       this.updateQuestionDisplay(this.currentQuestionIndex);
-      this.evaluateNextButtonState(); // Update the Next button state based on the answer status
+  
+      // Update the Next button state based on the answer status
+      await this.evaluateNextButtonState();
     } else {
       console.warn('Cannot restore question display. Question index or questions list is undefined.');
     }
   }
-
+  
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
