@@ -2306,10 +2306,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(true);
 
-    if (!this.ensureSharedOptionComponentInitialized()) {
-      return; // Exit early if the component isn't available
-    }   
-    this.sharedOptionComponent.isNavigatingBackwards = true;
+    if (this.sharedOptionComponent) {
+      console.log('SharedOptionComponent initialized.');
+      this.sharedOptionComponent.isNavigatingBackwards = true;
+    } else {
+      console.info('SharedOptionComponent not initialized, but proceeding with navigation.');
+    }  
 
     try {
       this.resetOptionState();
