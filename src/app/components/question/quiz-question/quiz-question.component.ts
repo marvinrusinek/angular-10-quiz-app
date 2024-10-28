@@ -2170,9 +2170,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const selectedOptions = this.selectedOptionService.getSelectedOptionIndices(
       this.currentQuestionIndex
     );
-
+  
     const isOptionSelected = selectedOptions.includes(optionIndex);
-
+  
+    // Avoid redundant state changes
     if (!isOptionSelected) {
       this.selectedOptionService.addSelectedOptionIndex(
         this.currentQuestionIndex,
@@ -2184,13 +2185,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         optionIndex
       );
     }
-
-    // Trigger the message update with the new value (can be empty if you're just triggering the change)
-    this.selectionMessageSubject.next('');
-
-    // Handle multiple answer logic
+  
+    // Check if the question is a multiple-answer type
+    const isMultipleAnswer = await firstValueFrom(
+      this.quizStateService.isMultipleAnswerQuestion(currentQuestion)
+    );
+  
+    const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+  
+    // Determine the new message based on the state
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered,
+      isMultipleAnswer
+    );
+  
+    // Update the message only if it has changed
+    if (this.selectionMessage !== newMessage) {
+      this.selectionMessage = newMessage;
+      this.selectionMessageService.updateSelectionMessage(newMessage);
+      console.log('Selection message updated to:', newMessage);
+    } else {
+      console.log('Selection message remains the same, no update required.');
+    }
+  
+    // Handle multiple answer logic if required
     this.handleMultipleAnswer(currentQuestion);
-
+  
     // Ensure change detection
     this.cdRef.markForCheck();
   }
