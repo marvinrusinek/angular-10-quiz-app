@@ -1815,13 +1815,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.questionAnswered.emit();
   }
 
-  private updateAnswerStateAndMessage(isAnswered: boolean): void {
-    const message = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      isAnswered
-    );
-    this.setSelectionMessageIfChanged(message);
+  private async updateAnswerStateAndMessage(isAnswered: boolean): Promise<void> {
+    try {
+      // Retrieve the isMultipleAnswer flag asynchronously
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
+      );
+  
+      // Call determineSelectionMessage with all four required arguments
+      const message = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        isAnswered,
+        isMultipleAnswer
+      );
+  
+      this.setSelectionMessageIfChanged(message);
+    } catch (error) {
+      console.error(
+        '[updateAnswerStateAndMessage] Error updating selection message:',
+        error
+      );
+    }
   }
 
   // Sets the selection message if it has changed
