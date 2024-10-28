@@ -2165,6 +2165,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const selectedOptions: Option[] = this.selectedOptionService
       .getSelectedOptionIndices(this.currentQuestionIndex)
       .map((index) => currentQuestion.options[index]);
+    const isOptionSelected = selectedOptions.some(
+      (option: Option) => option.optionId === optionIndex
+    );
   
     // Check if the option is not already selected
     if (!isOptionSelected || !selectedOptions.includes(currentQuestion.options[optionIndex])) {
