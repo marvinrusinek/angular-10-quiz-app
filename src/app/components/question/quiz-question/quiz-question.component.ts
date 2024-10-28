@@ -1718,14 +1718,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     isAnswered: boolean
   ): Promise<void> {
     try {
+      // Retrieve the isMultipleAnswer flag asynchronously
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
+      );
+  
+      // Call determineSelectionMessage with all required arguments
       const newMessage = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
         this.totalQuestions,
-        isAnswered
+        isAnswered,
+        isMultipleAnswer
       );
-
+  
       console.log('Updating selection message. New message:', newMessage);
-
+  
       if (this.selectionMessage !== newMessage) {
         this.selectionMessage = newMessage;
         this.selectionMessageService.updateSelectionMessage(newMessage);
