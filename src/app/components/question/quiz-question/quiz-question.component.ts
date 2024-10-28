@@ -2171,7 +2171,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     const isOptionSelected = selectedOptions.includes(optionIndex);
 
-    // Avoid redundant state changes
     if (!isOptionSelected) {
       this.selectedOptionService.addSelectedOptionIndex(
         this.currentQuestionIndex,
@@ -2184,10 +2183,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
     }
 
-    // Trigger debounced message update
-    this.selectionMessageSubject.next();
+    // Trigger the message update with the new value (can be empty if you're just triggering the change)
+    this.selectionMessageSubject.next('');
 
-    // Handle multiple answer logic if required
+    // Handle multiple answer logic
     this.handleMultipleAnswer(currentQuestion);
 
     // Ensure change detection
