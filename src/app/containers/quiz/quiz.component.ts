@@ -252,19 +252,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
   @HostListener('window:focus', ['$event'])
   onTabFocus(event: FocusEvent): void {
-    if (this.isLoading || this.quizStateService.isLoading()) return;
-
     this.ngZone.run(() => {
       if (this.isLoading || this.quizStateService.isLoading()) return;
 
       if (this.currentQuestionIndex !== undefined) {
         this.restoreQuestionDisplay();
+
+        // Re-evaluate the message and UI state
         this.quizQuestionComponent.updateSelectionMessageBasedOnState(); // Sync messages
         this.fetchFormattedExplanationText(this.currentQuestionIndex);
       } else {
         console.warn('Current question index is undefined.');
       }
 
+      // Ensure observables are synced
       this.isLoading$ = this.quizStateService.isLoading$;
       this.isAnswered$ = this.quizStateService.isAnswered$;
 
