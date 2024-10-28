@@ -1106,16 +1106,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return this.currentQuestionIndex !== 0 || isSelected;
   }
 
-  private shouldUpdateMessageOnAnswer(isAnswered: boolean): boolean {
+  private async shouldUpdateMessageOnAnswer(isAnswered: boolean): Promise<boolean> {
+    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion));
+  
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
-      isAnswered
+      isAnswered,
+      isMultipleAnswer
     );
-
+  
     console.log('Determined new message:', newMessage);
     console.log('Current selection message:', this.selectionMessage);
-
+  
     return this.selectionMessage !== newMessage;
   }
 
