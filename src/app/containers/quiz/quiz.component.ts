@@ -2175,12 +2175,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     return !this.formControl || this.formControl.valid === false;
   }
 
-  // currently not being used
-  isNextDisabled(): boolean {
-    return typeof this.selectedAnswerField === 'undefined';
-  } // might remove
-
-
   private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
     try {
       console.log('checkIfAnswerSelected called:', { isFirstQuestion });
