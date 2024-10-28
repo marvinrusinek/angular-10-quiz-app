@@ -1692,21 +1692,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isFirstQuestion = false; // Reset after the first option click
   }
 
-  private async updateSelectionMessageBasedOnCurrentState(
-    isAnswered: boolean
-  ): Promise<void> {
+  private async updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): Promise<void> {
     try {
-      // Retrieve the isMultipleAnswer flag asynchronously
-      const isMultipleAnswer = await firstValueFrom(
-        this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
-      );
-  
-      // Call determineSelectionMessage with all required arguments
       const newMessage = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
         this.totalQuestions,
         isAnswered,
-        isMultipleAnswer
+        await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion))
       );
   
       console.log('Updating selection message. New message:', newMessage);
@@ -1716,15 +1708,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectionMessageService.updateSelectionMessage(newMessage);
         console.log('Selection message updated to:', newMessage);
       } else {
-        console.log(
-          '[updateSelectionMessageBasedOnCurrentState] No message update required'
-        );
+        console.log('[updateSelectionMessageBasedOnCurrentState] No message update required');
       }
     } catch (error) {
-      console.error(
-        '[updateSelectionMessageBasedOnCurrentState] Error updating selection message:',
-        error
-      );
+      console.error('[updateSelectionMessageBasedOnCurrentState] Error updating selection message:', error);
     }
   }
 
