@@ -2181,6 +2181,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+
+    // Update the message only if there’s a state change
+    if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
+      const currentMessage = this.selectionMessageService.getCurrentMessage();
+      this.selectionMessageSubject.next(currentMessage);
+    }    
   
     // Create the question state object
     const questionState: QuestionState = { 
