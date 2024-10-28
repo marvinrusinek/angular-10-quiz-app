@@ -1692,7 +1692,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private async updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): Promise<void> {
     try {
-      const newMessage = this.selectionMessageService.determineSelectionMessage(
+      const newMessage = this.selectionMessageService?.determineSelectionMessage(
         this.currentQuestionIndex,
         this.totalQuestions,
         isAnswered,
