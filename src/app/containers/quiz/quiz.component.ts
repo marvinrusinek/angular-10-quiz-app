@@ -2306,18 +2306,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(true);
 
+    if (!this.ensureSharedOptionComponentInitialized()) {
+      return; // Exit early if the component isn't available
+    }   
+    this.sharedOptionComponent.isNavigatingBackwards = true;
+
     try {
       this.resetOptionState();
       this.isOptionSelected = false;
 
       const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
       this.currentQuestionIndex = previousQuestionIndex;
-
-      if (!this.ensureSharedOptionComponentInitialized()) {
-        return; // Exit early if the component isn't available
-      }
-    
-      this.sharedOptionComponent.isNavigatingBackwards = true;
 
       // Combine fetching data and initializing question state into a single method
       await this.loadQuestionContents();
