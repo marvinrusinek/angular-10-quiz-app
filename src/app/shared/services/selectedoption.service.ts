@@ -352,20 +352,20 @@ export class SelectedOptionService {
       return;
     }
 
-    if (typeof optionIndex === 'undefined' || optionIndex < 0 || optionIndex >= question.options.length) {
+    // Default to index 0 if optionIndex is not provided
+    const validIndex = optionIndex ?? 0;
+
+    if (validIndex < 0 || validIndex >= question.options.length) {
       console.error(
-        `Invalid optionIndex: ${optionIndex}. Available options:`,
+        `Invalid optionIndex: ${validIndex}. Available options:`,
         question.options
       );
       return;
     }
   
-    const option = question.options[optionIndex];
+    const option = question.options[validIndex];
     if (!option) {
-      console.error(
-        `Option data not found for optionIndex ${optionIndex}.`,
-        question.options
-      );
+      console.error(`Option data not found for optionIndex ${validIndex}.`, question.options);
       return;
     }
   
