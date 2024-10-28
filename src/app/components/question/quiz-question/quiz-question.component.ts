@@ -354,6 +354,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.selectionMessage = message as string;
         });
       this.selectionMessageService.resetMessage();
+
+      this.initializeMessageUpdateSubscription(); // Start listening for changes
   
       this.initializeComponent();
       this.loadInitialQuestionAndMessage();
@@ -2191,6 +2193,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Ensure change detection
     this.cdRef.markForCheck();
+  }
+
+  private initializeMessageUpdateSubscription(): void {
+    this.selectionMessageSubject.pipe(
+      debounceTime(300), // Adjust as needed
+      distinctUntilChanged()
+    ).subscribe(async () => {
+      await this.updateSelectionMessageBasedOnState();
+    });
   }
 
   private async updateSelectionMessageBasedOnState(): Promise<void> {
