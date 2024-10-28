@@ -2162,9 +2162,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     currentQuestion: QuizQuestion,
     optionIndex: number
   ): Promise<void> {
-    /* const selectedOptions = this.selectedOptionService.getSelectedOptionIndices(
-      this.currentQuestionIndex
-    ); */
     const selectedOptions: Option[] = this.selectedOptionService
       .getSelectedOptionIndices(this.currentQuestionIndex)
       .map(index => currentQuestion.options[index]);
