@@ -2221,7 +2221,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
   }
 
-  private async updateSelectionMessageBasedOnState(): Promise<void> {
+  public async updateSelectionMessageBasedOnState(): Promise<void> {
     try {
       const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
       const isMultipleAnswer = await firstValueFrom(
