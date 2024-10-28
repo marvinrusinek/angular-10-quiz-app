@@ -257,6 +257,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
       if (this.currentQuestionIndex !== undefined) {
         this.restoreQuestionDisplay();
+        this.updateSelectionMessageBasedOnCurrentState(true); // Sync messages
         this.fetchFormattedExplanationText(this.currentQuestionIndex);
       } else {
         console.warn('Current question index is undefined.');
