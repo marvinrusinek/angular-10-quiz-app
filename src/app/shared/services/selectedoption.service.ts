@@ -351,6 +351,14 @@ export class SelectedOptionService {
       console.error('No options available for this question.');
       return;
     }
+
+    if (typeof optionIndex === 'undefined' || optionIndex < 0 || optionIndex >= question.options.length) {
+      console.error(
+        `Invalid optionIndex: ${optionIndex}. Available options:`,
+        question.options
+      );
+      return;
+    }
   
     const option = question.options[optionIndex];
     if (!option) {
