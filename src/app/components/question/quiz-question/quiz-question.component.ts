@@ -2208,9 +2208,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private initializeMessageUpdateSubscription(): void {
     this.selectionMessageSubject.pipe(
-      debounceTime(300), // Adjust the debounce time based on user behavior
-      distinctUntilChanged(), // Ensure only distinct messages trigger updates
-      takeUntil(this.destroy$) // Automatically unsubscribe when component is destroyed
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
     ).subscribe(async () => {
       try {
         await this.updateSelectionMessageBasedOnState();
