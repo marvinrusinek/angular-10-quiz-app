@@ -1122,28 +1122,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return this.selectionMessage !== newMessage;
   }
 
-  private async updateSelectionBasedOnState(
-    isSelected: boolean
-  ): Promise<void> {
-    try {
-      if (this.currentQuestionIndex === 0 && !isSelected) {
-        await this.setInitialSelectionMessageForFirstQuestion();
-      } else {
-        const isAnswered =
-          isSelected ||
-          (await this.isQuestionAnswered(this.currentQuestionIndex));
-        if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
-          await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-        }
-      }
-    } catch (error) {
-      console.error(
-        '[updateSelectionBasedOnState] Error updating selection based on state:',
-        error
-      );
-    }
-  }
-
   private async isQuestionAnswered(questionIndex: number): Promise<boolean> {
     this.resetStateForNewQuestion();
     try {
