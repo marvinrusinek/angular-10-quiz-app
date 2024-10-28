@@ -352,7 +352,7 @@ export class SelectedOptionService {
       return;
     }
 
-    const option = question.options[optionIndex];
+    const option = question.options[optionIndex ?? 0];
     if (!option) {
       console.error(
         `Option data not found for optionIndex ${optionIndex}.`,

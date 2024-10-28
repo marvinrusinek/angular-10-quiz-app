@@ -2207,16 +2207,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private initializeMessageUpdateSubscription(): void {
     this.selectionMessageSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$)
-    ).subscribe(async () => {
-      try {
-        await this.updateSelectionMessageBasedOnState();
-        console.log('Selection message updated successfully');
-      } catch (error) {
-        console.error('Error updating selection message:', error);
-      }
+      debounceTime(300), // Adjust debounce time if necessary
+      distinctUntilChanged(), 
+      takeUntil(this.destroy$) // Cleanup when component is destroyed
+    ).subscribe({
+      next: async () => {
+        try {
+          await this.updateSelectionMessageBasedOnState();
+          console.log('Selection message updated successfully');
+        } catch (error) {
+          console.error('Error updating selection message:', error);
+        }
+      },
+      error: (error) => console.error('Subscription error:', error),
     });
   }
 

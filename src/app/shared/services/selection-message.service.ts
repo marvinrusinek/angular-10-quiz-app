@@ -30,24 +30,20 @@ export class SelectionMessageService {
       return 'Please select an option to start the quiz.';
     }
   
-    if (questionIndex === 0 && isAnswered) {
+    if (isMultipleAnswer && !isAnswered) {
+      return 'Please select an option to continue...';
+    }
+  
+    if (isAnswered && questionIndex < totalQuestions - 1) {
       return 'Please click the next button to continue.';
     }
   
-    if (questionIndex > 0 && questionIndex < totalQuestions - 1) {
-      return isMultipleAnswer && !isAnswered
-        ? 'Please select an option to continue.'
-        : 'Please click the next button to continue.';
+    if (questionIndex === totalQuestions - 1 && !isAnswered) {
+      return 'Please select an option to continue...';
     }
   
-    if (questionIndex === totalQuestions - 1) {
-      return isAnswered
-        ? 'Please click the Show Results button.'
-        : 'Please select an option to continue.';
-    }
-  
-    return '';
-  }
+    return 'Please click the Show Results button.';
+  }  
 
   // Method to update the message
   updateSelectionMessage(newMessage: string | undefined): void {
