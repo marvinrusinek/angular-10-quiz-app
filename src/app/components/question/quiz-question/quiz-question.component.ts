@@ -2163,12 +2163,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const selectedOptions: Option[] = this.selectedOptionService
       .getSelectedOptionIndices(this.currentQuestionIndex)
       .map((index) => currentQuestion.options[index]);
+  
     const isOptionSelected = selectedOptions.some(
       (option: Option) => option.optionId === optionIndex
     );
   
-    // Check if the option is not already selected
-    if (!isOptionSelected || !selectedOptions.includes(currentQuestion.options[optionIndex])) {
+    // Add or remove the option based on its current state
+    if (!isOptionSelected) {
       this.selectedOptionService.addSelectedOptionIndex(
         this.currentQuestionIndex,
         optionIndex
@@ -2180,31 +2181,36 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
     }
   
+    // Check if the question is now answered
     const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-
-    // Update the message only if there’s a state change
-    if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
-      const currentMessage = this.selectionMessageService.getCurrentMessage();
-      this.selectionMessageSubject.next(currentMessage);
-    }    
   
-    // Create the question state object
-    const questionState: QuestionState = { 
-      isAnswered, 
-      selectedOptions 
+    // Update the message if the state has changed
+    if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
+      const newMessage = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        isAnswered,
+        await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(currentQuestion))
+      );
+  
+      console.log(`Setting new message: ${newMessage}`);
+      this.selectionMessageService.updateSelectionMessage(newMessage);
+    }
+  
+    // Create the updated question state
+    const questionState: QuestionState = {
+      isAnswered,
+      selectedOptions,
     };
   
-    // Update the state using the QuizStateService
+    // Save the state using QuizStateService
     this.quizStateService.setQuestionState(
       this.quizId,
       this.currentQuestionIndex,
       questionState
     );
   
-    // Ensure the selection message updates correctly
-    await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-  
-    // Handle multiple-answer logic if applicable
+    // Handle any multiple-answer logic if applicable
     this.handleMultipleAnswer(currentQuestion);
   
     // Ensure the UI reflects the changes
