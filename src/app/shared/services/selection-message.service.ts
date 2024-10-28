@@ -26,27 +26,25 @@ export class SelectionMessageService {
     isAnswered: boolean,
     isMultipleAnswer: boolean
   ): string {
-    // Handle the first question
-    if (questionIndex === 0 && !isAnswered) {
+    if (questionIndex === 0) {
+      if (isAnswered) {
+        return 'Please click the next button to continue.';
+      }
       return 'Please select an option to start the quiz.';
     }
   
-    // Handle multiple-answer questions where not all answers are selected
     if (isMultipleAnswer && !isAnswered) {
       return 'Please select an option to continue...';
     }
   
-    // If the question is answered and not the last one, prompt for the next question
     if (isAnswered && questionIndex < totalQuestions - 1) {
       return 'Please click the next button to continue.';
     }
   
-    // Handle the last question if not answered
     if (questionIndex === totalQuestions - 1 && !isAnswered) {
       return 'Please select an option to continue...';
     }
   
-    // For the last question when answered, prompt to show results
     return 'Please click the Show Results button.';
   }
 
