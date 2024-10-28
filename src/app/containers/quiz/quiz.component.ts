@@ -411,13 +411,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       // Update the question display
       this.updateQuestionDisplay(this.currentQuestionIndex);
   
-      // Update the Next button state based on the answer status
+      // Ensure selection states are correctly restored
+      await this.restoreSelectionState();
+  
+      // Evaluate and update the Next button state
       await this.evaluateNextButtonState();
     } else {
       console.warn('Cannot restore question display. Question index or questions list is undefined.');
     }
   }
+
+  private async restoreSelectionState(): Promise<void> {
+    const selectedOptions = this.selectedOptionService.getSelectedOptionIndices(this.currentQuestionIndex);
   
+    // Use for-of loop to re-apply selected states to options
+    for (const index of selectedOptions) {
+      this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, index);
+    }
+  
+    console.log(`Restored selected options for question ${this.currentQuestionIndex}:`, selectedOptions);
+  }
+
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
