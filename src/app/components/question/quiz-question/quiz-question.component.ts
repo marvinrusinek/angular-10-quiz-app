@@ -2197,11 +2197,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       questionState
     );
   
-    // Update the selection message based on the state
-    await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+    await this.updateSelectionMessageBasedOnCurrentState(isAnswered); // Ensure message updates
   
-    // Handle multiple-answer logic, if applicable
-    this.handleMultipleAnswer(currentQuestion);
+    this.handleMultipleAnswer(currentQuestion); // Handle multi-answer logic
   
     // Ensure change detection
     this.cdRef.markForCheck();
