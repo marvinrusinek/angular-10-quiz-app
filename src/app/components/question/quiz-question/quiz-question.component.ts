@@ -2166,7 +2166,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       .getSelectedOptionIndices(this.currentQuestionIndex)
       .map(index => currentQuestion.options[index]);
     const isOptionSelected = selectedOptions.some(
-      (option: Option) => option.index === optionIndex
+      (option: Option) => option.optionId === optionIndex
     );
   
     // Add or remove the selected option
