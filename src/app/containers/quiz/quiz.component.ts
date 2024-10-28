@@ -251,7 +251,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   @HostListener('window:focus', ['$event'])
-  onFocus(event: FocusEvent): void {
+  onTabFocus(event: FocusEvent): void {
+    if (this.isLoading || this.quizStateService.isLoading()) return;
+
     this.ngZone.run(() => {
       if (this.isLoading || this.quizStateService.isLoading()) return;
 
