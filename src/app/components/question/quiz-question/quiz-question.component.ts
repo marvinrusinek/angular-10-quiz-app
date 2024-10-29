@@ -129,6 +129,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   sharedOptionConfig: SharedOptionConfig;
   shouldRenderComponent = false;
   explanationLocked = false; // flag to lock explanation
+  explanationVisible = false;
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
@@ -321,7 +322,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
     const adjustedIndex = Math.max(0, Math.min(index, this.questions.length - 1));
-    this.updateCurrentQuestionIndex(adjustedIndex);
+    this.quizService.updateCurrentQuestionIndex(adjustedIndex);
   
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
   }
@@ -495,7 +496,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       const adjustedIndex = Math.max(0, Math.min(index - 1, this.questions.length - 1));
-      this.updateCurrentQuestionIndex(adjustedIndex);
+      this.quizService.updateCurrentQuestionIndex(adjustedIndex);
   
       // Use the adjusted index for explanation text to ensure sync
       this.fetchAndSetExplanationText(adjustedIndex);
@@ -2839,11 +2840,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.router.navigate(['quiz', 'result']);
     });
   }
-
-  private updateCurrentQuestionIndex(index: number): void {
-    this.currentQuestionIndex = index;
-    console.log(`Updated current question index to: ${this.currentQuestionIndex}`);
-  }  
 
   /* playSound(selectedOption: Option): void {
     if (!selectedOption) {
