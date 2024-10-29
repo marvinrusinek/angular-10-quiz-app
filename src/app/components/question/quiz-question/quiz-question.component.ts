@@ -579,6 +579,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const question = this.questionsArray[index];
     if (!question) {
       console.warn('No question found for index:', index);
+      this.quizService.resetExplanationText(); // Reset explanation if no question found
       return;
     }
   
@@ -655,7 +656,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     );
   
     console.log('Setting explanation:', formattedExplanation);
-  
+ 
+    this.quizService.setNextExplanationText(formattedExplanation);
     this.explanationToDisplayChange.emit(formattedExplanation);
     this.showExplanationChange.emit(true);  // Show the explanation
     this.cdRef.detectChanges();  // Ensure the UI reflects the latest changes
