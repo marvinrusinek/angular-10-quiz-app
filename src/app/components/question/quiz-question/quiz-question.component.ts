@@ -390,6 +390,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
+
+    const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
+    this.updateExplanationUI(index, '');
     
     // this.updateSelectionMessage(this.isAnswered);
     this.setInitialMessage();
@@ -577,6 +580,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
       const index = this.getValidatedIndex(+params.get('questionIndex') || 0);
+      this.updateExplanationUI(index, '');
       this.updateQuestionAndExplanation(index);
     });
   }
@@ -2936,6 +2940,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Ensure the explanation text only updates if the question is answered
     if (this.isQuestionAnswered(adjustedIndex)) {
+      this.setExplanationText(this.questionsArray[adjustedIndex]);
       this.explanationTextService.explanationText$.next(explanationText);
 
       // Update combined question data safely
