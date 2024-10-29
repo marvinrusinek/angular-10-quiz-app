@@ -2268,6 +2268,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try {
           // Use the received message directly
           if (message) {
+            this.selectionMessage = message; // Update local selectionMessage
             this.selectionMessageService.updateSelectionMessage(message);
             console.log(`Selection message updated to: ${message}`);
           } else {
