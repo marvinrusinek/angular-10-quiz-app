@@ -2929,8 +2929,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error(`Question not found at index:::: ${adjustedIndex}.`);
       return;
     }
-  
     console.log(`Updating explanation for question ${adjustedIndex}`);
+
+    // Reset explanation text first to avoid stale state
+    this.explanationTextService.explanationText$.next(''); 
   
     // Ensure the explanation text only updates if the question is answered
     if (this.isQuestionAnswered(adjustedIndex)) {
