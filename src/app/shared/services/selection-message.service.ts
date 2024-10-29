@@ -29,15 +29,19 @@ export class SelectionMessageService {
     if (questionIndex === 0 && !isAnswered) {
       return 'Please select an option to start the quiz.';
     }
+  
     if (isMultipleAnswer && !isAnswered) {
       return 'Please select an option to continue...';
     }
+  
     if (isAnswered && questionIndex < totalQuestions - 1) {
       return 'Please click the next button to continue.';
     }
+  
     if (questionIndex === totalQuestions - 1 && !isAnswered) {
       return 'Please select an option to continue...';
     }
+  
     return 'Please click the Show Results button.';
   }
 
