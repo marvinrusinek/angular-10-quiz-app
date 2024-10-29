@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, C
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
@@ -210,7 +210,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
   }
 
-  async ngOnInit(): Promise<void> {
+  /* async ngOnInit(): Promise<void> {
     super.ngOnInit();
 
     this.waitForQuestionData();
@@ -373,7 +373,141 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationToDisplayChange.emit(''); // Clear the explanation text
     this.showExplanationChange.emit(false); // Emit the flag to hide the explanation
+  } */
+  async ngOnInit(): Promise<void> {
+    super.ngOnInit();
+  
+    this.initializeQQComponent();
+    this.setupRouteParameters();
+    this.subscribeToResetEvents();
+  
+    try {
+      await this.loadQuizData(); // Load quiz data first
+  
+      this.observeQuestionChanges(); // Sync questions and explanations
+      this.setupVisibilityChangeHandler();
+      this.logComponentData();
+    } catch (error) {
+      console.error('Error in ngOnInit:', error);
+    }
   }
+  
+  // Helper Methods
+  
+  private initializeQQComponent(): void {
+    this.waitForQuestionData();
+    this.initializeData();
+    this.initializeForm();
+    this.quizStateService.setLoading(true);
+  }
+  
+  private setupRouteParameters(): void {
+    this.activatedRoute.paramMap.subscribe((params) => {
+      const index = +params.get('questionIndex') || 0;
+      this.quizService.currentQuestionSubject.next(index); // Update question state
+    });
+  }
+  
+  private async loadQuizData(): Promise<void> {
+    const quizId = this.quizId || this.activatedRoute.snapshot.paramMap.get('quizId');
+    if (!quizId) {
+      console.error('Quiz ID is missing');
+      return;
+    }
+  
+    const questions = await this.fetchAndProcessQuizQuestions(quizId);
+    if (questions?.length) {
+      this.questionsArray = questions;
+      this.questions$ = of(questions);
+    } else {
+      console.error('No questions loaded...');
+    }
+  
+    this.quiz = this.quizService.getActiveQuiz();
+    if (!this.quiz) {
+      console.error('Failed to get the active quiz');
+      return;
+    }
+  }
+  
+  private observeQuestionChanges(): void {
+    this.quizService.currentQuestionSubject
+      .pipe(
+        switchMap((index) => this.questions$.pipe(tap(() => this.setQuestionAndExplanation(index))))
+      )
+      .subscribe();
+  }
+  
+  private setQuestionAndExplanation(index: number): void {
+    const question = this.questionsArray[index];
+    if (!question) {
+      console.warn('No question found for index:', index);
+      return;
+    }
+  
+    console.log('Setting question and explanation for index:', index);
+  
+    this.setCurrentQuestion(question);
+    this.resetExplanationText(); // Clear old explanations
+    this.prepareAndSetExplanationTextNew(question); // Set new explanation
+  }
+  
+  private setCurrentQuestion(question: QuizQuestion): void {
+    this.question = question;
+    this.optionsToDisplay = question.options || [];
+    this.quizService.setCorrectOptions(this.optionsToDisplay);
+  }
+  
+  private resetExplanationText(): void {
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationToDisplayChange.emit(''); // Clear explanation text
+    this.showExplanationChange.emit(false); // Hide explanation initially
+  }
+  
+  private prepareAndSetExplanationTextNew(question: QuizQuestion): void {
+    const correctOptionIndices = this.getCorrectOptionIndices(question);
+    const formattedExplanation = this.explanationTextService.formatExplanation(
+      question,
+      correctOptionIndices,
+      this.quizId
+    );
+  
+    console.log('Setting explanation for question:', question.text);
+  
+    this.explanationToDisplayChange.emit(formattedExplanation); // Emit new explanation
+    this.showExplanationChange.emit(true); // Show explanation
+  }
+  
+  private getCorrectOptionIndices(question: QuizQuestion): number[] {
+    return question.options
+      .map((option, index) => (option.correct ? index : -1))
+      .filter((index) => index !== -1);
+  }
+  
+  private subscribeToResetEvents(): void {
+    this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
+      console.log('Reset feedback triggered');
+      this.resetFeedback();
+    });
+  
+    this.resetStateSubscription = this.resetStateService.resetState$.subscribe(() => {
+      console.log('Reset state triggered');
+      this.resetState();
+    });
+  }
+  
+  private setupVisibilityChangeHandler(): void {
+    document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
+  }
+  
+  private logComponentData(): void {
+    this.logInitialData();
+    this.logFinalData();
+  }
+  
+  
+
+  
 
   async ngAfterViewInit(): Promise<void> {
     // await super.ngAfterViewInit();
