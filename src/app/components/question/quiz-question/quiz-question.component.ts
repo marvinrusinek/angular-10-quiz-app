@@ -455,6 +455,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.destroy$.complete();
     this.questionsObservableSubscription?.unsubscribe();
     this.optionSelectionSubscription?.unsubscribe();
+    this.selectionMessageSubscription?.unsubscribe();
     this.sharedVisibilitySubscription?.unsubscribe();
     this.resetFeedbackSubscription?.unsubscribe();
     this.resetStateSubscription?.unsubscribe();
