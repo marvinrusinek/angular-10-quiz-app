@@ -352,6 +352,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       this.initializeMessageUpdateSubscription(); // Start listening for changes
   
+      // Check and set the initial message for the first question
+      this.checkInitialMessage();
+
       this.initializeComponent();
       this.loadInitialQuestionAndMessage();
   
@@ -2247,6 +2250,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       error: (error) => console.error('Subscription error:', error),
     });
   }
+
+  private checkInitialMessage(): void {
+    const isAnswered = false; // Ensure it only applies initially
+  
+    if (this.currentQuestionIndex === 0 && !isAnswered) {
+      const initialMessage = 'Please select an option to start the quiz.';
+      if (this.selectionMessageService.getCurrentMessage() !== initialMessage) {
+        this.selectionMessageSubject.next(initialMessage);
+      }
+    }
+  }
+  
 
   public async updateSelectionMessageBasedOnState(): Promise<void> {
     try {
