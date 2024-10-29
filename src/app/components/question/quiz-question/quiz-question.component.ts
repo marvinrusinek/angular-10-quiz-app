@@ -2927,12 +2927,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private updateExplanationUI(questionIndex: number, explanationText: string): void {
-    // Check if questionsArray is initialized and not empty
-    if (!this.questions || this.questions.length === 0) {
-      console.error('Questions are not loaded yet. Skipping explanation update.');
-      return;
-    }
-
     const adjustedIndex = Math.max(0, Math.min(questionIndex, this.questions.length - 1)); // Prevents out-of-bounds access
   
     // Ensure questions array is initialized and the question exists
