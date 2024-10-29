@@ -2181,6 +2181,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         optionIndex
       );
     }
+
+    // Ensure selected options are stabilized before proceeding
+    await new Promise((resolve) => setTimeout(resolve, 10));
   
     // Check if the question is now answered
     const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
