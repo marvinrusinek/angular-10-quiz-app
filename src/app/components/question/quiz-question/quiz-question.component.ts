@@ -227,8 +227,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async ngAfterViewInit(): Promise<void> {
-    // await super.ngAfterViewInit();
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
+    
     // this.updateSelectionMessage(this.isAnswered);
     this.setInitialMessage();
   }
