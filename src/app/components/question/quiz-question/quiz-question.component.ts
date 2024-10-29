@@ -2211,7 +2211,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Update the question state
     const questionState: QuestionState = {
       isAnswered,
-      selectedOptions,
+      selectedOptions
     };
   
     this.quizStateService.setQuestionState(
