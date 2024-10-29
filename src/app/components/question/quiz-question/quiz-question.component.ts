@@ -552,7 +552,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizStateService.setLoading(true);
   }
   
-  private async loadQuizData(): Promise<void> {
+  private async loadQuizData(): Promise<boolean> {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     if (!quizId) {
       console.error('Quiz ID is missing');
@@ -567,8 +567,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Load the first question and options immediately
       this.updateExplanationUI(0, '');
+      return true;
     } else {
       console.error('No questions loaded...');
+      return false;
     }
   
     // Get the active quiz
@@ -2927,30 +2929,35 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private updateExplanationUI(questionIndex: number, explanationText: string): void {
-    const adjustedIndex = Math.max(0, Math.min(questionIndex, this.questions.length - 1)); // Prevents out-of-bounds access
+    // Check if questionsArray is initialized and not empty
+    if (!this.questionsArray || this.questionsArray.length === 0) {
+      console.error('Questions are not loaded yet. Skipping explanation update.');
+      return;
+    }
   
-    // Ensure questions array is initialized and the question exists
-    if (!this.questions || !this.questions[adjustedIndex]) {
+    const adjustedIndex = Math.max(0, Math.min(questionIndex, this.questionsArray.length - 1));
+  
+    if (!this.questionsArray[adjustedIndex]) {
       console.error(`Question not found at index:::: ${adjustedIndex}.`);
       return;
     }
-    console.log(`Updating explanation for question ${adjustedIndex}`);
-
-    // Reset explanation text first to avoid stale state
-    this.explanationTextService.explanationText$.next(''); 
   
-    // Ensure the explanation text only updates if the question is answered
+    console.log(`Updating explanation for question ${adjustedIndex}`);
+  
+    // Reset explanation text to avoid stale state
+    this.explanationTextService.explanationText$.next('');
+  
+    // Update explanation only if the question is answered
     if (this.isQuestionAnswered(adjustedIndex)) {
       this.setExplanationText(this.questionsArray[adjustedIndex]);
       this.explanationTextService.explanationText$.next(explanationText);
-
-      // Update combined question data safely
-      this.updateCombinedQuestionData(this.questions[adjustedIndex], explanationText);
+      this.updateCombinedQuestionData(this.questionsArray[adjustedIndex], explanationText);
       this.isAnswerSelectedChange.emit(true);
     } else {
       console.log(`Question ${adjustedIndex} is not answered. Skipping explanation update.`);
     }
   }
+  
 
   updateCombinedQuestionData(
     currentQuestion: QuizQuestion,
