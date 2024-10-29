@@ -26,10 +26,7 @@ export class SelectionMessageService {
     isAnswered: boolean,
     isMultipleAnswer: boolean
   ): string {
-    if (questionIndex === 0) {
-      if (isAnswered) {
-        return 'Please click the next button to continue.';
-      }
+    if (questionIndex === 0 && !isAnswered) {
       return 'Please select an option to start the quiz.';
     }
   
