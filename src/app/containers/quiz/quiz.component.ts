@@ -301,6 +301,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     // Reset the answered state initially
     this.selectedOptionService.setAnswered(false);
 
+    this.quizService.nextExplanationText$.subscribe((text) => {
+      this.explanationToDisplay = text;
+      console.log('Updated explanation text:', text); // Debug log
+    });
+
     // Move resetQuestionState here
     this.resetQuestionState();
 
