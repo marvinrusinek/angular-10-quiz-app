@@ -250,7 +250,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     });    
   }
 
-  @HostListener('window:focus', ['$event'])
+  /* @HostListener('window:focus', ['$event'])
   onTabFocus(event: FocusEvent): void {
     this.ngZone.run(() => {
       if (this.isLoading || this.quizStateService.isLoading()) return;
@@ -273,7 +273,41 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
 
       this.cdRef.detectChanges(); // Ensure the UI reflects state changes
     });
+  } */
+  @HostListener('window:focus', ['$event'])
+  onTabFocus(event: FocusEvent): void {
+    this.ngZone.run(async () => {
+      if (this.isLoading || this.quizStateService.isLoading()) return;
+
+      if (this.currentQuestionIndex !== undefined) {
+        this.restoreQuestionDisplay();
+
+        const isAnswered = await this.isQuestionAnswered(
+          this.currentQuestionIndex
+        );
+
+        const newMessage = this.selectionMessageService.determineSelectionMessage(
+          this.currentQuestionIndex,
+          this.totalQuestions,
+          isAnswered,
+          await firstValueFrom(
+            this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
+          )
+        );
+
+        this.selectionMessageService.selectionMessageSubject.next(newMessage);
+
+        this.fetchFormattedExplanationText(this.currentQuestionIndex);
+      } else {
+        console.warn('Current question index is undefined.');
+      }
+
+      this.isLoading$ = this.quizStateService.isLoading$;
+      this.isAnswered$ = this.quizStateService.isAnswered$;
+      this.cdRef.detectChanges();
+    });
   }
+
 
   async ngOnInit(): Promise<void> {
     this.activatedRoute.paramMap.subscribe((params) => {
