@@ -588,10 +588,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.resetExplanationText();
 
     // Delay setting explanation to ensure proper rendering order
-    this.showExplanationWithDelay(question);
+    // this.showExplanationWithDelay(question);
     
     // Set the correct explanation for the current question
-    // this.setExplanationText(question);
+    this.setExplanationText(question);
 
     // this.setExplanationTextWithDebugging(question);
     
