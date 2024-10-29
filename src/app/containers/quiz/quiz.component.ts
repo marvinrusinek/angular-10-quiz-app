@@ -258,18 +258,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       if (this.currentQuestionIndex !== undefined) {
         this.restoreQuestionDisplay();
 
-        // Re-evaluate the message and UI state
-        this.quizQuestionComponent.updateSelectionMessageBasedOnState(); // Sync messages
+        // Trigger message sync without duplicating logic
+        this.quizQuestionComponent.updateSelectionMessageBasedOnState();
+
+        // Fetch explanation text for the current question
         this.fetchFormattedExplanationText(this.currentQuestionIndex);
       } else {
         console.warn('Current question index is undefined.');
       }
 
-      // Ensure observables are synced
+      // Sync observables with current state
       this.isLoading$ = this.quizStateService.isLoading$;
       this.isAnswered$ = this.quizStateService.isAnswered$;
 
-      this.cdRef.detectChanges(); // Trigger UI update after state change
+      this.cdRef.detectChanges(); // Ensure the UI reflects state changes
     });
   }
 
