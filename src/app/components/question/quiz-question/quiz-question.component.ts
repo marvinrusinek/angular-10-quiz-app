@@ -2220,7 +2220,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       questionState
     );
 
-    this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+    //this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+    await this.updateMessageForCurrentState(currentQuestion);
   
     // Handle multiple-answer logic if applicable
     this.handleMultipleAnswer(currentQuestion);
@@ -2228,6 +2229,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Ensure the UI reflects the changes
     this.cdRef.markForCheck();
   }
+
+  private async updateMessageForCurrentState(
+    currentQuestion: QuizQuestion
+  ): Promise<void> {
+    const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+    const isMultipleAnswer = await firstValueFrom(
+      this.quizStateService.isMultipleAnswerQuestion(currentQuestion)
+    );
+  
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered,
+      isMultipleAnswer
+    );
+  
+    if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
+      console.log(`Setting new message: ${newMessage}`);
+      this.selectionMessageSubject.next(newMessage);
+    }
+  }
+  
 
   private initializeMessageUpdateSubscription(): void {
     this.selectionMessageSubject.pipe(
