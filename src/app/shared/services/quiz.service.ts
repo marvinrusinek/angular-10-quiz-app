@@ -1484,6 +1484,14 @@ export class QuizService implements OnDestroy {
     return quizSelectionParams;
   }
 
+  setNextExplanationText(text: string): void {
+    this.nextExplanationTextSource.next(text); // Emit the new explanation text
+  }
+
+  resetExplanationText(): void {
+    this.nextExplanationTextSource.next(''); // Clear the explanation text
+  }
+
   shouldExplanationBeDisplayed(): boolean {
     return this.shouldDisplayExplanation;
   }
