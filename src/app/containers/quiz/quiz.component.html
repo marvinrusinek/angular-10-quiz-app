@@ -79,11 +79,11 @@
               (click)="advanceToNextQuestion()"
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"              
-              aria-label="Next Question"
               matTooltipPosition="above"
               [matTooltip]="nextButtonTooltip$ | async"
               [disabled]="!(isButtonEnabled$ | async)"
               [ngStyle]="nextButtonStyle"
+              aria-label="Next Question"
             >
               <i class="material-icons">navigate_next</i>
             </button>
