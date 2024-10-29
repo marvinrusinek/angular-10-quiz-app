@@ -586,7 +586,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     this.setCurrentQuestion(question);
     this.resetExplanationText();
-    this.setExplanationTextWithDebugging(question);
+
+    // Set the correct explanation for the current question
+    this.setExplanationText(question);
+
+    // this.setExplanationTextWithDebugging(question);
     
     // Use setTimeout to guarantee explanation updates after question renders
     // setTimeout(() => this.setExplanationText(question), 0);
