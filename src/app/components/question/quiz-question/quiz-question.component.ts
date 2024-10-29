@@ -350,7 +350,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private handleQuestionSetup(): void {
     this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (response) => this.handleQuizQuestions(response),
-      error: (error) => this.handleQuizError(error),
+      error: (error) => this.handleQuizError(error)
     });
   
     this.loadInitialQuestionAndOptions();
