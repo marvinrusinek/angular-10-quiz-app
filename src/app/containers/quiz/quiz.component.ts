@@ -274,7 +274,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.cdRef.detectChanges(); // Ensure the UI reflects state changes
     });
   } */
-  @HostListener('window:focus', ['$event'])
+  /* @HostListener('window:focus', ['$event'])
   onTabFocus(event: FocusEvent): void {
     this.ngZone.run(async () => {
       if (this.isLoading || this.quizStateService.isLoading()) return;
@@ -306,7 +306,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       this.isAnswered$ = this.quizStateService.isAnswered$;
       this.cdRef.detectChanges();
     });
+  } */
+  @HostListener('window:focus', ['$event'])
+  onTabFocus(event: FocusEvent): void {
+    this.ngZone.run(async () => {
+      if (this.isLoading || this.quizStateService.isLoading()) return;
+
+      const isAnswered = await this.isQuestionAnswered(
+        this.currentQuestionIndex
+      );
+
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
+      );
+
+      const newMessage = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        isAnswered,
+        isMultipleAnswer
+      );
+
+      this.selectionMessageSubject.next(newMessage);
+      this.fetchFormattedExplanationText(this.currentQuestionIndex);
+
+      this.isLoading$ = this.quizStateService.isLoading$;
+      this.isAnswered$ = this.quizStateService.isAnswered$;
+      this.cdRef.detectChanges();
+    });
   }
+
 
 
   async ngOnInit(): Promise<void> {
