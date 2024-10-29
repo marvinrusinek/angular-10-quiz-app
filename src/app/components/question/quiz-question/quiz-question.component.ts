@@ -562,6 +562,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     const questions = await this.fetchAndProcessQuizQuestions(quizId);
     if (questions?.length) {
+      this.questions = questions;
       this.questionsArray = questions;
 
       // Load the first question and options immediately
