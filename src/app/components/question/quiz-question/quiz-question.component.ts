@@ -446,7 +446,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   ngOnDestroy(): void {
-    super.ngOnDestroy ? super.ngOnDestroy() : null;
     document.removeEventListener(
       'visibilitychange',
       this.onVisibilityChange.bind(this)
