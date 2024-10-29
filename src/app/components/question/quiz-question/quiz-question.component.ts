@@ -211,7 +211,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
   }
 
-  async ngOnInit(): Promise<void> {
+  /* async ngOnInit(): Promise<void> {
     super.ngOnInit();
 
     this.waitForQuestionData();
@@ -222,7 +222,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
     const adjustedIndex = Math.max(0, Math.min(index, this.questions.length - 1));
-    this.updateCurrentQuestionIndex(adjustedIndex);
+    this.quizService.updateCurrentQuestionIndex(adjustedIndex);
 
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
@@ -371,7 +371,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationToDisplayChange.emit(''); // Clear the explanation text
     this.showExplanationChange.emit(false); // Emit the flag to hide the explanation
-  }
+  } */
+  async ngOnInit(): Promise<void> {
+    try {
+      super.ngOnInit();
+  
+      this.initializeComponentState();
+      await this.loadQuizData();
+      this.setupSubscriptions();
+      this.handleRouteChanges();
+  
+      console.log('QuizQuestionComponent initialized successfully');
+    } catch (error) {
+      console.error('Error in ngOnInit:', error);
+    }
+  }  
 
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
@@ -524,6 +538,106 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.updateSelectionMessage(isAnswered);
       });
     });
+  }
+
+  private initializeComponentState(): void {
+    this.waitForQuestionData();
+    this.initializeData();
+    this.initializeForm();
+    this.quizStateService.setLoading(true);
+  }
+  
+  private async loadQuizData(): Promise<void> {
+    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    if (!quizId) {
+      console.error('Quiz ID is missing');
+      return;
+    }
+  
+    this.quizId = quizId;
+    const questions = await this.fetchAndProcessQuizQuestions(quizId);
+    if (questions?.length) {
+      this.questionsArray = questions;
+    } else {
+      console.error('No questions loaded...');
+    }
+  
+    this.quiz = this.quizService.getActiveQuiz();
+    if (!this.quiz) {
+      console.error('Failed to get the active quiz');
+    }
+  }
+  
+  private handleRouteChanges(): void {
+    this.activatedRoute.paramMap.subscribe((params) => {
+      const index = this.getValidatedIndex(+params.get('questionIndex') || 0);
+      this.updateQuestionAndExplanation(index);
+    });
+  }
+  
+  private updateQuestionAndExplanation(index: number): void {
+    const question = this.questionsArray[index];
+    if (!question) {
+      console.warn('No question found for index:', index);
+      return;
+    }
+  
+    console.log('Updating question and explanation for index:', index);
+  
+    this.setCurrentQuestion(question);
+    this.resetExplanationText();
+    this.setExplanationText(question);
+  }
+  
+  private setCurrentQuestion(question: QuizQuestion): void {
+    this.question = question;
+    this.optionsToDisplay = question.options || [];
+    this.quizService.setCorrectOptions(this.optionsToDisplay);
+    this.cdRef.detectChanges();  // Ensure the UI reflects the updated question immediately
+  }
+  
+  private resetExplanationText(): void {
+    this.explanationToDisplayChange.emit('');  // Clear explanation text
+    this.showExplanationChange.emit(false);  // Hide explanation initially
+  }
+  
+  private setExplanationText(question: QuizQuestion): void {
+    const correctOptionIndices = this.getCorrectOptionIndices(question);
+    const formattedExplanation = this.explanationTextService.formatExplanation(
+      question,
+      correctOptionIndices,
+      this.quizId
+    );
+  
+    console.log('Setting explanation:', formattedExplanation);
+  
+    this.explanationToDisplayChange.emit(formattedExplanation);
+    this.showExplanationChange.emit(true);  // Show the explanation
+    this.cdRef.detectChanges();  // Ensure the UI reflects the latest changes
+  }
+  
+  private getCorrectOptionIndices(question: QuizQuestion): number[] {
+    return question.options
+      .map((option, index) => (option.correct ? index : -1))
+      .filter((index) => index !== -1);
+  }
+  
+  private getValidatedIndex(index: number): number {
+    return Math.max(0, Math.min(index, this.questionsArray.length - 1));
+  }
+  
+  private setupSubscriptions(): void {
+    this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
+      console.log('Reset feedback triggered');
+      this.resetFeedback();
+    });
+  
+    this.resetStateSubscription = this.resetStateService.resetState$.subscribe(() => {
+      console.log('Reset state triggered');
+      this.resetState();
+    });
+  
+    document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
   }
 
   recheckSelectionState(): void {
