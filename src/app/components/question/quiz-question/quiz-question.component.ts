@@ -2753,7 +2753,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       questionText: currentQuestion?.questionText || '',
       explanationText: explanationText,
       correctAnswersText: this.quizService.getCorrectAnswersAsString(),
-      currentOptions: this.currentOptions,
+      currentOptions: this.currentOptions
     });
   }
 
@@ -2827,7 +2827,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       isCorrect: isCorrect,
       explanationText: explanationText,
       selectedOptions: selectedOptions,
-      numberOfCorrectAnswers: numberOfCorrectAnswers,
+      numberOfCorrectAnswers: numberOfCorrectAnswers
     });
 
     // this.quizService.playSound(isCorrect);
