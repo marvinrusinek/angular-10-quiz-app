@@ -327,7 +327,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
         isMultipleAnswer
       );
 
-      this.selectionMessageSubject.next(newMessage);
+      this.selectionMessageService.selectionMessageSubject.next(newMessage);
       this.fetchFormattedExplanationText(this.currentQuestionIndex);
 
       this.isLoading$ = this.quizStateService.isLoading$;
