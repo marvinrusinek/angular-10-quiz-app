@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, C
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil } from 'rxjs/operators';
 
 import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
@@ -620,7 +620,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.question = question;
     this.optionsToDisplay = question.options || [];
     this.quizService.setCorrectOptions(this.optionsToDisplay);
-    this.cdRef.detectChanges();  // Ensure the UI reflects the updated question immediately
   }
 
   private showExplanationWithDelay(question: QuizQuestion): void {
