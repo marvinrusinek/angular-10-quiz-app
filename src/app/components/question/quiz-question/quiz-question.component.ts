@@ -2164,6 +2164,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       .getSelectedOptionIndices(this.currentQuestionIndex)
       .map((index) => currentQuestion.options[index]);
   
+    // Check if the option is already selected
     const isOptionSelected = selectedOptions.some(
       (option: Option) => option.optionId === optionIndex
     );
@@ -2183,34 +2184,37 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Check if the question is now answered
     const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+    const isMultipleAnswer = await firstValueFrom(
+      this.quizStateService.isMultipleAnswerQuestion(currentQuestion)
+    );
   
-    // Update the message if the state has changed
-    if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
-      const newMessage = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        isAnswered,
-        await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(currentQuestion))
-      );
+    // Determine the new selection message
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered,
+      isMultipleAnswer
+    );
   
+    // Update the message only if it has changed
+    if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
       console.log(`Setting new message: ${newMessage}`);
       this.selectionMessageService.updateSelectionMessage(newMessage);
     }
   
-    // Create the updated question state
+    // Update the question state
     const questionState: QuestionState = {
       isAnswered,
       selectedOptions,
     };
   
-    // Save the state using QuizStateService
     this.quizStateService.setQuestionState(
       this.quizId,
       this.currentQuestionIndex,
       questionState
     );
   
-    // Handle any multiple-answer logic if applicable
+    // Handle multiple-answer logic if applicable
     this.handleMultipleAnswer(currentQuestion);
   
     // Ensure the UI reflects the changes
