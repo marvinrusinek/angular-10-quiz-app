@@ -2207,6 +2207,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
       console.log(`Setting new message: ${newMessage}`);
       this.selectionMessageService.updateSelectionMessage(newMessage);
+      this.selectionMessageSubject.next(newMessage);
     }
   
     // Update the question state
