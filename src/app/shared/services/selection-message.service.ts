@@ -34,15 +34,15 @@ export class SelectionMessageService {
       return 'Please select an option to continue...';
     }
   
-    if (isAnswered) {
-      if (questionIndex < totalQuestions - 1) {
-        return 'Please click the next button to continue.';
-      } else {
-        return 'Please click the Show Results button.';
-      }
+    if (isAnswered && questionIndex < totalQuestions - 1) {
+      return 'Please click the next button to continue.';
     }
   
-    return 'Please select an option to continue...';
+    if (questionIndex === totalQuestions - 1 && !isAnswered) {
+      return 'Please select an option to continue...';
+    }
+  
+    return 'Please click the Show Results button.';
   }
 
   // Method to update the message
