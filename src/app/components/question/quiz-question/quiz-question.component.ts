@@ -586,18 +586,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Updating question and explanation for index:', index);
   
     this.setCurrentQuestion(question);
-    this.resetExplanationText();
+    this.emitExplanationText(question);  // Emit explanation after setting question
+    // this.resetExplanationText();
 
     // Delay setting explanation to ensure proper rendering order
     // this.showExplanationWithDelay(question);
     
     // Set the correct explanation for the current question
-    this.setExplanationText(question);
+    // this.setExplanationText(question);
 
     // this.setExplanationTextWithDebugging(question);
     
     // Use setTimeout to guarantee explanation updates after question renders
     // setTimeout(() => this.setExplanationText(question), 0);
+  }
+
+  private emitExplanationText(question: QuizQuestion): void {
+    const correctOptionIndices = this.getCorrectOptionIndices(question);
+    const formattedExplanation = this.explanationTextService.formatExplanation(
+      question,
+      correctOptionIndices,
+      this.quizId
+    );
+
+    console.log('Emitting explanation text:', formattedExplanation);
+
+    this.quizService.setNextExplanationText(formattedExplanation);  // Emit explanation via service
   }
 
   private setExplanationTextWithDebugging(question: QuizQuestion): void {
