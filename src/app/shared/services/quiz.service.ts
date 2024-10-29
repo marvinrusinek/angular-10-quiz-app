@@ -1251,15 +1251,20 @@ export class QuizService implements OnDestroy {
     this.correctAnswersLoadedSubject.next(loaded);
   }
 
+  updateCurrentQuestionIndex(index: number): void {
+    this.currentQuestionIndex = index;
+    console.log(`Updated current question index to: ${this.currentQuestionIndex}`);
+  }
+
+  updateQuestionText(newQuestionText: string) {
+    this.questionTextSource.next(newQuestionText);
+  }
+
   updateBadgeText(questionNumber: number, totalQuestions: number): void {
     if (questionNumber > 0 && questionNumber <= totalQuestions) {
       const badgeText = `Question ${questionNumber} of ${totalQuestions}`;
       this.badgeTextSource.next(badgeText);
     }
-  }
-
-  updateQuestionText(newQuestionText: string) {
-    this.questionTextSource.next(newQuestionText);
   }
 
   updateCorrectAnswersText(newText: string): void {
