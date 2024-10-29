@@ -587,8 +587,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.setCurrentQuestion(question);
     this.resetExplanationText();
 
+    // Delay setting explanation to ensure proper rendering order
+    this.showExplanationWithDelay(question);
+    
     // Set the correct explanation for the current question
-    this.setExplanationText(question);
+    // this.setExplanationText(question);
 
     // this.setExplanationTextWithDebugging(question);
     
@@ -618,6 +621,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.optionsToDisplay = question.options || [];
     this.quizService.setCorrectOptions(this.optionsToDisplay);
     this.cdRef.detectChanges();  // Ensure the UI reflects the updated question immediately
+  }
+
+  private showExplanationWithDelay(question: QuizQuestion): void {
+    // Use setTimeout to delay the explanation update
+    setTimeout(() => {
+      const correctOptionIndices = this.getCorrectOptionIndices(question);
+      const formattedExplanation = this.explanationTextService.formatExplanation(
+        question,
+        correctOptionIndices,
+        this.quizId
+      );
+  
+      console.log('Setting explanation:', formattedExplanation);
+  
+      // Update the explanation only after the question has rendered
+      this.explanationToDisplayChange.emit(formattedExplanation);
+      this.showExplanationChange.emit(true);
+      this.cdRef.detectChanges(); // Ensure UI reflects the new explanation
+    }, 50); // Slight delay to ensure rendering order
   }
   
   private resetExplanationText(): void {
