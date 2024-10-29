@@ -212,19 +212,165 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    super.ngOnInit();
+
+    this.waitForQuestionData();
+    this.initializeData();
+    this.initializeForm();
+  
+    this.quizStateService.setLoading(true);
+
+    const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
+    const adjustedIndex = Math.max(0, Math.min(index, this.questions.length - 1));
+    this.updateCurrentQuestionIndex(adjustedIndex);
+
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: (response: { quizId: string; questions: QuizQuestion[] }) => {
+        if (response.questions.length > 0) {
+          this.questions = response.questions;
+        } else {
+          console.warn('No questions found for this quiz.');
+        }
+      },
+      error: (error) => {
+        console.error('Error loading questions:', error.message || error);
+        console.error('Complete error details:', error);
+      }
+    });
+  
+    // Ensure optionsToDisplay is correctly set
+    if (this.options && this.options.length > 0) {
+      console.log('Setting optionsToDisplay from this.options');
+      this.optionsToDisplay = this.options;
+    } else if (this.questionData && this.questionData.options && this.questionData.options.length > 0) {
+      console.log('Setting optionsToDisplay from this.questionData.options');
+      this.optionsToDisplay = this.questionData.options;
+    } else {
+      console.info('No options available initially. Initializing optionsToDisplay as an empty array.');
+      this.optionsToDisplay = [];
+    }    
+    console.log('Options to Display:::::>>>>>>', this.optionsToDisplay); // Debugging statement
+  
+    // Set correct options in the quiz service
+    this.quizService.setCorrectOptions(this.optionsToDisplay);
+  
+    if (!this.question) {
+      console.warn('Question not available, waiting for data...');
+      return;
+    } else {
+      console.log('Loaded question:', this.question);
+    }
+
+    if (this.question && this.question.options) {
+      const hasMultipleAnswers =
+        this.question.options.filter((option) => option.correct).length > 1;
+      this.multipleAnswer.next(hasMultipleAnswers);
+    } else {
+      console.error(
+        'Question or options are undefined in QuizQuestionComponent ngOnInit'
+      );
+    }
+  
+    this.resetFeedbackSubscription =
+      this.resetStateService.resetFeedback$.subscribe(() => {
+        console.log('QuizQuestionComponent - Reset feedback triggered');
+        this.resetFeedback();
+      });
+  
+    this.resetStateSubscription = this.resetStateService.resetState$.subscribe(
+      () => {
+        console.log('QuizQuestionComponent - Reset state triggered');
+        this.resetState();
+      }
+    );
+
+    setTimeout(() => {
+      console.log("Emitting test event");
+      this.optionSelected.emit({option: {} as SelectedOption, index: 0, checked: true});
+    }, 1000);
+  
     try {
-      super.ngOnInit();
+      const quizId =
+        this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
+      if (!quizId) {
+        console.error('Quiz ID is missing');
+        return;
+      }
   
-      this.initializeComponentState();
-      await this.loadQuizData();
-      this.handleQuestionSetup();
-      this.setupSubscriptions();
-      this.initializeMessages();
+      const questions = await this.fetchAndProcessQuizQuestions(quizId);
   
-      console.log('QuizQuestionComponent initialized successfully');
+      if (questions && questions.length > 0) {
+        this.questions$ = of(questions);
+        this.questions$.subscribe({
+          next: (questions: QuizQuestion[]) => {
+            this.questionsArray = questions;
+  
+            if (this.questionsArray.length === 0) {
+              console.error('Questions are not initialized');
+              return;
+            }
+  
+            this.selectedOptionService.selectedOption$.subscribe(
+              (selectedOption) => {
+                this.selectedOption = selectedOption;
+              }
+            );
+          },
+          error: (err) => {
+            console.error('Error fetching questions', err);
+          },
+        });
+      } else {
+        console.error('No questions were loaded...');
+      }
+  
+      // Ensure this.quiz is set correctly
+      this.quiz = this.quizService.getActiveQuiz();
+      if (!this.quiz) {
+        console.error('Failed to get the active quiz');
+        return;
+      }
+  
+      this.resetMessages();
+      this.resetStateForNewQuestion();
+      this.subscribeToOptionSelection();
+  
+      if (!this.initialized) {
+        this.initialized = true;
+        await this.initializeQuiz();
+      }
+  
+      this.initializeQuizQuestion();
+      await this.handleQuestionState();
+  
+      // Subscribe to selectionMessage$ to update the message displayed in the template
+      this.selectionMessageService.selectionMessage$
+        .pipe(debounceTime(200))
+        .subscribe((message) => {
+          this.selectionMessage = message as string;
+        });
+      this.selectionMessageService.resetMessage();
+
+      this.initializeMessageUpdateSubscription(); // Start listening for changes
+  
+      this.initializeComponent();
+      this.loadInitialQuestionAndMessage();
+  
+      document.addEventListener(
+        'visibilitychange',
+        this.onVisibilityChange.bind(this)
+      );
+      this.logInitialData();
+      this.logFinalData();
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
+  
+    // Ensure the explanation text is not displayed initially
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationToDisplayChange.emit(''); // Clear the explanation text
+    this.showExplanationChange.emit(false); // Emit the flag to hide the explanation
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -310,134 +456,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.sharedVisibilitySubscription?.unsubscribe();
     this.resetFeedbackSubscription?.unsubscribe();
     this.resetStateSubscription?.unsubscribe();
-  }
-  
-  // Helper Methods
-  
-  private initializeComponentState(): void {
-    this.waitForQuestionData();
-    this.initializeData();
-    this.initializeForm();
-    this.quizStateService.setLoading(true);
-  
-    const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
-    const adjustedIndex = Math.max(0, Math.min(index, this.questions.length - 1));
-    this.quizService.updateCurrentQuestionIndex(adjustedIndex);
-  
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-  }
-  
-  private async loadQuizData(): Promise<void> {
-    const quizId = this.quizId || this.activatedRoute.snapshot.paramMap.get('quizId');
-    if (!quizId) {
-      console.error('Quiz ID is missing');
-      return;
-    }
-  
-    const questions = await this.fetchAndProcessQuizQuestions(quizId);
-    if (questions?.length) {
-      this.questionsArray = questions;
-      this.questions$ = of(questions);
-    } else {
-      console.error('No questions loaded...');
-    }
-  
-    this.quiz = this.quizService.getActiveQuiz();
-    if (!this.quiz) {
-      console.error('Failed to get the active quiz');
-    }
-  }
-  
-  private handleQuestionSetup(): void {
-    this.quizService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: (response) => this.handleQuizQuestions(response),
-      error: (error) => this.handleQuizError(error)
-    });
-  
-    this.loadInitialQuestionAndOptions();
-  }
-  
-  private handleQuizQuestions(response: { quizId: string; questions: QuizQuestion[] }): void {
-    if (response.questions.length > 0) {
-      this.questions = response.questions;
-    } else {
-      console.warn('No questions found for this quiz.');
-    }
-  }
-  
-  private handleQuizError(error: any): void {
-    console.error('Error loading questions:', error.message || error);
-    console.error('Complete error details:', error);
-  }
-  
-  private loadInitialQuestionAndOptions(): void {
-    if (this.options?.length) {
-      console.log('Setting optionsToDisplay from this.options');
-      this.optionsToDisplay = this.options;
-    } else if (this.questionData?.options?.length) {
-      console.log('Setting optionsToDisplay from this.questionData.options');
-      this.optionsToDisplay = this.questionData.options;
-    } else {
-      console.info('No options available initially. Initializing optionsToDisplay as an empty array.');
-      this.optionsToDisplay = [];
-    }
-  
-    console.log('Options to Display:', this.optionsToDisplay);
-    this.quizService.setCorrectOptions(this.optionsToDisplay);
-  }
-  
-  private setupSubscriptions(): void {
-    this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
-      console.log('Reset feedback triggered');
-      this.resetFeedback();
-    });
-  
-    this.resetStateSubscription = this.resetStateService.resetState$.subscribe(() => {
-      console.log('Reset state triggered');
-      this.resetState();
-    });
-  
-    this.selectedOptionService.selectedOption$.subscribe((selectedOption) => {
-      this.selectedOption = selectedOption;
-    });
-  
-    this.selectionMessageService.selectionMessage$
-      .pipe(debounceTime(200))
-      .subscribe((message: string) => {
-        this.selectionMessage = message;
-      });
-  
-    document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
-  }
-  
-  private initializeMessages(): void {
-    this.resetMessages();
-    this.resetStateForNewQuestion();
-    this.subscribeToOptionSelection();
-  
-    if (!this.initialized) {
-      this.initialized = true;
-      this.initializeQuiz();
-    }
-  
-    this.initializeQuizQuestion();
-    this.handleQuestionState();
-    this.selectionMessageService.resetMessage();
-    this.initializeMessageUpdateSubscription();
-    this.checkInitialMessage();
-    this.logInitialData();
-    this.logFinalData();
-  
-    // Ensure explanation text is not displayed initially
-    this.explanationTextService.setShouldDisplayExplanation(false);
-    this.explanationToDisplayChange.emit('');
-    this.showExplanationChange.emit(false);
-  
-    // Emit a test event after a short delay
-    setTimeout(() => {
-      console.log('Emitting test event');
-      this.optionSelected.emit({ option: {} as SelectedOption, index: 0, checked: true });
-    }, 1000);
   }
   
   // Listen for the visibility change event
