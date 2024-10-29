@@ -2219,6 +2219,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.currentQuestionIndex,
       questionState
     );
+
+    this.updateSelectionMessageBasedOnCurrentState(isAnswered);
   
     // Handle multiple-answer logic if applicable
     this.handleMultipleAnswer(currentQuestion);
