@@ -138,6 +138,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   selectionMessageSubject = new BehaviorSubject<string>('');
   selectionMessage$ = this.selectionMessageSubject.asObservable();
+  selectionMessageSubscription: Subscription;
 
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -2253,7 +2254,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
 
   private initializeMessageUpdateSubscription(): void {
-    this.selectionMessageSubject.pipe(
+    if (this.selectionMessageSubscription) {
+      this.selectionMessageSubscription.unsubscribe();
+    }
+
+    this.selectionMessageSubscription = this.selectionMessageSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(), 
       takeUntil(this.destroy$)
