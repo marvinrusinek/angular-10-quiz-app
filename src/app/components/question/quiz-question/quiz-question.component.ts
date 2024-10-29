@@ -375,7 +375,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   async ngOnInit(): Promise<void> {
     try {
       super.ngOnInit();
-  
+
+      this.initializeComponent();
       this.initializeComponentState();
       await this.loadQuizData();
       this.setupSubscriptions();
@@ -553,15 +554,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('Quiz ID is missing');
       return;
     }
-  
     this.quizId = quizId;
+
     const questions = await this.fetchAndProcessQuizQuestions(quizId);
     if (questions?.length) {
       this.questionsArray = questions;
+
+      // Load the first question and options immediately
+      this.updateExplanationUI(0, '');
     } else {
       console.error('No questions loaded...');
     }
   
+    // Get the active quiz
     this.quiz = this.quizService.getActiveQuiz();
     if (!this.quiz) {
       console.error('Failed to get the active quiz');
