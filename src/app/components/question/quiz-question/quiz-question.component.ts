@@ -731,6 +731,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizService.setNextExplanationText(formattedExplanation);
     this.explanationToDisplayChange.emit(formattedExplanation);
     this.showExplanationChange.emit(true);  // Show the explanation
+
     this.cdRef.detectChanges();  // Ensure the UI reflects the latest changes
   }
   
@@ -3012,9 +3013,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Update explanation only if the question is answered
     if (this.isQuestionAnswered(adjustedIndex)) {
-      this.setExplanationText(this.questionsArray[adjustedIndex]);
+      this.setExplanationText(currentQuestion);
       this.explanationTextService.explanationText$.next(explanationText);
-      this.updateCombinedQuestionData(this.questionsArray[adjustedIndex], explanationText);
+      this.updateCombinedQuestionData(currentQuestion, explanationText);
       this.isAnswerSelectedChange.emit(true);
     } else {
       console.log(`Question ${adjustedIndex} is not answered. Skipping explanation update.`);
