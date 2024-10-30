@@ -581,6 +581,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.questions = questions;
         this.questionsArray = questions;
         console.log('Questions successfully loaded:', this.questionsArray);
+
+        // Emit that questions are now loaded
+        this.quizService.setQuestionsLoaded(true);
   
         // Get the active quiz after loading questions
         this.quiz = this.quizService.getActiveQuiz();
