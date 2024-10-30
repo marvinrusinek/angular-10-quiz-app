@@ -615,6 +615,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
       const index = +params.get('questionIndex') || 0;
+
+      console.log(`Handling route change for question index: ${index}`);
+
+      // Reset state before loading the new question
+      this.resetStateForNewQuestion();
   
       if (this.questionsArray && this.questionsArray.length > 0) {
         console.log(`Handling route change for question index: ${index}`);
