@@ -2985,17 +2985,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     const adjustedIndex = Math.max(0, Math.min(questionIndex, this.questionsArray.length - 1));
-  
-    if (!this.questionsArray[adjustedIndex]) {
-      console.error(`Question not found at index::: ${adjustedIndex}.`);
+
+    const currentQuestion = this.questionsArray[adjustedIndex];
+    if (!currentQuestion) {
+      console.error(`Question not found at index: ${adjustedIndex}`);
       return;
     }
+  
+    /* if (!this.questionsArray[adjustedIndex]) {
+      console.error(`Question not found at index::: ${adjustedIndex}.`);
+      return;
+    } */
 
     this.resetQuestionStateBeforeNavigation();
   
     console.log(`Updating explanation for question ${adjustedIndex}`);
   
     // Reset stale explanation text
+    this.quizService.resetExplanationText();
     this.explanationTextService.explanationText$.next('');
   
     // Update explanation only if the question is answered
