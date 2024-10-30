@@ -375,29 +375,35 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   async ngOnInit(): Promise<void> {
     try {
       super.ngOnInit();
-
+  
       this.initializeComponent();
       this.initializeComponentState();
-
-
-      const areQuestionsLoaded = await this.loadQuizData();  // Wait for questions to load
-
-      if (areQuestionsLoaded) {
-        console.log('Questions are loaded. Handling route changes...');
-        this.handleRouteChanges();  // Handle route changes after questions are ready
-        this.updateExplanationUI(0, '');  // Load explanation for the first question
-      } else {
-        console.error('Questions could not be loaded.');
-      }
-      
-      this.setupSubscriptions();
-      this.handleRouteChanges();
   
+      // Start loading quiz data but don't wait for it here
+      this.loadQuizData(); 
+  
+      // Wait for questionsLoaded$ to emit true before proceeding
+      this.quizService.questionsLoaded$.subscribe((loaded) => {
+        if (loaded) {
+          console.log('Questions are loaded. Handling route changes...');
+          
+          // Handle route changes after questions are loaded
+          this.handleRouteChanges();
+  
+          // Load explanation for the first question
+          this.updateExplanationUI(0, '');  
+        } else {
+          console.warn('Questions are not loaded yet. Skipping explanation update.');
+        }
+      });
+  
+      this.setupSubscriptions();
+    
       console.log('QuizQuestionComponent initialized successfully');
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
-  }  
+  }
 
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
