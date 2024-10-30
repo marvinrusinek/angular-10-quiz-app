@@ -398,6 +398,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             
             // Handle route changes after questions are loaded
             this.handleRouteChanges();
+
+            this.updateQuestionAndExplanation(0); // Set the first question and explanation
     
             // Load explanation for the first question
             this.updateExplanationUI(0, '');  
