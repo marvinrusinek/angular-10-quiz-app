@@ -398,7 +398,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
   
       this.setupSubscriptions();
-    
       console.log('QuizQuestionComponent initialized successfully');
     } catch (error) {
       console.error('Error in ngOnInit:', error);
@@ -2991,6 +2990,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
       console.log(`Question ${adjustedIndex} is not answered. Skipping explanation update.`);
     }
+
+    this.cdRef.detectChanges();
   }
   
 
