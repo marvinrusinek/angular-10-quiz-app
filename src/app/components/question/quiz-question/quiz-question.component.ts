@@ -2869,9 +2869,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private async ensureQuestionIsFullyLoaded(index: number): Promise<void> {
-    if (index < 0 || index >= this.questions.length) {
+    if (!this.questionsArray || index < 0 || index >= this.questionsArray.length) {
+      console.error(`Invalid index ${index}. No such question exists.`);
       throw new Error(`Invalid index ${index}. No such question exists.`);
-    }
+    }  
   
     return new Promise((resolve, reject) => {
       let subscription: Subscription | undefined; // Declare without initialization
