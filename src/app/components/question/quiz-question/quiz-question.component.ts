@@ -588,17 +588,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.questions = questions;
         this.questionsArray = questions;
         console.log('Questions successfully loaded:', this.questionsArray);
-
-        // Emit that questions are now loaded
-        this.quizService.setQuestionsLoaded(true);
   
-        // Get the active quiz after loading questions
+        // Get the active quiz after questions are loaded
         this.quiz = this.quizService.getActiveQuiz();
         if (!this.quiz) {
           console.error('Failed to get the active quiz');
+          return false;
         }
   
-        return true;  // All data loaded successfully
+        // Emit that questions are now loaded after all checks are passed
+        this.quizService.setQuestionsLoaded(true);
+  
+        return true;  // Indicate successful data loading
       } else {
         console.error('No questions loaded.');
         return false;
@@ -607,7 +608,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('Error loading questions:', error);
       return false;
     }
-  }
+  }  
   
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
@@ -2976,7 +2977,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const adjustedIndex = Math.max(0, Math.min(questionIndex, this.questionsArray.length - 1));
   
     if (!this.questionsArray[adjustedIndex]) {
-      console.error(`Question not found at index:::: ${adjustedIndex}.`);
+      console.error(`Question not found at index::: ${adjustedIndex}.`);
       return;
     }
 
