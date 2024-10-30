@@ -380,11 +380,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.initializeComponentState();
   
       // Start loading quiz data but don't wait for it here
-      const loaded = await this.loadQuizData();
+      await this.loadQuizData();
+      /* const loaded = await this.loadQuizData();
       if (!loaded) {
         console.error('Failed to load questions.');
         return;
-      }
+      } */
   
       // Wait for questionsLoaded$ to emit true before proceeding
       this.quizService.questionsLoaded$
@@ -2994,9 +2995,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Check if questionsArray is initialized and not empty
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.warn('Questions not loaded yet. Retrying update after short delay...');
-      
-      // Retry after 100ms if questions are not yet available
-      setTimeout(() => this.updateExplanationUI(questionIndex, explanationText), 100);
       return;
     }
   
