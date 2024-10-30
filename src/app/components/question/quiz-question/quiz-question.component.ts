@@ -2857,6 +2857,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private clearExplanation(): void {
     this.explanationToDisplay = '';
     this.explanationTextService.updateFormattedExplanation('');
+    this.explanationTextService.resetExplanationText();
+    this.explanationToDisplayChange.emit('');
     this.showExplanationChange.emit(false);
     console.log('Cleared previous explanation text');
   }  
