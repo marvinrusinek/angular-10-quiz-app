@@ -386,20 +386,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.quizService.questionsLoaded$
         .pipe(take(1), debounceTime(100))
         .subscribe((loaded) => {
-        console.log('questionsLoaded$ emitted:', loaded);
-        
-        if (loaded) {
-          console.log('Questions are loaded. Handling route changes...');
+          console.log('questionsLoaded$ emitted:', loaded);
           
-          // Handle route changes after questions are loaded
-          this.handleRouteChanges();
-  
-          // Load explanation for the first question
-          this.updateExplanationUI(0, '');  
-        } else {
-          console.warn('Questions are not loaded yet. Skipping explanation update.');
-        }
-      });
+          if (loaded) {
+            console.log('Questions are loaded. Handling route changes...');
+            
+            // Handle route changes after questions are loaded
+            this.handleRouteChanges();
+    
+            // Load explanation for the first question
+            this.updateExplanationUI(0, '');  
+          } else {
+            console.warn('Questions are not loaded yet. Skipping explanation update.');
+          }
+        });
   
       this.setupSubscriptions();
       console.log('QuizQuestionComponent initialized successfully');
