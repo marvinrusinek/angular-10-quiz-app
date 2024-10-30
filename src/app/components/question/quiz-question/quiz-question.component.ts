@@ -2107,6 +2107,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationTextService.updateFormattedExplanation('');
     this.showExplanationChange.emit(false);
     this.explanationTextService.setShouldDisplayExplanation(false);
+    this.selectionMessageService.resetMessage();
+    this.cdRef.detectChanges();
   }
 
   async updateExplanationText(questionIndex: number): Promise<void> {
@@ -2975,6 +2977,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error(`Question not found at index:::: ${adjustedIndex}.`);
       return;
     }
+
+    this.resetQuestionStateBeforeNavigation();
   
     console.log(`Updating explanation for question ${adjustedIndex}`);
   
