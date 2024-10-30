@@ -2105,15 +2105,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
  
-  private resetQuestionStateBeforeNavigation(): void {
+  private async resetStateBeforeQuestionUpdate(): Promise<void> {
     this.currentQuestion = null;
     this.explanationLocked = false; // Reset explanation lock
     this.explanationToDisplay = '';
+    this.explanationTextService.explanationText$.next('');
     this.explanationToDisplayChange.emit('');
     this.explanationTextService.updateFormattedExplanation('');
     this.showExplanationChange.emit(false);
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.selectionMessageService.resetMessage();
+
+    // Delay to ensure reset completes before new state updates
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    
     this.cdRef.detectChanges();
   }
 
