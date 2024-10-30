@@ -581,7 +581,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.questions = questions;
         this.questionsArray = questions;
         console.log('Questions successfully loaded:', this.questionsArray);
-        return true;
+  
+        // Get the active quiz after loading questions
+        this.quiz = this.quizService.getActiveQuiz();
+        if (!this.quiz) {
+          console.error('Failed to get the active quiz');
+        }
+  
+        return true;  // All data loaded successfully
       } else {
         console.error('No questions loaded.');
         return false;
@@ -590,14 +597,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('Error loading questions:', error);
       return false;
     }
-
-    // Get the active quiz
-    this.quiz = this.quizService.getActiveQuiz();
-    if (!this.quiz) {
-      console.error('Failed to get the active quiz');
-    }
   }
-    
   
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
