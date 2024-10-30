@@ -562,34 +562,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.initializeForm();
     this.quizStateService.setLoading(true);
   }
-  
+
   private async loadQuizData(): Promise<boolean> {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     if (!quizId) {
       console.error('Quiz ID is missing');
-      return;
-    }
-    this.quizId = quizId;
-
-    const questions = await this.fetchAndProcessQuizQuestions(quizId);
-    if (questions?.length) {
-      this.questions = questions;
-      this.questionsArray = questions;
-
-      // Load the first question and options immediately
-      this.updateExplanationUI(0, '');
-      return true;
-    } else {
-      console.error('No questions loaded...');
       return false;
     }
   
+    this.quizId = quizId;
+  
+    try {
+      console.log('Fetching questions for quiz ID:', quizId);
+  
+      const questions = await this.fetchAndProcessQuizQuestions(quizId);
+  
+      if (questions && questions.length > 0) {
+        this.questions = questions;
+        this.questionsArray = questions;
+        console.log('Questions successfully loaded:', this.questionsArray);
+        return true;
+      } else {
+        console.error('No questions loaded.');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error loading questions:', error);
+      return false;
+    }
+
     // Get the active quiz
     this.quiz = this.quizService.getActiveQuiz();
     if (!this.quiz) {
       console.error('Failed to get the active quiz');
     }
   }
+    
   
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
@@ -2962,7 +2970,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     console.log(`Updating explanation for question ${adjustedIndex}`);
   
-    // Reset explanation text to avoid stale state
+    // Reset stale explanation text
     this.explanationTextService.explanationText$.next('');
   
     // Update explanation only if the question is answered
