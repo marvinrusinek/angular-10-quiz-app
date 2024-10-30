@@ -197,6 +197,9 @@ export class QuizService implements OnDestroy {
   private nextExplanationTextSource = new BehaviorSubject<string>('');
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
+  private questionsLoadedSource = new BehaviorSubject<boolean>(false);
+  questionsLoaded$ = this.questionsLoadedSource.asObservable();
+
   private quizResetSource = new Subject<void>();
   quizReset$ = this.quizResetSource.asObservable();
 
@@ -1482,6 +1485,11 @@ export class QuizService implements OnDestroy {
       status: this.status,
     };
     return quizSelectionParams;
+  }
+
+  setQuestionsLoaded(state: boolean): void {
+    console.log('Questions loaded state set to:', state);
+    this.questionsLoadedSource.next(state);
   }
 
   setNextExplanationText(text: string): void {
