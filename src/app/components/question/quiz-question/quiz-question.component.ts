@@ -2993,7 +2993,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private updateExplanationUI(questionIndex: number, explanationText: string): void {
     // Check if questionsArray is initialized and not empty
     if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.error('Questions are not loaded yet. Skipping explanation update.');
+      console.warn('Questions not loaded yet. Retrying update after short delay...');
+      
+      // Retry after 100ms if questions are not yet available
+      setTimeout(() => this.updateExplanationUI(questionIndex, explanationText), 100);
       return;
     }
   
