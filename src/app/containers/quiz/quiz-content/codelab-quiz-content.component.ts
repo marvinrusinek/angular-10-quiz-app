@@ -33,6 +33,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   @Input() options$: Observable<Option[]>;
   @Input() quizId = '';
   @Input() correctAnswersText = '';
+  @Input() displayVariables: { question: string; explanation: string };
   shouldDisplayCorrectAnswers = false;
   private shouldDisplayCorrectAnswersSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   shouldDisplayCorrectAnswers$ = this.shouldDisplayCorrectAnswersSubject.asObservable();

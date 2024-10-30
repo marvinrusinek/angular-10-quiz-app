@@ -12,8 +12,7 @@
       <ng-container *ngIf="shouldDisplayContent">
         <!-- the question and options -->
         <codelab-quiz-content
-          [questionToDisplay]="questionToDisplay"
-          [explanationToDisplay]="explanationToDisplay"
+          [displayVariables]="displayVariables"
         >
         </codelab-quiz-content>
         <ng-content></ng-content>
