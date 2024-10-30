@@ -384,6 +384,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Wait for questionsLoaded$ to emit true before proceeding
       this.quizService.questionsLoaded$.pipe(take(1)).subscribe((loaded) => {
+        console.log('questionsLoaded$ emitted:', loaded);
+        
         if (loaded) {
           console.log('Questions are loaded. Handling route changes...');
           
