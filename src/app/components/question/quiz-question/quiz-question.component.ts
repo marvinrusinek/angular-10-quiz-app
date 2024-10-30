@@ -378,7 +378,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       this.initializeComponent();
       this.initializeComponentState();
-      await this.loadQuizData();
+
+
+      const areQuestionsLoaded = await this.loadQuizData();  // Wait for questions to load
+
+      if (areQuestionsLoaded) {
+        console.log('Questions are loaded. Handling route changes...');
+        this.handleRouteChanges();  // Handle route changes after questions are ready
+        this.updateExplanationUI(0, '');  // Load explanation for the first question
+      } else {
+        console.error('Questions could not be loaded.');
+      }
+      
       this.setupSubscriptions();
       this.handleRouteChanges();
   
@@ -563,7 +574,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const questions = await this.fetchAndProcessQuizQuestions(quizId);
     if (questions?.length) {
       this.questions = questions;
-      this.questionsArray = questions; // do I need this?
+      this.questionsArray = questions;
 
       // Load the first question and options immediately
       this.updateExplanationUI(0, '');
@@ -582,9 +593,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
-      const index = this.getValidatedIndex(+params.get('questionIndex') || 0);
-      this.updateExplanationUI(index, '');
-      this.updateQuestionAndExplanation(index);
+      const index = +params.get('questionIndex') || 0;
+  
+      if (this.questionsArray && this.questionsArray.length > 0) {
+        console.log(`Handling route change for question index: ${index}`);
+        this.updateExplanationUI(index, '');
+      } else {
+        console.warn('Questions are not ready yet. Skipping explanation update.');
+      }
     });
   }
   
