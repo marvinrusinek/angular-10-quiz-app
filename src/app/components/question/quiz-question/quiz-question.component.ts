@@ -673,7 +673,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     console.log('Emitting explanation text:', formattedExplanation);
 
-    this.quizService.setNextExplanationText(formattedExplanation);  // Emit explanation via service
+    // Use a short delay to ensure the question renders first
+    setTimeout(() => {
+      this.quizService.setNextExplanationText(formattedExplanation);
+      this.explanationToDisplayChange.emit(formattedExplanation);
+      this.showExplanationChange.emit(true);  // Ensure it's shown in the UI
+      this.cdRef.detectChanges();  // Trigger UI update
+    }, 50);  // Adjust delay if needed
   }
 
   private setExplanationTextWithDebugging(question: QuizQuestion): void {
