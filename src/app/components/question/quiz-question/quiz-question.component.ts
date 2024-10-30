@@ -1890,6 +1890,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.correctMessage = '';
     this.selectedOption = null;
     this.isOptionSelected = false;
+    this.explanationToDisplayChange.emit('');
+    this.explanationTextService.explanationText$.next('');
+    this.showExplanationChange.emit(false);
     this.selectedOptionService.clearOptions();
     this.selectedOptionService.setOptionSelected(false);
     this.selectedOptionService.clearSelectedOption();
