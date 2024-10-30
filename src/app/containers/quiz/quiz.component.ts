@@ -226,8 +226,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
       selectionMessage: this.selectionMessage
     };
 
-    this.initializeDisplayVariables();
-
     // Use debounceTime to delay emission of isOptionSelected$ to handle rapid selection
     this.isButtonEnabled$ = this.selectedOptionService.isOptionSelected$().pipe(
       debounceTime(300),
@@ -245,14 +243,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
       this.isCurrentQuestionAnswered = isSelected;
     });    
-  }
-
-  initializeDisplayVariables(): void {
-    // Set the object to pass to the child component
-    this.displayVariables = {
-      question: this.questionToDisplay,
-      explanation: this.explanationToDisplay
-    };
   }
 
   @HostListener('window:focus', ['$event'])
@@ -288,6 +278,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async ngOnInit(): Promise<void> {
+    this.initializeDisplayVariables();
+
     this.activatedRoute.paramMap.subscribe((params) => {
       const quizId = params.get('quizId');
       if (quizId) {
@@ -335,6 +327,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
+  }
+
+  initializeDisplayVariables(): void {
+    this.displayVariables = {
+      question: this.questionToDisplay || 'No question available',
+      explanation: this.explanationToDisplay || 'Explanation unavailable',
+    };
+
+    console.log('Display Variables:', this.displayVariables);
   }
 
   private async handleVisibilityChange(): Promise<void> {
