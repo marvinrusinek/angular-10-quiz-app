@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
@@ -46,7 +46,7 @@ type AnimationState = 'animationStarted' | 'none';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [QuizService, QuizDataService, QuizStateService, ExplanationTextService, UserPreferenceService]
 })
-export class QuizComponent implements OnInit, OnDestroy, OnChanges {
+export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
   @ViewChild(SharedOptionComponent, { static: false })
@@ -327,6 +327,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges {
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
+  }
+
+  ngAfterViewInit(): void {
+    // Ensure variables are set before calling this method
+    this.initializeDisplayVariables();
   }
 
   initializeDisplayVariables(): void {
