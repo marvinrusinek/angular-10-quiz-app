@@ -2105,7 +2105,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
  
-  private async resetStateBeforeQuestionUpdate(): Promise<void> {
+  private async resetQuestionStateBeforeNavigation(): Promise<void> {
     this.currentQuestion = null;
     this.explanationLocked = false; // Reset explanation lock
     this.explanationToDisplay = '';
@@ -2118,7 +2118,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Delay to ensure reset completes before new state updates
     await new Promise((resolve) => setTimeout(resolve, 50));
-    
+
     this.cdRef.detectChanges();
   }
 
