@@ -3013,6 +3013,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Update explanation only if the question is answered
     if (this.isQuestionAnswered(adjustedIndex)) {
+      this.clearExplanationState();
       this.setExplanationText(currentQuestion);
       this.explanationTextService.explanationText$.next(explanationText);
       this.updateCombinedQuestionData(currentQuestion, explanationText);
@@ -3023,7 +3024,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.cdRef.detectChanges();
   }
-  
+
+  private clearExplanationState(): void {
+    console.log('Clearing explanation state...');
+    this.explanationTextService.explanationText$.next('');
+    this.explanationToDisplayChange.emit('');
+    this.showExplanationChange.emit(false);
+  }  
 
   updateCombinedQuestionData(
     currentQuestion: QuizQuestion,
