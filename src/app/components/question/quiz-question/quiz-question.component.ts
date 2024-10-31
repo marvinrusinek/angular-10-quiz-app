@@ -380,12 +380,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.initializeComponentState();
   
       // Start loading quiz data but don't wait for it here
-      await this.loadQuizData();
-      /* const loaded = await this.loadQuizData();
+      // await this.loadQuizData();
+      const loaded = await this.loadQuizData();
       if (!loaded) {
         console.error('Failed to load questions.');
         return;
-      } */
+      }
   
       // Wait for questionsLoaded$ to emit true before proceeding
       this.quizService.questionsLoaded$
