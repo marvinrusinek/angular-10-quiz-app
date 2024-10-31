@@ -1353,10 +1353,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       };
       this.question = currentQuestion;
   
-      // Ensure the 'correct' property is available and properly set
-      const correctAnswerOptions = currentQuestion.options?.filter(
-        (option: Option) => option?.correct === true
-      ) || [];
+      // Filter correct answers, adding a check if options are defined
+      const correctAnswerOptions = (currentQuestion.options || [])
+        .filter((option: Option) => option?.correct === true);
   
       if (correctAnswerOptions.length === 0) {
         console.error(
