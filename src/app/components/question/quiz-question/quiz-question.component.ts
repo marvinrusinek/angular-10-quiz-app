@@ -458,11 +458,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const index = +params.get('questionIndex') || 0;
       console.log(`Handling route change for question index: ${index}`);
   
-      // Reset any old state before loading the new question
+      // Reset state and hide explanation initially
       this.resetStateForNewQuestion();
-  
-      // Hide the explanation display immediately
-      this.explanationToDisplay = '';  // Clear explanation text
+      this.explanationToDisplay = '';
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
       this.showExplanationChange.emit(false);
   
@@ -2866,31 +2864,36 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Reset UI state for question navigation
     this.resetQuestionStateBeforeNavigation();
-  
-    // Initial reset to clear old explanation text
-    this.explanationToDisplay = '';
-    this.explanationToDisplayChange.emit('');
-    this.showExplanationChange.emit(false);
-  
     console.log(`Updating explanation for question ${adjustedIndex}`);
+
+    // Step 1: Set the question and force-render it
+    this.setCurrentQuestion(currentQuestion);
+    this.cdRef.detectChanges(); // Ensures the question text is rendered
   
-    // Use a slight delay to ensure question renders before explanation updates
-    setTimeout(() => {
+    // Step 2: Use a Promise to delay explanation update until question rendering completes
+    this.waitForQuestionRendering().then(() => {
       if (this.isQuestionAnswered(adjustedIndex)) {
         this.clearExplanationState();
         this.setExplanationText(currentQuestion);
-  
-        // Set and emit the explanation text
+
         this.explanationToDisplay = explanationText;
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
-  
+
         this.updateCombinedQuestionData(currentQuestion, explanationText);
         this.isAnswerSelectedChange.emit(true);
       } else {
         console.log(`Question ${adjustedIndex} is not answered. Skipping explanation update.`);
       }
-    }, 100);
+
+      this.cdRef.detectChanges();  // Ensure the UI reflects the final update
+    });
+  
+    console.log(`Updating explanation for question ${adjustedIndex}`);
+  }
+
+  private waitForQuestionRendering(): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, 100));  // Adjust timing as necessary
   }
 
   private clearExplanationState(): void {
