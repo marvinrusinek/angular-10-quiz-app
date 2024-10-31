@@ -2866,16 +2866,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.resetQuestionStateBeforeNavigation();
     console.log(`Updating explanation for question ${adjustedIndex}`);
 
-    // Step 1: Set the question and force-render it
+    // Set the question and force-render it
     this.setCurrentQuestion(currentQuestion);
     this.cdRef.detectChanges(); // Ensures the question text is rendered
   
-    // Step 2: Use a Promise to delay explanation update until question rendering completes
+    // Use a Promise to delay explanation update until question rendering completes
     this.waitForQuestionRendering().then(() => {
       if (this.isQuestionAnswered(adjustedIndex)) {
         this.clearExplanationState();
         this.setExplanationText(currentQuestion);
 
+        // Set and emit the explanation text
         this.explanationToDisplay = explanationText;
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
