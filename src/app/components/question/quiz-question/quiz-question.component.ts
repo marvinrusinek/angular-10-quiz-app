@@ -380,7 +380,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.initializeComponentState();
   
       // Start loading quiz data but don't wait for it here
-      // await this.loadQuizData();
       const loaded = await this.loadQuizData();
       if (!loaded) {
         console.error('Failed to load questions.');
@@ -400,9 +399,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.handleRouteChanges();
 
             this.updateQuestionAndExplanation(0); // Set the first question and explanation
-    
-            // Load explanation for the first question
-            this.updateExplanationUI(0, '');  
           } else {
             console.warn('Questions are not loaded yet. Skipping explanation update.....');
           }
