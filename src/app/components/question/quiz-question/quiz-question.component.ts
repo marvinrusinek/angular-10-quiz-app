@@ -461,7 +461,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Reset any old state before loading the new question
       this.resetStateForNewQuestion();
-  
+
+      // Clear the explanation text immediately on question change
+      this.explanationToDisplay = '';
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      this.showExplanationChange.emit(false);
+    
       if (this.questionsArray && this.questionsArray.length > 0) {
         console.log(`Handling route change for question index: ${index}`);
         this.updateExplanationUI(index, '');
