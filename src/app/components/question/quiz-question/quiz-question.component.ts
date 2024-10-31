@@ -674,7 +674,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationToDisplayChange.emit(formattedExplanation);
       this.showExplanationChange.emit(true);  // Ensure it's shown in the UI
       this.cdRef.detectChanges();  // Trigger UI update
-    }, 50);  // Adjust delay if needed
+    }, 50);
   }
 
   private setExplanationTextWithDebugging(question: QuizQuestion): void {
