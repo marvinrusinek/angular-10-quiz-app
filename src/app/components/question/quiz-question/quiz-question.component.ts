@@ -228,6 +228,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
+
+    // Ensure the initial question is rendered first
+    this.questionRenderComplete.subscribe(() => {
+      const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
+      const question = this.questionsArray[index];
+      const explanationText = question ? question.explanation : 'No explanation available';
+
+      // Only after the question renders, update the explanation
+      this.updateExplanationUI(index, explanationText);
+    });
     
     // this.updateSelectionMessage(this.isAnswered);
     this.setInitialMessage();
