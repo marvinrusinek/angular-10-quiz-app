@@ -647,8 +647,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Set the current question and emit its explanation text
     this.setCurrentQuestion(question);
     this.emitExplanationText(question);  // Emit explanation after setting question
-
-    this.cdRef.detectChanges();  // Ensure the UI reflects the latest state
   }
 
   private emitExplanationText(question: QuizQuestion): void {
