@@ -494,7 +494,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Set the current question only and render it
     this.setCurrentQuestion(question);
-    this.cdRef.detectChanges(); 
   
     // Now proceed to update the explanation after question is visible
     // this.updateExplanationUI(index, question.explanation || 'No explanation available');
