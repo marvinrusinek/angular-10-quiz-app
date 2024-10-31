@@ -465,12 +465,46 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.showExplanationChange.emit(false);
   
       if (this.questionsArray && this.questionsArray.length > 0) {
-        this.updateExplanationUI(index, '');  // Update explanation for the selected question
+        // this.updateExplanationUI(index, '');  // Update explanation for the selected question
+        this.setQuestionAndExplanation(index);
       } else {
         console.warn('Questions are not ready yet. Skipping explanation update.');
       }
     });
   }
+
+  private setQuestionAndExplanation(index: number): void {
+    const question = this.questionsArray[index];
+    if (!question) {
+      console.warn(`Question not found at index: ${index}`);
+      return;
+    }
+  
+    // Step 1: Set the question and apply change detection
+    this.setCurrentQuestion(question);
+    this.cdRef.detectChanges(); // Render the question first
+  
+    // Step 2: After the question is rendered, update the explanation
+    setTimeout(() => {
+      this.updateExplanationIfAnswered(index, question);
+    }, 100); // Adjust timing as needed
+  }
+  
+  // Conditional method to update the explanation only if the question is answered
+  private updateExplanationIfAnswered(index: number, question: QuizQuestion): void {
+    if (this.isQuestionAnswered(index)) {
+      const explanationText = this.prepareExplanationText(question);
+      this.explanationToDisplay = explanationText;
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      this.showExplanationChange.emit(true);
+  
+      this.updateCombinedQuestionData(question, explanationText);
+      this.isAnswerSelectedChange.emit(true);
+    } else {
+      console.log(`Question ${index} is not answered. Skipping explanation update.`);
+    }
+  }
+  
   
   private updateQuestionAndExplanation(index: number): void {
     const question = this.questionsArray[index];
