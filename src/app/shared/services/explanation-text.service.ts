@@ -45,7 +45,7 @@ export class ExplanationTextService {
     return this.explanationText$.asObservable();
   }
 
-  private prepareExplanationText(question: QuizQuestion): string {
+  prepareExplanationText(question: QuizQuestion): string {
     // Assuming question has an 'explanation' property or similar
     return question.explanation || 'No explanation available';
   }
