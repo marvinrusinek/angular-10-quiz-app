@@ -461,7 +461,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Reset any old state before loading the new question
       this.resetStateForNewQuestion();
   
-      // Clear explanation display immediately on question change
+      // Hide the explanation display immediately
+      this.explanationToDisplay = '';  // Clear explanation text
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
       this.showExplanationChange.emit(false);
   
       if (this.questionsArray && this.questionsArray.length > 0) {
@@ -2888,7 +2890,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       } else {
         console.log(`Question ${adjustedIndex} is not answered. Skipping explanation update.`);
       }
-    }, 50);
+    }, 100);
   }
 
   private clearExplanationState(): void {
