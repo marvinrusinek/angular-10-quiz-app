@@ -219,6 +219,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.initializeComponent();
       this.initializeComponentState();
       await this.initializeQuizDataAndRouting();
+
+      // Set up the first question and load options immediately
+      const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
+      this.setQuestionFirst(index); // Load question and options initially
+
       this.setupSubscriptions();
       console.log('QuizQuestionComponent initialized successfully');
     } catch (error) {
@@ -228,19 +233,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
+  
+    // Load the initial question and options immediately
+    const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
+    const question = this.questionsArray[index];
+    if (question) {
+      this.setCurrentQuestion(question);
+      this.loadOptionsForQuestion(question);
+    }
 
-    // Ensure the initial question is rendered first
-    this.questionRenderComplete.subscribe(() => {
-      const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
-      const question = this.questionsArray[index];
+    setTimeout(() => {
       const explanationText = question ? question.explanation : 'No explanation available';
-
-      // Only after the question renders, update the explanation
+  
+      // Only after rendering is complete, update the explanation
       this.updateExplanationUI(index, explanationText);
-    });
-    
-    // this.updateSelectionMessage(this.isAnswered);
-    this.setInitialMessage();
+      this.setInitialMessage();
+    }, 50);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
