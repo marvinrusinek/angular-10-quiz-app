@@ -2861,20 +2861,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     const adjustedIndex = Math.max(0, Math.min(questionIndex, this.questionsArray.length - 1));
-
     const currentQuestion = this.questionsArray[adjustedIndex];
+
     if (!currentQuestion) {
       console.error(`Question not found at index: ${adjustedIndex}`);
       return;
     }
-  
-    /* if (!this.questionsArray[adjustedIndex]) {
-      console.error(`Question not found at index::: ${adjustedIndex}.`);
-      return;
-    } */
 
     this.resetQuestionStateBeforeNavigation();
-  
+ 
+    // Reset stale explanation text
+    this.explanationTextService.explanationText$.next('');
+    this.explanationToDisplayChange.emit(''); // Reset the display
+
     console.log(`Updating explanation for question ${adjustedIndex}`);
   
     // Reset stale explanation text
@@ -2882,15 +2881,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationTextService.explanationText$.next('');
   
     // Update explanation only if the question is answered
-    if (this.isQuestionAnswered(adjustedIndex)) {
-      this.clearExplanationState();
-      this.setExplanationText(currentQuestion);
-      this.explanationTextService.explanationText$.next(explanationText);
-      this.updateCombinedQuestionData(currentQuestion, explanationText);
-      this.isAnswerSelectedChange.emit(true);
-    } else {
-      console.log(`Question ${adjustedIndex} is not answered. Skipping explanation update.`);
-    }
+    // Use a slight delay to ensure the question renders before the explanation
+    setTimeout(() => {
+      if (this.isQuestionAnswered(adjustedIndex)) {
+        this.clearExplanationState();
+        this.setExplanationText(currentQuestion);
+        this.explanationTextService.explanationText$.next(explanationText);
+        this.updateCombinedQuestionData(currentQuestion, explanationText);
+        this.isAnswerSelectedChange.emit(true);
+        this.explanationToDisplay = explanationText;
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
+      } else {
+        console.log(`Question ${adjustedIndex} is not answered. Skipping explanation update.`);
+      }
+    }, 50);
 
     this.cdRef.detectChanges();
   }
