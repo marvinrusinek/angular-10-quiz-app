@@ -2845,7 +2845,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
   
               // Emit events to update the UI
-              this.updateExplanationUI(questionIndex, this.explanationToDisplay);
+              // this.updateExplanationUI(questionIndex, this.explanationToDisplay);
               this.explanationToDisplayChange.emit(this.explanationToDisplay);
               console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
             } else {
@@ -2877,7 +2877,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private handleExplanationError(questionIndex: number): void {
     this.explanationToDisplay = 'Error fetching explanation. Please try again.';
-    this.updateExplanationUI(questionIndex, this.explanationToDisplay);
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
     this.showExplanationChange.emit(true);
   }
@@ -3003,7 +3002,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         ? formattedExplanation
         : formattedExplanation.explanation || 'No explanation available';
 
-    this.updateExplanationUI(questionIndex, explanationText);
+    // Directly update and emit explanation text
+    this.explanationToDisplay = explanationText;
+    this.explanationToDisplayChange.emit(this.explanationToDisplay);
+    this.showExplanationChange.emit(true);
   }
 
   private updateExplanationUI(questionIndex: number, explanationText: string): void {
