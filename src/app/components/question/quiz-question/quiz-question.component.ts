@@ -519,7 +519,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private loadOptionsForQuestion(question: QuizQuestion): void {
     if (question.options) {
       this.optionsToDisplay = question.options;
-      this.cdRef.detectChanges(); // Ensure options render immediately
     }
   }
 
