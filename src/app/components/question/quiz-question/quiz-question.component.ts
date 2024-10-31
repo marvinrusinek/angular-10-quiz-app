@@ -2933,7 +2933,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Use a Promise to delay explanation update until question rendering completes
     this.waitForQuestionRendering().then(() => {
-      if (this.isQuestionAnswered(adjustedIndex)) {
+      /* if (this.isQuestionAnswered(adjustedIndex)) {
         this.clearExplanationState();
         this.setExplanationText(currentQuestion);
 
@@ -2942,6 +2942,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
 
+        this.updateCombinedQuestionData(currentQuestion, explanationText);
+        this.isAnswerSelectedChange.emit(true);
+      } else {
+        console.log(`Question ${adjustedIndex} is not answered. Skipping explanation update.`);
+      } */
+      if (this.isQuestionAnswered(adjustedIndex)) {
+        this.clearExplanationState();
+        this.explanationToDisplay = explanationText;
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
+    
         this.updateCombinedQuestionData(currentQuestion, explanationText);
         this.isAnswerSelectedChange.emit(true);
       } else {
