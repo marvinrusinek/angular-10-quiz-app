@@ -495,13 +495,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Set the current question only and render it
     this.setCurrentQuestion(question);
   
-    // Now proceed to update the explanation after question is visible
-    // this.updateExplanationUI(index, question.explanation || 'No explanation available');
-
-    // Emit the event after rendering the question
-    this.questionRenderComplete.emit();
-  }
+    // Wait to ensure the question is fully rendered before updating explanation
+    setTimeout(() => {
+      this.updateExplanationIfAnswered(index, question);
   
+      // Emit the event after rendering the question
+      this.questionRenderComplete.emit();
+    }, 100);
+  }
 
   private setQuestionAndExplanation(index: number): void {
     const question = this.questionsArray[index];
