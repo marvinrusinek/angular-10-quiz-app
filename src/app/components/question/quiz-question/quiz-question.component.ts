@@ -252,67 +252,69 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    const isSubsequentChange = (change: SimpleChange) => change && !change.firstChange;
+  
+    // Initialize configurations when questionData changes
     if (changes.questionData) {
       console.log('questionData changed:', this.questionData);
       this.initializeSharedOptionConfig();
     }
-
+  
+    // Update selection message on currentQuestionIndex or isAnswered changes
     if (changes.currentQuestionIndex || changes.isAnswered) {
       this.updateSelectionMessage(this.isAnswered);
     }
-
+  
+    // Update options to display if options or questionData changes
     if (changes.options || changes.questionData) {
       this.optionsToDisplay = this.options;
     }
-
-    const isSubsequentChange = (change: SimpleChange) =>
-      change && !change.firstChange;
-
-    // Check for changes in correctAnswers or selectedOptions
-    if (
-      isSubsequentChange(changes.correctAnswers) ||
-      isSubsequentChange(changes.selectedOptions)
-    ) {
-      if (this.currentQuestion) {
-        this.getCorrectAnswers();
-        this.correctMessage = this.quizService.setCorrectMessage(
-          this.quizService.correctAnswerOptions,
-          this.optionsToDisplay
-        );
-      } else {
-        console.warn(
-          'QuizQuestionComponent - ngOnChanges - Question is undefined when trying to get correct answers.'
-        );
-      }
+  
+    // Process correct answers and selected options when they change
+    if (isSubsequentChange(changes.correctAnswers) || isSubsequentChange(changes.selectedOptions)) {
+      this.updateCorrectAnswersAndMessage();
     }
-
-    // Check for changes in the current question
-    if (isSubsequentChange(changes.currentQuestion)) {
-      if (this.currentQuestion) {
-        this.quizService.handleQuestionChange(
-          this.currentQuestion,
-          isSubsequentChange(changes.selectedOptions)
-            ? changes.selectedOptions.currentValue
-            : null,
-          this.options
-        );
-      } else {
-        console.warn(
-          'QuizQuestionComponent - ngOnChanges - Question is undefined after change.'
-        );
-      }
-    } else if (isSubsequentChange(changes.selectedOptions)) {
-      this.quizService.handleQuestionChange(
-        null,
-        changes.selectedOptions.currentValue,
-        this.options
-      );
+  
+    // Handle question and selectedOptions changes
+    if (isSubsequentChange(changes.currentQuestion) || isSubsequentChange(changes.selectedOptions)) {
+      this.handleQuestionAndOptionsChange(changes.currentQuestion, changes.selectedOptions);
     }
-
-    if (changes.reset && changes.reset.currentValue) {
+  
+    // Reset feedback if reset change is detected
+    if (changes.reset?.currentValue) {
       this.resetFeedback();
     }
   }
+  
+  // Helper method to update correct answers and message
+  private updateCorrectAnswersAndMessage(): void {
+    if (this.currentQuestion) {
+      this.getCorrectAnswers();
+      this.correctMessage = this.quizService.setCorrectMessage(
+        this.quizService.correctAnswerOptions,
+        this.optionsToDisplay
+      );
+    } else {
+      console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined when trying to get correct answers.');
+    }
+  }
+  
+  // Helper method to handle question and selectedOptions changes
+  private handleQuestionAndOptionsChange(
+    currentQuestionChange: SimpleChange,
+    selectedOptionsChange: SimpleChange
+  ): void {
+    const selectedOptionsValue = selectedOptionsChange ? selectedOptionsChange.currentValue : null;
+  
+    if (currentQuestionChange && this.currentQuestion) {
+      // If current question has changed and is defined, handle the question change with selected options
+      this.quizService.handleQuestionChange(this.currentQuestion, selectedOptionsValue, this.options);
+    } else if (selectedOptionsChange) {
+      // Handle only the selected options change if currentQuestion is not defined
+      this.quizService.handleQuestionChange(null, selectedOptionsValue, this.options);
+      console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined after change.');
+    }
+  }  
 
   ngOnDestroy(): void {
     super.ngOnDestroy ? super.ngOnDestroy() : null;
