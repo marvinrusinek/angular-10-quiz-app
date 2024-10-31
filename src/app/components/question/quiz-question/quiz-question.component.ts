@@ -285,36 +285,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.resetFeedback();
     }
   }
-  
-  // Helper method to update correct answers and message
-  private updateCorrectAnswersAndMessage(): void {
-    if (this.currentQuestion) {
-      this.getCorrectAnswers();
-      this.correctMessage = this.quizService.setCorrectMessage(
-        this.quizService.correctAnswerOptions,
-        this.optionsToDisplay
-      );
-    } else {
-      console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined when trying to get correct answers.');
-    }
-  }
-  
-  // Helper method to handle question and selectedOptions changes
-  private handleQuestionAndOptionsChange(
-    currentQuestionChange: SimpleChange,
-    selectedOptionsChange: SimpleChange
-  ): void {
-    const selectedOptionsValue = selectedOptionsChange ? selectedOptionsChange.currentValue : null;
-  
-    if (currentQuestionChange && this.currentQuestion) {
-      // If current question has changed and is defined, handle the question change with selected options
-      this.quizService.handleQuestionChange(this.currentQuestion, selectedOptionsValue, this.options);
-    } else if (selectedOptionsChange) {
-      // Handle only the selected options change if currentQuestion is not defined
-      this.quizService.handleQuestionChange(null, selectedOptionsValue, this.options);
-      console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined after change.');
-    }
-  }  
 
   ngOnDestroy(): void {
     super.ngOnDestroy ? super.ngOnDestroy() : null;
@@ -3068,6 +3038,36 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // this.quizService.playSound(isCorrect);
 
     return isCorrect;
+  }
+
+  // Helper method to update correct answers and message
+  private updateCorrectAnswersAndMessage(): void {
+    if (this.currentQuestion) {
+      this.getCorrectAnswers();
+      this.correctMessage = this.quizService.setCorrectMessage(
+        this.quizService.correctAnswerOptions,
+        this.optionsToDisplay
+      );
+    } else {
+      console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined when trying to get correct answers.');
+    }
+  }
+  
+  // Helper method to handle question and selectedOptions changes
+  private handleQuestionAndOptionsChange(
+    currentQuestionChange: SimpleChange,
+    selectedOptionsChange: SimpleChange
+  ): void {
+    const selectedOptionsValue = selectedOptionsChange ? selectedOptionsChange.currentValue : null;
+  
+    if (currentQuestionChange && this.currentQuestion) {
+      // If current question has changed and is defined, handle the question change with selected options
+      this.quizService.handleQuestionChange(this.currentQuestion, selectedOptionsValue, this.options);
+    } else if (selectedOptionsChange) {
+      // Handle only the selected options change if currentQuestion is not defined
+      this.quizService.handleQuestionChange(null, selectedOptionsValue, this.options);
+      console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined after change.');
+    }
   }
 
   private handleQuizCompletion(): void {
