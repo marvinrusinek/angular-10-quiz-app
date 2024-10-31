@@ -2401,6 +2401,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (questionState && questionState.isAnswered) {
       // If answered, fetch and set the formatted explanation text for the question
       try {
+        // Fetch explanation text specific to the current question index
         const explanationText = await this.getExplanationText(questionIndex);
         this.explanationTextService.setExplanationText(explanationText);
         this.explanationTextService.setShouldDisplayExplanation(true);
@@ -2414,6 +2415,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
       // If not answered, clear the explanation text and set the display flag to false
       this.explanationTextService.setShouldDisplayExplanation(false);
+      this.explanationToDisplayChange.emit('');
       this.showExplanationChange.emit(false);
       // this.showExplanation = false;
       console.log(`Conditions for showing explanation not met.`);
