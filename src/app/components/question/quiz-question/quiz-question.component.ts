@@ -491,9 +491,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn(`Question not found at index: ${index}`);
       return;
     }
+
+    this.optionsToDisplay = []; // Clear previous options
   
     // Set the current question only and render it
     this.setCurrentQuestion(question);
+
+    this.loadOptionsForQuestion(question);
   
     // Wait to ensure the question is fully rendered before updating explanation
     setTimeout(() => {
@@ -502,6 +506,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Emit the event after rendering the question
       this.questionRenderComplete.emit();
     }, 100);
+  }
+
+  private loadOptionsForQuestion(question: QuizQuestion): void {
+    if (question.options) {
+      this.optionsToDisplay = question.options;
+      this.cdRef.detectChanges(); // Ensure options render immediately
+    }
   }
 
   private setQuestionAndExplanation(index: number): void {
