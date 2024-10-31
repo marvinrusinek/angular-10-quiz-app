@@ -521,22 +521,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.optionsToDisplay = question.options;
     }
   }
-
-  private setQuestionAndExplanation(index: number): void {
-    const question = this.questionsArray[index];
-    if (!question) {
-      console.warn(`Question not found at index: ${index}`);
-      return;
-    }
-  
-    // Step 1: Set the question and apply change detection
-    this.setCurrentQuestion(question);
-  
-    // Step 2: After the question is rendered, update the explanation
-    setTimeout(() => {
-      this.updateExplanationIfAnswered(index, question);
-    }, 100); // Adjust timing as needed
-  }
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(index: number, question: QuizQuestion): void {
