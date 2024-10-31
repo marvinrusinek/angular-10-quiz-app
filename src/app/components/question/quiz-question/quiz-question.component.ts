@@ -2839,16 +2839,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         next: (explanationText: string) => {
           // Ensure question is answered before showing explanation
           if (this.isQuestionAnswered(questionIndex)) {
+            // Update the current question index to sync with explanation
+            this.currentQuestionIndex = questionIndex;
+  
             if (this.currentQuestionIndex === questionIndex) {
               this.explanationToDisplay = explanationText || 'No explanation available';
               this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
   
               // Emit events to update the UI
-              // this.updateExplanationUI(questionIndex, this.explanationToDisplay);
               this.explanationToDisplayChange.emit(this.explanationToDisplay);
               console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
             } else {
-              console.warn('Question index mismatch. Skipping explanation update.');
+              console.warn('Question index mismatch after update. Skipping explanation update.');
             }
           } else {
             console.log(`Skipping explanation for unanswered question ${questionIndex}.`);
