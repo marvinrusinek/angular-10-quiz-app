@@ -413,9 +413,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
-
-    const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
-    this.updateExplanationUI(index, '');
     
     // this.updateSelectionMessage(this.isAnswered);
     this.setInitialMessage();
@@ -621,7 +618,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       console.log(`Handling route change for question index: ${index}`);
 
-      // Reset state before loading the new question
+      // Reset any old state before loading the new question
       this.resetStateForNewQuestion();
   
       if (this.questionsArray && this.questionsArray.length > 0) {
