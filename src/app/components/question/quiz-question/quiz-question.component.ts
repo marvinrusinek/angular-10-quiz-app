@@ -309,26 +309,39 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.saveQuizState();
     } else {
       this.restoreQuizState();
-      this.ngZone.run(async () => {
-        if (!this.quizId) {
-          this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
-          if (!this.quizId) {
-            console.error('Unable to retrieve Quiz ID, cannot fetch questions');
-            return;
-          }
-        }
-
-        try {
-          await this.fetchAndProcessQuizQuestions(this.quizId);
-
-          const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-          await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-        } catch (error) {
-          console.error('Error in onVisibilityChange:', error);
-        }
-      });
+      this.ngZone.run(() => this.handleQuizRestore());
     }
   }
+
+  // Handle quiz restoration
+  private async handleQuizRestore(): Promise<void> {
+    if (!(await this.ensureQuizIdExists())) {
+      console.error('Unable to retrieve Quiz ID, cannot fetch questions');
+      return;
+    }
+
+    try {
+      await this.loadQuizData();
+      await this.updateSelectionMessageForCurrentQuestion();
+    } catch (error) {
+      console.error('Error in onVisibilityChange:', error);
+    }
+  }
+
+  // Ensure quiz ID exists, retrieving it if necessary
+  private async ensureQuizIdExists(): Promise<boolean> {
+    if (!this.quizId) {
+      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
+    }
+    return !!this.quizId;
+  }
+
+  // Update selection message based on the current question state
+  private async updateSelectionMessageForCurrentQuestion(): Promise<void> {
+    const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+    await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+  }
+
 
   onQuestionChange(question: QuizQuestion): void {
     this.questionAnswered.emit(question);
@@ -405,18 +418,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private async loadQuizData(): Promise<boolean> {
-    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    if (!quizId) {
-      console.error('Quiz ID is missing');
-      return false;
+    // Retrieve quizId if it hasn’t been set yet
+    if (!this.quizId) {
+      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+      if (!this.quizId) {
+        console.error('Quiz ID is missing');
+        return false;
+      }
     }
   
-    this.quizId = quizId;
-  
     try {
-      console.log('Fetching questions for quiz ID:', quizId);
+      console.log('Fetching questions for quiz ID:', this.quizId);
   
-      const questions = await this.fetchAndProcessQuizQuestions(quizId);
+      // Fetch and process questions
+      const questions = await this.fetchAndProcessQuizQuestions(this.quizId);
   
       if (questions && questions.length > 0) {
         this.questions = questions;
@@ -432,7 +447,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         // Emit that questions are now loaded after all checks are passed
         this.quizService.setQuestionsLoaded(true);
-  
         return true;  // Indicate successful data loading
       } else {
         console.error('No questions loaded.');
@@ -442,7 +456,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('Error loading questions:', error);
       return false;
     }
-  }  
+  }
   
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
