@@ -482,7 +482,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Step 1: Set the question and apply change detection
     this.setCurrentQuestion(question);
-    this.cdRef.detectChanges(); // Render the question first
   
     // Step 2: After the question is rendered, update the explanation
     setTimeout(() => {
@@ -493,7 +492,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(index: number, question: QuizQuestion): void {
     if (this.isQuestionAnswered(index)) {
-      const explanationText = this.prepareExplanationText(question);
+      const explanationText = this.explanationTextService.prepareExplanationText(question); // Or define in component
       this.explanationToDisplay = explanationText;
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
       this.showExplanationChange.emit(true);
@@ -504,7 +503,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log(`Question ${index} is not answered. Skipping explanation update.`);
     }
   }
-  
   
   private updateQuestionAndExplanation(index: number): void {
     const question = this.questionsArray[index];

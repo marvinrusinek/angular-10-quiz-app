@@ -45,6 +45,11 @@ export class ExplanationTextService {
     return this.explanationText$.asObservable();
   }
 
+  private prepareExplanationText(question: QuizQuestion): string {
+    // Assuming question has an 'explanation' property or similar
+    return question.explanation || 'No explanation available';
+  }
+
   setExplanationText(explanation: string): void {
     this.explanationText$.next(explanation);
     this.isExplanationDisplayedSource.next(true); // Set to true when explanation is displayed
