@@ -2132,8 +2132,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Delay to ensure reset completes before new state updates
     await new Promise((resolve) => setTimeout(resolve, 50));
-
-    this.cdRef.detectChanges();
   }
 
   async updateExplanationText(questionIndex: number): Promise<void> {
