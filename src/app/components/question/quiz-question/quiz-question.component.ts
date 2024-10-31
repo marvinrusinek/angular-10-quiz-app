@@ -2415,7 +2415,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // If not answered, clear the explanation text and set the display flag to false
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.showExplanationChange.emit(false);
-      this.showExplanation = false;
+      // this.showExplanation = false;
       console.log(`Conditions for showing explanation not met.`);
     }
   }
