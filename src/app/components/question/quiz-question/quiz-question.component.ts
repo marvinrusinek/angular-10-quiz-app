@@ -2924,9 +2924,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public async getExplanationText(questionIndex: number): Promise<string> {
-    return await firstValueFrom(
-      this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
-    );
+    console.log(`Fetching explanation for question index: ${questionIndex}`);
+    try {
+      const explanationText = await firstValueFrom(
+        this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+      );
+      console.log(`Explanation for index ${questionIndex}: ${explanationText}`);
+      return explanationText;
+    } catch (error) {
+      console.error(`Error fetching explanation for index ${questionIndex}:`, error);
+      return 'Error loading explanation.';
+    }
   }
 
   private async processExplanationText(
