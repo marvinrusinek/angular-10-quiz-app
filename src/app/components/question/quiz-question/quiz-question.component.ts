@@ -217,37 +217,39 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       this.initializeComponent();
       this.initializeComponentState();
-  
-      // Start loading quiz data but don't wait for it here
-      const loaded = await this.loadQuizData();
-      if (!loaded) {
-        console.error('Failed to load questions.');
-        return;
-      }
-  
-      // Wait for questionsLoaded$ to emit true before proceeding
-      this.quizService.questionsLoaded$
-        .pipe(take(1), debounceTime(100))
-        .subscribe((loaded) => {
-          console.log('questionsLoaded$ emitted:', loaded);
-          
-          if (loaded) {
-            console.log('Questions are loaded. Handling route changes...');
-            
-            // Handle route changes after questions are loaded
-            this.handleRouteChanges();
-
-            this.updateQuestionAndExplanation(0); // Set the first question and explanation
-          } else {
-            console.warn('Questions are not loaded yet. Skipping explanation update.....');
-          }
-        });
-  
+      await this.initializeQuizDataAndRouting();
       this.setupSubscriptions();
       console.log('QuizQuestionComponent initialized successfully');
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
+  }
+
+  async initializeQuizDataAndRouting(): Promise<void> {
+    // Start loading quiz data but don't wait for it here
+    const loaded = await this.loadQuizData();
+    if (!loaded) {
+      console.error('Failed to load questions.');
+      return;
+    }
+
+    // Wait for questionsLoaded$ to emit true before proceeding
+    this.quizService.questionsLoaded$
+      .pipe(take(1), debounceTime(100))
+      .subscribe((loaded) => {
+        console.log('questionsLoaded$ emitted:', loaded);
+        
+        if (loaded) {
+          console.log('Questions are loaded. Handling route changes...');
+          
+          // Handle route changes after questions are loaded
+          this.handleRouteChanges();
+
+          this.updateQuestionAndExplanation(0); // Set the first question and explanation
+        } else {
+          console.warn('Questions are not loaded yet. Skipping explanation update.....');
+        }
+      });
   }
 
   async ngAfterViewInit(): Promise<void> {
