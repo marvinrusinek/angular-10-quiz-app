@@ -82,6 +82,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   questionsArray: QuizQuestion[] = [];
   questionsObservableSubscription: Subscription;
   questionForm: FormGroup = new FormGroup({});
+  questionRenderComplete = new EventEmitter<void>();
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -219,6 +220,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.initializeComponentState();
       await this.initializeQuizDataAndRouting();
       this.setupSubscriptions();
+
+      this.questionRenderComplete.subscribe(() => {
+        const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
+        const question = this.questionsArray[index];
+        const explanationText = question ? question.explanation : 'No explanation available';
+        
+        // Update the explanation after confirming question has rendered
+        this.updateExplanationUI(index, explanationText);
+      });
       console.log('QuizQuestionComponent initialized successfully');
     } catch (error) {
       console.error('Error in ngOnInit:', error);
@@ -486,7 +496,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.cdRef.detectChanges(); // Ensure the question text is rendered
   
     // Now proceed to update the explanation after question is visible
-    this.updateExplanationUI(index, question.explanation || 'No explanation available');
+    // this.updateExplanationUI(index, question.explanation || 'No explanation available');
+
+    // Emit the event after rendering the question
+    this.questionRenderComplete.emit();
   }
   
 
