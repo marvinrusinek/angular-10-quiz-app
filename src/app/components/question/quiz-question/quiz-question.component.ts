@@ -456,20 +456,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
       const index = +params.get('questionIndex') || 0;
-
       console.log(`Handling route change for question index: ${index}`);
-
+  
       // Reset any old state before loading the new question
       this.resetStateForNewQuestion();
-
-      // Clear the explanation text immediately on question change
-      this.explanationToDisplay = '';
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+  
+      // Clear explanation display immediately on question change
       this.showExplanationChange.emit(false);
-    
+  
       if (this.questionsArray && this.questionsArray.length > 0) {
-        console.log(`Handling route change for question index: ${index}`);
-        this.updateExplanationUI(index, '');
+        this.updateExplanationUI(index, '');  // Update explanation for the selected question
       } else {
         console.warn('Questions are not ready yet. Skipping explanation update.');
       }
@@ -2856,48 +2852,45 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private updateExplanationUI(questionIndex: number, explanationText: string): void {
     // Check if questionsArray is initialized and not empty
     if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.warn('Questions not loaded yet. Retrying update after short delay...');
+      console.warn('Questions not loaded yet. Skipping explanation update.');
       return;
     }
   
     const adjustedIndex = Math.max(0, Math.min(questionIndex, this.questionsArray.length - 1));
     const currentQuestion = this.questionsArray[adjustedIndex];
-
+  
     if (!currentQuestion) {
       console.error(`Question not found at index: ${adjustedIndex}`);
       return;
     }
-
+  
+    // Reset UI state for question navigation
     this.resetQuestionStateBeforeNavigation();
- 
-    // Reset stale explanation text
-    this.explanationTextService.explanationText$.next('');
-    this.explanationToDisplayChange.emit(''); // Reset the display
-
+  
+    // Initial reset to clear old explanation text
+    this.explanationToDisplay = '';
+    this.explanationToDisplayChange.emit('');
+    this.showExplanationChange.emit(false);
+  
     console.log(`Updating explanation for question ${adjustedIndex}`);
   
-    // Reset stale explanation text
-    this.quizService.resetExplanationText();
-    this.explanationTextService.explanationText$.next('');
-  
-    // Update explanation only if the question is answered
-    // Use a slight delay to ensure the question renders before the explanation
+    // Use a slight delay to ensure question renders before explanation updates
     setTimeout(() => {
       if (this.isQuestionAnswered(adjustedIndex)) {
         this.clearExplanationState();
         this.setExplanationText(currentQuestion);
-        this.explanationTextService.explanationText$.next(explanationText);
-        this.updateCombinedQuestionData(currentQuestion, explanationText);
-        this.isAnswerSelectedChange.emit(true);
+  
+        // Set and emit the explanation text
         this.explanationToDisplay = explanationText;
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
+  
+        this.updateCombinedQuestionData(currentQuestion, explanationText);
+        this.isAnswerSelectedChange.emit(true);
       } else {
         console.log(`Question ${adjustedIndex} is not answered. Skipping explanation update.`);
       }
     }, 50);
-
-    this.cdRef.detectChanges();
   }
 
   private clearExplanationState(): void {
