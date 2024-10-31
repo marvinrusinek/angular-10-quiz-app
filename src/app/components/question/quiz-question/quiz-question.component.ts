@@ -1729,6 +1729,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.cdRef.detectChanges();
       } else {
         console.error('Invalid question data when handling option processing');
+        throw new Error('Invalid question data');
+
         this.explanationToDisplay = 'Error: Invalid question data';
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
       }
@@ -2398,13 +2400,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Check if the question has been answered
     if (questionState && questionState.isAnswered) {
       // If answered, fetch and set the formatted explanation text for the question
-      const explanationText = await this.getExplanationText(questionIndex);
-      this.explanationTextService.setExplanationText(explanationText);
-      this.explanationTextService.setShouldDisplayExplanation(true);
+      try {
+        const explanationText = await this.getExplanationText(questionIndex);
+        this.explanationTextService.setExplanationText(explanationText);
+        this.explanationTextService.setShouldDisplayExplanation(true);
+        this.explanationToDisplayChange.emit(explanationText);
+        this.showExplanationChange.emit(true);
+      } catch (error) {
+        console.error('Error fetching explanation text:', error);
+        this.explanationToDisplayChange.emit('Error loading explanation.');
+        this.showExplanationChange.emit(true);
+      }
     } else {
       // If not answered, clear the explanation text and set the display flag to false
       this.explanationTextService.setShouldDisplayExplanation(false);
-      // this.showExplanation = false;
+      this.showExplanationChange.emit(false);
+      this.showExplanation = false;
       console.log(`Conditions for showing explanation not met.`);
     }
   }
