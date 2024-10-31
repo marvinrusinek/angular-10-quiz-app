@@ -220,15 +220,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.initializeComponentState();
       await this.initializeQuizDataAndRouting();
       this.setupSubscriptions();
-
-      this.questionRenderComplete.subscribe(() => {
-        const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
-        const question = this.questionsArray[index];
-        const explanationText = question ? question.explanation : 'No explanation available';
-        
-        // Update the explanation after confirming question has rendered
-        this.updateExplanationUI(index, explanationText);
-      });
       console.log('QuizQuestionComponent initialized successfully');
     } catch (error) {
       console.error('Error in ngOnInit:', error);
