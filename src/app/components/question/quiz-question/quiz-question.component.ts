@@ -466,12 +466,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       if (this.questionsArray && this.questionsArray.length > 0) {
         // this.updateExplanationUI(index, '');  // Update explanation for the selected question
-        this.setQuestionAndExplanation(index);
+        // this.setQuestionAndExplanation(index);
+        this.setQuestionFirst(index);
       } else {
         console.warn('Questions are not ready yet. Skipping explanation update.');
       }
     });
   }
+
+  private setQuestionFirst(index: number): void {
+    const question = this.questionsArray[index];
+    if (!question) {
+      console.warn(`Question not found at index: ${index}`);
+      return;
+    }
+  
+    // Set the current question only and render it
+    this.setCurrentQuestion(question);
+    this.cdRef.detectChanges(); // Ensure the question text is rendered
+  
+    // Now proceed to update the explanation after question is visible
+    this.updateExplanationUI(index, question.explanation || 'No explanation available');
+  }
+  
 
   private setQuestionAndExplanation(index: number): void {
     const question = this.questionsArray[index];
@@ -2277,7 +2294,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationToDisplayChange.emit('');
       this.showExplanationChange.emit(false);
-      // this.showExplanation = false;
       console.log(`Conditions for showing explanation not met.`);
     }
   }
