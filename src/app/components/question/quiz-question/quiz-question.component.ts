@@ -710,17 +710,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
-
-    if (
-      storedIndex !== null &&
-      storedQuestion !== null &&
-      storedOptions !== null
-    ) {
+    const storedIsAnswered = sessionStorage.getItem('isAnswered'); // Added to track if question was answered
+  
+    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
       this.currentQuestionIndex = +storedIndex;
       this.currentQuestion = JSON.parse(storedQuestion);
       this.optionsToDisplay = JSON.parse(storedOptions);
+  
+      // Check if the question was answered
+      const isAnswered = storedIsAnswered === 'true';
+  
+      if (isAnswered) {
+        this.explanationToDisplay = this.quizService.getCurrentExplanation() || ''; // Ensure explanation only shows if answered
+        this.showExplanationChange.emit(true);
+      } else {
+        this.explanationToDisplay = ''; // Keep explanation hidden if not answered
+        this.showExplanationChange.emit(false);
+      }
     } else {
-      this.loadQuestion();
+      this.loadQuestion(); // Fallback to load question if session storage is not set
     }
   }
 
