@@ -328,11 +328,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       
       // Only display the explanation if the question has been answered
       if (await this.isQuestionAnswered(this.currentQuestionIndex)) {
-        this.showExplanation();
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationIfNeeded();
         this.showExplanationChange.emit(true);
       } else {
         this.showExplanationChange.emit(false);
+        this.explanationToDisplay = ''; // Clear any stale explanation
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
       }
   
       await this.updateSelectionMessageForCurrentQuestion();
@@ -342,10 +343,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Helper method that sets and emits the explanation text only if the question is answered
-  private showExplanation(): void {
-    this.explanationToDisplayChange.emit(this.explanationToDisplay);
-    this.showExplanationChange.emit(true);
+  private showExplanationIfNeeded(): void {
+    if (this.isQuestionAnswered(this.currentQuestionIndex)) {
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      this.showExplanationChange.emit(true);
+    }
   }
+  
   
 
   // Ensure quiz ID exists, retrieving it if necessary
