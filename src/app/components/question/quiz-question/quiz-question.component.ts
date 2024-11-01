@@ -502,7 +502,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }, 100);
   }
 
-  private loadOptionsForQuestion(question: QuizQuestion): void {
+  public loadOptionsForQuestion(question: QuizQuestion): void {
     if (question.options) {
       this.optionsToDisplay = question.options;
     } else {
@@ -2006,7 +2006,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
  
-  private async resetQuestionStateBeforeNavigation(): Promise<void> {
+  public async resetQuestionStateBeforeNavigation(): Promise<void> {
     this.currentQuestion = null;
     this.explanationLocked = false; // Reset explanation lock
     this.explanationToDisplay = '';
