@@ -1392,9 +1392,7 @@ export class QuizService implements OnDestroy {
         typeof option.optionId === 'number' &&
         typeof option.text === 'string' &&
         typeof option.correct === 'boolean';
-  
-      console.log(`Processing option at index ${idx}:`, option);
-  
+        
       if (!isValid) {
         console.warn(`Invalid option at index ${idx}:`, option);
       } else if (option.correct) {
