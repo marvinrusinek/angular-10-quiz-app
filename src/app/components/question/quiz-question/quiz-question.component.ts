@@ -2951,43 +2951,53 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private updateExplanationUI(questionIndex: number, explanationText: string): void {
-    // Check if questionsArray is initialized and not empty
+    // Validate if questions are loaded and the array is non-empty
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.warn('Questions not loaded yet. Skipping explanation update.');
       return;
     }
 
+    // Ensure the index is within valid bounds
     const adjustedIndex = Math.max(0, Math.min(questionIndex, this.questionsArray.length - 1));
     const currentQuestion = this.questionsArray[adjustedIndex];
 
+    // Validate that the current question exists
     if (!currentQuestion) {
       console.error(`Question not found at index: ${adjustedIndex}`);
       return;
     }
 
-    // Log for better tracing
+    // Log the preparation step for better traceability
     console.log(`Preparing to set current question at index: ${adjustedIndex}`);
 
-    // Set the question and force-render it
-    this.setCurrentQuestion(currentQuestion);
+    try {
+      // Set the question and trigger a re-render
+      this.setCurrentQuestion(currentQuestion);
 
-    // Use a Promise to delay explanation update until question rendering completes
-    this.waitForQuestionRendering().then(() => {
-      if (this.isQuestionAnswered(adjustedIndex)) {
-        this.clearExplanationState();
-        this.explanationToDisplay = explanationText;
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-        this.showExplanationChange.emit(true);
+      // Wait for the question to be rendered before updating the explanation
+      this.waitForQuestionRendering().then(() => {
+        if (this.isQuestionAnswered(adjustedIndex)) {
+          // Clear any previous explanation state
+          this.clearExplanationState();
+          this.explanationToDisplay = explanationText;
+          this.explanationToDisplayChange.emit(this.explanationToDisplay);
+          this.showExplanationChange.emit(true);
 
-        this.updateCombinedQuestionData(currentQuestion, explanationText);
-        this.isAnswerSelectedChange.emit(true);
-      } else {
-        console.log(`Question ${adjustedIndex} is not answered. Skipping explanation update.`);
-      }
+          // Update combined question data with the current explanation
+          this.updateCombinedQuestionData(currentQuestion, explanationText);
+          this.isAnswerSelectedChange.emit(true);
+        } else {
+          console.log(`Question ${adjustedIndex} is not answered. Skipping explanation update.`);
+        }
 
-      // Ensure the UI reflects the final update
-      this.cdRef.detectChanges();
-    });
+        // Detect changes to update the UI
+        this.cdRef.detectChanges();
+      }).catch((renderError) => {
+        console.error('Error during question rendering wait:', renderError);
+      });
+    } catch (error) {
+      console.error('Error in setting current question or updating explanation:', error);
+    }
 
     console.log(`Finished updating explanation for question ${adjustedIndex}`);
   }
