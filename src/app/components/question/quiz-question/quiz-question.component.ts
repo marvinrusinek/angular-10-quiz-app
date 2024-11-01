@@ -505,6 +505,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private loadOptionsForQuestion(question: QuizQuestion): void {
     if (question.options) {
       this.optionsToDisplay = question.options;
+      this.cdRef.detectChanges();
+    } else {
+      console.warn('No options found for the question:', question);
     }
   }
   
