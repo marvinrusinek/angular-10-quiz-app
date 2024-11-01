@@ -321,29 +321,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('Unable to retrieve Quiz ID, cannot fetch questions');
       return;
     }
-
+  
     try {
       await this.loadQuizData();
+      this.setCurrentQuestion(this.currentQuestion); // Ensure the question is reset correctly
+      
+      // Only display the explanation if the question has been answered
+      if (await this.isQuestionAnswered(this.currentQuestionIndex)) {
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
+      } else {
+        this.showExplanationChange.emit(false);
+      }
+  
       await this.updateSelectionMessageForCurrentQuestion();
     } catch (error) {
       console.error('Error in onVisibilityChange:', error);
     }
-  }
-
-  // Ensure quiz ID exists, retrieving it if necessary
-  private async ensureQuizIdExists(): Promise<boolean> {
-    if (!this.quizId) {
-      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
-    }
-    return !!this.quizId;
-  }
+  }  
 
   // Update selection message based on the current question state
   private async updateSelectionMessageForCurrentQuestion(): Promise<void> {
     const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-    await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+  
+    // Update the selection message only if necessary, ensuring it doesn't impact question rendering
+    if (isAnswered) {
+      await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+    }
   }
-
 
   onQuestionChange(question: QuizQuestion): void {
     this.questionAnswered.emit(question);
