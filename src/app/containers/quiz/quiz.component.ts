@@ -1659,7 +1659,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             `Question at index ${index} is ${answered ? 'already answered' : 'not answered'}.`
           );
   
-          this.quizQuestionComponent.updateSelectionMessageBasedOnState();
+          if (this.quizQuestionComponent) {
+            this.quizQuestionComponent.updateSelectionMessageBasedOnState();
+          } else {
+            console.warn('QuizQuestionComponent is not initialized yet.');
+          }          
         } else {
           console.error('Question not found for index:', index);
         }
