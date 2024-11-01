@@ -912,26 +912,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   async fetchQuizData(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params['quizId'];
-      const questionIndexParam =
-        this.activatedRoute.snapshot.params['questionIndex'];
+      const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
       const questionIndex = parseInt(questionIndexParam, 10);
-
+  
       if (isNaN(questionIndex)) {
         console.error('Invalid question index:', questionIndexParam);
         return;
       }
-
+  
       const zeroBasedQuestionIndex = questionIndex - 1;
-
-      const selectedQuiz: Quiz = await firstValueFrom(
-        this.quizDataService.getQuiz(quizId).pipe(takeUntil(this.destroy$))
+  
+      const selectedQuiz: Quiz | null = await firstValueFrom(
+        this.quizDataService.getQuiz(quizId).pipe(
+          takeUntil(this.destroy$),
+          catchError((err) => {
+            console.error('Error fetching quiz:', err);
+            return of(null); // Return null to handle the empty case
+          }),
+          filter((quiz) => !!quiz) // Ensure that only valid, non-null quizzes are passed
+        )
       );
+  
       if (!selectedQuiz) {
         console.error('Selected quiz not found for quizId:', quizId);
         return;
       }
+  
       this.selectedQuiz = selectedQuiz;
-
+  
       if (
         zeroBasedQuestionIndex < 0 ||
         zeroBasedQuestionIndex >= selectedQuiz.questions.length
@@ -939,7 +947,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('Invalid question index:', zeroBasedQuestionIndex);
         return;
       }
-
+  
       // Ensure the current question is set
       const currentQuestion = selectedQuiz.questions[zeroBasedQuestionIndex];
       if (!currentQuestion) {
@@ -949,20 +957,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return;
       }
       this.currentQuestion = currentQuestion;
-
+  
       this.processQuizData(zeroBasedQuestionIndex, this.selectedQuiz);
       this.quizService.initializeSelectedQuizData(this.selectedQuiz);
-
-      const questionData = await this.fetchQuestionData(
-        quizId,
-        zeroBasedQuestionIndex
-      );
+  
+      const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
       if (!questionData) {
         console.error('Question data could not be fetched.');
         this.data = null;
         return;
       }
-
+  
       this.initializeAndPrepareQuestion(questionData, quizId);
       this.quizService.setCurrentQuestion(zeroBasedQuestionIndex);
     } catch (error) {
