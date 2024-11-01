@@ -710,9 +710,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered'); // Added to track if question was answered
+    const storedIsAnswered = sessionStorage.getItem('isAnswered'); // Track if the question was answered
   
-    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
+    if (
+      storedIndex !== null &&
+      storedQuestion !== null &&
+      storedOptions !== null
+    ) {
       this.currentQuestionIndex = +storedIndex;
       this.currentQuestion = JSON.parse(storedQuestion);
       this.optionsToDisplay = JSON.parse(storedOptions);
@@ -721,14 +725,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const isAnswered = storedIsAnswered === 'true';
   
       if (isAnswered) {
-        this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || ''; // Ensure explanation only shows if answered
+        // Get the explanation only if the question was marked as answered
+        this.explanationToDisplay = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+        ) || '';
         this.showExplanationChange.emit(true);
       } else {
-        this.explanationToDisplay = ''; // Keep explanation hidden if not answered
+        // Keep displaying the question text if not answered
+        this.explanationToDisplay = ''; // Ensure explanation stays hidden
         this.showExplanationChange.emit(false);
       }
     } else {
-      this.loadQuestion(); // Fallback to load question if session storage is not set
+      await this.loadQuestion(); // Load question if session data is missing
     }
   }
 
