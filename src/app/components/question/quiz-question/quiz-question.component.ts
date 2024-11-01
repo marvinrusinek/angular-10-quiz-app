@@ -324,10 +324,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     try {
       await this.loadQuizData();
-      this.setCurrentQuestion(this.currentQuestion); // Ensure the question is displayed correctly
-      
-      // Only display the explanation if the question has been answered
-      if (await this.isQuestionAnswered(this.currentQuestionIndex)) {
+      this.setCurrentQuestion(this.currentQuestion); // Ensure the question is displayed correctly in the UI
+
+      // Ensure explanation is only shown if the question is answered
+      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+      if (isAnswered) {
         this.showExplanationIfNeeded(); // Display explanation only if necessary
         this.showExplanationChange.emit(true);
       } else {
