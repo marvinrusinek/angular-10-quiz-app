@@ -2956,22 +2956,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn('Questions not loaded yet. Skipping explanation update.');
       return;
     }
-  
+
     const adjustedIndex = Math.max(0, Math.min(questionIndex, this.questionsArray.length - 1));
     const currentQuestion = this.questionsArray[adjustedIndex];
-  
+
     if (!currentQuestion) {
       console.error(`Question not found at index: ${adjustedIndex}`);
       return;
     }
-  
-    // Reset UI state for question navigation
-    this.resetQuestionStateBeforeNavigation();
-    console.log(`Updating explanation for question ${adjustedIndex}`);
+
+    // Log for better tracing
+    console.log(`Preparing to set current question at index: ${adjustedIndex}`);
 
     // Set the question and force-render it
     this.setCurrentQuestion(currentQuestion);
-  
+
     // Use a Promise to delay explanation update until question rendering completes
     this.waitForQuestionRendering().then(() => {
       if (this.isQuestionAnswered(adjustedIndex)) {
@@ -2979,17 +2978,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.explanationToDisplay = explanationText;
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
-    
+
         this.updateCombinedQuestionData(currentQuestion, explanationText);
         this.isAnswerSelectedChange.emit(true);
       } else {
         console.log(`Question ${adjustedIndex} is not answered. Skipping explanation update.`);
       }
 
-      this.cdRef.detectChanges();  // Ensure the UI reflects the final update
+      // Ensure the UI reflects the final update
+      this.cdRef.detectChanges();
     });
-  
-    console.log(`Updating explanation for question ${adjustedIndex}`);
+
+    console.log(`Finished updating explanation for question ${adjustedIndex}`);
   }
 
   private waitForQuestionRendering(): Promise<void> {
