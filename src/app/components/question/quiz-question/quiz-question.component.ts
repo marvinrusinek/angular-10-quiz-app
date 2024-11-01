@@ -705,7 +705,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     );
   }
 
-  private restoreQuizState(): void {
+  private async restoreQuizState(): Promise<void> {
     // Restore the state from session storage
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
@@ -721,7 +721,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const isAnswered = storedIsAnswered === 'true';
   
       if (isAnswered) {
-        this.explanationToDisplay = this.quizService.getCurrentExplanation() || ''; // Ensure explanation only shows if answered
+        this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || ''; // Ensure explanation only shows if answered
         this.showExplanationChange.emit(true);
       } else {
         this.explanationToDisplay = ''; // Keep explanation hidden if not answered
