@@ -472,8 +472,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.showExplanationChange.emit(false);
   
       if (this.questionsArray && this.questionsArray.length > 0) {
-        // this.updateExplanationUI(index, '');  // Update explanation for the selected question
-        // this.setQuestionAndExplanation(index);
         this.setQuestionFirst(index);
       } else {
         console.warn('Questions are not ready yet. Skipping explanation update.');
