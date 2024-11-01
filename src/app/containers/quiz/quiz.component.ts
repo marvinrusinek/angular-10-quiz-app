@@ -1659,7 +1659,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             `Question at index ${index} is ${answered ? 'already answered' : 'not answered'}.`
           );
   
-          this.safelyUpdateSelectionMessage();
+          this.quizQuestionComponent?.updateSelectionMessageBasedOnState();
         } else {
           console.error('Question not found for index:', index);
         }
@@ -1668,14 +1668,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('Failed to load questions:', error);
       },
     });
-  }
-
-  private safelyUpdateSelectionMessage(): void {
-    if (this.quizQuestionComponent) {
-      this.quizQuestionComponent.updateSelectionMessageBasedOnState();
-    } else {
-      console.warn('QuizQuestionComponent is not initialized yet.');
-    }
   }
 
   onSelectionMessageChange(message: string) {
