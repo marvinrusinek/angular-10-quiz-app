@@ -761,8 +761,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // Validate the generated feedback binding
       if (!feedbackBinding || !feedbackBinding.selectedOption) {
         console.warn(`Invalid feedback binding at index ${idx}:`, feedbackBinding);
-      } else {
-        console.log(`Feedback binding at index ${idx}:`, feedbackBinding);
       }
   
       return feedbackBinding;
