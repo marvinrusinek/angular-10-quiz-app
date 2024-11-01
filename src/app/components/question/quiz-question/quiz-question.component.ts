@@ -2773,13 +2773,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private async ensureQuestionIsFullyLoaded(index: number): Promise<void> {
-    if (!this.questionsArray || index < 0 || index >= this.questionsArray.length) {
-      console.error(`Invalid index ${index}. No such question exists.`);
+    if (!this.questionsArray || this.questionsArray.length === 0) {
+      console.error('Questions array is not loaded yet. Loading questions...');
+      await this.loadQuizData(); // Ensure the data is loaded
+    }
+  
+    if (index < 0 || index >= this.questionsArray.length) {
+      console.error(`Invalid index ${index}. Must be between 0 and ${this.questionsArray.length - 1}.`);
       throw new Error(`Invalid index ${index}. No such question exists.`);
-    }  
+    }
   
     return new Promise((resolve, reject) => {
-      let subscription: Subscription | undefined; // Declare without initialization
+      let subscription: Subscription | undefined;
   
       try {
         subscription = this.quizService.getQuestionByIndex(index).subscribe({
@@ -2799,7 +2804,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }
         });
       } catch (error) {
-        reject(error); // Reject the promise for any unexpected error
+        reject(error); // Reject for unexpected error
       }
     });
   }
