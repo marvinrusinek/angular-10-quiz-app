@@ -246,7 +246,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const explanationText = question ? question.explanation : 'No explanation available';
   
       // Only after rendering is complete, update the explanation
-      this.updateExplanationUI(index, explanationText);
+      if (this.questionsArray && this.questionsArray.length > 0) {
+        this.updateExplanationUI(index, explanationText);
+      }
       this.setInitialMessage();
     }, 50);
   }
