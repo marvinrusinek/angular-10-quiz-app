@@ -602,9 +602,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }, 0);  // Delay to ensure question is fully rendered
   }
   
-  public setCurrentQuestion(question: QuizQuestion): void {
+  public setCurrentQuestion(question: QuizQuestion | null): void {
+    if (!question) {
+      console.error('Attempted to set a null or undefined question in setCurrentQuestion.');
+      this.question = null;
+      this.optionsToDisplay = [];
+      return; // Exit early to avoid further errors
+    }
+  
     this.question = question;
-    this.optionsToDisplay = question.options || [];
+    this.optionsToDisplay = question.options || []; // Safely set options if available
     this.quizService.setCorrectOptions(this.optionsToDisplay);
   }
 
