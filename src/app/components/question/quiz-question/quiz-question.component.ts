@@ -717,35 +717,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered'); // Track if the question was answered
-  
-    if (
-      storedIndex !== null &&
-      storedQuestion !== null &&
-      storedOptions !== null
-    ) {
+    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
+
+    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
       this.currentQuestionIndex = +storedIndex;
       this.currentQuestion = JSON.parse(storedQuestion);
       this.optionsToDisplay = JSON.parse(storedOptions);
-  
-      // Check if the question was answered
-      const isAnswered = storedIsAnswered === 'true';
-  
-      if (isAnswered) {
-        // Get the explanation only if the question was marked as answered
+        
+      // Set explanation only if the question was already answered
+      if (storedIsAnswered) {
         this.explanationToDisplay = await firstValueFrom(
           this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
         ) || '';
-        this.showExplanationChange.emit(true);
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
       } else {
-        // Keep displaying the question text if not answered
-        this.explanationToDisplay = ''; // Ensure explanation stays hidden
+        // Ensure the question text is shown when the question isn't answered
+        this.explanationToDisplay = '';
+        this.explanationToDisplayChange.emit('');
         this.showExplanationChange.emit(false);
       }
     } else {
-      await this.loadQuestion(); // Load question if session data is missing
+      this.loadQuestion();
     }
   }
+
 
   private initializeComponent(): void {
     // Load the first question or current question
