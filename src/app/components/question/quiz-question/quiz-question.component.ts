@@ -430,8 +430,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     try {
-      console.log('Fetching questions for quiz ID:', this.quizId);
-  
       // Fetch and process questions
       const questions = await this.fetchAndProcessQuizQuestions(this.quizId);
   
