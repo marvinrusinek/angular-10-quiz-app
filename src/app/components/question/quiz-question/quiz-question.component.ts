@@ -579,7 +579,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }, 0);  // Delay to ensure question is fully rendered
   }
   
-  protected setCurrentQuestion(question: QuizQuestion): void {
+  public setCurrentQuestion(question: QuizQuestion): void {
     this.question = question;
     this.optionsToDisplay = question.options || [];
     this.quizService.setCorrectOptions(this.optionsToDisplay);

@@ -2705,7 +2705,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
   
               // Load the first question and its options
-              const firstQuestion = this.questionsArray[0];
+              const firstQuestion = this.questions[0];
               if (firstQuestion) {
                 this.quizQuestionComponent.setCurrentQuestion(firstQuestion);
                 this.quizQuestionComponent.loadOptionsForQuestion(firstQuestion);
