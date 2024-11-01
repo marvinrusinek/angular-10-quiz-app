@@ -324,15 +324,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     try {
       await this.loadQuizData();
-      this.setCurrentQuestion(this.currentQuestion); // Ensure the question is reset correctly
+      this.setCurrentQuestion(this.currentQuestion); // Ensure the question is displayed correctly
       
       // Only display the explanation if the question has been answered
       if (await this.isQuestionAnswered(this.currentQuestionIndex)) {
-        this.showExplanationIfNeeded();
+        this.showExplanationIfNeeded(); // Display explanation only if necessary
         this.showExplanationChange.emit(true);
       } else {
-        this.showExplanationChange.emit(false);
+        // Keep question text if the question is not answered
         this.explanationToDisplay = ''; // Clear any stale explanation
+        this.showExplanationChange.emit(false);
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
       }
   
@@ -345,12 +346,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Helper method that sets and emits the explanation text only if the question is answered
   private showExplanationIfNeeded(): void {
     if (this.isQuestionAnswered(this.currentQuestionIndex)) {
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
       this.showExplanationChange.emit(true);
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
     }
   }
-  
-  
 
   // Ensure quiz ID exists, retrieving it if necessary
   private async ensureQuizIdExists(): Promise<boolean> {
