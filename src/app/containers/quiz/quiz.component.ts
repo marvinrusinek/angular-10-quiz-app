@@ -1659,11 +1659,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             `Question at index ${index} is ${answered ? 'already answered' : 'not answered'}.`
           );
   
-          if (this.quizQuestionComponent) {
-            this.quizQuestionComponent.updateSelectionMessageBasedOnState();
-          } else {
-            console.warn('QuizQuestionComponent is not initialized yet.');
-          }          
+          this.safelyUpdateSelectionMessage();
         } else {
           console.error('Question not found for index:', index);
         }
@@ -1672,6 +1668,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('Failed to load questions:', error);
       },
     });
+  }
+
+  private safelyUpdateSelectionMessage(): void {
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.updateSelectionMessageBasedOnState();
+    } else {
+      console.warn('QuizQuestionComponent is not initialized yet.');
+    }
   }
 
   onSelectionMessageChange(message: string) {
@@ -2697,8 +2701,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           try {
             // Ensure the quizQuestionComponent is available
             if (this.quizQuestionComponent) {
-              await this.quizQuestionComponent?.fetchAndProcessCurrentQuestion();
-              this.quizQuestionComponent?.loadDynamicComponent();
+              // Reset the state in QuizQuestionComponent
+              await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
+  
+              // Load the first question and its options
+              const firstQuestion = this.questionsArray[0];
+              if (firstQuestion) {
+                this.quizQuestionComponent.setCurrentQuestion(firstQuestion);
+                this.quizQuestionComponent.loadOptionsForQuestion(firstQuestion);
+              } else {
+                console.error('First question not found during quiz restart.');
+              }
+  
+              // Load dynamic component if necessary
+              this.quizQuestionComponent.loadDynamicComponent();
             } else {
               console.error('QuizQuestionComponent not available.');
             }
@@ -2718,7 +2734,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       .catch((error) => {
         console.error('Error during quiz restart:', error);
       });
-  }
+  }  
   
   private resetQuizState(): void {
     // Reset all quiz-related services
