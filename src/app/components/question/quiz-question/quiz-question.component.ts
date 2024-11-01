@@ -340,6 +340,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }  
 
+  // Ensure quiz ID exists, retrieving it if necessary
+  private async ensureQuizIdExists(): Promise<boolean> {
+    if (!this.quizId) {
+      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
+    }
+    return !!this.quizId;
+  }
+
   // Update selection message based on the current question state
   private async updateSelectionMessageForCurrentQuestion(): Promise<void> {
     const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
