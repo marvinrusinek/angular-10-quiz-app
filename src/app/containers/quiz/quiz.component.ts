@@ -2681,6 +2681,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   restartQuiz(): void {
     // Reset quiz-related services and states
     this.resetQuizState();
+    this.resetQuestionDisplayState();
   
     // Set the current question index to the first question
     this.quizService.setCurrentQuestionIndex(0);

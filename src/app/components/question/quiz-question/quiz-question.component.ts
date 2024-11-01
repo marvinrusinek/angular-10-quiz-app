@@ -1783,6 +1783,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private resetStateForNewQuestion(): void {
+    this.currentQuestionIndex = 0;
+
+    // Explicitly set the first question
+    const firstQuestion = this.questionsArray[this.currentQuestionIndex];
+    this.setCurrentQuestion(firstQuestion);
+  
+    // Ensure the correct options are loaded for the first question
+    this.loadOptionsForQuestion(firstQuestion);
+
     this.optionsToDisplay = [];
     this.showFeedbackForOption = {};
     this.showFeedback = false;
