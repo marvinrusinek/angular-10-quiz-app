@@ -765,33 +765,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
-        this.currentQuestionIndex = +storedIndex;
-        try {
-          this.currentQuestion = JSON.parse(storedQuestion);
-          this.optionsToDisplay = JSON.parse(storedOptions);
-        } catch (error) {
-          console.error('Error parsing stored data:', error);
-          this.loadQuestion();
-          return;
-        }
-        this.isAnswered = storedIsAnswered === 'true';
+      try {
+        this.currentQuestionIndex = storedIndex !== null ? +storedIndex : 0;
+        this.currentQuestion = storedQuestion ? JSON.parse(storedQuestion) : null;
+        this.optionsToDisplay = storedOptions ? JSON.parse(storedOptions) : [];
+      } catch (error) {
+        console.error('Error parsing stored data:', error);
+        this.loadQuestion();
+        return;
+      }
 
-        console.log('Restoring question:', this.currentQuestion);
-        console.log('Restored isAnswered:', this.isAnswered);
+      this.isAnswered = storedIsAnswered === 'true';
 
-        if (this.currentQuestion) {
-          // Display logic based on `isAnswered` state
-          if (this.isAnswered) {
-            console.log('Displaying explanation since the question is answered.');
-            this.showExplanationText();
-          } else {
-            console.log('Displaying question text since the question is not answered.');
-            this.showQuestionText();
-          }
+      console.log('Restoring question:', this.currentQuestion);
+      console.log('Restored isAnswered:', this.isAnswered);
+
+      if (this.currentQuestion) {
+        // Display logic based on `isAnswered` state
+        if (this.isAnswered) {
+          console.log('Displaying explanation since the question is answered.');
+          this.showExplanationText();
         } else {
-          console.warn('Restored question is null or undefined. Loading default question...');
-          this.loadQuestion();
+          console.log('Displaying question text since the question is not answered.');
+          this.showQuestionText();
         }
+      } else {
+        console.warn('Restored question is null or undefined. Loading default question...');
+        this.loadQuestion();
+      }
     } else {
       console.warn('Stored state is incomplete, loading default question');
       this.loadQuestion();
