@@ -701,7 +701,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-
   private initializeComponent(): void {
     // Load the first question or current question
     this.loadQuestion();
