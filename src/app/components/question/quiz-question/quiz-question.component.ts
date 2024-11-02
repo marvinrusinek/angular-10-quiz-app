@@ -366,7 +366,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
   }
 
-  addVisibilityChangeListener() {
+  addVisibilityChangeListener(): void {
     document.addEventListener('visibilitychange', () => {
       this.tabVisible = !document.hidden;
       if (this.tabVisible) {
@@ -400,6 +400,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.updateSelectionMessage(isAnswered);
       });
     });
+  }
+
+  // Function to subscribe to navigation flags
+  private subscribeToNavigationFlags(): void {
+    this.quizService.getIsNavigatingToPrevious()
+    .subscribe(
+      (isNavigating) => (this.isNavigatingToPrevious = isNavigating)
+    );
+  }
+
+  // Function to subscribe to total questions count
+  private subscribeToTotalQuestions(): void {
+    this.quizService.getTotalQuestionsCount()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((totalQuestions: number) => {
+        this.totalQuestions = totalQuestions;
+      });
   }
 
   private initializeComponentState(): void {
