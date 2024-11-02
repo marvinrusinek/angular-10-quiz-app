@@ -984,21 +984,37 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
         try {
             this.currentQuestionIndex = +storedIndex;
-            const parsedQuestion = JSON.parse(storedQuestion);
-            const parsedOptions = JSON.parse(storedOptions);
+            
+            // Parse question with fallback
+            let parsedQuestion;
+            try {
+                parsedQuestion = JSON.parse(storedQuestion);
+            } catch (parseError) {
+                console.error('Error parsing stored question:', parseError);
+                throw new Error('Fallback to default question due to parsing error');
+            }
 
-            // Detailed validation for parsedQuestion
+            // Validate parsed question
             if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
-                console.log('Parsed question structure is valid:', parsedQuestion);
                 this.currentQuestion = parsedQuestion;
+                console.log('Parsed question structure is valid:', parsedQuestion);
             } else {
                 console.error('Parsed question structure is invalid or null:', parsedQuestion);
                 throw new Error('Invalid or null question format');
             }
 
-            // Detailed validation for parsedOptions
+            // Parse options with fallback
+            let parsedOptions;
+            try {
+                parsedOptions = JSON.parse(storedOptions);
+            } catch (parseError) {
+                console.error('Error parsing stored options:', parseError);
+                throw new Error('Fallback to default options due to parsing error');
+            }
+
+            // Validate parsed options using for-of loop
             if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
-                parsedOptions.forEach((option, index) => {
+                for (const [index, option] of parsedOptions.entries()) {
                     if (
                         !option ||
                         typeof option !== 'object' ||
@@ -1009,9 +1025,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                         console.error(`Invalid option structure at index ${index}:`, option);
                         throw new Error(`Invalid or null options format at index ${index}`);
                     }
-                });
-                console.log('Parsed options are valid:', parsedOptions);
+                }
                 this.optionsToDisplay = parsedOptions;
+                console.log('Parsed options are valid:', parsedOptions);
             } else {
                 console.error('Parsed options are not valid or empty:', parsedOptions);
                 throw new Error('Invalid or null options format');
