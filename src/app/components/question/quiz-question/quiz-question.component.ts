@@ -218,11 +218,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.initializeComponent();
       this.initializeComponentState();
       await this.initializeQuizDataAndRouting();
-
-      // Set up the first question and load options immediately
-      const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
-      this.setQuestionFirst(index); // Load question and options initially
-
+      this.initializeFirstQuestion();
       this.setupSubscriptions();
       console.log('QuizQuestionComponent initialized successfully');
     } catch (error) {
@@ -444,6 +440,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           console.warn('Questions are not loaded yet. Skipping explanation update.....');
         }
       });
+  }
+
+  private initializeFirstQuestion(): void {
+    // Retrieve the question index from the route parameters and parse it as a number
+    const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
+    
+    // Log for debugging purposes
+    console.log(`Initializing the first question with index: ${index}`);
+
+    // Set the initial question and load options
+    this.setQuestionFirst(index);
   }
 
   private async loadQuizData(): Promise<boolean> {
