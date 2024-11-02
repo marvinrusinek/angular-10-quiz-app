@@ -766,8 +766,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
         this.currentQuestionIndex = +storedIndex;
-        this.currentQuestion = JSON.parse(storedQuestion);
-        this.optionsToDisplay = JSON.parse(storedOptions);
+        try {
+          this.currentQuestion = JSON.parse(storedQuestion);
+          this.optionsToDisplay = JSON.parse(storedOptions);
+        } catch (error) {
+            console.error('Error parsing stored data:', error);
+            this.loadQuestion();
+            return;
+        }
         this.isAnswered = storedIsAnswered === 'true';
 
         console.log('Restoring question:', this.currentQuestion);
