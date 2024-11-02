@@ -508,7 +508,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.quizService.setNextExplanationText(formattedExplanation);
       this.explanationToDisplayChange.emit(formattedExplanation);
       this.showExplanationChange.emit(true);  // Ensure it's shown in the UI
-      this.cdRef.detectChanges();  // Trigger UI update
     }, 50);
   }
 
@@ -2850,11 +2849,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private updateExplanationUI(questionIndex: number, explanationText: string): void {
     // Check if questionsArray is initialized and not empty
-    if (!this.questionsArray || this.questionsArray.length === 0) {
+    /* if (!this.questionsArray || this.questionsArray.length === 0) {
       console.warn('Questions not loaded yet. Retrying update after short delay...');
       return;
+    } */
+    if (!this.questionsArray || this.questionsArray.length === 0) {
+      console.warn('Questions not loaded yet. Retrying update after short delay...');
+      
+      // Retry update after a delay
+      setTimeout(() => this.updateExplanationUI(questionIndex, explanationText), 500);
+      return;
     }
-  
+
     const adjustedIndex = Math.max(0, Math.min(questionIndex, this.questionsArray.length - 1));
 
     const currentQuestion = this.questionsArray[adjustedIndex];
