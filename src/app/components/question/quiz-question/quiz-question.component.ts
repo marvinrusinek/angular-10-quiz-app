@@ -2682,7 +2682,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           if (formattedExplanation) {
             this.explanationToDisplay = formattedExplanation;
           } else {
-            const rawExplanation = questionData.explanation ?? '';
             const processedExplanation = await this.processExplanationText(questionData, questionIndex);
             
             if (processedExplanation) {
