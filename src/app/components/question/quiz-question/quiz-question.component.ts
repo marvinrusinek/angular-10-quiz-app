@@ -774,12 +774,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('Restored isAnswered:', this.isAnswered);
 
         if (this.currentQuestion) {
-            if (!this.isAnswered) {
-                console.log('Displaying question text since the question is not answered.');
-                this.showQuestionText();
+            // Display logic based on `isAnswered` state
+            if (this.isAnswered) {
+              console.log('Displaying explanation since the question is answered.');
+              this.showExplanationText();
             } else {
-                console.log('Displaying explanation since the question is answered.');
-                this.showExplanationText();
+              console.log('Displaying question text since the question is not answered.');
+              this.showQuestionText();
             }
         } else {
             console.warn('Restored question is null or undefined. Loading default question...');
