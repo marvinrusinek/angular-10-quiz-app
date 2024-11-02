@@ -752,10 +752,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
+    // Log retrieved values to check their integrity
+    console.log('Restored data from sessionStorage:', {
+        storedIndex,
+        storedQuestion,
+        storedOptions,
+        storedIsAnswered,
+    });
+
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
         this.currentQuestionIndex = +storedIndex;
-        this.currentQuestion = JSON.parse(storedQuestion);
-        this.optionsToDisplay = JSON.parse(storedOptions);
+        try {
+            this.currentQuestion = JSON.parse(storedQuestion);
+            this.optionsToDisplay = JSON.parse(storedOptions);
+        } catch (error) {
+            console.error('Error parsing stored question or options:', error);
+            this.loadQuestion();
+            return;
+        }
+
         this.isAnswered = storedIsAnswered === 'true';
 
         if (this.currentQuestion) {
@@ -766,10 +781,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             });
 
             if (!this.isAnswered) {
-                // Ensure explanation is cleared and question text is displayed
                 this.showQuestionText();
             } else {
-                // Only show the explanation if the question is marked as answered
                 this.showExplanationText();
             }
         } else {
@@ -781,7 +794,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   }
-
 
   // Helper methods
   /* private showQuestionText(): void {
