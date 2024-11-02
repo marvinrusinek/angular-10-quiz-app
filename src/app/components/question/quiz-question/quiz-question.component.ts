@@ -752,28 +752,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
+    console.log('Restoring state:', { storedIndex, storedIsAnswered });
+
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
-      this.currentQuestionIndex = +storedIndex;
-      this.currentQuestion = JSON.parse(storedQuestion);
-      this.optionsToDisplay = JSON.parse(storedOptions);
-      this.isAnswered = storedIsAnswered === 'true';
+        this.currentQuestionIndex = +storedIndex;
+        this.currentQuestion = JSON.parse(storedQuestion);
+        this.optionsToDisplay = JSON.parse(storedOptions);
+        this.isAnswered = storedIsAnswered === 'true';
 
-      if (this.currentQuestion) {
-        console.log('Restored question:', this.currentQuestion);
-        console.log('Restored isAnswered:', this.isAnswered);
+        if (this.currentQuestion) {
+            console.log('Restored question:', this.currentQuestion);
+            console.log('Restored isAnswered:', this.isAnswered);
 
-        if (this.isAnswered) {
-          this.showExplanationText();
+            if (!this.isAnswered) {
+                console.log('Showing question text after state restoration');
+                this.showQuestionText();
+            } else {
+                console.log('Showing explanation text after state restoration');
+                this.showExplanationText();
+            }
         } else {
-          this.showQuestionText();
+            console.warn('Restored question is null or undefined. Loading default question...');
+            this.loadQuestion();
         }
-      } else {
-        console.warn('Restored question is null or undefined. Loading default question...');
-        this.loadQuestion();
-      }
     } else {
-      console.warn('Stored state is incomplete, loading default question');
-      this.loadQuestion();
+        console.warn('Stored state is incomplete, loading default question');
+        this.loadQuestion();
     }
   }
 
@@ -787,6 +791,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */
   private showQuestionText(): void {
+    console.log('Executing showQuestionText, isAnswered:', this.isAnswered);
     if (!this.isAnswered) {
         this.explanationToDisplay = ''; // Clear any explanation text
         this.explanationToDisplayChange.emit('');
@@ -805,8 +810,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */
   private async showExplanationText(): Promise<void> {
+    console.log('Executing showExplanationText, isAnswered:', this.isAnswered);
     if (this.isAnswered) {
-        console.log('Showing explanation text');
         this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
