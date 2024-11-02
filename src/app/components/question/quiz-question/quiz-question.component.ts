@@ -2692,8 +2692,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }  
   
     return new Promise((resolve, reject) => { 
+      let subscription: Subscription | undefined;
       try {
-        const subscription: Subscription | undefined = this.quizService.getQuestionByIndex(index).subscribe({
+        subscription = this.quizService.getQuestionByIndex(index).subscribe({
           next: (question) => {
             if (question && question.questionText) {
               console.log(`Question loaded for index ${index}:`, question);
