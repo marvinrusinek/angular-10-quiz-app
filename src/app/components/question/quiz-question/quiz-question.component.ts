@@ -659,18 +659,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private saveQuizState(): void {
-    sessionStorage.setItem(
-      'currentQuestionIndex',
-      this.currentQuestionIndex.toString()
-    );
-    sessionStorage.setItem(
-      'currentQuestion',
-      JSON.stringify(this.currentQuestion)
-    );
-    sessionStorage.setItem(
-      'optionsToDisplay',
-      JSON.stringify(this.optionsToDisplay)
-    );
+    try {
+      // Validate and save current question index
+      sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
+
+      // Validate and save current question if it exists and is an object
+      if (this.currentQuestion && typeof this.currentQuestion === 'object') {
+        sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
+      } else {
+        console.warn('Attempted to save an invalid current question:', this.currentQuestion);
+        sessionStorage.removeItem('currentQuestion');
+      }
+
+      // Validate and save options if they exist and are an array
+      if (Array.isArray(this.optionsToDisplay)) {
+        sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
+      } else {
+        console.warn('Attempted to save invalid options:', this.optionsToDisplay);
+        sessionStorage.removeItem('optionsToDisplay');
+      }
+    } catch (error) {
+      console.error('Error saving quiz state:', error);
+    }
   }
 
   /* private restoreQuizState(): void {
@@ -737,7 +747,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try {
             this.currentQuestionIndex = +storedIndex;
 
-            // Check if storedQuestion is a valid JSON string and not null
+            // Check if storedQuestion is a valid JSON string
             const parsedQuestion = JSON.parse(storedQuestion);
             if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion && parsedQuestion.questionText) {
                 this.currentQuestion = parsedQuestion;
