@@ -795,7 +795,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     } else {
       console.warn('Stored state is incomplete, loading default question');
-      this.loadQuestion();
+      this.loadQuestion(); // Fallback to load default question if parsing fails
     }
   }
 
