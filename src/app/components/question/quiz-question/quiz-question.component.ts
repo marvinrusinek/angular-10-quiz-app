@@ -752,7 +752,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
-    // Log retrieved values to check their integrity
+    // Log restored data to debug potential issues
     console.log('Restored data from sessionStorage:', {
         storedIndex,
         storedQuestion,
@@ -762,28 +762,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
         this.currentQuestionIndex = +storedIndex;
-        try {
-            this.currentQuestion = JSON.parse(storedQuestion);
-            this.optionsToDisplay = JSON.parse(storedOptions);
-        } catch (error) {
-            console.error('Error parsing stored question or options:', error);
-            this.loadQuestion();
-            return;
-        }
-
-        this.isAnswered = storedIsAnswered === 'true';
+        this.currentQuestion = JSON.parse(storedQuestion);
+        this.optionsToDisplay = JSON.parse(storedOptions);
+        this.isAnswered = storedIsAnswered === 'true'; // Restore isAnswered state correctly
 
         if (this.currentQuestion) {
-            console.log('Restored state:', {
-                currentQuestionIndex: this.currentQuestionIndex,
-                isAnswered: this.isAnswered,
-                questionText: this.currentQuestion.questionText,
-            });
+            console.log('Restored question:', this.currentQuestion);
+            console.log('isAnswered state:', this.isAnswered);
 
             if (!this.isAnswered) {
-                this.showQuestionText();
+                this.showQuestionText(); // Ensure question text is shown
             } else {
-                this.showExplanationText();
+                this.showExplanationText(); // Only show explanation if the question is answered
             }
         } else {
             console.warn('Restored question is null or undefined. Loading default question...');
