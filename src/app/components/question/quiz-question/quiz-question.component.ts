@@ -821,16 +821,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */
   private async showExplanationText(): Promise<void> {
-    if (this.isAnswered) {
+    try {
+      if (this.isAnswered) {
         console.log('Showing explanation text');
-        this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
+        this.explanationToDisplay = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+        ) || '';
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
-    } else {
+      } else {
         console.log('Not showing explanation as the question is not marked as answered');
-        this.explanationToDisplay = ''; // Ensure explanation is cleared when not answered
+        this.explanationToDisplay = ''; // Clear explanation when not answered
         this.explanationToDisplayChange.emit('');
         this.showExplanationChange.emit(false);
+      }
+    } catch (error) {
+      console.error('Error fetching explanation text:', error);
+      this.explanationToDisplay = ''; // Ensure explanation is cleared if an error occurs
+      this.explanationToDisplayChange.emit('');
+      this.showExplanationChange.emit(false);
     }
   }
 
