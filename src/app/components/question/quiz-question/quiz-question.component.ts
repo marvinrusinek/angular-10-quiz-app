@@ -313,7 +313,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.ngZone.run(() => this.handleQuizRestore());
     }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
       if (document.hidden) {
           this.saveQuizState();
@@ -325,7 +325,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               }
           });
       }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+      if (document.hidden) {
+          this.saveQuizState();
+      } else {
+          this.ngZone.run(() => {
+              this.restoreQuizState();
+          });
+      }
   }
+
 
   // Handle quiz restoration
   private async handleQuizRestore(): Promise<void> {
@@ -715,41 +726,47 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedQuestion = sessionStorage.getItem('currentQuestion');
-    const storedOptions = sessionStorage.getItem('optionsToDisplay');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered'); // Retrieve isAnswered state
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
-    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
+    console.log('Restoring quiz state...');
+    console.log('Current stored index:', storedIndex);
+    console.log('Stored isAnswered:', storedIsAnswered);
+
+    if (storedIndex !== null && storedIsAnswered !== null) {
         this.currentQuestionIndex = +storedIndex;
-        this.currentQuestion = JSON.parse(storedQuestion);
-        this.optionsToDisplay = JSON.parse(storedOptions);
-        this.isAnswered = storedIsAnswered === 'true'; // Restore isAnswered state
+        this.isAnswered = storedIsAnswered === 'true';
 
-        // Ensure the question text is displayed if the question is not answered
-        if (!this.isAnswered) {
-            this.showQuestionText();
-        } else {
+        if (this.isAnswered) {
+            console.log('Displaying explanation as question is answered');
             this.showExplanationText();
+        } else {
+            console.log('Displaying question text as question is not answered');
+            this.showQuestionText();
         }
-    } else {
-        this.loadQuestion();
     }
   }
-
-
+  
   // Helper methods
   private showQuestionText(): void {
+    if (!this.isAnswered) {
       this.explanationToDisplay = ''; // Ensure explanation text is cleared
       this.explanationToDisplayChange.emit('');
       this.showExplanationChange.emit(false); // Ensure explanation is hidden
+    } else {
+      console.log('Skipping showQuestionText as the question is already answered');
+    }
   }
 
   private async showExplanationText(): Promise<void> {
+    if (this.isAnswered) {
+      console.log('Showing explanation text');
       this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
       this.showExplanationChange.emit(true);
+    } else {
+      console.log('Skipping showExplanationText as the question is not answered');
+    }
   }
-
 
   private initializeComponent(): void {
     // Load the first question or current question
