@@ -304,7 +304,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Listen for the visibility change event
-  /* @HostListener('window:visibilitychange', [])
+  @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.hidden) {
       this.saveQuizState();
@@ -312,7 +312,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.restoreQuizState();
       this.ngZone.run(() => this.handleQuizRestore());
     }
-  } */
+  }
   /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
       if (document.hidden) {
@@ -326,7 +326,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           });
       }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
       if (document.hidden) {
           this.saveQuizState();
@@ -335,7 +335,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               this.restoreQuizState();
           });
       }
-  }
+  } */
 
 
   // Handle quiz restoration
@@ -726,25 +726,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered');
-
-    console.log('Restoring quiz state...');
-    console.log('Current stored index:', storedIndex);
-    console.log('Stored isAnswered:', storedIsAnswered);
-
-    if (storedIndex !== null && storedIsAnswered !== null) {
-        this.currentQuestionIndex = +storedIndex;
-        this.isAnswered = storedIsAnswered === 'true';
-
-        if (this.isAnswered) {
-            console.log('Displaying explanation as question is answered');
-            this.showExplanationText();
-        } else {
-            console.log('Displaying question text as question is not answered');
-            this.showQuestionText();
-        }
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedOptions = sessionStorage.getItem('optionsToDisplay');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered'); // Retrieve the answered state
+  
+    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
+      this.currentQuestionIndex = +storedIndex;
+      this.currentQuestion = JSON.parse(storedQuestion);
+      this.optionsToDisplay = JSON.parse(storedOptions);
+      this.isAnswered = storedIsAnswered === 'true'; // Restore the answered state
+  
+      // Log to debug the restored state
+      console.log('Restored quiz state:', {
+        currentQuestionIndex: this.currentQuestionIndex,
+        isAnswered: this.isAnswered,
+      });
+  
+      if (!this.isAnswered) {
+        this.showQuestionText(); // Ensure question text is shown if not answered
+      } else {
+        this.showExplanationText(); // Show explanation if already answered
+      }
+    } else {
+      this.loadQuestion(); // Fallback if session storage is missing
     }
   }
+  
   
   // Helper methods
   private showQuestionText(): void {
