@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
-import { catchError, EMPTY, filter, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { BehaviorSubject, EMPTY, of, Subject } from 'rxjs';
+import { catchError, filter, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
