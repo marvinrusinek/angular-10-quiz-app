@@ -770,9 +770,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.currentQuestion = JSON.parse(storedQuestion);
           this.optionsToDisplay = JSON.parse(storedOptions);
         } catch (error) {
-            console.error('Error parsing stored data:', error);
-            this.loadQuestion();
-            return;
+          console.error('Error parsing stored data:', error);
+          this.loadQuestion();
+          return;
         }
         this.isAnswered = storedIsAnswered === 'true';
 
@@ -780,21 +780,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('Restored isAnswered:', this.isAnswered);
 
         if (this.currentQuestion) {
-            // Display logic based on `isAnswered` state
-            if (this.isAnswered) {
-              console.log('Displaying explanation since the question is answered.');
-              this.showExplanationText();
-            } else {
-              console.log('Displaying question text since the question is not answered.');
-              this.showQuestionText();
-            }
+          // Display logic based on `isAnswered` state
+          if (this.isAnswered) {
+            console.log('Displaying explanation since the question is answered.');
+            this.showExplanationText();
+          } else {
+            console.log('Displaying question text since the question is not answered.');
+            this.showQuestionText();
+          }
         } else {
-            console.warn('Restored question is null or undefined. Loading default question...');
-            this.loadQuestion();
+          console.warn('Restored question is null or undefined. Loading default question...');
+          this.loadQuestion();
         }
     } else {
-        console.warn('Stored state is incomplete, loading default question');
-        this.loadQuestion();
+      console.warn('Stored state is incomplete, loading default question');
+      this.loadQuestion();
     }
   }
 
