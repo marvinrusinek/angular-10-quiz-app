@@ -590,23 +590,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.showExplanationChange.emit(true);  // Ensure it's shown in the UI
     }, 50);
   }
-
-  private setExplanationTextWithDebugging(question: QuizQuestion): void {
-    setTimeout(() => {
-      const correctOptionIndices = this.getCorrectOptionIndices(question);
-      const formattedExplanation = this.explanationTextService.formatExplanation(
-        question,
-        correctOptionIndices,
-        this.quizId
-      );
-  
-      console.log('Setting explanation for question:', question.questionText, formattedExplanation);  // Debugging log
-  
-      this.explanationToDisplayChange.emit(formattedExplanation);
-      this.showExplanationChange.emit(true);  // Show the new explanation
-      this.cdRef.detectChanges();  // Ensure the UI reflects the latest changes
-    }, 0);  // Delay to ensure question is fully rendered
-  }
   
   public setCurrentQuestion(question: QuizQuestion | null): void {
     if (!question) {
@@ -620,25 +603,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.question = question;
     this.optionsToDisplay = question.options || []; // Safely set options if available
     this.quizService.setCorrectOptions(this.optionsToDisplay);
-  }
-
-  private showExplanationWithDelay(question: QuizQuestion): void {
-    // Use setTimeout to delay the explanation update
-    setTimeout(() => {
-      const correctOptionIndices = this.getCorrectOptionIndices(question);
-      const formattedExplanation = this.explanationTextService.formatExplanation(
-        question,
-        correctOptionIndices,
-        this.quizId
-      );
-  
-      console.log('Setting explanation:', formattedExplanation);
-  
-      // Update the explanation only after the question has rendered
-      this.explanationToDisplayChange.emit(formattedExplanation);
-      this.showExplanationChange.emit(true);
-      this.cdRef.detectChanges(); // Ensure UI reflects the new explanation
-    }, 50); // Slight delay to ensure rendering order
   }
   
   private resetExplanationText(): void {
