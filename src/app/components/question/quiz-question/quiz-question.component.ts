@@ -305,28 +305,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
-  /* onVisibilityChange(): void {
-    if (document.hidden) {
-      this.saveQuizState();
-    } else {
-      this.ngZone.run(() => {
-        this.restoreQuizState();
-        this.handleQuizRestore(); // Ensure this method does not change the UI state prematurely
-      });
-    }
-  } */
-  @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     console.log('Visibility changed. Document hidden:', document.hidden);
     if (document.hidden) {
       this.saveQuizState();
     } else {
-      console.log('Restoring quiz state...');
       this.restoreQuizState();
       this.ngZone.run(() => this.handleQuizRestore());
     }
   }
-
 
   // Handle quiz restoration
   private async handleQuizRestore(): Promise<void> {
