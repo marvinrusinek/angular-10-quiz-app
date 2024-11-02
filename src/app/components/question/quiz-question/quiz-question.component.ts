@@ -611,6 +611,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public setCurrentQuestion(question: QuizQuestion | null): void {
     if (!question) {
       console.error('Attempted to set a null or undefined question in setCurrentQuestion.');
+      console.trace(); // Add stack trace for better debugging context
       this.question = null;
       this.optionsToDisplay = [];
       return; // Exit early to avoid further errors
