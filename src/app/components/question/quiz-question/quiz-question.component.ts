@@ -713,7 +713,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Parse and validate the options
         let parsedOptions;
         try {
-          parsedOptions = JSON.parse(storedOptions) || {};
+          parsedOptions = JSON.parse(storedOptions) || [];
           if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
             for (const [index, option] of parsedOptions.entries()) {
               if (
