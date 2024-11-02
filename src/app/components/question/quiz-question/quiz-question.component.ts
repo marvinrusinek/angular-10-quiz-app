@@ -767,25 +767,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
-  
+
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
-      this.currentQuestionIndex = +storedIndex;
-      this.currentQuestion = JSON.parse(storedQuestion);
-      this.optionsToDisplay = JSON.parse(storedOptions);
-      this.isAnswered = storedIsAnswered === 'true';
-  
-      console.log('Restored state:', {
-        currentQuestionIndex: this.currentQuestionIndex,
-        isAnswered: this.isAnswered,
-      });
-  
-      if (!this.isAnswered) {
-        this.showQuestionText();
-      } else {
-        this.showExplanationText();
-      }
+        this.currentQuestionIndex = +storedIndex;
+        this.currentQuestion = JSON.parse(storedQuestion);
+        this.optionsToDisplay = JSON.parse(storedOptions);
+        this.isAnswered = storedIsAnswered === 'true';
+
+        console.log('Restored state:', {
+            currentQuestionIndex: this.currentQuestionIndex,
+            isAnswered: this.isAnswered,
+            questionText: this.currentQuestion.questionText,
+        });
+
+        // Show appropriate UI based on the restored state
+        if (!this.isAnswered) {
+            this.showQuestionText();
+        } else {
+            this.showExplanationText();
+        }
     } else {
-      this.loadQuestion();
+        console.warn('Stored state is incomplete, loading default question');
+        this.loadQuestion();
     }
   }
   
@@ -801,10 +804,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   private async showExplanationText(): Promise<void> {
     if (this.isAnswered) {
-      console.log('Displaying explanation text');
-      this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-      this.showExplanationChange.emit(true);
+        console.log('Displaying explanation text');
+        this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
+    } else {
+        console.log('Explanation text display skipped because the question is not answered');
     }
   }
 
