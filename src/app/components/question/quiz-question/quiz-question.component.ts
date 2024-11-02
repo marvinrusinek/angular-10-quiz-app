@@ -218,6 +218,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.initializeComponent();
       this.initializeComponentState();
       await this.initializeQuizDataAndRouting();
+      
       this.initializeFirstQuestion();
       this.setupSubscriptions();
       console.log('QuizQuestionComponent initialized successfully');
