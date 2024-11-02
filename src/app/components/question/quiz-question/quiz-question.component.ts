@@ -658,11 +658,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return this.selectedOptions && this.selectedOptions.length > 0;
   }
 
+  private sanitizeOptions(options: any[]): any[] {
+    return options.map(option => ({
+      text: option.text || '',
+      correct: option.correct || false,
+      optionId: option.optionId ?? -1,
+      feedback: option.feedback || ''
+    }));
+  }
+  
   private saveQuizState(): void {
     try {
       // Validate and save current question index
       sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
-
+  
       // Validate and save current question if it exists and is an object
       if (this.currentQuestion && typeof this.currentQuestion === 'object') {
         sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
@@ -670,10 +679,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.warn('Attempted to save an invalid current question:', this.currentQuestion);
         sessionStorage.removeItem('currentQuestion');
       }
-
-      // Validate and save options if they exist and are an array
+  
+      // Validate, sanitize, and save options if they exist and are an array
       if (Array.isArray(this.optionsToDisplay)) {
-        sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
+        const sanitizedOptions = this.sanitizeOptions(this.optionsToDisplay);
+        sessionStorage.setItem('optionsToDisplay', JSON.stringify(sanitizedOptions));
       } else {
         console.warn('Attempted to save invalid options:', this.optionsToDisplay);
         sessionStorage.removeItem('optionsToDisplay');
