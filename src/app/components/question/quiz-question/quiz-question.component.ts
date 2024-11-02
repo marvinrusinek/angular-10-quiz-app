@@ -758,13 +758,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   } */
-  private async restoreQuizState(): Promise<void> {
+  private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
-
-    console.log('Restoring state:', { storedIndex, storedIsAnswered });
 
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
         this.currentQuestionIndex = +storedIndex;
@@ -772,17 +770,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.optionsToDisplay = JSON.parse(storedOptions);
         this.isAnswered = storedIsAnswered === 'true';
 
-        if (this.currentQuestion) {
-            console.log('Restored question:', this.currentQuestion);
-            console.log('Restored isAnswered:', this.isAnswered);
+        console.log('Restoring question:', this.currentQuestion);
+        console.log('Restored isAnswered:', this.isAnswered);
 
-            if (this.isAnswered) {
-              console.log('Showing explanation text after state restoration');
-              await this.showExplanationText();
-          } else {
-              console.log('Showing question text after state restoration');
-              this.showQuestionText();
-          }
+        if (this.currentQuestion) {
+            if (!this.isAnswered) {
+                console.log('Displaying question text since the question is not answered.');
+                this.showQuestionText();
+            } else {
+                console.log('Displaying explanation since the question is answered.');
+                this.showExplanationText();
+            }
         } else {
             console.warn('Restored question is null or undefined. Loading default question...');
             this.loadQuestion();
