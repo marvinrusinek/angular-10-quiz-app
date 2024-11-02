@@ -834,7 +834,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     );
   }
-
+  
   private setupCorrectAnswersTextDisplay(): void {
     // Combining the logic to determine if the correct answers text should be displayed
     this.shouldDisplayCorrectAnswers$ = combineLatest([

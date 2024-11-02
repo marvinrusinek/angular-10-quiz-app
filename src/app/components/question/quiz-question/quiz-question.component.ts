@@ -696,7 +696,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.currentQuestionIndex = +storedIndex;
             
         // Parse and validate the question
-        let parsedQuestion;
+        let parsedQuestion: QuizQuestion;
         try {
           parsedQuestion = JSON.parse(storedQuestion) || {};
           if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
