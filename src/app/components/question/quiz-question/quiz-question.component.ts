@@ -752,28 +752,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
-    // Log restored data to debug potential issues
-    console.log('Restored data from sessionStorage:', {
-        storedIndex,
-        storedQuestion,
-        storedOptions,
-        storedIsAnswered,
-    });
-
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
         this.currentQuestionIndex = +storedIndex;
         this.currentQuestion = JSON.parse(storedQuestion);
         this.optionsToDisplay = JSON.parse(storedOptions);
-        this.isAnswered = storedIsAnswered === 'true'; // Restore isAnswered state correctly
+        this.isAnswered = storedIsAnswered === 'true';
 
         if (this.currentQuestion) {
             console.log('Restored question:', this.currentQuestion);
-            console.log('isAnswered state:', this.isAnswered);
+            console.log('Restored isAnswered:', this.isAnswered);
 
             if (!this.isAnswered) {
-                this.showQuestionText(); // Ensure question text is shown
+                this.showQuestionText();
             } else {
-                this.showExplanationText(); // Only show explanation if the question is answered
+                this.showExplanationText();
             }
         } else {
             console.warn('Restored question is null or undefined. Loading default question...');
