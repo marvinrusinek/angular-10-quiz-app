@@ -633,10 +633,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       .filter((index) => index !== -1);
   }
   
-  private getValidatedIndex(index: number): number {
-    return Math.max(0, Math.min(index, this.questionsArray.length - 1));
-  }
-  
   private setupSubscriptions(): void {
     this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
       console.log('Reset feedback triggered');
