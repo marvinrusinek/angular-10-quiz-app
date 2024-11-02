@@ -698,7 +698,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Parse and validate the question
         let parsedQuestion;
         try {
-          parsedQuestion = JSON.parse(storedQuestion);
+          parsedQuestion = JSON.parse(storedQuestion) || {};
           if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
             this.currentQuestion = parsedQuestion;
             console.log('Parsed question structure is valid:', parsedQuestion);
@@ -713,7 +713,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Parse and validate the options
         let parsedOptions;
         try {
-          parsedOptions = JSON.parse(storedOptions);
+          parsedOptions = JSON.parse(storedOptions) || {};
           if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
             for (const [index, option] of parsedOptions.entries()) {
               if (
