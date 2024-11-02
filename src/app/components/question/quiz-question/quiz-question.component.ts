@@ -739,32 +739,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             const parsedQuestion = JSON.parse(storedQuestion);
             const parsedOptions = JSON.parse(storedOptions);
 
-            // Comprehensive check to ensure parsedQuestion is not null and has the expected properties
+            // Check if parsedQuestion is valid
             if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
                 this.currentQuestion = parsedQuestion;
             } else {
-                console.error('Parsed question structure is invalid:', parsedQuestion);
+                console.error('Parsed question structure is invalid or null:', parsedQuestion);
                 throw new Error('Invalid or null question format');
             }
 
-            // Validate parsedOptions structure with detailed logs
-            if (Array.isArray(parsedOptions)) {
-                const validOptions = parsedOptions.every(option => {
-                    if (option && 'optionText' in option && 'correct' in option) {
-                        return true;
-                    } else {
-                        console.warn('Invalid option format detected:', option);
-                        return false;
-                    }
-                });
-
-                if (validOptions) {
-                    this.optionsToDisplay = parsedOptions;
-                } else {
+            // Check if parsedOptions is a valid array with expected properties
+            if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
+                this.optionsToDisplay = parsedOptions.every(option => 
+                    option && typeof option === 'object' && 'optionText' in option && 'correct' in option
+                ) ? parsedOptions : [];
+                
+                if (this.optionsToDisplay.length === 0) {
                     throw new Error('Invalid or null options format');
                 }
             } else {
-                console.error('Parsed options are not an array:', parsedOptions);
+                console.error('Parsed options are not valid:', parsedOptions);
                 throw new Error('Invalid or null options format');
             }
 
