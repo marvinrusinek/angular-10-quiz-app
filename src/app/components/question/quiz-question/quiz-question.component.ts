@@ -304,7 +304,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Listen for the visibility change event
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.hidden) {
       this.saveQuizState();
@@ -312,8 +312,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.restoreQuizState();
       this.ngZone.run(() => this.handleQuizRestore());
     }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+      if (document.hidden) {
+          this.saveQuizState();
+      } else {
+          this.ngZone.run(() => {
+              this.restoreQuizState();
+              if (!this.isAnswered) {
+                  this.showQuestionText(); // Display question text if not answered
+              }
+          });
+      }
   }
-
 
   // Handle quiz restoration
   private async handleQuizRestore(): Promise<void> {
@@ -713,7 +725,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.optionsToDisplay = JSON.parse(storedOptions);
         this.isAnswered = storedIsAnswered === 'true'; // Restore isAnswered state
 
-        // Ensure that question text is displayed if the question is not answered
+        // Ensure the question text is displayed if the question is not answered
         if (!this.isAnswered) {
             this.showQuestionText();
         } else {
@@ -723,6 +735,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   }
+
 
   // Helper methods
   private showQuestionText(): void {
