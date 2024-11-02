@@ -2693,17 +2693,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       throw new Error(`Invalid index ${index}. No such question exists.`);
     }  
   
-    return new Promise((resolve, reject) => {
-      let subscription: Subscription | undefined; // Declare without initialization
-  
+    return new Promise((resolve, reject) => { 
       try {
-        subscription = this.quizService.getQuestionByIndex(index).subscribe({
+        const subscription: Subscription | undefined = this.quizService.getQuestionByIndex(index).subscribe({
           next: (question) => {
             if (question && question.questionText) {
               console.log(`Question loaded for index ${index}:`, question);
               subscription?.unsubscribe();
               resolve(); // Successfully loaded
             } else {
+              console.error(`No valid question at index ${index}`);
+              subscription?.unsubscribe();
               reject(new Error(`No valid question at index ${index}`));
             }
           },
