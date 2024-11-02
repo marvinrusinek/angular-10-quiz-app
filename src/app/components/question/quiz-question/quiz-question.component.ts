@@ -749,9 +749,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Helper methods
   private showQuestionText(): void {
     if (!this.isAnswered) {
-      this.explanationToDisplay = ''; // Ensure explanation text is cleared
+      this.explanationToDisplay = ''; // clear explanation text
       this.explanationToDisplayChange.emit('');
-      this.showExplanationChange.emit(false); // Ensure explanation is hidden
+      this.showExplanationChange.emit(false); // hide explanation
     } else {
       console.log('Skipping showQuestionText as the question is already answered');
     }
@@ -760,9 +760,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private async showExplanationText(): Promise<void> {
     if (this.isAnswered) {
       console.log('Showing explanation text');
-      this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-      this.showExplanationChange.emit(true);
+      try {
+        this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
+      }
     } else {
       console.log('Skipping showExplanationText as the question is not answered');
     }
