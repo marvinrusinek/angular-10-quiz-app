@@ -774,17 +774,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.optionsToDisplay = JSON.parse(storedOptions);
         this.isAnswered = storedIsAnswered === 'true';
 
-        console.log('Restored state:', {
-            currentQuestionIndex: this.currentQuestionIndex,
-            isAnswered: this.isAnswered,
-            questionText: this.currentQuestion.questionText,
-        });
+        // Ensure currentQuestion is valid before accessing its properties
+        if (this.currentQuestion) {
+            console.log('Restored state:', {
+                currentQuestionIndex: this.currentQuestionIndex,
+                isAnswered: this.isAnswered,
+                questionText: this.currentQuestion.questionText,
+            });
 
-        // Show appropriate UI based on the restored state
-        if (!this.isAnswered) {
-            this.showQuestionText();
+            if (!this.isAnswered) {
+                this.showQuestionText();
+            } else {
+                this.showExplanationText();
+            }
         } else {
-            this.showExplanationText();
+            console.warn('Restored question is null or undefined. Loading default question...');
+            this.loadQuestion();
         }
     } else {
         console.warn('Stored state is incomplete, loading default question');
