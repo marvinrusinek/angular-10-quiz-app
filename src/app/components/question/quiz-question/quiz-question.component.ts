@@ -324,7 +324,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     try {
       await this.loadQuizData();
-      this.setCurrentQuestion(this.currentQuestion); // Ensure the question is displayed correctly in the UI
+      if (this.currentQuestion) {
+        this.setCurrentQuestion(this.currentQuestion); // Ensure the question is displayed correctly in the UI
+      }
 
       // Ensure explanation is only shown if the question is answered
       const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
@@ -512,7 +514,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.optionsToDisplay = []; // Clear previous options
   
     // Set the current question only and render it
-    this.setCurrentQuestion(question);
+    if (question) {
+      this.setCurrentQuestion(question);
+    }
 
     this.loadOptionsForQuestion(question);
   
@@ -563,8 +567,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationToDisplayChange.emit('');  // Ensure UI is cleared
   
     // Set the current question and emit its explanation text
-    this.setCurrentQuestion(question);
-    this.emitExplanationText(question);  // Emit explanation after setting question
+    if (question) {
+      this.setCurrentQuestion(question);
+      this.emitExplanationText(question);  // Emit explanation after setting question
+    }
   }
 
   private emitExplanationText(question: QuizQuestion): void {
@@ -2967,7 +2973,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     try {
       // Set the question and trigger a re-render
-      this.setCurrentQuestion(currentQuestion);
+      if (currentQuestion) {
+        this.setCurrentQuestion(currentQuestion);
+      }
 
       // Wait for the question to be rendered before updating the explanation
       this.waitForQuestionRendering().then(() => {
