@@ -849,15 +849,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
         try {
             this.currentQuestionIndex = +storedIndex;
-
+            
             // Parse and validate the question
             let parsedQuestion;
             try {
                 parsedQuestion = JSON.parse(storedQuestion);
                 if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
                     this.currentQuestion = parsedQuestion;
+                    console.log('Parsed question structure is valid:', parsedQuestion);
                 } else {
-                    console.error('Parsed question structure is invalid or null:', parsedQuestion);
                     throw new Error('Invalid or null question format');
                 }
             } catch (parseError) {
@@ -874,7 +874,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                         if (
                             !option ||
                             typeof option !== 'object' ||
-                            !('text' in option) ||
+                            !('text' in option) || // Adjust property names as needed
                             !('correct' in option) ||
                             !('optionId' in option)
                         ) {
@@ -885,7 +885,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                     this.optionsToDisplay = parsedOptions;
                     console.log('Parsed options are valid:', parsedOptions);
                 } else {
-                    console.error('Parsed options are not valid or empty:', parsedOptions);
                     throw new Error('Invalid or null options format');
                 }
             } catch (parseError) {
@@ -894,6 +893,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             }
 
             this.isAnswered = storedIsAnswered === 'true';
+
             console.log('Restoring question:', this.currentQuestion);
             console.log('Restored isAnswered:', this.isAnswered);
 
