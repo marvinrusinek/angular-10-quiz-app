@@ -685,7 +685,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  /* private restoreQuizState(): void {
+  private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -765,54 +765,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
     }
-  } */
-  private restoreQuizState(): void {
-    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedQuestion = sessionStorage.getItem('currentQuestion');
-    const storedOptions = sessionStorage.getItem('optionsToDisplay');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered');
-
-    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
-        try {
-            this.currentQuestionIndex = +storedIndex;
-
-            // Parse and validate the question
-            const parsedQuestion = JSON.parse(storedQuestion);
-            if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
-                this.currentQuestion = parsedQuestion;
-                console.log('Restored question:', this.currentQuestion);
-            } else {
-                throw new Error('Invalid question format during restore.');
-            }
-
-            // Parse and validate the options
-            const parsedOptions = JSON.parse(storedOptions);
-            if (Array.isArray(parsedOptions) && parsedOptions.every(option => option && 'text' in option)) {
-                this.optionsToDisplay = parsedOptions;
-                console.log('Restored options:', this.optionsToDisplay);
-            } else {
-                throw new Error('Invalid options format during restore.');
-            }
-
-            this.isAnswered = storedIsAnswered === 'true';
-            console.log('Restored isAnswered:', this.isAnswered);
-
-            // Display question or explanation based on isAnswered state
-            if (this.isAnswered) {
-                this.showExplanationText();
-            } else {
-                this.showQuestionText();
-            }
-        } catch (error) {
-            console.error('Error parsing stored data or invalid format:', error);
-            this.loadQuestion();
-        }
-    } else {
-        console.warn('Stored state is incomplete. Loading default question.');
-        this.loadQuestion();
-    }
   }
-  
 
   // Helper methods
   private showQuestionText(): void {
