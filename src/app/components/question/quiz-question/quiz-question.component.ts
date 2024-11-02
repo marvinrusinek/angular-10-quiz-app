@@ -613,7 +613,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private setExplanationText(question: QuizQuestion): void {
     console.log('Calling setExplanationText() for question:', question.questionText);
 
-    const correctOptionIndices = this.getCorrectOptionIndices(question);
+    const correctOptionIndices = this.explanationTextService.getCorrectOptionIndices(question);
     const formattedExplanation = this.explanationTextService.formatExplanation(
       question,
       correctOptionIndices,
