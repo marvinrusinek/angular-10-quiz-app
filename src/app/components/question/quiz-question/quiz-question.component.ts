@@ -674,7 +674,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     );
   }
 
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -712,19 +712,66 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn('Stored state is incomplete, loading default question');
       this.loadQuestion();
     }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedOptions = sessionStorage.getItem('optionsToDisplay');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
+        try {
+            this.currentQuestionIndex = +storedIndex;
+            this.currentQuestion = JSON.parse(storedQuestion);
+            this.optionsToDisplay = JSON.parse(storedOptions);
+            this.isAnswered = storedIsAnswered === 'true';
+
+            if (this.currentQuestion && this.currentQuestion.questionText && Array.isArray(this.currentQuestion.options)) {
+                console.log('Restored state:', {
+                    currentQuestionIndex: this.currentQuestionIndex,
+                    isAnswered: this.isAnswered,
+                    questionText: this.currentQuestion.questionText,
+                });
+
+                // Always ensure question text is shown if not answered
+                if (!this.isAnswered) {
+                    this.showQuestionText();
+                } else {
+                    // Only show explanation if the question was answered before navigation
+                    this.showExplanationText();
+                }
+            } else {
+                console.warn('Restored question is null, undefined, or improperly structured. Loading default question...');
+                this.loadQuestion();
+            }
+        } catch (error) {
+            console.error('Error parsing stored state:', error);
+            this.loadQuestion(); // Load default if parsing fails
+        }
+    } else {
+        console.warn('Stored state is incomplete, loading default question');
+        this.loadQuestion();
+    }
   }
-  
+
   // Helper methods
-  private showQuestionText(): void {
+  /* private showQuestionText(): void {
     if (!this.isAnswered) {
       console.log('Displaying question text');
       this.explanationToDisplay = ''; 
       this.explanationToDisplayChange.emit('');
       this.showExplanationChange.emit(false);
     }
+  } */
+  private showQuestionText(): void {
+    if (!this.isAnswered) {
+        this.explanationToDisplay = ''; // Clear any explanation text
+        this.explanationToDisplayChange.emit('');
+        this.showExplanationChange.emit(false); // Hide the explanation display
+    }
   }
-  
-  private async showExplanationText(): Promise<void> {
+
+  /* private async showExplanationText(): Promise<void> {
     if (this.isAnswered) {
       console.log('Displaying explanation text');
       this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
@@ -732,6 +779,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.showExplanationChange.emit(true);
     } else {
       console.log('Explanation text display skipped because the question is not answered');
+    }
+  } */
+  private async showExplanationText(): Promise<void> {
+    if (this.isAnswered) {
+        console.log('Showing explanation text');
+        this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
     }
   }
 
