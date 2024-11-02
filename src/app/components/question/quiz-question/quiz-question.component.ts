@@ -713,7 +713,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.loadQuestion();
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -745,7 +745,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
     }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedOptions = sessionStorage.getItem('optionsToDisplay');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
+        this.currentQuestionIndex = +storedIndex;
+        this.currentQuestion = JSON.parse(storedQuestion);
+        this.optionsToDisplay = JSON.parse(storedOptions);
+        this.isAnswered = storedIsAnswered === 'true';
+
+        if (this.currentQuestion) {
+            console.log('Restored state:', {
+                currentQuestionIndex: this.currentQuestionIndex,
+                isAnswered: this.isAnswered,
+                questionText: this.currentQuestion.questionText,
+            });
+
+            if (!this.isAnswered) {
+                // Ensure explanation is cleared and question text is displayed
+                this.showQuestionText();
+            } else {
+                // Only show the explanation if the question is marked as answered
+                this.showExplanationText();
+            }
+        } else {
+            console.warn('Restored question is null or undefined. Loading default question...');
+            this.loadQuestion();
+        }
+    } else {
+        console.warn('Stored state is incomplete, loading default question');
+        this.loadQuestion();
+    }
   }
+
 
   // Helper methods
   /* private showQuestionText(): void {
@@ -784,6 +820,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('Not showing explanation as the question is not marked as answered');
     }
   }
+
 
   private initializeComponent(): void {
     // Load the first question or current question
