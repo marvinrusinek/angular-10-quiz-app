@@ -793,33 +793,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Helper methods
-  /* private showQuestionText(): void {
-    if (!this.isAnswered) {
-      console.log('Displaying question text');
-      this.explanationToDisplay = ''; 
-      this.explanationToDisplayChange.emit('');
-      this.showExplanationChange.emit(false);
-    }
-  } */
   private showQuestionText(): void {
     console.log('Executing showQuestionText, isAnswered:', this.isAnswered);
     if (!this.isAnswered) {
+        console.log('Clearing explanation text to display question text.');
         this.explanationToDisplay = ''; // Clear any explanation text
         this.explanationToDisplayChange.emit('');
         this.showExplanationChange.emit(false); // Hide the explanation display
+    } else {
+        console.log('Question is marked as answered, retaining explanation display.');
     }
   }
 
-  /* private async showExplanationText(): Promise<void> {
-    if (this.isAnswered) {
-      console.log('Displaying explanation text');
-      this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-      this.showExplanationChange.emit(true);
-    } else {
-      console.log('Explanation text display skipped because the question is not answered');
-    }
-  } */
   private async showExplanationText(): Promise<void> {
     try {
       if (this.isAnswered) {
