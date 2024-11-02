@@ -681,27 +681,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
-      this.currentQuestionIndex = +storedIndex;
-      this.currentQuestion = JSON.parse(storedQuestion);
-      this.optionsToDisplay = JSON.parse(storedOptions);
-      this.isAnswered = storedIsAnswered === 'true';
+      try {
+        this.currentQuestionIndex = +storedIndex;
+        this.currentQuestion = JSON.parse(storedQuestion);
+        this.optionsToDisplay = JSON.parse(storedOptions);
+        this.isAnswered = storedIsAnswered === 'true';
 
-      // Ensure currentQuestion is valid before accessing its properties
-      if (this.currentQuestion) {
-        console.log('Restored state:', {
-          currentQuestionIndex: this.currentQuestionIndex,
-          isAnswered: this.isAnswered,
-          questionText: this.currentQuestion.questionText,
-        });
+        // Validate currentQuestion structure
+        if (this.currentQuestion && this.currentQuestion.questionText && Array.isArray(this.currentQuestion.options)) {
+          console.log('Restored state:', {
+            currentQuestionIndex: this.currentQuestionIndex,
+            isAnswered: this.isAnswered,
+            questionText: this.currentQuestion.questionText
+          });
 
-        if (!this.isAnswered) {
-          this.showQuestionText();
+          if (!this.isAnswered) {
+            this.showQuestionText();
+          } else {
+            this.showExplanationText();
+          }
         } else {
-          this.showExplanationText();
+          console.warn('Restored question is null, undefined, or improperly structured. Loading default question...');
+          this.loadQuestion();
         }
-      } else {
-        console.warn('Restored question is null or undefined. Loading default question...');
-        this.loadQuestion();
+      } catch (error) {
+        console.error('Error parsing stored state:', error);
+        this.loadQuestion(); // Load default if parsing fails
       }
     } else {
       console.warn('Stored state is incomplete, loading default question');
