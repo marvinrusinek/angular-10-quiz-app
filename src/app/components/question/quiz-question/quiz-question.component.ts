@@ -189,26 +189,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     console.log('QuizStateService injected:', !!this.quizStateService);
 
-    this.sharedVisibilitySubscription =
-      this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
-        this.handlePageVisibilityChange(isHidden);
-    });
-
+    this.setupVisibilitySubscription();
     this.addVisibilityChangeListener();
     this.initializeRouteListener();
-
-    this.quizService
-      .getIsNavigatingToPrevious()
-      .subscribe(
-        (isNavigating) => (this.isNavigatingToPrevious = isNavigating)
-      );
-
-    this.quizService
-      .getTotalQuestionsCount()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((totalQuestions: number) => {
-        this.totalQuestions = totalQuestions;
-      });
+    this.subscribeToNavigationFlags();
+    this.subscribeToTotalQuestions();
   }
 
   async ngOnInit(): Promise<void> {
@@ -218,7 +203,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.initializeComponent();
       this.initializeComponentState();
       await this.initializeQuizDataAndRouting();
-      
+
       this.initializeFirstQuestion();
       this.setupSubscriptions();
       console.log('QuizQuestionComponent initialized successfully');
@@ -371,6 +356,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   onQuestionChange(question: QuizQuestion): void {
     this.questionAnswered.emit(question);
+  }
+
+  // Function to set up shared visibility subscription
+  private setupVisibilitySubscription(): void {
+    this.sharedVisibilitySubscription = this.sharedVisibilityService.pageVisibility$
+      .subscribe((isHidden) => {
+        this.handlePageVisibilityChange(isHidden);
+      });
   }
 
   addVisibilityChangeListener() {
