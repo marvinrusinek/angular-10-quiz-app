@@ -68,8 +68,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @Input() currentQuestionIndex = 0;
   @Input() previousQuestionIndex: number;
   @Input() quizId: string | null | undefined = '';
-  @Input() multipleAnswer: BehaviorSubject<boolean> =
-    new BehaviorSubject<boolean>(false);
+  @Input() multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   @Input() explanationText: string | null;
   @Input() isOptionSelected = false;
   @Input() showFeedback = false;
@@ -148,11 +147,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Correct and incorrect audio sources
   correctAudioSource: AudioItem = {
     url: '../../../../../../../assets/audio/sound-correct.mp3',
-    title: 'Correct Answer',
+    title: 'Correct Answer'
   };
   incorrectAudioSource: AudioItem = {
     url: '../../../../../../../assets/audio/sound-incorrect.mp3',
-    title: 'Incorrect Answer',
+    title: 'Incorrect Answer'
   };
 
   private destroy$: Subject<void> = new Subject<void>();
