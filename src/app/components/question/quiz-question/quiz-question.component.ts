@@ -305,7 +305,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
+  /* onVisibilityChange(): void {
     if (document.hidden) {
       this.saveQuizState();
     } else {
@@ -314,7 +314,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.handleQuizRestore(); // Ensure this method does not change the UI state prematurely
       });
     }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    console.log('Visibility changed. Document hidden:', document.hidden);
+    if (document.hidden) {
+      this.saveQuizState();
+    } else {
+      console.log('Restoring quiz state...');
+      this.restoreQuizState();
+      this.ngZone.run(() => this.handleQuizRestore());
+    }
   }
+
 
   // Handle quiz restoration
   private async handleQuizRestore(): Promise<void> {
@@ -810,13 +822,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */
   private async showExplanationText(): Promise<void> {
-    console.log('Executing showExplanationText, isAnswered:', this.isAnswered);
     if (this.isAnswered) {
+        console.log('Showing explanation text');
         this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
     } else {
         console.log('Not showing explanation as the question is not marked as answered');
+        this.explanationToDisplay = ''; // Ensure explanation is cleared when not answered
+        this.explanationToDisplayChange.emit('');
+        this.showExplanationChange.emit(false);
     }
   }
 
