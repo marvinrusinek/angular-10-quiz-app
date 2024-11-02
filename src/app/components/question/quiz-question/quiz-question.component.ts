@@ -304,13 +304,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Listen for the visibility change event
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.hidden) {
       this.saveQuizState();
     } else {
       this.restoreQuizState();
       this.ngZone.run(() => this.handleQuizRestore());
+    }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    if (document.hidden) {
+      this.saveQuizState();
+    } else {
+      this.ngZone.run(() => {
+        this.restoreQuizState();
+        this.handleQuizRestore(); // Ensure this method does not change the UI state prematurely
+      });
     }
   }
   /* @HostListener('window:visibilitychange', [])
@@ -724,7 +735,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.loadQuestion();
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -750,32 +761,50 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
       this.loadQuestion(); // Fallback if session storage is missing
     }
-  }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedOptions = sessionStorage.getItem('optionsToDisplay');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
   
+    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
+      this.currentQuestionIndex = +storedIndex;
+      this.currentQuestion = JSON.parse(storedQuestion);
+      this.optionsToDisplay = JSON.parse(storedOptions);
+      this.isAnswered = storedIsAnswered === 'true';
+  
+      console.log('Restored state:', {
+        currentQuestionIndex: this.currentQuestionIndex,
+        isAnswered: this.isAnswered,
+      });
+  
+      if (!this.isAnswered) {
+        this.showQuestionText();
+      } else {
+        this.showExplanationText();
+      }
+    } else {
+      this.loadQuestion();
+    }
+  }
   
   // Helper methods
   private showQuestionText(): void {
     if (!this.isAnswered) {
-      this.explanationToDisplay = ''; // clear explanation text
+      console.log('Displaying question text');
+      this.explanationToDisplay = ''; 
       this.explanationToDisplayChange.emit('');
-      this.showExplanationChange.emit(false); // hide explanation
-    } else {
-      console.log('Skipping showQuestionText as the question is already answered');
+      this.showExplanationChange.emit(false);
     }
   }
-
+  
   private async showExplanationText(): Promise<void> {
     if (this.isAnswered) {
-      console.log('Showing explanation text');
-      try {
-        this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-        this.showExplanationChange.emit(true);
-      } catch (error) {
-        console.error('Error fetching explanation text:', error);
-      }
-    } else {
-      console.log('Skipping showExplanationText as the question is not answered');
+      console.log('Displaying explanation text');
+      this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      this.showExplanationChange.emit(true);
     }
   }
 
