@@ -574,7 +574,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private emitExplanationText(question: QuizQuestion): void {
-    const correctOptionIndices = this.getCorrectOptionIndices(question);
+    const correctOptionIndices = this.explanationTextService.getCorrectOptionIndices(question);
     const formattedExplanation = this.explanationTextService.formatExplanation(
       question,
       correctOptionIndices,
@@ -625,12 +625,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizService.setNextExplanationText(formattedExplanation);
     this.explanationToDisplayChange.emit(formattedExplanation);
     this.showExplanationChange.emit(true);  // Show the explanation
-  }
-  
-  private getCorrectOptionIndices(question: QuizQuestion): number[] {
-    return question.options
-      .map((option, index) => (option.correct ? index : -1))
-      .filter((index) => index !== -1);
   }
   
   private setupSubscriptions(): void {
