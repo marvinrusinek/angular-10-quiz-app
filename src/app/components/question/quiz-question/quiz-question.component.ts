@@ -753,27 +753,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
-        this.currentQuestionIndex = +storedIndex;
-        this.currentQuestion = JSON.parse(storedQuestion);
-        this.optionsToDisplay = JSON.parse(storedOptions);
-        this.isAnswered = storedIsAnswered === 'true';
+      this.currentQuestionIndex = +storedIndex;
+      this.currentQuestion = JSON.parse(storedQuestion);
+      this.optionsToDisplay = JSON.parse(storedOptions);
+      this.isAnswered = storedIsAnswered === 'true';
 
-        if (this.currentQuestion) {
-            console.log('Restored question:', this.currentQuestion);
-            console.log('Restored isAnswered:', this.isAnswered);
+      if (this.currentQuestion) {
+        console.log('Restored question:', this.currentQuestion);
+        console.log('Restored isAnswered:', this.isAnswered);
 
-            if (!this.isAnswered) {
-                this.showQuestionText();
-            } else {
-                this.showExplanationText();
-            }
+        if (this.isAnswered) {
+          this.showExplanationText();
         } else {
-            console.warn('Restored question is null or undefined. Loading default question...');
-            this.loadQuestion();
+          this.showQuestionText();
         }
-    } else {
-        console.warn('Stored state is incomplete, loading default question');
+      } else {
+        console.warn('Restored question is null or undefined. Loading default question...');
         this.loadQuestion();
+      }
+    } else {
+      console.warn('Stored state is incomplete, loading default question');
+      this.loadQuestion();
     }
   }
 
