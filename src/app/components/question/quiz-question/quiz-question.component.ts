@@ -721,12 +721,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   private async showExplanationText(): Promise<void> {
     if (this.isAnswered) {
-        console.log('Displaying explanation text');
-        this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-        this.showExplanationChange.emit(true);
+      console.log('Displaying explanation text');
+      this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      this.showExplanationChange.emit(true);
     } else {
-        console.log('Explanation text display skipped because the question is not answered');
+      console.log('Explanation text display skipped because the question is not answered');
     }
   }
 
