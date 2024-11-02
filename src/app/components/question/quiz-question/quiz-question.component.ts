@@ -743,13 +743,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
                 this.currentQuestion = parsedQuestion;
             } else {
+                console.error('Parsed question structure is invalid:', parsedQuestion);
                 throw new Error('Invalid or null question format');
             }
 
-            // Validate parsedOptions structure
-            if (Array.isArray(parsedOptions) && parsedOptions.every(option => option && 'optionText' in option && 'correct' in option)) {
-                this.optionsToDisplay = parsedOptions;
+            // Validate parsedOptions structure with detailed logs
+            if (Array.isArray(parsedOptions)) {
+                const validOptions = parsedOptions.every(option => {
+                    if (option && 'optionText' in option && 'correct' in option) {
+                        return true;
+                    } else {
+                        console.warn('Invalid option format detected:', option);
+                        return false;
+                    }
+                });
+
+                if (validOptions) {
+                    this.optionsToDisplay = parsedOptions;
+                } else {
+                    throw new Error('Invalid or null options format');
+                }
             } else {
+                console.error('Parsed options are not an array:', parsedOptions);
                 throw new Error('Invalid or null options format');
             }
 
@@ -758,7 +773,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             console.log('Restoring question:', this.currentQuestion);
             console.log('Restored isAnswered:', this.isAnswered);
 
-            // Display logic based on `isAnswered` state
             if (this.currentQuestion) {
                 if (this.isAnswered) {
                     console.log('Displaying explanation since the question is answered.');
