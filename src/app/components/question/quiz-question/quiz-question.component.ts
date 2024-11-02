@@ -314,6 +314,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+
   // Handle quiz restoration
   private async handleQuizRestore(): Promise<void> {
     if (!(await this.ensureQuizIdExists())) {
@@ -672,7 +673,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     );
   }
 
-  private async restoreQuizState(): Promise<void> {
+  /* private async restoreQuizState(): Promise<void> {
     // Restore the state from session storage
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
@@ -699,7 +700,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
       this.loadQuestion();
     }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedOptions = sessionStorage.getItem('optionsToDisplay');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered'); // Retrieve isAnswered state
+
+    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
+        this.currentQuestionIndex = +storedIndex;
+        this.currentQuestion = JSON.parse(storedQuestion);
+        this.optionsToDisplay = JSON.parse(storedOptions);
+        this.isAnswered = storedIsAnswered === 'true'; // Restore isAnswered state
+
+        // Ensure that question text is displayed if the question is not answered
+        if (!this.isAnswered) {
+            this.showQuestionText();
+        } else {
+            this.showExplanationText();
+        }
+    } else {
+        this.loadQuestion();
+    }
   }
+
+  // Helper methods
+  private showQuestionText(): void {
+      this.explanationToDisplay = ''; // Ensure explanation text is cleared
+      this.explanationToDisplayChange.emit('');
+      this.showExplanationChange.emit(false); // Ensure explanation is hidden
+  }
+
+  private async showExplanationText(): Promise<void> {
+      this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      this.showExplanationChange.emit(true);
+  }
+
 
   private initializeComponent(): void {
     // Load the first question or current question
