@@ -537,8 +537,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizService.setNextExplanationText(formattedExplanation);
     this.explanationToDisplayChange.emit(formattedExplanation);
     this.showExplanationChange.emit(true);  // Show the explanation
-
-    this.cdRef.detectChanges();  // Ensure the UI reflects the latest changes
   }
   
   private getCorrectOptionIndices(question: QuizQuestion): number[] {
