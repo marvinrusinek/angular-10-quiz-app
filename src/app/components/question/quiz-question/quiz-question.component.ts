@@ -764,6 +764,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)) || '';
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
+      } catch (error) {
+        console.error('Error fetching explanation text:', error);
       }
     } else {
       console.log('Skipping showExplanationText as the question is not answered');
