@@ -746,7 +746,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   } */
-  private restoreQuizState(): void {
+  private async restoreQuizState(): Promise<void> {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -764,13 +764,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             console.log('Restored question:', this.currentQuestion);
             console.log('Restored isAnswered:', this.isAnswered);
 
-            if (!this.isAnswered) {
-                console.log('Showing question text after state restoration');
-                this.showQuestionText();
-            } else {
-                console.log('Showing explanation text after state restoration');
-                this.showExplanationText();
-            }
+            if (this.isAnswered) {
+              console.log('Showing explanation text after state restoration');
+              await this.showExplanationText();
+          } else {
+              console.log('Showing question text after state restoration');
+              this.showQuestionText();
+          }
         } else {
             console.warn('Restored question is null or undefined. Loading default question...');
             this.loadQuestion();
