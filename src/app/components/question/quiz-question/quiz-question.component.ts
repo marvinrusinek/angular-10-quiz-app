@@ -1080,7 +1080,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
     }
-  } */
+  }
 
   // Helper methods
   private showQuestionText(): void {
