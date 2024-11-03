@@ -823,54 +823,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 throw new Error('Invalid options format');
             } */
 
-            const parsedOptions = JSON.parse(storedOptions);
-            console.log('Parsed options:', parsedOptions);
-
-            if (Array.isArray(parsedOptions)) {
-                let isValid = true;
-
-                parsedOptions.forEach((option, index) => {
-                    const hasText = 'text' in option;
-                    const hasOptionId = 'optionId' in option;
-                    const hasCorrect = 'correct' in option || option.hasOwnProperty('correct');
-
-                    // Gather missing properties
-                    const missingProperties = [];
-                    if (!hasText) missingProperties.push('text');
-                    if (!hasOptionId) missingProperties.push('optionId');
-                    if (!hasCorrect) missingProperties.push('correct');
-
-                    // Log detailed inspection for each option
-                    if (missingProperties.length > 0) {
-                        console.error(`Invalid option structure detected at index ${index}:`, {
-                            option,
-                            type: typeof option,
-                            keys: Object.keys(option || {}),
-                            missingProperties
-                        });
-                        isValid = false;
-                    }
-                });
-
-                if (isValid) {
-                    this.optionsToDisplay = parsedOptions;
-                    console.log('Restored options successfully:', this.optionsToDisplay);
-                } else {
-                    console.error('Invalid or null options format detected in parsedOptions:', parsedOptions);
-                    this.loadQuestion(); // Fallback to default if parsing fails
-                    return;
-                }
-            } else {
-                console.error('Parsed options are not an array:', parsedOptions);
-                this.loadQuestion(); // Fallback to default if parsing fails
-                return;
-            }
-        } catch (error) {
-            console.error('Error parsing stored options:', error);
-            this.loadQuestion(); // Fallback to default if parsing fails
-            return;
-        }
-
         this.isAnswered = storedIsAnswered === 'true';
 
         // Conditional display logic
