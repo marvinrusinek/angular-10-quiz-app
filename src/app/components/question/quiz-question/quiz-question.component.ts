@@ -1008,48 +1008,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
         try {
             this.currentQuestionIndex = +storedIndex;
-
-            // Parse and validate the question
-            let parsedQuestion: QuizQuestion = JSON.parse(storedQuestion) || {};
-            if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
-                this.currentQuestion = parsedQuestion;
-            } else {
-                throw new Error('Invalid or null question format');
-            }
-
-            // Parse and validate the options
-            let parsedOptions = JSON.parse(storedOptions) || [];
-            if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
-                for (const [index, option] of parsedOptions.entries()) {
-                    if (!option || typeof option !== 'object' || !('text' in option)) {
-                        throw new Error(`Invalid or null options format at index ${index}`);
-                    }
-                }
-                this.optionsToDisplay = parsedOptions;
-            } else {
-                throw new Error('Invalid or null options format');
-            }
-
+            this.currentQuestion = JSON.parse(storedQuestion);
+            this.optionsToDisplay = JSON.parse(storedOptions);
             this.isAnswered = storedIsAnswered === 'true';
 
-            // Only display explanation if explicitly marked as answered
+            console.log('Restored state:', {
+                currentQuestion: this.currentQuestion,
+                currentQuestionIndex: this.currentQuestionIndex,
+                isAnswered: this.isAnswered
+            });
+
+            // Ensure `showExplanationText()` is only called if `isAnswered` is true
             if (this.isAnswered) {
+                console.log('Calling showExplanationText as question is marked answered.');
                 this.showExplanationText();
             } else {
+                console.log('Calling showQuestionText as question is not answered.');
                 this.showQuestionText();
             }
         } catch (error) {
-            console.error('Error parsing stored data or invalid data format:', error);
-            this.loadQuestion();
+            console.error('Error restoring quiz state:', error);
+            this.loadQuestion(); // Fallback to load a default question if parsing fails
         }
     } else {
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
     }
   }
-
-
-
 
   // Helper methods
   private showQuestionText(): void {
@@ -1088,19 +1073,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   private async showExplanationText(): Promise<void> {
     if (!this.isAnswered) {
-        console.log('Explanation text should not be shown as the question is not answered');
+        console.log('showExplanationText called but isAnswered is false, aborting.');
         return;
     }
-    
     try {
-        console.log('Showing explanation text');
+        console.log('Fetching explanation for current question index:', this.currentQuestionIndex);
         this.explanationToDisplay = await firstValueFrom(
             this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
         ) || '';
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
+        console.log('Explanation set successfully.');
     } catch (error) {
         console.error('Error fetching explanation text:', error);
+        this.explanationToDisplay = '';
+        this.explanationToDisplayChange.emit('');
+        this.showExplanationChange.emit(false);
     }
   }
 
