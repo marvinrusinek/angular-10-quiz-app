@@ -823,6 +823,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 throw new Error('Invalid options format');
             } */
 
+        } catch (error) {
+            console.error('Error parsing stored options:', error);
+            this.loadQuestion(); // Fallback to default if parsing fails
+            return;
+        }
+
         this.isAnswered = storedIsAnswered === 'true';
 
         // Conditional display logic
