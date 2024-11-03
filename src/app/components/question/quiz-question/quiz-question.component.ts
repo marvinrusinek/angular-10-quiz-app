@@ -788,7 +788,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           console.error('Invalid or null options format');
           this.loadQuestion(); // Fallback to default if parsing fails
           return;
-        } */
+        }*/
         if (
           Array.isArray(parsedOptions) &&
           parsedOptions.every((option, index) => {
