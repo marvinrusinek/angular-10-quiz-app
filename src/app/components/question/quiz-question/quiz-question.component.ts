@@ -772,7 +772,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
 
         // Parse and validate the options
-        const parsedOptions = JSON.parse(storedOptions);
+        /* const parsedOptions = JSON.parse(storedOptions);
         if (
             Array.isArray(parsedOptions) &&
             parsedOptions.every(option => 
@@ -788,7 +788,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             console.error('Invalid or null options format');
             this.loadQuestion(); // Fallback to default if parsing fails
             return;
+        } */
+        const parsedOptions = JSON.parse(storedOptions);
+        if (
+            Array.isArray(parsedOptions) &&
+            parsedOptions.every(option =>
+                option &&
+                typeof option === 'object' &&
+                'text' in option && // Required property
+                'optionId' in option && // Required property
+                // Optional properties can be checked without causing errors
+                ('correct' in option || option.hasOwnProperty('correct'))
+            )
+        ) {
+            this.optionsToDisplay = parsedOptions;
+        } else {
+            console.error('Invalid or null options format');
+            this.loadQuestion(); // Fallback to default if parsing fails
+            return;
         }
+
 
         this.isAnswered = storedIsAnswered === 'true';
 
