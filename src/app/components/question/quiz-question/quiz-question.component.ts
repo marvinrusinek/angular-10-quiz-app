@@ -924,7 +924,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.loadQuestion();
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -998,6 +998,54 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn('Stored state is incomplete, loading default question');
       this.loadQuestion();
     }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedOptions = sessionStorage.getItem('optionsToDisplay');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
+        try {
+            this.currentQuestionIndex = +storedIndex;
+
+            // Parse and validate the question
+            let parsedQuestion: QuizQuestion = JSON.parse(storedQuestion) || {};
+            if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
+                this.currentQuestion = parsedQuestion;
+            } else {
+                throw new Error('Invalid or null question format');
+            }
+
+            // Parse and validate the options
+            let parsedOptions = JSON.parse(storedOptions) || [];
+            if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
+                for (const [index, option] of parsedOptions.entries()) {
+                    if (!option || typeof option !== 'object' || !('text' in option)) {
+                        throw new Error(`Invalid or null options format at index ${index}`);
+                    }
+                }
+                this.optionsToDisplay = parsedOptions;
+            } else {
+                throw new Error('Invalid or null options format');
+            }
+
+            this.isAnswered = storedIsAnswered === 'true';
+
+            // Only display explanation if explicitly marked as answered
+            if (this.isAnswered) {
+                this.showExplanationText();
+            } else {
+                this.showQuestionText();
+            }
+        } catch (error) {
+            console.error('Error parsing stored data or invalid data format:', error);
+            this.loadQuestion();
+        }
+    } else {
+        console.warn('Stored state is incomplete, loading default question');
+        this.loadQuestion();
+    }
   }
 
 
@@ -1016,7 +1064,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private async showExplanationText(): Promise<void> {
+  /* private async showExplanationText(): Promise<void> {
     try {
       if (this.isAnswered) {
         console.log('Showing explanation text');
@@ -1037,8 +1085,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationToDisplayChange.emit('');
       this.showExplanationChange.emit(false);
     }
+  } */
+  private async showExplanationText(): Promise<void> {
+    if (!this.isAnswered) {
+        console.log('Explanation text should not be shown as the question is not answered');
+        return;
+    }
+    
+    try {
+        console.log('Showing explanation text');
+        this.explanationToDisplay = await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+        ) || '';
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
+    } catch (error) {
+        console.error('Error fetching explanation text:', error);
+    }
   }
-
 
   private initializeComponent(): void {
     // Load the first question or current question
