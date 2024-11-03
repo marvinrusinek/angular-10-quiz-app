@@ -728,7 +728,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Parse and validate the options
         const parsedOptions = JSON.parse(storedOptions);
         console.log('Parsed options:', parsedOptions);
-        /* if (
+        if (
           Array.isArray(parsedOptions) &&
           parsedOptions.every(option =>
           option &&
@@ -741,48 +741,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           console.log('Restored options:', this.optionsToDisplay);
         } else {
           console.error('Invalid or null options format');
-          this.loadQuestion(); // Fallback to default if parsing fails
-          return;
-        } */
-        if (Array.isArray(parsedOptions)) {
-          const allValid = parsedOptions.every((option, index) => {
-            // Check for the presence of each key and log results
-            const hasText = 'text' in option;
-            const hasOptionId = 'optionId' in option;
-            const hasCorrect = 'correct' in option || option.hasOwnProperty('correct');
-        
-            const isValid = option &&
-              typeof option === 'object' &&
-              hasText &&
-              hasOptionId &&
-              hasCorrect;
-        
-            if (!isValid) {
-              console.error(`Invalid option structure at index ${index}:`, {
-                option,
-                type: typeof option,
-                keys: Object.keys(option || {}),
-                missingProperties: {
-                  hasText,
-                  hasOptionId,
-                  hasCorrect,
-                },
-              });
-            }
-        
-            return isValid;
-          });
-        
-          if (allValid) {
-            this.optionsToDisplay = parsedOptions;
-            console.log('Restored options:', this.optionsToDisplay);
-          } else {
-            console.error('Invalid or null options format detected in parsedOptions:', parsedOptions);
-            this.loadQuestion(); // Fallback to default if parsing fails
-            return;
-          }
-        } else {
-          console.error('Parsed options are not an array or have an unexpected structure:', parsedOptions);
           this.loadQuestion(); // Fallback to default if parsing fails
           return;
         }
