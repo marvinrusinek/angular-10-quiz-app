@@ -772,23 +772,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
 
         // Parse and validate the options
-        /* const parsedOptions = JSON.parse(storedOptions);
-        if (
-            Array.isArray(parsedOptions) &&
-            parsedOptions.every(option => 
-                option && 
-                typeof option === 'object' && 
-                'text' in option && 
-                'correct' in option &&
-                'optionId' in option
-            )
-        ) {
-            this.optionsToDisplay = parsedOptions;
-        } else {
-            console.error('Invalid or null options format');
-            this.loadQuestion(); // Fallback to default if parsing fails
-            return;
-        } */
         const parsedOptions = JSON.parse(storedOptions);
         if (
             Array.isArray(parsedOptions) &&
