@@ -790,7 +790,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             return;
         } */
         const parsedOptions = JSON.parse(storedOptions);
-           /* if (
+           if (
                 Array.isArray(parsedOptions) &&
                 parsedOptions.every(option =>
                     option &&
@@ -806,38 +806,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 console.error('Invalid or null options format');
                 this.loadQuestion(); // Fallback to default if parsing fails
                 return;
-            } */
-            if (
-              Array.isArray(parsedOptions) &&
-              parsedOptions.every((option, index) => {
-                  console.log(`Inspecting option at index ${index}:`, option);
-          
-                  // Check type and structure of each option
-                  const isValid = 
-                      option &&
-                      typeof option === 'object' &&
-                      'text' in option &&
-                      'optionId' in option &&
-                      ('correct' in option || option.hasOwnProperty('correct'));
-          
-                  if (!isValid) {
-                      console.error(`Invalid option structure at index ${index}:`, {
-                          option,
-                          type: typeof option,
-                          keys: Object.keys(option || {}),
-                      });
-                  }
-                  
-                  return isValid;
-              })
-          ) {
-              this.optionsToDisplay = parsedOptions;
-              console.log('Restored options:', this.optionsToDisplay);
-          } else {
-              console.error('Invalid or null options format detected in parsedOptions:', parsedOptions);
-              this.loadQuestion(); // Fallback to default if parsing fails
-              return;
-          }
+            }
 
         this.isAnswered = storedIsAnswered === 'true';
 
