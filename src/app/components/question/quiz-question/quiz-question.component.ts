@@ -772,16 +772,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
 
         // Parse and validate the options
-        /* const parsedOptions = JSON.parse(storedOptions);
+        const parsedOptions = JSON.parse(storedOptions);
         if (
             Array.isArray(parsedOptions) &&
-            parsedOptions.every(option =>
-                option &&
-                typeof option === 'object' &&
-                'text' in option && // Required property
-                'optionId' in option && // Required property
-                // Optional properties can be checked without causing errors
-                ('correct' in option || option.hasOwnProperty('correct'))
+            parsedOptions.every(option => 
+                option && 
+                typeof option === 'object' && 
+                'text' in option && 
+                'correct' in option &&
+                'optionId' in option
             )
         ) {
             this.optionsToDisplay = parsedOptions;
@@ -789,42 +788,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             console.error('Invalid or null options format');
             this.loadQuestion(); // Fallback to default if parsing fails
             return;
-        } */
-        // Parse and validate the options
-        console.log('Raw storedOptions:', storedOptions);
-        const parsedOptions = JSON.parse(storedOptions);
-        console.log('Parsed options:', parsedOptions);
-        console.log('Parsed options before validation:', parsedOptions); // Log parsed options before validation
-        console.log('Checking if parsedOptions is an array and has valid structure...');
-
-        if (
-            Array.isArray(parsedOptions) &&
-            parsedOptions.every(option => {
-                console.log('Validating each option structure...');
-                const isValid = option &&
-                    typeof option === 'object' &&
-                    'text' in option && // Required property
-                    'optionId' in option && // Required property
-                    // Optional properties can be checked without causing errors
-                    ('correct' in option || option.hasOwnProperty('correct'));
-                
-                if (!isValid) {
-                    console.error(`Invalid option structure at index ${parsedOptions.indexOf(option)}:`, option);
-                }
-                
-                return isValid; // Ensure isValid is returned as part of the every() check
-            })
-        ) {
-            this.optionsToDisplay = parsedOptions;
-            console.log('Parsed options are valid:', parsedOptions); // Log validated options
-        } else {
-            console.error('Invalid or null options format:', parsedOptions);
-            this.loadQuestion(); // Fallback to default if parsing fails
-            return;
         }
-
-
-
 
         this.isAnswered = storedIsAnswered === 'true';
 
