@@ -1095,44 +1095,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  /* private async showExplanationText(): Promise<void> {
-    try {
-      if (this.isAnswered) {
-        console.log('Showing explanation text');
+  private async showExplanationText(): Promise<void> {
+    if (this.isAnswered) {
+      try {
         this.explanationToDisplay = await firstValueFrom(
           this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
         ) || '';
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
-      } else {
-        console.log('Not showing explanation as the question is not marked as answered');
-        this.explanationToDisplay = ''; // Clear explanation when not answered
+        console.log('Explanation text displayed.');
+      } catch (error) {
+        console.error('Error fetching explanation text:', error);
+        this.explanationToDisplay = ''; // Clear if error occurs
         this.explanationToDisplayChange.emit('');
         this.showExplanationChange.emit(false);
       }
-    } catch (error) {
-      console.error('Error fetching explanation text:', error);
-      this.explanationToDisplay = ''; // Ensure explanation is cleared if an error occurs
-      this.explanationToDisplayChange.emit('');
-      this.showExplanationChange.emit(false);
-    }
-  } */
-
-  private async showExplanationText(): Promise<void> {
-    if (this.isAnswered) {
-        try {
-            this.explanationToDisplay = await firstValueFrom(
-                this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-            ) || '';
-            this.explanationToDisplayChange.emit(this.explanationToDisplay);
-            this.showExplanationChange.emit(true);
-            console.log('Explanation text displayed.');
-        } catch (error) {
-            console.error('Error fetching explanation text:', error);
-            this.explanationToDisplay = ''; // Clear if error occurs
-            this.explanationToDisplayChange.emit('');
-            this.showExplanationChange.emit(false);
-        }
     }
   }
 
