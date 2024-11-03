@@ -727,7 +727,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Parse and validate the options
         const parsedOptions = JSON.parse(storedOptions);
-        if (
+        console.log('Parsed options:', parsedOptions);
+        /* if (
           Array.isArray(parsedOptions) &&
           parsedOptions.every(option =>
           option &&
@@ -742,35 +743,45 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           console.error('Invalid or null options format');
           this.loadQuestion(); // Fallback to default if parsing fails
           return;
-        }
-        /* if (
+        } */
+        if (
           Array.isArray(parsedOptions) &&
           parsedOptions.every((option, index) => {
-            // Check the existence of required properties
             const hasText = 'text' in option;
             const hasOptionId = 'optionId' in option;
-            const hasCorrect = option.hasOwnProperty('correct'); // Checks existence, not value
+            const hasCorrect = 'correct' in option || option.hasOwnProperty('correct');
         
-            // Log if any validation fails for an option
-            if (!(hasText && hasOptionId && hasCorrect)) {
+            const isValid =
+              option &&
+              typeof option === 'object' &&
+              hasText &&
+              hasOptionId &&
+              hasCorrect;
+        
+            if (!isValid) {
               console.error(`Invalid option structure at index ${index}:`, {
                 option,
-                hasText,
-                hasOptionId,
-                hasCorrect,
+                type: typeof option,
+                keys: Object.keys(option || {}),
+                missingProperties: {
+                  hasText,
+                  hasOptionId,
+                  hasCorrect
+                }
               });
             }
         
-            return hasText && hasOptionId && hasCorrect;
+            return isValid;
           })
         ) {
           this.optionsToDisplay = parsedOptions;
-          console.log('Restored options:', this.optionsToDisplay);
+          console.log('Restored options are valid:', this.optionsToDisplay);
         } else {
           console.error('Invalid or null options format detected in parsedOptions:', parsedOptions);
           this.loadQuestion(); // Fallback to default if parsing fails
           return;
-        } */
+        }
+
 
         this.isAnswered = storedIsAnswered === 'true';
 
