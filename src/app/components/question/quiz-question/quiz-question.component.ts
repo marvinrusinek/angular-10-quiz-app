@@ -746,7 +746,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         } */
         if (Array.isArray(parsedOptions)) {
           const allValid = parsedOptions.every((option, index) => {
-            // Validate each option and track which properties are missing
+            // Check for the presence of each key and log results
             const hasText = 'text' in option;
             const hasOptionId = 'optionId' in option;
             const hasCorrect = 'correct' in option || option.hasOwnProperty('correct');
