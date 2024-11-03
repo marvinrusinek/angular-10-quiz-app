@@ -761,7 +761,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -788,7 +788,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Parse and validate the options
         try {
-            /* const parsedOptions = JSON.parse(storedOptions);
+            const parsedOptions = JSON.parse(storedOptions);
             console.log('Parsed options:', parsedOptions);
 
             if (Array.isArray(parsedOptions)) {
@@ -821,7 +821,93 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             } else {
                 console.error('Parsed options are not an array:', parsedOptions);
                 throw new Error('Invalid options format');
-            } */
+            }
+
+        } catch (error) {
+            console.error('Error parsing stored options:', error);
+            this.loadQuestion(); // Fallback to default if parsing fails
+            return;
+        }
+
+        this.isAnswered = storedIsAnswered === 'true';
+
+        // Conditional display logic
+        if (this.isAnswered) {
+            console.log('Displaying explanation as question is marked answered.');
+            this.showExplanationText();
+        } else {
+            console.log('Displaying question text as question is not answered.');
+            this.showQuestionText();
+        }
+    } else {
+        console.warn('Stored state is incomplete, loading default question');
+        this.loadQuestion();
+    }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedOptions = sessionStorage.getItem('optionsToDisplay');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
+        this.currentQuestionIndex = +storedIndex;
+
+        // Parse and validate the question
+        try {
+            const parsedQuestion = JSON.parse(storedQuestion);
+            console.log('Parsed question:', parsedQuestion);
+            if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
+                this.currentQuestion = parsedQuestion;
+            } else {
+                console.error('Invalid or null question format:', parsedQuestion);
+                throw new Error('Invalid question structure');
+            }
+        } catch (error) {
+            console.error('Error parsing stored question:', error);
+            this.loadQuestion(); // Fallback to default question if parsing fails
+            return;
+        }
+
+        // Parse and validate the options
+        try {
+            const parsedOptions = JSON.parse(storedOptions);
+            console.log('Parsed options:', parsedOptions);
+
+            if (Array.isArray(parsedOptions)) {
+                let valid = true;
+
+                parsedOptions.forEach((option, index) => {
+                    const hasText = 'text' in option;
+                    const hasOptionId = 'optionId' in option;
+                    const hasCorrect = option.hasOwnProperty('correct');
+
+                    if (!hasText || !hasOptionId || !hasCorrect) {
+                        console.error(`Invalid option structure detected at index ${index}:`, {
+                            option,
+                            type: typeof option,
+                            keys: Object.keys(option || {}),
+                            missingProperties: {
+                                hasText,
+                                hasOptionId,
+                                hasCorrect
+                            }
+                        });
+                        valid = false;
+                    }
+                });
+
+                if (valid) {
+                    this.optionsToDisplay = parsedOptions;
+                    console.log('Restored options:', this.optionsToDisplay);
+                } else {
+                    console.error('Invalid or null options format detected in parsedOptions:', parsedOptions);
+                    throw new Error('Invalid options structure');
+                }
+            } else {
+                console.error('Parsed options are not an array:', parsedOptions);
+                throw new Error('Invalid options format');
+            }
 
         } catch (error) {
             console.error('Error parsing stored options:', error);
@@ -844,6 +930,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   }
+
 
   // Helper methods
   private showQuestionText(): void {
