@@ -706,52 +706,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
   
-  /* private restoreQuizState(): void {
-    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedQuestion = sessionStorage.getItem('currentQuestion');
-    const storedOptions = sessionStorage.getItem('optionsToDisplay');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered');
-
-    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
-        try {
-            this.currentQuestionIndex = +storedIndex;
-
-            // Parse and validate question
-            const parsedQuestion = JSON.parse(storedQuestion);
-            if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
-                this.currentQuestion = parsedQuestion;
-            } else {
-                throw new Error('Invalid or null question format');
-            }
-
-            // Parse and validate options
-            const parsedOptions = JSON.parse(storedOptions);
-            if (Array.isArray(parsedOptions) && parsedOptions.every(option => 'text' in option && 'correct' in option)) {
-                this.optionsToDisplay = parsedOptions;
-            } else {
-                throw new Error('Invalid or null options format');
-            }
-
-            this.isAnswered = storedIsAnswered === 'true';
-
-            // Conditional display logic
-            if (this.isAnswered) {
-                console.log('Displaying explanation as question is marked answered.');
-                this.showExplanationText();
-            } else {
-                console.log('Displaying question text as question is not answered.');
-                this.showQuestionText();
-            }
-
-        } catch (error) {
-            console.error('Error parsing stored data or invalid data format:', error);
-            this.loadQuestion(); // Fallback if parsing fails
-        }
-    } else {
-        console.warn('Stored state is incomplete, loading default question');
-        this.loadQuestion();
-    }
-  } */
   private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
