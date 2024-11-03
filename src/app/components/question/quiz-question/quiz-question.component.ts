@@ -746,26 +746,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         } */
         if (Array.isArray(parsedOptions)) {
           const allValid = parsedOptions.every((option, index) => {
-            const hasRequiredProps = option &&
-              typeof option === 'object' &&
-              'text' in option &&
-              'optionId' in option &&
-              ('correct' in option || option.hasOwnProperty('correct'));
+            // Validate each option and track which properties are missing
+            const hasText = 'text' in option;
+            const hasOptionId = 'optionId' in option;
+            const hasCorrect = 'correct' in option || option.hasOwnProperty('correct');
         
-            if (!hasRequiredProps) {
+            const isValid = option &&
+              typeof option === 'object' &&
+              hasText &&
+              hasOptionId &&
+              hasCorrect;
+        
+            if (!isValid) {
               console.error(`Invalid option structure at index ${index}:`, {
                 option,
                 type: typeof option,
                 keys: Object.keys(option || {}),
                 missingProperties: {
-                  hasText: 'text' in option,
-                  hasOptionId: 'optionId' in option,
-                  hasCorrect: 'correct' in option || option.hasOwnProperty('correct'),
+                  hasText,
+                  hasOptionId,
+                  hasCorrect,
                 },
               });
             }
         
-            return hasRequiredProps;
+            return isValid;
           });
         
           if (allValid) {
@@ -777,11 +782,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             return;
           }
         } else {
-          console.error('Parsed options are not an array:', parsedOptions);
+          console.error('Parsed options are not an array or have an unexpected structure:', parsedOptions);
           this.loadQuestion(); // Fallback to default if parsing fails
           return;
         }
-        
+
 
         this.isAnswered = storedIsAnswered === 'true';
 
