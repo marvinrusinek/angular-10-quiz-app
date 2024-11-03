@@ -726,7 +726,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
 
         // Parse and validate the options
-        const parsedOptions = JSON.parse(storedOptions);
+        // const parsedOptions = JSON.parse(storedOptions);
         /* if (
           Array.isArray(parsedOptions) &&
           parsedOptions.every(option =>
