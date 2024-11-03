@@ -188,24 +188,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     );
 
     console.log('QuizStateService injected:', !!this.quizStateService);
-
-    this.setupVisibilitySubscription();
-    this.addVisibilityChangeListener();
-    this.initializeRouteListener();
-    this.subscribeToNavigationFlags();
-    this.subscribeToTotalQuestions();
   }
 
   async ngOnInit(): Promise<void> {
     try {
+      // Call the parent class's ngOnInit method
       super.ngOnInit();
   
+      // Initial component setups
       this.initializeComponent();
       this.initializeComponentState();
       await this.initializeQuizDataAndRouting();
-
       this.initializeFirstQuestion();
+  
+      // Setup for visibility and routing
+      this.setupVisibilitySubscription();
+      this.addVisibilityChangeListener();
+      this.initializeRouteListener();
+  
+      // Additional subscriptions and state tracking
       this.setupSubscriptions();
+      this.subscribeToNavigationFlags();
+      this.subscribeToTotalQuestions();
+  
       console.log('QuizQuestionComponent initialized successfully');
     } catch (error) {
       console.error('Error in ngOnInit:', error);
