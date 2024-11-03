@@ -833,26 +833,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                     const hasText = 'text' in option;
                     const hasOptionId = 'optionId' in option;
                     const hasCorrect = 'correct' in option || option.hasOwnProperty('correct');
-                    
+
+                    // Gather missing properties
                     const missingProperties = [];
                     if (!hasText) missingProperties.push('text');
                     if (!hasOptionId) missingProperties.push('optionId');
                     if (!hasCorrect) missingProperties.push('correct');
 
-                    // Log details with missing properties information
-                    console.log(`Option at index ${index}:`, {
-                        option,
-                        type: typeof option,
-                        keys: Object.keys(option || {}),
-                        hasText,
-                        hasOptionId,
-                        hasCorrect,
-                        missingProperties
-                    });
-
+                    // Log detailed inspection for each option
                     if (missingProperties.length > 0) {
                         console.error(`Invalid option structure detected at index ${index}:`, {
                             option,
+                            type: typeof option,
+                            keys: Object.keys(option || {}),
                             missingProperties
                         });
                         isValid = false;
