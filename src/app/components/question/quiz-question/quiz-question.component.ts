@@ -781,6 +781,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.loadQuestion(); // Fallback to default if parsing fails
           return;
         }
+        
 
         this.isAnswered = storedIsAnswered === 'true';
 
