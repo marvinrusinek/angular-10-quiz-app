@@ -67,9 +67,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   isOptionSelected = false;
   optionIconClass: string;
 
-  optionTextStyle = {
-    color: 'black'
-  };
+  optionTextStyle = { color: 'black' };
 
   constructor(
     private quizService: QuizService,
