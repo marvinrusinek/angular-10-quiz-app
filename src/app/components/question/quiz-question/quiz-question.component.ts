@@ -743,7 +743,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.loadQuestion(); // Fallback to default if parsing fails
           return;
         } */
-        if (
+        /* if (
           Array.isArray(parsedOptions) &&
           parsedOptions.every((option, index) => {
             // Check the existence of required properties
@@ -770,7 +770,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           console.error('Invalid or null options format detected in parsedOptions:', parsedOptions);
           this.loadQuestion(); // Fallback to default if parsing fails
           return;
-        }
+        } */
 
         this.isAnswered = storedIsAnswered === 'true';
 
