@@ -875,12 +875,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             console.log('Parsed options:', parsedOptions);
 
             if (Array.isArray(parsedOptions)) {
-                let valid = true;
+                const invalidIndexes = [];
 
                 parsedOptions.forEach((option, index) => {
                     const hasText = 'text' in option;
                     const hasOptionId = 'optionId' in option;
-                    const hasCorrect = option.hasOwnProperty('correct');
+                    const hasCorrect = 'correct' in option || option.hasOwnProperty('correct');
 
                     if (!hasText || !hasOptionId || !hasCorrect) {
                         console.error(`Invalid option structure detected at index ${index}:`, {
@@ -893,15 +893,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                                 hasCorrect
                             }
                         });
-                        valid = false;
+                        invalidIndexes.push(index);
                     }
                 });
 
-                if (valid) {
+                if (invalidIndexes.length === 0) {
                     this.optionsToDisplay = parsedOptions;
                     console.log('Restored options:', this.optionsToDisplay);
                 } else {
-                    console.error('Invalid or null options format detected in parsedOptions:', parsedOptions);
+                    console.error('Invalid or null options format detected at indexes:', invalidIndexes);
                     throw new Error('Invalid options structure');
                 }
             } else {
@@ -930,6 +930,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   }
+
 
 
   // Helper methods
