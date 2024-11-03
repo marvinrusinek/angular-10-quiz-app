@@ -850,7 +850,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.loadQuestion();
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -923,7 +923,83 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn('Stored state is incomplete, loading default question');
       this.loadQuestion();
     }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedOptions = sessionStorage.getItem('optionsToDisplay');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
+      try {
+        this.currentQuestionIndex = +storedIndex;
+        
+        // Parse and validate the question
+        let parsedQuestion: QuizQuestion;
+        try {
+          parsedQuestion = JSON.parse(storedQuestion) || {};
+          if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
+            this.currentQuestion = parsedQuestion;
+            console.log('Parsed question structure is valid:', parsedQuestion);
+          } else {
+            console.error('Parsed question structure is invalid or null:', parsedQuestion);
+            throw new Error('Invalid or null question format');
+          }
+        } catch (parseError) {
+          console.error('Error parsing stored question:', parseError);
+          throw new Error('Fallback to default question due to parsing error');
+        }
+
+        // Parse and validate the options
+        let parsedOptions;
+        try {
+          parsedOptions = JSON.parse(storedOptions) || [];
+          if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
+            for (const [index, option] of parsedOptions.entries()) {
+              if (
+                !option ||
+                typeof option !== 'object' ||
+                !('text' in option) ||
+                !('optionId' in option)
+              ) {
+                console.error(`Invalid option structure at index ${index}:`, option);
+                throw new Error(`Invalid or null options format at index ${index}`);
+              }
+            }
+            this.optionsToDisplay = parsedOptions;
+            console.log('Parsed options are valid:', parsedOptions);
+          } else {
+            console.error('Parsed options are not valid or empty:', parsedOptions);
+            throw new Error('Invalid or null options format');
+          }
+        } catch (parseError) {
+          console.error('Error parsing stored options:', parseError);
+          throw new Error('Fallback to default options due to parsing error');
+        }
+
+        this.isAnswered = storedIsAnswered === 'true';
+
+        console.log('Restoring question:', this.currentQuestion);
+        console.log('Restored isAnswered:', this.isAnswered);
+
+        // Only set explanation text when isAnswered is true
+        if (this.isAnswered) {
+          console.log('Displaying explanation since the question is answered.');
+          this.showExplanationText();
+        } else {
+          console.log('Displaying question text since the question is not answered.');
+          this.showQuestionText();
+        }
+      } catch (error) {
+        console.error('Error parsing stored data or invalid data format:', error);
+        this.loadQuestion(); // Fallback if parsing fails
+      }
+    } else {
+      console.warn('Stored state is incomplete, loading default question');
+      this.loadQuestion();
+    }
   }
+
 
 
 
