@@ -679,7 +679,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return this.selectedOptions && this.selectedOptions.length > 0;
   }
 
-  /* private saveQuizState(): void {
+  private saveQuizState(): void {
     try {
         // Save current question index
         sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
@@ -704,37 +704,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
         console.error('Error saving quiz state:', error);
     }
-  } */
-  private saveQuizState(): void {
-    try {
-        // Save current question index
-        sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
-
-        // Validate and save current question
-        if (this.currentQuestion && typeof this.currentQuestion === 'object' && 'questionText' in this.currentQuestion) {
-            sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
-        } else {
-            console.warn('Invalid or incomplete current question. Removing stored question.');
-            sessionStorage.removeItem('currentQuestion');
-        }
-
-        // Validate and save options
-        if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.every(option => 
-            option && typeof option === 'object' && 'text' in option && 'optionId' in option
-        )) {
-            sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
-        } else {
-            console.warn('Invalid or incomplete options. Removing stored options.');
-            sessionStorage.removeItem('optionsToDisplay');
-        }
-
-        sessionStorage.setItem('isAnswered', this.isAnswered.toString());
-    } catch (error) {
-        console.error('Error saving quiz state:', error);
-    }
   }
   
-  /* private restoreQuizState(): void {
+  private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -804,54 +776,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
       console.warn('Stored state is incomplete, loading default question');
       this.loadQuestion();
-    }
-  } */
-  private restoreQuizState(): void {
-    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedQuestion = sessionStorage.getItem('currentQuestion');
-    const storedOptions = sessionStorage.getItem('optionsToDisplay');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered');
-
-    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
-        try {
-            this.currentQuestionIndex = +storedIndex;
-
-            // Parse and validate question
-            const parsedQuestion = JSON.parse(storedQuestion);
-            if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
-                this.currentQuestion = parsedQuestion;
-                console.log('Parsed question structure is valid:', parsedQuestion);
-            } else {
-                throw new Error('Invalid or null question format');
-            }
-
-            // Parse and validate options
-            const parsedOptions = JSON.parse(storedOptions);
-            if (Array.isArray(parsedOptions) && parsedOptions.every((option, index) => 
-                option && typeof option === 'object' && 'text' in option && 'optionId' in option
-            )) {
-                this.optionsToDisplay = parsedOptions;
-                console.log('Parsed options are valid:', parsedOptions);
-            } else {
-                console.error('Invalid option structure detected:', parsedOptions);
-                throw new Error('Invalid or null options format');
-            }
-
-            this.isAnswered = storedIsAnswered === 'true';
-
-            // Display logic
-            if (this.isAnswered) {
-                this.showExplanationText();
-            } else {
-                this.showQuestionText();
-            }
-        } catch (error) {
-            console.error('Error parsing stored data or invalid data format:', error);
-            this.loadQuestion(); // Fallback if parsing fails
-        }
-    } else {
-        console.warn('Stored state is incomplete, loading default question');
-        this.loadQuestion();
     }
   }
 
