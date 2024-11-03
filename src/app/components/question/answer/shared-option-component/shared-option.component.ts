@@ -24,14 +24,10 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
 export class SharedOptionComponent implements OnInit, OnChanges {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
-  @Output() optionClicked = new EventEmitter<{
-    option: SelectedOption,
-    index: number,
-    checked: boolean
-  }>();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
+  @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
+  @Output() optionSelected = new EventEmitter<{ option: Option, index: number, checked: boolean }>();
   @Output() optionChanged = new EventEmitter<Option>();
-  @Output() optionSelected = new EventEmitter<{option: Option, index: number, checked: boolean}>();
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
