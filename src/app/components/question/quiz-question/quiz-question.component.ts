@@ -186,8 +186,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       selectedOptionService,
       cdRef
     );
-
-    console.log('QuizStateService injected:', !!this.quizStateService);
   }
 
   async ngOnInit(): Promise<void> {
