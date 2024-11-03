@@ -827,14 +827,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             console.log('Parsed options:', parsedOptions);
 
             if (Array.isArray(parsedOptions)) {
-                let valid = true;
+                let isValid = true;
 
                 parsedOptions.forEach((option, index) => {
                     const hasText = 'text' in option;
                     const hasOptionId = 'optionId' in option;
                     const hasCorrect = 'correct' in option || option.hasOwnProperty('correct');
+                    
+                    const missingProperties = [];
+                    if (!hasText) missingProperties.push('text');
+                    if (!hasOptionId) missingProperties.push('optionId');
+                    if (!hasCorrect) missingProperties.push('correct');
 
-                    // Log detailed information about the option and its properties
+                    // Log details with missing properties information
                     console.log(`Option at index ${index}:`, {
                         option,
                         type: typeof option,
@@ -842,22 +847,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                         hasText,
                         hasOptionId,
                         hasCorrect,
+                        missingProperties
                     });
 
-                    if (!hasText || !hasOptionId || !hasCorrect) {
+                    if (missingProperties.length > 0) {
                         console.error(`Invalid option structure detected at index ${index}:`, {
                             option,
-                            missingProperties: {
-                                hasText,
-                                hasOptionId,
-                                hasCorrect,
-                            }
+                            missingProperties
                         });
-                        valid = false;
+                        isValid = false;
                     }
                 });
 
-                if (valid) {
+                if (isValid) {
                     this.optionsToDisplay = parsedOptions;
                     console.log('Restored options successfully:', this.optionsToDisplay);
                 } else {
@@ -870,8 +872,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 this.loadQuestion(); // Fallback to default if parsing fails
                 return;
             }
-
-
         } catch (error) {
             console.error('Error parsing stored options:', error);
             this.loadQuestion(); // Fallback to default if parsing fails
