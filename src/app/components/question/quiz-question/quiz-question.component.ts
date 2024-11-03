@@ -1091,29 +1091,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try {
             this.currentQuestionIndex = +storedIndex;
 
-            // Parse and validate the question
+            // Parse and validate question
             const parsedQuestion = JSON.parse(storedQuestion);
             if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
                 this.currentQuestion = parsedQuestion;
-                console.log('Parsed question structure is valid:', parsedQuestion);
             } else {
-                console.error('Invalid question structure:', parsedQuestion);
+                console.error('Invalid or null question format:', parsedQuestion);
                 throw new Error('Invalid or null question format');
             }
 
-            // Parse and validate the options
+            // Parse and validate options
             const parsedOptions = JSON.parse(storedOptions);
-            if (Array.isArray(parsedOptions) && parsedOptions.every((option, index) => {
-                if (option && typeof option === 'object' && 'text' in option && 'correct' in option) {
-                    return true;
-                } else {
-                    console.error(`Invalid option structure at index ${index}:`, option);
-                    return false;
+            if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
+                for (let index = 0; index < parsedOptions.length; index++) {
+                    const option = parsedOptions[index];
+                    if (
+                        !option ||
+                        typeof option !== 'object' ||
+                        !('text' in option) ||
+                        !('correct' in option) ||
+                        !('optionId' in option)
+                    ) {
+                        console.error(`Invalid option structure at index ${index}:`, option);
+                        throw new Error(`Invalid or null options format at index ${index}`);
+                    }
                 }
-            })) {
                 this.optionsToDisplay = parsedOptions;
-                console.log('Parsed options are valid:', parsedOptions);
             } else {
+                console.error('Parsed options are not valid or empty:', parsedOptions);
                 throw new Error('Invalid or null options format');
             }
 
@@ -1137,6 +1142,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   }
+
 
   // Helper methods
   private showQuestionText(): void {
