@@ -790,9 +790,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try {
             const parsedOptions = JSON.parse(storedOptions);
             console.log('Parsed options:', parsedOptions);
-            if (
-                Array.isArray(parsedOptions) &&
-                parsedOptions.every((option, index) => {
+
+            if (Array.isArray(parsedOptions)) {
+                let valid = true;
+                parsedOptions.forEach((option, index) => {
                     const hasText = 'text' in option;
                     const hasOptionId = 'optionId' in option;
                     const hasCorrect = option.hasOwnProperty('correct');
@@ -800,20 +801,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                     if (!hasText || !hasOptionId || !hasCorrect) {
                         console.error(`Invalid option structure at index ${index}:`, {
                             option,
+                            type: typeof option,
+                            keys: Object.keys(option || {}),
                             hasText,
                             hasOptionId,
                             hasCorrect
                         });
-                        return false;
+                        valid = false;
                     }
-                    return true;
-                })
-            ) {
-                this.optionsToDisplay = parsedOptions;
-                console.log('Restored options:', this.optionsToDisplay);
+                });
+
+                if (valid) {
+                    this.optionsToDisplay = parsedOptions;
+                    console.log('Restored options:', this.optionsToDisplay);
+                } else {
+                    console.error('Invalid or null options format detected in parsedOptions:', parsedOptions);
+                    throw new Error('Invalid options structure');
+                }
             } else {
-                console.error('Invalid or null options format detected in parsedOptions:', parsedOptions);
-                throw new Error('Invalid options structure');
+                console.error('Parsed options are not an array:', parsedOptions);
+                throw new Error('Invalid options format');
             }
         } catch (error) {
             console.error('Error parsing stored options:', error);
