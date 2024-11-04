@@ -888,88 +888,82 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
-        this.currentQuestionIndex = +storedIndex;
+      this.currentQuestionIndex = +storedIndex;
 
-        try {
-            const parsedQuestion = JSON.parse(storedQuestion);
-            console.log('Parsed question:', parsedQuestion);
-            if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
-                this.currentQuestion = parsedQuestion;
-            } else {
-                console.error('Invalid or null question format:', parsedQuestion);
-                throw new Error('Invalid question structure');
-            }
-        } catch (error) {
-            console.error('Error parsing stored question:', error);
-            this.loadQuestion();
-            return;
-        }
-
-        try {
-            const parsedOptions = JSON.parse(storedOptions);
-            console.log('Parsed options before validation:', parsedOptions);
-
-            if (Array.isArray(parsedOptions)) {
-                let valid = true;
-
-                parsedOptions.forEach((option, index) => {
-                    const hasText = 'text' in option;
-                    const hasOptionId = 'optionId' in option;
-                    const hasCorrect = 'correct' in option || option.hasOwnProperty('correct');
-
-                    if (!hasText || !hasOptionId || !hasCorrect) {
-                        console.error(`Invalid option structure detected at index ${index}:`, {
-                            option,
-                            type: typeof option,
-                            keys: Object.keys(option || {}),
-                            missingProperties: {
-                                hasText,
-                                hasOptionId,
-                                hasCorrect
-                            }
-                        });
-                        valid = false;
-                    }
-                });
-
-                if (valid) {
-                    this.optionsToDisplay = parsedOptions;
-                    console.log('Restored options after validation:', this.optionsToDisplay);
-                } else {
-                    console.error('Invalid or null options format detected in parsedOptions:', parsedOptions);
-                    throw new Error('Invalid options structure');
-                }
-            } else {
-                console.error('Parsed options are not an array:', parsedOptions);
-                throw new Error('Invalid options format');
-            }
-        } catch (error) {
-            console.error('Error parsing stored options:', error);
-            this.loadQuestion();
-            return;
-        }
-
-        this.isAnswered = storedIsAnswered === 'true';
-
-        if (this.isAnswered) {
-            console.log('Displaying explanation as question is marked answered.');
-            this.showExplanationText();
+      try {
+        const parsedQuestion = JSON.parse(storedQuestion);
+        console.log('Parsed question:', parsedQuestion);
+        if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
+          this.currentQuestion = parsedQuestion;
         } else {
-            console.log('Displaying question text as question is not answered.');
-            this.showQuestionText();
+          console.error('Invalid or null question format:', parsedQuestion);
+          throw new Error('Invalid question structure');
         }
-    } else {
-        console.warn('Stored state is incomplete, loading default question');
+      } catch (error) {
+        console.error('Error parsing stored question:', error);
         this.loadQuestion();
+        return;
+      }
+
+      try {
+        const parsedOptions = JSON.parse(storedOptions);
+        console.log('Parsed options before validation:', parsedOptions);
+
+        if (Array.isArray(parsedOptions)) {
+          let valid = true;
+
+          parsedOptions.forEach((option, index) => {
+            const hasText = 'text' in option;
+            const hasOptionId = 'optionId' in option;
+            const hasCorrect = 'correct' in option || option.hasOwnProperty('correct');
+
+            if (!hasText || !hasOptionId || !hasCorrect) {
+              console.error(`Invalid option structure detected at index ${index}:`, {
+                option,
+                type: typeof option,
+                keys: Object.keys(option || {}),
+                missingProperties: {
+                  hasText,
+                  hasOptionId,
+                  hasCorrect
+                }
+              });
+              valid = false;
+            }
+          });
+
+          if (valid) {
+            this.optionsToDisplay = parsedOptions;
+            console.log('Restored options after validation:', this.optionsToDisplay);
+          } else {
+            console.error('Invalid or null options format detected in parsedOptions:', parsedOptions);
+            throw new Error('Invalid options structure');
+          }
+        } else {
+          console.error('Parsed options are not an array:', parsedOptions);
+          throw new Error('Invalid options format');
+        }
+      } catch (error) {
+        console.error('Error parsing stored options:', error);
+        this.loadQuestion();
+        return;
+      }
+
+      this.isAnswered = storedIsAnswered === 'true';
+
+      if (this.isAnswered) {
+        console.log('Displaying explanation as question is marked answered.');
+        this.showExplanationText();
+      } else {
+        console.log('Displaying question text as question is not answered.');
+        this.showQuestionText();
+      }
+    } else {
+      console.warn('Stored state is incomplete, loading default question');
+      this.loadQuestion();
     }
-}
-
-
-
-
-
-
-
+  }
+  
   // Helper methods
   private showQuestionText(): void {
     console.log('Executing showQuestionText, isAnswered:', this.isAnswered);
