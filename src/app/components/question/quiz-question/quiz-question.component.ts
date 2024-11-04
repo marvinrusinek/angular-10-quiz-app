@@ -3040,6 +3040,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.error('Questions array is not loaded yet. Loading questions...');
       await this.loadQuizData(); // Ensure the data is loaded
+
+      // Re-check if the questions are loaded after the loading step
+      if (!this.questionsArray || this.questionsArray.length === 0) {
+          console.error('Questions array still not loaded after loading attempt.');
+          throw new Error('Failed to load questions array.');
+      }
     }
   
     if (index < 0 || index >= this.questionsArray.length) {
