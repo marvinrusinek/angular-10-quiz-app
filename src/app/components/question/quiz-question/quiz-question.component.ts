@@ -2983,7 +2983,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     try {
       // Ensure question data is fully loaded before proceeding
-      await this.ensureQuestionIsFullyLoaded(questionIndex);
+      if (this.questionsArray && this.questionsArray.length > 0) {
+        // Only call this if the questionsArray has already been populated
+        await this.ensureQuestionIsFullyLoaded(questionIndex);
+      } else {
+        console.error('Questions array is not loaded or empty. Loading questions...');
+        await this.loadQuizData(); // Load questions if the array is empty or undefined
+      }
+    
+      // Verify if the question at the index exists after loading
+      if (!this.questionsArray || !this.questionsArray[questionIndex]) {
+        console.error(`Questions array is not properly populated at index ${questionIndex}`);
+        return;
+      }
   
       const explanation$ = from(this.prepareAndSetExplanationText(questionIndex)).pipe(
         debounceTime(100) // Smooth out updates
