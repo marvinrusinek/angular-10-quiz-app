@@ -740,10 +740,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('Error saving quiz state:', error);
     }
   }
-
-
   
-  /* private restoreQuizState(): void {
+  private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -797,7 +795,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
     }
-  } */
+  }
   /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
@@ -881,7 +879,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -962,8 +960,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn('Stored state is incomplete, loading default question');
       this.loadQuestion();
     }
-  }
-  
+  } */
+
   // Helper methods
   private showQuestionText(): void {
     console.log('Executing showQuestionText, isAnswered:', this.isAnswered);
