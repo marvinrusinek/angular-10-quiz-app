@@ -679,32 +679,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return this.selectedOptions && this.selectedOptions.length > 0;
   }
 
-  /* private saveQuizState(): void {
-    try {
-        // Save current question index
-        sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
-
-        // Validate and save current question
-        if (this.currentQuestion && typeof this.currentQuestion === 'object' && this.currentQuestion.questionText) {
-            sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
-        } else {
-            console.warn('Invalid or incomplete current question. Removing stored question.');
-            sessionStorage.removeItem('currentQuestion');
-        }
-
-        // Validate and save options to display
-        if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.every(option => option && typeof option === 'object' && 'text' in option)) {
-            sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
-        } else {
-            console.warn('Invalid or incomplete options. Removing stored options.');
-            sessionStorage.removeItem('optionsToDisplay');
-        }
-
-        sessionStorage.setItem('isAnswered', this.isAnswered.toString());
-    } catch (error) {
-        console.error('Error saving quiz state:', error);
-    }
-  } */
   private saveQuizState(): void {
     try {
       // Save current question index
