@@ -748,52 +748,50 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
-        this.currentQuestionIndex = +storedIndex;
+      this.currentQuestionIndex = +storedIndex;
 
-        // Parse and validate the question
-        const parsedQuestion = JSON.parse(storedQuestion);
-        if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
-            this.currentQuestion = parsedQuestion;
-        } else {
-            console.error('Invalid or null question format');
-            this.loadQuestion(); // Fallback to default question if parsing fails
-            return;
-        }
+      // Parse and validate the question
+      const parsedQuestion = JSON.parse(storedQuestion);
+      if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
+        this.currentQuestion = parsedQuestion;
+      } else {
+        console.error('Invalid or null question format');
+        this.loadQuestion(); // Fallback to default question if parsing fails
+        return;
+      }
 
-        // Parse and validate the options
-        const parsedOptions = JSON.parse(storedOptions);
-        console.log('Parsed options:', parsedOptions);
-        if (
-          Array.isArray(parsedOptions) &&
-          parsedOptions.every(option =>
-          option &&
-          typeof option === 'object' &&
-          'text' in option &&
-          'optionId' in option &&
-          ('correct' in option || option.hasOwnProperty('correct')))
-        ) {
-          this.optionsToDisplay = parsedOptions;
-          console.log('Restored options:', this.optionsToDisplay);
-        } else {
-          console.error('Invalid or null options format');
-          this.loadQuestion(); // Fallback to default if parsing fails
-          return;
-        }
+      // Parse and validate the options
+      const parsedOptions = JSON.parse(storedOptions);
+      console.log('Parsed options:', parsedOptions);
+      if (
+        Array.isArray(parsedOptions) &&
+        parsedOptions.every(option =>
+        option &&
+        typeof option === 'object' &&
+        'text' in option &&
+        'optionId' in option &&
+        ('correct' in option || option.hasOwnProperty('correct')))
+      ) {
+        this.optionsToDisplay = parsedOptions;
+        console.log('Restored options:', this.optionsToDisplay);
+      } else {
+        console.error('Invalid or null options format');
+        this.loadQuestion(); // Fallback to default if parsing fails
+        return;
+      }
 
+      this.isAnswered = storedIsAnswered === 'true';
 
-        this.isAnswered = storedIsAnswered === 'true';
-
-        // Conditional display logic
-        if (this.isAnswered) {
-            console.log('Displaying explanation as question is marked answered.');
-            this.showExplanationText();
-        } else {
-            console.log('Displaying question text as question is not answered.');
-            this.showQuestionText();
-        }
+      if (this.isAnswered) {
+        console.log('Displaying explanation as question is marked answered.');
+        this.showExplanationText();
+      } else {
+        console.log('Displaying question text as question is not answered.');
+        this.showQuestionText();
+      }
     } else {
-        console.warn('Stored state is incomplete, loading default question');
-        this.loadQuestion();
+      console.warn('Stored state is incomplete, loading default question');
+      this.loadQuestion();
     }
   }
   /* private restoreQuizState(): void {
