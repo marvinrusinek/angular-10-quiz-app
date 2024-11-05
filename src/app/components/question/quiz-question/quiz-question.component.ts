@@ -195,8 +195,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Call the parent class's ngOnInit method
       super.ngOnInit();
 
-      // Initialize display subscriptions to manage display mode
+      // Initialize necessary subscriptions and data to manage display mode
       this.initializeDisplaySubscriptions();
+      
+      // Add the visibility change listener
+      document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
   
       // Initial component setups
       this.initializeComponent();
