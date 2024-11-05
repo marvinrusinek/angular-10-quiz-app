@@ -516,8 +516,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-
-
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
     const displayModeObservable = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
