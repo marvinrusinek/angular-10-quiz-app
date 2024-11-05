@@ -758,17 +758,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         this.isAnswered = storedIsAnswered === 'true';
 
-        // Verify and set display mode based on restored state
+        // Set display mode based on isAnswered state
         this.displayMode = this.isAnswered ? 'explanation' : 'question';
+        console.log(`Display mode set to: ${this.displayMode} based on isAnswered: ${this.isAnswered}`);
 
-        // Confirm correct display mode before displaying content
-        if (this.displayMode === 'explanation') {
-            console.log('Restoring explanation display for answered question.');
-            this.showExplanationText();
-        } else {
-            console.log('Restoring question display as question is not answered.');
-            this.showQuestionText();
-        }
+        // Display based on the restored state
+        this.updateDisplayBasedOnState();
     } else {
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
@@ -1017,8 +1012,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         return;
     }
 
-    console.log('Switching to question display and clearing explanation text.');
     this.resetExplanationText();
+    console.log('Displaying question text and clearing explanation text.');
     // Trigger any UI updates for question display here if needed
   }
 
@@ -1046,26 +1041,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */
   private async showExplanationText(): Promise<void> {
-    if (this.displayMode !== 'explanation') {
+    if (this.displayMode !== 'explanation' || !this.isAnswered) {
         console.log('Blocked explanation display: display mode is set to question.');
         return;
     }
 
     try {
-        if (this.isAnswered) {
-            console.log('Switching to explanation display for answered question.');
-            this.explanationToDisplay = await firstValueFrom(
-                this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-            ) || 'Explanation unavailable';
-            this.explanationToDisplayChange.emit(this.explanationToDisplay);
-            this.showExplanationChange.emit(true);
-            console.log('Explanation displayed:', this.explanationToDisplay);
-        } else {
-            this.resetExplanationText();
-        }
+        this.explanationToDisplay = await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+        ) || 'Explanation unavailable';
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
+        console.log('Explanation displayed:', this.explanationToDisplay);
     } catch (error) {
         console.error('Error fetching explanation text:', error);
-        this.resetExplanationText();
+        this.resetExplanationDisplay();
     }
   }
 
