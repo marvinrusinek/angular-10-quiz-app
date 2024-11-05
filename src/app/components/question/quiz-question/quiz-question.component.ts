@@ -757,15 +757,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             return;
         }
 
-        // Set answer and display flags based on stored values
+        // Set flags based on restored values
         this.isAnswered = storedIsAnswered === 'true';
         this.shouldDisplayExplanation = this.isAnswered;
 
-        if (this.isAnswered) {
-            console.log('Restoring explanation display as question is marked answered.');
+        if (this.isAnswered && this.shouldDisplayExplanation) {
+            console.log('Restoring explanation text display for answered question.');
             this.showExplanationText();
         } else {
-            console.log('Restoring question display as question is not answered.');
+            console.log('Restoring question text display as question is not answered.');
             this.showQuestionText();
         }
     } else {
@@ -1011,16 +1011,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */
   private showQuestionText(): void {
-    console.log('Executing showQuestionText:', {
+    console.log('Executing showQuestionText with current state:', {
         isAnswered: this.isAnswered,
         shouldDisplayExplanation: this.shouldDisplayExplanation,
+        explanationToDisplay: this.explanationToDisplay
     });
     
     if (!this.isAnswered || !this.shouldDisplayExplanation) {
-        console.log('Displaying question text and clearing explanation.');
-        this.resetExplanationText();
+        console.log('Showing question text and clearing explanation.');
+        this.resetExplanationText(); // Clear any existing explanation
     } else {
-        console.log('Explanation display active, skipping question text display.');
+        console.log('Explanation display active, skipping question text.');
     }
   }
 
@@ -1050,19 +1051,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private async showExplanationText(): Promise<void> {
     try {
         if (this.isAnswered && this.shouldDisplayExplanation) {
-            console.log('Displaying explanation text.');
+            console.log('Displaying explanation text for answered question.');
             this.explanationToDisplay = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
             ) || 'Explanation unavailable';
             this.explanationToDisplayChange.emit(this.explanationToDisplay);
             this.showExplanationChange.emit(true);
+            console.log('Explanation displayed:', this.explanationToDisplay);
         } else {
-            console.log('Skipping explanation display as it is not intended.');
-            this.resetExplanationText();
+            console.log('Explanation display skipped: conditions not met.');
+            this.resetExplanationDisplay();
         }
     } catch (error) {
         console.error('Error fetching explanation text:', error);
-        this.resetExplanationText();
+        this.resetExplanationDisplay();
     }
   }
 
