@@ -130,6 +130,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   shouldRenderComponent = false;
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
+  private shouldDisplayExplanation = false;
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
@@ -993,29 +994,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Helper methods
   private showQuestionText(): void {
-    console.log('Executing showQuestionText, isAnswered:', this.isAnswered);
-    if (!this.isAnswered) {
-        // Clear any explanation text to ensure question text is displayed
-        console.log('Clearing explanation text to display question text.');
-        this.explanationToDisplay = ''; // Clear any lingering explanation text
+    console.log('Executing showQuestionText, isAnswered:', this.isAnswered, 'shouldDisplayExplanation:', this.shouldDisplayExplanation);
+    
+    if (!this.isAnswered || !this.shouldDisplayExplanation) {
+        // Clear explanation only if the display state is not intended for explanation
+        console.log('Clearing explanation text to ensure question text displays.');
+        this.explanationToDisplay = ''; // Clear any explanation text
         this.explanationToDisplayChange.emit('');
         this.showExplanationChange.emit(false); // Signal UI to hide explanation display
     } else {
-        console.log('Question is marked as answered, retaining explanation display.');
+        console.log('Question is marked as answered and explanation display is intended.');
     }
   }
 
   private async showExplanationText(): Promise<void> {
     try {
-        if (this.isAnswered) {
-            console.log('Displaying explanation text');
+        if (this.isAnswered && this.shouldDisplayExplanation) { // Check both flags
+            console.log('Displaying explanation text as per state and flag');
             this.explanationToDisplay = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
             ) || 'Explanation unavailable';
             this.explanationToDisplayChange.emit(this.explanationToDisplay);
             this.showExplanationChange.emit(true);
         } else {
-            console.log('Not displaying explanation since question is not marked as answered');
+            console.log('Not displaying explanation since question is not marked as answered or display flag is off');
             this.explanationToDisplay = ''; // Ensure explanation text is cleared if not answered
             this.explanationToDisplayChange.emit('');
             this.showExplanationChange.emit(false);
@@ -1026,7 +1028,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.explanationToDisplayChange.emit('');
         this.showExplanationChange.emit(false);
     }
-}
+  }
 
   private initializeComponent(): void {
     // Load the first question or current question
