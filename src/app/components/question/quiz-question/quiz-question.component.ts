@@ -223,6 +223,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+  private onVisibilityChange(): void {
+    const isHidden = document.hidden;
+    this.handlePageVisibilityChange(isHidden);
+  }
+
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
   
@@ -282,10 +287,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   ngOnDestroy(): void {
     super.ngOnDestroy ? super.ngOnDestroy() : null;
-    document.removeEventListener(
-      'visibilitychange',
-      this.onVisibilityChange.bind(this)
-    );
+    document.removeEventListener('visibilitychange', this.onVisibilityChange.bind(this));
     this.destroy$.next();
     this.destroy$.complete();
     this.questionsObservableSubscription?.unsubscribe();
