@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, C
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
@@ -131,7 +131,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
   private displayMode: 'question' | 'explanation' = 'question';
-  private displayMode$: BehaviorSubject<'question' | 'explanation'> = new BehaviorSubject('question');
+  displayMode$: Observable<"question" | "explanation">;
   private displaySubscriptions: Subscription[] = [];
 
   explanationTextSubject = new BehaviorSubject<string>('');
@@ -1107,10 +1107,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private initializeDisplaySubscriptions(): void {
     // Ensure displayMode$ emits only based on the isAnswered state
-    this.displayMode$ = this.quizStateService.isAnswered$(this.currentQuestionIndex).pipe(
+    this.displayMode$ = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
         map(isAnswered => (isAnswered ? 'explanation' : 'question')),
         distinctUntilChanged(), // Ensure no duplicate emissions
-        tap(mode => console.log(`Setting display mode to: ${mode}`))
+        tap(mode => console.log(`Setting display mode to: ${mode}`)),
+        catchError(error => {
+          console.error("Error fetching display mode:", error);
+          return of("question"); // Default to "question" if an error occurs
+      })
     );
 
     // Subscribe to displayMode$ to reactively control the display
