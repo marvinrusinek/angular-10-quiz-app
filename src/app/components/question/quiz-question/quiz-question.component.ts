@@ -299,19 +299,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
   private onVisibilityChange(): void {
-      const isHidden = document.hidden;
-      console.log('Visibility changed. Document hidden:', isHidden);
+    const isHidden = document.hidden;
+    console.log('Visibility changed. Document hidden:', isHidden);
 
-      if (isHidden) {
-          // When the page is hidden, save the quiz state and handle page-specific changes
-          this.saveQuizState();
-          this.handlePageVisibilityChange(isHidden); // Pause updates or other actions if needed
+    if (isHidden) {
+      this.saveQuizState();
+      this.handlePageVisibilityChange(isHidden);
+    } else {
+      this.restoreQuizState();
+      this.ngZone.run(() => this.handleQuizRestore());
+      this.handlePageVisibilityChange(isHidden);
+
+      // Verify mode after restoring state
+      if (this.isAnswered) {
+        this.showExplanationText();
       } else {
-          // When the page is visible again, restore the quiz state and resume necessary operations
-          this.restoreQuizState();
-          this.ngZone.run(() => this.handleQuizRestore()); // Ensure Angular change detection is triggered
-          this.handlePageVisibilityChange(isHidden); // Resume updates or reinitialize subscriptions if needed
+        this.showQuestionText();
       }
+    }
   }
 
   // Handle quiz restoration
@@ -1108,7 +1113,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private initializeDisplaySubscriptions(): void {
+  /* private initializeDisplaySubscriptions(): void {
     // Unsubscribe from any existing subscription to prevent multiple subscriptions
     if (this.displayModeSubscription) {
       this.displayModeSubscription.unsubscribe();
@@ -1136,6 +1141,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       } else if (mode === 'explanation') {
           this.showExplanationText();
       }
+    });
+  } */
+  private initializeDisplaySubscriptions(): void {
+    const displayModeObservable = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
+        map(isAnswered => isAnswered ? 'explanation' : 'question'),
+        distinctUntilChanged(), 
+        tap(mode => console.log(`Setting display mode to: ${mode}`)),
+        catchError(error => {
+            console.error("Error fetching display mode:", error);
+            return of("question");
+        })
+    );
+
+    this.displayModeSubscription = displayModeObservable.subscribe(mode => {
+        if (mode === 'question' && !this.isAnswered) {
+            this.showQuestionText();
+        } else if (mode === 'explanation' && this.isAnswered) {
+            this.showExplanationText();
+        }
     });
   }
 
