@@ -1289,7 +1289,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         })
     );
 
-    this.displayModeSubscription = displayModeObservable.subscribe(mode => {
+    this.displayModeSubscription = displayModeObservable.subscribe((mode: "question" | "explanation") => {
         // Using the `next` method of BehaviorSubject to emit new display mode
         this.displayMode$.next(mode);
 
