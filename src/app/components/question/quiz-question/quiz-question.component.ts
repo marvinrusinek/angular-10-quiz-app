@@ -727,14 +727,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Parse and validate the question
         try {
             const parsedQuestion = JSON.parse(storedQuestion);
+            console.log('Parsed question:', parsedQuestion);
             if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
                 this.currentQuestion = parsedQuestion;
             } else {
-                throw new Error('Invalid or null question format');
+                console.error('Invalid or null question format:', parsedQuestion);
+                this.loadQuestion();
+                return;
             }
         } catch (error) {
             console.error('Error parsing stored question:', error);
-            this.loadQuestion(); // Fallback to default question if parsing fails
+            this.loadQuestion();
             return;
         }
 
@@ -743,38 +746,45 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             const parsedOptions = JSON.parse(storedOptions);
             console.log('Parsed options:', parsedOptions);
 
-            if (Array.isArray(parsedOptions) && parsedOptions.every((option, index) => {
-                const hasText = 'text' in option;
-                const hasOptionId = 'optionId' in option;
-                const hasCorrect = 'correct' in option || option.hasOwnProperty('correct');
+            // Check if each option meets the expected structure
+            const isValid = Array.isArray(parsedOptions) && parsedOptions.every((option, index) => {
+                const isValidStructure = 
+                    option && typeof option === 'object' &&
+                    'text' in option &&
+                    'optionId' in option &&
+                    ('correct' in option || option.correct === undefined);
 
-                if (!hasText || !hasOptionId || !hasCorrect) {
+                if (!isValidStructure) {
                     console.error(`Invalid option structure at index ${index}:`, {
                         option,
                         missingProperties: {
-                            hasText,
-                            hasOptionId,
-                            hasCorrect
-                        }
+                            hasText: 'text' in option,
+                            hasOptionId: 'optionId' in option,
+                            hasCorrect: 'correct' in option || option.correct === undefined,
+                        },
                     });
-                    return false;
                 }
-                return true;
-            })) {
+                return isValidStructure;
+            });
+
+            if (isValid) {
                 this.optionsToDisplay = parsedOptions;
                 console.log('Restored options:', this.optionsToDisplay);
             } else {
-                throw new Error('Invalid or null options format');
+                console.error('Invalid or null options format detected in parsedOptions:', parsedOptions);
+                this.loadQuestion();
+                return;
             }
+
         } catch (error) {
             console.error('Error parsing stored options:', error);
-            this.loadQuestion(); // Fallback to default if parsing fails
+            this.loadQuestion();
             return;
         }
 
-        // Set answered state and display logic
         this.isAnswered = storedIsAnswered === 'true';
 
+        // Display logic based on `isAnswered` state
         if (this.isAnswered) {
             console.log('Displaying explanation as question is marked answered.');
             this.showExplanationText();
