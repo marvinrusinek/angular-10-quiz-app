@@ -1060,11 +1060,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             console.log('Explanation displayed:', this.explanationToDisplay);
         } else {
             console.log('Explanation display skipped: conditions not met.');
-            this.resetExplanationDisplay();
+            this.resetExplanationText();
         }
     } catch (error) {
         console.error('Error fetching explanation text:', error);
-        this.resetExplanationDisplay();
+        this.resetExplanationText();
     }
   }
 
