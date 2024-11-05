@@ -364,7 +364,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('Error in onVisibilityChange:', error);
     }
   } */
-  private async handleQuizRestore(): Promise<void> {
+  /* private async handleQuizRestore(): Promise<void> {
     if (!(await this.ensureQuizIdExists())) {
         console.error('Unable to retrieve Quiz ID, cannot fetch questions');
         return;
@@ -400,7 +400,40 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
         console.error('Error in handleQuizRestore:', error);
     }
+  } */
+  private async handleQuizRestore(): Promise<void> {
+    if (!(await this.ensureQuizIdExists())) {
+        console.error('Unable to retrieve Quiz ID, cannot fetch questions');
+        return;
+    }
+
+    try {
+        await this.loadQuizData();
+        if (this.currentQuestion) {
+            this.setCurrentQuestion(this.currentQuestion);
+        }
+
+        // Check if the question is answered and set display mode accordingly
+        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+        const initialMode = isAnswered ? 'explanation' : 'question';
+        this.displayMode$.next(initialMode);
+
+        if (isAnswered) {
+            this.showExplanationIfNeeded();
+            this.showExplanationChange.emit(true);
+        } else {
+            // Clear any stale explanation for unanswered questions
+            this.explanationToDisplay = '';
+            this.showExplanationChange.emit(false);
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        }
+
+        await this.updateSelectionMessageForCurrentQuestion();
+    } catch (error) {
+        console.error('Error in handleQuizRestore:', error);
+    }
   }
+
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
