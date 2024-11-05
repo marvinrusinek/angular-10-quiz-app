@@ -435,7 +435,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   private currentMode: 'question' | 'explanation' = 'question';
 
-private async handleQuizRestore(): Promise<void> {
+  /* private async handleQuizRestore(): Promise<void> {
     if (!(await this.ensureQuizIdExists())) {
         console.error('Unable to retrieve Quiz ID, cannot fetch questions');
         return;
@@ -447,24 +447,58 @@ private async handleQuizRestore(): Promise<void> {
             this.setCurrentQuestion(this.currentQuestion);
         }
 
-        // Determine the correct initial display mode based on `isAnswered`
+        // Determine the correct display mode based on `isAnswered`
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-        const initialMode: 'question' | 'explanation' = isAnswered ? 'explanation' : 'question';
+        const intendedMode: 'question' | 'explanation' = isAnswered ? 'explanation' : 'question';
 
-        // Update displayMode$ only if it differs from currentMode to avoid unnecessary toggles
-        if (this.currentMode !== initialMode) {
-            this.currentMode = initialMode;
-            this.displayMode$.next(initialMode);
+        // Check if the mode needs to be updated
+        if (this.currentMode !== intendedMode) {
+            this.currentMode = intendedMode;
+            this.displayMode$.next(intendedMode);
         }
 
         if (isAnswered) {
+            // Only display explanation if explicitly marked as answered
             this.showExplanationIfNeeded();
             this.showExplanationChange.emit(true);
         } else {
-            // Clear any stale explanation text for unanswered questions
+            // Clear any explanation text for unanswered questions
             this.explanationToDisplay = '';
             this.showExplanationChange.emit(false);
             this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        }
+
+        await this.updateSelectionMessageForCurrentQuestion();
+    } catch (error) {
+        console.error('Error in handleQuizRestore:', error);
+    }
+  } */
+  private async handleQuizRestore(): Promise<void> {
+    if (!(await this.ensureQuizIdExists())) {
+        console.error('Unable to retrieve Quiz ID, cannot fetch questions');
+        return;
+    }
+
+    try {
+        await this.loadQuizData();
+        if (this.currentQuestion) {
+            this.setCurrentQuestion(this.currentQuestion);
+        }
+
+        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+        const intendedMode: 'question' | 'explanation' = isAnswered ? 'explanation' : 'question';
+
+        // Only update displayMode$ if the intended mode differs
+        if (this.currentMode !== intendedMode) {
+            this.currentMode = intendedMode;
+            this.displayMode$.next(intendedMode);
+        }
+
+        if (!isAnswered) {
+            // Clear explanation to ensure question text displays for unanswered questions
+            this.explanationToDisplay = '';
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+            this.showExplanationChange.emit(false);
         }
 
         await this.updateSelectionMessageForCurrentQuestion();
@@ -476,7 +510,14 @@ private async handleQuizRestore(): Promise<void> {
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
-    this.displayMode$.subscribe(mode => {
+    const savedDisplayMode = sessionStorage.getItem('displayMode') as 'question' | 'explanation' | null;
+
+    // Initialize displayMode$ with saved mode or default to 'question'
+    this.displayMode$.next(savedDisplayMode || 'question');
+
+    this.displayModeSubscription = this.displayMode$.subscribe(mode => {
+        sessionStorage.setItem('displayMode', mode);  // Persist display mode
+
         if (mode === 'question') {
             this.showQuestionText();
         } else if (mode === 'explanation') {
