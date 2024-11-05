@@ -131,6 +131,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
   private displayMode: 'question' | 'explanation' = 'question';
+  private displayMode$: BehaviorSubject<'question' | 'explanation'> = new BehaviorSubject('question');
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
@@ -756,13 +757,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
 
         this.isAnswered = storedIsAnswered === 'true';
-
-        // Set display mode based on isAnswered state
-        this.displayMode = this.isAnswered ? 'explanation' : 'question';
-        console.log(`Display mode set to: ${this.displayMode} based on isAnswered: ${this.isAnswered}`);
-
-        // Display based on the restored state
-        this.updateDisplayBasedOnState();
+        this.setDisplayMode(this.isAnswered);
     } else {
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
@@ -779,8 +774,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private setDisplayMode(isAnswered: boolean): void {
-    this.displayMode = isAnswered ? 'explanation' : 'question';
-    console.log(`Display mode updated to: ${this.displayMode}`);
+    const mode = isAnswered ? 'explanation' : 'question';
+    this.displayMode$.next(mode);
   }
   
   /* private restoreQuizState(): void {
@@ -1020,13 +1015,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */  
   private showQuestionText(): void {
-    console.log(`Attempting to show question with displayMode: ${this.displayMode}`);
-    if (this.displayMode !== 'question') {
-        console.log('Blocked: Question display attempted in incorrect mode.');
+    if (this.displayMode$.value !== 'question') {
+        console.log('Blocked: Attempted to show question in incorrect mode.');
         return;
     }
 
-    this.resetExplanationText();
+    this.resetExplanationDisplay();
     console.log('Displaying question text and clearing explanation text.');
   }
 
@@ -1054,9 +1048,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */
   private async showExplanationText(): Promise<void> {
-    console.log(`Attempting to show explanation with displayMode: ${this.displayMode} and isAnswered: ${this.isAnswered}`);
-    if (this.displayMode !== 'explanation' || !this.isAnswered) {
-        console.log('Blocked: Explanation display attempted in incorrect mode.');
+    if (this.displayMode$.value !== 'explanation' || !this.isAnswered) {
+        console.log('Blocked: Attempted to show explanation in incorrect mode or when not answered.');
         return;
     }
 
@@ -1071,6 +1064,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.error('Error fetching explanation text:', error);
         this.resetExplanationText();
     }
+  }
+
+  private initializeDisplaySubscriptions(): void {
+    this.displayMode$.pipe(distinctUntilChanged()).subscribe((mode) => {
+        console.log(`Display mode updated to: ${mode}`);
+        if (mode === 'explanation') {
+            this.showExplanationText();
+        } else {
+            this.showQuestionText();
+        }
+    });
   }
 
   private initializeComponent(): void {
