@@ -481,24 +481,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     try {
         await this.loadQuizData();
+        
         if (this.currentQuestion) {
             this.setCurrentQuestion(this.currentQuestion);
         }
 
+        // Check if the question is answered and determine intended display mode
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         const intendedMode: 'question' | 'explanation' = isAnswered ? 'explanation' : 'question';
 
-        // Only update displayMode$ if the intended mode differs
+        console.log(`Restoring display mode for question ${this.currentQuestionIndex}. 
+                    Answered: ${isAnswered}, Intended mode: ${intendedMode}, Current mode: ${this.currentMode}`);
+
+        // Update displayMode$ only if there is a change
         if (this.currentMode !== intendedMode) {
             this.currentMode = intendedMode;
             this.displayMode$.next(intendedMode);
+        } else {
+            console.log(`No display mode change needed. Current mode remains: ${this.currentMode}`);
         }
 
+        // Clear any existing explanation if the question is not answered
         if (!isAnswered) {
-            // Clear explanation to ensure question text displays for unanswered questions
-            this.explanationToDisplay = '';
+            this.explanationToDisplay = ''; 
             this.explanationToDisplayChange.emit(this.explanationToDisplay);
             this.showExplanationChange.emit(false);
+            console.log('Cleared explanation as the question is unanswered');
         }
 
         await this.updateSelectionMessageForCurrentQuestion();
