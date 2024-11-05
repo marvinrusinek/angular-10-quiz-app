@@ -486,28 +486,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.setCurrentQuestion(this.currentQuestion);
         }
 
-        // Check if the question is answered and determine intended display mode
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         const intendedMode: 'question' | 'explanation' = isAnswered ? 'explanation' : 'question';
 
-        console.log(`Restoring display mode for question ${this.currentQuestionIndex}. 
-                     Answered: ${isAnswered}, Intended mode: ${intendedMode}, Current mode: ${this.currentMode}`);
+        console.log(`Restoring for Question ${this.currentQuestionIndex}. 
+                     isAnswered: ${isAnswered}, Intended mode: ${intendedMode}, Current mode: ${this.currentMode}`);
 
-        // Only update displayMode$ if there is a necessary change
         if (this.currentMode !== intendedMode) {
-            console.log(`Updating display mode from ${this.currentMode} to ${intendedMode}`);
             this.currentMode = intendedMode;
-            this.displayMode$.next(intendedMode); // Update display mode reactively
+            this.displayMode$.next(intendedMode);
         } else {
-            console.log(`Display mode unchanged. Current mode: ${this.currentMode}`);
+            console.log(`No display mode change for Question ${this.currentQuestionIndex}, current mode remains ${this.currentMode}`);
         }
 
-        // Explicitly clear explanation if the question is unanswered
         if (!isAnswered) {
-            console.log('Clearing explanation text since the question is unanswered');
             this.explanationToDisplay = '';
             this.explanationToDisplayChange.emit(this.explanationToDisplay);
             this.showExplanationChange.emit(false);
+            console.log(`Cleared explanation for Question ${this.currentQuestionIndex} since it's unanswered.`);
         }
 
         await this.updateSelectionMessageForCurrentQuestion();
@@ -516,31 +512,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
     const displayModeObservable = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
         map(isAnswered => isAnswered ? 'explanation' : 'question'),
         distinctUntilChanged(),
-        tap(mode => console.log(`Display mode subscription set to: ${mode}`)),
+        tap(mode => console.log(`Calculated display mode for Question ${this.currentQuestionIndex}: ${mode}`)),
         catchError(error => {
-            console.error("Error in display mode subscription:", error);
-            return of("question"); // Default to "question" if an error occurs
+            console.error("Error fetching display mode:", error);
+            return of("question");
         })
     );
 
     this.displayModeSubscription = displayModeObservable.subscribe(mode => {
-        if (this.currentMode !== mode) {
-            console.log(`Switching display mode to: ${mode}`);
+        if (this.currentMode !== mode) { // Only update if the mode has changed
             this.currentMode = mode;
+            console.log(`Display mode updated for Question ${this.currentQuestionIndex}: ${mode}`);
             this.displayMode$.next(mode);
 
+            // Trigger display change based on the current mode
             if (mode === 'question') {
                 this.showQuestionText();
             } else if (mode === 'explanation') {
                 this.showExplanationText();
             }
         } else {
-            console.log(`No switch needed. Current mode: ${this.currentMode}`);
+            console.log(`No change in display mode for Question ${this.currentQuestionIndex}, remaining at ${this.currentMode}`);
         }
     });
   }
