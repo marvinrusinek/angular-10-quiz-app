@@ -194,6 +194,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     try {
       // Call the parent class's ngOnInit method
       super.ngOnInit();
+
+      // Initialize display subscriptions to manage display mode
+      this.initializeDisplaySubscriptions();
   
       // Initial component setups
       this.initializeComponent();
@@ -632,7 +635,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');  // Clear explanation text
     this.showExplanationChange.emit(false);  // Hide explanation initially
-    this.shouldDisplayExplanation = false;
     console.log('Explanation display reset.');
   }
   
@@ -1020,7 +1022,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         return;
     }
 
-    this.resetExplanationDisplay();
+    this.resetExplanationText();
     console.log('Displaying question text and clearing explanation text.');
   }
 
