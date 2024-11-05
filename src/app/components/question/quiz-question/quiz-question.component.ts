@@ -759,10 +759,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
 
         this.isAnswered = storedIsAnswered === 'true';
+        console.log(`Restored isAnswered state: ${this.isAnswered}`);
         this.setDisplayMode(this.isAnswered);
     } else {
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
+    }
+  }
+
+  // Unsubscribing to prevent multiple triggers
+  private handlePageVisibilityChange(isHidden: boolean): void {
+    if (isHidden) {
+      // Clear or reset necessary variables/subscriptions if navigating away
+      this.clearDisplaySubscriptions();
+    } else {
+      // Reinitialize necessary subscriptions on return
+      this.initializeDisplaySubscriptions();
     }
   }
 
@@ -1069,12 +1081,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private initializeDisplaySubscriptions(): void {
-    this.displayMode$.pipe(distinctUntilChanged()).subscribe((mode) => {
-        console.log(`Display mode updated to: ${mode}`);
-        if (mode === 'explanation') {
-            this.showExplanationText();
-        } else {
+    // Ensure displayMode$ emits only based on the isAnswered state
+    this.displayMode$ = this.quizStateService.isAnswered$(this.currentQuestionIndex).pipe(
+        map(isAnswered => (isAnswered ? 'explanation' : 'question')),
+        distinctUntilChanged(), // Ensure no duplicate emissions
+        tap(mode => console.log(`Setting display mode to: ${mode}`))
+    );
+
+    // Subscribe to displayMode$ to reactively control the display
+    this.displayMode$.subscribe(mode => {
+        if (mode === 'question') {
             this.showQuestionText();
+        } else if (mode === 'explanation') {
+            this.showExplanationText();
         }
     });
   }
