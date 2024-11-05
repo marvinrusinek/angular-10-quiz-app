@@ -1061,7 +1061,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('Skipping question text display since explanation display is intended.');
     }
   } */  
-  private showQuestionText(): void {
+  /* private showQuestionText(): void {
     if (this.displayMode$.value !== 'question') {
         console.log('Blocked: Attempted to show question in incorrect mode.');
         return;
@@ -1069,6 +1069,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.resetExplanationText();
     console.log('Displaying question text and clearing explanation text.');
+  } */
+  private showQuestionText(): void {
+    console.log('Attempting to show question text, isAnswered:', this.isAnswered);
+    if (!this.isAnswered) {
+        console.log('Displaying question text.');
+        this.explanationToDisplay = ''; // Clear explanation
+        this.explanationToDisplayChange.emit('');
+        this.showExplanationChange.emit(false);
+    }
   }
 
   /* private async showExplanationText(): Promise<void> {
@@ -1094,7 +1103,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.showExplanationChange.emit(false);
     }
   } */
-  private async showExplanationText(): Promise<void> {
+  /* private async showExplanationText(): Promise<void> {
     if (this.displayMode$.value !== 'explanation' || !this.isAnswered) {
         console.log('Blocked: Attempted to show explanation in incorrect mode or when not answered.');
         return;
@@ -1110,6 +1119,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
         console.error('Error fetching explanation text:', error);
         this.resetExplanationText();
+    }
+  } */
+  private async showExplanationText(): Promise<void> {
+    if (this.isAnswered) {
+        console.log('Displaying explanation text.');
+        this.explanationToDisplay = await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+        ) || 'Explanation unavailable';
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
     }
   }
 
