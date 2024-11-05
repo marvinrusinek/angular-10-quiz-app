@@ -298,7 +298,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
-  private onVisibilityChange(): void {
+  /* private onVisibilityChange(): void {
     const isHidden = document.hidden;
     console.log('Visibility changed. Document hidden:', isHidden);
 
@@ -316,6 +316,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       } else {
         this.showQuestionText();
       }
+    }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    const isHidden = document.hidden;
+    if (isHidden) {
+      // Save state when navigating away
+      this.saveQuizState();
+    } else {
+      // Restore only the quiz data without changing display mode
+      this.restoreQuizState();
+      this.ngZone.run(() => this.handleQuizRestore());
     }
   }
 
@@ -1162,7 +1174,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     });
   } */
-  private initializeDisplaySubscriptions(): void {
+  /* private initializeDisplaySubscriptions(): void {
     const displayModeObservable = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
         map(isAnswered => isAnswered ? 'explanation' : 'question'),
         distinctUntilChanged(), 
@@ -1177,6 +1189,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         if (mode === 'question' && !this.isAnswered) {
             this.showQuestionText();
         } else if (mode === 'explanation' && this.isAnswered) {
+            this.showExplanationText();
+        }
+    });
+  } */
+  private initializeDisplaySubscriptions(): void {
+    // Ensures displayMode$ correctly sets mode based on `isAnswered`
+    const displayModeObservable = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
+        map(isAnswered => (isAnswered ? 'explanation' : 'question')),
+        distinctUntilChanged(),
+        tap(mode => console.log(`Setting display mode to: ${mode}`)),
+        catchError(error => {
+            console.error("Error fetching display mode:", error);
+            return of("question"); // Default to "question" if an error occurs
+        })
+    );
+
+    this.displayModeSubscription = displayModeObservable.subscribe(mode => {
+        // Using the `next` method of BehaviorSubject to emit new display mode
+        this.displayMode$.next(mode);
+
+        // Update display based on current mode
+        if (mode === 'question') {
+            this.showQuestionText();
+        } else if (mode === 'explanation') {
             this.showExplanationText();
         }
     });
