@@ -769,6 +769,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   }
+
+  private async updateDisplayBasedOnState(): Promise<void> {
+    // Check display mode and decide on display content
+    if (this.displayMode === 'explanation') {
+        await this.showExplanationText();
+    } else {
+        this.showQuestionText();
+    }
+  }
   
   /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
