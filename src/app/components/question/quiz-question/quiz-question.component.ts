@@ -1055,7 +1055,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('Explanation displayed:', this.explanationToDisplay);
     } catch (error) {
         console.error('Error fetching explanation text:', error);
-        this.resetExplanationDisplay();
+        this.resetExplanationText();
     }
   }
 
