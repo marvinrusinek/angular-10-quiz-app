@@ -716,7 +716,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  
   private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
@@ -755,23 +754,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             return;
         }
 
-        // Determine if we should show explanation or question text based on restored state
+        // Set answer and display states based on stored values
         this.isAnswered = storedIsAnswered === 'true';
+        this.shouldDisplayExplanation = this.isAnswered; // Set flag based on answer state
 
-        // Strict control over what displays based on `isAnswered`
         if (this.isAnswered) {
-            // Only call `showExplanationText` if we're confident in the state
-            console.log('Displaying explanation as question is marked answered.');
+            console.log('Restoring explanation display as question is marked answered.');
             this.showExplanationText();
         } else {
-            console.log('Displaying question text as question is not answered.');
+            console.log('Restoring question display as question is not answered.');
             this.showQuestionText();
         }
     } else {
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
     }
-  }
+  } 
   
   /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
