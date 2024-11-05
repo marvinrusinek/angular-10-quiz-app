@@ -130,7 +130,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   shouldRenderComponent = false;
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
-  private shouldDisplayExplanation = false;
   private displayMode: 'question' | 'explanation' = 'question';
 
   explanationTextSubject = new BehaviorSubject<string>('');
