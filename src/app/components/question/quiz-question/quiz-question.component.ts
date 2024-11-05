@@ -131,7 +131,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
   private displayMode: 'question' | 'explanation' = 'question';
-  displayMode$: Observable<"question" | "explanation">;
+  private displayMode$: BehaviorSubject<"question" | "explanation"> = new BehaviorSubject("question");
   private displaySubscriptions: Subscription[] = [];
   private displayModeSubscription: Subscription;
 
@@ -1110,27 +1110,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private initializeDisplaySubscriptions(): void {
     // Unsubscribe from any existing subscription to prevent multiple subscriptions
     if (this.displayModeSubscription) {
-        this.displayModeSubscription.unsubscribe();
+      this.displayModeSubscription.unsubscribe();
     }
 
-    // Ensure displayMode$ emits based on the isAnswered state
-    this.displayMode$ = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
-        map(isAnswered => (isAnswered ? 'explanation' : 'question')),
-        distinctUntilChanged(), // Ensure no duplicate emissions
-        tap(mode => console.log(`Setting display mode to: ${mode}`)),
-        catchError(error => {
+    // Set displayMode$ using BehaviorSubject to track the current mode
+    this.displayMode$ = new BehaviorSubject("question");
+
+    // Update displayMode$ based on the isAnswered state
+    const displayModeObservable = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
+      map(isAnswered => (isAnswered ? 'explanation' : 'question')),
+      distinctUntilChanged(),
+      tap(mode => console.log(`Setting display mode to: ${mode}`)),
+      catchError(error => {
             console.error("Error fetching display mode:", error);
-            return of("question"); // Default to "question" if an error occurs
+            return of("question");
         })
     );
 
-    // Subscribe to displayMode$ and manage it via displayModeSubscription
-    this.displayModeSubscription = this.displayMode$.subscribe(mode => {
-        if (mode === 'question') {
-            this.showQuestionText();
-        } else if (mode === 'explanation') {
-            this.showExplanationText();
-        }
+    // Subscribe to the Observable and update the BehaviorSubject
+    this.displayModeSubscription = displayModeObservable.subscribe((mode: "question" | "explanation") => {
+      this.displayMode$.next(mode);
+      if (mode === 'question') {
+          this.showQuestionText();
+      } else if (mode === 'explanation') {
+          this.showExplanationText();
+      }
     });
   }
 
