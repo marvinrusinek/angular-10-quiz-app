@@ -778,6 +778,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.showQuestionText();
     }
   }
+
+  private setDisplayMode(isAnswered: boolean): void {
+    this.displayMode = isAnswered ? 'explanation' : 'question';
+    console.log(`Display mode updated to: ${this.displayMode}`);
+  }
   
   /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
@@ -1016,14 +1021,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */  
   private showQuestionText(): void {
+    console.log(`Attempting to show question with displayMode: ${this.displayMode}`);
     if (this.displayMode !== 'question') {
-        console.log('Blocked question text display: display mode is set to explanation.');
+        console.log('Blocked: Question display attempted in incorrect mode.');
         return;
     }
 
     this.resetExplanationText();
     console.log('Displaying question text and clearing explanation text.');
-    // Trigger any UI updates for question display here if needed
   }
 
   /* private async showExplanationText(): Promise<void> {
@@ -1050,8 +1055,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */
   private async showExplanationText(): Promise<void> {
+    console.log(`Attempting to show explanation with displayMode: ${this.displayMode} and isAnswered: ${this.isAnswered}`);
     if (this.displayMode !== 'explanation' || !this.isAnswered) {
-        console.log('Blocked explanation display: display mode is set to question.');
+        console.log('Blocked: Explanation display attempted in incorrect mode.');
         return;
     }
 
@@ -1061,10 +1067,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         ) || 'Explanation unavailable';
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
-        console.log('Explanation displayed:', this.explanationToDisplay);
+        console.log('Explanation successfully displayed:', this.explanationToDisplay);
     } catch (error) {
         console.error('Error fetching explanation text:', error);
-        this.resetExplanationText();
+        this.resetExplanationDisplay();
     }
   }
 
