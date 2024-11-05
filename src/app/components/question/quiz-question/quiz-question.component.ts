@@ -401,7 +401,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.error('Error in handleQuizRestore:', error);
     }
   } */
-  private async handleQuizRestore(): Promise<void> {
+  /* private async handleQuizRestore(): Promise<void> {
     if (!(await this.ensureQuizIdExists())) {
         console.error('Unable to retrieve Quiz ID, cannot fetch questions');
         return;
@@ -423,6 +423,45 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.showExplanationChange.emit(true);
         } else {
             // Clear any stale explanation for unanswered questions
+            this.explanationToDisplay = '';
+            this.showExplanationChange.emit(false);
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        }
+
+        await this.updateSelectionMessageForCurrentQuestion();
+    } catch (error) {
+        console.error('Error in handleQuizRestore:', error);
+    }
+  } */
+  private currentMode: 'question' | 'explanation' = 'question';
+
+private async handleQuizRestore(): Promise<void> {
+    if (!(await this.ensureQuizIdExists())) {
+        console.error('Unable to retrieve Quiz ID, cannot fetch questions');
+        return;
+    }
+
+    try {
+        await this.loadQuizData();
+        if (this.currentQuestion) {
+            this.setCurrentQuestion(this.currentQuestion);
+        }
+
+        // Determine the correct initial display mode based on `isAnswered`
+        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+        const initialMode: 'question' | 'explanation' = isAnswered ? 'explanation' : 'question';
+
+        // Update displayMode$ only if it differs from currentMode to avoid unnecessary toggles
+        if (this.currentMode !== initialMode) {
+            this.currentMode = initialMode;
+            this.displayMode$.next(initialMode);
+        }
+
+        if (isAnswered) {
+            this.showExplanationIfNeeded();
+            this.showExplanationChange.emit(true);
+        } else {
+            // Clear any stale explanation text for unanswered questions
             this.explanationToDisplay = '';
             this.showExplanationChange.emit(false);
             this.explanationToDisplayChange.emit(this.explanationToDisplay);
