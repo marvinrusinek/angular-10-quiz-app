@@ -225,11 +225,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private onVisibilityChange(): void {
-    const isHidden = document.hidden;
-    this.handlePageVisibilityChange(isHidden);
-  }
-
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
   
@@ -303,14 +298,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    console.log('Visibility changed. Document hidden:', document.hidden);
-    if (document.hidden) {
-      this.saveQuizState();
-    } else {
-      this.restoreQuizState();
-      this.ngZone.run(() => this.handleQuizRestore());
-    }
+  private onVisibilityChange(): void {
+      const isHidden = document.hidden;
+      console.log('Visibility changed. Document hidden:', isHidden);
+
+      if (isHidden) {
+          // When the page is hidden, save the quiz state and handle page-specific changes
+          this.saveQuizState();
+          this.handlePageVisibilityChange(isHidden); // Pause updates or other actions if needed
+      } else {
+          // When the page is visible again, restore the quiz state and resume necessary operations
+          this.restoreQuizState();
+          this.ngZone.run(() => this.handleQuizRestore()); // Ensure Angular change detection is triggered
+          this.handlePageVisibilityChange(isHidden); // Resume updates or reinitialize subscriptions if needed
+      }
   }
 
   // Handle quiz restoration
