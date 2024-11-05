@@ -1061,11 +1061,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.showExplanationChange.emit(true);
             console.log('Explanation displayed:', this.explanationToDisplay);
         } else {
-            this.resetExplanationDisplay();
+            this.resetExplanationText();
         }
     } catch (error) {
         console.error('Error fetching explanation text:', error);
-        this.resetExplanationDisplay();
+        this.resetExplanationText();
     }
   }
 
