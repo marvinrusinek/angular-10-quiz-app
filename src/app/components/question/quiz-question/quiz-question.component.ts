@@ -628,8 +628,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   private resetExplanationText(): void {
+    this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');  // Clear explanation text
     this.showExplanationChange.emit(false);  // Hide explanation initially
+    this.shouldDisplayExplanation = false;
+    console.log('Explanation display reset.');
   }
   
   private setExplanationText(question: QuizQuestion): void {
@@ -756,7 +759,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Set answer and display flags based on stored values
         this.isAnswered = storedIsAnswered === 'true';
-        this.shouldDisplayExplanation = this.isAnswered; // Only true if answered
+        this.shouldDisplayExplanation = this.isAnswered;
 
         if (this.isAnswered) {
             console.log('Restoring explanation display as question is marked answered.');
@@ -991,7 +994,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Helper methods
-  private showQuestionText(): void {
+  /* private showQuestionText(): void {
     console.log('Executing showQuestionText:', {
         isAnswered: this.isAnswered,
         shouldDisplayExplanation: this.shouldDisplayExplanation,
@@ -1006,9 +1009,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
         console.log('Skipping question text display since explanation display is intended.');
     }
+  } */
+  private showQuestionText(): void {
+    console.log('Executing showQuestionText:', {
+        isAnswered: this.isAnswered,
+        shouldDisplayExplanation: this.shouldDisplayExplanation,
+    });
+    
+    if (!this.isAnswered || !this.shouldDisplayExplanation) {
+        console.log('Displaying question text and clearing explanation.');
+        this.resetExplanationText();
+    } else {
+        console.log('Explanation display active, skipping question text display.');
+    }
   }
 
-  private async showExplanationText(): Promise<void> {
+  /* private async showExplanationText(): Promise<void> {
     try {
         if (this.isAnswered && this.shouldDisplayExplanation) {
             console.log('Displaying explanation text.');
@@ -1029,6 +1045,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.explanationToDisplay = ''; // Clear explanation if an error occurs
         this.explanationToDisplayChange.emit('');
         this.showExplanationChange.emit(false);
+    }
+  } */
+  private async showExplanationText(): Promise<void> {
+    try {
+        if (this.isAnswered && this.shouldDisplayExplanation) {
+            console.log('Displaying explanation text.');
+            this.explanationToDisplay = await firstValueFrom(
+                this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+            ) || 'Explanation unavailable';
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+            this.showExplanationChange.emit(true);
+        } else {
+            console.log('Skipping explanation display as it is not intended.');
+            this.resetExplanationText();
+        }
+    } catch (error) {
+        console.error('Error fetching explanation text:', error);
+        this.resetExplanationText();
     }
   }
 
