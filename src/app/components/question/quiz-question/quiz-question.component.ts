@@ -754,9 +754,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             return;
         }
 
-        // Set answer and display states based on stored values
+        // Set answer and display flags based on stored values
         this.isAnswered = storedIsAnswered === 'true';
-        this.shouldDisplayExplanation = this.isAnswered; // Set flag based on answer state
+        this.shouldDisplayExplanation = this.isAnswered; // Only true if answered
 
         if (this.isAnswered) {
             console.log('Restoring explanation display as question is marked answered.');
@@ -769,7 +769,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
     }
-  } 
+  }
   
   /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
@@ -992,33 +992,37 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Helper methods
   private showQuestionText(): void {
-    console.log('Executing showQuestionText, isAnswered:', this.isAnswered, 'shouldDisplayExplanation:', this.shouldDisplayExplanation);
+    console.log('Executing showQuestionText:', {
+        isAnswered: this.isAnswered,
+        shouldDisplayExplanation: this.shouldDisplayExplanation,
+    });
     
     if (!this.isAnswered || !this.shouldDisplayExplanation) {
-        // Clear explanation only if the display state is not intended for explanation
-        console.log('Clearing explanation text to ensure question text displays.');
+        console.log('Displaying question text and clearing explanation.');
         this.explanationToDisplay = ''; // Clear any explanation text
         this.explanationToDisplayChange.emit('');
-        this.showExplanationChange.emit(false); // Signal UI to hide explanation display
+        this.showExplanationChange.emit(false); // Ensure explanation UI is hidden
+        this.shouldDisplayExplanation = false; // Reset flag to avoid unintended switching
     } else {
-        console.log('Question is marked as answered and explanation display is intended.');
+        console.log('Skipping question text display since explanation display is intended.');
     }
   }
 
   private async showExplanationText(): Promise<void> {
     try {
-        if (this.isAnswered && this.shouldDisplayExplanation) { // Check both flags
-            console.log('Displaying explanation text as per state and flag');
+        if (this.isAnswered && this.shouldDisplayExplanation) {
+            console.log('Displaying explanation text.');
             this.explanationToDisplay = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
             ) || 'Explanation unavailable';
             this.explanationToDisplayChange.emit(this.explanationToDisplay);
             this.showExplanationChange.emit(true);
         } else {
-            console.log('Not displaying explanation since question is not marked as answered or display flag is off');
-            this.explanationToDisplay = ''; // Ensure explanation text is cleared if not answered
+            console.log('Skipping explanation display as it is not intended.');
+            this.explanationToDisplay = ''; // Clear explanation when not needed
             this.explanationToDisplayChange.emit('');
             this.showExplanationChange.emit(false);
+            this.shouldDisplayExplanation = false; // Reset flag after display decision
         }
     } catch (error) {
         console.error('Error fetching explanation text:', error);
