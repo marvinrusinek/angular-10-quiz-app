@@ -132,6 +132,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   explanationVisible = false;
   private displayMode: 'question' | 'explanation' = 'question';
   private displayMode$: BehaviorSubject<'question' | 'explanation'> = new BehaviorSubject('question');
+  private displaySubscriptions: Subscription[] = [];
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
@@ -775,12 +776,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Unsubscribing to prevent multiple triggers
   private handlePageVisibilityChange(isHidden: boolean): void {
     if (isHidden) {
-      // Clear or reset necessary variables/subscriptions if navigating away
-      this.clearDisplaySubscriptions();
+        // Page is now hidden, so pause updates and clear/reset necessary subscriptions
+        this.isPaused = true; // Indicate that updates are paused
+        this.clearDisplaySubscriptions();
     } else {
-      // Reinitialize necessary subscriptions on return
-      this.initializeDisplaySubscriptions();
+        // Page is now visible, so resume updates, reinitialize subscriptions, and refresh explanation text
+        this.isPaused = false; // Indicate that updates are no longer paused
+        this.initializeDisplaySubscriptions();
+        this.prepareAndSetExplanationText(this.currentQuestionIndex);
     }
+  }
+
+  private clearDisplaySubscriptions(): void {
+    // Unsubscribe from any active subscriptions to avoid memory leaks and unnecessary processing
+    if (this.displaySubscriptions) {
+      this.displaySubscriptions.forEach((sub) => sub.unsubscribe());
+    }
+
+    // Reset the array to prepare for new subscriptions when the page becomes visible again
+    this.displaySubscriptions = [];
+
+    // Additional clean-up logic, if necessary
+    this.explanationToDisplay = ''; // Clear any currently displayed explanation text
+    this.explanationToDisplayChange.emit(''); // Emit empty string to reset UI elements
+    this.showExplanationChange.emit(false); // Ensure explanation display is hidden
+    console.log('Display subscriptions cleared and explanation reset.');
   }
 
   private async updateDisplayBasedOnState(): Promise<void> {
@@ -1430,17 +1450,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizService.answers$.subscribe((answers) => {
       this.answers = answers;
     });
-  }
-
-  private handlePageVisibilityChange(isHidden: boolean): void {
-    if (isHidden) {
-      // Page is now hidden, pause or delay updates in this component
-      this.isPaused = true; // pause updates
-    } else {
-      // Page is now visible, resume updates in this component
-      this.isPaused = false; // Unpause updates
-      this.prepareAndSetExplanationText(this.currentQuestionIndex);
-    }
   }
 
   public getDisplayOptions(): Option[] {
