@@ -199,6 +199,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Initialize necessary subscriptions and data to manage display mode
       this.initializeDisplaySubscriptions();
+
+      // Initialize display mode subscription for reactive updates
+      this.initializeDisplayModeSubscription();
       
       // Add the visibility change listener
       document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
@@ -332,7 +335,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Handle quiz restoration
-  private async handleQuizRestore(): Promise<void> {
+  /* private async handleQuizRestore(): Promise<void> {
     if (!(await this.ensureQuizIdExists())) {
       console.error('Unable to retrieve Quiz ID, cannot fetch questions');
       return;
@@ -360,6 +363,54 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
       console.error('Error in onVisibilityChange:', error);
     }
+  } */
+  private async handleQuizRestore(): Promise<void> {
+    if (!(await this.ensureQuizIdExists())) {
+        console.error('Unable to retrieve Quiz ID, cannot fetch questions');
+        return;
+    }
+
+    try {
+        await this.loadQuizData();
+        
+        if (this.currentQuestion) {
+            this.setCurrentQuestion(this.currentQuestion); // Display the question in the UI
+        }
+
+        // Determine if the question is answered to set display mode accordingly
+        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+        
+        // Update `displayMode$` based on `isAnswered` state
+        const currentMode = isAnswered ? 'explanation' : 'question';
+        this.displayMode$.next(currentMode); // Set the mode reactively
+
+        // Display content based on `displayMode$`
+        if (currentMode === 'explanation') {
+            this.showExplanationIfNeeded();
+            this.showExplanationChange.emit(true);
+        } else {
+            // Ensure question text is displayed if not answered
+            this.explanationToDisplay = ''; // Clear any stale explanation
+            this.showExplanationChange.emit(false);
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        }
+
+        // Update the selection message for the current question
+        await this.updateSelectionMessageForCurrentQuestion();
+    } catch (error) {
+        console.error('Error in handleQuizRestore:', error);
+    }
+  }
+
+  // Method to initialize `displayMode$` and control the display reactively
+  private initializeDisplayModeSubscription(): void {
+    this.displayMode$.subscribe(mode => {
+        if (mode === 'question') {
+            this.showQuestionText();
+        } else if (mode === 'explanation') {
+            this.showExplanationText();
+        }
+    });
   }
 
   // Helper method that sets and emits the explanation text only if the question is answered
