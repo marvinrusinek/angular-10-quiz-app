@@ -729,7 +729,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
         this.currentQuestionIndex = +storedIndex;
 
-        // Parse and validate the question
         const parsedQuestion = JSON.parse(storedQuestion);
         if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
             this.currentQuestion = parsedQuestion;
@@ -739,7 +738,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             return;
         }
 
-        // Parse and validate options
         const parsedOptions = JSON.parse(storedOptions);
         if (
             Array.isArray(parsedOptions) &&
@@ -758,15 +756,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             return;
         }
 
-        // Set flags and determine display mode based on restored values
         this.isAnswered = storedIsAnswered === 'true';
+
+        // Verify and set display mode based on restored state
         this.displayMode = this.isAnswered ? 'explanation' : 'question';
 
+        // Confirm correct display mode before displaying content
         if (this.displayMode === 'explanation') {
-            console.log('Restoring explanation text display for answered question.');
+            console.log('Restoring explanation display for answered question.');
             this.showExplanationText();
         } else {
-            console.log('Restoring question text display as question is not answered.');
+            console.log('Restoring question display as question is not answered.');
             this.showQuestionText();
         }
     } else {
@@ -1013,14 +1013,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */  
   private showQuestionText(): void {
     if (this.displayMode !== 'question') {
-        console.log('Attempted to show question text, but display mode is set to explanation.');
+        console.log('Blocked question text display: display mode is set to explanation.');
         return;
     }
 
-    console.log('Switching to question mode and clearing explanation.');
-    this.displayMode = 'question';
+    console.log('Switching to question display and clearing explanation text.');
     this.resetExplanationText();
-    // Trigger UI updates for question display here if needed
+    // Trigger any UI updates for question display here if needed
   }
 
   /* private async showExplanationText(): Promise<void> {
@@ -1048,14 +1047,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   private async showExplanationText(): Promise<void> {
     if (this.displayMode !== 'explanation') {
-        console.log('Attempted to show explanation, but display mode is set to question.');
+        console.log('Blocked explanation display: display mode is set to question.');
         return;
     }
-    
+
     try {
         if (this.isAnswered) {
-            this.displayMode = 'explanation';
-            console.log('Switching to explanation mode for answered question.');
+            console.log('Switching to explanation display for answered question.');
             this.explanationToDisplay = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
             ) || 'Explanation unavailable';
@@ -1063,11 +1061,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.showExplanationChange.emit(true);
             console.log('Explanation displayed:', this.explanationToDisplay);
         } else {
-            this.resetExplanationText();
+            this.resetExplanationDisplay();
         }
     } catch (error) {
         console.error('Error fetching explanation text:', error);
-        this.resetExplanationText();
+        this.resetExplanationDisplay();
     }
   }
 
