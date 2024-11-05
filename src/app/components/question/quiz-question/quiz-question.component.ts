@@ -131,6 +131,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
   private shouldDisplayExplanation = false;
+  private displayMode: 'question' | 'explanation' = 'question';
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
@@ -757,11 +758,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             return;
         }
 
-        // Set flags based on restored values
+        // Set flags and determine display mode based on restored values
         this.isAnswered = storedIsAnswered === 'true';
         this.shouldDisplayExplanation = this.isAnswered;
+        this.displayMode = this.isAnswered ? 'explanation' : 'question';
 
-        if (this.isAnswered && this.shouldDisplayExplanation) {
+        if (this.displayMode === 'explanation') {
             console.log('Restoring explanation text display for answered question.');
             this.showExplanationText();
         } else {
@@ -1011,17 +1013,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */
   private showQuestionText(): void {
-    console.log('Executing showQuestionText with current state:', {
+    console.log('Attempting to display question text with current state:', {
+        displayMode: this.displayMode,
         isAnswered: this.isAnswered,
         shouldDisplayExplanation: this.shouldDisplayExplanation,
-        explanationToDisplay: this.explanationToDisplay
     });
     
-    if (!this.isAnswered || !this.shouldDisplayExplanation) {
-        console.log('Showing question text and clearing explanation.');
+    if (this.displayMode !== 'explanation') {
+        console.log('Setting display mode to question and clearing explanation.');
+        this.displayMode = 'question';
         this.resetExplanationText(); // Clear any existing explanation
     } else {
-        console.log('Explanation display active, skipping question text.');
+        console.log('Display mode is set to explanation, skipping question text.');
     }
   }
 
@@ -1051,7 +1054,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private async showExplanationText(): Promise<void> {
     try {
         if (this.isAnswered && this.shouldDisplayExplanation) {
-            console.log('Displaying explanation text for answered question.');
+            console.log('Setting display mode to explanation for answered question.');
+            this.displayMode = 'explanation';
             this.explanationToDisplay = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
             ) || 'Explanation unavailable';
@@ -1059,7 +1063,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.showExplanationChange.emit(true);
             console.log('Explanation displayed:', this.explanationToDisplay);
         } else {
-            console.log('Explanation display skipped: conditions not met.');
+            console.log('Skipping explanation display due to conditions not met.');
             this.resetExplanationText();
         }
     } catch (error) {
