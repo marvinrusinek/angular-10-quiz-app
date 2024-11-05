@@ -133,6 +133,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private displayMode: 'question' | 'explanation' = 'question';
   displayMode$: Observable<"question" | "explanation">;
   private displaySubscriptions: Subscription[] = [];
+  private displayModeSubscription: Subscription;
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
@@ -297,6 +298,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.sharedVisibilitySubscription?.unsubscribe();
     this.resetFeedbackSubscription?.unsubscribe();
     this.resetStateSubscription?.unsubscribe();
+    this.displayModeSubscription?.unsubscribe();
   }
   
   // Listen for the visibility change event
@@ -1106,19 +1108,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private initializeDisplaySubscriptions(): void {
-    // Ensure displayMode$ emits only based on the isAnswered state
+    // Unsubscribe from any existing subscription to prevent multiple subscriptions
+    if (this.displayModeSubscription) {
+        this.displayModeSubscription.unsubscribe();
+    }
+
+    // Ensure displayMode$ emits based on the isAnswered state
     this.displayMode$ = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
         map(isAnswered => (isAnswered ? 'explanation' : 'question')),
         distinctUntilChanged(), // Ensure no duplicate emissions
         tap(mode => console.log(`Setting display mode to: ${mode}`)),
         catchError(error => {
-          console.error("Error fetching display mode:", error);
-          return of("question"); // Default to "question" if an error occurs
-      })
+            console.error("Error fetching display mode:", error);
+            return of("question"); // Default to "question" if an error occurs
+        })
     );
 
-    // Subscribe to displayMode$ to reactively control the display
-    this.displayMode$.subscribe(mode => {
+    // Subscribe to displayMode$ and manage it via displayModeSubscription
+    this.displayModeSubscription = this.displayMode$.subscribe(mode => {
         if (mode === 'question') {
             this.showQuestionText();
         } else if (mode === 'explanation') {
