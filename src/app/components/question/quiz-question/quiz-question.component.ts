@@ -624,29 +624,34 @@ private restoreQuizState(): void {
       }
   }
 
-  // Enhanced `initializeDisplayModeSubscription` with Stabilization Logic
+
   private initializeDisplayModeSubscription(): void {
-      this.displayModeSubscription = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
-          map(isAnswered => (isAnswered ? 'explanation' : 'question')),
-          distinctUntilChanged(),
-          tap(mode => {
-              if (!this.isRestoringState) {
-                  console.log(`Setting display mode reactively to: ${mode}`);
-                  this.displayMode$.next(mode);
-                  if (mode === 'question') {
-                      this.showQuestionText();
-                  } else if (mode === 'explanation') {
-                      this.showExplanationText();
-                  }
-              } else {
-                  console.log(`Skipping display mode change during restoration`);
-              }
-          }),
-          catchError(error => {
-              console.error('Error in display mode subscription:', error);
-              return of('question');
-          })
-      ).subscribe();
+    this.displayModeSubscription = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
+        map(isAnswered => (isAnswered ? 'explanation' : 'question')),
+        distinctUntilChanged(),
+        tap(mode => {
+            console.log(`Reactive display mode update to: ${mode}`);
+            if (!this.isRestoringState) { // Skip during restoration
+                this.displayMode$.next(mode);
+                this.applyDisplayModeDirectly(mode);
+            }
+        }),
+        catchError(error => {
+            console.error('Error in display mode subscription:', error);
+            return of('question');
+        })
+    ).subscribe();
+  }
+
+  // Helper function to enforce the display mode directly
+  private applyDisplayModeDirectly(mode: 'question' | 'explanation'): void {
+    if (mode === 'question') {
+        this.showQuestionText();
+        console.log('Display mode set to question');
+    } else if (mode === 'explanation') {
+        this.showExplanationText();
+        console.log('Display mode set to explanation');
+    }
   }
 
   // Helper method that sets and emits the explanation text only if the question is answered
