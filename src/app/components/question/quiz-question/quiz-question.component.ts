@@ -484,31 +484,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     try {
         await this.loadQuizData();
 
-        if (this.currentQuestion) {
-            this.setCurrentQuestion(this.currentQuestion); // Display the question
-        }
-
-        // Determine if explanation should be shown based on answered status
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-        const intendedMode: 'question' | 'explanation' = isAnswered ? 'explanation' : 'question';
+        const intendedMode = isAnswered ? 'explanation' : 'question';
 
-        console.log(`Restoring Question ${this.currentQuestionIndex}: isAnswered=${isAnswered}, Intended Mode=${intendedMode}, Current Mode=${this.currentMode}`);
+        if (this.currentMode !== intendedMode) {
+            this.currentMode = intendedMode;
+            this.displayMode$.next(intendedMode);
 
-        if (isAnswered && !this.hasExplanationShown) {
-            this.currentMode = 'explanation';
-            this.displayMode$.next('explanation');
-            this.showExplanationText();
-            this.hasExplanationShown = true;
-            console.log(`Explanation displayed for Question ${this.currentQuestionIndex}.`);
-        } else {
-            this.currentMode = 'question';
-            this.displayMode$.next('question');
-            this.showQuestionText();
-            console.log(`Displaying question text for Question ${this.currentQuestionIndex}.`);
-            if (!isAnswered) {
-                this.clearExplanationText();
-                this.hasExplanationShown = false; // Reset flag when question is not answered
+            if (intendedMode === 'question') {
+                this.showQuestionText();
+                this.hasExplanationShown = false; // Reset explanation flag when returning to question mode
+            } else if (intendedMode === 'explanation' && !this.hasExplanationShown) {
+                this.showExplanationText();
+                this.hasExplanationShown = true;
             }
+
+            console.log(`Restoring Question ${this.currentQuestionIndex}: isAnswered=${isAnswered}, Intended Mode=${intendedMode}, Current Mode=${this.currentMode}`);
+        } else {
+            console.log(`No mode change needed for Question ${this.currentQuestionIndex}. Current Mode remains: ${this.currentMode}`);
         }
 
         await this.updateSelectionMessageForCurrentQuestion();
