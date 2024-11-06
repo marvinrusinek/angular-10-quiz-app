@@ -473,6 +473,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.error('Error in handleQuizRestore:', error);
     }
   } */
+  private hasExplanationShown: boolean = false;
+
   private async handleQuizRestore(): Promise<void> {
     if (!(await this.ensureQuizIdExists())) {
         console.error('Unable to retrieve Quiz ID, cannot fetch questions');
@@ -483,33 +485,44 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         await this.loadQuizData();
 
         if (this.currentQuestion) {
-            this.setCurrentQuestion(this.currentQuestion);
+            this.setCurrentQuestion(this.currentQuestion); // Display the question
         }
 
+        // Determine if explanation should be shown based on answered status
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         const intendedMode: 'question' | 'explanation' = isAnswered ? 'explanation' : 'question';
 
-        console.log(`Restoring for Question ${this.currentQuestionIndex}. 
-                     isAnswered: ${isAnswered}, Intended mode: ${intendedMode}, Current mode: ${this.currentMode}`);
+        console.log(`Restoring Question ${this.currentQuestionIndex}: isAnswered=${isAnswered}, Intended Mode=${intendedMode}, Current Mode=${this.currentMode}`);
 
-        if (this.currentMode !== intendedMode) {
-            this.currentMode = intendedMode;
-            this.displayMode$.next(intendedMode);
+        if (isAnswered && !this.hasExplanationShown) {
+            this.currentMode = 'explanation';
+            this.displayMode$.next('explanation');
+            this.showExplanationText();
+            this.hasExplanationShown = true;
+            console.log(`Explanation displayed for Question ${this.currentQuestionIndex}.`);
         } else {
-            console.log(`No display mode change for Question ${this.currentQuestionIndex}, current mode remains ${this.currentMode}`);
-        }
-
-        if (!isAnswered) {
-            this.explanationToDisplay = '';
-            this.explanationToDisplayChange.emit(this.explanationToDisplay);
-            this.showExplanationChange.emit(false);
-            console.log(`Cleared explanation for Question ${this.currentQuestionIndex} since it's unanswered.`);
+            this.currentMode = 'question';
+            this.displayMode$.next('question');
+            this.showQuestionText();
+            console.log(`Displaying question text for Question ${this.currentQuestionIndex}.`);
+            if (!isAnswered) {
+                this.clearExplanationText();
+                this.hasExplanationShown = false; // Reset flag when question is not answered
+            }
         }
 
         await this.updateSelectionMessageForCurrentQuestion();
     } catch (error) {
         console.error('Error in handleQuizRestore:', error);
     }
+  }
+
+  // Additional helper method to clear explanation
+  private clearExplanationText(): void {
+      this.explanationToDisplay = '';
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      this.showExplanationChange.emit(false);
+      console.log(`Explanation cleared for Question ${this.currentQuestionIndex} (not answered).`);
   }
 
 
