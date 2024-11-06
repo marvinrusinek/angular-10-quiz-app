@@ -944,55 +944,54 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
     if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
-        this.currentQuestionIndex = +storedIndex;
+      this.currentQuestionIndex = +storedIndex;
 
-        const parsedQuestion = JSON.parse(storedQuestion);
-        if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
-            this.currentQuestion = parsedQuestion;
-        } else {
-            console.error('Invalid or null question format');
-            this.loadQuestion();
-            return;
-        }
-
-        const parsedOptions = JSON.parse(storedOptions);
-        if (
-            Array.isArray(parsedOptions) &&
-            parsedOptions.every(option =>
-                option &&
-                typeof option === 'object' &&
-                'text' in option &&
-                'optionId' in option &&
-                ('correct' in option || option.correct === undefined)
-            )
-        ) {
-            this.optionsToDisplay = parsedOptions;
-        } else {
-            console.error('Invalid or null options format');
-            this.loadQuestion();
-            return;
-        }
-
-        this.isAnswered = storedIsAnswered === 'true';
-        console.log(`Restored isAnswered state: ${this.isAnswered}`);
-        this.setDisplayMode(this.isAnswered);
-    } else {
-        console.warn('Stored state is incomplete, loading default question');
+      const parsedQuestion = JSON.parse(storedQuestion);
+      if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
+        this.currentQuestion = parsedQuestion;
+      } else {
+        console.error('Invalid or null question format');
         this.loadQuestion();
+        return;
+      }
+
+      const parsedOptions = JSON.parse(storedOptions);
+      if (
+        Array.isArray(parsedOptions) && parsedOptions.every(option =>
+          option &&
+          typeof option === 'object' &&
+          'text' in option &&
+          'optionId' in option &&
+          ('correct' in option || option.correct === undefined)
+        )
+      ) {
+        this.optionsToDisplay = parsedOptions;
+      } else {
+        console.error('Invalid or null options format');
+        this.loadQuestion();
+        return;
+      }
+
+      this.isAnswered = storedIsAnswered === 'true';
+      console.log(`Restored isAnswered state: ${this.isAnswered}`);
+      this.setDisplayMode(this.isAnswered);
+    } else {
+      console.warn('Stored state is incomplete, loading default question');
+      this.loadQuestion();
     }
   }
 
   // Unsubscribing to prevent multiple triggers
   private handlePageVisibilityChange(isHidden: boolean): void {
     if (isHidden) {
-        // Page is now hidden, so pause updates and clear/reset necessary subscriptions
-        this.isPaused = true; // Indicate that updates are paused
-        this.clearDisplaySubscriptions();
+      // Page is now hidden, so pause updates and clear/reset necessary subscriptions
+      this.isPaused = true; // Indicate that updates are paused
+      this.clearDisplaySubscriptions();
     } else {
-        // Page is now visible, so resume updates, reinitialize subscriptions, and refresh explanation text
-        this.isPaused = false; // Indicate that updates are no longer paused
-        this.initializeDisplaySubscriptions();
-        this.prepareAndSetExplanationText(this.currentQuestionIndex);
+      // Page is now visible, so resume updates, reinitialize subscriptions, and refresh explanation text
+      this.isPaused = false; // Indicate that updates are no longer paused
+      this.initializeDisplaySubscriptions();
+      this.prepareAndSetExplanationText(this.currentQuestionIndex);
     }
   }
 
