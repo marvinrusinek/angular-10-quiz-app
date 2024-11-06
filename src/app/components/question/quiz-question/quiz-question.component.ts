@@ -511,6 +511,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+
   // Additional helper method to clear explanation
   private clearExplanationText(): void {
       this.explanationToDisplay = '';
