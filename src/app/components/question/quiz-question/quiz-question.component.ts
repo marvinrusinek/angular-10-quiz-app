@@ -1087,7 +1087,7 @@ private restoreQuizState(): void {
   private isRestoringState = false;
 
   // Restore Quiz State with Stabilizing Logic
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -1135,6 +1135,24 @@ private restoreQuizState(): void {
         const intendedMode = this.isAnswered ? 'explanation' : 'question';
         this.displayMode$.next(intendedMode); // Set directly to enforce stability
         this.applyDisplayModeDirectly(intendedMode);
+    } else {
+        console.warn('Stored state is incomplete, loading default question');
+        this.loadQuestion();
+    }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+    
+    console.log(`Restoring Quiz State - Question Index: ${storedIndex}, Is Answered: ${storedIsAnswered}`);
+    
+    if (storedIndex !== null && storedIsAnswered !== null) {
+        this.currentQuestionIndex = +storedIndex;
+        this.isAnswered = storedIsAnswered === 'true';
+        console.log(`Restoring Question ${this.currentQuestionIndex}: isAnswered=${this.isAnswered}`);
+
+        // Set display mode based on isAnswered state and current question
+        this.setDisplayMode(this.isAnswered);
     } else {
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
@@ -1199,12 +1217,17 @@ private restoreQuizState(): void {
   // Utility to set display mode
   private setDisplayMode(isAnswered: boolean): void {
     const intendedMode = isAnswered ? 'explanation' : 'question';
-    console.log(`Setting display mode to: ${intendedMode}`);
-
-    if (this.displayMode$.getValue() !== intendedMode) {
-      this.displayMode$.next(intendedMode);
+    console.log(`Setting display mode - Intended: ${intendedMode}, Current: ${this.currentMode}`);
+    
+    if (this.currentMode !== intendedMode) {
+      this.currentMode = intendedMode;
+      this.displayMode$.next(this.currentMode);
+      console.log(`Display mode updated to: ${this.currentMode}`);
+    } else {
+      console.log(`Display mode remains as: ${this.currentMode}`);
     }
   }
+
 
   // Unsubscribing to prevent multiple triggers
   private handlePageVisibilityChange(isHidden: boolean): void {
