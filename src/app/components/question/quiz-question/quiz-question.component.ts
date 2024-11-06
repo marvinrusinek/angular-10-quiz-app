@@ -1270,13 +1270,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.resetExplanationText();
     console.log('Displaying question text and clearing explanation text.');
   } */
-  private showQuestionText(): void {
+  /* private showQuestionText(): void {
     console.log('Attempting to show question text, isAnswered:', this.isAnswered);
     if (!this.isAnswered) {
-        console.log('Displaying question text.');
-        this.explanationToDisplay = ''; // Clear explanation
-        this.explanationToDisplayChange.emit('');
-        this.showExplanationChange.emit(false);
+      console.log('Displaying question text.');
+      this.explanationToDisplay = ''; // Clear explanation
+      this.explanationToDisplayChange.emit('');
+      this.showExplanationChange.emit(false);
+    }
+  } */
+  private showQuestionText(): void {
+    if (this.displayMode$.value !== 'question') {
+        console.log('Blocked: Attempted to show question in incorrect mode.');
+        return;
+    }
+
+    console.log('Executing showQuestionText:', {
+        isAnswered: this.isAnswered,
+        shouldDisplayExplanation: this.shouldDisplayExplanation,
+    });
+
+    if (!this.isAnswered || !this.shouldDisplayExplanation) {
+        console.log('Displaying question text and clearing explanation.');
+        this.resetExplanationText(); // Resets explanation text and updates UI
+        this.shouldDisplayExplanation = false; // Reset flag to avoid unintended switching
+    } else {
+        console.log('Skipping question text display since explanation display is intended.');
     }
   }
 
