@@ -523,7 +523,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
 
   // Method to initialize `displayMode$` and control the display reactively
-  private initializeDisplayModeSubscription(): void {
+  /* private initializeDisplayModeSubscription(): void {
     // Observable to manage the display mode based on whether the question is answered
     const displayModeObservable = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
         map(isAnswered => (isAnswered ? 'explanation' : 'question')),
@@ -550,6 +550,103 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             console.log(`Display mode unchanged, remains at: ${this.currentMode}`);
         }
     });
+  } */
+  // Add a stabilizing flag
+private isRestoringState = false;
+
+// Restore Quiz State with Stabilizing Logic
+private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedOptions = sessionStorage.getItem('optionsToDisplay');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
+        this.currentQuestionIndex = +storedIndex;
+
+        try {
+            // Parse and validate the question
+            const parsedQuestion = JSON.parse(storedQuestion);
+            if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
+                this.currentQuestion = parsedQuestion;
+            } else {
+                throw new Error('Invalid or null question format');
+            }
+        } catch (error) {
+            console.error('Error parsing stored question:', error);
+            this.loadQuestion();
+            return;
+        }
+
+        try {
+            // Parse and validate the options
+            const parsedOptions = JSON.parse(storedOptions);
+            if (Array.isArray(parsedOptions) && parsedOptions.every(option =>
+                option &&
+                typeof option === 'object' &&
+                'text' in option &&
+                'optionId' in option &&
+                ('correct' in option || option.correct === undefined)
+            )) {
+                this.optionsToDisplay = parsedOptions;
+            } else {
+                throw new Error('Invalid or null options format');
+            }
+        } catch (error) {
+            console.error('Error parsing stored options:', error);
+            this.loadQuestion();
+            return;
+        }
+
+        // Set `isAnswered` and enforce display mode
+        this.isAnswered = storedIsAnswered === 'true';
+        console.log(`Restored isAnswered state: ${this.isAnswered}`);
+        
+        this.isRestoringState = true; // Set the flag to prevent display mode toggling
+        this.applyDisplayModeStrict(this.isAnswered);
+        this.isRestoringState = false; // Reset the flag after restoration
+    } else {
+        console.warn('Stored state is incomplete, loading default question');
+        this.loadQuestion();
+    }
+  }
+
+  // Strict Mode Application
+  private applyDisplayModeStrict(isAnswered: boolean): void {
+      const intendedMode = isAnswered ? 'explanation' : 'question';
+
+      if (intendedMode === 'question') {
+          this.showQuestionText();
+          console.log(`Applying strict display mode: question`);
+      } else {
+          this.showExplanationText();
+          console.log(`Applying strict display mode: explanation`);
+      }
+  }
+
+  // Enhanced `initializeDisplayModeSubscription` with Stabilization Logic
+  private initializeDisplayModeSubscription(): void {
+      this.displayModeSubscription = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
+          map(isAnswered => (isAnswered ? 'explanation' : 'question')),
+          distinctUntilChanged(),
+          tap(mode => {
+              if (!this.isRestoringState) {
+                  console.log(`Setting display mode reactively to: ${mode}`);
+                  this.displayMode$.next(mode);
+                  if (mode === 'question') {
+                      this.showQuestionText();
+                  } else if (mode === 'explanation') {
+                      this.showExplanationText();
+                  }
+              } else {
+                  console.log(`Skipping display mode change during restoration`);
+              }
+          }),
+          catchError(error => {
+              console.error('Error in display mode subscription:', error);
+              return of('question');
+          })
+      ).subscribe();
   }
 
   // Helper method that sets and emits the explanation text only if the question is answered
@@ -981,73 +1078,79 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.loadQuestion();
     }
   } */
+  // Add a stabilizing flag
+  private isRestoringState = false;
+
+  // Restore Quiz State with Stabilizing Logic
   private restoreQuizState(): void {
-    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedQuestion = sessionStorage.getItem('currentQuestion');
-    const storedOptions = sessionStorage.getItem('optionsToDisplay');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+      const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+      const storedQuestion = sessionStorage.getItem('currentQuestion');
+      const storedOptions = sessionStorage.getItem('optionsToDisplay');
+      const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
-    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
-        this.currentQuestionIndex = +storedIndex;
+      if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
+          this.currentQuestionIndex = +storedIndex;
 
-        // Parse and validate the question
-        try {
-            const parsedQuestion = JSON.parse(storedQuestion);
-            if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
-                this.currentQuestion = parsedQuestion;
-            } else {
-                throw new Error('Invalid or null question format');
-            }
-        } catch (error) {
-            console.error('Error parsing stored question:', error);
-            this.loadQuestion();
-            return;
-        }
+          try {
+              // Parse and validate the question
+              const parsedQuestion = JSON.parse(storedQuestion);
+              if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
+                  this.currentQuestion = parsedQuestion;
+              } else {
+                  throw new Error('Invalid or null question format');
+              }
+          } catch (error) {
+              console.error('Error parsing stored question:', error);
+              this.loadQuestion();
+              return;
+          }
 
-        // Parse and validate the options
-        try {
-            const parsedOptions = JSON.parse(storedOptions);
-            if (Array.isArray(parsedOptions) && parsedOptions.every(option =>
-                option &&
-                typeof option === 'object' &&
-                'text' in option &&
-                'optionId' in option &&
-                ('correct' in option || option.correct === undefined)
-            )) {
-                this.optionsToDisplay = parsedOptions;
-            } else {
-                throw new Error('Invalid or null options format');
-            }
-        } catch (error) {
-            console.error('Error parsing stored options:', error);
-            this.loadQuestion();
-            return;
-        }
+          try {
+              // Parse and validate the options
+              const parsedOptions = JSON.parse(storedOptions);
+              if (Array.isArray(parsedOptions) && parsedOptions.every(option =>
+                  option &&
+                  typeof option === 'object' &&
+                  'text' in option &&
+                  'optionId' in option &&
+                  ('correct' in option || option.correct === undefined)
+              )) {
+                  this.optionsToDisplay = parsedOptions;
+              } else {
+                  throw new Error('Invalid or null options format');
+              }
+          } catch (error) {
+              console.error('Error parsing stored options:', error);
+              this.loadQuestion();
+              return;
+          }
 
-        // Restore `isAnswered` state and apply the display mode without external triggers
-        this.isAnswered = storedIsAnswered === 'true';
-        console.log(`Restored isAnswered state: ${this.isAnswered}`);
-        
-        // Use a dedicated method to apply the display mode without changing any other state
-        this.applyDisplayModeStrict(this.isAnswered);
-    } else {
-        console.warn('Stored state is incomplete, loading default question');
-        this.loadQuestion();
-    }
+          // Set `isAnswered` and enforce display mode
+          this.isAnswered = storedIsAnswered === 'true';
+          console.log(`Restored isAnswered state: ${this.isAnswered}`);
+          
+          this.isRestoringState = true; // Set the flag to prevent display mode toggling
+          this.applyDisplayModeStrict(this.isAnswered);
+          this.isRestoringState = false; // Reset the flag after restoration
+      } else {
+          console.warn('Stored state is incomplete, loading default question');
+          this.loadQuestion();
+      }
   }
 
-  // Strict application of display mode
-  private applyDisplayModeStrict(isAnswered: boolean): void {
-      const intendedMode = isAnswered ? 'explanation' : 'question';
 
-      // Directly set the display without emitting events or updating other components
-      if (intendedMode === 'question') {
-          this.showQuestionText();
-          console.log(`Restoring mode to: question`);
-      } else {
-          this.showExplanationText();
-          console.log(`Restoring mode to: explanation`);
-      }
+  // Strict application of display mode
+  // Strict Mode Application
+  private applyDisplayModeStrict(isAnswered: boolean): void {
+    const intendedMode = isAnswered ? 'explanation' : 'question';
+
+    if (intendedMode === 'question') {
+        this.showQuestionText();
+        console.log(`Applying strict display mode: question`);
+    } else {
+        this.showExplanationText();
+        console.log(`Applying strict display mode: explanation`);
+    }
   }
 
   // Optional: Override on displayMode$ if observable is causing unintended switching
