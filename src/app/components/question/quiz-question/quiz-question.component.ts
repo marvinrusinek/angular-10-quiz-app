@@ -528,30 +528,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
+    // Observable to manage the display mode based on whether the question is answered
     const displayModeObservable = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
-        map(isAnswered => isAnswered ? 'explanation' : 'question'),
+        map(isAnswered => (isAnswered ? 'explanation' : 'question')),
         distinctUntilChanged(),
-        tap(mode => console.log(`Calculated display mode for Question ${this.currentQuestionIndex}: ${mode}`)),
-        catchError(error => {
-            console.error("Error fetching display mode:", error);
-            return of("question");
+        tap(mode => {
+            console.log(`Calculated mode from isAnswered: ${mode}`);
         })
     );
 
+    // Subscribe to update displayMode$ and trigger UI changes based on mode
     this.displayModeSubscription = displayModeObservable.subscribe(mode => {
-        if (this.currentMode !== mode) { // Only update if the mode has changed
+        if (this.currentMode !== mode) { // Only act if the mode changes
             this.currentMode = mode;
-            console.log(`Display mode updated for Question ${this.currentQuestionIndex}: ${mode}`);
             this.displayMode$.next(mode);
-
-            // Trigger display change based on the current mode
             if (mode === 'question') {
                 this.showQuestionText();
-            } else if (mode === 'explanation') {
+                this.hasExplanationShown = false; // Reset explanation flag for fresh question display
+            } else if (mode === 'explanation' && !this.hasExplanationShown) {
                 this.showExplanationText();
+                this.hasExplanationShown = true;
             }
+            console.log(`Display mode set to: ${mode}`);
         } else {
-            console.log(`No change in display mode for Question ${this.currentQuestionIndex}, remaining at ${this.currentMode}`);
+            console.log(`Display mode unchanged, remains at: ${this.currentMode}`);
         }
     });
   }
