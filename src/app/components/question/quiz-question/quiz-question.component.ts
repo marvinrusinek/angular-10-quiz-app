@@ -134,6 +134,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private displayMode$: BehaviorSubject<"question" | "explanation"> = new BehaviorSubject("question");
   private displaySubscriptions: Subscription[] = [];
   private displayModeSubscription: Subscription;
+  shouldDisplayExplanation = false;
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
