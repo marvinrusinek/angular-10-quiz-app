@@ -300,7 +300,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Listen for the visibility change event
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   private onVisibilityChange(): void {
     const isHidden = document.hidden;
     console.log('Visibility changed. Document hidden:', isHidden);
@@ -320,8 +320,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.showQuestionText();
       }
     }
-  }
-  /* @HostListener('window:visibilitychange', [])
+  } */
+  @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     const isHidden = document.hidden;
     if (isHidden) {
@@ -332,7 +332,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.restoreQuizState();
       this.ngZone.run(() => this.handleQuizRestore());
     }
-  } */
+  } 
 
   // Handle quiz restoration
   /* private async handleQuizRestore(): Promise<void> {
