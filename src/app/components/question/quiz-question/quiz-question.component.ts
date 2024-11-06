@@ -1024,17 +1024,38 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             return;
         }
 
-        // Restore isAnswered state and apply the display mode
+        // Restore `isAnswered` state and apply the display mode without external triggers
         this.isAnswered = storedIsAnswered === 'true';
         console.log(`Restored isAnswered state: ${this.isAnswered}`);
         
-        // Directly set display mode based on the restored state without using observable switching
-        this.applyDisplayMode(this.isAnswered);
+        // Use a dedicated method to apply the display mode without changing any other state
+        this.applyDisplayModeStrict(this.isAnswered);
     } else {
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
     }
   }
+
+  // Strict application of display mode
+  private applyDisplayModeStrict(isAnswered: boolean): void {
+      const intendedMode = isAnswered ? 'explanation' : 'question';
+
+      // Directly set the display without emitting events or updating other components
+      if (intendedMode === 'question') {
+          this.showQuestionText();
+          console.log(`Restoring mode to: question`);
+      } else {
+          this.showExplanationText();
+          console.log(`Restoring mode to: explanation`);
+      }
+  }
+
+  // Optional: Override on displayMode$ if observable is causing unintended switching
+  private initializeDisplayMode$(): void {
+      // Ensure only a single definitive value is set and ignore further updates during restore
+      this.displayMode$ = new BehaviorSubject<'question' | 'explanation'>(this.isAnswered ? 'explanation' : 'question');
+  }
+
 
   // Direct method to apply display mode based on isAnswered, bypassing displayMode$ updates
   private applyDisplayMode(isAnswered: boolean): void {
