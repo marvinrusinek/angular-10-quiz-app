@@ -484,26 +484,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     try {
         await this.loadQuizData();
 
-        // Determine the intended mode based on the answered state
+        // Force mode based on answered state
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         const intendedMode: 'question' | 'explanation' = isAnswered ? 'explanation' : 'question';
 
-        // Update only if there's a mismatch between current and intended mode
-        if (this.currentMode !== intendedMode) {
+        if (this.currentMode !== intendedMode || !this.displayMode$.getValue()) {
             this.currentMode = intendedMode;
             this.displayMode$.next(intendedMode);
 
-            // Force display to question mode if unanswered
+            // Forcefully lock to question mode if unanswered
             if (intendedMode === 'question') {
                 this.showQuestionText();
-                console.log(`Ensuring question text for Question ${this.currentQuestionIndex}`);
+                console.log(`Locked to question text for Question ${this.currentQuestionIndex}`);
             } else {
-                // Explanation mode, only if required by isAnswered status
+                // Show explanation only if it's necessary and marked as answered
                 this.showExplanationText();
-                console.log(`Ensuring explanation text for Question ${this.currentQuestionIndex}`);
+                console.log(`Locked to explanation text for Question ${this.currentQuestionIndex}`);
             }
         } else {
-            console.log(`No mode change needed for Question ${this.currentQuestionIndex}.`);
+            console.log(`Display mode already set correctly for Question ${this.currentQuestionIndex}.`);
         }
 
         await this.updateSelectionMessageForCurrentQuestion();
