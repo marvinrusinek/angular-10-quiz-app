@@ -533,7 +533,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     );
 
     // Subscribe to update displayMode$ and trigger UI changes based on mode
-    this.displayModeSubscription = displayModeObservable.subscribe(mode => {
+    this.displayModeSubscription = displayModeObservable.subscribe((mode: "question" | "explanation") => {
         if (this.currentMode !== mode) { // Only act if the mode changes
             this.currentMode = mode;
             this.displayMode$.next(mode);
