@@ -1282,21 +1282,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   private showQuestionText(): void {
     if (this.displayMode$.value !== 'question') {
-        console.log('Blocked: Attempted to show question in incorrect mode.');
-        return;
+      console.log('Blocked: Attempted to show question in incorrect mode.');
+      return;
     }
 
     console.log('Executing showQuestionText:', {
-        isAnswered: this.isAnswered,
-        shouldDisplayExplanation: this.shouldDisplayExplanation,
+      isAnswered: this.isAnswered,
+      shouldDisplayExplanation: this.shouldDisplayExplanation,
     });
 
     if (!this.isAnswered || !this.shouldDisplayExplanation) {
-        console.log('Displaying question text and clearing explanation.');
-        this.resetExplanationText(); // Resets explanation text and updates UI
-        this.shouldDisplayExplanation = false; // Reset flag to avoid unintended switching
+      console.log('Displaying question text and clearing explanation.');
+      this.resetExplanationText(); // Resets explanation text and updates UI
+      this.shouldDisplayExplanation = false; // Reset flag to avoid unintended switching
     } else {
-        console.log('Skipping question text display since explanation display is intended.');
+      console.log('Skipping question text display since explanation display is intended.');
     }
   }
 
@@ -1341,7 +1341,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.resetExplanationText();
     }
   } */
-  private async showExplanationText(): Promise<void> {
+  /* private async showExplanationText(): Promise<void> {
     if (this.isAnswered) {
         console.log('Displaying explanation text.');
         this.explanationToDisplay = await firstValueFrom(
@@ -1350,7 +1350,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
     }
+  } */
+  private async showExplanationText(): Promise<void> {
+    if (this.displayMode$.value !== 'explanation' || !this.isAnswered) {
+      console.log('Blocked: Attempted to show explanation in incorrect mode or when not answered.');
+      return;
+    }
+
+    try {
+      if (this.shouldDisplayExplanation) {
+        console.log('Displaying explanation text.');
+        this.explanationToDisplay = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+        ) || 'Explanation unavailable';
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
+        console.log('Explanation successfully displayed:', this.explanationToDisplay);
+      } else {
+        console.log('Skipping explanation display as it is not intended.');
+        this.resetExplanationText(); // Clears explanation text and updates UI
+        this.shouldDisplayExplanation = false; // Reset flag after display decision
+      }
+    } catch (error) {
+      console.error('Error fetching explanation text:', error);
+      this.resetExplanationText(); // Reset explanation on error
+    }
   }
+
 
   /* private initializeDisplaySubscriptions(): void {
     // Unsubscribe from any existing subscription to prevent multiple subscriptions
