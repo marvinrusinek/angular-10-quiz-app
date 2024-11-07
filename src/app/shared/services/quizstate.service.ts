@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, map } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuestionState } from '../../shared/models/QuestionState.model';
@@ -244,14 +244,16 @@ export class QuizStateService {
     const isMultipleAnswer = this.isMultipleAnswerQuestion(question);
   
     return this.isAnswered$.pipe(
-      map((isAnswered: boolean) => {
+      switchMap((isAnswered: boolean) => {
         console.log(
           `Question at index ${index} - Answered: ${isAnswered}, MultipleAnswer: ${isMultipleAnswer}`
         );
-        return isAnswered && isMultipleAnswer; // Return directly as boolean
+        return of(isAnswered && isMultipleAnswer); // Emit as boolean directly
       })
     );
-  }  
+  }
+  
+  
 
   clearSelectedOptions(): void {
     for (const [key, state] of this.questionStates.entries()) {
