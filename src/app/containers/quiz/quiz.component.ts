@@ -1340,37 +1340,37 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         options: options.map(option => ({
           ...option,
           correct: option.correct ?? false // Default to false if `correct` is undefined
-        })),
-        explanation: this.explanationTextService.formattedExplanationSubject.getValue(),
-        type: this.quizDataService.questionType as QuestionType,
-        };
-        this.question = currentQuestion;
+      })),
+      explanation: this.explanationTextService.formattedExplanationSubject.getValue(),
+      type: this.quizDataService.questionType as QuestionType,
+    };
+    this.question = currentQuestion;
 
-        // Filter correct answers
-        const correctAnswerOptions = (currentQuestion.options || []).filter((option: Option) => option.correct);
+    // Filter correct answers
+    const correctAnswerOptions = (currentQuestion.options || []).filter((option: Option) => option.correct);
 
-        if (correctAnswerOptions.length === 0) {
-          console.error(
-            `No correct options found for question: "${currentQuestion.questionText}". Options:`,
-            currentQuestion.options
-          );
-          return; // Exit early to avoid setting invalid correct answers
-        }
+    if (correctAnswerOptions.length === 0) {
+      console.error(
+        `No correct options found for question: "${currentQuestion.questionText}". Options:`,
+        currentQuestion.options
+      );
+      return; // Exit early to avoid setting invalid correct answers
+    }
 
-        // Set correct answers if valid options are found
-        this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions).subscribe({
-          next: () => {
-            this.prepareFeedback();
-          },
-          error: (err) => {
-            console.error('Error setting correct answers:', err);
-          },
-        });
+    // Set correct answers if valid options are found
+    this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions).subscribe({
+      next: () => {
+        this.prepareFeedback();
+      },
+      error: (err) => {
+        console.error('Error setting correct answers:', err);
+      }
+    });
 
-        this.quizService.setCorrectAnswersLoaded(true);
-        this.quizService.correctAnswersLoadedSubject.next(true);
+    this.quizService.setCorrectAnswersLoaded(true);
+    this.quizService.correctAnswersLoadedSubject.next(true);
 
-        console.log('Correct Answer Options:', correctAnswerOptions);
+      console.log('Correct Answer Options:', correctAnswerOptions);
     });
   }
 
