@@ -500,8 +500,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             question.options.length > 0 &&
             question.options.every(option => option && typeof option === 'object' && 'text' in option);
   } */
-
-  private saveQuizState(): void {
+  /* private saveQuizState(): void {
     try {
         // Save current question index
         sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
@@ -531,6 +530,67 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             ('optionId' in option || option.optionId === undefined) &&
             ('correct' in option || option.correct === undefined)
         )) {
+            sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
+        } else {
+            console.warn('Invalid or incomplete options. Removing stored options.', {
+                optionsToDisplay: this.optionsToDisplay,
+                invalidOptions: this.optionsToDisplay.filter(option => 
+                    !option || typeof option !== 'object' || !('text' in option)
+                )
+            });
+            sessionStorage.removeItem('optionsToDisplay');
+        }
+
+        sessionStorage.setItem('isAnswered', this.isAnswered.toString());
+    } catch (error) {
+        console.error('Error saving quiz state:', error);
+    }
+  } */
+  private saveQuizState(): void {
+    try {
+        // Save current question index
+        sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
+
+        // Enhanced check for currentQuestion validity before saving
+        const isQuestionValid = this.currentQuestion &&
+                                typeof this.currentQuestion === 'object' &&
+                                this.currentQuestion.questionText &&
+                                typeof this.currentQuestion.questionText === 'string' &&
+                                Array.isArray(this.currentQuestion.options) &&
+                                this.currentQuestion.options.length > 0 &&
+                                this.currentQuestion.options.every(option =>
+                                    option && typeof option === 'object' && 'text' in option);
+
+        if (isQuestionValid) {
+            sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
+            sessionStorage.removeItem('invalidQuestionLogged'); // Clear previous warning
+        } else {
+            const missingDetails = {
+                hasQuestionText: this.currentQuestion ? 'questionText' in this.currentQuestion : false,
+                hasOptionsArray: Array.isArray(this.currentQuestion?.options),
+                optionsCount: Array.isArray(this.currentQuestion?.options) ? this.currentQuestion.options.length : 0,
+                invalidOptions: Array.isArray(this.currentQuestion?.options) ? 
+                               this.currentQuestion.options.filter(option => !option || typeof option !== 'object' || !('text' in option)) : []
+            };
+            console.warn('Invalid or incomplete current question. Removing stored question.', {
+                currentQuestion: this.currentQuestion,
+                missingDetails
+            });
+            sessionStorage.setItem('invalidQuestionLogged', 'true');
+            sessionStorage.removeItem('currentQuestion');
+        }
+
+        // Enhanced validation for optionsToDisplay
+        if (
+            Array.isArray(this.optionsToDisplay) &&
+            this.optionsToDisplay.every(option =>
+                option &&
+                typeof option === 'object' &&
+                'text' in option &&
+                ('optionId' in option || option.optionId === undefined) &&
+                ('correct' in option || option.correct === undefined)
+            )
+        ) {
             sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
         } else {
             console.warn('Invalid or incomplete options. Removing stored options.', {
