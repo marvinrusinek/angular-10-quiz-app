@@ -384,45 +384,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Modified setDisplayMode with restoration lock
-  /* private setDisplayMode(isAnswered: boolean): void {
-    // Avoid changing display mode during restoration
-    if (this.restoreInProgress) {
-        console.log("Restoration in progress, display mode change suppressed.");
-        return;
-    }
-
-    const intendedMode = isAnswered ? 'explanation' : 'question';
-    console.log(`Setting display mode - Intended: ${intendedMode}, Current: ${this.currentMode}`);
-
-    // Only update if the intended mode differs from the current mode
-    if (this.currentMode !== intendedMode) {
-        this.currentMode = intendedMode;
-        this.displayMode = intendedMode;
-        this.displayMode$.next(this.currentMode); // Update observable for reactive listeners
-        console.log(`Display mode updated to: ${this.currentMode}`);
-        
-        // Apply display update based on the new mode
-        this.updateDisplayBasedOnMode();
-    } else {
-        console.log(`Display mode remains as: ${this.currentMode}`);
-    }
-  } */
-  /* private setDisplayMode(isAnswered: boolean): void {
-    // Suppress display mode updates if restoration is ongoing
-    if (this.restoreInProgress) {
-        console.log("Restoration in progress, display mode change suppressed.");
-        return;
-    }
-
-    const intendedMode = isAnswered ? 'explanation' : 'question';
-    if (this.currentMode !== intendedMode) {
-        this.currentMode = intendedMode;
-        console.log(`Display mode set to: ${this.currentMode}`);
-        this.updateDisplayBasedOnMode();
-    } else {
-        console.log(`Display mode remains as: ${this.currentMode}`);
-    }
-  } */
   private setDisplayMode(isAnswered: boolean): void {
     if (this.restoreInProgress) {
         console.log("Restoration in progress, suppressing display mode change.");
