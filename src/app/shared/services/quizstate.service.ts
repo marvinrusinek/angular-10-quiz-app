@@ -237,6 +237,7 @@ export class QuizStateService {
     }
   }
 
+  // not being used, potentially remove...
   public shouldDisplayCorrectAnswersText(
     question: QuizQuestion,
     index: number
@@ -253,8 +254,6 @@ export class QuizStateService {
     );
   }
   
-  
-
   clearSelectedOptions(): void {
     for (const [key, state] of this.questionStates.entries()) {
       state.selectedOptions = [];
