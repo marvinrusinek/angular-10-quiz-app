@@ -437,7 +437,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.error('Error in handleQuizRestore:', error);
     }
   } */
-  private currentMode: 'question' | 'explanation' = 'question';
 
   /* private async handleQuizRestore(): Promise<void> {
     if (!(await this.ensureQuizIdExists())) {
