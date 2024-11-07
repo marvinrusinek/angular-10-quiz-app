@@ -554,7 +554,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Restore Quiz State with Stabilizing Logic
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -610,6 +610,69 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.isRestoringState = true; // Temporary flag to prevent unintended toggling
         this.setDisplayMode(this.isAnswered);
         this.isRestoringState = false; // Reset flag after restoration
+    } else {
+        console.warn('Stored state is incomplete, loading default question');
+        this.loadQuestion();
+    }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedOptions = sessionStorage.getItem('optionsToDisplay');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+    
+    console.log(`Restoring Quiz State - Question Index: ${storedIndex}, Is Answered: ${storedIsAnswered}`);
+    
+    // Ensure essential stored data is available
+    if (storedIndex !== null && storedIsAnswered !== null) {
+        this.currentQuestionIndex = +storedIndex;
+        this.isAnswered = storedIsAnswered === 'true';
+        console.log(`Restoring Question ${this.currentQuestionIndex}: isAnswered=${this.isAnswered}`);
+
+        // Parse and set current question if available
+        if (storedQuestion) {
+            try {
+                const parsedQuestion = JSON.parse(storedQuestion);
+                if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
+                    this.currentQuestion = parsedQuestion;
+                } else {
+                    throw new Error('Invalid or null question format');
+                }
+            } catch (error) {
+                console.error('Error parsing stored question:', error);
+                this.loadQuestion();
+                return;
+            }
+        }
+
+        // Parse and set options to display if available
+        if (storedOptions) {
+            try {
+                const parsedOptions = JSON.parse(storedOptions);
+                if (Array.isArray(parsedOptions) && parsedOptions.every(option =>
+                    option &&
+                    typeof option === 'object' &&
+                    'text' in option &&
+                    'optionId' in option &&
+                    ('correct' in option || option.correct === undefined)
+                )) {
+                    this.optionsToDisplay = parsedOptions;
+                } else {
+                    throw new Error('Invalid or null options format');
+                }
+            } catch (error) {
+                console.error('Error parsing stored options:', error);
+                this.loadQuestion();
+                return;
+            }
+        }
+
+        // Control display mode and prevent switching during restoration
+        if (!this.isRestoringState) {
+            this.isRestoringState = true;
+            this.applyDisplayModeStrict(this.isAnswered);
+            this.isRestoringState = false;
+        }
     } else {
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
