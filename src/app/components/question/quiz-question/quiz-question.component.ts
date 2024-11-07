@@ -383,7 +383,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('Error saving quiz state:', error);
     }
   } */
-  private saveQuizState(): void {
+  /* private saveQuizState(): void {
     try {
       // Save current question index
       sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
@@ -439,8 +439,80 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       Array.isArray(question.options) &&
       question.options.length > 0 &&
       question.options.every(option => option && typeof option === 'object' && 'text' in option);
+  } */
+  private saveQuizState(): void {
+    try {
+        // Save current question index
+        sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
+
+        // Enhanced validation and safe-checking for currentQuestion
+        if (this.isValidQuestion(this.currentQuestion)) {
+            sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
+            sessionStorage.removeItem('invalidQuestionLogged'); // Clear the flag for valid question
+        } else {
+            // Attempt to initialize `currentQuestion` if not set or invalid
+            this.initializeCurrentQuestionIfNeeded();
+
+            // Log warning only once if the question structure is still invalid
+            if (!sessionStorage.getItem('invalidQuestionLogged')) {
+                console.warn('Invalid or incomplete current question. Removing stored question.', {
+                    currentQuestion: this.currentQuestion,
+                    hasQuestionText: this.currentQuestion ? 'questionText' in this.currentQuestion : false,
+                    hasOptionsArray: Array.isArray(this.currentQuestion?.options),
+                    optionsCount: Array.isArray(this.currentQuestion?.options) ? this.currentQuestion.options.length : 0
+                });
+                sessionStorage.setItem('invalidQuestionLogged', 'true');
+            }
+            sessionStorage.removeItem('currentQuestion');
+        }
+
+        // Enhanced validation for optionsToDisplay
+        if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.every(option =>
+            option &&
+            typeof option === 'object' &&
+            'text' in option &&
+            ('optionId' in option || option.optionId === undefined) &&
+            ('correct' in option || option.correct === undefined)
+        )) {
+            sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
+        } else {
+            console.warn('Invalid or incomplete options. Removing stored options.', {
+                optionsToDisplay: this.optionsToDisplay,
+                invalidOptions: this.optionsToDisplay.filter(option => 
+                    !option || typeof option !== 'object' || !('text' in option)
+                )
+            });
+            sessionStorage.removeItem('optionsToDisplay');
+        }
+
+        sessionStorage.setItem('isAnswered', this.isAnswered.toString());
+    } catch (error) {
+        console.error('Error saving quiz state:', error);
+    }
   }
 
+  // Helper method for validating question structure
+  private isValidQuestion(question: any): boolean {
+      return question &&
+            typeof question === 'object' &&
+            typeof question.questionText === 'string' &&
+            Array.isArray(question.options) &&
+            question.options.length > 0 &&
+            question.options.every(option => option && typeof option === 'object' && 'text' in option);
+  }
+
+  // Fallback initializer for currentQuestion if missing
+  private initializeCurrentQuestionIfNeeded(): void {
+      if (!this.currentQuestion || !this.isValidQuestion(this.currentQuestion)) {
+          console.log("Initializing default question as fallback.");
+          this.currentQuestion = {
+              questionText: "Default Question Text",
+              options: [{ text: "Option 1" }, { text: "Option 2" }],
+              explanation: "",
+              type: "single" // Adjust based on your default requirements
+          };
+      }
+  }
   
   // Restore Quiz State with Stabilizing Logic
   private async restoreQuizState(): Promise<void> {
