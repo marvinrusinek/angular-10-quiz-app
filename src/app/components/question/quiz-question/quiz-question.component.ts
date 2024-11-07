@@ -309,7 +309,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
+  onVisibilityChange = (): void => {
     const isHidden = document.hidden;
     if (isHidden) {
       // Save state when navigating away
