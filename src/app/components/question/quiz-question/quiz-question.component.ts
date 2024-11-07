@@ -716,7 +716,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Restoring Question ${this.currentQuestionIndex}: isAnswered=${this.isAnswered}`);
 
         // Load the question and options without toggling the display
-        await this.loadQuestionData(this.currentQuestionIndex);
+        await this.loadQuestion();
         
         // Apply the display mode strictly after restoration is done
         this.applyDisplayModeAfterRestore(this.isAnswered);
