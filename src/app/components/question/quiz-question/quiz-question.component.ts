@@ -617,7 +617,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -675,10 +675,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
     }
+  } */
+  private restoreQuizState(): void {
+    this.restoreInProgress = true;
+    
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    console.log(`Restoring Quiz State - Question Index: ${storedIndex}, Is Answered: ${storedIsAnswered}`);
+    
+    if (storedIndex !== null && storedIsAnswered !== null) {
+        this.currentQuestionIndex = +storedIndex;
+        this.isAnswered = storedIsAnswered === 'true';
+
+        console.log(`Restoring Question ${this.currentQuestionIndex}: isAnswered=${this.isAnswered}`);
+
+        // Update display mode only once restoration is complete
+        this.applyDisplayModeStrict(this.isAnswered);
+    } else {
+        console.warn('Stored state is incomplete, loading default question');
+        this.loadQuestion();
+    }
+
+    this.restoreInProgress = false;
   }
 
   // Modified setDisplayMode with restoration lock
-  private setDisplayMode(isAnswered: boolean): void {
+  /* private setDisplayMode(isAnswered: boolean): void {
     // Avoid changing display mode during restoration
     if (this.restoreInProgress) {
         console.log("Restoration in progress, display mode change suppressed.");
@@ -700,17 +724,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
         console.log(`Display mode remains as: ${this.currentMode}`);
     }
+  } */
+  private setDisplayMode(isAnswered: boolean): void {
+    // Suppress display mode updates if restoration is ongoing
+    if (this.restoreInProgress) {
+        console.log("Restoration in progress, display mode change suppressed.");
+        return;
+    }
+
+    const intendedMode = isAnswered ? 'explanation' : 'question';
+    if (this.currentMode !== intendedMode) {
+        this.currentMode = intendedMode;
+        console.log(`Display mode set to: ${this.currentMode}`);
+        this.updateDisplayBasedOnMode();
+    } else {
+        console.log(`Display mode remains as: ${this.currentMode}`);
+    }
   }
 
   // Control the update logic based on mode
   private updateDisplayBasedOnMode(): void {
-      if (this.displayMode === 'question') {
-          this.showQuestionText();
-      } else if (this.displayMode === 'explanation') {
-          this.showExplanationText();
-      }
+    if (this.displayMode === 'question') {
+      this.showQuestionText();
+    } else if (this.displayMode === 'explanation') {
+      this.showExplanationText();
+    }
   }
-
 
   private initializeDisplayModeSubscription(): void {
     this.displayModeSubscription = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
@@ -1230,13 +1269,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Strict Mode Application
   private applyDisplayModeStrict(isAnswered: boolean): void {
     const intendedMode = isAnswered ? 'explanation' : 'question';
-
-    if (intendedMode === 'question') {
-        this.showQuestionText();
-        console.log(`Applying strict display mode: question`);
+    if (this.currentMode !== intendedMode) {
+        this.currentMode = intendedMode;
+        this.displayMode$.next(this.currentMode); // Update observable for reactive listeners
+        console.log(`Display mode strictly updated to: ${this.currentMode}`);
+        this.updateDisplayBasedOnMode();
     } else {
-        this.showExplanationText();
-        console.log(`Applying strict display mode: explanation`);
+        console.log(`Display mode strictly remains as: ${this.currentMode}`);
     }
   }
 
