@@ -440,7 +440,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       question.options.length > 0 &&
       question.options.every(option => option && typeof option === 'object' && 'text' in option);
   } */
-  private saveQuizState(): void {
+  /* private saveQuizState(): void {
     try {
         // Save current question index
         sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
@@ -499,8 +499,76 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             Array.isArray(question.options) &&
             question.options.length > 0 &&
             question.options.every(option => option && typeof option === 'object' && 'text' in option);
+  } */
+
+  private saveQuizState(): void {
+    try {
+        // Save current question index
+        sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
+
+        // Detailed validation and save for currentQuestion
+        const isQuestionValid = this.isValidQuestion(this.currentQuestion);
+        if (isQuestionValid) {
+            sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
+            sessionStorage.removeItem('invalidQuestionLogged'); // Clear warning flag if valid
+        } else {
+            // Log missing details if currentQuestion is still invalid
+            if (!sessionStorage.getItem('invalidQuestionLogged')) {
+                console.warn('Invalid or incomplete current question. Removing stored question.', {
+                    currentQuestion: this.currentQuestion,
+                    missingDetails: this.getMissingQuestionDetails(this.currentQuestion) // Log missing details
+                });
+                sessionStorage.setItem('invalidQuestionLogged', 'true'); // Log only once
+            }
+            sessionStorage.removeItem('currentQuestion');
+        }
+
+        // Enhanced validation and save for optionsToDisplay
+        if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.every(option =>
+            option &&
+            typeof option === 'object' &&
+            'text' in option &&
+            ('optionId' in option || option.optionId === undefined) &&
+            ('correct' in option || option.correct === undefined)
+        )) {
+            sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
+        } else {
+            console.warn('Invalid or incomplete options. Removing stored options.', {
+                optionsToDisplay: this.optionsToDisplay,
+                invalidOptions: this.optionsToDisplay.filter(option => 
+                    !option || typeof option !== 'object' || !('text' in option)
+                )
+            });
+            sessionStorage.removeItem('optionsToDisplay');
+        }
+
+        sessionStorage.setItem('isAnswered', this.isAnswered.toString());
+    } catch (error) {
+        console.error('Error saving quiz state:', error);
+    }
   }
 
+  // Enhanced helper method for validating question structure
+  private isValidQuestion(question: any): boolean {
+      return question &&
+            typeof question === 'object' &&
+            typeof question.questionText === 'string' &&
+            Array.isArray(question.options) &&
+            question.options.length > 0 &&
+            question.options.every(option => option && typeof option === 'object' && 'text' in option);
+  }
+
+  // Helper method to determine missing details in the question structure
+  private getMissingQuestionDetails(question: any): Record<string, boolean> {
+      return {
+          hasQuestionText: typeof question?.questionText === 'string',
+          hasOptionsArray: Array.isArray(question?.options),
+          optionsCount: Array.isArray(question?.options) ? question.options.length : 0,
+          optionsHaveText: Array.isArray(question?.options) ? question.options.every(option => 'text' in option) : false,
+      };
+  }
+
+ 
   // Fallback initializer for currentQuestion if missing
   private initializeCurrentQuestionIfNeeded(): void {
       if (!this.currentQuestion || !this.isValidQuestion(this.currentQuestion)) {
