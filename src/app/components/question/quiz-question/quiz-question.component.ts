@@ -316,7 +316,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       if (this.currentQuestion) {
         this.saveQuizState();
       } else {
-          console.log("Skipping saveQuizState as currentQuestion is not yet initialized.");
+        console.log("Skipping saveQuizState as currentQuestion is not yet initialized.");
       }
     } else {
       // Restore only the quiz data without changing display mode
