@@ -500,14 +500,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  // Helper method that sets and emits the explanation text only if the question is answered
-  private showExplanationIfNeeded(): void {
-    if (this.isQuestionAnswered(this.currentQuestionIndex)) {
-      this.showExplanationChange.emit(true);
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-    }
-  }
-
   // Ensure quiz ID exists, retrieving it if necessary
   private async ensureQuizIdExists(): Promise<boolean> {
     if (!this.quizId) {
