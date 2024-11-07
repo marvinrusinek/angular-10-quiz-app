@@ -383,23 +383,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.restoreInProgress = false;
   }
 
-  // Modified setDisplayMode with restoration lock
-  private setDisplayMode(isAnswered: boolean): void {
-    if (this.restoreInProgress) {
-        console.log("Restoration in progress, suppressing display mode change.");
-        return;
-    }
-
-    const intendedMode = isAnswered ? 'explanation' : 'question';
-    if (this.currentMode !== intendedMode) {
-        this.currentMode = intendedMode;
-        console.log(`Setting display mode to: ${this.currentMode}`);
-        this.updateDisplayBasedOnMode();
-    } else {
-        console.log(`Display mode remains as: ${this.currentMode}`);
-    }
-  }
-
   // Control the update logic based on mode
   private updateDisplayBasedOnMode(): void {
     if (this.displayMode === 'question') {
@@ -412,11 +395,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private applyDisplayModeAfterRestore(isAnswered: boolean): void {
     const intendedMode = isAnswered ? 'explanation' : 'question';
     if (this.currentMode !== intendedMode) {
-        this.currentMode = intendedMode;
-        console.log(`Display mode strictly updated to: ${this.currentMode} after restore`);
-        this.updateDisplayBasedOnMode();
+      this.currentMode = intendedMode;
+      console.log(`Display mode strictly updated to: ${this.currentMode} after restore`);
+      this.updateDisplayBasedOnMode();
     } else {
-        console.log(`Display mode remains as: ${this.currentMode} after restore`);
+      console.log(`Display mode remains as: ${this.currentMode} after restore`);
     }
   }
 
@@ -442,11 +425,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Helper function to enforce the display mode directly
   private applyDisplayModeDirectly(mode: 'question' | 'explanation'): void {
     if (mode === 'question') {
-        this.showQuestionText();
-        console.log('Display mode set to question');
+      this.showQuestionText();
+      console.log('Display mode set to question');
     } else if (mode === 'explanation') {
-        this.showExplanationText();
-        console.log('Display mode set to explanation');
+      this.showExplanationText();
+      console.log('Display mode set to explanation');
     }
   }
 
