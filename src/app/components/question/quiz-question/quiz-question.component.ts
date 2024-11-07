@@ -623,13 +623,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     
     console.log(`Restoring Quiz State - Question Index: ${storedIndex}, Is Answered: ${storedIsAnswered}`);
     
-    // Ensure essential stored data is available
     if (storedIndex !== null && storedIsAnswered !== null) {
         this.currentQuestionIndex = +storedIndex;
         this.isAnswered = storedIsAnswered === 'true';
         console.log(`Restoring Question ${this.currentQuestionIndex}: isAnswered=${this.isAnswered}`);
 
-        // Parse and set current question if available
         if (storedQuestion) {
             try {
                 const parsedQuestion = JSON.parse(storedQuestion);
@@ -645,7 +643,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             }
         }
 
-        // Parse and set options to display if available
         if (storedOptions) {
             try {
                 const parsedOptions = JSON.parse(storedOptions);
@@ -667,16 +664,49 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             }
         }
 
-        // Control display mode and prevent switching during restoration
-        if (!this.isRestoringState) {
-            this.isRestoringState = true;
-            this.applyDisplayModeStrict(this.isAnswered);
-            this.isRestoringState = false;
-        }
+        // Begin restoration mode to prevent accidental display mode changes
+        this.restoreInProgress = true;
+        this.setDisplayMode(this.isAnswered);
+        this.restoreInProgress = false;
+
     } else {
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
     }
+  }
+
+  // Modified setDisplayMode with restoration lock
+  private setDisplayMode(isAnswered: boolean): void {
+    // Avoid changing display mode during restoration
+    if (this.restoreInProgress) {
+        console.log("Restoration in progress, display mode change suppressed.");
+        return;
+    }
+
+    const intendedMode = isAnswered ? 'explanation' : 'question';
+    console.log(`Setting display mode - Intended: ${intendedMode}, Current: ${this.currentMode}`);
+
+    // Only update if the intended mode differs from the current mode
+    if (this.currentMode !== intendedMode) {
+        this.currentMode = intendedMode;
+        this.displayMode = intendedMode;
+        this.displayMode$.next(this.currentMode); // Update observable for reactive listeners
+        console.log(`Display mode updated to: ${this.currentMode}`);
+        
+        // Apply display update based on the new mode
+        this.updateDisplayBasedOnMode();
+    } else {
+        console.log(`Display mode remains as: ${this.currentMode}`);
+    }
+  }
+
+  // Control the update logic based on mode
+  private updateDisplayBasedOnMode(): void {
+      if (this.displayMode === 'question') {
+          this.showQuestionText();
+      } else if (this.displayMode === 'explanation') {
+          this.showExplanationText();
+      }
   }
 
 
@@ -1247,20 +1277,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       } else {
           this.showExplanationText();
       }
-  }
-
-  // Utility to set display mode
-  private setDisplayMode(isAnswered: boolean): void {
-    const intendedMode = isAnswered ? 'explanation' : 'question';
-    console.log(`Setting display mode - Intended: ${intendedMode}, Current: ${this.currentMode}`);
-    
-    if (this.currentMode !== intendedMode) {
-      this.currentMode = intendedMode;
-      this.displayMode$.next(this.currentMode);
-      console.log(`Display mode updated to: ${this.currentMode}`);
-    } else {
-      console.log(`Display mode remains as: ${this.currentMode}`);
-    }
   }
 
   // Unsubscribing to prevent multiple triggers
