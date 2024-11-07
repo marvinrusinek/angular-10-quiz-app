@@ -213,6 +213,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Initial component setups
       this.initializeComponent();
       this.initializeComponentState();
+
+      // Call initializeQuiz to ensure the quiz is fully set up
+      await this.initializeQuiz();
+
       await this.initializeQuizDataAndRouting();
       this.initializeFirstQuestion();
   
