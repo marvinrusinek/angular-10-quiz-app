@@ -906,7 +906,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.error('Error saving quiz state:', error);
     }
   } */
-  private saveQuizState(): void {
+  /* private saveQuizState(): void {
     try {
         // Preliminary check to skip saving if `currentQuestion` is not ready
         if (!this.currentQuestion) {
@@ -967,7 +967,47 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
         console.error('Error saving quiz state:', error);
     }
+  } */
+  private saveQuizState(): void {
+    try {
+        console.log('Saving quiz state...');
+        
+        // Save current question index
+        if (this.currentQuestionIndex !== undefined) {
+            sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
+        }
+        
+        // Save current question if it is valid
+        if (this.currentQuestion && typeof this.currentQuestion === 'object' && 'questionText' in this.currentQuestion) {
+            sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
+        } else {
+            console.warn('Invalid currentQuestion, removing from storage');
+            sessionStorage.removeItem('currentQuestion');
+        }
+
+        // Save options if valid
+        if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.every(option => option && 'text' in option)) {
+            sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
+        } else {
+            console.warn('Invalid options, removing from storage');
+            sessionStorage.removeItem('optionsToDisplay');
+        }
+
+        // Save isAnswered
+        sessionStorage.setItem('isAnswered', this.isAnswered.toString());
+
+        // Confirm data saved
+        console.log('State saved:', {
+            currentQuestionIndex: sessionStorage.getItem('currentQuestionIndex'),
+            currentQuestion: sessionStorage.getItem('currentQuestion'),
+            optionsToDisplay: sessionStorage.getItem('optionsToDisplay'),
+            isAnswered: sessionStorage.getItem('isAnswered')
+        });
+    } catch (error) {
+        console.error('Error saving quiz state:', error);
+    }
   }
+
 
 
 
