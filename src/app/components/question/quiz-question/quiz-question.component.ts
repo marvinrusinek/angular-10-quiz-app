@@ -725,7 +725,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.error('Error saving quiz state:', error);
     }
   } */
-  private saveQuizState(): void {
+  /* private saveQuizState(): void {
     try {
         // Save current question index
         sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
@@ -777,6 +777,69 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             sessionStorage.removeItem('optionsToDisplay');
         }
 
+        sessionStorage.setItem('isAnswered', this.isAnswered.toString());
+    } catch (error) {
+        console.error('Error saving quiz state:', error);
+    }
+  } */
+  private saveQuizState(): void {
+    try {
+        // Save current question index
+        sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
+
+        // Validate and save current question
+        const isQuestionValid = this.currentQuestion &&
+            typeof this.currentQuestion === 'object' &&
+            'questionText' in this.currentQuestion &&
+            typeof this.currentQuestion.questionText === 'string' &&
+            Array.isArray(this.currentQuestion.options) &&
+            this.currentQuestion.options.length > 0 &&
+            this.currentQuestion.options.every(option =>
+                option && typeof option === 'object' && 'text' in option
+            );
+
+        if (isQuestionValid) {
+            sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
+            sessionStorage.removeItem('invalidQuestionLogged'); // Clear previous warning if now valid
+        } else {
+            // Log details only once per session if question is invalid
+            if (!sessionStorage.getItem('invalidQuestionLogged')) {
+                console.warn('Invalid or incomplete current question. Removing stored question.', {
+                    currentQuestion: this.currentQuestion,
+                    missingDetails: {
+                        hasQuestionText: !!(this.currentQuestion && 'questionText' in this.currentQuestion),
+                        hasOptionsArray: Array.isArray(this.currentQuestion?.options),
+                        optionsCount: Array.isArray(this.currentQuestion?.options) ? this.currentQuestion.options.length : 0
+                    }
+                });
+                sessionStorage.setItem('invalidQuestionLogged', 'true'); // Prevent repeat warnings
+            }
+            sessionStorage.removeItem('currentQuestion');
+        }
+
+        // Validate and save options to display
+        if (
+            Array.isArray(this.optionsToDisplay) &&
+            this.optionsToDisplay.every(option =>
+                option &&
+                typeof option === 'object' &&
+                'text' in option &&
+                ('optionId' in option || option.optionId === undefined) &&
+                ('correct' in option || option.correct === undefined)
+            )
+        ) {
+            sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
+        } else {
+            console.warn('Invalid or incomplete options. Removing stored options.', {
+                optionsToDisplay: this.optionsToDisplay,
+                invalidOptions: this.optionsToDisplay.filter(option =>
+                    !option || typeof option !== 'object' || !('text' in option)
+                )
+            });
+            sessionStorage.removeItem('optionsToDisplay');
+        }
+
+        // Save answered state
         sessionStorage.setItem('isAnswered', this.isAnswered.toString());
     } catch (error) {
         console.error('Error saving quiz state:', error);
