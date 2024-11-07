@@ -546,7 +546,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.error('Error saving quiz state:', error);
     }
   } */
-  private saveQuizState(): void {
+  /* private saveQuizState(): void {
     try {
         // Save current question index
         sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
@@ -581,6 +581,66 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
 
         // Enhanced validation for optionsToDisplay
+        if (
+            Array.isArray(this.optionsToDisplay) &&
+            this.optionsToDisplay.every(option =>
+                option &&
+                typeof option === 'object' &&
+                'text' in option &&
+                ('optionId' in option || option.optionId === undefined) &&
+                ('correct' in option || option.correct === undefined)
+            )
+        ) {
+            sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
+        } else {
+            console.warn('Invalid or incomplete options. Removing stored options.', {
+                optionsToDisplay: this.optionsToDisplay,
+                invalidOptions: this.optionsToDisplay.filter(option => 
+                    !option || typeof option !== 'object' || !('text' in option)
+                )
+            });
+            sessionStorage.removeItem('optionsToDisplay');
+        }
+
+        sessionStorage.setItem('isAnswered', this.isAnswered.toString());
+    } catch (error) {
+        console.error('Error saving quiz state:', error);
+    }
+  } */
+  private saveQuizState(): void {
+    try {
+        // Save current question index
+        sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
+
+        // Enhanced validation and logging only once if question is invalid
+        if (
+            this.currentQuestion &&
+            typeof this.currentQuestion === 'object' &&
+            'questionText' in this.currentQuestion &&
+            typeof this.currentQuestion.questionText === 'string' &&
+            Array.isArray(this.currentQuestion.options) &&
+            this.currentQuestion.options.length > 0 &&
+            this.currentQuestion.options.every(option => 
+                option && typeof option === 'object' && 'text' in option
+            )
+        ) {
+            sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
+            sessionStorage.removeItem('invalidQuestionLogged'); // Clear any prior warning flag
+        } else if (!sessionStorage.getItem('invalidQuestionLogged')) {
+            // Log only once if the question structure is invalid
+            console.warn('Invalid or incomplete current question. Removing stored question.', {
+                currentQuestion: this.currentQuestion,
+                missingDetails: {
+                    hasQuestionText: this.currentQuestion ? 'questionText' in this.currentQuestion : false,
+                    hasOptionsArray: Array.isArray(this.currentQuestion?.options),
+                    optionsCount: Array.isArray(this.currentQuestion?.options) ? this.currentQuestion.options.length : 0
+                }
+            });
+            sessionStorage.setItem('invalidQuestionLogged', 'true'); // Set flag to prevent duplicate logs
+            sessionStorage.removeItem('currentQuestion');
+        }
+
+        // Enhanced validation for options to display
         if (
             Array.isArray(this.optionsToDisplay) &&
             this.optionsToDisplay.every(option =>
