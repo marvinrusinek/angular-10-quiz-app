@@ -676,7 +676,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     this.restoreInProgress = true;
     
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
@@ -696,6 +696,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
         console.warn('Stored state is incomplete, loading default question');
         this.loadQuestion();
+    }
+
+    this.restoreInProgress = false;
+  } */
+  private async restoreQuizState(): Promise<void> {
+    this.restoreInProgress = true;
+    
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    console.log(`Restoring Quiz State - Question Index: ${storedIndex}, Is Answered: ${storedIsAnswered}`);
+    
+    if (storedIndex !== null && storedIsAnswered !== null) {
+        this.currentQuestionIndex = +storedIndex;
+        this.isAnswered = storedIsAnswered === 'true';
+
+        console.log(`Restoring Question ${this.currentQuestionIndex}: isAnswered=${this.isAnswered}`);
+
+        // Load the question and options without toggling the display
+        await this.loadQuestionData(this.currentQuestionIndex);
+        
+        // Apply the display mode strictly after restoration is done
+        this.applyDisplayModeAfterRestore(this.isAnswered);
+    } else {
+        console.warn('Stored state is incomplete, loading default question');
+        await this.loadQuestion();
     }
 
     this.restoreInProgress = false;
@@ -725,7 +752,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Display mode remains as: ${this.currentMode}`);
     }
   } */
-  private setDisplayMode(isAnswered: boolean): void {
+  /* private setDisplayMode(isAnswered: boolean): void {
     // Suppress display mode updates if restoration is ongoing
     if (this.restoreInProgress) {
         console.log("Restoration in progress, display mode change suppressed.");
@@ -740,6 +767,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
         console.log(`Display mode remains as: ${this.currentMode}`);
     }
+  } */
+  private setDisplayMode(isAnswered: boolean): void {
+    if (this.restoreInProgress) {
+        console.log("Restoration in progress, suppressing display mode change.");
+        return;
+    }
+
+    const intendedMode = isAnswered ? 'explanation' : 'question';
+    if (this.currentMode !== intendedMode) {
+        this.currentMode = intendedMode;
+        console.log(`Setting display mode to: ${this.currentMode}`);
+        this.updateDisplayBasedOnMode();
+    } else {
+        console.log(`Display mode remains as: ${this.currentMode}`);
+    }
   }
 
   // Control the update logic based on mode
@@ -748,6 +790,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.showQuestionText();
     } else if (this.displayMode === 'explanation') {
       this.showExplanationText();
+    }
+  }
+
+  private applyDisplayModeAfterRestore(isAnswered: boolean): void {
+    const intendedMode = isAnswered ? 'explanation' : 'question';
+    if (this.currentMode !== intendedMode) {
+        this.currentMode = intendedMode;
+        console.log(`Display mode strictly updated to: ${this.currentMode} after restore`);
+        this.updateDisplayBasedOnMode();
+    } else {
+        console.log(`Display mode remains as: ${this.currentMode} after restore`);
     }
   }
 
