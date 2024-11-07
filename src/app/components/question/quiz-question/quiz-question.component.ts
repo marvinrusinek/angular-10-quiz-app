@@ -790,7 +790,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return this.selectedOptions && this.selectedOptions.length > 0;
   }
 
-  private saveQuizState(): void {
+  /* private saveQuizState(): void {
     try {
       // Save current question index
       sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
@@ -845,7 +845,70 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
       console.error('Error saving quiz state:', error);
     }
+  } */
+  private saveQuizState(): void {
+    try {
+      // Save current question index
+      sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
+  
+      // Check if currentQuestion has a valid structure before saving
+      if (
+        this.currentQuestion &&
+        typeof this.currentQuestion === 'object' &&
+        this.currentQuestion.questionText &&
+        typeof this.currentQuestion.questionText === 'string' &&
+        Array.isArray(this.currentQuestion.options) &&
+        this.currentQuestion.options.length > 0 &&
+        this.currentQuestion.options.every(option => 
+          option && typeof option === 'object' && 'text' in option
+        )
+      ) {
+        sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
+        
+        // Clear the warning flag if the question is valid
+        sessionStorage.removeItem('invalidQuestionLogged');
+      } else {
+        // Log only once if the question structure is invalid
+        if (!sessionStorage.getItem('invalidQuestionLogged')) {
+          console.warn('Invalid or incomplete current question. Removing stored question.', {
+            currentQuestion: this.currentQuestion,
+            hasQuestionText: this.currentQuestion ? 'questionText' in this.currentQuestion : false,
+            hasOptionsArray: Array.isArray(this.currentQuestion?.options),
+            optionsCount: Array.isArray(this.currentQuestion?.options) ? this.currentQuestion.options.length : 0
+          });
+          sessionStorage.setItem('invalidQuestionLogged', 'true'); // Set flag to prevent duplicate logs
+        }
+        sessionStorage.removeItem('currentQuestion');
+      }
+  
+      // Enhanced validation and save options to display
+      if (
+        Array.isArray(this.optionsToDisplay) &&
+        this.optionsToDisplay.every(option =>
+          option &&
+          typeof option === 'object' &&
+          'text' in option &&
+          ('optionId' in option || option.optionId === undefined) &&
+          ('correct' in option || option.correct === undefined)
+        )
+      ) {
+        sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
+      } else {
+        console.warn('Invalid or incomplete options. Removing stored options.', {
+          optionsToDisplay: this.optionsToDisplay,
+          invalidOptions: this.optionsToDisplay.filter(option => 
+            !option || typeof option !== 'object' || !('text' in option)
+          )
+        });
+        sessionStorage.removeItem('optionsToDisplay');
+      }
+  
+      sessionStorage.setItem('isAnswered', this.isAnswered.toString());
+    } catch (error) {
+      console.error('Error saving quiz state:', error);
+    }
   }
+  
 
   // Unsubscribing to prevent multiple triggers
   private handlePageVisibilityChange(isHidden: boolean): void {
