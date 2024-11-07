@@ -354,154 +354,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  // Method to initialize `displayMode$` and control the display reactively
-  
-
   // Restore Quiz State with Stabilizing Logic
-  /* private restoreQuizState(): void {
-    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedQuestion = sessionStorage.getItem('currentQuestion');
-    const storedOptions = sessionStorage.getItem('optionsToDisplay');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered');
-    
-    console.log(`Restoring Quiz State - Question Index: ${storedIndex}, Is Answered: ${storedIsAnswered}`);
-    
-    // Validate essential stored data
-    if (storedIndex !== null && storedIsAnswered !== null) {
-        this.currentQuestionIndex = +storedIndex;
-        this.isAnswered = storedIsAnswered === 'true';
-        console.log(`Restoring Question ${this.currentQuestionIndex}: isAnswered=${this.isAnswered}`);
-        
-        // Attempt to parse and set the current question
-        if (storedQuestion) {
-            try {
-                const parsedQuestion = JSON.parse(storedQuestion);
-                if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
-                    this.currentQuestion = parsedQuestion;
-                } else {
-                    throw new Error('Invalid or null question format');
-                }
-            } catch (error) {
-                console.error('Error parsing stored question:', error);
-                this.loadQuestion(); // Fallback if parsing fails
-                return;
-            }
-        }
-
-        // Attempt to parse and set options to display
-        if (storedOptions) {
-            try {
-                const parsedOptions = JSON.parse(storedOptions);
-                if (Array.isArray(parsedOptions) && parsedOptions.every(option =>
-                    option &&
-                    typeof option === 'object' &&
-                    'text' in option &&
-                    'optionId' in option &&
-                    ('correct' in option || option.correct === undefined)
-                )) {
-                    this.optionsToDisplay = parsedOptions;
-                } else {
-                    throw new Error('Invalid or null options format');
-                }
-            } catch (error) {
-                console.error('Error parsing stored options:', error);
-                this.loadQuestion(); // Fallback if parsing fails
-                return;
-            }
-        }
-
-        // Apply display mode based on restored `isAnswered` state
-        this.isRestoringState = true; // Temporary flag to prevent unintended toggling
-        this.setDisplayMode(this.isAnswered);
-        this.isRestoringState = false; // Reset flag after restoration
-    } else {
-        console.warn('Stored state is incomplete, loading default question');
-        this.loadQuestion();
-    }
-  } */
-  /* private restoreQuizState(): void {
-    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedQuestion = sessionStorage.getItem('currentQuestion');
-    const storedOptions = sessionStorage.getItem('optionsToDisplay');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered');
-    
-    console.log(`Restoring Quiz State - Question Index: ${storedIndex}, Is Answered: ${storedIsAnswered}`);
-    
-    if (storedIndex !== null && storedIsAnswered !== null) {
-        this.currentQuestionIndex = +storedIndex;
-        this.isAnswered = storedIsAnswered === 'true';
-        console.log(`Restoring Question ${this.currentQuestionIndex}: isAnswered=${this.isAnswered}`);
-
-        if (storedQuestion) {
-            try {
-                const parsedQuestion = JSON.parse(storedQuestion);
-                if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
-                    this.currentQuestion = parsedQuestion;
-                } else {
-                    throw new Error('Invalid or null question format');
-                }
-            } catch (error) {
-                console.error('Error parsing stored question:', error);
-                this.loadQuestion();
-                return;
-            }
-        }
-
-        if (storedOptions) {
-            try {
-                const parsedOptions = JSON.parse(storedOptions);
-                if (Array.isArray(parsedOptions) && parsedOptions.every(option =>
-                    option &&
-                    typeof option === 'object' &&
-                    'text' in option &&
-                    'optionId' in option &&
-                    ('correct' in option || option.correct === undefined)
-                )) {
-                    this.optionsToDisplay = parsedOptions;
-                } else {
-                    throw new Error('Invalid or null options format');
-                }
-            } catch (error) {
-                console.error('Error parsing stored options:', error);
-                this.loadQuestion();
-                return;
-            }
-        }
-
-        // Begin restoration mode to prevent accidental display mode changes
-        this.restoreInProgress = true;
-        this.setDisplayMode(this.isAnswered);
-        this.restoreInProgress = false;
-
-    } else {
-        console.warn('Stored state is incomplete, loading default question');
-        this.loadQuestion();
-    }
-  } */
-  /* private restoreQuizState(): void {
-    this.restoreInProgress = true;
-    
-    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedQuestion = sessionStorage.getItem('currentQuestion');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered');
-
-    console.log(`Restoring Quiz State - Question Index: ${storedIndex}, Is Answered: ${storedIsAnswered}`);
-    
-    if (storedIndex !== null && storedIsAnswered !== null) {
-        this.currentQuestionIndex = +storedIndex;
-        this.isAnswered = storedIsAnswered === 'true';
-
-        console.log(`Restoring Question ${this.currentQuestionIndex}: isAnswered=${this.isAnswered}`);
-
-        // Update display mode only once restoration is complete
-        this.applyDisplayModeStrict(this.isAnswered);
-    } else {
-        console.warn('Stored state is incomplete, loading default question');
-        this.loadQuestion();
-    }
-
-    this.restoreInProgress = false;
-  } */
   private async restoreQuizState(): Promise<void> {
     this.restoreInProgress = true;
     
@@ -512,19 +365,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log(`Restoring Quiz State - Question Index: ${storedIndex}, Is Answered: ${storedIsAnswered}`);
     
     if (storedIndex !== null && storedIsAnswered !== null) {
-        this.currentQuestionIndex = +storedIndex;
-        this.isAnswered = storedIsAnswered === 'true';
+      this.currentQuestionIndex = +storedIndex;
+      this.isAnswered = storedIsAnswered === 'true';
 
-        console.log(`Restoring Question ${this.currentQuestionIndex}: isAnswered=${this.isAnswered}`);
+      console.log(`Restoring Question ${this.currentQuestionIndex}: isAnswered=${this.isAnswered}`);
 
-        // Load the question and options without toggling the display
-        await this.loadQuestion();
+      // Load the question and options without toggling the display
+      await this.loadQuestion();
         
-        // Apply the display mode strictly after restoration is done
-        this.applyDisplayModeAfterRestore(this.isAnswered);
+      // Apply the display mode strictly after restoration is done
+      this.applyDisplayModeAfterRestore(this.isAnswered);
     } else {
-        console.warn('Stored state is incomplete, loading default question');
-        await this.loadQuestion();
+      console.warn('Stored state is incomplete, loading default question');
+      await this.loadQuestion();
     }
 
     this.restoreInProgress = false;
