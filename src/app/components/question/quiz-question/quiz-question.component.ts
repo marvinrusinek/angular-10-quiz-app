@@ -530,7 +530,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
   }
 
-  addVisibilityChangeListener(): void {
+  private addVisibilityChangeListener(): void {
     document.addEventListener('visibilitychange', () => {
       this.tabVisible = !document.hidden;
       if (this.tabVisible) {
