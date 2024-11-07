@@ -312,8 +312,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   onVisibilityChange = (): void => {
     const isHidden = document.hidden;
     if (isHidden) {
-      // Save state when navigating away
-      this.saveQuizState();
+      // Call saveQuizState only if currentQuestion is initialized
+      if (this.currentQuestion) {
+        this.saveQuizState();
+      } else {
+          console.log("Skipping saveQuizState as currentQuestion is not yet initialized.");
+      }
     } else {
       // Restore only the quiz data without changing display mode
       this.restoreQuizState();
