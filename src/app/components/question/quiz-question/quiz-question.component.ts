@@ -1219,7 +1219,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -1277,7 +1277,66 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
         this.loadQuestion();
     }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedOptions = sessionStorage.getItem('optionsToDisplay');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    const missingData = {
+        currentQuestionIndex: storedIndex === null,
+        currentQuestion: storedQuestion === null,
+        optionsToDisplay: storedOptions === null,
+        isAnswered: storedIsAnswered === null
+    };
+
+    // Check if any required data is missing
+    if (missingData.currentQuestionIndex || missingData.currentQuestion || missingData.optionsToDisplay || missingData.isAnswered) {
+        // Log details about the missing data once
+        if (!sessionStorage.getItem('incompleteStateLogged')) {
+            console.warn('Stored state is incomplete, loading default question', missingData);
+            sessionStorage.setItem('incompleteStateLogged', 'true'); // Prevent duplicate logs
+        }
+        this.loadQuestion(); // Fallback to default question if any data is missing
+        return;
+    }
+
+    // Clear the logging flag as the state is now complete
+    sessionStorage.removeItem('incompleteStateLogged');
+
+    // Parse and restore the stored data as previously
+    this.currentQuestionIndex = +storedIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+    
+    // Parse and validate the current question
+    try {
+        const parsedQuestion = JSON.parse(storedQuestion);
+        if (parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion) {
+            this.currentQuestion = parsedQuestion;
+        } else {
+            throw new Error('Invalid or null question format');
+        }
+    } catch (error) {
+        console.error('Error parsing stored question:', error);
+        this.loadQuestion();
+        return;
+    }
+
+    // Parse and validate the options
+    try {
+        const parsedOptions = JSON.parse(storedOptions);
+        if (Array.isArray(parsedOptions) && parsedOptions.every(option => option && typeof option === 'object' && 'text' in option)) {
+            this.optionsToDisplay = parsedOptions;
+        } else {
+            throw new Error('Invalid or null options format');
+        }
+    } catch (error) {
+        console.error('Error parsing stored options:', error);
+        this.loadQuestion();
+    }
   }
+
 
 
   private setDisplayMode(isAnswered: boolean): void {
