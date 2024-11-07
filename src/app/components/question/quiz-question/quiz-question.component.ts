@@ -475,7 +475,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.displayModeSubscription = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
       map(isAnswered => (isAnswered ? 'explanation' : 'question')),
       distinctUntilChanged(),
-      tap(mode => {
+      tap((mode: 'question' | 'explanation') => {
         console.log(`Reactive display mode update to: ${mode}`);
         if (!this.isRestoringState) { // Skip during restoration
           this.displayMode$.next(mode);
