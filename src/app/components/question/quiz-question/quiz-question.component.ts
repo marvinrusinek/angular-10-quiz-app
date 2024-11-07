@@ -703,7 +703,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Restore Quiz State with Stabilizing Logic
-  private async restoreQuizState(): Promise<void> {
+  /* private async restoreQuizState(): Promise<void> {
     this.restoreInProgress = true;
       
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
@@ -729,6 +729,85 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     this.restoreInProgress = false;
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedQuestion = sessionStorage.getItem('currentQuestion');
+    const storedOptions = sessionStorage.getItem('optionsToDisplay');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (storedIndex !== null && storedQuestion !== null && storedOptions !== null) {
+        this.currentQuestionIndex = +storedIndex;
+
+        // Parse and validate the question
+        const parsedQuestion = JSON.parse(storedQuestion);
+        const isQuestionValid = parsedQuestion && typeof parsedQuestion === 'object' && 'questionText' in parsedQuestion && Array.isArray(parsedQuestion.options) && parsedQuestion.options.length > 0;
+
+        if (isQuestionValid) {
+            this.currentQuestion = parsedQuestion;
+        } else {
+            console.warn('Invalid or incomplete current question on restore. Attempting to refresh from service.', {
+                currentQuestion: parsedQuestion,
+                missingDetails: {
+                    hasQuestionText: parsedQuestion ? 'questionText' in parsedQuestion : false,
+                    hasOptionsArray: Array.isArray(parsedQuestion?.options),
+                    optionsCount: Array.isArray(parsedQuestion?.options) ? parsedQuestion.options.length : 0
+                }
+            });
+
+            // Refresh from service
+            this.quizService.getQuestionByIndex(this.currentQuestionIndex).subscribe({
+                next: (question) => {
+                    this.currentQuestion = question;
+                    if (!this.currentQuestion) {
+                        console.error('Unable to refresh current question from data service.');
+                        this.loadQuestion(); // Load default if refresh fails
+                        return;
+                    }
+                },
+                error: (error) => {
+                    console.error('Error loading question from service:', error);
+                    this.loadQuestion(); // Fallback if loading fails
+                }
+            });
+        }
+
+        // Parse and validate the options
+        const parsedOptions = JSON.parse(storedOptions);
+        if (
+            Array.isArray(parsedOptions) && parsedOptions.every(option =>
+                option &&
+                typeof option === 'object' &&
+                'text' in option &&
+                'optionId' in option &&
+                ('correct' in option || option.correct === undefined)
+            )
+        ) {
+            this.optionsToDisplay = parsedOptions;
+        } else {
+            console.error('Invalid or null options format on restore.');
+            this.loadQuestion();
+            return;
+        }
+
+        this.isAnswered = storedIsAnswered === 'true';
+
+        // Apply display mode based on isAnswered state
+        this.setDisplayMode(this.isAnswered);
+    } else {
+        console.warn('Stored state is incomplete, loading default question');
+        this.loadQuestion();
+    }
+  }
+
+  private setDisplayMode(isAnswered: boolean): void {
+    this.displayMode = isAnswered ? 'explanation' : 'question';
+    if (this.displayMode === 'explanation') {
+        this.showExplanationText();
+    } else {
+        this.showQuestionText();
+    }
+    console.log(`Display mode set to: ${this.displayMode}`);
   }
 
   // Handle quiz restoration
