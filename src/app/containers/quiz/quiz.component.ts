@@ -432,21 +432,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private async restoreQuestionDisplay(): Promise<void> {  
-    if (this.currentQuestionIndex !== undefined && this.questions) {
-      // Update the question display
-      this.updateQuestionDisplay(this.currentQuestionIndex);
-  
-      // Ensure selection states are correctly restored
-      await this.restoreSelectionState();
-  
-      // Evaluate and update the Next button state
-      await this.evaluateNextButtonState();
-    } else {
-      console.warn('Cannot restore question display. Question index or questions list is undefined.');
-    }
-  }
-
   private async restoreSelectionState(): Promise<void> {
     const selectedOptions = this.selectedOptionService.getSelectedOptionIndices(this.currentQuestionIndex);
   
