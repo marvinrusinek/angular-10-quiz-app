@@ -258,7 +258,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }, 50);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void { 
     const isSubsequentChange = (change: SimpleChange) => change && !change.firstChange;
   
     // Initialize configurations when questionData changes
