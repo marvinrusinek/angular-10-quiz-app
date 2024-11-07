@@ -136,6 +136,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private displayModeSubscription: Subscription;
   shouldDisplayExplanation = false;
   private isRestoringState = false;
+  private restoreInProgress = false;
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
