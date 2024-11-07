@@ -733,6 +733,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');  // Clear explanation text
     this.showExplanationChange.emit(false);  // Hide explanation initially
+    this.explanationTextService.updateFormattedExplanation('');
+    this.explanationTextService.resetExplanationText();
     console.log('Explanation display reset.');
   }
   
@@ -2945,7 +2947,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log(`Fetching explanation for question ${questionIndex}`);
   
     // Clear any previous explanation state
-    this.clearExplanation();
+    this.resetExplanationText();
   
     try {
       // Load questions if questionsArray is empty or undefined
@@ -2997,15 +2999,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.handleExplanationError(questionIndex);
     }
   }
-
-  private clearExplanation(): void {
-    this.explanationToDisplay = '';
-    this.explanationTextService.updateFormattedExplanation('');
-    this.explanationTextService.resetExplanationText();
-    this.explanationToDisplayChange.emit('');
-    this.showExplanationChange.emit(false);
-    console.log('Cleared previous explanation text');
-  }  
 
   private handleExplanationError(questionIndex: number): void {
     this.explanationToDisplay = 'Error fetching explanation. Please try again.';
