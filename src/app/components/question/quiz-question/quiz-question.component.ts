@@ -609,19 +609,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
     this.displayModeSubscription = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
-        map(isAnswered => (isAnswered ? 'explanation' : 'question')),
-        distinctUntilChanged(),
-        tap(mode => {
-            console.log(`Reactive display mode update to: ${mode}`);
-            if (!this.isRestoringState) { // Skip during restoration
-                this.displayMode$.next(mode);
-                this.applyDisplayModeDirectly(mode);
-            }
-        }),
-        catchError(error => {
-            console.error('Error in display mode subscription:', error);
-            return of('question');
-        })
+      map(isAnswered => (isAnswered ? 'explanation' : 'question')),
+      distinctUntilChanged(),
+      tap(mode => {
+        console.log(`Reactive display mode update to: ${mode}`);
+        if (!this.isRestoringState) { // Skip during restoration
+          this.displayMode$.next(mode);
+          this.applyDisplayModeDirectly(mode);
+        }
+      }),
+      catchError(error => {
+        console.error('Error in display mode subscription:', error);
+        return of('question');
+      })
     ).subscribe();
   }
 
